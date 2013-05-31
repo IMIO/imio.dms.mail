@@ -1,0 +1,86 @@
+# --- PLEASE EDIT THE LINES BELOW CORRECTLY ---
+# SOME DESCRIPTIVE TITLE.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2013-01-25 13:14+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: en\n"
+"Language-Name: English\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: plone\n"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_agent"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_creation"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_manager"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_service_chief"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_treatment"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "close"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "closed"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "created"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "in_treatment"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_agent"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_manager"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_service_chief"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_agent"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_manager"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_service_chief"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "treat"
+msgstr ""
+
+#: profiles/default/controlpanel.xml
+msgid "Imio Dms Mail settings"
+msgstr ""

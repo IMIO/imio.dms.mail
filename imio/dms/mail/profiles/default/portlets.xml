@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<portlets
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="imio.dms.mail">
+
+    <assignment remove="True"
+                name="navigation"
+                category="context"
+                key="/"
+                manager="plone.leftcolumn"
+                type="portlets.Navigation" />
+
+    <assignment remove="True"
+                name="news"
+                category="context"
+                key="/"
+                manager="plone.rightcolumn"
+                type="portlets.News" />
+
+    <assignment remove="True"
+                name="events"
+                category="context"
+                key="/"
+                manager="plone.rightcolumn"
+                type="portlets.Events" />
+
+    <assignment name="portlet_maindmsmail"
+                category="context"
+                key="/"
+                manager="plone.leftcolumn"
+                type="imiodmsmail.portlet.main">
+	    <property name="macro">portlet</property>
+	    <property name="template">portlet_maindmsmail</property>
+	</assignment>
+
+	<!--portlet 
+		addview="imiodmsmail.portlet.main"
+		title="Main DmsMail Portlet"
+		description=""
+		i18n:attributes="title title_main_portlet;
+						 description description_main_portlet">
+		<for interface="plone.app.portlets.interfaces.ILeftColumn" />
+  </portlet-->
+</portlets>

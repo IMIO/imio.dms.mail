@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<object
+    name="portal_controlpanel"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="plone">
+
+    <configlet
+        title="Imio Dms Mail settings"
+        action_id="imiodmsmail.settings"
+        appId="imiodmsmail"
+        category="Products"
+        condition_expr=""
+        url_expr="string:${portal_url}/@@imiodmsmail-settings"
+        icon_expr=""
+        visible="True"
+        i18n:attributes="title">
+        <permission>Manage portal</permission>
+    </configlet>
+
+</object>

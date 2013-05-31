@@ -1,0 +1,24 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+	xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:monkey="http://namespaces.plone.org/monkey"
+    >
+
+    <include package="collective.monkeypatcher" />
+
+    <!--monkey:patch
+        description="Temporary patch to not set local roles on LocalRolesToPrincipals field"
+        class="collective.dms.basecontent._field.LocalRolesToPrincipalsDataManager"
+        original="set"
+        replacement=".monkeypatches.setLocalRolesToPrincipals"
+    /-->
+
+    <monkey:patch
+        description="Temporary patch to not set local roles on LocalRolesToPrincipals field"
+        class="collective.z3cform.rolefield.field.LocalRolesToPrincipalsDataManager"
+        original="set"
+        replacement=".monkeypatches.setLocalRolesToPrincipals"
+    />
+
+</configure>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<import-steps>
+<import-step
+            id="imiodmsmail-addTestDirectory"
+            handler="imio.dms.mail.setuphandlers.addTestDirectory"
+            title="Add test directory for imio.dms.mail"
+            version="2013-01-15T15:00:00.00000">
+Add some objects (directory) for test purpose
+</import-step>
+<import-step
+            id="imiodmsmail-addTestMails"
+            handler="imio.dms.mail.setuphandlers.addTestMails"
+            title="Add test mails for imio.dms.mail"
+            version="2013-02-03T23:00:00.00000">
+           <dependency step="imiodmsmail-addTestDirectory"/>
+Add some objects (mails) for test purpose
+</import-step>
+<import-step
+            id="imiodmsmail-addTestUsersAndGroups"
+            handler="imio.dms.mail.setuphandlers.addTestUsersAndGroups"
+            title="Add test groups for imio.dms.mail"
+            version="2013-02-03T23:00:00.00000">
+Add some objects (users and groups) for test purpose
+</import-step>
+<import-step
+            id="imiodmsmail-configureBatchImport"
+            handler="imio.dms.mail.setuphandlers.configureBatchImport"
+            title="Add batch import configuration for imio.dms.mail"
+            version="2013-02-01T15:00:00.00000">
+Add batch import configuration for test purpose
+</import-step>
+<import-step
+            id="imiodmsmail-configureImioDmsMail"
+            handler="imio.dms.mail.setuphandlers.configureImioDmsMail"
+            title="Add french configuration for imio.dms.mail"
+            version="2013-03-01T15:00:00.00000">
+Add french configuration for imio.dms.mail
+</import-step>
+<import-step
+            id="imiodmsmail-configureContactPloneGroup"
+            handler="imio.dms.mail.setuphandlers.configureContactPloneGroup"
+            title="Add french configuration for collective.contact.plonegroup"
+            version="2013-05-29T15:00:00.00000">
+           <dependency step="imiodmsmail-addOwnOrganization"/>
+Add french configuration for collective.contact.plonegroup
+</import-step>
+<import-step
+            id="imiodmsmail-addOwnOrganization"
+            handler="imio.dms.mail.setuphandlers.addOwnOrganization"
+            title="Add test own organization for imio.dms.mail"
+            version="2013-03-14T15:00:00.00000">
+           <dependency step="imiodmsmail-addTestDirectory"/>
+Add test own organization for imio.dms.mail
+</import-step>
+</import-steps>

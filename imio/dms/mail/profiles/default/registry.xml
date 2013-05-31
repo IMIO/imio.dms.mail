@@ -1,0 +1,6 @@
+<registry>
+
+    <records interface="imio.dms.mail.browser.settings.IImioDmsMailConfig">
+    </records>
+
+</registry>

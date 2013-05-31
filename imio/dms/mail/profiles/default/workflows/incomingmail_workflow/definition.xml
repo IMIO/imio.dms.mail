@@ -1,0 +1,236 @@
+<?xml version="1.0"?>
+<dc-workflow workflow_id="incomingmail_workflow"
+             title="Incoming mail workflow"
+             state_variable="review_state"
+             initial_state="created"
+             xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+             i18n:domain="plone">
+ <permission>View</permission>
+ <permission>Modify portal content</permission>
+ <permission>Delete objects</permission>
+ <permission>Access contents information</permission>
+ <state state_id="closed"
+        title="closed"
+        i18n:attributes="title">
+  <exit-transition transition_id="back_to_treatment"/>
+ </state>
+ <state state_id="created"
+        title="created"
+        i18n:attributes="title">
+  <exit-transition transition_id="propose_to_manager"/>
+  <exit-transition transition_id="propose_to_service_chief"/>
+  <permission-map name="Access contents information"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Contributor</permission-role>
+   <permission-role>Editor</permission-role>
+  </permission-map>
+  <permission-map name="Delete objects"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
+   <permission-role>Editor</permission-role>
+  </permission-map>
+  <permission-map name="Modify portal content"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
+   <permission-role>Editor</permission-role>
+  </permission-map>
+  <permission-map name="View"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Contributor</permission-role>
+   <permission-role>Editor</permission-role>
+  </permission-map>
+ </state>
+ <state state_id="in_treatment"
+        title="in_treatment"
+        i18n:attributes="title">
+  <exit-transition transition_id="close"/>
+  <exit-transition transition_id="back_to_agent"/>
+ </state>
+ <state state_id="proposed_to_agent"
+        title="proposed_to_agent"
+        i18n:attributes="title">
+  <exit-transition transition_id="treat"/>
+  <exit-transition transition_id="back_to_service_chief"/>
+ </state>
+ <state state_id="proposed_to_manager"
+        title="proposed_to_manager"
+        i18n:attributes="title">
+  <exit-transition transition_id="propose_to_service_chief"/>
+  <exit-transition transition_id="back_to_creation"/>
+ </state>
+ <state state_id="proposed_to_service_chief"
+        title="proposed_to_service_chief"
+        i18n:attributes="title">
+  <exit-transition transition_id="propose_to_agent"/>
+  <exit-transition transition_id="back_to_manager"/>
+  <exit-transition transition_id="back_to_creation"/>
+ </state>
+ <transition transition_id="back_to_agent"
+             title="back_to_agent"
+             new_state="proposed_to_agent"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">back_to_agent</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_creation"
+             title="back_to_creation"
+             new_state="created"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">back_to_creation</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_manager"
+             title="back_to_manager"
+             new_state="proposed_to_manager"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">back_to_manager</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_service_chief"
+             title="back_to_service_chief"
+             new_state="proposed_to_service_chief"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">back_to_service_chief</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_treatment"
+             title="back_to_treatment"
+             new_state="in_treatment"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">back_to_treatment</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="close"
+             title="close"
+             new_state="closed"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">close</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="propose_to_agent"
+             title="propose_to_agent"
+             new_state="proposed_to_agent"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">propose_to_agent</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="propose_to_manager"
+             title="propose_to_manager"
+             new_state="proposed_to_manager"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">propose_to_manager</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="propose_to_service_chief"
+             title="propose_to_service_chief"
+             new_state="proposed_to_service_chief"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">propose_to_service_chief</action>
+  <guard>
+  </guard>
+ </transition>
+ <transition transition_id="treat"
+             title="treat"
+             new_state="in_treatment"
+             trigger="USER"
+             before_script=""
+             after_script=""
+             i18n:attributes="title">
+  <action url="" category="workflow" i18n:translate="">treat</action>
+  <guard>
+  </guard>
+ </transition>
+ <variable variable_id="action" for_catalog="False"
+           for_status="True" update_always="True">
+  <description>The last transition</description>
+  <default>
+   <expression>transition/getId|nothing</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+ <variable variable_id="actor" for_catalog="False"
+           for_status="True" update_always="True">
+  <description>The ID of the user who performed the last transition</description>
+  <default>
+   <expression>user/getId</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+ <variable variable_id="comments" for_catalog="False"
+           for_status="True" update_always="True">
+  <description>Comments about the last transition</description>
+  <default>
+   <expression>python:state_change.kwargs.get('comment', '')</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+ <variable variable_id="review_history" for_catalog="False"
+           for_status="False" update_always="False">
+  <description>Provides access to workflow history</description>
+  <default>
+   <expression>state_change/getHistory</expression>
+  </default>
+  <guard>
+   <guard-permission>Request review</guard-permission>
+   <guard-permission>Review portal content</guard-permission>
+  </guard>
+ </variable>
+ <variable variable_id="time" for_catalog="False"
+           for_status="True" update_always="True">
+  <description>Time of the last transition</description>
+  <default>
+   <expression>state_change/getDateTime</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+ <!-- We dont use workflow scripts any more, we use subscribers -->
+</dc-workflow>

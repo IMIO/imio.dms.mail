@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<componentregistry>
+  <utilities>
+    <utility
+      interface="zope.schema.interfaces.IVocabularyFactory"
+      factory="imio.dms.mail.dmsmail.TreatingGroupsVocabulary"
+      name="collective.dms.basecontent.treating_groups"
+    />
+    <utility
+      interface="zope.schema.interfaces.IVocabularyFactory"
+      factory="imio.dms.mail.dmsmail.RecipientGroupsVocabulary"
+      name="collective.dms.basecontent.recipient_groups"
+    />
+  </utilities>
+</componentregistry>

@@ -1,0 +1,38 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xml:lang="en" lang="en"
+      i18n:domain="imio.dms.mail"
+      metal:use-macro="here/main_template/macros/master">
+
+
+<metal:block fill-slot="top_slot"
+             tal:define="dummy python:request.set('disable_border',1)" />
+
+<body>
+<div metal:fill-slot="main">
+<div tal:define="mail_type request/mail_type | nothing;
+                 start_date request/start_date | nothing;
+                 results python:view.findIncomingMails(mail_type=mail_type, start_date=start_date);">
+  <a href="javascript:this.print();" class="documentActions">
+    <img id="document-action-print" tal:attributes="src string:$portal_url/print_icon.png"
+         i18n:domain="plone" i18n:attributes="title; alt" title="Print this" alt="Print this"/>
+  </a>
+  <h1 class="documentFirstHeading" i18n:translate="">Incoming mail listing</h1>
+
+  <tal:nothing condition="python: len(results)==0">
+    <p i18n:translate="">No incoming mail !</p>
+  </tal:nothing>
+  <tal:services tal:repeat="service python:sorted(results.keys())">
+    <h2 tal:content="python: results[service]['title']" />
+    <ul>
+      <tal:mail repeat="mail python:results[service]['mails']">
+        <li tal:content="python:mail[0]"></li>
+      </tal:mail>
+    </ul>
+  </tal:services>
+</div>
+</div>
+</body>
+</html>

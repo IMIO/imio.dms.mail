@@ -1,0 +1,85 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2013-01-25 13:14+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: fr\n"
+"Language-Name: French\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: plone\n"
+"X-is-fallback-for: fr-fr fr-be fr-ca\n"
+
+#: profiles/default/controlpanel.xml
+msgid "Imio Dms Mail settings"
+msgstr "Configuration du courrier2"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_agent"
+msgstr "Renvoyer à l'agent"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_creation"
+msgstr "Renvoyer à l'encodage"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_manager"
+msgstr "Renvoyer au secrétaire"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_service_chief"
+msgstr "Renvoyer au chef de service"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_treatment"
+msgstr "Remettre en traitement"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "close"
+msgstr "Clôturer"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "closed"
+msgstr "Clôturé"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "created"
+msgstr "Encodé"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "in_treatment"
+msgstr "En cours de traitement"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_agent"
+msgstr "Proposer à l'agent"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_manager"
+msgstr "Proposer au secrétaire"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_service_chief"
+msgstr "Proposer au chef de service"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_agent"
+msgstr "A traiter"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_manager"
+msgstr "A valider par le secrétaire"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_service_chief"
+msgstr "A valider par le chef de service"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "treat"
+msgstr "Traiter"
+

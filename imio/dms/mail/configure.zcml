@@ -1,0 +1,46 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:grok="http://namespaces.zope.org/grok"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:five="http://namespaces.zope.org/five"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    xmlns:i18n="http://namespaces.zope.org/i18n"
+    i18n_domain="imio.dms.mail">
+
+    <include package="five.grok" />
+    <grok:grok package="." />
+
+    <five:registerPackage package="." initialize=".initialize" />
+    <include package="collective.dms.basecontent" />
+    <include package="collective.dms.mailcontent" />
+    <include package="collective.dms.batchimport" />
+    <include package="collective.contact.core" />
+    <include package="collective.contact.plonegroup" />
+    <include package="collective.task" />
+    <include package=".browser" />
+
+    <i18n:registerTranslations directory="locales" />
+
+    <utility
+        factory=".dmsmail.ImioDmsIncomingMailSchemaPolicy"
+        name="schema_policy_imiodmsincomingmail"
+    />
+
+    <utility
+        factory=".dmsmail.ImioDmsOutgoingMailSchemaPolicy"
+        name="schema_policy_imiodmsoutgoingmail"
+    />
+
+    <interface interface=".browser.settings.IImioDmsMailConfig" />
+
+    <!--plone:behavior
+        title="Mail Type field"
+        description="Add a mail type field."
+        provides=".dmsmail.IImioDmsIncomingMail"
+        /-->
+
+    <include file="profiles.zcml" />
+    <include file="skins.zcml" />
+    <include file="monkey.zcml" />
+
+</configure>

@@ -1,0 +1,33 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="imio.dms.mail">
+
+    <include package="Products.GenericSetup" file="meta.zcml" />
+
+    <genericsetup:registerProfile
+        name="default"
+        title="imio.dms.mail"
+        directory="profiles/default"
+        description="Installs the imio.dms.mail package"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+    <genericsetup:registerProfile
+        name="data"
+        title="imio.dms.mail test data"
+        directory="profiles/data"
+        description="Add test data for imio.dms.mail"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+    <genericsetup:registerProfile
+        name="basic_version"
+        title="imio.dms.mail basic version"
+        directory="profiles/basic_version"
+        description="Basic temporary configuration for imio.dms.mail"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+      />
+
+</configure>
