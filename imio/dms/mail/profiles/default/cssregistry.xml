@@ -5,4 +5,8 @@
     enabled="1" expression="" id="imiodmsmail.css" media="screen"
     rel="stylesheet" rendering="import" insert-after="ploneCustom.css" />
 
+ <stylesheet title="" cacheable="True" compression="safe" cookable="True"
+    enabled="1" expression="" id="imiodmsmail_print.css" media="print"
+    rel="stylesheet" rendering="link" insert-after="print.css" />
+
 </object>
