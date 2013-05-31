@@ -45,7 +45,7 @@ class ListingView(BrowserView):
                     if tgroup is not None:
                         title = tgroup.getProperty('title')
                     results[tg]['title'] = title
-                results[tg]['mails'].append([brain.Title])
+                results[tg]['mails'].append(obj)
         for service in results.keys():
-            results[service]['mails'].sort()
+            results[service]['mails'].sort(lambda x, y: cmp(x.internal_reference_no, y.internal_reference_no))
         return results

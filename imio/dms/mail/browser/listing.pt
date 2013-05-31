@@ -26,11 +26,16 @@
   </tal:nothing>
   <tal:services tal:repeat="service python:sorted(results.keys())">
     <h2 tal:content="python: results[service]['title']" />
-    <ul>
+    <table>
+      <tr><th>Objet</th><th>Expéditeur</th><th>Date</th></tr>
       <tal:mail repeat="mail python:results[service]['mails']">
-        <li tal:content="python:mail[0]"></li>
+        <tr>
+            <td tal:content="python:mail.Title()">mail</td>
+            <td tal:content="python:mail.sender.to_object.Title()">sender</td>
+            <td tal:content="python:mail.reception_date">reception date</td>
+        </tr>
       </tal:mail>
-    </ul>
+    </table>
   </tal:services>
 </div>
 </div>
