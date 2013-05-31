@@ -28,7 +28,7 @@ class ListingView(BrowserView):
         kw['created'] = {"query": [DateTime()-5, ], "range": "min"}
 #        kw['modified'] = {"query": [DateTime()-5, ], "range": "min"}
 #        kw['sort_on'] = 'created'
-        results = {}
+        results = {'1_no_group': {'mails': [], 'title': 'listing_no_group'}}
         if not start_date:
             start_date = DateTime().strftime('%Y%m%d')
         for brain in self.pc(kw):
@@ -37,15 +37,20 @@ class ListingView(BrowserView):
                 continue
             if obj.reception_date.strftime('%Y%m%d') < start_date:
                 continue
-            for tg in obj.treating_groups:
-                if not tg in results:
-                    results[tg] = {'mails': []}
-                    title = tg
-                    tgroup = group.get(tg)
-                    if tgroup is not None:
-                        title = tgroup.getProperty('title')
-                    results[tg]['title'] = title
-                results[tg]['mails'].append(obj)
+            if obj.treating_groups:
+                for tg in obj.treating_groups:
+                    if not tg in results:
+                        results[tg] = {'mails': []}
+                        title = tg
+                        tgroup = group.get(tg)
+                        if tgroup is not None:
+                            title = tgroup.getProperty('title')
+                        results[tg]['title'] = title
+                    results[tg]['mails'].append(obj)
+            else:
+                results['1_no_group']['mails'].append(obj)
+        if not results['1_no_group']['mails']:
+            del results['1_no_group']
         for service in results.keys():
             results[service]['mails'].sort(lambda x, y: cmp(x.internal_reference_no, y.internal_reference_no))
         return results
