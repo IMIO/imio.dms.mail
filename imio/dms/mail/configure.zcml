@@ -15,7 +15,6 @@
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
     <include package="collective.contact.core" />
-    <include package="collective.task" />
     <include package=".browser" />
 
     <i18n:registerTranslations directory="locales" />

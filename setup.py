@@ -48,7 +48,6 @@ setup(name='imio.dms.mail',
           'collective.dms.mailcontent',
           'collective.dms.batchimport',
           'collective.contact.core',
-          'collective.task',
           # -*- Extra requirements: -*-
       ],
       extras_require={'test': ['plone.app.testing', 'unittest2']},

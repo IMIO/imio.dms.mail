@@ -6,7 +6,6 @@
     <dependency>profile-collective.dms.mailcontent:default</dependency>
     <dependency>profile-collective.dms.batchimport:default</dependency>
     <dependency>profile-collective.contact.core:default</dependency>
-    <dependency>profile-collective.task:default</dependency>
     <!--dependency>profile-collective.contact.ui:default</dependency-->
   </dependencies>
 </metadata>
