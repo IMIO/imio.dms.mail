@@ -6,7 +6,6 @@
       i18n:domain="imio.dms.mail"
       metal:use-macro="here/main_template/macros/master">
 
-
 <metal:block fill-slot="top_slot"
              tal:define="dummy python:request.set('disable_border',1)" />
 
@@ -26,11 +25,16 @@
   </tal:nothing>
   <tal:services tal:repeat="service python:sorted(results.keys())">
     <h2 tal:content="service" />
-    <ul>
+    <table>
+      <tr><th>Objet</th><th>Expéditeur</th><th>Date</th></tr>
       <tal:mail repeat="mail python:results[service]">
-        <li tal:content="python:mail[0]"></li>
+        <tr>
+            <td tal:content="python:mail.Title()">mail</td>
+            <td tal:content="python:mail.sender.to_object.Title()">sender</td>
+            <td tal:content="python:mail.reception_date">reception date</td>
+        </tr>
       </tal:mail>
-    </ul>
+    </table>
   </tal:services>
 </div>
 </div>

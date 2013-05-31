@@ -39,7 +39,7 @@ class ListingView(BrowserView):
             for tg in obj.treating_groups:
                 if not tg in results:
                     results[tg] = []
-                results[tg].append([brain.Title])
+                results[tg].append(obj)
         for service in results.keys():
-            results[service].sort()
+            results[service].sort(lambda x, y: cmp(x.internal_reference_no, y.internal_reference_no))
         return results
