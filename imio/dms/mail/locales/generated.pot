@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-04-23 13:13+0000\n"
+"POT-Creation-Date: 2013-05-31 16:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,20 +29,20 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./dmsmail.py:30
+#: ./dmsmail.py:31
 msgid "Choose a value !"
 msgstr ""
 
-#: ./setuphandlers.py:50
+#: ./setuphandlers.py:51
 msgid "Incoming mail"
 msgstr ""
 
-#: ./browser/listing.pt:18
+#: ./browser/listing.pt:22
 msgid "Incoming mail listing"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:47
+#: ./dmsmail.py:48
 msgid "Mail type"
 msgstr ""
 
@@ -78,7 +78,7 @@ msgstr ""
 msgid "Main_menu_title"
 msgstr ""
 
-#: ./browser/listing.pt:21
+#: ./browser/listing.pt:25
 msgid "No incoming mail !"
 msgstr ""
 
@@ -86,7 +86,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./setuphandlers.py:59
+#: ./setuphandlers.py:60
 msgid "Outgoing mail"
 msgstr ""
 
@@ -94,19 +94,34 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./setuphandlers.py:119
+#: ./setuphandlers.py:120
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:120
+#: ./setuphandlers.py:121
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:118
+#: ./setuphandlers.py:119
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:32
+#: ./setuphandlers.py:33
 msgid "imio.dms.mail"
+msgstr ""
+
+#. Default: "Date"
+#: ./browser/listing.pt:33
+msgid "listing_date_title"
+msgstr ""
+
+#. Default: "Object"
+#: ./browser/listing.pt:31
+msgid "listing_object_title"
+msgstr ""
+
+#. Default: "Sender"
+#: ./browser/listing.pt:32
+msgid "listing_sender_title"
 msgstr ""
 
