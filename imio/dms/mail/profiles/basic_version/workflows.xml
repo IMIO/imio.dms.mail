@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<object name="portal_workflow" meta_type="Plone Workflow Tool">
+ <object name="incomingmail_basic_workflow" meta_type="Workflow"/>
+<!-- ##code-section workflowobjects -->
+<!-- ##/code-section workflowobjects -->
+ <bindings>
+<!-- ##code-section workflowbindings -->
+  <type type_id="dmsincomingmail">
+   <bound-workflow workflow_id="incomingmail_basic_workflow" />
+  </type>
+  <type type_id="directory">
+   <bound-workflow workflow_id="incomingmail_basic_workflow" />
+  </type>
+  <type type_id="organization">
+   <bound-workflow workflow_id="incomingmail_basic_workflow" />
+  </type>
+  <type type_id="position">
+   <bound-workflow workflow_id="incomingmail_basic_workflow" />
+  </type>
+  <type type_id="person">
+   <bound-workflow workflow_id="incomingmail_basic_workflow" />
+  </type>
+  <type type_id="held_position">
+   <bound-workflow workflow_id="incomingmail_basic_workflow" />
+  </type>
+<!-- ##/code-section workflowbindings -->
+ </bindings>
+</object>

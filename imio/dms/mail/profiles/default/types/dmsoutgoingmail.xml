@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<object name="dmsoutgoingmail" meta_type="Dexterity FTI" i18n:domain="plone"
+   xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+ <!--property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property-->
+ <property name="schema_policy">schema_policy_imiodmsoutgoingmail</property>
+</object>

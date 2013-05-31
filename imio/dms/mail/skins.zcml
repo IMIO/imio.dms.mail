@@ -1,0 +1,9 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:cmf="http://namespaces.zope.org/cmf"
+    i18n_domain="imio.dms.mail">
+
+   <cmf:registerDirectory
+       name="imio_dms_mail"/>
+
+</configure>

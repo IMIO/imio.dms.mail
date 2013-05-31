@@ -1,0 +1,114 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2013-04-23 13:13+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: fr\n"
+"Language-Name: French\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: imio.dms.mail\n"
+"X-is-fallback-for: fr-fr fr-be fr-ca\n"
+
+#: ./browser/settings.py:16
+msgid "Active"
+msgstr "Activé"
+
+#: ./profiles/default/actions.xml
+msgid "Batch import"
+msgstr "Importation depuis dossier"
+
+#: ./profiles/default/actions.xml
+msgid "Batch import of dms document"
+msgstr "Importation de fichier ged depuis un dossier du système de fichier"
+
+#: ./dmsmail.py:25
+msgid "Choose a value !"
+msgstr "Choisir une valeur !"
+
+#: ./setuphandlers.py:49
+msgid "Incoming mail"
+msgstr "Courrier entrant"
+
+#: ./browser/listing.pt:18
+msgid "Incoming mail listing"
+msgstr "Listing des courriers entrants"
+
+#: ./browser/settings.py:27
+#: ./dmsmail.py:42
+msgid "Mail type"
+msgstr "Type de courrier"
+
+#: ./browser/settings.py:15
+msgid "Mail type title"
+msgstr "Intitulé du type"
+
+#: ./browser/settings.py:14
+msgid "Mail type value"
+msgstr "Valeur stockée"
+
+#: ./browser/portlets.py:25
+msgid "Main DmsMail Portlet"
+msgstr "Menu courrier"
+
+#. Default: "incoming mail"
+#: ./browser/portlet_maindmsmail.pt:24
+msgid "Main_menu_add_incoming_mail"
+msgstr "courrier entrant"
+
+#. Default: "main file"
+#: ./browser/portlet_maindmsmail.pt:30
+msgid "Main_menu_add_main_file"
+msgstr "fichier ged"
+
+#. Default: "Add"
+#: ./browser/portlet_maindmsmail.pt:20
+msgid "Main_menu_addition_section"
+msgstr "Ajouter"
+
+#. Default: "Main menu"
+#: ./browser/portlet_maindmsmail.pt:15
+msgid "Main_menu_title"
+msgstr "Menu courrier"
+
+#: ./browser/listing.pt:21
+msgid "No incoming mail !"
+msgstr "Aucun courrier entrant trouvé !"
+
+#: ./browser/settings.py:26
+msgid "Once created and used, value doesn't be changed anymore."
+msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
+
+#: ./setuphandlers.py:58
+msgid "Outgoing mail"
+msgstr "Courrier sortant"
+
+#: ./browser/settings.py:25
+msgid "Types of incoming mail"
+msgstr "Types de courrier entrant"
+
+#: ./setuphandlers.py:118
+msgid "front_page_descr"
+msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
+
+#: ./setuphandlers.py:119
+msgid "front_page_text"
+msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
+
+#: ./setuphandlers.py:117
+msgid "front_page_title"
+msgstr "Gestion du courrier"
+
+#: ./setuphandlers.py:31
+msgid "imio.dms.mail"
+msgstr "Gestion du courrier"
+
+#: ./configure.zcml:
+msgid "imio.dms.mail test data"
+msgstr "Gestion du courrier, données de test"
+
