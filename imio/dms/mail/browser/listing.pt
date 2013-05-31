@@ -27,7 +27,11 @@
   <tal:services tal:repeat="service python:sorted(results.keys())">
     <h2 i18n:translate="" tal:content="python: results[service]['title']" />
     <table>
-      <tr><th>Objet</th><th>Expéditeur</th><th>Date</th></tr>
+      <tr>
+            <th i18n:translate="listing_object_title">Object</th>
+            <th i18n:translate="listing_sender_title">Sender</th>
+            <th i18n:translate="listing_date_title">Date</th>
+      </tr>
       <tal:mail repeat="mail python:results[service]['mails']">
         <tr>
             <td tal:content="python:mail.Title()">mail</td>
