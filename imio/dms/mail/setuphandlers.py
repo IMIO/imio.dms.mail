@@ -88,7 +88,8 @@ def createTopicView(folder, ptype, title):
         folder.invokeFactory("Topic", id='topic_page', title=title)
         topic = getattr(folder, 'topic_page')
         topic.setCustomView(True)
-        topic.setCustomViewFields(('Title', 'internal_reference_number', 'review_state', 'CreationDate', 'Creator'))
+#        topic.setCustomViewFields(('Title', 'internal_reference_number', 'review_state', 'CreationDate', 'Creator'))
+        topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
         topic.setSortCriterion('created', True)
         # add portal_type criterion
         crit = topic.addCriterion('portal_type', 'ATSimpleStringCriterion')
