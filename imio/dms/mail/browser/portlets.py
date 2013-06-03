@@ -77,7 +77,7 @@ class Renderer(base.Renderer):
         return getIncomingMailAddUrl()
 
     def getMainFileAddUrl(self):
-        return '%s/%s' % (self.context.absolute_url(), '++add++dmsmailfile')
+        return '%s/%s' % (self.context.absolute_url(), '++add++dmsmainfile')
 
 
 class AddForm(base.NullAddForm):
