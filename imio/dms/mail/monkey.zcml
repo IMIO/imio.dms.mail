@@ -7,12 +7,12 @@
 
     <include package="collective.monkeypatcher" />
 
-    <!--monkey:patch
+    <monkey:patch
         description="Temporary patch to not set local roles on LocalRolesToPrincipals field"
         class="collective.dms.basecontent._field.LocalRolesToPrincipalsDataManager"
         original="set"
         replacement=".monkeypatches.setLocalRolesToPrincipals"
-    /-->
+    />
 
     <monkey:patch
         description="Temporary patch to not set local roles on LocalRolesToPrincipals field"
