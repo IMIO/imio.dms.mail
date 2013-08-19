@@ -159,7 +159,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
     if not current_user.has_role('Manager') and not current_user.has_role('Site Administrator'):
         the_form.widgets['internal_reference_no'].mode = 'hidden'
         # we empty value to bypass validator
-        the_form.widgets['internal_reference_no'].value = ''
+        #the_form.widgets['internal_reference_no'].value = ''
 
 
 class Edit(dexterity.EditForm):
