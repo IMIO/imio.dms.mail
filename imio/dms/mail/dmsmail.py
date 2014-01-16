@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from zope import schema
-from zope.app.component.hooks import getSite
+from zope.component.hooks import getSite
 from zope.component import getUtility, queryUtility
 from zope.interface import implements, alsoProvides
 from plone import api

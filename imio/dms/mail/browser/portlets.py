@@ -2,7 +2,7 @@ from zope.component import getMultiAdapter
 from zope.interface import implements
 from plone.app.portlets.portlets import base
 from plone.memoize import forever
-from zope.app.component.hooks import getSite
+from zope.component.hooks import getSite
 from plone.portlets.interfaces import IPortletDataProvider
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from .. import _
