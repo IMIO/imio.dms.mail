@@ -2,8 +2,8 @@
 <object name="portal_workflow" meta_type="Plone Workflow Tool">
  <object name="incomingmail_workflow" meta_type="Workflow"/>
  <bindings>
-  <!--type type_id="dmsincomingmail">
+  <type type_id="dmsincomingmail">
    <bound-workflow workflow_id="incomingmail_workflow" />
-  </type-->
+  </type>
  </bindings>
 </object>
