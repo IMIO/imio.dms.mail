@@ -50,6 +50,7 @@ setup(name='imio.dms.mail',
           'collective.contact.core',
           'collective.contact.plonegroup',
           'collective.task',
+          'collective.externaleditor'
           # -*- Extra requirements: -*-
       ],
       extras_require={'test': ['plone.app.testing', 'unittest2']},
