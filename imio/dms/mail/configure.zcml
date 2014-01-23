@@ -41,6 +41,5 @@
 
     <include file="profiles.zcml" />
     <include file="skins.zcml" />
-    <include file="monkey.zcml" />
 
 </configure>
