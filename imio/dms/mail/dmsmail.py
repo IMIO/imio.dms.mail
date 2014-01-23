@@ -63,10 +63,10 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     directives.order_before(external_reference_no='treating_groups')  # temporary when removing *_groups
     directives.order_before(in_reply_to='treating_groups')  # temporary when removing *_groups
 #    directives.order_before(treating_groups='related_docs')  # temporary when removing *_groups
-#    directives.order_after(related_docs='recipient_groups')  # temporary when removing *_groups
     directives.order_after(notes='treating_groups')  # temporary when removing *_groups
+    directives.order_after(treating_groups='recipient_groups')  # temporary when removing *_groups
 
-    directives.omitted('recipient_groups', 'in_reply_to', 'related_docs')
+    directives.omitted('in_reply_to', 'related_docs')
     directives.widget(treating_groups=SelectFieldWidget)
 
 
