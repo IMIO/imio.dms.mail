@@ -15,6 +15,14 @@ msgstr ""
 "Domain: plone\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
+#: profiles/default/types/dmsmainfile.xml
+msgid "Dms main file of a Dms document"
+msgstr ""
+
+#: profiles/default/types/dmsmainfile.xml
+msgid "DmsMainFile"
+msgstr ""
+
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
 msgstr ""

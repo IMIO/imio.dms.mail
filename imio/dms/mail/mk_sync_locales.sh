@@ -37,6 +37,11 @@ if ! test -f locales/plone.pot || [ "$1" == "rebuild-plone" ]; then
     i18ndude rebuild-pot --pot locales/plone.pot --create plone profiles/default/workflows
 fi
 
+if ! test -f locales/collective.dms.basecontent.pot; then
+    echo "Rebuilding locales/collective.dms.basecontent.pot"
+    touch locales/collective.dms.basecontent.pot
+fi
+
 # Finding pot files
 for pot in $(find locales -mindepth 1 -maxdepth 1 -type f -name "*.pot" ! -name generated.pot); do
     #finding pot basename as catalog

@@ -84,3 +84,11 @@ msgstr ""
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
 msgstr ""
+
+#: profiles/default/types/dmsmainfile.xml
+msgid "DmsMainFile"
+msgstr ""
+
+#: profiles/default/types/dmsmainfile.xml
+msgid "Dms main file of a Dms document"
+msgstr ""

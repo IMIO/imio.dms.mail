@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-05-31 16:26+0000\n"
+"POT-Creation-Date: 2014-01-27 14:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -94,15 +94,15 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./setuphandlers.py:120
+#: ./setuphandlers.py:121
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:121
+#: ./setuphandlers.py:122
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:119
+#: ./setuphandlers.py:120
 msgid "front_page_title"
 msgstr ""
 

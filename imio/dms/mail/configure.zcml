@@ -11,6 +11,8 @@
     <grok:grok package="." />
 
     <five:registerPackage package="." initialize=".initialize" />
+    <i18n:registerTranslations directory="locales" />
+
     <include package="collective.dms.basecontent" />
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
@@ -18,8 +20,6 @@
     <include package="collective.contact.plonegroup" />
     <include package="collective.task" />
     <include package=".browser" />
-
-    <i18n:registerTranslations directory="locales" />
 
     <utility
         factory=".dmsmail.ImioDmsIncomingMailSchemaPolicy"

@@ -1,0 +1,28 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: fr\n"
+"Language-Name: French\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: collective.dms.basecontent\n"
+"X-is-fallback-for: fr-fr fr-be fr-ca\n"
+
+#: ../dmsfile.py:43
+msgid "Signed version"
+msgstr "Fichier ged signé"
+
+#: ../dmsfile.py:26
+msgid "Version number"
+msgstr "Numéro de fichier ged"
+
+#: ../browser/viewlets.py:42
+msgid "Versions"
+msgstr "Fichiers ged"
