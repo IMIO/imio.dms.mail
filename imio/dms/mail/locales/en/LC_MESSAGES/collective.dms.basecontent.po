@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"POT-Creation-Date: 2013-01-25 13:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,4 +14,16 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: collective.dms.basecontent\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
+
+#: ../dmsfile.py:43
+msgid "Signed version"
+msgstr ""
+
+#: ../dmsfile.py:26
+msgid "Version number"
+msgstr ""
+
+#: ../browser/viewlets.py:42
+msgid "Versions"
+msgstr ""
 

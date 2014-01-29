@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-01-27 14:52+0000\n"
+"POT-Creation-Date: 2014-01-29 14:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -86,6 +86,14 @@ msgstr ""
 
 #: ./setuphandlers.py:58
 msgid "Outgoing mail"
+msgstr ""
+
+#: ./dmsmail.py:69
+msgid "Recipient groups"
+msgstr ""
+
+#: ./dmsmail.py:50
+msgid "Treating groups"
 msgstr ""
 
 #: ./browser/settings.py:25

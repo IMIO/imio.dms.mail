@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-01-27 14:52+0000\n"
+"POT-Creation-Date: 2014-01-29 14:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./dmsmail.py:31
+#: ./dmsmail.py:33
 msgid "Choose a value !"
 msgstr ""
 
@@ -42,7 +42,7 @@ msgid "Incoming mail listing"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:48
+#: ./dmsmail.py:88
 msgid "Mail type"
 msgstr ""
 
@@ -88,6 +88,14 @@ msgstr ""
 
 #: ./setuphandlers.py:60
 msgid "Outgoing mail"
+msgstr ""
+
+#: ./dmsmail.py:69
+msgid "Recipient groups"
+msgstr ""
+
+#: ./dmsmail.py:50
+msgid "Treating groups"
 msgstr ""
 
 #: ./browser/settings.py:25
