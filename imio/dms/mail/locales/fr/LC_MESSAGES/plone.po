@@ -37,7 +37,7 @@ msgstr "Renvoyer à l'encodage"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager"
-msgstr "Renvoyer au directeur général"
+msgstr "Renvoyer au DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service_chief"
@@ -69,7 +69,7 @@ msgstr "Proposer à l'agent"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_manager"
-msgstr "Proposer au directeur général"
+msgstr "Proposer au DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service_chief"
@@ -81,7 +81,7 @@ msgstr "A traiter"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
-msgstr "A valider par le directeur général"
+msgstr "A valider par le DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_service_chief"
