@@ -68,6 +68,7 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Editor</permission-role>
+   <permission-role>Contributor</permission-role>
   </permission-map>
   <permission-map name="Modify portal content"
                   acquired="False">
@@ -81,6 +82,7 @@
    <permission-role>Manager</permission-role>
    <permission-role>SIte Administrator</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>Contributor</permission-role>
   </permission-map>
   <permission-map name="View"
                   acquired="False">
