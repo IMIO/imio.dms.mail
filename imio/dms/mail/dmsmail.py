@@ -3,6 +3,7 @@ from zope import schema
 from zope.component.hooks import getSite
 from zope.component import getUtility, queryUtility
 from zope.interface import implements, alsoProvides
+from zope.schema.fieldproperty import FieldProperty
 from plone import api
 from plone.directives import dexterity
 #from plone.autoform.interfaces import IFormFieldProvider
@@ -11,13 +12,14 @@ from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
 from five import grok
 from plone.autoform import directives
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
+from collective.z3cform.rolefield.statefulllocalrolesfield import StatefullLocalRolesField
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import forever
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from browser.settings import IImioDmsMailConfig
-from collective.contact.plonegroup.browser.settings import selectedOrganizationsPloneGroupsVocabulary
+from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
 from z3c.form.browser.select import SelectFieldWidget
 
 from . import _
@@ -44,6 +46,44 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     """
         Extended schema for mail type field
     """
+    treating_groups = StatefullLocalRolesField(
+        title=_(u"Treating groups"),
+        required=True,
+        state_config={u'created': {},
+                      u'proposed_to_manager': {},
+                      u'proposed_to_service_chief': {'validateur': ('Contributor', 'Reviewer', 'Editor')},
+                      u'proposed_to_agent': {'validateur': ('Contributor', 'Reviewer', 'Editor'),
+                                             'editeur': ('Contributor', 'Reviewer', 'Editor'),
+                                             'lecteur': ('Reader',)},
+                      u'in_treatment': {'validateur': ('Contributor', 'Reviewer', 'Editor'),
+                                        'editeur': ('Contributor', 'Reviewer', 'Editor'),
+                                        'lecteur': ('Reader',)},
+                      u'closed': {'validateur': ('Reviewer',),
+                                  'editeur': ('Reviewer',),
+                                  'lecteur': ('Reader',)},
+                      },
+        value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.treating_groups',)
+    )
+
+    recipient_groups = StatefullLocalRolesField(
+        title=_(u"Recipient groups"),
+        required=False,
+        state_config={u'created': {},
+                      u'proposed_to_manager': {},
+                      u'proposed_to_service_chief': {'validateur': ('Reader', )},
+                      u'proposed_to_agent': {'validateur': ('Reader', ),
+                                             'editeur': ('Reader', ),
+                                             'lecteur': ('Reader',)},
+                      u'in_treatment': {'validateur': ('Reader', ),
+                                        'editeur': ('Reader', ),
+                                        'lecteur': ('Reader',)},
+                      u'closed': {'validateur': ('Reader',),
+                                  'editeur': ('Reader',),
+                                  'lecteur': ('Reader',)},
+                      },
+        value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
+    )
+
     mail_type = schema.Choice(
         title=_("Mail type"),
 #        description = _("help_mail_type",
@@ -68,20 +108,21 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
 
     directives.omitted('in_reply_to', 'related_docs')
     directives.widget(treating_groups=SelectFieldWidget)
+    directives.widget(recipient_groups=SelectFieldWidget)
 
 
 class TreatingGroupsVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        return selectedOrganizationsPloneGroupsVocabulary(functions=['editeur'], group_title=False)
+        return selectedOrganizationsVocabulary()
 
 
 class RecipientGroupsVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        return selectedOrganizationsPloneGroupsVocabulary(functions=['lecteur'], group_title=False)
+        return selectedOrganizationsVocabulary()
 
 
 class ImioDmsIncomingMailSchemaPolicy(DexteritySchemaPolicy):
@@ -97,6 +138,9 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     """
     implements(IImioDmsIncomingMail)
     __ac_local_roles_block__ = False
+
+    treating_groups = FieldProperty(IImioDmsIncomingMail[u'treating_groups'])
+    recipient_groups = FieldProperty(IImioDmsIncomingMail[u'recipient_groups'])
 
     def Title(self):
         if self.internal_reference_no is None:

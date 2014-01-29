@@ -208,6 +208,7 @@ def configureContactPloneGroup(context):
             {'fct_title': u'Encodeur', 'fct_id': u'encodeur'},
             {'fct_title': u'Lecteur', 'fct_id': u'lecteur'},
             {'fct_title': u'Éditeur', 'fct_id': u'editeur'},
+            {'fct_title': u'Validateur', 'fct_id': u'validateur'},
         ]
 
 
