@@ -1,12 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from zope.annotation import IAnnotations
-from zope.component import getUtility
-from Products.CMFPlone.interfaces.constrains import ISelectableConstrainTypes
-
 from imio.migrator.migrator import Migrator
-from imio.project.core.config import CHILDREN_BUDGET_INFOS_ANNOTATION_KEY
-from imio.project.core.events import _updateParentsBudgetInfos
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -18,18 +12,18 @@ class Migrate_To_0_2(Migrator):
         Migrator.__init__(self, context)
 
     def _deleteOldLocalRoles(self):
-        import ipdb; ipdb.set_trace()
         """ Delete old local roles """
         logger.info("Delete old local roles.")
         brains = self.portal.portal_catalog(portal_type='dmsincomingmail')
         for brain in brains:
             obj = brain.getObject()
-            userid = obj.threating_groups
-            obj.manage_delLocalRoles(userid)
+            groups = obj.treating_groups
+            if groups:
+                obj.manage_delLocalRoles(groups)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.2...')
-        self._deleteLocalRoles()
+        self._deleteOldLocalRoles()
 
 
 def migrate(context):
