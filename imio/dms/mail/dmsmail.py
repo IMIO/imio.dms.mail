@@ -94,17 +94,14 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     )
 
     # doesn't work well if IImioDmsIncomingMail is a behavior instead a subclass
-#    directives.order_after(mail_type='sender')
-    directives.order_before(sender='treating_groups')  # temporary when removing *_groups
-    directives.order_before(mail_type='treating_groups')
-    directives.order_before(original_mail_date='treating_groups')  # temporary when removing *_groups
-    directives.order_before(reception_date='treating_groups')  # temporary when removing *_groups
-    directives.order_before(internal_reference_no='treating_groups')  # temporary when removing *_groups
-    directives.order_before(external_reference_no='treating_groups')  # temporary when removing *_groups
-    directives.order_before(in_reply_to='treating_groups')  # temporary when removing *_groups
-#    directives.order_before(treating_groups='related_docs')  # temporary when removing *_groups
-    directives.order_after(notes='treating_groups')  # temporary when removing *_groups
-    directives.order_after(treating_groups='recipient_groups')  # temporary when removing *_groups
+    directives.order_before(sender='recipient_groups')
+    directives.order_before(mail_type='recipient_groups')
+    directives.order_before(original_mail_date='recipient_groups')
+    directives.order_before(reception_date='recipient_groups')
+    directives.order_before(internal_reference_no='recipient_groups')
+    directives.order_before(external_reference_no='recipient_groups')
+    directives.order_before(notes='recipient_groups')
+    directives.order_before(treating_groups='recipient_groups')
 
     directives.omitted('in_reply_to', 'related_docs')
     directives.widget(treating_groups=SelectFieldWidget)
