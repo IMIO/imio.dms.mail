@@ -43,14 +43,15 @@ setup(name='imio.dms.mail',
       install_requires=[
           'setuptools',
           'Plone',
-          'plone.app.dexterity',
+          'plone.app.dexterity[grok]',
           'collective.dms.basecontent',
           'collective.dms.mailcontent',
           'collective.dms.batchimport',
           'collective.contact.core',
           'collective.contact.plonegroup',
           'collective.task',
-          'collective.externaleditor'
+          'collective.externaleditor',
+          'imio.migrator'
           # -*- Extra requirements: -*-
       ],
       extras_require={'test': ['plone.app.testing', 'unittest2']},
