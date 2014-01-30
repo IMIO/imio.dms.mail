@@ -17,9 +17,9 @@ class Migrate_To_0_2(Migrator):
         brains = self.portal.portal_catalog(portal_type='dmsincomingmail')
         for brain in brains:
             obj = brain.getObject()
-            groups = obj.treating_groups
-            if groups:
-                obj.manage_delLocalRoles(groups)
+            for groups in (obj.treating_groups, obj.recipient_groups):
+                if groups:
+                    obj.manage_delLocalRoles(groups)
 
     def _replacePrincipalIdsByOrganizationUids(self):
         logger.info("Replace principal ids of localrolefields by organization uids.")
