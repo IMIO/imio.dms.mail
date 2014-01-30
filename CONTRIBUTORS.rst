@@ -1,2 +1,2 @@
 - Gauthier Bastien, IMIO
-- Stéphan Geulette, IMIO
+- Stephan Geulette, IMIO
