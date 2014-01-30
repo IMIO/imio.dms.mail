@@ -19,6 +19,7 @@
     <include package="collective.contact.core" />
     <include package="collective.contact.plonegroup" />
     <include package="collective.task" />
+    <include package="collective.externaleditor"/>
     <include package=".browser" />
 
     <utility
