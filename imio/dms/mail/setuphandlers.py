@@ -155,14 +155,14 @@ def configureBatchImport(context):
     productpath = imiodmsmail.__path__[0]
 
     if not registry.get('collective.dms.batchimport.batchimport.ISettings.fs_root_directory'):
-        registry['collective.dms.batchimport.batchimport.ISettings.fs_root_directory'] = os.path.join(productpath,
-                                                                                            u'batchimport/toprocess')
+        registry['collective.dms.batchimport.batchimport.ISettings.fs_root_directory'] = \
+            os.path.join(productpath, u'batchimport/toprocess')
     if not registry.get('collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'):
-        registry['collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'] = os.path.join(
-                                                                                productpath, u'batchimport/processed')
+        registry['collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'] = \
+            os.path.join(productpath, u'batchimport/processed')
     if not registry.get('collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'):
-        registry['collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'] = [{'code': u'in',
-                                                                                    'portal_type': u'dmsincomingmail'}]
+        registry['collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'] = \
+            [{'code': u'in', 'portal_type': u'dmsincomingmail'}]
 
 
 def configureImioDmsMail(context):
@@ -476,9 +476,10 @@ def addTestUsersAndGroups(context):
         return ''.join(random.choice(string.ascii_letters + string.digits) for x in range(length))
 
     users = {
-        ('picsou', u'Jean Picsou'): [],
-        ('binaire', u'Jean Binaire'): [],
-        ('accueil', u'Jeanne Accueil'): [],
+        ('encodeur', u'Jean Encodeur'): [],
+        ('dg', u'Maxime DG'): [],
+        ('chef', u'Michel Chef'): [],
+        ('agent', u'Fred Agent'): [],
     }
     password = 'dmsmail'
     if is_mountpoint:
@@ -526,14 +527,14 @@ def addOwnOrganization(context):
         (u'Département Égalité des chances', []),
         (u'Département GRH', [u'Personnel', u'Traitements']),
         (u'Département du Patrimoine', [u'Technique', u'Technique administratif', u'Patrimoine']),
-        (u'Département du Secrétaire', [u'Cabinet du Secrétaire', u'Cellule Marchés Publics', u'IPP', u'FRCE']),
+        (u'Département du DG', [u'Cabinet du DG', u'Cellule Marchés Publics', u'IPP', u'FRCE']),
         (u'Département du Président', [u'Cabinet du Président']),
         (u'Département des Aînés', [u'BMB', u'MRS Havré', u'Acasa']),
         (u'Département Social', [u'Aide générale', u'Service personnes âgées', u'Service social administratif', u'SIP',
                                  u'Guidance / Médiation', u'VIF', u'Logement', u'EFT', u'Service juridique']),
         (u'Département informatique', []),
-        (u'Département des Finances', [u'Gestion Financière', u'Cellule Financière', u'Receveur', u'Homes Extérieurs',
-                                       u'Avances et Récupérations', u'Assurances']),
+        (u'Département des Finances', [u'Gestion Financière', u'Cellule Financière', u'Directeur financier',
+                                       u'Homes Extérieurs', u'Avances et Récupérations', u'Assurances']),
     ]
     idnormalizer = queryUtility(IIDNormalizer)
     for (department, services) in sublevels:
