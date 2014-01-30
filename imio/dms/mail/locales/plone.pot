@@ -92,3 +92,7 @@ msgstr ""
 #: profiles/default/types/dmsmainfile.xml
 msgid "Dms main file of a Dms document"
 msgstr ""
+
+#: profiles/default/rolemap.xml
+msgid "General Manager"
+msgstr ""

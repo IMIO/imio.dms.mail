@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<rolemap>
+  <roles>
+    <role name="General Manager"/>
+<!-- ##code-section roles -->
+<!-- ##/code-section roles -->
+  </roles>
+  <permissions>
+<!-- ##code-section permissions -->
+<!-- ##/code-section permissions -->
+  </permissions>
+</rolemap>

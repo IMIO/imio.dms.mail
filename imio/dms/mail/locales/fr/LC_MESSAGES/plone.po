@@ -23,6 +23,10 @@ msgstr "Fichier ged principal d'un document"
 msgid "DmsMainFile"
 msgstr "Fichier ged"
 
+#: profiles/default/rolemap.xml
+msgid "General Manager"
+msgstr "Directeur général"
+
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
 msgstr "Configuration du courrier2"

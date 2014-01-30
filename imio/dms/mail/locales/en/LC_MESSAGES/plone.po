@@ -23,6 +23,10 @@ msgstr ""
 msgid "DmsMainFile"
 msgstr ""
 
+#: profiles/default/rolemap.xml
+msgid "General Manager"
+msgstr ""
+
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
 msgstr ""

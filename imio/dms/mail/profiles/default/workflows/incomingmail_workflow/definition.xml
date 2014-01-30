@@ -21,6 +21,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -33,12 +34,14 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Editor</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Review portal content"
                   acquired="False">
    <permission-role>Manager</permission-role>
-   <permission-role>SIte Administrator</permission-role>
+   <permission-role>Site Administrator</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="View"
                   acquired="False">
@@ -47,6 +50,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
  </state>
  <state state_id="created"
@@ -80,7 +84,7 @@
   <permission-map name="Review portal content"
                   acquired="False">
    <permission-role>Manager</permission-role>
-   <permission-role>SIte Administrator</permission-role>
+   <permission-role>Site Administrator</permission-role>
    <permission-role>Reviewer</permission-role>
    <permission-role>Contributor</permission-role>
   </permission-map>
@@ -106,6 +110,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -118,12 +123,14 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Editor</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Review portal content"
                   acquired="False">
    <permission-role>Manager</permission-role>
-   <permission-role>SIte Administrator</permission-role>
+   <permission-role>Site Administrator</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="View"
                   acquired="False">
@@ -132,6 +139,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_agent"
@@ -146,6 +154,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -158,12 +167,14 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Editor</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Review portal content"
                   acquired="False">
    <permission-role>Manager</permission-role>
-   <permission-role>SIte Administrator</permission-role>
+   <permission-role>Site Administrator</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="View"
                   acquired="False">
@@ -172,6 +183,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_manager"
@@ -186,6 +198,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -198,12 +211,14 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Editor</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Review portal content"
                   acquired="False">
    <permission-role>Manager</permission-role>
-   <permission-role>SIte Administrator</permission-role>
+   <permission-role>Site Administrator</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="View"
                   acquired="False">
@@ -212,6 +227,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_service_chief"
@@ -227,6 +243,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -239,12 +256,14 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Editor</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="Review portal content"
                   acquired="False">
    <permission-role>Manager</permission-role>
-   <permission-role>SIte Administrator</permission-role>
+   <permission-role>Site Administrator</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
   <permission-map name="View"
                   acquired="False">
@@ -253,6 +272,7 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+   <permission-role>General Manager</permission-role>
   </permission-map>
  </state>
  <transition transition_id="back_to_agent"
