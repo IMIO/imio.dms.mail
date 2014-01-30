@@ -105,7 +105,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
 
     directives.omitted('in_reply_to', 'related_docs')
     directives.widget(treating_groups=SelectFieldWidget)
-    directives.widget(recipient_groups=SelectFieldWidget)
+    #directives.widget(recipient_groups=SelectFieldWidget)
 
 
 class TreatingGroupsVocabulary(object):
