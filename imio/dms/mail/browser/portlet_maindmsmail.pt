@@ -30,6 +30,14 @@
                 <img tal:attributes="src string:$portal_url/++resource++dmsmainfile_icon.png" />
             </a>
         </td></tr>
+        <tr><th i18n:translate="Main_menu_filter_section">Filter</th></tr>
+        <tr tal:condition="view/canFilterManagersMails">
+          <td>
+            <a tal:attributes="href view/getManagersMails">
+                <span i18n:translate="Main_menu_filter_mail_proposed_to_manager">mail proposed to manager</span>
+            </a>
+          </td>
+        </tr>
     </table>
 
     <dd class="portletFooter">
