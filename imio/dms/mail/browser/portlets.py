@@ -5,6 +5,7 @@ from plone.memoize import forever
 from zope.component.hooks import getSite
 from plone.portlets.interfaces import IPortletDataProvider
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from plone import api
 from .. import _
 
 
@@ -73,11 +74,21 @@ class Renderer(base.Renderer):
             return True
         return False
 
+    def canFilterManagersMails(self):
+        # to review (who can filter manager's mails)
+        if self.canAddSomething():
+            return True
+        return False
+
     def getIncomingMailAddUrl(self):
         return getIncomingMailAddUrl()
 
     def getMainFileAddUrl(self):
         return '%s/%s' % (self.context.absolute_url(), '++add++dmsmainfile')
+
+    def getManagersMails(self):
+        site = api.portal.getSite()
+        return '%s/%s' % (site.absolute_url(), 'incoming-mail/mails_proposed_to_manager')
 
 
 class AddForm(base.NullAddForm):
