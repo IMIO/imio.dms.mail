@@ -52,6 +52,12 @@ def postInstall(context):
         newFolder = getattr(site, folderid)
         #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createTopicView(newFolder, 'dmsincomingmail', _('Incoming mail', context))
+        createStateTopicView(
+            newFolder,
+            'mails_proposed_to_manager',
+            [u"proposed_to_manager",],
+            _(u"Main_menu_filter_mail_proposed_to_manager", context)
+        )
         newFolder.setConstrainTypesMode(1)
         newFolder.setLocallyAllowedTypes(['dmsincomingmail'])
         newFolder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -79,7 +85,6 @@ def blacklistPortletCategory(context, object, category, utilityname):
     # Turn off the manager
     blacklist.setBlacklistStatus(category, True)
 
-
 def createTopicView(folder, ptype, title):
     """
         create a topic as default page
@@ -96,6 +101,16 @@ def createTopicView(folder, ptype, title):
         crit.setValue(ptype)
         # set the topic as folder's default page
         folder.setDefaultPage('topic_page')
+
+def createStateTopicView(folder, id, review_state, title):
+        folder.invokeFactory("Topic", id=id, title=title)
+        topic = getattr(folder, id)
+        topic.setCustomView(True)
+        topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
+        topic.setSortCriterion('created', True)
+        # add portal_type criterion
+        criterion = topic.addCriterion(field='review_state', criterion_type='ATListCriterion')
+        criterion.setValue(review_state)
 
 
 def adaptDefaultPortal(context):
