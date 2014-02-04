@@ -71,6 +71,12 @@ msgstr ""
 msgid "Main_menu_addition_section"
 msgstr ""
 
+msgid "Main_menu_filter_mail_proposed_to_manager"
+msgstr ""
+
+msgid "Main_menu_filter_section"
+msgstr ""
+
 #. Default: "Main menu"
 #: ./browser/portlet_maindmsmail.pt:15
 msgid "Main_menu_title"
