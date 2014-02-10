@@ -210,6 +210,13 @@ def configureContactPloneGroup(context):
     logger.info('Configure contact plonegroup')
     registry = getUtility(IRegistry)
     site = context.getSite()
+    if not registry.get(FUNCTIONS_REGISTRY):
+        registry[FUNCTIONS_REGISTRY] = [
+            {'fct_title': u'Encodeur', 'fct_id': u'encodeur'},
+            {'fct_title': u'Lecteur', 'fct_id': u'lecteur'},
+            {'fct_title': u'Éditeur', 'fct_id': u'editeur'},
+            {'fct_title': u'Validateur', 'fct_id': u'validateur'},
+        ]
     if not registry.get(ORGANIZATIONS_REGISTRY):
         contacts = site['contacts']
         own_orga = contacts['plonegroup-organization']
@@ -222,13 +229,10 @@ def configureContactPloneGroup(context):
             departments[1].UID(),
             services2[0].UID(),
         ]
-    if not registry.get(FUNCTIONS_REGISTRY):
-        registry[FUNCTIONS_REGISTRY] = [
-            {'fct_title': u'Encodeur', 'fct_id': u'encodeur'},
-            {'fct_title': u'Lecteur', 'fct_id': u'lecteur'},
-            {'fct_title': u'Éditeur', 'fct_id': u'editeur'},
-            {'fct_title': u'Validateur', 'fct_id': u'validateur'},
-        ]
+        # Add users to created groups
+        site.acl_users.source_groups.addPrincipalToGroup('encodeur', "%s_encodeur" % services0[0].UID())
+        site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % services0[0].UID())
+        site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % services0[0].UID())
 
 
 def addTestDirectory(context):
@@ -497,7 +501,7 @@ def addTestUsersAndGroups(context):
 
     users = {
         ('encodeur', u'Jean Encodeur'): [],
-        ('dg', u'Maxime DG'): [],
+        ('dirg', u'Maxime DG'): ['General Manager'],
         ('chef', u'Michel Chef'): [],
         ('agent', u'Fred Agent'): [],
     }
@@ -507,10 +511,9 @@ def addTestUsersAndGroups(context):
 
     for uid, fullname in users.keys():
         try:
-            member = site.portal_registration.addMember(id=uid, password=password)
+            member = site.portal_registration.addMember(id=uid, password=password,
+                                                        roles=['Member'] + users[(uid, fullname)])
             member.setMemberProperties({'fullname': fullname, 'email': 'test@macommune.be'})
-            for gid in users[(uid, fullname)]:
-                site.acl_users.source_groups.addPrincipalToGroup(uid, gid)
         except:
             pass
 

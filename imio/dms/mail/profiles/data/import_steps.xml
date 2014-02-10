@@ -43,6 +43,7 @@ Add french configuration for imio.dms.mail
             title="Add french configuration for collective.contact.plonegroup"
             version="2013-05-29T15:00:00.00000">
            <dependency step="imiodmsmail-addOwnOrganization"/>
+           <dependency step="imiodmsmail-addTestUsersAndGroups"/>
 Add french configuration for collective.contact.plonegroup
 </import-step>
 <import-step
