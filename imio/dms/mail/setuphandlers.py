@@ -55,12 +55,13 @@ def postInstall(context):
         createStateTopicView(
             newFolder,
             'mails_proposed_to_manager',
-            [u"proposed_to_manager",],
+            [u"proposed_to_manager", ],
             _(u"Main_menu_filter_mail_proposed_to_manager", context)
         )
         newFolder.setConstrainTypesMode(1)
         newFolder.setLocallyAllowedTypes(['dmsincomingmail'])
         newFolder.setImmediatelyAddableTypes(['dmsincomingmail'])
+        site.portal_workflow.doActionFor(newFolder, "show_internally")
         logger.info('incoming-mail folder created')
     if not hasattr(aq_base(site), 'outgoing-mail'):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail", context))
@@ -85,6 +86,7 @@ def blacklistPortletCategory(context, object, category, utilityname):
     # Turn off the manager
     blacklist.setBlacklistStatus(category, True)
 
+
 def createTopicView(folder, ptype, title):
     """
         create a topic as default page
@@ -101,6 +103,8 @@ def createTopicView(folder, ptype, title):
         crit.setValue(ptype)
         # set the topic as folder's default page
         folder.setDefaultPage('topic_page')
+        folder.portal_workflow.doActionFor(topic, "show_internally")
+
 
 def createStateTopicView(folder, id, review_state, title):
         folder.invokeFactory("Topic", id=id, title=title)
@@ -263,6 +267,7 @@ def addTestDirectory(context):
               }
     site.invokeFactory('directory', 'contacts', **params)
     contacts = site['contacts']
+    site.portal_workflow.doActionFor(contacts, "show_internally")
     #blacklistPortletCategory(context, contacts, CONTEXT_CATEGORY, u"plone.leftcolumn")
 
     # Organisations creation (in directory)
