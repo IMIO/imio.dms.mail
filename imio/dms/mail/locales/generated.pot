@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-01-29 14:06+0000\n"
+"POT-Creation-Date: 2014-02-11 13:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/portlets.py:25
+#: ./browser/portlets.py:26
 msgid "Main DmsMail Portlet"
 msgstr ""
 
@@ -73,6 +73,11 @@ msgstr ""
 msgid "Main_menu_addition_section"
 msgstr ""
 
+#. Default: "Incoming mails searches"
+#: ./browser/portlet_maindmsmail.pt:35
+msgid "Main_menu_search_section"
+msgstr ""
+
 #. Default: "Main menu"
 #: ./browser/portlet_maindmsmail.pt:15
 msgid "Main_menu_title"
@@ -86,7 +91,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./setuphandlers.py:60
+#: ./setuphandlers.py:62
 msgid "Outgoing mail"
 msgstr ""
 
@@ -102,15 +107,19 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./setuphandlers.py:121
+#: ./setuphandlers.py:54
+msgid "all_incoming_mails"
+msgstr ""
+
+#: ./setuphandlers.py:154
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:122
+#: ./setuphandlers.py:155
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:120
+#: ./setuphandlers.py:153
 msgid "front_page_title"
 msgstr ""
 

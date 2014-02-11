@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-02-11 07:33+0000\n"
+"POT-Creation-Date: 2014-02-11 13:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./setuphandlers.py:49
+#: ./setuphandlers.py:51
 msgid "Incoming mail"
 msgstr "Courrier entrant"
 
@@ -71,6 +71,11 @@ msgstr "Fichier ged"
 msgid "Main_menu_addition_section"
 msgstr "Ajouter"
 
+#. Default: "Incoming mails searches"
+#: ./browser/portlet_maindmsmail.pt:35
+msgid "Main_menu_search_section"
+msgstr "Recherches courrier entrant"
+
 #. Default: "Main menu"
 #: ./browser/portlet_maindmsmail.pt:15
 msgid "Main_menu_title"
@@ -99,6 +104,10 @@ msgstr "Services traitants"
 #: ./browser/settings.py:25
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
+
+#: ./setuphandlers.py:54
+msgid "all_incoming_mails"
+msgstr "Tous les courriers"
 
 #: ./setuphandlers.py:118
 msgid "front_page_descr"
@@ -156,4 +165,3 @@ msgstr "À valider par le DG"
 
 msgid "searchfor_proposed_to_service_chief"
 msgstr "À valider par le chef de service"
-

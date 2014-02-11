@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-02-11 07:33+0000\n"
+"POT-Creation-Date: 2014-02-11 13:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./setuphandlers.py:49
+#: ./setuphandlers.py:51
 msgid "Incoming mail"
 msgstr ""
 
@@ -71,7 +71,9 @@ msgstr ""
 msgid "Main_menu_addition_section"
 msgstr ""
 
-msgid "Main_menu_filter_section"
+#. Default: "Incoming mails searches"
+#: ./browser/portlet_maindmsmail.pt:35
+msgid "Main_menu_search_section"
 msgstr ""
 
 #. Default: "Main menu"
@@ -101,6 +103,10 @@ msgstr ""
 
 #: ./browser/settings.py:25
 msgid "Types of incoming mail"
+msgstr ""
+
+#: ./setuphandlers.py:54
+msgid "all_incoming_mails"
 msgstr ""
 
 #: ./setuphandlers.py:118
