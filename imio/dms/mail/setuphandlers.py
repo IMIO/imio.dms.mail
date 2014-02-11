@@ -105,10 +105,15 @@ def createStateTopics(context, folder, content_type):
     """
         create a topic for each contextual workflow state
     """
+    default_states = ['created', 'proposed_to_manager', 'proposed_to_service_chief',
+                      'proposed_to_agent', 'in_treatment', 'closed']
     for workflow in folder.portal_workflow.getWorkflowsFor(content_type):
         for value in workflow.states.values():
+            if value.id not in default_states:
+                default_states.append(value)
+        for state in default_states:
             try:
-                topic_id = "searchfor_%s" % value.getId()
+                topic_id = "searchfor_%s" % state
                 if not hasattr(folder, topic_id):
                     folder.invokeFactory("Topic", id=topic_id, title=_(topic_id, context))
                     topic = folder[topic_id]
@@ -120,7 +125,7 @@ def createStateTopics(context, folder, content_type):
                     crit.setValue(content_type)
                     # criterion of state
                     crit = topic.addCriterion(field='review_state', criterion_type='ATListCriterion')
-                    crit.setValue(value.getId())
+                    crit.setValue(state)
                     #we limit the results by page
                     topic.setLimitNumber(True)
                     topic.setItemCount(30)
