@@ -97,7 +97,7 @@ def createTopicView(folder, ptype, title):
         crit = topic.addCriterion('portal_type', 'ATSimpleStringCriterion')
         crit.setValue(ptype)
         # set the topic as folder's default page
-        folder.setDefaultPage('topic_page')
+        folder.setDefaultPage('all_incoming_mails')
         folder.portal_workflow.doActionFor(topic, "show_internally")
 
 
