@@ -52,12 +52,7 @@ def postInstall(context):
         newFolder = getattr(site, folderid)
         #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createTopicView(newFolder, 'dmsincomingmail', _('Incoming mail', context))
-        createStateTopicView(
-            newFolder,
-            'mails_proposed_to_manager',
-            [u"proposed_to_manager", ],
-            _(u"Main_menu_filter_mail_proposed_to_manager", context)
-        )
+        createStateTopics(context, newFolder, 'dmsincomingmail')
         newFolder.setConstrainTypesMode(1)
         newFolder.setLocallyAllowedTypes(['dmsincomingmail'])
         newFolder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -106,15 +101,34 @@ def createTopicView(folder, ptype, title):
         folder.portal_workflow.doActionFor(topic, "show_internally")
 
 
-def createStateTopicView(folder, id, review_state, title):
-        folder.invokeFactory("Topic", id=id, title=title)
-        topic = getattr(folder, id)
-        topic.setCustomView(True)
-        topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
-        topic.setSortCriterion('created', True)
-        # add portal_type criterion
-        criterion = topic.addCriterion(field='review_state', criterion_type='ATListCriterion')
-        criterion.setValue(review_state)
+def createStateTopics(context, folder, content_type):
+    """
+        create a topic for each contextual workflow state
+    """
+    for workflow in folder.portal_workflow.getWorkflowsFor(content_type):
+        for value in workflow.states.values():
+            try:
+                topic_id = "searchfor_%s" % value.getId()
+                if not hasattr(folder, topic_id):
+                    folder.invokeFactory("Topic", id=topic_id, title=_(topic_id, context))
+                    topic = folder[topic_id]
+                    topic.setCustomView(True)
+                    topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
+                    topic.setSortCriterion('created', True)
+                    # add portal_type criterion
+                    crit = topic.addCriterion('portal_type', 'ATSimpleStringCriterion')
+                    crit.setValue(content_type)
+                    # criterion of state
+                    crit = topic.addCriterion(field='review_state', criterion_type='ATListCriterion')
+                    crit.setValue(value.getId())
+                    #we limit the results by page
+                    topic.setLimitNumber(True)
+                    topic.setItemCount(30)
+                    folder.portal_workflow.doActionFor(topic, "show_internally")
+            except:
+#                import traceback
+#                traceback.print_exc()
+                pass
 
 
 def adaptDefaultPortal(context):
