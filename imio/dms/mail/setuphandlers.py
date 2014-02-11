@@ -51,7 +51,7 @@ def postInstall(context):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail", context))
         newFolder = getattr(site, folderid)
         #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(newFolder, 'dmsincomingmail', _('Incoming mail', context))
+        createTopicView(newFolder, 'dmsincomingmail', _(u'all_incoming_mails', context))
         createStateTopics(context, newFolder, 'dmsincomingmail')
         newFolder.setConstrainTypesMode(1)
         newFolder.setLocallyAllowedTypes(['dmsincomingmail'])
@@ -86,9 +86,9 @@ def createTopicView(folder, ptype, title):
     """
         create a topic as default page
     """
-    if not 'topic_page' in folder:
-        folder.invokeFactory("Topic", id='topic_page', title=title)
-        topic = getattr(folder, 'topic_page')
+    if not 'all_incoming_mails' in folder:
+        folder.invokeFactory("Topic", id='all_incoming_mails', title=title)
+        topic = getattr(folder, 'all_incoming_mails')
         topic.setCustomView(True)
 #        topic.setCustomViewFields(('Title', 'internal_reference_number', 'review_state', 'CreationDate', 'Creator'))
         topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
