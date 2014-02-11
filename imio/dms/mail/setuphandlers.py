@@ -252,6 +252,7 @@ def configureContactPloneGroup(context):
         site.acl_users.source_groups.addPrincipalToGroup('encodeur', "%s_encodeur" % services0[0].UID())
         site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % services0[0].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % services0[0].UID())
+        site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % services0[0].UID())
 
 
 def addTestDirectory(context):
@@ -523,6 +524,7 @@ def addTestUsersAndGroups(context):
         ('dirg', u'Maxime DG'): ['General Manager'],
         ('chef', u'Michel Chef'): [],
         ('agent', u'Fred Agent'): [],
+        ('lecteur', u'Jef Lecteur'): [],
     }
     password = 'dmsmail'
     if is_mountpoint:
