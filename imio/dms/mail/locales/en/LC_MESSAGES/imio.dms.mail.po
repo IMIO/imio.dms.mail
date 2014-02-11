@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-01-29 14:06+0000\n"
+"POT-Creation-Date: 2014-02-11 07:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -69,9 +69,6 @@ msgstr ""
 #. Default: "Add"
 #: ./browser/portlet_maindmsmail.pt:20
 msgid "Main_menu_addition_section"
-msgstr ""
-
-msgid "Main_menu_filter_mail_proposed_to_manager"
 msgstr ""
 
 msgid "Main_menu_filter_section"
@@ -143,5 +140,23 @@ msgstr ""
 #. Default: "Sender"
 #: ./browser/listing.pt:32
 msgid "listing_sender_title"
+msgstr ""
+
+msgid "searchfor_closed"
+msgstr ""
+
+msgid "searchfor_created"
+msgstr ""
+
+msgid "searchfor_in_treatment"
+msgstr ""
+
+msgid "searchfor_proposed_to_agent"
+msgstr ""
+
+msgid "searchfor_proposed_to_manager"
+msgstr ""
+
+msgid "searchfor_proposed_to_service_chief"
 msgstr ""
 

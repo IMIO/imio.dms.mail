@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-01-29 14:06+0000\n"
+"POT-Creation-Date: 2014-02-11 07:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,18 +31,6 @@ msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./setuphandlers.py:118
-msgid "front_page_descr"
-msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
-
-#: ./setuphandlers.py:119
-msgid "front_page_text"
-msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
-
-#: ./setuphandlers.py:117
-msgid "front_page_title"
-msgstr "Gestion du courrier"
-
 #: ./setuphandlers.py:49
 msgid "Incoming mail"
 msgstr "Courrier entrant"
@@ -50,33 +38,6 @@ msgstr "Courrier entrant"
 #: ./browser/listing.pt:18
 msgid "Incoming mail listing"
 msgstr "Listing des courriers entrants"
-
-#: ./setuphandlers.py:31
-msgid "imio.dms.mail"
-msgstr "Gestion du courrier"
-
-#: ./configure.zcml:
-msgid "imio.dms.mail test data"
-msgstr "Gestion du courrier, données de test"
-
-#. Default: "Date"
-#: ./browser/listing.pt:33
-msgid "listing_date_title"
-msgstr "Date"
-
-#: ./browser/listing.py:31
-msgid "listing_no_group"
-msgstr "Courrier sans service traitant"
-
-#. Default: "Object"
-#: ./browser/listing.pt:31
-msgid "listing_object_title"
-msgstr "Objet"
-
-#. Default: "Sender"
-#: ./browser/listing.pt:32
-msgid "listing_sender_title"
-msgstr "Expéditeur"
 
 #: ./browser/settings.py:27
 #: ./dmsmail.py:42
@@ -98,23 +59,17 @@ msgstr "Menu courrier"
 #. Default: "incoming mail"
 #: ./browser/portlet_maindmsmail.pt:24
 msgid "Main_menu_add_incoming_mail"
-msgstr "courrier entrant"
+msgstr "Courrier entrant"
 
 #. Default: "main file"
 #: ./browser/portlet_maindmsmail.pt:30
 msgid "Main_menu_add_main_file"
-msgstr "fichier ged"
+msgstr "Fichier ged"
 
 #. Default: "Add"
 #: ./browser/portlet_maindmsmail.pt:20
 msgid "Main_menu_addition_section"
 msgstr "Ajouter"
-
-msgid "Main_menu_filter_mail_proposed_to_manager"
-msgstr "courriers proposés au DG"
-
-msgid "Main_menu_filter_section"
-msgstr "Filtrer"
 
 #. Default: "Main menu"
 #: ./browser/portlet_maindmsmail.pt:15
@@ -145,4 +100,60 @@ msgstr "Services traitants"
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
+#: ./setuphandlers.py:118
+msgid "front_page_descr"
+msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
+
+#: ./setuphandlers.py:119
+msgid "front_page_text"
+msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
+
+#: ./setuphandlers.py:117
+msgid "front_page_title"
+msgstr "Gestion du courrier"
+
+#: ./setuphandlers.py:31
+msgid "imio.dms.mail"
+msgstr "Gestion du courrier"
+
+#: ./configure.zcml:
+msgid "imio.dms.mail test data"
+msgstr "Gestion du courrier, données de test"
+
+#. Default: "Date"
+#: ./browser/listing.pt:33
+msgid "listing_date_title"
+msgstr "Date"
+
+#: ./browser/listing.py:31
+msgid "listing_no_group"
+msgstr "Courrier sans service traitant"
+
+#. Default: "Object"
+#: ./browser/listing.pt:31
+msgid "listing_object_title"
+msgstr "Objet"
+
+#. Default: "Sender"
+#: ./browser/listing.pt:32
+msgid "listing_sender_title"
+msgstr "Expéditeur"
+
+msgid "searchfor_closed"
+msgstr "Clôturés"
+
+msgid "searchfor_created"
+msgstr "Encodés"
+
+msgid "searchfor_in_treatment"
+msgstr "En traitement"
+
+msgid "searchfor_proposed_to_agent"
+msgstr "À traiter"
+
+msgid "searchfor_proposed_to_manager"
+msgstr "À valider par le DG"
+
+msgid "searchfor_proposed_to_service_chief"
+msgstr "À valider par le chef de service"
 
