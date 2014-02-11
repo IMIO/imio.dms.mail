@@ -13,7 +13,7 @@
     <dt class="portletHeader">
         <span class="portletTopLeft"></span>
         <div i18n:translate="Main_menu_title">Main menu</div>
-    <span class="portletTopRight"></span>
+        <span class="portletTopRight"></span>
     </dt>
 
     <table tal:condition="view/canAddSomething">
@@ -30,12 +30,12 @@
                 <img tal:attributes="src string:$portal_url/++resource++dmsmainfile_icon.png" />
             </a>
         </td></tr>
-        <tr><th i18n:translate="Main_menu_filter_section">Filter</th></tr>
-        <tr tal:condition="view/canFilterManagersMails">
+    </table>
+    <table>
+        <tr><th i18n:translate="Main_menu_search_section">Incoming mails searches</th></tr>
+        <tr tal:repeat="brain view/getIncomingMailsTopics">
           <td>
-            <a tal:attributes="href view/getManagersMails">
-                <span i18n:translate="Main_menu_filter_mail_proposed_to_manager">mail proposed to manager</span>
-            </a>
+            <a tal:attributes="href brain/getURL" i18n:translate="" tal:content="brain/Title">incoming mail state topic</a>
           </td>
         </tr>
     </table>

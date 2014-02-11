@@ -74,21 +74,17 @@ class Renderer(base.Renderer):
             return True
         return False
 
-    def canFilterManagersMails(self):
-        # to review (who can filter manager's mails)
-        if self.canAddSomething():
-            return True
-        return False
-
     def getIncomingMailAddUrl(self):
         return getIncomingMailAddUrl()
 
     def getMainFileAddUrl(self):
         return '%s/%s' % (self.context.absolute_url(), '++add++dmsmainfile')
 
-    def getManagersMails(self):
-        site = api.portal.getSite()
-        return '%s/%s' % (site.absolute_url(), 'incoming-mail/mails_proposed_to_manager')
+    def getIncomingMailsTopics(self):
+        return self.portal.portal_catalog(portal_type='Topic',
+                                          path='/'.join(getIncomingMailFolder().getPhysicalPath()),
+                                          sort_on='getObjPositionInParent'
+                                          )
 
 
 class AddForm(base.NullAddForm):
