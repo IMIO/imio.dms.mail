@@ -21,12 +21,14 @@ from zope.component import queryUtility, getMultiAdapter, getUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.intid.interfaces import IIntIds
 from z3c.relationfield.relation import RelationValue
+from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 #from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
+from collective.z3cform.rolefield.utils import add_local_roles_to_principals
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 
@@ -249,7 +251,6 @@ def configureContactPloneGroup(context):
             services2[0].UID(),
         ]
         # Add users to created groups
-        site.acl_users.source_groups.addPrincipalToGroup('encodeur', "%s_encodeur" % services0[0].UID())
         site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % services0[0].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % services0[0].UID())
         site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % services0[0].UID())
@@ -538,6 +539,12 @@ def addTestUsersAndGroups(context):
         except:
             pass
 
+    if api.group.get('encodeurs') is None:
+        api.group.create('encodeurs', 'Encodeurs courrier')
+        add_local_roles_to_principals(site['incoming-mail'], ['encodeurs'], ['Contributor', 'Reader'])
+#        site['incoming-mail'].reindexObjectSecurity()
+        api.group.add_user(groupname='encodeurs', username='encodeur')
+
 
 def addOwnOrganization(context):
     """
@@ -588,3 +595,13 @@ def addOwnOrganization(context):
         for service in services:
             dep.invokeFactory('organization', idnormalizer.normalize(service),
                               **{'title': service, 'organization_type': u'service'})
+
+
+def refreshCatalog(context):
+    """
+        Reindex catalog
+    """
+    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+        return
+    site = context.getSite()
+    site.portal_catalog.refreshCatalog()
