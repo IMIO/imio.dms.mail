@@ -542,6 +542,7 @@ def addTestUsersAndGroups(context):
     if api.group.get('encodeurs') is None:
         api.group.create('encodeurs', 'Encodeurs courrier')
         add_local_roles_to_principals(site['incoming-mail'], ['encodeurs'], ['Contributor', 'Reader'])
+        add_local_roles_to_principals(site['contacts'], ['encodeurs'], ['Contributor', 'Editor', 'Reader'])
 #        site['incoming-mail'].reindexObjectSecurity()
         api.group.add_user(groupname='encodeurs', username='encodeur')
 
