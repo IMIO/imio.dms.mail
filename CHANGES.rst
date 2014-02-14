@@ -1,6 +1,31 @@
 Changelog
 =========
 
+0.2 (2014-02-14)
+----------------
+
+- Added documentviewer configuration
+  [sgeulette]
+
+- Added topics
+  [sgeulette]
+
+- Added internal application workflow
+  [sgeulette]
+
+- Upgrade step
+  [sgeulette]
+
+- Added general manager role, encodeurs group 
+  [sgeulette]
+
+- Updated treating_groups and recipient_groups configuration
+  [sgeulette]
+
+- Added incoming mail workflow for localrolefield
+  [sgeulette]
+
+
 0.1
 ---
 - DmsIncomingMail overrides, adding field
