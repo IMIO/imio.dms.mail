@@ -152,7 +152,7 @@ msgid "searchfor_closed"
 msgstr "Clôturés"
 
 msgid "searchfor_created"
-msgstr "Encodés"
+msgstr "En création"
 
 msgid "searchfor_in_treatment"
 msgstr "En traitement"
