@@ -37,7 +37,7 @@ msgstr "Renvoyer à l'agent"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_creation"
-msgstr "Renvoyer à l'encodage"
+msgstr "Remettre en création"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager"
@@ -61,7 +61,7 @@ msgstr "Clôturé"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "created"
-msgstr "Encodé"
+msgstr "En création"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "in_treatment"
