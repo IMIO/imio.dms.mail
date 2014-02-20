@@ -31,6 +31,10 @@ msgstr ""
 msgid "Imio Dms Mail settings"
 msgstr ""
 
+#: profiles/default/portal_atct.xml
+msgid "Internal Reference Number"
+msgstr ""
+
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_agent"
 msgstr ""

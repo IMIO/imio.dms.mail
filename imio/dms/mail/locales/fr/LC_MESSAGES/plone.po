@@ -31,6 +31,10 @@ msgstr "Directeur général"
 msgid "Imio Dms Mail settings"
 msgstr "Configuration du courrier2"
 
+#: profiles/default/portal_atct.xml
+msgid "Internal Reference Number"
+msgstr "Référence interne"
+
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_agent"
 msgstr "Renvoyer à l'agent"
