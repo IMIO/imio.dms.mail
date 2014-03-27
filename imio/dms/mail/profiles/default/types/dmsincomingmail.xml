@@ -10,4 +10,5 @@
   <element value="dmsmainfile"/>
   <element value="dmsappendixfile"/>
  </property>
+ <alias from="edit" to="@@dmsdocument-edit"/>
 </object>
