@@ -16,7 +16,7 @@ DMSMAIL_Z2 = z2.IntegrationTesting(bases=(z2.STARTUP, DMSMAIL_ZCML),
 DMSMAIL_FIXTURE = PloneWithPackageLayer(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
-    additional_z2_products=('Products.PythonScripts', 'imio.dms.mail',),
+    additional_z2_products=('collective.task', 'Products.PythonScripts', 'imio.dms.mail',),
     gs_profile_id='imio.dms.mail:testing',
     name="DMSMAIL_FIXTURE")
 
