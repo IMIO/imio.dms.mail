@@ -16,13 +16,16 @@ import logging
 import os
 import random
 import string
+from itertools import cycle
 from Acquisition import aq_base
 from zope.component import queryUtility, getMultiAdapter, getUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.intid.interfaces import IIntIds
 from z3c.relationfield.relation import RelationValue
 from plone import api
+from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
+from plone.namedfile.file import NamedBlobFile
 #from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
@@ -458,6 +461,11 @@ def addTestMails(context):
         return
     site = context.getSite()
     logger.info('Adding test mails')
+    import imio.dms.mail as imiodmsmail
+    filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
+    files = [unicode(name) for name in os.listdir(filespath)
+             if os.path.splitext(name)[1][1:] in ('pdf', 'doc', 'jpg')]
+    files_cycle = cycle(files)
 
     intids = getUtility(IIntIds)
 
@@ -477,7 +485,7 @@ def addTestMails(context):
     ifld = site['incoming-mail']
     data = dummy(site, site.REQUEST)
     j = 0
-    for i in range(1, 30):
+    for i in range(1, 10):
         if not 'courrier%d' % i in ifld:
             params = {'title': 'Courrier %d' % i,
                       'mail_type': 'courrier',
@@ -486,14 +494,19 @@ def addTestMails(context):
                       'sender': senders[j],
                       }
             ifld.invokeFactory('dmsincomingmail', id='courrier%d' % i, **params)
+            mail = ifld['courrier%d' % i]
             if i % 4:
                 j += 1
             else:
                 j = 0
+            filename = files_cycle.next()
+            with open("%s/%s" % (filespath, filename), 'rb') as fo:
+                file_object = NamedBlobFile(fo.read(), filename=filename)
+                createContentInContainer(mail, 'dmsmainfile', title='', file=file_object)
 
     # outgoing mails
     ofld = site['outgoing-mail']
-    for i in range(1, 30):
+    for i in range(1, 10):
         if not 'reponse%d' % i in ofld:
             inmail = ifld['courrier%d' % i]
             params = {'title': 'Réponse %d' % i,
