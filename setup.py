@@ -54,7 +54,11 @@ setup(name='imio.dms.mail',
           'imio.migrator'
           # -*- Extra requirements: -*-
       ],
-      extras_require={'test': ['plone.app.testing', 'unittest2']},
+      extras_require={'test':
+        ['plone.app.testing',
+         'unittest2',
+         'plone.app.robotframework',
+         'plonetheme.imioapps',]},
       entry_points="""
       # -*- Entry points: -*-
 
