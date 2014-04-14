@@ -51,7 +51,8 @@ setup(name='imio.dms.mail',
           'collective.contact.plonegroup',
           'collective.task',
           'collective.externaleditor',
-          'imio.migrator'
+          'imio.migrator',
+          'collective.dms.scanbehavior',
           # -*- Extra requirements: -*-
       ],
       extras_require={'test':
