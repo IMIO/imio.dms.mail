@@ -49,38 +49,12 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     treating_groups = StatefullLocalRolesField(
         title=_(u"Treating groups"),
         required=True,
-        state_config={u'created': {},
-                      u'proposed_to_manager': {},
-                      u'proposed_to_service_chief': {'suffixes': {'validateur': ('Contributor', 'Reviewer', 'Editor')}},
-                      u'proposed_to_agent': {'suffixes': {'validateur': ('Contributor', 'Reviewer', 'Editor'),
-                                                          'editeur': ('Contributor', 'Reviewer', 'Editor'),
-                                                          'lecteur': ('Reader',)}},
-                      u'in_treatment': {'suffixes': {'validateur': ('Contributor', 'Reviewer', 'Editor'),
-                                                     'editeur': ('Contributor', 'Reviewer', 'Editor'),
-                                                     'lecteur': ('Reader',)}},
-                      u'closed': {'suffixes': {'validateur': ('Reviewer',),
-                                               'editeur': ('Reviewer',),
-                                               'lecteur': ('Reader',)}},
-                      },
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.treating_groups',)
     )
 
     recipient_groups = StatefullLocalRolesField(
         title=_(u"Recipient groups"),
         required=False,
-        state_config={u'created': {},
-                      u'proposed_to_manager': {},
-                      u'proposed_to_service_chief': {'suffixes': {'validateur': ('Reader', )}},
-                      u'proposed_to_agent': {'suffixes': {'validateur': ('Reader', ),
-                                                          'editeur': ('Reader', ),
-                                                          'lecteur': ('Reader',)}},
-                      u'in_treatment': {'suffixes': {'validateur': ('Reader', ),
-                                                     'editeur': ('Reader', ),
-                                                     'lecteur': ('Reader',)}},
-                      u'closed': {'suffixes': {'validateur': ('Reader',),
-                                               'editeur': ('Reader',),
-                                               'lecteur': ('Reader',)}},
-                      },
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
     )
 
