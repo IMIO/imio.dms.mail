@@ -10,5 +10,10 @@
   <element value="dmsmainfile"/>
   <element value="dmsappendixfile"/>
  </property>
+ <property name="behaviors">
+  <element value="plone.app.content.interfaces.INameFromTitle"/>
+  <element value="plone.app.dexterity.behaviors.metadata.IDublinCore"/>
+  <element value="collective.dms.scanbehavior.behaviors.behaviors.IScanFields"/>
+ </property>
  <alias from="edit" to="@@dmsdocument-edit"/>
 </object>
