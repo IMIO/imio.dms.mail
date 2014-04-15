@@ -32,6 +32,7 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIO
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from collective.z3cform.rolefield.utils import add_local_roles_to_principals
+from collective.z3cform.rolefield.utils import add_fti_configuration
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 
@@ -50,6 +51,9 @@ def postInstall(context):
 
     # we adapt default portal
     adaptDefaultPortal(context)
+
+    # we configure rolefields
+    configure_rolefields(context)
 
     # we create the basic folders
     if not hasattr(aq_base(site), 'incoming-mail'):
@@ -184,6 +188,44 @@ def adaptDefaultPortal(context):
     #Hiding layout menu
     site.manage_permission('Modify view template', ('Manager', 'Site Administrator'),
                            acquire=0)
+
+
+def configure_rolefields(context):
+    """
+        Configure the rolefields on types
+    """
+    statefull_config = {'treating_groups': {
+        u'created': {},
+        u'proposed_to_manager': {},
+        u'proposed_to_service_chief': {'suffixes': {'validateur': ('Contributor', 'Reviewer', 'Editor')}},
+        u'proposed_to_agent': {'suffixes': {'validateur': ('Contributor', 'Reviewer', 'Editor'),
+                                            'editeur': ('Contributor', 'Reviewer', 'Editor'),
+                                            'lecteur': ('Reader',)}},
+        u'in_treatment': {'suffixes': {'validateur': ('Contributor', 'Reviewer', 'Editor'),
+                                       'editeur': ('Contributor', 'Reviewer', 'Editor'),
+                                       'lecteur': ('Reader',)}},
+        u'closed': {'suffixes': {'validateur': ('Reviewer',),
+                                 'editeur': ('Reviewer',),
+                                 'lecteur': ('Reader',)}},
+    }, 'recipient_groups': {
+        u'created': {},
+        u'proposed_to_manager': {},
+        u'proposed_to_service_chief': {'suffixes': {'validateur': ('Reader', )}},
+        u'proposed_to_agent': {'suffixes': {'validateur': ('Reader', ),
+                                            'editeur': ('Reader', ),
+                                            'lecteur': ('Reader',)}},
+        u'in_treatment': {'suffixes': {'validateur': ('Reader', ),
+                                       'editeur': ('Reader', ),
+                                       'lecteur': ('Reader',)}},
+        u'closed': {'suffixes': {'validateur': ('Reader',),
+                                 'editeur': ('Reader',),
+                                 'lecteur': ('Reader',)}},
+    },
+    }
+    for field in statefull_config:
+        msg = add_fti_configuration('dmsincomingmail', field, statefull_config[field])
+        if msg:
+            logger.warn(msg)
 
 
 def configureBatchImport(context):

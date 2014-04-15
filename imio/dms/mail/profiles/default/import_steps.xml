@@ -2,7 +2,7 @@
 <import-steps>
 
  <import-step 
-    id="urban-postInstall" 
+    id="imiodmsmail-postInstall" 
     handler="imio.dms.mail.setuphandlers.postInstall"
     title="manual coded post-install for imio.dms.mail"
     version="2013-01-17">
