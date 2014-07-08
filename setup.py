@@ -43,6 +43,7 @@ setup(name='imio.dms.mail',
       install_requires=[
           'setuptools',
           'Plone',
+          'Products.PasswordStrength > 0.3.1',
           'plone.app.dexterity[grok]',
           'collective.dms.basecontent',
           'collective.dms.mailcontent',
