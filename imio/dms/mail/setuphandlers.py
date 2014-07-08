@@ -582,17 +582,19 @@ def addTestUsersAndGroups(context):
         ('agent', u'Fred Agent'): [],
         ('lecteur', u'Jef Lecteur'): [],
     }
-    password = 'dmsmail'
+    password = 'Dmsmail69!'
     if is_mountpoint:
-        password = generatePassword(8)
+        password = site.portal_registration.generatePassword()
 
     for uid, fullname in users.keys():
         try:
             member = site.portal_registration.addMember(id=uid, password=password,
                                                         roles=['Member'] + users[(uid, fullname)])
             member.setMemberProperties({'fullname': fullname, 'email': 'test@macommune.be'})
-        except:
-            pass
+        except ValueError, exc:
+            if str(exc).startswith('The login name you selected is already in use'):
+                continue
+            logger("Error creating user '%s': %s" % (uid, exc))
 
     if api.group.get('encodeurs') is None:
         api.group.create('encodeurs', 'Encodeurs courrier')
