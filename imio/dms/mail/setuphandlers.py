@@ -32,7 +32,7 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIO
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from collective.z3cform.rolefield.utils import add_local_roles_to_principals
-from collective.z3cform.rolefield.utils import add_fti_configuration
+from dexterity.localroles.utils import add_fti_configuration
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 
@@ -194,36 +194,37 @@ def configure_rolefields(context):
     """
         Configure the rolefields on types
     """
-    statefull_config = {'treating_groups': {
+    roles_config = {'localroleconfig': {
+    }, 'treating_groups': {
         #'created': {},
         #'proposed_to_manager': {},
-        'proposed_to_service_chief': {'suffixes': {'validateur': ['Contributor', 'Editor', 'Reviewer']}},
-        'proposed_to_agent': {'suffixes': {'validateur': ['Contributor', 'Editor', 'Reviewer'],
-                                           'editeur': ['Contributor', 'Editor', 'Reviewer'],
-                                           'lecteur': ['Reader']}},
-        'in_treatment': {'suffixes': {'validateur': ['Contributor', 'Editor', 'Reviewer'],
-                                      'editeur': ['Contributor', 'Editor', 'Reviewer'],
-                                      'lecteur': ['Reader']}},
-        'closed': {'suffixes': {'validateur': ['Reviewer'],
-                                'editeur': ['Reviewer'],
-                                'lecteur': ['Reader']}},
+        'proposed_to_service_chief': {'validateur': ['Contributor', 'Editor', 'Reviewer']},
+        'proposed_to_agent': {'validateur': ['Contributor', 'Editor', 'Reviewer'],
+                              'editeur': ['Contributor', 'Editor', 'Reviewer'],
+                              'lecteur': ['Reader']},
+        'in_treatment': {'validateur': ['Contributor', 'Editor', 'Reviewer'],
+                         'editeur': ['Contributor', 'Editor', 'Reviewer'],
+                         'lecteur': ['Reader']},
+        'closed': {'validateur': ['Reviewer'],
+                   'editeur': ['Reviewer'],
+                   'lecteur': ['Reader']},
     }, 'recipient_groups': {
         #'created': {},
         #'proposed_to_manager': {},
-        'proposed_to_service_chief': {'suffixes': {'validateur': ['Reader']}},
-        'proposed_to_agent': {'suffixes': {'validateur': ['Reader'],
-                                           'editeur': ['Reader'],
-                                           'lecteur': ['Reader']}},
-        'in_treatment': {'suffixes': {'validateur': ['Reader'],
-                                      'editeur': ['Reader'],
-                                      'lecteur': ['Reader']}},
-        'closed': {'suffixes': {'validateur': ['Reader'],
-                                'editeur': ['Reader'],
-                                'lecteur': ['Reader']}},
+        'proposed_to_service_chief': {'validateur': ['Reader']},
+        'proposed_to_agent': {'validateur': ['Reader'],
+                              'editeur': ['Reader'],
+                              'lecteur': ['Reader']},
+        'in_treatment': {'validateur': ['Reader'],
+                         'editeur': ['Reader'],
+                         'lecteur': ['Reader']},
+        'closed': {'validateur': ['Reader'],
+                   'editeur': ['Reader'],
+                   'lecteur': ['Reader']},
     },
     }
-    for field in statefull_config:
-        msg = add_fti_configuration('dmsincomingmail', field, statefull_config[field])
+    for keyname in roles_config:
+        msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)
         if msg:
             logger.warn(msg)
 
