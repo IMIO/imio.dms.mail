@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from zope import schema
-from zope.component.hooks import getSite
 from zope.component import getUtility, queryUtility
 from zope.interface import implements, alsoProvides
 from zope.schema.fieldproperty import FieldProperty
@@ -12,12 +11,10 @@ from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
 from five import grok
 from plone.autoform import directives
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
-from collective.z3cform.rolefield.statefulllocalrolesfield import StatefullLocalRolesField
+from dexterity.localrolesfield.field import LocalRolesField
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.i18n.normalizer.interfaces import IIDNormalizer
-from plone.memoize import forever
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.utils import getToolByName
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
 from z3c.form.browser.select import SelectFieldWidget
@@ -46,13 +43,13 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     """
         Extended schema for mail type field
     """
-    treating_groups = StatefullLocalRolesField(
+    treating_groups = LocalRolesField(
         title=_(u"Treating groups"),
         required=True,
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.treating_groups',)
     )
 
-    recipient_groups = StatefullLocalRolesField(
+    recipient_groups = LocalRolesField(
         title=_(u"Recipient groups"),
         required=False,
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
