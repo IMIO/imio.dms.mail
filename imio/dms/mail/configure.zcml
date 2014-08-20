@@ -22,6 +22,7 @@
     <include package="collective.contact.plonegroup" />
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
+    <include package="dexterity.localrolesfield"/>
     <include package=".browser" />
 
     <utility

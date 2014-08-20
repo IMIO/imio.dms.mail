@@ -54,6 +54,7 @@ setup(name='imio.dms.mail',
           'collective.externaleditor',
           'imio.migrator',
           'collective.dms.scanbehavior',
+          'dexterity.localrolesfield',
           # -*- Extra requirements: -*-
       ],
       extras_require={'test':
