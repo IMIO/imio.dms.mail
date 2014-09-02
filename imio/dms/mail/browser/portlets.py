@@ -1,11 +1,9 @@
 from zope.component import getMultiAdapter
 from zope.interface import implements
 from plone.app.portlets.portlets import base
-from plone.memoize import forever
 from zope.component.hooks import getSite
 from plone.portlets.interfaces import IPortletDataProvider
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from plone import api
 from .. import _
 
 
@@ -26,13 +24,11 @@ class Assignment(base.Assignment):
         return _(u"Main DmsMail Portlet")
 
 
-@forever.memoize
 def getIncomingMailFolder():
     portal = getSite()
     return portal['incoming-mail']
 
 
-@forever.memoize
 def getIncomingMailAddUrl():
     return '%s/%s' % (getIncomingMailFolder().absolute_url(), '++add++dmsincomingmail')
 
