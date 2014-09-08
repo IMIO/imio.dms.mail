@@ -19,6 +19,7 @@
     <include package="collective.dms.basecontent" />
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
+    <include package="collective.dms.scanbehavior" />
     <include package="collective.contact.core" />
     <include package="collective.contact.plonegroup" />
     <include package="collective.task" />
