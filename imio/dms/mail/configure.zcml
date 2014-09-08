@@ -15,6 +15,7 @@
     <five:registerPackage package="." initialize=".initialize" />
     <i18n:registerTranslations directory="locales" />
 
+    <include package="Products.PasswordStrength" />
     <include package="collective.dms.basecontent" />
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
