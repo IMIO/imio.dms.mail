@@ -68,10 +68,10 @@ class TestSetuphandlers(unittest.TestCase):
         #checking incoming mails
         pc = self.portal.portal_catalog
         imails = pc(portal_type=('dmsincomingmail',), path={"query": 'plone/incoming-mail'})
-        self.assertEquals(len(imails), 29)
+        self.assertEquals(len(imails), 9)
         #checking outgoing mails
         omails = pc(portal_type=('dmsoutgoingmail',), path={"query": 'plone/outgoing-mail'})
-        self.assertEquals(len(omails), 29)
+        self.assertEquals(len(omails), 9)
 
     def test_addTestUsersAndGroups(self):
         #checking groups
