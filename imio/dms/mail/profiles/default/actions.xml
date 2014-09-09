@@ -15,7 +15,7 @@
    <property name="icon_expr"></property>
    <property name="available_expr">python:context.getId() == 'incoming-mail' or context.getPhysicalPath()[-2:] == ('incoming-mail', 'topic_page')</property>
    <property name="permissions">
-    <element value="Add portal content"/>
+    <element value="collective.dms.batchimport: Batch import"/>
    </property>
    <property name="visible">False</property>
   </object>
