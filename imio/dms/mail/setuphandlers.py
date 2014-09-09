@@ -245,7 +245,7 @@ def configureBatchImport(context):
             os.path.join(productpath, u'batchimport/toprocess')
     if not registry.get('collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'):
         registry['collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'] = \
-            os.path.join(productpath, u'batchimport/processed')
+            os.path.join(productpath, u'batchimport/toprocess')
     if not registry.get('collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'):
         registry['collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'] = \
             [{'code': u'in', 'portal_type': u'dmsincomingmail'}]
