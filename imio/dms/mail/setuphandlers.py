@@ -577,7 +577,7 @@ def addTestUsersAndGroups(context):
         return ''.join(random.choice(string.ascii_letters + string.digits) for x in range(length))
 
     users = {
-        ('encodeur', u'Jean Encodeur'): [],
+        ('encodeur', u'Jean Encodeur'): ['Batch importer'],
         ('dirg', u'Maxime DG'): ['General Manager'],
         ('chef', u'Michel Chef'): [],
         ('agent', u'Fred Agent'): [],
