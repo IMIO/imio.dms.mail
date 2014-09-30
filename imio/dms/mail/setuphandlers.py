@@ -667,7 +667,7 @@ def configureDocumentViewer(context):
         return
     site = context.getSite()
     gsettings = GlobalSettings(site)
-    gsettings.storage_location = os.path.join(os.getcwd(), 'dv_files')
+    gsettings.storage_location = os.path.join(os.getcwd(), 'var', 'dv_files')
     gsettings.storage_type = 'Blob'
     gsettings.pdf_image_format = 'jpg'
     if 'excel' not in gsettings.auto_layout_file_types:
