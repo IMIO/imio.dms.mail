@@ -1,5 +1,4 @@
-from zope.i18n import translate
-from plone.api import group
+from plone.app.uuid.utils import uuidToObject
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 from DateTime import DateTime
@@ -42,9 +41,9 @@ class ListingView(BrowserView):
                     if not tg in results:
                         results[tg] = {'mails': []}
                         title = tg
-                        tgroup = group.get(tg)
+                        tgroup = uuidToObject(tg)
                         if tgroup is not None:
-                            title = tgroup.getProperty('title')
+                            title = tgroup.get_full_title(separator=' - ', first_index=1)
                         results[tg]['title'] = title
                     results[tg]['mails'].append(obj)
             else:
