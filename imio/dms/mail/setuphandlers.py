@@ -577,7 +577,8 @@ def addTestUsersAndGroups(context):
         return ''.join(random.choice(string.ascii_letters + string.digits) for x in range(length))
 
     users = {
-        ('encodeur', u'Jean Encodeur'): ['Batch importer'],
+        ('scanner', u'Scanner'): ['Batch importer'],
+        ('encodeur', u'Jean Encodeur'): [],
         ('dirg', u'Maxime DG'): ['General Manager'],
         ('chef', u'Michel Chef'): [],
         ('agent', u'Fred Agent'): [],
@@ -602,6 +603,7 @@ def addTestUsersAndGroups(context):
         add_local_roles_to_principals(site['incoming-mail'], ['encodeurs'], ['Contributor', 'Reader'])
         add_local_roles_to_principals(site['contacts'], ['encodeurs'], ['Contributor', 'Editor', 'Reader'])
 #        site['incoming-mail'].reindexObjectSecurity()
+        api.group.add_user(groupname='encodeurs', username='scanner')
         api.group.add_user(groupname='encodeurs', username='encodeur')
 
 
