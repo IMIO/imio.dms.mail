@@ -4,7 +4,26 @@ Changelog
 0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Upgrade step
+  [sgeulette]
+
+- Corrected listing view.
+  [sgeulette]
+
+- Remove portlet methods memoize.
+  [sgeulette]
+
+- Updated translations, configuration, tests.
+  [sgeulette]
+
+- Use now dexterity.localrolesfield in schema.
+  [sgeulette]
+
+- Added scan fields.
+  [sgeulette]
+
+- Use dmsdocument-edit view (file preview in modification).
+  [sgeulette]
 
 
 0.2 (2014-02-14)
