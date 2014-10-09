@@ -3,18 +3,4 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
 
-    <!-- localroles event subscribers -->
-    <subscriber
-        for="imio.dms.mail.dmsmail.ImioDmsIncomingMail
-             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
-        handler="collective.z3cform.rolefield.statefulllocalrolesfield.update_local_roles_based_on_fields_after_transition"
-        />
-
-    <subscriber
-        for="imio.dms.mail.dmsmail.ImioDmsIncomingMail
-             collective.z3cform.rolefield.interfaces.IStatefullLocalRolesField
-             zope.schema.interfaces.IFieldUpdatedEvent"
-        handler="collective.z3cform.rolefield.statefulllocalrolesfield.update_local_roles_based_on_fields_after_edit"
-        />
-
 </configure>

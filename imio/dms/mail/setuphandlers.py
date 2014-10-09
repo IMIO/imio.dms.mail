@@ -31,7 +31,6 @@ from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
-from collective.z3cform.rolefield.utils import add_local_roles_to_principals
 from dexterity.localroles.utils import add_fti_configuration
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
@@ -600,8 +599,8 @@ def addTestUsersAndGroups(context):
 
     if api.group.get('encodeurs') is None:
         api.group.create('encodeurs', 'Encodeurs courrier')
-        add_local_roles_to_principals(site['incoming-mail'], ['encodeurs'], ['Contributor', 'Reader'])
-        add_local_roles_to_principals(site['contacts'], ['encodeurs'], ['Contributor', 'Editor', 'Reader'])
+        site['incoming-mail'].manage_addLocalRoles('encodeurs', ['Contributor', 'Reader'])
+        site['contacts'].manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
 #        site['incoming-mail'].reindexObjectSecurity()
         api.group.add_user(groupname='encodeurs', username='scanner')
         api.group.add_user(groupname='encodeurs', username='encodeur')
