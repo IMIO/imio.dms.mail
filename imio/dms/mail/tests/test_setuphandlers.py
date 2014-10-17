@@ -81,5 +81,5 @@ class TestSetuphandlers(unittest.TestCase):
         #checking users
         mt = getToolByName(self.portal, 'portal_membership')
         users = [member for member in mt.listMembers()
-            if member.getProperty('fullname').find(' ') >= 1]
+                 if member.getProperty('fullname').find(' ') >= 1]
         self.assertEquals(len(users), 5)

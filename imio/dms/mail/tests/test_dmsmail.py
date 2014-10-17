@@ -20,7 +20,7 @@ class TestDmsmail(unittest.TestCase):
         voc_dic = registeredMailTypes(self).by_token
         voc_list = [(voc_dic[key].value, voc_dic[key].title) for key in voc_dic.keys()]
         self.assertEquals(voc_list, [(None, 'Choose a value !'), (u'Courrier', u'Courrier'), (u'Facture', u'Facture'),
-                                (u'Retour recommandé', u'Retour recommandé')])
+                                     (u'Retour recommandé', u'Retour recommandé')])
 
     def test_TreatingGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary
@@ -37,5 +37,6 @@ class TestDmsmail(unittest.TestCase):
     def test_Title(self):
         imail1 = self.portal['incoming-mail']['courrier1']
         self.assertEquals(imail1.Title(), 'in/1 - Courrier 1')
-        imail = createContentInContainer(self.portal, 'dmsincomingmail', **{'title': 'Test with auto ref'})
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
+                                         **{'title': 'Test with auto ref'})
         self.assertEquals(imail.Title(), 'in/10 - Test with auto ref')
