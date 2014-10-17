@@ -3,4 +3,10 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
 
+    <subscriber
+        zcml:condition="installed zope.lifecycleevent"
+        for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.replace_scanner"
+        />
 </configure>
