@@ -21,4 +21,12 @@
   </object>
 
  </object>
+
+ <object name="document_actions" meta_type="CMF Action Category">
+
+  <object name="extedit" meta_type="CMF Action" i18n:domain="plone">
+   <property name="visible">False</property>
+  </object>
+
+ </object>
 </object>
