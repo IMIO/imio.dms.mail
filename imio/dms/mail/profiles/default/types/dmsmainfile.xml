@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<object name="dmsmainfile" meta_type="Dexterity FTI" i18n:domain="plone"
+   xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+ <property name="behaviors">
+  <element value="plone.app.content.interfaces.INameFromTitle"/>
+  <element value="plone.app.dexterity.behaviors.metadata.IOwnership"/>
+  <element value="collective.dms.scanbehavior.behaviors.behaviors.IScanFields"/>
+ </property>
+</object>
