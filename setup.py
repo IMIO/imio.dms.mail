@@ -52,9 +52,9 @@ setup(name='imio.dms.mail',
           'collective.contact.plonegroup',
           'collective.task',
           'collective.externaleditor',
-          'imio.migrator',
           'collective.dms.scanbehavior',
           'dexterity.localrolesfield',
+          'imio.migrator',
           # -*- Extra requirements: -*-
       ],
       extras_require={'test':
