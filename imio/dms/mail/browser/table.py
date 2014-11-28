@@ -6,9 +6,10 @@ from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 class VersionsTitleColumn(VersionsTitleColumn):
 
     def getLinkTitle(self, item):
+        obj = item.getObject()
         scan_infos = [
-            ('scan_id', getattr(item, 'scan_id', '')),
-            ('scan_date', item.toLocalizedTime(getattr(item, 'scan_date'), long_format=1)),
+            ('scan_id', item.scan_id or ''),
+            ('scan_date', obj.scan_date and item.toLocalizedTime(obj.scan_date, long_format=1) or ''),
 #            ('scan_user', getattr(item, 'scan_user', '')),
         ]
         scan_infos = ["%s: %s" % (
