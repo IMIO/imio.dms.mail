@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-02-11 13:53+0000\n"
+"POT-Creation-Date: 2014-12-11 15:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -107,6 +107,11 @@ msgstr ""
 
 #: ./setuphandlers.py:54
 msgid "all_incoming_mails"
+msgstr ""
+
+#. Default: "Backrefs"
+#: ./browser/contactcontent_backrefs.pt:8
+msgid "backrefs_viewlet_title"
 msgstr ""
 
 #: ./setuphandlers.py:118

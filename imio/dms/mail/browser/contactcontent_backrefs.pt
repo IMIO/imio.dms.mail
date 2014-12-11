@@ -1,0 +1,22 @@
+<div class="visualClear"><!-- --></div>
+<div i18n:domain="imio.dms.mail"
+     class="contactcontent_backrefs"
+     tal:condition="backrefs"
+     tal:define="backrefs view/backrefs;
+                 toLocalizedTime nocall:context/@@plone/toLocalizedTime;">
+
+    <h3 i18n:translate="backrefs_viewlet_title">Backrefs</h3>
+    <ul>
+    <tal:refs tal:repeat="obj backrefs">
+        <li>
+            <img tal:attributes="src obj/getIconURL;"/>
+            <a href="" 
+               tal:attributes="href obj/absolute_url_path; class python:'contenttype-'+obj.portal_type;"
+               tal:define="title obj/Title;"
+               tal:content="title">
+            </a>
+            , <span tal:content="python: toLocalizedTime(obj.created())" />
+        </li>
+    </tal:refs>
+    </ul>
+</div>

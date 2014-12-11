@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-02-11 13:53+0000\n"
+"POT-Creation-Date: 2014-12-11 15:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,6 +109,11 @@ msgstr "Types de courrier entrant"
 msgid "all_incoming_mails"
 msgstr "Tous les courriers"
 
+#. Default: "Backrefs"
+#: ./browser/contactcontent_backrefs.pt:8
+msgid "backrefs_viewlet_title"
+msgstr "Contact utilisé par"
+
 #: ./setuphandlers.py:118
 msgid "front_page_descr"
 msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
@@ -165,3 +170,4 @@ msgstr "À valider par le DG"
 
 msgid "searchfor_proposed_to_service_chief"
 msgstr "À valider par le chef de service"
+
