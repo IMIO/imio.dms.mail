@@ -29,6 +29,15 @@
         template="listing.pt"
         />
 
+    <browser:viewlet
+        name="collective.contact.core.backrefs"
+        for="collective.contact.widget.interfaces.IContactContent"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+        class=".viewlets.ContactContentBackrefsViewlet"
+        layer="*"
+        permission="zope2.View"
+        />
+
     <!--configure package="collective.dms.basecontent">
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
