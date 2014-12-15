@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-12-11 15:12+0000\n"
+"POT-Creation-Date: 2014-12-15 10:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,9 +31,17 @@ msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
+#: ./profiles/default/actions.xml
+msgid "Daily listing"
+msgstr "Listing journalier"
+
 #: ./setuphandlers.py:51
 msgid "Incoming mail"
 msgstr "Courrier entrant"
+
+#: ./profiles/default/actions.xml
+msgid "Incoming mail daily listing"
+msgstr "Listing journalier des courriers entrants"
 
 #: ./browser/listing.pt:18
 msgid "Incoming mail listing"

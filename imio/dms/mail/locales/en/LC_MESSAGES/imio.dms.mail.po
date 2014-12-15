@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-12-11 15:12+0000\n"
+"POT-Creation-Date: 2014-12-15 10:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,8 +31,16 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
+#: ./profiles/default/actions.xml
+msgid "Daily listing"
+msgstr ""
+
 #: ./setuphandlers.py:51
 msgid "Incoming mail"
+msgstr ""
+
+#: ./profiles/default/actions.xml
+msgid "Incoming mail daily listing"
 msgstr ""
 
 #: ./browser/listing.pt:18
