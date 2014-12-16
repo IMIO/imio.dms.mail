@@ -341,36 +341,6 @@ def addTestDirectory(context):
     #blacklistPortletCategory(context, contacts, CONTEXT_CATEGORY, u"plone.leftcolumn")
 
     # Organisations creation (in directory)
-    params = {'title': u"Ma Commune",
-              'organization_type': u'commune',
-              'zip_code': u'0010',
-              'city': u'Ma ville',
-              'street': u'Rue de la Commune',
-              'number': u'1',
-              }
-    contacts.invokeFactory('organization', 'macommune', **params)
-    macommune = contacts['macommune']
-
-    params = {'title': u"Service Urbanisme",
-              'organization_type': u'service',
-              'zip_code': u'0011',
-              'city': u'Ma ville2',
-              'street': u"Rue de l'urbanisme",
-              'number': u'12',
-              }
-    macommune.invokeFactory('organization', 'service-urba', **params)
-    serviceurba = macommune['service-urba']
-
-    params = {'title': u"Mon CPAS",
-              'organization_type': u'cpas',
-              'zip_code': u'0010',
-              'city': u'Ma ville',
-              'street': u'Rue du CPAS',
-              'number': u'1',
-              }
-    contacts.invokeFactory('organization', 'moncpas', **params)
-    moncpas = contacts['moncpas']
-
     params = {'title': u"Electrabel",
               'organization_type': u'sa',
               'zip_code': u'0020',
@@ -381,77 +351,28 @@ def addTestDirectory(context):
     contacts.invokeFactory('organization', 'electrabel', **params)
     electrabel = contacts['electrabel']
 
+    params = {'title': u"SWDE",
+              'organization_type': u'sa',
+              'zip_code': u'0020',
+              'city': u'E-ville',
+              'street': u"Rue de l'eau vive",
+              'number': u'1',
+              }
+    contacts.invokeFactory('organization', 'swde', **params)
+    swde = contacts['swde']
+
     # Positions creation (in organisations)
-    params = {'title': u"Président",
-              'position_type': u'president',
+    params = {'title': u"Agent",
+              'position_type': u'employe',
               }
-    moncpas.invokeFactory('position', 'president', **params)
-
-    params = {'title': u"Secrétaire du CPAS",
-              'position_type': u'secretaire-gen',
-              }
-    moncpas.invokeFactory('position', 'secretaire-cpas', **params)
-
-    params = {'title': u"Receveur",
-              'position_type': u'receveur',
-              }
-    moncpas.invokeFactory('position', 'receveur', **params)
+    electrabel.invokeFactory('position', 'agent', **params)
 
     params = {'title': u"Agent",
               'position_type': u'employe',
               }
-    moncpas.invokeFactory('position', 'agent', **params)
-
-    params = {'title': u"Bourgmestre",
-              'position_type': u'president',
-              }
-    macommune.invokeFactory('position', 'bourgmestre', **params)
-
-    params = {'title': u"Secrétaire communal",
-              'position_type': u'secretaire-gen',
-              }
-    macommune.invokeFactory('position', 'secretaire-com', **params)
-
-    params = {'title': u"Receveur",
-              'position_type': u'receveur',
-              }
-    macommune.invokeFactory('position', 'receveur', **params)
-
-    params = {'title': u"Agent",
-              'position_type': u'employe',
-              }
-    macommune.invokeFactory('position', 'agent', **params)
-    serviceurba.invokeFactory('position', 'agent', **params)
-
-    params = {'title': u"Employé",
-              'position_type': u'employe',
-              }
-    electrabel.invokeFactory('position', 'employe', **params)
+    swde.invokeFactory('position', 'agent', **params)
 
     # Persons creation (in directory)
-    params = {'lastname': u'Gère',
-              'firstname': u'Jean',
-              'gender': u'M',
-              'person_title': u'Monsieur',
-              'birthday': datetime.date(1961, 11, 22),
-              'email': u'jean.gere@moncpas.be',
-              'phone': u'012/345.678',
-              'additional_address_details': u'Bâtiment D',
-              }
-    contacts.invokeFactory('person', 'jeangere', **params)
-    jeangere = contacts['jeangere']
-
-    params = {'lastname': u'Permis',
-              'firstname': u'Jean',
-              'gender': u'M',
-              'person_title': u'Monsieur',
-              'birthday': datetime.date(1971, 11, 22),
-              'email': u'jean.permis@maville.be',
-              'phone': u'012/345.678',
-              }
-    contacts.invokeFactory('person', 'jeanpermis', **params)
-    jeanpermis = contacts['jeanpermis']
-
     params = {'lastname': u'Courant',
               'firstname': u'Jean',
               'gender': u'M',
@@ -463,36 +384,34 @@ def addTestDirectory(context):
     contacts.invokeFactory('person', 'jeancourant', **params)
     jeancourant = contacts['jeancourant']
 
+    params = {'lastname': u'Robinet',
+              'firstname': u'Serge',
+              'gender': u'M',
+              'person_title': u'Monsieur',
+              'birthday': datetime.date(1981, 11, 22),
+              'email': u'serge.robinet@electrabel.be',
+              'phone': u'012/345.678',
+              }
+    contacts.invokeFactory('person', 'sergerobinet', **params)
+    sergerobinet = contacts['sergerobinet']
     # Held positions creation (in persons)
     intids = getUtility(IIntIds)
 
     # link to a defined position
-    pdc = moncpas['president']
+    aswde = swde['agent']
     params = {'start_date': datetime.date(2001, 5, 25),
               'end_date': datetime.date(2100, 1, 1),
-              'position': RelationValue(intids.getId(pdc)),
+              'position': RelationValue(intids.getId(aswde)),
               }
-    jeangere.invokeFactory('held_position', 'pdc', **params)
-
-    pop = macommune['agent']
-    params = {'start_date': datetime.date(2003, 5, 25),
-              'end_date': datetime.date(2008, 5, 25),
-              'position': RelationValue(intids.getId(pop)),
-              }
-    jeanpermis.invokeFactory('held_position', 'pop', **params)
-    urba = serviceurba['agent']
-    params = {'start_date': datetime.date(2008, 5, 25),
-              'end_date': datetime.date(2100, 1, 1),
-              'position': RelationValue(intids.getId(urba)),
-              }
-    jeanpermis.invokeFactory('held_position', 'urba', **params)
+    sergerobinet.invokeFactory('held_position', 'agent-swde', **params)
 
     # link to an organisation
+    aelec = electrabel['agent']
     params = {'start_date': datetime.date(2005, 5, 25),
               'end_date': datetime.date(2100, 1, 1),
-              'position': RelationValue(intids.getId(electrabel)),
+              'position': RelationValue(intids.getId(aelec)),
               }
-    jeancourant.invokeFactory('held_position', 'electrabel', **params)
+    jeancourant.invokeFactory('held_position', 'agent-electrabel', **params)
 
 
 def addTestMails(context):
@@ -518,45 +437,43 @@ def addTestMails(context):
 
     contacts = site['contacts']
     senders = [
-        RelationValue(intids.getId(contacts['electrabel'])),  # sender is the organisation
-        RelationValue(intids.getId(contacts['jeancourant'])),  # sender is a person
-        RelationValue(intids.getId(contacts['jeancourant']['electrabel'])),  # sender is a person of electrabel
-        RelationValue(intids.getId(contacts['jeanpermis']['urba'])),  # sender is a person with a position
+        intids.getId(contacts['electrabel']),  # sender is the organisation
+        intids.getId(contacts['swde']),  # sender is the organisation
+        intids.getId(contacts['jeancourant']),  # sender is a person
+        intids.getId(contacts['sergerobinet']),  # sender is a person
+        intids.getId(contacts['jeancourant']['agent-electrabel']),  # sender is a person with a position
+        intids.getId(contacts['sergerobinet']['agent-swde']),  # sender is a person with a position
     ]
+    senders_cycle = cycle(senders)
     # incoming mails
     ifld = site['incoming-mail']
     data = dummy(site, site.REQUEST)
-    j = 0
     for i in range(1, 10):
         if not 'courrier%d' % i in ifld:
             params = {'title': 'Courrier %d' % i,
                       'mail_type': 'courrier',
                       'internal_reference_no': internalReferenceIncomingMailDefaultValue(data),
                       'reception_date': receptionDateDefaultValue(data),
-                      'sender': senders[j],
+                      'sender': RelationValue(senders_cycle.next()),
                       }
             ifld.invokeFactory('dmsincomingmail', id='courrier%d' % i, **params)
             mail = ifld['courrier%d' % i]
-            if i % 4:
-                j += 1
-            else:
-                j = 0
             filename = files_cycle.next()
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
                 createContentInContainer(mail, 'dmsmainfile', title='', file=file_object)
 
+    senders_cycle = cycle(senders)
     # outgoing mails
     ofld = site['outgoing-mail']
     for i in range(1, 10):
         if not 'reponse%d' % i in ofld:
-            inmail = ifld['courrier%d' % i]
             params = {'title': 'Réponse %d' % i,
                       'internal_reference_no': internalReferenceOutgoingMailDefaultValue(data),
                       'mail_date': mailDateDefaultValue(data),
                       #temporary in comment because it doesn't pass in test and case probably errors when deleting site
                       #'in_reply_to': [RelationValue(intids.getId(inmail))],
-                      'recipients': [inmail.sender],
+                      'recipients': [RelationValue(senders_cycle.next())],
                       }
             ofld.invokeFactory('dmsoutgoingmail', id='reponse%d' % i, **params)
 
