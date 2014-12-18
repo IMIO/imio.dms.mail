@@ -22,9 +22,9 @@
       />
 
     <genericsetup:registerProfile
-        name="basic_version"
+        name="first_basic_version"
         title="imio.dms.mail basic version"
-        directory="profiles/basic_version"
+        directory="profiles/first_basic_version"
         description="Basic temporary configuration for imio.dms.mail"
         provides="Products.GenericSetup.interfaces.EXTENSION"
         for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
