@@ -11,7 +11,9 @@
     <dependency>profile-collective.contact.plonegroup:default</dependency>
     <dependency>profile-collective.externaleditor:default</dependency>
     <dependency>profile-collective.task:default</dependency>
+    <dependency>profile-communesplone.layout:default</dependency>
     <dependency>profile-dexterity.localrolesfield:default</dependency>
+    <dependency>profile-plonetheme.imioapps:dmsmailskin</dependency>
     <!--dependency>profile-collective.contact.ui:default</dependency-->
   </dependencies>
 </metadata>

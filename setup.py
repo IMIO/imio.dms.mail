@@ -53,8 +53,10 @@ setup(name='imio.dms.mail',
           'collective.task',
           'collective.externaleditor',
           'collective.dms.scanbehavior',
+          'communesplone.layout',
           'dexterity.localrolesfield',
           'imio.migrator',
+          'plonetheme.imioapps',
           # -*- Extra requirements: -*-
       ],
       extras_require={'test':
