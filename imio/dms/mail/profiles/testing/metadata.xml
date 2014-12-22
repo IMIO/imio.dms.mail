@@ -4,7 +4,6 @@
   <dependencies>
   	<dependency>profile-Products.CMFPlone:plone</dependency>
   	<dependency>profile-Products.CMFPlone:plone-content</dependency>
-  	<dependency>profile-imio.dms.mail:default</dependency>
-  	<dependency>profile-imio.dms.mail:data</dependency>
+  	<dependency>profile-imio.dms.mail:examples</dependency>
   </dependencies>
 </metadata>

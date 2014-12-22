@@ -14,10 +14,10 @@
       />
 
     <genericsetup:registerProfile
-        name="data"
-        title="imio.dms.mail test data"
-        directory="profiles/data"
-        description="Add test data for imio.dms.mail"
+        name="examples"
+        title="imio.dms.mail test examples"
+        directory="profiles/examples"
+        description="Add test examples for imio.dms.mail"
         provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 

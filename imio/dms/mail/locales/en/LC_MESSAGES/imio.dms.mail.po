@@ -139,7 +139,7 @@ msgid "imio.dms.mail"
 msgstr ""
 
 #: ./configure.zcml:
-msgid "imio.dms.mail test data"
+msgid "imio.dms.mail test examples"
 msgstr ""
 
 #. Default: "Date"

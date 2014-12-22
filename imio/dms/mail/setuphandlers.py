@@ -232,7 +232,7 @@ def configureBatchImport(context):
     """
         Add batch import configuration
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     logger.info('Configure batch import')
     registry = getUtility(IRegistry)
@@ -254,7 +254,7 @@ def configureImioDmsMail(context):
     """
         Add french test imio dms mail configuration
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     logger.info('Configure imio dms mail')
     registry = getUtility(IRegistry)
@@ -271,7 +271,7 @@ def configureContactPloneGroup(context):
     """
         Add french test contact plonegroup configuration
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     logger.info('Configure contact plonegroup')
     registry = getUtility(IRegistry)
@@ -305,7 +305,7 @@ def addTestDirectory(context):
     """
         Add french test data: directory
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     site = context.getSite()
     logger.info('Adding test directory')
@@ -418,7 +418,7 @@ def addTestMails(context):
     """
         Add french test data: mails
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     site = context.getSite()
     logger.info('Adding test mails')
@@ -482,7 +482,7 @@ def addTestUsersAndGroups(context):
     """
         Add french test data: users and groups
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     site = context.getSite()
 
@@ -527,7 +527,7 @@ def addOwnOrganization(context):
     """
         Add french test data: own organization
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     site = context.getSite()
     contacts = site['contacts']
@@ -579,7 +579,7 @@ def configureDocumentViewer(context):
         Set the settings of document viewer product
     """
     from collective.documentviewer.settings import GlobalSettings
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     site = context.getSite()
     gsettings = GlobalSettings(site)
@@ -595,7 +595,7 @@ def refreshCatalog(context):
     """
         Reindex catalog
     """
-    if not context.readDataFile("imiodmsmail_data_marker.txt"):
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     site = context.getSite()
     site.portal_catalog.refreshCatalog()
