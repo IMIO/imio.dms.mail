@@ -52,17 +52,17 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertEquals(len(contacts.organization_levels), 2)
         #checking organizations
         organizations = contacts.listFolderContents(contentFilter={'portal_type': 'organization'})
-        self.assertEquals(len(organizations), 4)
+        self.assertEquals(len(organizations), 3)
         #checking positions
         pc = self.portal.portal_catalog
         positions = pc(portal_type=('position',), path={"query": 'plone/contacts'})
-        self.assertEquals(len(positions), 10)
+        self.assertEquals(len(positions), 2)
         #checking persons
         persons = contacts.listFolderContents(contentFilter={'portal_type': 'person'})
-        self.assertEquals(len(persons), 3)
+        self.assertEquals(len(persons), 2)
         #checking held positions
         held_positions = pc(portal_type=('held_position',), path={"query": 'plone/contacts'})
-        self.assertEquals(len(held_positions), 4)
+        self.assertEquals(len(held_positions), 2)
 
     def test_addTestMails(self):
         #checking incoming mails
