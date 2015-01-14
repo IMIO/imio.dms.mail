@@ -110,11 +110,6 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     treating_groups = FieldProperty(IImioDmsIncomingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsIncomingMail[u'recipient_groups'])
 
-    def Title(self):
-        if self.internal_reference_no is None:
-            return self.title.encode('utf8')
-        return "%s - %s" % (self.internal_reference_no.encode('utf8'), self.title.encode('utf8'))
-
 
 def ImioDmsIncomingMailUpdateWidgets(the_form):
     """
