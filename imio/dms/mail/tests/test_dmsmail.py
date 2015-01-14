@@ -36,7 +36,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_Title(self):
         imail1 = self.portal['incoming-mail']['courrier1']
-        self.assertEquals(imail1.Title(), 'in/1 - Courrier 1')
+        self.assertEquals(imail1.Title(), 'E0001 - Courrier 1')
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
                                          **{'title': 'Test with auto ref'})
-        self.assertEquals(imail.Title(), 'in/10 - Test with auto ref')
+        self.assertEquals(imail.Title(), 'E0010 - Test with auto ref')

@@ -265,6 +265,10 @@ def configureImioDmsMail(context):
             {'mt_value': u'Facture', 'mt_title': u'Facture', 'mt_active': True},
             {'mt_value': u'Retour recommandé', 'mt_title': u'Retour recommandé', 'mt_active': True},
         ]
+    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == u"python:'in/'+number":
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression'] = u"python:'E%04d'%int(number)"
+    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression') == u"python:'out/'+number":
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression'] = u"python:'S%04d'%int(number)"
 
 
 def configureContactPloneGroup(context):
