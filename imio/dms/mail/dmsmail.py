@@ -115,8 +115,6 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
     """
         Widgets update method for add and edit
     """
-    the_form.widgets['treating_groups'].multiple = 'multiple'
-    the_form.widgets['treating_groups'].size = 5
     current_user = api.user.get_current()
     if not current_user.has_role('Manager') and not current_user.has_role('Site Administrator'):
         the_form.widgets['internal_reference_no'].mode = 'hidden'
