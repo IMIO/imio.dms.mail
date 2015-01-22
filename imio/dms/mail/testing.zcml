@@ -3,7 +3,10 @@
            i18n_domain="imio.dms.mail">
 
    <include package="Products.CMFPlone"/>
+   <include package="communesplone.layout"/>
    <include package="imio.dms.mail"/>
+   <include package="plonetheme.imioapps"/>
+
    <include file="configure.zcml"/>
 
     <genericsetup:registerProfile
