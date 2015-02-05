@@ -64,6 +64,13 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         default=None,
     )
 
+    #password = schema.Password(
+    #    title=_(u"Password"),
+    #    description=_(u"Your password."),
+    #    required=True,
+    #    default='password'
+    #)
+
     # doesn't work well if IImioDmsIncomingMail is a behavior instead a subclass
     directives.order_before(sender='recipient_groups')
     directives.order_before(mail_type='recipient_groups')

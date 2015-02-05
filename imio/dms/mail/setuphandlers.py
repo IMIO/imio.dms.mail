@@ -32,6 +32,7 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIO
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from dexterity.localroles.utils import add_fti_configuration
+from imio.helpers.security import is_develop_environment
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 
@@ -491,11 +492,6 @@ def addTestUsersAndGroups(context):
     site = context.getSite()
 
     # creating users
-    is_mountpoint = len(site.absolute_url_path().split('/')) > 2
-
-    def generatePassword(length):
-        return ''.join(random.choice(string.ascii_letters + string.digits) for x in range(length))
-
     users = {
         ('scanner', u'Scanner'): ['Batch importer'],
         ('encodeur', u'Jean Encodeur'): [],
@@ -505,7 +501,7 @@ def addTestUsersAndGroups(context):
         ('lecteur', u'Jef Lecteur'): [],
     }
     password = 'Dmsmail69!'
-    if is_mountpoint:
+    if not is_develop_environment():
         password = site.portal_registration.generatePassword()
 
     for uid, fullname in users.keys():

@@ -55,6 +55,7 @@ setup(name='imio.dms.mail',
           'collective.dms.scanbehavior',
           'communesplone.layout',
           'dexterity.localrolesfield',
+          'imio.helpers',
           'imio.migrator',
           'plonetheme.imioapps',
           # -*- Extra requirements: -*-
