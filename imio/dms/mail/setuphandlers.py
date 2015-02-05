@@ -32,7 +32,7 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIO
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from dexterity.localroles.utils import add_fti_configuration
-from imio.helpers.security import is_develop_environment
+from imio.helpers.security import is_develop_environment, generate_password
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 
@@ -502,7 +502,9 @@ def addTestUsersAndGroups(context):
     }
     password = 'Dmsmail69!'
     if not is_develop_environment():
-        password = site.portal_registration.generatePassword()
+#        password = site.portal_registration.generatePassword()
+        password = generate_password()
+    logger.info("Generated password='%s'" % password)
 
     for uid, fullname in users.keys():
         try:
