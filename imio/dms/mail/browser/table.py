@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from zope.i18n import translate
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
+from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 
 
 class VersionsTitleColumn(VersionsTitleColumn):
 
     def getLinkTitle(self, item):
         obj = item.getObject()
+        if not IScanFields.providedBy(obj):
+            return
         scan_infos = [
             ('scan_id', item.scan_id or ''),
             ('scan_date', obj.scan_date and item.toLocalizedTime(obj.scan_date, long_format=1) or ''),
