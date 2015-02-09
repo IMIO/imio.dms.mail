@@ -128,7 +128,7 @@ msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
 
 #: ./setuphandlers.py:119
 msgid "front_page_text"
-msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
+msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='login?came_from=incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
 
 #: ./setuphandlers.py:117
 msgid "front_page_title"
