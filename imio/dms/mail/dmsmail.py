@@ -12,6 +12,7 @@ from five import grok
 from plone.autoform import directives
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
 from dexterity.localrolesfield.field import LocalRolesField
+from plone.dexterity.browser.edit import DefaultEditForm
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.registry.interfaces import IRegistry
@@ -130,14 +131,13 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
             the_form.widgets['internal_reference_no'].value = ''
 
 
-class Edit(dexterity.EditForm):
+class IMEdit(DefaultEditForm):
     """
         Edit form redefinition to customize fields.
     """
-    grok.context(IImioDmsIncomingMail)
 
     def updateWidgets(self):
-        dexterity.EditForm.updateWidgets(self)
+        super(IMEdit, self).updateWidgets()
         ImioDmsIncomingMailUpdateWidgets(self)
 
 
@@ -149,7 +149,7 @@ class Add(dexterity.AddForm):
     grok.name('dmsincomingmail')
 
     def updateWidgets(self):
-        dexterity.AddForm.updateWidgets(self)
+        super(Add, self).updateWidgets()
         ImioDmsIncomingMailUpdateWidgets(self)
 
 
