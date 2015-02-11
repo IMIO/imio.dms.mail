@@ -10,9 +10,9 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
 from five import grok
 from plone.autoform import directives
+from collective.dms.basecontent.browser.views import DmsDocumentEdit
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
 from dexterity.localrolesfield.field import LocalRolesField
-from plone.dexterity.browser.edit import DefaultEditForm
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.registry.interfaces import IRegistry
@@ -131,7 +131,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
             the_form.widgets['internal_reference_no'].value = ''
 
 
-class IMEdit(DefaultEditForm):
+class IMEdit(DmsDocumentEdit):
     """
         Edit form redefinition to customize fields.
     """
