@@ -120,6 +120,15 @@ class Migrate_To_0_2(Migrator):
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:examples',
                                                           'imiodmsmail-configureDocumentViewer')
 
+    def _correct_dmsfile(self):
+        logger.info("Add missing attribute")
+        brains = self.portal.portal_catalog(portal_type='dmsmainfile')
+        for brain in brains:
+            obj = brain.getObject()
+            if not base_hasattr(obj, 'signed'):
+                obj.signed = False
+            obj.reindexObject(idxs=('Title', ))
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.2...')
         self.upgradeProfile('collective.dms.mailcontent:default')
@@ -131,6 +140,8 @@ class Migrate_To_0_2(Migrator):
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:default',
                                                           'workflow')
         self._configure_product()
+        self._correct_dmsfile()
+        self.refreshDatabase()
 
 
 def migrate(context):

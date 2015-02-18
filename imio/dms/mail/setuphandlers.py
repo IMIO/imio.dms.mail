@@ -594,7 +594,7 @@ def configureDocumentViewer(context):
     gsettings.storage_type = 'Blob'
     gsettings.pdf_image_format = 'jpg'
     if 'excel' not in gsettings.auto_layout_file_types:
-        gsettings.auto_layout_file_types += ('excel', 'image')
+        gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ['excel', 'image']
     gsettings.show_search = True
 
 
