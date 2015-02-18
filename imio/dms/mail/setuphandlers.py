@@ -14,11 +14,10 @@ __docformat__ = 'plaintext'
 import datetime
 import logging
 import os
-import random
-import string
 from itertools import cycle
-from Acquisition import aq_base
+from Products.CMFPlone.utils import base_hasattr
 from zope.component import queryUtility, getMultiAdapter, getUtility
+from zope.component.hooks import getSite
 from zope.i18n.interfaces import ITranslationDomain
 from zope.intid.interfaces import IIntIds
 from z3c.relationfield.relation import RelationValue
@@ -36,9 +35,9 @@ from imio.helpers.security import is_develop_environment, generate_password
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 
-def _(msgid, context, domain='imio.dms.mail'):
+def _(msgid, domain='imio.dms.mail'):
     translation_domain = queryUtility(ITranslationDomain, domain)
-    return translation_domain.translate(msgid, context=context.getSite().REQUEST)
+    return translation_domain.translate(msgid, context=getSite().REQUEST)
 
 
 def postInstall(context):
@@ -56,22 +55,22 @@ def postInstall(context):
     configure_rolefields(context)
 
     # we create the basic folders
-    if not hasattr(aq_base(site), 'incoming-mail'):
-        folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail", context))
+    if not base_hasattr(site, 'incoming-mail'):
+        folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
         newFolder = getattr(site, folderid)
         #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(newFolder, 'dmsincomingmail', _(u'all_incoming_mails', context))
+        createTopicView(newFolder, 'dmsincomingmail', _(u'all_incoming_mails'))
         createStateTopics(context, newFolder, 'dmsincomingmail')
         newFolder.setConstrainTypesMode(1)
         newFolder.setLocallyAllowedTypes(['dmsincomingmail'])
         newFolder.setImmediatelyAddableTypes(['dmsincomingmail'])
         site.portal_workflow.doActionFor(newFolder, "show_internally")
         logger.info('incoming-mail folder created')
-    if not hasattr(aq_base(site), 'outgoing-mail'):
-        folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail", context))
+    if not base_hasattr(site, 'outgoing-mail'):
+        folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         newFolder = getattr(site, folderid)
         #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(newFolder, 'dmsoutgoingmail', _('Outgoing mail', context))
+        createTopicView(newFolder, 'dmsoutgoingmail', _('Outgoing mail'))
         newFolder.setConstrainTypesMode(1)
         newFolder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         newFolder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
@@ -124,7 +123,7 @@ def createStateTopics(context, folder, content_type):
             try:
                 topic_id = "searchfor_%s" % state
                 if not hasattr(folder, topic_id):
-                    folder.invokeFactory("Topic", id=topic_id, title=_(topic_id, context))
+                    folder.invokeFactory("Topic", id=topic_id, title=_(topic_id))
                     topic = folder[topic_id]
                     topic.setCustomView(True)
                     topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
@@ -164,13 +163,14 @@ def adaptDefaultPortal(context):
     #change the content of the front-page
     try:
         frontpage = getattr(site, 'front-page')
-        frontpage.setTitle(_("front_page_title", context))
-        frontpage.setDescription(_("front_page_descr", context))
-        frontpage.setText(_("front_page_text", context), mimetype='text/html')
-        #remove the presentation mode
-        frontpage.setPresentation(False)
-        frontpage.reindexObject()
-        logger.info('front page adapted')
+        if not base_hasattr(site, 'incoming-mail'):
+            frontpage.setTitle(_("front_page_title"))
+            frontpage.setDescription(_("front_page_descr"))
+            frontpage.setText(_("front_page_text"), mimetype='text/html')
+            #remove the presentation mode
+            frontpage.setPresentation(False)
+            frontpage.reindexObject()
+            logger.info('front page adapted')
     except AttributeError:
         #the 'front-page' object does not exist...
         pass
@@ -224,6 +224,7 @@ def configure_rolefields(context):
     },
     }
     for keyname in roles_config:
+        # don't overwrite existing configuration
         msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)
         if msg:
             logger.warn(msg)
@@ -266,10 +267,14 @@ def configureImioDmsMail(context):
             {'mt_value': u'Facture', 'mt_title': u'Facture', 'mt_active': True},
             {'mt_value': u'Retour recommandé', 'mt_title': u'Retour recommandé', 'mt_active': True},
         ]
-    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == u"python:'in/'+number":
-        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression'] = u"python:'E%04d'%int(number)"
-    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression') == u"python:'out/'+number":
-        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression'] = u"python:'S%04d'%int(number)"
+    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == \
+            u"python:'in/'+number":
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression'] = \
+            u"python:'E%04d'%int(number)"
+    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression') == \
+            u"python:'out/'+number":
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression'] = \
+            u"python:'S%04d'%int(number)"
 
 
 def configureContactPloneGroup(context):
@@ -552,8 +557,8 @@ def addOwnOrganization(context):
     # Departments and services creation
     sublevels = [
         (u'Département Jeunesse', [u'Cité de l\'Enfance', u'AMO Ancrages', u'MCAE Cité P\'tit',
-                                   u'MCAE Bébé Lune', u'Crèche de Mons ', u'Crèche de Jemappes',
-                                   u'Crèche Nid Douillet', u'SAEC']),
+                                    u'MCAE Bébé Lune', u'Crèche de Mons ', u'Crèche de Jemappes',
+                                    u'Crèche Nid Douillet', u'SAEC']),
         (u'Département Égalité des chances', []),
         (u'Département GRH', [u'Personnel', u'Traitements']),
         (u'Département du Patrimoine', [u'Technique', u'Technique administratif', u'Patrimoine']),
@@ -561,10 +566,10 @@ def addOwnOrganization(context):
         (u'Département du Président', [u'Cabinet du Président']),
         (u'Département des Aînés', [u'BMB', u'MRS Havré', u'Acasa']),
         (u'Département Social', [u'Aide générale', u'Service personnes âgées', u'Service social administratif', u'SIP',
-                                 u'Guidance / Médiation', u'VIF', u'Logement', u'EFT', u'Service juridique']),
+                                  u'Guidance / Médiation', u'VIF', u'Logement', u'EFT', u'Service juridique']),
         (u'Département informatique', []),
         (u'Département des Finances', [u'Gestion Financière', u'Cellule Financière', u'Directeur financier',
-                                       u'Homes Extérieurs', u'Avances et Récupérations', u'Assurances']),
+                                        u'Homes Extérieurs', u'Avances et Récupérations', u'Assurances']),
     ]
     idnormalizer = queryUtility(IIDNormalizer)
     for (department, services) in sublevels:
