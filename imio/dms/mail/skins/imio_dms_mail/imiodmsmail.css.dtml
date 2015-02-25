@@ -35,4 +35,10 @@
 .portaltype-person #held_positions .held_position {
     min-height: 0em;
 }
+
+.overlay.overlay-ajax.overlay-contact-addnew {
+ left: 5px !important;
+ width: 50% !important;
+}
+
 /* </dtml-with> */
