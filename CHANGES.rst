@@ -4,6 +4,9 @@ Changelog
 0.3 (unreleased)
 ----------------
 
+- Use imio.actionspanel
+  [sgeulette]
+
 - Upgrade step
   [sgeulette]
 

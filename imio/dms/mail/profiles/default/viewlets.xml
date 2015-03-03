@@ -5,4 +5,7 @@
   <viewlet name="plone.belowcontentbody.relateditems"/>
   <viewlet name="plone.abovecontenttitle.documentactions"/>
  </order>
+ <order manager="dms.belowcontent" skinname="*">
+  <viewlet name="dms.appendix" insert-before="imio.actionspanel"/>
+ </order>
 </object>
