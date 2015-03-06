@@ -42,7 +42,7 @@
         <browser:viewlet
             name="imio.actionspanel"
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
-            manager="collective.dms.basecontent.browser.viewlets.DmsBelowContentViewletManager"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             class="imio.actionspanel.browser.viewlets.ActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
