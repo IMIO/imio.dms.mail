@@ -7,3 +7,4 @@ def initialize(context):
 
 from collective.dms.basecontent import dmsfile
 dmsfile.DmsFile.__ac_local_roles_block__ = False
+dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
