@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<object name="dmsmainfile" meta_type="Dexterity FTI">
+<object name="dmsdocument" meta_type="Dexterity FTI">
+ <property name="global_allow">False</property>
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
-  <element value="collective.dms.scanbehavior.behaviors.behaviors.IScanFields"/>
  </property>
 </object>

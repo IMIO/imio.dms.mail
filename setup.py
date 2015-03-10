@@ -58,6 +58,7 @@ setup(name='imio.dms.mail',
           'imio.actionspanel',
           'imio.helpers',
           'imio.migrator',
+          'plone.app.lockingbehavior',
           'plonetheme.imioapps',
           # -*- Extra requirements: -*-
       ],
