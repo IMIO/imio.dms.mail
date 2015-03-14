@@ -49,14 +49,14 @@
             permission="zope2.View" />
     </configure>
 
-    <!--configure package="collective.dms.basecontent">
+    <!--configure package="imio.actionspanel">
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
-            name="view"
-            class="plone.dexterity.browser.view.DefaultView"
-            template="browser/templates/dmsdocument_view.pt"
-            permission="zope2.View"
-            />
+            name="actions_panel"
+            class="imio.dms.mail.browser.actionspanel.DmsIMActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
     </configure-->
 
 </configure>
