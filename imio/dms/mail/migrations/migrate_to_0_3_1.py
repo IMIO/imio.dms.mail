@@ -15,6 +15,7 @@ class Migrate_To_0_3_1(Migrator):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
         self.cleanRegistries()
         self.reinstall(['imio.actionspanel:default'])
+        # Set ILocking behavior
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:default',
                                                           'typeinfo')
         self.upgradeAll()
