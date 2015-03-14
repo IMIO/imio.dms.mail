@@ -41,4 +41,46 @@
  width: 50% !important;
 }
 
+.state-created {
+ color: red !important;
+}
+
+.state-proposed_to_manager {
+ color: DarkOrange !important;
+}
+
+.state-proposed_to_division_head {
+ color: blue !important;
+}
+
+.state-proposed_to_service_chief {
+ color: blueviolet !important;
+}
+
+.state-proposed_to_agent {
+ color: cornflowerBlue !important;
+}
+
+.state-in_treatment {
+ color: green !important;
+}
+
+.state-closed {
+ color: dimgrey !important;
+}
+
+.state-color {
+ color: brown !important;
+/* color: darkgrey !important;
+ color: violet !important;
+ color: cornflowerBlue !important;
+ color: #436976 !important;
+ color: #FFA500 !important;
+ color: green !important;
+ color: DarkOrange !important;
+ color: blue !important;
+ color: red !important;
+ color: black !important;*/
+}
+
 /* </dtml-with> */
