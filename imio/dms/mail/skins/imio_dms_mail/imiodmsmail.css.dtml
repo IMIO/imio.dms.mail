@@ -58,7 +58,7 @@
 }
 
 .state-proposed_to_agent {
- color: cornflowerBlue !important;
+ color: blue !important;
 }
 
 .state-in_treatment {
