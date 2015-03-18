@@ -16,6 +16,9 @@
     <five:registerPackage package="." initialize=".initialize" />
     <i18n:registerTranslations directory="locales" />
 
+    <permission id="imio.dms.mail.write_im_field"
+                title="imio.dms.mail : Write incoming mail field"/>
+
     <include package="Products.PasswordStrength" />
     <include package="collective.dms.basecontent" />
     <include package="collective.dms.mailcontent" />

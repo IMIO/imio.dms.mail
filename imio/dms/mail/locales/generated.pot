@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-12-15 10:10+0000\n"
+"POT-Creation-Date: 2015-03-18 13:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./dmsmail.py:30
+#: ./dmsmail.py:31
 msgid "Choose a value !"
 msgstr ""
 
@@ -50,7 +50,7 @@ msgid "Incoming mail listing"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:59
+#: ./dmsmail.py:60
 msgid "Mail type"
 msgstr ""
 
@@ -99,15 +99,16 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
+#: ./migrations/migrate_to_0_2.py:115
 #: ./setuphandlers.py:70
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:53
+#: ./dmsmail.py:54
 msgid "Recipient groups"
 msgstr ""
 
-#: ./dmsmail.py:47
+#: ./dmsmail.py:48
 msgid "Treating groups"
 msgstr ""
 
@@ -115,6 +116,7 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
+#: ./migrations/migrate_to_0_2.py:106
 #: ./setuphandlers.py:62
 msgid "all_incoming_mails"
 msgstr ""
@@ -124,15 +126,15 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./setuphandlers.py:167
+#: ./setuphandlers.py:168
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:168
+#: ./setuphandlers.py:169
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:166
+#: ./setuphandlers.py:167
 msgid "front_page_title"
 msgstr ""
 

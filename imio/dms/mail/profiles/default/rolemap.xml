@@ -2,6 +2,7 @@
 <rolemap>
   <roles>
     <role name="General Manager"/>
+    <role name="IM Field Writer"/>
 <!-- ##code-section roles -->
 <!-- ##/code-section roles -->
   </roles>

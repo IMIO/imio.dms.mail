@@ -27,6 +27,10 @@ msgstr "Fichier ged"
 msgid "General Manager"
 msgstr "Directeur général"
 
+#: profiles/default/rolemap.xml
+msgid "IM Field Writer"
+msgstr "Editeur champs CE"
+
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
 msgstr "Configuration du courrier2"

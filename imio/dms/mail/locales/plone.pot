@@ -100,3 +100,7 @@ msgstr ""
 #: profiles/default/portal_atct.xml
 msgid "Internal Reference Number"
 msgstr ""
+
+#: profiles/default/rolemap.xml
+msgid "IM Field Writer"
+msgstr ""

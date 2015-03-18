@@ -27,6 +27,10 @@ msgstr ""
 msgid "General Manager"
 msgstr ""
 
+#: profiles/default/rolemap.xml
+msgid "IM Field Writer"
+msgstr ""
+
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
 msgstr ""

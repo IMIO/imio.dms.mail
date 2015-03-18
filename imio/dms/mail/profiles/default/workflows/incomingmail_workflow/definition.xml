@@ -9,6 +9,7 @@
  <permission>Modify portal content</permission>
  <permission>Delete objects</permission>
  <permission>Review portal content</permission>
+ <permission>imio.dms.mail : Write incoming mail field</permission>
  <permission>Access contents information</permission>
  <state state_id="closed"
         title="closed"
@@ -48,6 +49,11 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
    <permission-role>General Manager</permission-role>
+  </permission-map>
+  <permission-map name="imio.dms.mail : Write incoming mail field"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
   </permission-map>
  </state>
  <state state_id="created"
@@ -94,6 +100,14 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
   </permission-map>
+  <permission-map name="imio.dms.mail : Write incoming mail field"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
+   <permission-role>Editor</permission-role>
+   <permission-role>IM Field Writer</permission-role>
+  </permission-map>
  </state>
  <state state_id="in_treatment"
         title="in_treatment"
@@ -136,6 +150,13 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
    <permission-role>General Manager</permission-role>
+  </permission-map>
+  <permission-map name="imio.dms.mail : Write incoming mail field"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>General Manager</permission-role>
+   <permission-role>IM Field Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_agent"
@@ -180,6 +201,13 @@
    <permission-role>Reviewer</permission-role>
    <permission-role>General Manager</permission-role>
   </permission-map>
+  <permission-map name="imio.dms.mail : Write incoming mail field"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>General Manager</permission-role>
+   <permission-role>IM Field Writer</permission-role>
+  </permission-map>
  </state>
  <state state_id="proposed_to_manager"
         title="proposed_to_manager"
@@ -222,6 +250,13 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
    <permission-role>General Manager</permission-role>
+  </permission-map>
+  <permission-map name="imio.dms.mail : Write incoming mail field"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>General Manager</permission-role>
+   <permission-role>IM Field Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_service_chief"
@@ -266,6 +301,13 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
    <permission-role>General Manager</permission-role>
+  </permission-map>
+  <permission-map name="imio.dms.mail : Write incoming mail field"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>General Manager</permission-role>
+   <permission-role>IM Field Writer</permission-role>
   </permission-map>
  </state>
  <transition transition_id="back_to_agent"
