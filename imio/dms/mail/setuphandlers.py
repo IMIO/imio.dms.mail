@@ -61,6 +61,7 @@ def postInstall(context):
         #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createTopicView(newFolder, 'dmsincomingmail', _(u'all_incoming_mails'))
         createStateTopics(context, newFolder, 'dmsincomingmail')
+        createIMTodoTopics(context, newFolder)
         newFolder.setConstrainTypesMode(1)
         newFolder.setLocallyAllowedTypes(['dmsincomingmail'])
         newFolder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -122,7 +123,7 @@ def createStateTopics(context, folder, content_type):
         for state in default_states:
             try:
                 topic_id = "searchfor_%s" % state
-                if not hasattr(folder, topic_id):
+                if not base_hasattr(folder, topic_id):
                     folder.invokeFactory("Topic", id=topic_id, title=_(topic_id))
                     topic = folder[topic_id]
                     topic.setCustomView(True)
@@ -142,6 +143,28 @@ def createStateTopics(context, folder, content_type):
 #                import traceback
 #                traceback.print_exc()
                 pass
+
+
+def createIMTodoTopics(context, folder):
+    """
+        create some topic for incoming mails
+    """
+    collections = [{'to_validate_as_gd': {'tit': _('to_validate_as_gd')}}]
+    #à valider en tant que DG (utilisateurs ayant le rôle DG mais va évoluer vers groupe DG)
+    #à valider en tant que chef de service (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
+    #que je dois traiter (utilisateur comme agent traitant du behavior tâche du courrier) (indexer utilisateur)
+    #que je traite (utilisateur comme agent traitant du behavior tâche du courrier)
+    #que j'ai traité (utilisateur comme agent traitant du behavior tâche du courrier)
+    #dans mon service (utilisateur dans un groupe "service"_editor)
+
+    for dic in collections:
+        for col_id in dic:
+            folder.invokeFactory("Collection",
+                                 col_id,
+                                 title=dic[col_id]['tit'],
+                                 #query=COMPOUND_QUERY,
+                                 sort_on='getId')
+            collection = folder[col_id]
 
 
 def adaptDefaultPortal(context):
@@ -319,7 +342,7 @@ def addTestDirectory(context):
         return
     site = context.getSite()
     logger.info('Adding test directory')
-    if hasattr(site, 'contacts'):
+    if base_hasattr(site, 'contacts'):
         logger.warn('Nothing done: directory contacts already exists. You must first delete it to reimport!')
         return
 
@@ -539,7 +562,7 @@ def addOwnOrganization(context):
     site = context.getSite()
     contacts = site['contacts']
 
-    if hasattr(contacts, 'plonegroup-organization'):
+    if base_hasattr(contacts, 'plonegroup-organization'):
         logger.warn('Nothing done: plonegroup-organization already exists. You must first delete it to reimport!')
         return
 
