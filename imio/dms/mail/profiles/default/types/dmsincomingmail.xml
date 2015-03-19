@@ -3,7 +3,8 @@
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <property name="behaviors" purge="false">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
-  <element value="collective.task.behaviors.ITaskWithFieldset" />
+  <element value="collective.task.behaviors.ITaskContainer" />
+  <element value="collective.task.behaviors.ITask" />
  </property>
  <property name="klass">imio.dms.mail.dmsmail.ImioDmsIncomingMail</property>
  <property name="schema_policy">schema_policy_imiodmsincomingmail</property>
