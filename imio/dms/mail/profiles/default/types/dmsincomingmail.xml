@@ -3,12 +3,14 @@
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <property name="behaviors" purge="false">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="collective.task.behaviors.ITaskWithFieldset" />
  </property>
  <property name="klass">imio.dms.mail.dmsmail.ImioDmsIncomingMail</property>
  <property name="schema_policy">schema_policy_imiodmsincomingmail</property>
  <property name="allowed_content_types">
   <element value="dmsmainfile"/>
   <element value="dmsappendixfile"/>
+  <element value="task"/>
  </property>
  <alias from="edit" to="@@dmsdocument-edit"/>
 </object>
