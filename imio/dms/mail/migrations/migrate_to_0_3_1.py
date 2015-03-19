@@ -18,7 +18,12 @@ class Migrate_To_0_3_1(Migrator):
         # Set ILocking behavior
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:default',
                                                           'typeinfo')
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:default',
+                                                          'workflow')
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:default',
+                                                          'update-workflow-rolemap')
         self.upgradeAll()
+        self.portal.portal_workflow.updateRoleMappings()
         self.finish()
 
 
