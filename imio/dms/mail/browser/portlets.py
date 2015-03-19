@@ -78,7 +78,8 @@ class Renderer(base.Renderer):
 
     def getIncomingMailsTopics(self):
         return self.portal.portal_catalog(portal_type='Topic',
-                                          path='/'.join(getIncomingMailFolder().getPhysicalPath()),
+                                          path='%s/%s' % ('/'.join(getIncomingMailFolder().getPhysicalPath()),
+                                                          'collections'),
                                           sort_on='getObjPositionInParent'
                                           )
 

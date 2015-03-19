@@ -54,27 +54,35 @@ def postInstall(context):
     # we configure rolefields
     configure_rolefields(context)
 
+    def create_collections_folder(folder):
+        if not base_hasattr(folder, 'collections'):
+            folder.invokeFactory("Folder", id='collections', title=_(u"Collections: don't delete"))
+        folder.setDefaultPage('collections')
+        return folder['collections']
+
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
-        newFolder = getattr(site, folderid)
-        #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(newFolder, 'dmsincomingmail', _(u'all_incoming_mails'))
-        createStateTopics(context, newFolder, 'dmsincomingmail')
-        createIMTodoTopics(context, newFolder)
-        newFolder.setConstrainTypesMode(1)
-        newFolder.setLocallyAllowedTypes(['dmsincomingmail'])
-        newFolder.setImmediatelyAddableTypes(['dmsincomingmail'])
-        site.portal_workflow.doActionFor(newFolder, "show_internally")
+        im_folder = getattr(site, folderid)
+        col_folder = create_collections_folder(im_folder)
+        #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
+        createTopicView(col_folder, 'dmsincomingmail', _(u'all_incoming_mails'))
+        createStateTopics(context, col_folder, 'dmsincomingmail')
+        createIMTodoTopics(context, col_folder)
+        im_folder.setConstrainTypesMode(1)
+        im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
+        im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
+        site.portal_workflow.doActionFor(im_folder, "show_internally")
         logger.info('incoming-mail folder created')
     if not base_hasattr(site, 'outgoing-mail'):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
-        newFolder = getattr(site, folderid)
-        #blacklistPortletCategory(context, newFolder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(newFolder, 'dmsoutgoingmail', _('Outgoing mail'))
-        newFolder.setConstrainTypesMode(1)
-        newFolder.setLocallyAllowedTypes(['dmsoutgoingmail'])
-        newFolder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
+        om_folder = getattr(site, folderid)
+        col_folder = create_collections_folder(im_folder)
+        #blacklistPortletCategory(context, om_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
+        createTopicView(col_folder, 'dmsoutgoingmail', _('Outgoing mail'))
+        om_folder.setConstrainTypesMode(1)
+        om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
+        om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
         logger.info('outgoing-mail folder created')
 
 
@@ -203,6 +211,12 @@ def adaptDefaultPortal(context):
     for action in site.portal_controlpanel.listActions():
         if action.id == 'portal_atct':
             action.visible = True
+
+    #change default_page_types property
+    if 'Folder' not in site.portal_properties.site_properties.default_page_types:
+        new_list = list(site.portal_properties.site_properties.default_page_types)
+        new_list.append('Folder')
+        site.portal_properties.site_properties.manage_changeProperties(default_page_types=new_list)
 
     #permissions
     #Removing owner to 'hide' sharing tab
