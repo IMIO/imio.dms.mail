@@ -143,7 +143,7 @@ class IMEdit(DmsDocumentEdit):
         sm = getSecurityManager()
         if not sm.checkPermission('imio.dms.mail : Write incoming mail field', self.context):
             for field in ['IDublinCore.title', 'IDublinCore.description', 'sender', 'mail_type',
-                          'original_mail_date', 'reception_date']:
+                          'reception_date']:
                 self.widgets[field].mode = 'display'
 
 
