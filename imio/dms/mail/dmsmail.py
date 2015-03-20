@@ -48,18 +48,22 @@ def get_selected_organization_users(org_uid):
     terms = []
     already_added = []
     registry = getUtility(IRegistry)
+    # only add to vocabulary users with these functions in the organization
+    assignable_functions = set(['editeur', 'validateur'])
     for f in registry[FUNCTIONS_REGISTRY]:
-        groupname = "{}_{}".format(org_uid, f['fct_id'])
-        members = api.user.get_users(groupname=groupname)
-        for member in members:
-            member_id = member.getId()
-            if member_id not in already_added:
-                title = member.getUser().getProperty('fullname') or member_id
-                terms.append(SimpleTerm(
-                    value=member.getUserName(),  # login
-                    token=member_id,  # id
-                    title=title))  # title
-                already_added.append(member_id)
+        function_id = f['fct_id']
+        if function_id in assignable_functions:
+            groupname = "{}_{}".format(org_uid, function_id)
+            members = api.user.get_users(groupname=groupname)
+            for member in members:
+                member_id = member.getId()
+                if member_id not in already_added:
+                    title = member.getUser().getProperty('fullname') or member_id
+                    terms.append(SimpleTerm(
+                        value=member.getUserName(),  # login
+                        token=member_id,  # id
+                        title=title))  # title
+                    already_added.append(member_id)
 
     return SimpleVocabulary(terms)
 
@@ -176,6 +180,10 @@ class IMEdit(DmsDocumentEdit):
             for field in ['IDublinCore.title', 'IDublinCore.description', 'sender', 'mail_type',
                           'reception_date']:
                 self.widgets[field].mode = 'display'
+
+        hidden_fields = set(['ITask.assigned_group', 'ITask.enquirer'])
+        for field in hidden_fields:
+            self.widgets[field].mode = 'hidden'
 
 
 class Add(dexterity.AddForm):
