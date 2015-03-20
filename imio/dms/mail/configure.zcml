@@ -56,6 +56,11 @@
         provides=".dmsmail.IImioDmsIncomingMail"
         /-->
 
+    <adapter for="*"
+             factory=".adapters.HighestValidationCriterionFilterAdapter"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="highest-validation-compound-adapter" />
+
     <include file="profiles.zcml" />
     <include file="skins.zcml" />
     <include file="subscribers.zcml" />

@@ -56,7 +56,7 @@ def postInstall(context):
 
     def create_collections_folder(folder):
         if not base_hasattr(folder, 'collections'):
-            folder.invokeFactory("Folder", id='collections', title=_(u"Collections: don't delete"))
+            folder.invokeFactory("Folder", id='collections', title=u"Collections: ne pas effacer")
         folder.setDefaultPage('collections')
         col_folder = folder['collections']
         col_folder.setConstrainTypesMode(1)
@@ -161,22 +161,27 @@ def createIMTodoTopics(folder):
     """
         create some topic for incoming mails
     """
-    collections = [{'to_validate_as_gd': {'tit': _('to_validate_as_gd')}}]
-    #à valider en tant que DG (utilisateurs ayant le rôle DG mais va évoluer vers groupe DG)
-    #à valider en tant que chef de service (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
+    collections = [
+        {'id': 'to_validate', 'tit': _('to_validate'), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_manager']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'highest-validation-compound-adapter'}]},
+    ]
+    #à valider (validateur de niveau le plus élevé)
+    #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
     #que je dois traiter (utilisateur comme agent traitant du behavior tâche du courrier) (indexer utilisateur)
     #que je traite (utilisateur comme agent traitant du behavior tâche du courrier)
     #que j'ai traité (utilisateur comme agent traitant du behavior tâche du courrier)
     #dans mon service (utilisateur dans un groupe "service"_editor)
 
     for dic in collections:
-        for col_id in dic:
-            folder.invokeFactory("Collection",
-                                 col_id,
-                                 title=dic[col_id]['tit'],
-                                 #query=COMPOUND_QUERY,
-                                 sort_on='getId')
-            collection = folder[col_id]
+        folder.invokeFactory("Collection",
+                             dic['id'],
+                             title=dic['tit'],
+                             query=dic['query'],
+                             sort_on='getId')
+        collection = folder[dic['id']]
 
 
 def adaptDefaultPortal(context):
