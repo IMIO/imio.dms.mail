@@ -58,6 +58,10 @@ def postInstall(context):
         if not base_hasattr(folder, 'collections'):
             folder.invokeFactory("Folder", id='collections', title=_(u"Collections: don't delete"))
         folder.setDefaultPage('collections')
+        col_folder = folder['collections']
+        col_folder.setConstrainTypesMode(1)
+        col_folder.setLocallyAllowedTypes(['Topic', 'Collection'])
+        col_folder.setImmediatelyAddableTypes(['Topic', 'Collection'])
         return folder['collections']
 
     # we create the basic folders
@@ -66,9 +70,9 @@ def postInstall(context):
         im_folder = getattr(site, folderid)
         col_folder = create_collections_folder(im_folder)
         #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(col_folder, 'dmsincomingmail', _(u'all_incoming_mails'))
-        createStateTopics(context, col_folder, 'dmsincomingmail')
-        createIMTodoTopics(context, col_folder)
+        createTopicView(col_folder, 'dmsincomingmail', u'all_incoming_mails')
+        createStateTopics(col_folder, 'dmsincomingmail')
+        createIMTodoTopics(col_folder)
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -77,9 +81,9 @@ def postInstall(context):
     if not base_hasattr(site, 'outgoing-mail'):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         om_folder = getattr(site, folderid)
-        col_folder = create_collections_folder(im_folder)
+        col_folder = create_collections_folder(om_folder)
         #blacklistPortletCategory(context, om_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(col_folder, 'dmsoutgoingmail', _('Outgoing mail'))
+        createTopicView(col_folder, 'dmsoutgoingmail', 'Outgoing mail')
         om_folder.setConstrainTypesMode(1)
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
@@ -103,9 +107,9 @@ def createTopicView(folder, ptype, title):
     """
         create a topic as default page
     """
-    if not 'all_incoming_mails' in folder:
-        folder.invokeFactory("Topic", id='all_incoming_mails', title=title)
-        topic = getattr(folder, 'all_incoming_mails')
+    if not 'all_mails' in folder:
+        folder.invokeFactory("Topic", id='all_mails', title=_(title))
+        topic = getattr(folder, 'all_mails')
         topic.setCustomView(True)
 #        topic.setCustomViewFields(('Title', 'internal_reference_number', 'review_state', 'CreationDate', 'Creator'))
         topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
@@ -114,11 +118,11 @@ def createTopicView(folder, ptype, title):
         crit = topic.addCriterion('portal_type', 'ATSimpleStringCriterion')
         crit.setValue(ptype)
         # set the topic as folder's default page
-        folder.setDefaultPage('all_incoming_mails')
+        folder.setDefaultPage('all_mails')
         folder.portal_workflow.doActionFor(topic, "show_internally")
 
 
-def createStateTopics(context, folder, content_type):
+def createStateTopics(folder, content_type):
     """
         create a topic for each contextual workflow state
     """
@@ -153,7 +157,7 @@ def createStateTopics(context, folder, content_type):
                 pass
 
 
-def createIMTodoTopics(context, folder):
+def createIMTodoTopics(folder):
     """
         create some topic for incoming mails
     """
