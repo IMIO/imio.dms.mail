@@ -11,5 +11,10 @@
       factory="imio.dms.mail.dmsmail.RecipientGroupsVocabulary"
       name="collective.dms.basecontent.recipient_groups"
     />
+    <utility
+      interface="zope.schema.interfaces.IVocabularyFactory"
+      factory="imio.dms.mail.dmsmail.TreatingGroupsVocabulary"
+      name="plone.principalsource.Groups"
+    />
   </utilities>
 </componentregistry>
