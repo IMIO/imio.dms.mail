@@ -32,6 +32,14 @@
         </td></tr>
     </table>
     <table>
+        <tr><th i18n:translate="Main_menu_todo_section">Incoming mails todo</th></tr>
+        <tr tal:repeat="brain view/getIMTodoCollections">
+          <td>
+            <a tal:attributes="href brain/getURL" i18n:translate="" tal:content="brain/Title">incoming mail to collection</a>
+          </td>
+        </tr>
+    </table>
+    <table>
         <tr><th i18n:translate="Main_menu_search_section">Incoming mails searches</th></tr>
         <tr tal:repeat="brain view/getIncomingMailsTopics">
           <td>

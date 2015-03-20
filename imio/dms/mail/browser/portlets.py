@@ -83,6 +83,13 @@ class Renderer(base.Renderer):
                                           sort_on='getObjPositionInParent'
                                           )
 
+    def getIMTodoCollections(self):
+        return self.portal.portal_catalog(portal_type='Collection',
+                                          path='%s/%s' % ('/'.join(getIncomingMailFolder().getPhysicalPath()),
+                                                          'collections'),
+                                          sort_on='getObjPositionInParent'
+                                          )
+
 
 class AddForm(base.NullAddForm):
 
