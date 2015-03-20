@@ -187,6 +187,7 @@ class Add(dexterity.AddForm):
 
     def updateWidgets(self):
         super(Add, self).updateWidgets()
+        self.widgets['treating_groups'].prompt = True
         ImioDmsIncomingMailUpdateWidgets(self)
 
 
