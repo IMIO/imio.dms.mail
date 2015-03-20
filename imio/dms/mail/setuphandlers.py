@@ -387,6 +387,9 @@ def addTestDirectory(context):
     site.portal_workflow.doActionFor(contacts, "show_internally")
     #blacklistPortletCategory(context, contacts, CONTEXT_CATEGORY, u"plone.leftcolumn")
 
+    # Add not encoded person (in directory)
+    contacts.invokeFactory('person', 'notencoded', lastname=u'Non encodé')
+
     # Organisations creation (in directory)
     params = {'title': u"Electrabel",
               'organization_type': u'sa',
