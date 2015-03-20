@@ -22,6 +22,7 @@ from z3c.form.browser.select import SelectFieldWidget
 from AccessControl import getSecurityManager
 from collective.task.field import LocalRoleMasterSelectField
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from z3c.form.interfaces import HIDDEN_MODE
 
 from . import _
 
@@ -166,6 +167,10 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
         if the_form.context.portal_type != 'dmsincomingmail':
             the_form.widgets['internal_reference_no'].value = ''
 
+    hidden_fields = set(['ITask.assigned_group', 'ITask.enquirer'])
+    for field in hidden_fields:
+        the_form.widgets[field].mode = HIDDEN_MODE
+
 
 class IMEdit(DmsDocumentEdit):
     """
@@ -180,10 +185,6 @@ class IMEdit(DmsDocumentEdit):
             for field in ['IDublinCore.title', 'IDublinCore.description', 'sender', 'mail_type',
                           'reception_date']:
                 self.widgets[field].mode = 'display'
-
-        hidden_fields = set(['ITask.assigned_group', 'ITask.enquirer'])
-        for field in hidden_fields:
-            self.widgets[field].mode = 'hidden'
 
 
 class Add(dexterity.AddForm):
