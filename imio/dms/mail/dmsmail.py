@@ -20,6 +20,8 @@ from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
 from z3c.form.browser.select import SelectFieldWidget
 from AccessControl import getSecurityManager
+from collective.task.field import LocalRoleMasterSelectField
+from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 
 from . import _
 
@@ -41,14 +43,44 @@ def registeredMailTypes(context):
 alsoProvides(registeredMailTypes, IContextSourceBinder)
 
 
+def get_selected_organization_users(org_uid):
+    """Get users that belongs to groups related to selected organization."""
+    terms = []
+    already_added = []
+    registry = getUtility(IRegistry)
+    for f in registry[FUNCTIONS_REGISTRY]:
+        groupname = "{}_{}".format(org_uid, f['fct_id'])
+        members = api.user.get_users(groupname=groupname)
+        for member in members:
+            member_id = member.getId()
+            if member_id not in already_added:
+                title = member.getUser().getProperty('fullname') or member_id
+                terms.append(SimpleTerm(
+                    value=member.getUserName(),  # login
+                    token=member_id,  # id
+                    title=title))  # title
+                already_added.append(member_id)
+
+    return SimpleVocabulary(terms)
+
+
 class IImioDmsIncomingMail(IDmsIncomingMail):
     """
         Extended schema for mail type field
     """
-    treating_groups = LocalRolesField(
+
+    treating_groups = LocalRoleMasterSelectField(
         title=_(u"Treating groups"),
         required=True,
-        value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.treating_groups',)
+        vocabulary=u'collective.dms.basecontent.treating_groups',
+        slave_fields=(
+            {'name': 'ITask.assigned_user',
+             'slaveID': '#form-widgets-ITask-assigned_user',
+             'action': 'vocabulary',
+             'vocab_method': get_selected_organization_users,
+             'control_param': 'org_uid',
+            },
+        )
     )
 
     recipient_groups = LocalRolesField(
@@ -84,7 +116,6 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     directives.order_before(treating_groups='recipient_groups')
 
     directives.omitted('in_reply_to', 'related_docs', 'recipients')
-    directives.widget(treating_groups=SelectFieldWidget)
     #directives.widget(recipient_groups=SelectFieldWidget)
 
 
