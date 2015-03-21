@@ -14,7 +14,7 @@
     <utility
       interface="zope.schema.interfaces.IVocabularyFactory"
       factory="imio.dms.mail.dmsmail.TreatingGroupsVocabulary"
-      name="plone.principalsource.Groups"
+      name="collective.task.AssignedGroups"
     />
   </utilities>
 </componentregistry>
