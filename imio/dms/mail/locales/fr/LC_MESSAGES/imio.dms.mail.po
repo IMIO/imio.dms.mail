@@ -107,7 +107,7 @@ msgstr "Services en copie"
 
 #: ./dmsmail.py:50
 msgid "Treating groups"
-msgstr "Services traitants"
+msgstr "Service traitant"
 
 #: ./browser/settings.py:25
 msgid "Types of incoming mail"
