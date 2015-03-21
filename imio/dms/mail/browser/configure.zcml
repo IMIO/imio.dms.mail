@@ -49,6 +49,13 @@
             permission="zope2.View" />
     </configure>
 
+    <browser:page
+        for="collective.task.behaviors.ITask"
+        name="edit"
+        class=".task.TaskEdit"
+        permission="cmf.ModifyPortalContent"
+        />
+
     <!--configure package="imio.actionspanel">
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
