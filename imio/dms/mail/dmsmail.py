@@ -20,7 +20,6 @@ from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
 from AccessControl import getSecurityManager
 from collective.task.field import LocalRoleMasterSelectField
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from z3c.form.interfaces import HIDDEN_MODE
 
 from . import _
@@ -47,23 +46,19 @@ def get_selected_organization_users(org_uid):
     """Get users that belongs to groups related to selected organization."""
     terms = []
     already_added = []
-    registry = getUtility(IRegistry)
     # only add to vocabulary users with these functions in the organization
-    assignable_functions = set(['editeur', 'validateur'])
-    for f in registry[FUNCTIONS_REGISTRY]:
-        function_id = f['fct_id']
-        if function_id in assignable_functions:
-            groupname = "{}_{}".format(org_uid, function_id)
-            members = api.user.get_users(groupname=groupname)
-            for member in members:
-                member_id = member.getId()
-                if member_id not in already_added:
-                    title = member.getUser().getProperty('fullname') or member_id
-                    terms.append(SimpleTerm(
-                        value=member.getUserName(),  # login
-                        token=member_id,  # id
-                        title=title))  # title
-                    already_added.append(member_id)
+    for function_id in ['editeur', 'validateur']:
+        groupname = "{}_{}".format(org_uid, function_id)
+        members = api.user.get_users(groupname=groupname)
+        for member in members:
+            member_id = member.getId()
+            if member_id not in already_added:
+                title = member.getUser().getProperty('fullname') or member_id
+                terms.append(SimpleTerm(
+                    value=member.getUserName(),  # login
+                    token=member_id,  # id
+                    title=title))  # title
+                already_added.append(member_id)
 
     return SimpleVocabulary(terms)
 
@@ -83,7 +78,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
              'action': 'vocabulary',
              'vocab_method': get_selected_organization_users,
              'control_param': 'org_uid',
-            },
+             },
         )
     )
 
