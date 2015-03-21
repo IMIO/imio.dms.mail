@@ -62,8 +62,8 @@ class Migrate_To_0_3_1(Migrator):
         self.importImioDmsMailStep(('typeinfo', 'workflow', 'update-workflow-rolemap'))
         self.createNotEncodedPerson()
         self.changeTopicsFolder()
-        self.upgradeAll()
         self.portal.portal_workflow.updateRoleMappings()
+        self.upgradeAll()
         self.finish()
 
 
