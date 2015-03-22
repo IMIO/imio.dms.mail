@@ -8,7 +8,7 @@
         for="zope.interface.Interface
         zope.interface.Interface
         collective.dms.basecontent.browser.listing.VersionsTable"
-        factory=".table.VersionsTitleColumn"  # when inheriting, grok made this
+        factory=".browser.table.VersionsTitleColumn"  # when inheriting, grok made this
         provides="z3c.table.interfaces.IColumn"
         name="dms.title"
     /-->
