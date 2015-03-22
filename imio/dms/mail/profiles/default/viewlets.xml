@@ -3,6 +3,7 @@
  <order manager="plone.belowcontentbody" skinname="*">
   <viewlet name="collective.contact.core.backrefs"/>
   <viewlet name="plone.belowcontentbody.relateditems"/>
+  <viewlet name="collective.task.list_tasks"/>
   <viewlet name="plone.abovecontenttitle.documentactions"/>
  </order>
 </object>
