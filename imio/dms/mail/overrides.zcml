@@ -4,13 +4,22 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="imio.dms.mail">
 
-    <adapter
+    <!--adapter
         for="zope.interface.Interface
         zope.interface.Interface
         collective.dms.basecontent.browser.listing.VersionsTable"
-        factory=".table.VersionsTitleColumn"
+        factory=".table.VersionsTitleColumn"  # when inheriting, grok made this
         provides="z3c.table.interfaces.IColumn"
         name="dms.title"
-     />
+    /-->
+
+    <adapter
+        name="AssignedGroupColumn"
+        for="zope.interface.Interface
+             zope.interface.Interface
+             collective.task.browser.table.TasksTable"
+        provides="z3c.table.interfaces.IColumn"
+        factory=".browser.table.AssignedGroupColumn"
+    />
 
 </configure>
