@@ -7,6 +7,8 @@ def voc_selected_org_suffix_users(org_uid, suffixes):
     """
         Get users that belongs to suffixed groups related to selected organization.
     """
+    if not org_uid:
+        return SimpleVocabulary([])
     terms = []
     already_added = []
     # only add to vocabulary users with these functions in the organization
