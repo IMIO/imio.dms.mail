@@ -65,6 +65,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
              'action': 'vocabulary',
              'vocab_method': filter_dmsincomingmail_assigned_users,
              'control_param': 'org_uid',
+             'initial_trigger': True,
              },
         )
     )
@@ -187,7 +188,7 @@ class Add(dexterity.AddForm):
 
     def updateWidgets(self):
         super(Add, self).updateWidgets()
-        self.widgets['treating_groups'].prompt = True
+        #self.widgets['treating_groups'].prompt = True
         ImioDmsIncomingMailUpdateWidgets(self)
 
 
