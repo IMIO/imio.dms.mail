@@ -18,6 +18,7 @@ class TaskEdit(DefaultEditForm):
     def update(self):
         super(TaskEdit, self).update()
         self.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
+        self.fields['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
 
 
 class Add(DefaultAddView):
@@ -27,5 +28,7 @@ class Add(DefaultAddView):
     portal_type = 'task'
 
     def update(self):
-        super(Add, self).update()
+        self.form_instance.updateFields()
         self.form_instance.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
+        self.form_instance.fields['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
+        super(Add, self).update()
