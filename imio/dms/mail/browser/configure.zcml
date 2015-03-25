@@ -56,6 +56,21 @@
         permission="cmf.ModifyPortalContent"
         />
 
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".task.Add"
+        name="task"
+        />
+    <class class=".task.Add">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
     <!--configure package="imio.actionspanel">
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"

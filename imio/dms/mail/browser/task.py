@@ -1,4 +1,6 @@
 from plone.dexterity.browser.edit import DefaultEditForm
+from plone.dexterity.browser.add import DefaultAddView
+
 from ..utils import voc_selected_org_suffix_users
 
 
@@ -16,3 +18,14 @@ class TaskEdit(DefaultEditForm):
     def update(self):
         super(TaskEdit, self).update()
         self.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
+
+
+class Add(DefaultAddView):
+    """
+        Add form redefinition to customize fields.
+    """
+    portal_type = 'task'
+
+    def update(self):
+        super(Add, self).update()
+        self.form_instance.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
