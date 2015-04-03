@@ -18,5 +18,5 @@ class ActionsPanelViewlet(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        return self.context.restrictedTraverse("@@actions_panel")(isViewlet=True, useIcons=False,
-                                                                  showOwnDelete=False, showActions=False)
+        return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=False,
+                                                                  showActions=False)
