@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from plone import api
 from imio.dms.mail.setuphandlers import createStateTopics
 from imio.dms.mail.setuphandlers import createTopicView
 from imio.migrator.migrator import Migrator
@@ -55,6 +56,18 @@ class Migrate_To_0_3_1(Migrator):
         createStateTopics(col_folder, 'dmsincomingmail')
         createTopicView(col_folder, 'dmsincomingmail', u'all_incoming_mails')
 
+    def replaceRoleByGroup(self):
+        gp = api.group.get('encodeurs')
+        if gp.getProperty('title') == 'Encodeurs courrier':
+            gp.setGroupProperties({'title': '1 Encodeurs courrier'})
+        if api.group.get('dir_general') is None:
+            api.group.create('dir_general', '1 Directeur général')
+        for user in api.user.get_users():
+            if user.has_role('General Manager'):
+                api.group.add_user(groupname='dir_general', user=user)
+        # remove role General Manager
+        # add localroles config
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
         self.cleanRegistries()
@@ -62,6 +75,7 @@ class Migrate_To_0_3_1(Migrator):
         self.importImioDmsMailStep(('typeinfo', 'workflow', 'update-workflow-rolemap', 'viewlets', 'componentregitry'))
         self.createNotEncodedPerson()
         self.changeTopicsFolder()
+        self.replaceRoleByGroup()
         self.portal.portal_workflow.updateRoleMappings()
         self.upgradeAll()
         self.finish()

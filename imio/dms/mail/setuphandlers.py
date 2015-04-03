@@ -549,7 +549,7 @@ def addTestUsersAndGroups(context):
     users = {
         ('scanner', u'Scanner'): ['Batch importer'],
         ('encodeur', u'Jean Encodeur'): [],
-        ('dirg', u'Maxime DG'): ['General Manager'],
+        ('dirg', u'Maxime DG'): [],
         ('chef', u'Michel Chef'): [],
         ('agent', u'Fred Agent'): [],
         ('lecteur', u'Jef Lecteur'): [],
@@ -571,12 +571,15 @@ def addTestUsersAndGroups(context):
             logger("Error creating user '%s': %s" % (uid, exc))
 
     if api.group.get('encodeurs') is None:
-        api.group.create('encodeurs', 'Encodeurs courrier')
+        api.group.create('encodeurs', '1 Encodeurs courrier')
         site['incoming-mail'].manage_addLocalRoles('encodeurs', ['Contributor', 'Reader'])
         site['contacts'].manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
 #        site['incoming-mail'].reindexObjectSecurity()
         api.group.add_user(groupname='encodeurs', username='scanner')
         api.group.add_user(groupname='encodeurs', username='encodeur')
+    if api.group.get('dir_general') is None:
+        api.group.create('dir_general', '1 Directeur général')
+        api.group.add_user(groupname='dir_general', username='dirg')
 
 
 def addOwnOrganization(context):
