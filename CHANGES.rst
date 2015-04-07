@@ -1,11 +1,35 @@
 Changelog
 =========
 
-0.3 (unreleased)
+0.3.1 (unreleased)
 ----------------
+
+- Use collective.compoundcriterion
+  [sgeulette]
+
+- Use imio.history
+  [sgeulette]
 
 - Use imio.actionspanel
   [sgeulette]
+
+- Moved collections
+  [sgeulette]
+
+- Begin collective.task integration
+  [sgeulette]
+
+- Set color by state
+  [sgeulette]
+
+- Activate locking on incomingmail
+  [sgeulette]
+
+- Protect some incomingmail attributes edition by a permission
+  [sgeulette, anuyens]
+
+0.3 (2015-02-25)
+----------------
 
 - Upgrade step
   [sgeulette]
