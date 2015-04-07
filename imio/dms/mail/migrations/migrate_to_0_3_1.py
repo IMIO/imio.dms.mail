@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from zope.component import getUtility
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from imio.dms.mail.setuphandlers import createStateTopics
 from imio.dms.mail.setuphandlers import createTopicView
 from imio.migrator.migrator import Migrator
@@ -65,14 +67,33 @@ class Migrate_To_0_3_1(Migrator):
         for user in api.user.get_users():
             if user.has_role('General Manager'):
                 api.group.add_user(groupname='dir_general', user=user)
-        # remove role General Manager
+        # remove General Manager role
+        if 'General Manager' in self.portal.__ac_roles__:
+            roles = list(self.portal.__ac_roles__)
+            roles.remove('General Manager')
+            self.portal.__ac_roles__ = tuple(roles)
         # add localroles config
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lrc = getattr(fti, 'localroleconfig')
+        if 'proposed_to_manager' not in lrc or 'dir_general' not in lrc['proposed_to_manager']:
+            for state in ['proposed_to_manager', 'proposed_to_service_chief', 'proposed_to_agent', 'in_treatment',
+                          'closed']:
+                if state not in lrc:
+                    lrc[state] = {}
+                lrc[state]['dir_general'] = ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer']
+        if 'created' not in lrc:
+            lrc['created'] = {}
+        if 'encodeurs' not in lrc['created']:
+            lrc['created']['encodeurs'] = ['IM Field Writer']
+        if 'encodeurs' in lrc['proposed_to_manager'] and 'IM Field Writer' not in \
+                lrc['proposed_to_manager']['encodeurs']:
+            lrc['proposed_to_manager']['encodeurs'].append('IM Field Writer')
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
         self.cleanRegistries()
         self.reinstall(['imio.actionspanel:default', 'collective.task:default'])
-        self.importImioDmsMailStep(('typeinfo', 'workflow', 'update-workflow-rolemap', 'viewlets', 'componentregitry'))
+        self.importImioDmsMailStep(('typeinfo', 'workflow', 'update-workflow-rolemap', 'viewlets', 'componentregistry'))
         self.createNotEncodedPerson()
         self.changeTopicsFolder()
         self.replaceRoleByGroup()
