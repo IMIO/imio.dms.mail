@@ -241,6 +241,12 @@ def configure_rolefields(context):
         Configure the rolefields on types
     """
     roles_config = {'localroleconfig': {
+        'created': {'encodeurs': ['IM Field Writer']},
+        'proposed_to_manager': {'dir_general': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer']},
+        'proposed_to_service_chief': {'dir_general': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer']},
+        'proposed_to_agent': {'dir_general': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer']},
+        'in_treatment': {'dir_general': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer']},
+        'closed': {'dir_general': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer']},
     }, 'treating_groups': {
         #'created': {},
         #'proposed_to_manager': {},
