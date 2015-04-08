@@ -15,8 +15,8 @@
     <dependency>profile-communesplone.layout:default</dependency>
     <dependency>profile-dexterity.localrolesfield:default</dependency>
     <dependency>profile-imio.actionspanel:default</dependency>
-    <dependency>profile-imio.history:default</dependency>
     <dependency>profile-plonetheme.imioapps:dmsmailskin</dependency>
-    <!--dependency>profile-collective.contact.ui:default</dependency-->
+    <!-- comment: must be at the end to hide viewlets -->
+    <dependency>profile-imio.history:default</dependency>
   </dependencies>
 </metadata>
