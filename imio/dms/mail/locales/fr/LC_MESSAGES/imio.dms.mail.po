@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-03-18 13:22+0000\n"
+"POT-Creation-Date: 2015-04-09 10:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./dmsmail.py:25
+#: ./dmsmail.py:34
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
@@ -35,7 +35,7 @@ msgstr "Choisir une valeur !"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
-#: ./setuphandlers.py:51
+#: ./setuphandlers.py:69
 msgid "Incoming mail"
 msgstr "Courrier entrant"
 
@@ -43,12 +43,12 @@ msgstr "Courrier entrant"
 msgid "Incoming mail daily listing"
 msgstr "Listing journalier des courriers entrants"
 
-#: ./browser/listing.pt:18
+#: ./browser/listing.pt:22
 msgid "Incoming mail listing"
 msgstr "Listing des courriers entrants"
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:42
+#: ./dmsmail.py:80
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -60,17 +60,17 @@ msgstr "Intitulé du type"
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
-#: ./browser/portlets.py:25
+#: ./browser/portlets.py:24
 msgid "Main DmsMail Portlet"
 msgstr "Menu courrier"
 
 #. Default: "incoming mail"
-#: ./browser/portlet_maindmsmail.pt:24
+#: ./browser/portlet_maindmsmail.pt:23
 msgid "Main_menu_add_incoming_mail"
 msgstr "Courrier entrant"
 
 #. Default: "main file"
-#: ./browser/portlet_maindmsmail.pt:30
+#: ./browser/portlet_maindmsmail.pt:29
 msgid "Main_menu_add_main_file"
 msgstr "Fichier ged"
 
@@ -80,7 +80,7 @@ msgid "Main_menu_addition_section"
 msgstr "Ajouter"
 
 #. Default: "Incoming mails searches"
-#: ./browser/portlet_maindmsmail.pt:35
+#: ./browser/portlet_maindmsmail.pt:43
 msgid "Main_menu_search_section"
 msgstr "Recherches courrier entrant"
 
@@ -89,7 +89,12 @@ msgstr "Recherches courrier entrant"
 msgid "Main_menu_title"
 msgstr "Menu courrier"
 
-#: ./browser/listing.pt:21
+#. Default: "Incoming mails todo"
+#: ./browser/portlet_maindmsmail.pt:35
+msgid "Main_menu_todo_section"
+msgstr "À faire courrier entrant"
+
+#: ./browser/listing.pt:25
 msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
@@ -97,15 +102,17 @@ msgstr "Aucun courrier entrant trouvé !"
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
-#: ./setuphandlers.py:58
+#: ./migrations/migrate_to_0_2.py:115
+#: ./setuphandlers.py:82
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./dmsmail.py:69
+#: ./dmsmail.py:74
 msgid "Recipient groups"
 msgstr "Services en copie"
 
-#: ./dmsmail.py:50
+#: ./browser/table.py:33
+#: ./dmsmail.py:59
 msgid "Treating groups"
 msgstr "Service traitant"
 
@@ -113,7 +120,7 @@ msgstr "Service traitant"
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
-#: ./setuphandlers.py:54
+#: ./migrations/migrate_to_0_2.py:106
 msgid "all_incoming_mails"
 msgstr "Tous les courriers"
 
@@ -122,19 +129,23 @@ msgstr "Tous les courriers"
 msgid "backrefs_viewlet_title"
 msgstr "Contact utilisé par"
 
-#: ./setuphandlers.py:118
+#: ./setuphandlers.py:210
 msgid "front_page_descr"
 msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
 
-#: ./setuphandlers.py:119
+#: ./setuphandlers.py:211
 msgid "front_page_text"
 msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='login?came_from=incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
 
-#: ./setuphandlers.py:117
+#: ./setuphandlers.py:209
 msgid "front_page_title"
 msgstr "Gestion du courrier"
 
-#: ./setuphandlers.py:31
+#: ./setuphandlers.py:165
+msgid "im_to_validate"
+msgstr "À valider"
+
+#: ./setuphandlers.py:38
 msgid "imio.dms.mail"
 msgstr "Gestion du courrier"
 

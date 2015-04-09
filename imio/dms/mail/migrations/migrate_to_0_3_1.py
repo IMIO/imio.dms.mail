@@ -3,8 +3,8 @@
 from zope.component import getUtility
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
-from imio.dms.mail.setuphandlers import createStateTopics
-from imio.dms.mail.setuphandlers import createTopicView
+from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics
+from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
 from Products.CMFPlone.utils import base_hasattr
@@ -31,10 +31,11 @@ class Migrate_To_0_3_1(Migrator):
 
     def createCollectionsFolder(self, folder):
         ''' Create Folder, if doesn't exist, who contain all topics'''
-        if not base_hasattr(folder, 'collections'):
-            folder.setConstrainTypesMode(0)
-            folder.invokeFactory("Folder", id='collections', title=u"Collections: ne pas effacer")
-            folder.setConstrainTypesMode(1)
+        if base_hasattr(folder, 'collections'):
+            return
+        folder.setConstrainTypesMode(0)
+        folder.invokeFactory("Folder", id='collections', title=u"Collections: ne pas effacer")
+        folder.setConstrainTypesMode(1)
         folder.folder_position('top', 'collections')
         folder.setDefaultPage('collections')
         col_folder = folder['collections']
@@ -57,6 +58,7 @@ class Migrate_To_0_3_1(Migrator):
         col_folder = im_folder['collections']
         createStateTopics(col_folder, 'dmsincomingmail')
         createTopicView(col_folder, 'dmsincomingmail', u'all_incoming_mails')
+        createIMTodoTopics(col_folder)
 
     def replaceRoleByGroup(self):
         gp = api.group.get('encodeurs')
@@ -98,6 +100,9 @@ class Migrate_To_0_3_1(Migrator):
         self.changeTopicsFolder()
         self.replaceRoleByGroup()
         self.portal.portal_workflow.updateRoleMappings()
+        addOrUpdateIndexes(self.portal, indexInfos={'treating_groups': ('KeywordIndex', {}),
+                                                    'recipient_groups': ('KeywordIndex', {})})
+        addOrUpdateColumns(self.portal, columns=('treating_groups', 'recipient_groups'))
         self.upgradeAll()
         self.finish()
 

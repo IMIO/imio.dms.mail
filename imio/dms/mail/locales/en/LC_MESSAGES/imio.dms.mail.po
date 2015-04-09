@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-03-18 13:22+0000\n"
+"POT-Creation-Date: 2015-04-09 10:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./dmsmail.py:25
+#: ./dmsmail.py:34
 msgid "Choose a value !"
 msgstr ""
 
@@ -35,7 +35,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./setuphandlers.py:51
+#: ./setuphandlers.py:69
 msgid "Incoming mail"
 msgstr ""
 
@@ -43,12 +43,12 @@ msgstr ""
 msgid "Incoming mail daily listing"
 msgstr ""
 
-#: ./browser/listing.pt:18
+#: ./browser/listing.pt:22
 msgid "Incoming mail listing"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:42
+#: ./dmsmail.py:80
 msgid "Mail type"
 msgstr ""
 
@@ -60,17 +60,17 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/portlets.py:25
+#: ./browser/portlets.py:24
 msgid "Main DmsMail Portlet"
 msgstr ""
 
 #. Default: "incoming mail"
-#: ./browser/portlet_maindmsmail.pt:24
+#: ./browser/portlet_maindmsmail.pt:23
 msgid "Main_menu_add_incoming_mail"
 msgstr ""
 
 #. Default: "main file"
-#: ./browser/portlet_maindmsmail.pt:30
+#: ./browser/portlet_maindmsmail.pt:29
 msgid "Main_menu_add_main_file"
 msgstr ""
 
@@ -80,7 +80,7 @@ msgid "Main_menu_addition_section"
 msgstr ""
 
 #. Default: "Incoming mails searches"
-#: ./browser/portlet_maindmsmail.pt:35
+#: ./browser/portlet_maindmsmail.pt:43
 msgid "Main_menu_search_section"
 msgstr ""
 
@@ -89,7 +89,12 @@ msgstr ""
 msgid "Main_menu_title"
 msgstr ""
 
-#: ./browser/listing.pt:21
+#. Default: "Incoming mails todo"
+#: ./browser/portlet_maindmsmail.pt:35
+msgid "Main_menu_todo_section"
+msgstr ""
+
+#: ./browser/listing.pt:25
 msgid "No incoming mail !"
 msgstr ""
 
@@ -97,15 +102,17 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./setuphandlers.py:58
+#: ./migrations/migrate_to_0_2.py:115
+#: ./setuphandlers.py:82
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:69
+#: ./dmsmail.py:74
 msgid "Recipient groups"
 msgstr ""
 
-#: ./dmsmail.py:50
+#: ./browser/table.py:33
+#: ./dmsmail.py:59
 msgid "Treating groups"
 msgstr ""
 
@@ -113,7 +120,7 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./setuphandlers.py:54
+#: ./migrations/migrate_to_0_2.py:106
 msgid "all_incoming_mails"
 msgstr ""
 
@@ -122,19 +129,23 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./setuphandlers.py:118
+#: ./setuphandlers.py:210
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:119
+#: ./setuphandlers.py:211
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:117
+#: ./setuphandlers.py:209
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:31
+#: ./setuphandlers.py:165
+msgid "im_to_validate"
+msgstr ""
+
+#: ./setuphandlers.py:38
 msgid "imio.dms.mail"
 msgstr ""
 
@@ -145,37 +156,37 @@ msgstr ""
 #. Default: "Date"
 #: ./browser/listing.pt:33
 msgid "listing_date_title"
-msgstr ""
+msgstr "Date"
 
 #: ./browser/listing.py:31
 msgid "listing_no_group"
-msgstr ""
+msgstr "No treating group"
 
 #. Default: "Object"
 #: ./browser/listing.pt:31
 msgid "listing_object_title"
-msgstr ""
+msgstr "Title"
 
 #. Default: "Sender"
 #: ./browser/listing.pt:32
 msgid "listing_sender_title"
-msgstr ""
+msgstr "Sender"
 
 msgid "searchfor_closed"
-msgstr ""
+msgstr "Closed"
 
 msgid "searchfor_created"
-msgstr ""
+msgstr "Created"
 
 msgid "searchfor_in_treatment"
-msgstr ""
+msgstr "In treatment"
 
 msgid "searchfor_proposed_to_agent"
-msgstr ""
+msgstr "Proposed to agent"
 
 msgid "searchfor_proposed_to_manager"
-msgstr ""
+msgstr "Proposed to manager"
 
 msgid "searchfor_proposed_to_service_chief"
-msgstr ""
+msgstr "Proposed to service chief"
 

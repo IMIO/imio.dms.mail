@@ -29,7 +29,11 @@ fi
 if [ `svn diff locales/generated.pot |grep "^\+[^+]" |wc -l` -le "1" ]; then
     svn revert locales/generated.pot
 else
-    i18ndude merge --pot locales/$CATALOGNAME.pot --merge locales/generated.pot 2>/dev/null
+    cp locales/$CATALOGNAME.pot locales/$CATALOGNAME_tmp.pot
+    cp locales/generated.pot locales/$CATALOGNAME.pot
+#    i18ndude merge --pot locales/$CATALOGNAME.pot --merge locales/generated.pot 2>/dev/null
+    i18ndude merge --pot locales/$CATALOGNAME.pot --merge locales/$CATALOGNAME_tmp.pot 2>/dev/null
+    rm locales/$CATALOGNAME_tmp.pot
 fi
 
 if ! test -f locales/plone.pot || [ "$1" == "rebuild-plone" ]; then
@@ -37,13 +41,15 @@ if ! test -f locales/plone.pot || [ "$1" == "rebuild-plone" ]; then
     i18ndude rebuild-pot --pot locales/plone.pot --create plone profiles/default/workflows
 fi
 
+i18ndude merge --pot locales/plone.pot --merge locales/plone-manual.pot 2>/dev/null
+
 if ! test -f locales/collective.dms.basecontent.pot; then
     echo "Rebuilding locales/collective.dms.basecontent.pot"
     touch locales/collective.dms.basecontent.pot
 fi
 
 # Finding pot files
-for pot in $(find locales -mindepth 1 -maxdepth 1 -type f -name "*.pot" ! -name generated.pot); do
+for pot in $(find locales -mindepth 1 -maxdepth 1 -type f -name "*.pot" ! -name generated.pot ! -name *-manual.pot ); do
     #finding pot basename as catalog
     catalog=`basename $pot .pot`
     echo "=> Found pot $pot"

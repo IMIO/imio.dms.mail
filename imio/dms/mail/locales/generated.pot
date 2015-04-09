@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-03-18 13:22+0000\n"
+"POT-Creation-Date: 2015-04-09 10:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./dmsmail.py:31
+#: ./dmsmail.py:34
 msgid "Choose a value !"
 msgstr ""
 
@@ -37,7 +37,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./setuphandlers.py:59
+#: ./setuphandlers.py:69
 msgid "Incoming mail"
 msgstr ""
 
@@ -50,7 +50,7 @@ msgid "Incoming mail listing"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:60
+#: ./dmsmail.py:80
 msgid "Mail type"
 msgstr ""
 
@@ -82,13 +82,18 @@ msgid "Main_menu_addition_section"
 msgstr ""
 
 #. Default: "Incoming mails searches"
-#: ./browser/portlet_maindmsmail.pt:35
+#: ./browser/portlet_maindmsmail.pt:43
 msgid "Main_menu_search_section"
 msgstr ""
 
 #. Default: "Main menu"
 #: ./browser/portlet_maindmsmail.pt:15
 msgid "Main_menu_title"
+msgstr ""
+
+#. Default: "Incoming mails todo"
+#: ./browser/portlet_maindmsmail.pt:35
+msgid "Main_menu_todo_section"
 msgstr ""
 
 #: ./browser/listing.pt:25
@@ -100,15 +105,16 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:70
+#: ./setuphandlers.py:82
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:54
+#: ./dmsmail.py:74
 msgid "Recipient groups"
 msgstr ""
 
-#: ./dmsmail.py:48
+#: ./browser/table.py:33
+#: ./dmsmail.py:59
 msgid "Treating groups"
 msgstr ""
 
@@ -117,7 +123,6 @@ msgid "Types of incoming mail"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:62
 msgid "all_incoming_mails"
 msgstr ""
 
@@ -126,16 +131,20 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./setuphandlers.py:168
+#: ./setuphandlers.py:210
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:169
+#: ./setuphandlers.py:211
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:167
+#: ./setuphandlers.py:209
 msgid "front_page_title"
+msgstr ""
+
+#: ./setuphandlers.py:165
+msgid "im_to_validate"
 msgstr ""
 
 #: ./setuphandlers.py:38

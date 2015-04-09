@@ -162,11 +162,10 @@ def createIMTodoTopics(folder):
         create some topic for incoming mails
     """
     collections = [
-        {'id': 'to_validate', 'tit': _('to_validate'), 'query': [
+        {'id': 'to_validate', 'tit': _('im_to_validate'), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
-            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_manager']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-             'v': 'highest-validation-compound-adapter'}]},
+             'v': 'dmsincomingmail-highest-validation'}]},
     ]
     #à valider (validateur de niveau le plus élevé)
     #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
@@ -176,12 +175,15 @@ def createIMTodoTopics(folder):
     #dans mon service (utilisateur dans un groupe "service"_editor)
 
     for dic in collections:
+        if base_hasattr(folder, dic['id']):
+            continue
         folder.invokeFactory("Collection",
                              dic['id'],
                              title=dic['tit'],
                              query=dic['query'],
                              sort_on='getId')
         collection = folder[dic['id']]
+        folder.portal_workflow.doActionFor(collection, "show_internally")
 
 
 def adaptDefaultPortal(context):

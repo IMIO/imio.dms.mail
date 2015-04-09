@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-01-25 13:14+0000\n"
+"POT-Creation-Date: 2015-04-09 10:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,65 +41,68 @@ msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_agent"
-msgstr ""
+msgstr "Back to agent"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_creation"
-msgstr ""
+msgstr "Back to creation"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager"
-msgstr ""
+msgstr "Back to manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service_chief"
-msgstr ""
+msgstr "Back to service chief"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_treatment"
-msgstr ""
+msgstr "Back to treatment"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "close"
-msgstr ""
+msgstr "Close"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "closed"
-msgstr ""
+msgstr "Closed"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "created"
-msgstr ""
+msgstr "Created"
+
+msgid "dmsincomingmail-highest-validation"
+msgstr "Incoming mails to validate"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "in_treatment"
-msgstr ""
+msgstr "In treatment"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_agent"
-msgstr ""
+msgstr "Propose to agent"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_manager"
-msgstr ""
+msgstr "Propose to manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service_chief"
-msgstr ""
+msgstr "Propose to service chief"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_agent"
-msgstr ""
+msgstr "Proposed to agent"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
-msgstr ""
+msgstr "Proposed to manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_service_chief"
-msgstr ""
+msgstr "Proposed to service chief"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "treat"
-msgstr ""
+msgstr "Treat"
 

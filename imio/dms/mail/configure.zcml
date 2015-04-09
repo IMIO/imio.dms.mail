@@ -67,9 +67,9 @@
         /-->
 
     <adapter for="*"
-             factory=".adapters.HighestValidationCriterionFilterAdapter"
+             factory=".adapters.IncomingMailHighestValidationCriterionFilterAdapter"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
-             name="highest-validation-compound-adapter" />
+             name="dmsincomingmail-highest-validation" />
 
     <include file="profiles.zcml" />
     <include file="skins.zcml" />
