@@ -150,6 +150,7 @@ def createStateTopics(folder, content_type):
                     #we limit the results by page
                     topic.setLimitNumber(True)
                     topic.setItemCount(30)
+                    topic.setSubject((u'search', ))
                     folder.portal_workflow.doActionFor(topic, "show_internally")
             except:
 #                import traceback
@@ -165,9 +166,12 @@ def createIMTodoTopics(folder):
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-             'v': 'dmsincomingmail-highest-validation'}]},
+             'v': 'dmsincomingmail-highest-validation'}],
+            'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
+#            'flds': (u'Title', u'review_state', u'treating_groups', u'CreationDate', u'Creator'),
+            'flds': (u'Title', u'CreationDate', u'Creator'),
+            'sort': u'created', 'rev': True, },
     ]
-    #à valider (validateur de niveau le plus élevé)
     #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
     #que je dois traiter (utilisateur comme agent traitant du behavior tâche du courrier) (indexer utilisateur)
     #que je traite (utilisateur comme agent traitant du behavior tâche du courrier)
@@ -181,9 +185,15 @@ def createIMTodoTopics(folder):
                              dic['id'],
                              title=dic['tit'],
                              query=dic['query'],
-                             sort_on='getId')
+                             tal_condition=dic['cond'],
+                             customViewFields=dic['flds'],
+                             sort_on=dic['sort'],
+                             sort_reversed=dic['rev'],
+                             b_size=30)
         collection = folder[dic['id']]
         folder.portal_workflow.doActionFor(collection, "show_internally")
+        collection.setSubject((u'todo', ))
+        collection.setLayout('tabular_view')
 
 
 def adaptDefaultPortal(context):

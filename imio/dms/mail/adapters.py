@@ -7,8 +7,10 @@ review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': 'propose
                                                                   'org': 'treating_groups'})])}
 
 
-def _highest_review_level(portal_type, group_ids):
+def highest_review_level(portal_type, group_ids):
     """ Return the first review level """
+    if portal_type not in review_levels:
+        return None
     for keyg in review_levels[portal_type].keys():
         if keyg.startswith('_') and "%s'" % keyg in group_ids:
             return keyg
@@ -25,7 +27,7 @@ class IncomingMailHighestValidationCriterionFilterAdapter(object):
     @property
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
-        highest_level = _highest_review_level('dmsincomingmail', str([g.id for g in groups]))
+        highest_level = highest_review_level('dmsincomingmail', str([g.id for g in groups]))
         if highest_level is None:
             return {}
         ret = {}

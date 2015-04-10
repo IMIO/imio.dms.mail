@@ -4,6 +4,7 @@ from plone.app.portlets.portlets import base
 from zope.component.hooks import getSite
 from plone.portlets.interfaces import IPortletDataProvider
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from collective.behavior.talcondition.utils import evaluateExpressionFor
 from .. import _
 
 
@@ -80,15 +81,16 @@ class Renderer(base.Renderer):
         return self.portal.portal_catalog(portal_type='Topic',
                                           path='%s/%s' % ('/'.join(getIncomingMailFolder().getPhysicalPath()),
                                                           'collections'),
-                                          sort_on='getObjPositionInParent'
-                                          )
+                                          Subject=['search'],
+                                          sort_on='getObjPositionInParent')
 
     def getIMTodoCollections(self):
-        return self.portal.portal_catalog(portal_type='Collection',
-                                          path='%s/%s' % ('/'.join(getIncomingMailFolder().getPhysicalPath()),
-                                                          'collections'),
-                                          sort_on='getObjPositionInParent'
-                                          )
+        brains = self.portal.portal_catalog(portal_type='Collection',
+                                            path='%s/%s' % ('/'.join(getIncomingMailFolder().getPhysicalPath()),
+                                                            'collections'),
+                                            Subject=['todo'],
+                                            sort_on='getObjPositionInParent')
+        return [brain for brain in brains if evaluateExpressionFor(brain.getObject())]
 
 
 class AddForm(base.NullAddForm):
