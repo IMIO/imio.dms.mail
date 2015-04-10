@@ -94,7 +94,8 @@ class Migrate_To_0_3_1(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
         self.cleanRegistries()
-        self.reinstall(['imio.actionspanel:default', 'collective.task:default'])
+        self.reinstall(['imio.actionspanel:default', 'collective.task:default', 'collective.compoundcriterion:default',
+                        'collective.behavior.talcondition:default'])
         self.importImioDmsMailStep(('typeinfo', 'workflow', 'update-workflow-rolemap', 'viewlets', 'componentregistry'))
         self.createNotEncodedPerson()
         self.changeTopicsFolder()

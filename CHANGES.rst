@@ -4,7 +4,7 @@ Changelog
 0.3.1 (unreleased)
 ----------------
 
-- Use collective.compoundcriterion
+- Use collective.compoundcriterion and collective.behavior.talcondition
   [sgeulette]
 
 - Use imio.history
@@ -13,7 +13,7 @@ Changelog
 - Use imio.actionspanel
   [sgeulette]
 
-- Moved collections
+- Move collections
   [sgeulette]
 
 - Begin collective.task integration
