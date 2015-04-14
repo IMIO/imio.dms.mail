@@ -1,20 +1,10 @@
 <?xml version="1.0"?>
 <object name="contacts" meta_type="Dexterity Container">
  <criteria>
-  <criterion name="texte">
-   <property name="widget">text</property>
-   <property name="title">Rechercher :</property>
-   <property name="position">top</property>
-   <property name="section">default</property>
-   <property name="hidden">0</property>
-   <property name="index">SearchableText</property>
-   <property name="default"></property>
-   <property name="onlyallelements">1</property>
-  </criterion>
   <criterion name="type">
    <property name="widget">radio</property>
    <property name="title">Rechercher</property>
-   <property name="position">top</property>
+   <property name="position">left</property>
    <property name="section">default</property>
    <property name="hidden">0</property>
    <property name="count"></property>
@@ -28,6 +18,16 @@
    <property name="maxitems"></property>
    <property name="sortreversed"></property>
    <property name="default">organization</property>
+  </criterion>
+  <criterion name="texte">
+   <property name="widget">text</property>
+   <property name="title">Rechercher :</property>
+   <property name="position">left</property>
+   <property name="section">default</property>
+   <property name="hidden">0</property>
+   <property name="index">SearchableText</property>
+   <property name="default"></property>
+   <property name="onlyallelements">1</property>
   </criterion>
   <criterion name="path">
    <property name="widget">path</property>
