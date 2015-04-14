@@ -74,7 +74,7 @@
    <property name="index">sortable_title</property>
    <property name="default"></property>
   </criterion>
-  <criterion name="organization_type">
+  <criterion name="orgtype">
    <property name="widget">checkbox</property>
    <property name="title">Type d'organisation</property>
    <property name="position">left</property>
