@@ -120,6 +120,7 @@ class Migrate_To_0_3_1(Migrator):
             'viewlets',
             'componentregistry',
             'catalog',
+            'jsregistry',
             ))
         self.createNotEncodedPerson()
         # self.changeTopicsFolder()  # FIXME

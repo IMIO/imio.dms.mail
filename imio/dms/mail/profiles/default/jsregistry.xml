@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<object name="portal_javascripts" meta_type="JavaScripts Registry">
+
+  <javascript
+    authenticated="False"
+    bundle=""
+    cacheable="True"
+    compression="safe"
+    conditionalcomment=""
+    cookable="True"
+    enabled="on"
+    expression=""
+    id="++resource++imio.dms.mail/dmsmail.js"
+    inline="False"/>
+
+</object>

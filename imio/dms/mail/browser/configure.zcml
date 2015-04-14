@@ -6,6 +6,11 @@
 
     <include package="plone.app.portlets"/>
 
+    <browser:resourceDirectory
+      name="imio.dms.mail"
+      directory="static"
+      />
+
     <browser:page
         name="imiodmsmail-settings"
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
