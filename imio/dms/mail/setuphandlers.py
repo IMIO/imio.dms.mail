@@ -54,6 +54,9 @@ def postInstall(context):
     # we configure rolefields
     configure_rolefields(context)
 
+    # we configure faceted navigations
+    reimport_faceted_config(context)
+
     def create_collections_folder(folder):
         if not base_hasattr(folder, 'collections'):
             folder.invokeFactory("Folder", id='collections', title=u"Collections: ne pas effacer")
@@ -676,3 +679,9 @@ def refreshCatalog(context):
         return
     site = context.getSite()
     site.portal_catalog.refreshCatalog()
+
+
+def reimport_faceted_config(portal):
+    """Reimport faceted navigation config."""
+    portal['contacts'].unrestrictedTraverse('@@faceted_exportimport').import_xml(
+            import_file=open(os.path.dirname(__file__) + '/faceted_conf/contacts-faceted.xml'))

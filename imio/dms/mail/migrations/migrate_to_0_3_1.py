@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getUtility
+from zope.interface import alsoProvides
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
-from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics
+from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, reimport_faceted_config
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
+from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 
 from Products.CMFPlone.utils import base_hasattr
 
@@ -91,19 +93,30 @@ class Migrate_To_0_3_1(Migrator):
                 lrc['proposed_to_manager']['encodeurs']:
             lrc['proposed_to_manager']['encodeurs'].append('IM Field Writer')
 
+    def setupFacetedContacts(self):
+        """Setup facetednav for contacts."""
+        alsoProvides(self.portal.contacts, IDirectoryFacetedNavigable)
+        reimport_faceted_config(self.portal)
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
         self.cleanRegistries()
-        self.reinstall(['imio.actionspanel:default', 'collective.task:default', 'collective.compoundcriterion:default',
-                        'collective.behavior.talcondition:default'])
+        self.reinstall([
+            'imio.actionspanel:default',
+            'collective.task:default',
+            'collective.compoundcriterion:default',
+            'collective.behavior.talcondition:default',
+            'collective.contact.facetednav:default',
+            ])
         self.importImioDmsMailStep(('typeinfo', 'workflow', 'update-workflow-rolemap', 'viewlets', 'componentregistry'))
         self.createNotEncodedPerson()
-        self.changeTopicsFolder()
+        # self.changeTopicsFolder()  # FIXME
         self.replaceRoleByGroup()
         self.portal.portal_workflow.updateRoleMappings()
         addOrUpdateIndexes(self.portal, indexInfos={'treating_groups': ('KeywordIndex', {}),
                                                     'recipient_groups': ('KeywordIndex', {})})
         addOrUpdateColumns(self.portal, columns=('treating_groups', 'recipient_groups'))
+        self.setupFacetedContacts()
         self.upgradeAll()
         self.finish()
 

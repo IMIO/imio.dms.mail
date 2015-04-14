@@ -25,6 +25,7 @@
     <include package="collective.dms.batchimport" />
     <include package="collective.dms.scanbehavior" />
     <include package="collective.contact.core" />
+    <include package="collective.contact.facetednav" />
     <include package="collective.contact.plonegroup" />
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
@@ -86,4 +87,6 @@
     <include file="profiles.zcml" />
     <include file="skins.zcml" />
     <include file="subscribers.zcml" />
+    <include file="vocabularies.zcml" />
+
 </configure>
