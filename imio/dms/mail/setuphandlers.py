@@ -32,6 +32,10 @@ from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefa
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from dexterity.localroles.utils import add_fti_configuration
 from imio.helpers.security import is_develop_environment, generate_password
+
+from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
+
+
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 
@@ -53,9 +57,6 @@ def postInstall(context):
 
     # we configure rolefields
     configure_rolefields(context)
-
-    # we configure faceted navigations
-    reimport_faceted_config(context)
 
     def create_collections_folder(folder):
         if not base_hasattr(folder, 'collections'):
@@ -492,6 +493,10 @@ def addTestDirectory(context):
               'position': RelationValue(intids.getId(aelec)),
               }
     jeancourant.invokeFactory('held_position', 'agent-electrabel', **params)
+
+    # we configure faceted navigations for contacts
+    alsoProvides(contacts, IDirectoryFacetedNavigable)
+    reimport_faceted_config(context)
 
 
 def addTestMails(context):

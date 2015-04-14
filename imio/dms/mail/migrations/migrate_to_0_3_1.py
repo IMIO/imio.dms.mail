@@ -4,6 +4,9 @@ from zope.component import getUtility
 from zope.interface import alsoProvides
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
+
+from collective.contact.facetednav.interfaces import IActionsEnabled
+
 from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, reimport_faceted_config
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
@@ -96,6 +99,7 @@ class Migrate_To_0_3_1(Migrator):
     def setupFacetedContacts(self):
         """Setup facetednav for contacts."""
         alsoProvides(self.portal.contacts, IDirectoryFacetedNavigable)
+        alsoProvides(self.portal.contacts, IActionsEnabled)
         reimport_faceted_config(self.portal)
 
     def run(self):
@@ -107,15 +111,30 @@ class Migrate_To_0_3_1(Migrator):
             'collective.compoundcriterion:default',
             'collective.behavior.talcondition:default',
             'collective.contact.facetednav:default',
+            'collective.contact.duplicated:default',
             ])
-        self.importImioDmsMailStep(('typeinfo', 'workflow', 'update-workflow-rolemap', 'viewlets', 'componentregistry'))
+        self.importImioDmsMailStep((
+            'typeinfo',
+            'workflow',
+            'update-workflow-rolemap',
+            'viewlets',
+            'componentregistry',
+            'catalog',
+            ))
         self.createNotEncodedPerson()
         # self.changeTopicsFolder()  # FIXME
         self.replaceRoleByGroup()
         self.portal.portal_workflow.updateRoleMappings()
         addOrUpdateIndexes(self.portal, indexInfos={'treating_groups': ('KeywordIndex', {}),
-                                                    'recipient_groups': ('KeywordIndex', {})})
+                                                    'recipient_groups': ('KeywordIndex', {}),
+                                                    'organization_type': ('FieldIndex', {}),
+                                                    })
         addOrUpdateColumns(self.portal, columns=('treating_groups', 'recipient_groups'))
+        catalog = api.portal.get_tool('portal_catalog')
+        brains = catalog.searchResults(portal_type='organization')
+        for brain in brains:
+            brain.getObject().reindexObject(idxs=['organization_type'])
+
         self.setupFacetedContacts()
         self.upgradeAll()
         self.finish()
