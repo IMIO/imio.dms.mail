@@ -93,6 +93,10 @@ def postInstall(context):
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
         logger.info('outgoing-mail folder created')
 
+    # enable portal diff on incoming mail
+    api.portal.get_tool('portal_diff').setDiffForPortalType(
+        'dmsincomingmail', {})
+
 
 def blacklistPortletCategory(context, object, category, utilityname):
     """
