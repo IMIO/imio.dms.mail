@@ -107,6 +107,7 @@ class Migrate_To_0_3_1(Migrator):
         self.cleanRegistries()
         self.reinstall([
             'imio.actionspanel:default',
+            'imio.history:default',
             'collective.task:default',
             'collective.compoundcriterion:default',
             'collective.behavior.talcondition:default',
@@ -122,6 +123,8 @@ class Migrate_To_0_3_1(Migrator):
             'catalog',
             'jsregistry',
             ))
+        api.portal.get_tool('portal_diff').setDiffForPortalType(
+            'dmsincomingmail', {})
         self.createNotEncodedPerson()
         # self.changeTopicsFolder()  # FIXME
         self.replaceRoleByGroup()

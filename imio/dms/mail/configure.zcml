@@ -30,6 +30,7 @@
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
     <include package="dexterity.localrolesfield"/>
+    <include package="imio.history"/>
     <include package=".browser" />
 
     <utility
