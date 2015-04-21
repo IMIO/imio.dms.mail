@@ -19,4 +19,4 @@ class ActionsPanelViewlet(ActionsPanelViewlet):
 
     def renderViewlet(self):
         return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=False,
-                                                                  showActions=False)
+                                                                  showAddContent=True)
