@@ -255,6 +255,9 @@ def adaptDefaultPortal(context):
     #Hiding layout menu
     site.manage_permission('Modify view template', ('Manager', 'Site Administrator'),
                            acquire=0)
+    #Hiding folder contents
+    site.manage_permission('List folder contents', ('Manager', 'Site Administrator'),
+                           acquire=0)
 
 
 def configure_rolefields(context):
