@@ -19,6 +19,7 @@ from Products.CMFPlone.utils import base_hasattr
 from zope.component import queryUtility, getMultiAdapter, getUtility
 from zope.component.hooks import getSite
 from zope.i18n.interfaces import ITranslationDomain
+from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 from z3c.relationfield.relation import RelationValue
 from plone import api
@@ -500,7 +501,7 @@ def addTestDirectory(context):
 
     # we configure faceted navigations for contacts
     alsoProvides(contacts, IDirectoryFacetedNavigable)
-    reimport_faceted_config(context)
+    reimport_faceted_config(site)
 
 
 def addTestMails(context):
@@ -693,4 +694,4 @@ def refreshCatalog(context):
 def reimport_faceted_config(portal):
     """Reimport faceted navigation config."""
     portal['contacts'].unrestrictedTraverse('@@faceted_exportimport').import_xml(
-            import_file=open(os.path.dirname(__file__) + '/faceted_conf/contacts-faceted.xml'))
+        import_file=open(os.path.dirname(__file__) + '/faceted_conf/contacts-faceted.xml'))
