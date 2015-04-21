@@ -11,6 +11,10 @@
 /* <dtml-with base_properties> (do not remove this :) */
 /* <dtml-call "REQUEST.set('portal_url', portal_url())"> (not this either :) */
 
+#parent-fieldname-title, .documentEditable {
+ clear: both;
+}
+
 #imiodmsmail-mainportlet td {
     padding: 0.2em 0.2em 0.2em 1em;
 }
