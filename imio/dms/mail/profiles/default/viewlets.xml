@@ -6,4 +6,7 @@
   <viewlet name="collective.task.list_tasks"/>
   <viewlet name="plone.abovecontenttitle.documentactions"/>
  </order>
+ <hidden manager="plone.belowcontent" skinname="*">
+  <viewlet name="plone.belowcontenttitle.keywords" />
+ </hidden>
 </object>
