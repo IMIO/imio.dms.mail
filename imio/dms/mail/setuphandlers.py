@@ -160,6 +160,7 @@ def createStateTopics(folder, content_type):
                     topic.setLimitNumber(True)
                     topic.setItemCount(30)
                     topic.setSubject((u'search', ))
+                    topic.reindexObject(['Subject'])
                     folder.portal_workflow.doActionFor(topic, "show_internally")
             except:
 #                import traceback
@@ -202,6 +203,7 @@ def createIMTodoTopics(folder):
         collection = folder[dic['id']]
         folder.portal_workflow.doActionFor(collection, "show_internally")
         collection.setSubject((u'todo', ))
+        collection.reindexObject(['Subject'])
         collection.setLayout('tabular_view')
 
 
