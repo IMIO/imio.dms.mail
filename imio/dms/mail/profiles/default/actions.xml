@@ -13,7 +13,7 @@
    <property name="description" i18n:translate="">Batch import of dms document</property>
    <property name="url_expr">string:${globals_view/navigationRootUrl}/@@batchimport</property>
    <property name="icon_expr"></property>
-   <property name="available_expr">python:context.getId() == 'incoming-mail' or (context.getPhysicalPath()[-2] == 'incoming-mail' and context.getPortalTypeName() == 'Topic')</property>
+   <property name="available_expr">python:context.getId() == 'incoming-mail' or context.absolute_url().endswith('collections/all_mails')</property>
    <property name="permissions">
     <element value="collective.dms.batchimport: Batch import"/>
    </property>
@@ -25,7 +25,7 @@
    <property name="description" i18n:translate="">Incoming mail daily listing</property>
    <property name="url_expr">string:${object_url}/@@im-listing?mail_type=&amp;start_date=</property>
    <property name="icon_expr"></property>
-   <property name="available_expr">python:context.getId() == 'incoming-mail' or (context.getPhysicalPath()[-2] == 'incoming-mail' and context.getPortalTypeName() == 'Topic')</property>
+   <property name="available_expr">python:context.getId() == 'incoming-mail' or context.absolute_url().endswith('collections/all_mails')</property>
    <property name="permissions">
     <element value="View"/>
    </property>

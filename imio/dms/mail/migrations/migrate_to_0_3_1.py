@@ -61,8 +61,8 @@ class Migrate_To_0_3_1(Migrator):
         self.removeOldTopics(im_folder)
         self.createCollectionsFolder(im_folder)
         col_folder = im_folder['collections']
-        createStateTopics(col_folder, 'dmsincomingmail')
         createTopicView(col_folder, 'dmsincomingmail', u'all_incoming_mails')
+        createStateTopics(col_folder, 'dmsincomingmail')
         createIMTodoTopics(col_folder)
 
     def replaceRoleByGroup(self):
@@ -113,7 +113,7 @@ class Migrate_To_0_3_1(Migrator):
             'collective.behavior.talcondition:default',
             'collective.contact.facetednav:default',
             'collective.contact.duplicated:default',
-            ])
+        ])
         self.importImioDmsMailStep((
             'typeinfo',
             'workflow',
@@ -122,11 +122,12 @@ class Migrate_To_0_3_1(Migrator):
             'componentregistry',
             'catalog',
             'jsregistry',
-            ))
+            'actions',
+        ))
         api.portal.get_tool('portal_diff').setDiffForPortalType(
             'dmsincomingmail', {})
         self.createNotEncodedPerson()
-        # self.changeTopicsFolder()  # FIXME
+        self.changeTopicsFolder()
         self.replaceRoleByGroup()
         self.portal.portal_workflow.updateRoleMappings()
         addOrUpdateIndexes(self.portal, indexInfos={'treating_groups': ('KeywordIndex', {}),
