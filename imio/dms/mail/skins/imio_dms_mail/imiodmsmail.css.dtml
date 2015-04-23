@@ -19,7 +19,7 @@
  display: none;
 }
 
-#parent-fieldname-title, .documentEditable {
+#parent-fieldname-title, .documentEditable, .section-contacts h1 {
  clear: both;
 }
 
