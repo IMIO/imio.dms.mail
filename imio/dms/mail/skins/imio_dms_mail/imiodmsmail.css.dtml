@@ -11,14 +11,6 @@
 /* <dtml-with base_properties> (do not remove this :) */
 /* <dtml-call "REQUEST.set('portal_url', portal_url())"> (not this either :) */
 
-#plone-contentmenu-actions, #plone-contentmenu-factories {
- display: None;
-}
-
-#plone-contentmenu-workflow dd.actionMenuContent, #plone-contentmenu-workflow a .arrowDownAlternative {
- display: none;
-}
-
 #parent-fieldname-title, .documentEditable, .section-contacts h1 {
  clear: both;
 }

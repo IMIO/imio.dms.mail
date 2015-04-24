@@ -1,6 +1,10 @@
 # encoding: utf-8
 from collections import OrderedDict
+from AccessControl import getSecurityManager
 from plone import api
+from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
+from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
+from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 
 review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': 'proposed_to_manager'}),
                                                  ('_validateur', {'st': 'proposed_to_service_chief',
@@ -41,3 +45,29 @@ class IncomingMailHighestValidationCriterionFilterAdapter(object):
                     organizations.append(group.id[:-len(highest_level)])
             ret[criterias['org']] = organizations
         return ret
+
+
+class ActionsSubMenuItem(OrigActionsSubMenuItem):
+
+    def available(self):
+        # plone.api.user.has_permission doesn't work with zope admin
+        if not getSecurityManager().checkPermission('Manage portal', self.context):
+            return False
+        return super(ActionsSubMenuItem, self).available()
+
+
+class FactoriesSubMenuItem(OrigFactoriesSubMenuItem):
+
+    def available(self):
+        # plone.api.user.has_permission doesn't work with zope admin
+        if not getSecurityManager().checkPermission('Manage portal', self.context):
+            return False
+        return super(FactoriesSubMenuItem, self).available()
+
+
+class WorkflowMenu(OrigWorkflowMenu):
+
+    def getMenuItems(self, context, request):
+        if not getSecurityManager().checkPermission('Manage portal', context):
+            return []
+        return super(WorkflowMenu, self).getMenuItems(context, request)

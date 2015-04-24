@@ -22,4 +22,20 @@
         factory=".browser.table.AssignedGroupColumn"
     />
 
+  <adapter for="* *"
+           name="plone.contentmenu.actions"
+           factory=".adapters.ActionsSubMenuItem"
+           provides="plone.app.contentmenu.interfaces.IContentMenuItem" />
+
+  <adapter for="* *"
+           name="plone.contentmenu.factories"
+           factory=".adapters.FactoriesSubMenuItem"
+           provides="plone.app.contentmenu.interfaces.IContentMenuItem" />
+
+  <browser:menu
+    id="plone_contentmenu_workflow"
+    title="The 'workflow' menu - allows the user to execute workflow transitions"
+    class=".adapters.WorkflowMenu"
+    />
+
 </configure>
