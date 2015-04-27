@@ -127,7 +127,7 @@ class Migrate_To_0_3_1(Migrator):
             'actions',
         ))
         api.portal.get_tool('portal_diff').setDiffForPortalType(
-            'dmsincomingmail', {})
+            'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
         self.createNotEncodedPerson()
         self.changeTopicsFolder()
         self.replaceRoleByGroup()

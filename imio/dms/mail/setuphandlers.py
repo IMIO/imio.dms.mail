@@ -96,7 +96,7 @@ def postInstall(context):
 
     # enable portal diff on incoming mail
     api.portal.get_tool('portal_diff').setDiffForPortalType(
-        'dmsincomingmail', {})
+        'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
 
 
 def blacklistPortletCategory(context, object, category, utilityname):
