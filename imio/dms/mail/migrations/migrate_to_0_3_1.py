@@ -113,6 +113,7 @@ class Migrate_To_0_3_1(Migrator):
             'collective.behavior.talcondition:default',
             'collective.contact.facetednav:default',
             'collective.contact.duplicated:default',
+            'plone.app.versioningbehavior:default',
         ])
         self.importImioDmsMailStep((
             'typeinfo',
@@ -122,6 +123,7 @@ class Migrate_To_0_3_1(Migrator):
             'componentregistry',
             'catalog',
             'jsregistry',
+            'repositorytool',
             'actions',
         ))
         api.portal.get_tool('portal_diff').setDiffForPortalType(
