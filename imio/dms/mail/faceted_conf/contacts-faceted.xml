@@ -12,7 +12,7 @@
    <property name="hidezerocount"></property>
    <property name="index">portal_type</property>
    <property
-      name="vocabulary">imio.dms.mail.vocabularies.ContactPortalTypes</property>
+      name="vocabulary">collective.contact.facetednav.vocabularies.ContactPortalTypes</property>
    <property name="catalog"></property>
    <property name="hidealloption">1</property>
    <property name="maxitems"></property>
