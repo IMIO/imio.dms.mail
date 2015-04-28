@@ -88,6 +88,5 @@
     <include file="profiles.zcml" />
     <include file="skins.zcml" />
     <include file="subscribers.zcml" />
-    <include file="vocabularies.zcml" />
 
 </configure>
