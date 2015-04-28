@@ -6,6 +6,8 @@ from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
 from collective.contact.facetednav.interfaces import IActionsEnabled
+from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
+from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 
 from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, reimport_faceted_config
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
@@ -143,6 +145,9 @@ class Migrate_To_0_3_1(Migrator):
             brain.getObject().reindexObject(idxs=['organization_type'])
 
         self.setupFacetedContacts()
+        # hide portlets columns in contacts
+        alsoProvides(self.portal.contacts, IHidePloneLeftColumn)
+        alsoProvides(self.portal.contacts, IHidePloneRightColumn)
         self.upgradeAll()
         self.finish()
 
