@@ -9,4 +9,19 @@
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.replace_scanner"
         />
+
+    <subscriber
+        zcml:condition="installed zope.lifecycleevent"
+        for="collective.contact.core.content.organization.IOrganization
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.mark_organization"
+        />
+
+    <subscriber
+        zcml:condition="installed zope.lifecycleevent"
+        for="collective.contact.core.content.organization.IOrganization
+             zope.lifecycleevent.interfaces.IObjectMovedEvent"
+        handler=".subscribers.mark_organization"
+        />
+
 </configure>

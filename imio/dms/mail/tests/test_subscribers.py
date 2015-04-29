@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 import unittest2 as unittest
+
 import zope.event
 from zope.lifecycleevent import ObjectModifiedEvent
+
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
-from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
+
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.interfaces import IInternalOrganization, IExternalOrganization
 
 
 class TestDmsmail(unittest.TestCase):
@@ -38,3 +42,20 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(dfile.owner_info()['id'], 'encodeur')
         self.assertEquals(dfile.get_local_roles_for_userid('encodeur'), ('Owner',))
         self.assertEquals(dfile.get_local_roles_for_userid('scanner'), ())
+
+    def test_mark_organization(self):
+        contacts = self.portal.contacts
+        plonegroup_org = contacts['plonegroup-organization']
+        external = api.content.create(
+            type='organization', id='external', container=contacts)
+        self.assertTrue(IExternalOrganization.providedBy(external))
+        self.assertFalse(IInternalOrganization.providedBy(external))
+
+        internal = api.content.create(
+            type='organization', id='internal', container=plonegroup_org)
+        self.assertTrue(IInternalOrganization.providedBy(internal))
+        self.assertFalse(IExternalOrganization.providedBy(internal))
+
+        api.content.move(source=internal, target=contacts)
+        self.assertTrue(IExternalOrganization.providedBy(internal))
+        self.assertFalse(IInternalOrganization.providedBy(internal))

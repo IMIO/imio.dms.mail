@@ -12,7 +12,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, reimport_faceted_config
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
-from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
+from imio.dms.mail.interfaces import IDirectoryFacetedNavigable, IInternalOrganization, IExternalOrganization
 
 from Products.CMFPlone.utils import base_hasattr
 
@@ -102,6 +102,9 @@ class Migrate_To_0_3_1(Migrator):
         """Setup facetednav for contacts."""
         alsoProvides(self.portal.contacts, IDirectoryFacetedNavigable)
         alsoProvides(self.portal.contacts, IActionsEnabled)
+        # hide portlets columns in contacts
+        alsoProvides(self.portal.contacts, IHidePloneLeftColumn)
+        alsoProvides(self.portal.contacts, IHidePloneRightColumn)
         reimport_faceted_config(self.portal)
 
     def run(self):
@@ -145,9 +148,19 @@ class Migrate_To_0_3_1(Migrator):
             brain.getObject().reindexObject(idxs=['organization_type'])
 
         self.setupFacetedContacts()
-        # hide portlets columns in contacts
-        alsoProvides(self.portal.contacts, IHidePloneLeftColumn)
-        alsoProvides(self.portal.contacts, IHidePloneRightColumn)
+        # migrate plonegroup organizations
+        plonegroup_org = self.portal.contacts['plonegroup-organization']
+        for brain in catalog.searchResults(portal_type='organization'):
+            organization = brain.getObject()
+            if plonegroup_org in organization.get_organizations_chain():
+                if not IInternalOrganization.providedBy(organization):
+                    alsoProvides(organization, IInternalOrganization)
+            else:
+                if not IExternalOrganization.providedBy(organization):
+                    alsoProvides(organization, IExternalOrganization)
+
+            organization.reindexObject(idxs='object_provides')
+
         self.upgradeAll()
         self.finish()
 

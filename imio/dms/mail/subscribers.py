@@ -1,4 +1,11 @@
+# -*- coding: utf-8 -*-
+"""Subscribers."""
+from zope.interface import alsoProvides, noLongerProvides
+
 from Products.CMFCore.utils import getToolByName
+from plone import api
+
+from imio.dms.mail.interfaces import IInternalOrganization, IExternalOrganization
 
 
 def replace_scanner(imail, event):
@@ -35,3 +42,23 @@ def replace_scanner(imail, event):
                 obj.manage_setLocalRoles(userid, roles)
             obj.reindexObject()
         imail.reindexObjectSecurity()
+
+
+def mark_organization(organization, event):
+    """Set a marker interface on organization."""
+    contacts = api.portal.get().contacts
+    plonegroup_org = contacts['plonegroup-organization']
+    if plonegroup_org in organization.get_organizations_chain():
+        if not IInternalOrganization.providedBy(organization):
+            alsoProvides(organization, IInternalOrganization)
+
+        if IExternalOrganization.providedBy(organization):
+            noLongerProvides(organization, IExternalOrganization)
+    else:
+        if not IExternalOrganization.providedBy(organization):
+            alsoProvides(organization, IExternalOrganization)
+
+        if IInternalOrganization.providedBy(organization):
+            noLongerProvides(organization, IInternalOrganization)
+
+    organization.reindexObject(idxs='object_provides')

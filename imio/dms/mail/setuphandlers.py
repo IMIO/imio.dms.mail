@@ -428,6 +428,9 @@ def addTestDirectory(context):
     site.portal_workflow.doActionFor(contacts, "show_internally")
     #blacklistPortletCategory(context, contacts, CONTEXT_CATEGORY, u"plone.leftcolumn")
 
+    # create plonegroup-organization
+    addOwnOrganization(context)
+
     # Add not encoded person (in directory)
     contacts.invokeFactory('person', 'notencoded', lastname=u'Non encodé')
 
