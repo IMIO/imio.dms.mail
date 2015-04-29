@@ -20,16 +20,22 @@
                 title="imio.dms.mail : Write incoming mail field"/>
 
     <include package="Products.PasswordStrength" />
+    <include package="collective.behavior.talcondition" />
+    <include package="collective.compoundcriterion" />
     <include package="collective.dms.basecontent" />
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
     <include package="collective.dms.scanbehavior" />
     <include package="collective.contact.core" />
+    <include package="collective.contact.duplicated" />
     <include package="collective.contact.facetednav" />
     <include package="collective.contact.plonegroup" />
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
     <include package="dexterity.localrolesfield"/>
+    <include package="plone.app.lockingbehavior"/>
+    <include package="collective.dexteritytextindexer"/>
+    <include package="plone.app.versioningbehavior"/>
     <include package="imio.history"/>
     <include package=".browser" />
 
