@@ -98,6 +98,11 @@ def postInstall(context):
     api.portal.get_tool('portal_diff').setDiffForPortalType(
         'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
 
+    # reimport collective.contact.widget's registry step (disable jQueryUI's autocomplete)
+    site.portal_setup.runImportStepFromProfile(
+        'profile-collective.contact.widget:default',
+        'plone.app.registry')
+
 
 def blacklistPortletCategory(context, object, category, utilityname):
     """
