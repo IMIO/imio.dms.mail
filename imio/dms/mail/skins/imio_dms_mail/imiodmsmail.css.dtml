@@ -99,7 +99,4 @@
  width: 100%;
 }
 
-#only_external_organizations_widget {
-    display: none !important;
-}
 /* </dtml-with> */
