@@ -28,10 +28,13 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
 #from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
+from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from dexterity.localroles.utils import add_fti_configuration
+from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
+from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import is_develop_environment, generate_password
 
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
@@ -514,7 +517,7 @@ def addTestDirectory(context):
 
     # we configure faceted navigations for contacts
     alsoProvides(contacts, IDirectoryFacetedNavigable)
-    reimport_faceted_config(site)
+    setupFacetedContacts(site)
 
 
 def addTestMails(context):
@@ -708,3 +711,13 @@ def reimport_faceted_config(portal):
     """Reimport faceted navigation config."""
     portal['contacts'].unrestrictedTraverse('@@faceted_exportimport').import_xml(
         import_file=open(os.path.dirname(__file__) + '/faceted_conf/contacts-faceted.xml'))
+
+
+def setupFacetedContacts(portal):
+    """Setup facetednav for contacts."""
+    alsoProvides(portal.contacts, IDirectoryFacetedNavigable)
+    alsoProvides(portal.contacts, IActionsEnabled)
+    # hide portlets columns in contacts
+    alsoProvides(portal.contacts, IHidePloneLeftColumn)
+    alsoProvides(portal.contacts, IHidePloneRightColumn)
+    reimport_faceted_config(portal)

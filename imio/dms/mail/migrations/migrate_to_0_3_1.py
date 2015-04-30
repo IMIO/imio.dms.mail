@@ -5,11 +5,7 @@ from zope.interface import alsoProvides
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
-from collective.contact.facetednav.interfaces import IActionsEnabled
-from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
-from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
-
-from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, reimport_faceted_config
+from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, setupFacetedContacts
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable, IInternalOrganization, IExternalOrganization
@@ -98,15 +94,6 @@ class Migrate_To_0_3_1(Migrator):
                 lrc['proposed_to_manager']['encodeurs']:
             lrc['proposed_to_manager']['encodeurs'].append('IM Field Writer')
 
-    def setupFacetedContacts(self):
-        """Setup facetednav for contacts."""
-        alsoProvides(self.portal.contacts, IDirectoryFacetedNavigable)
-        alsoProvides(self.portal.contacts, IActionsEnabled)
-        # hide portlets columns in contacts
-        alsoProvides(self.portal.contacts, IHidePloneLeftColumn)
-        alsoProvides(self.portal.contacts, IHidePloneRightColumn)
-        reimport_faceted_config(self.portal)
-
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
         self.cleanRegistries()
@@ -147,7 +134,8 @@ class Migrate_To_0_3_1(Migrator):
         for brain in brains:
             brain.getObject().reindexObject(idxs=['organization_type'])
 
-        self.setupFacetedContacts()
+        setupFacetedContacts(self.portal)
+
         # migrate plonegroup organizations
         plonegroup_org = self.portal.contacts['plonegroup-organization']
         for brain in catalog.searchResults(portal_type='organization'):
