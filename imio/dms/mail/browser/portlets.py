@@ -3,6 +3,7 @@ from zope.interface import implements
 from plone.app.portlets.portlets import base
 from zope.component.hooks import getSite
 from plone.portlets.interfaces import IPortletDataProvider
+from Products.CMFPlone.utils import base_hasattr
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.behavior.talcondition.utils import evaluateExpressionFor
 from .. import _
@@ -49,7 +50,14 @@ class Renderer(base.Renderer):
         """
           Defines if the portlet is available in the context
         """
-        return not self.anonymous and self.context.portal_type not in ('directory',)
+        return not self.anonymous and self.context.portal_type not in ('directory',) and not self.is_edit_mode()
+
+    def is_edit_mode(self):
+        if not base_hasattr(self.view, 'mode'):
+            return False
+        elif self.view.mode == 'input':
+            return True
+        return False
 
     def render(self):
         return self._template()
