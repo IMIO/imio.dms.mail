@@ -46,7 +46,11 @@ def replace_scanner(imail, event):
 
 def mark_organization(organization, event):
     """Set a marker interface on organization."""
-    contacts = api.portal.get().contacts
+    try:
+        contacts = api.portal.get().contacts
+    except api.portal.CannotGetPortalError:
+        """ This happens when you delete a site """
+        return
     plonegroup_org = contacts['plonegroup-organization']
     if plonegroup_org in organization.get_organizations_chain():
         if not IInternalOrganization.providedBy(organization):
