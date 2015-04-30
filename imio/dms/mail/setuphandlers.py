@@ -36,7 +36,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import is_develop_environment, generate_password
-
+from imio.dms.mail.interfaces import IInternalOrganization, IExternalOrganization
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 
 
@@ -46,6 +46,22 @@ logger = logging.getLogger('imio.dms.mail: setuphandlers')
 def _(msgid, domain='imio.dms.mail'):
     translation_domain = queryUtility(ITranslationDomain, domain)
     return translation_domain.translate(msgid, context=getSite().REQUEST)
+
+
+def mark_organizations(portal):
+    """Mark each organization as internal or external."""
+    catalog = api.portal.get_tool('portal_catalog')
+    plonegroup_org = portal.contacts['plonegroup-organization']
+    for brain in catalog.searchResults(portal_type='organization'):
+        organization = brain.getObject()
+        if plonegroup_org in organization.get_organizations_chain():
+            if not IInternalOrganization.providedBy(organization):
+                alsoProvides(organization, IInternalOrganization)
+        else:
+            if not IExternalOrganization.providedBy(organization):
+                alsoProvides(organization, IExternalOrganization)
+
+        organization.reindexObject(idxs='object_provides')
 
 
 def postInstall(context):
@@ -518,6 +534,9 @@ def addTestDirectory(context):
     # we configure faceted navigations for contacts
     alsoProvides(contacts, IDirectoryFacetedNavigable)
     setupFacetedContacts(site)
+
+    # set marker interfaces on organizations
+    mark_organizations(site)
 
 
 def addTestMails(context):

@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getUtility
-from zope.interface import alsoProvides
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
-from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, setupFacetedContacts
+from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, setupFacetedContacts, mark_organizations
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
-from imio.dms.mail.interfaces import IDirectoryFacetedNavigable, IInternalOrganization, IExternalOrganization
 
 from Products.CMFPlone.utils import base_hasattr
 
@@ -137,17 +135,7 @@ class Migrate_To_0_3_1(Migrator):
         setupFacetedContacts(self.portal)
 
         # migrate plonegroup organizations
-        plonegroup_org = self.portal.contacts['plonegroup-organization']
-        for brain in catalog.searchResults(portal_type='organization'):
-            organization = brain.getObject()
-            if plonegroup_org in organization.get_organizations_chain():
-                if not IInternalOrganization.providedBy(organization):
-                    alsoProvides(organization, IInternalOrganization)
-            else:
-                if not IExternalOrganization.providedBy(organization):
-                    alsoProvides(organization, IExternalOrganization)
-
-            organization.reindexObject(idxs='object_provides')
+        mark_organizations(self.portal)
 
         self.upgradeAll()
         self.finish()
