@@ -19,3 +19,9 @@ msgstr ""
 
 msgid "dmsincomingmail-highest-validation"
 msgstr ""
+
+msgid "Recipient groups"
+msgstr ""
+
+msgid "Treating groups"
+msgstr ""
