@@ -1,0 +1,15 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    i18n_domain="imio.dms.mail">
+
+    <browser:page
+        name="tabular_view"
+        permission="zope2.View"
+        for="plone.app.collection.interfaces.ICollection"
+        template="templates/tabular_view.pt"
+        class=".browser.tabular_view.TabularView"
+        />
+
+</configure>

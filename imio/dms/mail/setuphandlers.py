@@ -202,15 +202,13 @@ def createIMTodoTopics(folder):
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-highest-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
-#            'flds': (u'Title', u'review_state', u'treating_groups', u'CreationDate', u'Creator'),
-            'flds': (u'Title', u'CreationDate', u'Creator'),
+            'flds': (u'Title', u'CreationDate', u'review_state', u'treating_groups', u'assigned_user'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_treat', 'tit': _('im_to_treat'), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},],
             'cond': u"",
-#            'flds': (u'Title', u'review_state', u'treating_groups', u'CreationDate', u'Creator'),
-            'flds': (u'Title', u'CreationDate', u'Creator'),
+            'flds': (u'Title', u'CreationDate', u'review_state', u'treating_groups', u'assigned_user'),
             'sort': u'created', 'rev': True, },
     ]
     #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)

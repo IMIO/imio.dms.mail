@@ -4,6 +4,9 @@ Changelog
 0.3.1 (unreleased)
 ----------------
 
+- Add more relevant columns in collections
+  [sgeulette]
+
 - Use collective.compoundcriterion and collective.behavior.talcondition
   [sgeulette]
 

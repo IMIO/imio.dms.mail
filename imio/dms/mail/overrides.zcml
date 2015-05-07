@@ -4,6 +4,8 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="imio.dms.mail">
 
+    <include file="./browser/overrides.zcml" />
+
     <!--adapter
         for="zope.interface.Interface
         zope.interface.Interface
