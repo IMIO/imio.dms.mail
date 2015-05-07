@@ -21,6 +21,8 @@ class TabularView(BrowserView):
                      'assigned_group': 'collective.task.AssignedGroups'}
 
     def from_vocabulary(self, item, value, utility):
+        if not value:
+            return ''
         factory = getUtility(IVocabularyFactory, utility)
         voc = factory(item)
         if isinstance(value, list):
