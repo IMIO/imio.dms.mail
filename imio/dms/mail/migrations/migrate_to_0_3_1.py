@@ -4,7 +4,7 @@ from zope.component import getUtility
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
-from imio.dms.mail.setuphandlers import createStateTopics, createTopicView, createIMTodoTopics, setupFacetedContacts, mark_organizations
+from imio.dms.mail.setuphandlers import createStateTopics, createIMCollections, setupFacetedContacts, mark_organizations
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
@@ -57,9 +57,9 @@ class Migrate_To_0_3_1(Migrator):
         self.removeOldTopics(im_folder)
         self.createCollectionsFolder(im_folder)
         col_folder = im_folder['collections']
-        createTopicView(col_folder, 'dmsincomingmail', u'all_incoming_mails')
         createStateTopics(col_folder, 'dmsincomingmail')
-        createIMTodoTopics(col_folder)
+        createIMCollections(col_folder)
+        col_folder.setDefaultPage('all_mails')
 
     def replaceRoleByGroup(self):
         gp = api.group.get('encodeurs')

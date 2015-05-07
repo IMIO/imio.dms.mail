@@ -94,9 +94,9 @@ def postInstall(context):
         im_folder = getattr(site, folderid)
         col_folder = create_collections_folder(im_folder)
         #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(col_folder, 'dmsincomingmail', u'all_incoming_mails')
         createStateTopics(col_folder, 'dmsincomingmail')
-        createIMTodoTopics(col_folder)
+        createIMCollections(col_folder)
+        col_folder.setDefaultPage('all_mails')
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -107,7 +107,6 @@ def postInstall(context):
         om_folder = getattr(site, folderid)
         col_folder = create_collections_folder(om_folder)
         #blacklistPortletCategory(context, om_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createTopicView(col_folder, 'dmsoutgoingmail', 'Outgoing mail')
         om_folder.setConstrainTypesMode(1)
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
@@ -134,25 +133,6 @@ def blacklistPortletCategory(context, object, category, utilityname):
     blacklist = getMultiAdapter((object, manager), ILocalPortletAssignmentManager)
     # Turn off the manager
     blacklist.setBlacklistStatus(category, True)
-
-
-def createTopicView(folder, ptype, title):
-    """
-        create a topic as default page
-    """
-    if not 'all_mails' in folder:
-        folder.invokeFactory("Topic", id='all_mails', title=_(title))
-        topic = getattr(folder, 'all_mails')
-        topic.setCustomView(True)
-#        topic.setCustomViewFields(('Title', 'internal_reference_number', 'review_state', 'CreationDate', 'Creator'))
-        topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
-        topic.setSortCriterion('created', True)
-        # add portal_type criterion
-        crit = topic.addCriterion('portal_type', 'ATSimpleStringCriterion')
-        crit.setValue(ptype)
-        # set the topic as folder's default page
-        folder.setDefaultPage('all_mails')
-        folder.portal_workflow.doActionFor(topic, "show_internally")
 
 
 def createStateTopics(folder, content_type):
@@ -192,19 +172,24 @@ def createStateTopics(folder, content_type):
                 pass
 
 
-def createIMTodoTopics(folder):
+def createIMCollections(folder):
     """
         create some topic for incoming mails
     """
     collections = [
-        {'id': 'to_validate', 'tit': _('im_to_validate'), 'query': [
+        {'id': 'all_mails', 'tit': _('all_incoming_mails'), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']}],
+            'cond': u"",
+            'flds': (u'Title', u'CreationDate', u'review_state', u'treating_groups', u'assigned_user'),
+            'sort': u'created', 'rev': True, },
+        {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-highest-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
             'flds': (u'Title', u'CreationDate', u'review_state', u'treating_groups', u'assigned_user'),
             'sort': u'created', 'rev': True, },
-        {'id': 'to_treat', 'tit': _('im_to_treat'), 'query': [
+        {'id': 'to_treat', 'tit': _('im_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},],
             'cond': u"",
@@ -230,8 +215,9 @@ def createIMTodoTopics(folder):
                              b_size=30)
         collection = folder[dic['id']]
         folder.portal_workflow.doActionFor(collection, "show_internally")
-        collection.setSubject((u'todo', ))
-        collection.reindexObject(['Subject'])
+        if 'subj' in dic:
+            collection.setSubject(dic['subj'])
+            collection.reindexObject(['Subject'])
         collection.setLayout('tabular_view')
 
 
