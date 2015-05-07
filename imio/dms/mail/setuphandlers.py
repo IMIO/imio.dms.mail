@@ -205,9 +205,15 @@ def createIMTodoTopics(folder):
 #            'flds': (u'Title', u'review_state', u'treating_groups', u'CreationDate', u'Creator'),
             'flds': (u'Title', u'CreationDate', u'Creator'),
             'sort': u'created', 'rev': True, },
+        {'id': 'to_treat', 'tit': _('im_to_treat'), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},],
+            'cond': u"",
+#            'flds': (u'Title', u'review_state', u'treating_groups', u'CreationDate', u'Creator'),
+            'flds': (u'Title', u'CreationDate', u'Creator'),
+            'sort': u'created', 'rev': True, },
     ]
     #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
-    #que je dois traiter (utilisateur comme agent traitant du behavior tâche du courrier) (indexer utilisateur)
     #que je traite (utilisateur comme agent traitant du behavior tâche du courrier)
     #que j'ai traité (utilisateur comme agent traitant du behavior tâche du courrier)
     #dans mon service (utilisateur dans un groupe "service"_editor)
