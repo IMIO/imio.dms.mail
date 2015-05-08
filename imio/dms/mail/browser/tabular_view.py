@@ -21,8 +21,6 @@ class TabularView(BrowserView):
                      'assigned_group': 'collective.task.AssignedGroups'}
 
     def from_vocabulary(self, item, value, utility):
-        if not value:
-            return ''
         factory = getUtility(IVocabularyFactory, utility)
         voc = factory(item)
         if isinstance(value, list):
@@ -35,11 +33,14 @@ class TabularView(BrowserView):
 
     def render_field(self, field, item):
         """
+            render field differently
         """
         field_name = field[0]
         value = getattr(item, field_name)
         if hasattr(value, '__call__'):
             value = value()
+        if not value:
+            return ''
         if field_name == 'Title':
             return '<a href="%s">%s</a>' % (item.getURL(), value)
         elif field_name == 'review_state':
