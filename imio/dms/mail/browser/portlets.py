@@ -85,18 +85,11 @@ class Renderer(base.Renderer):
     def getMainFileAddUrl(self):
         return '%s/%s' % (self.context.absolute_url(), '++add++dmsmainfile')
 
-    def getIncomingMailsTopics(self):
-        return self.portal.portal_catalog(portal_type='Topic',
-                                          path='%s/%s' % ('/'.join(getIncomingMailFolder().getPhysicalPath()),
-                                                          'collections'),
-                                          Subject=['search'],
-                                          sort_on='getObjPositionInParent')
-
-    def getIMTodoCollections(self):
+    def getIMCollections(self, subject=[]):
         brains = self.portal.portal_catalog(portal_type='Collection',
                                             path='%s/%s' % ('/'.join(getIncomingMailFolder().getPhysicalPath()),
                                                             'collections'),
-                                            Subject=['todo'],
+                                            Subject=subject,
                                             sort_on='getObjPositionInParent')
         return [brain for brain in brains if evaluateExpressionFor(brain.getObject())]
 

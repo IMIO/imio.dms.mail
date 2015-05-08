@@ -94,7 +94,7 @@ def postInstall(context):
         im_folder = getattr(site, folderid)
         col_folder = create_collections_folder(im_folder)
         #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createStateTopics(col_folder, 'dmsincomingmail')
+        createStateCollections(col_folder, 'dmsincomingmail')
         createIMCollections(col_folder)
         col_folder.setDefaultPage('all_mails')
         im_folder.setConstrainTypesMode(1)
@@ -135,9 +135,9 @@ def blacklistPortletCategory(context, object, category, utilityname):
     blacklist.setBlacklistStatus(category, True)
 
 
-def createStateTopics(folder, content_type):
+def createStateCollections(folder, content_type):
     """
-        create a topic for each contextual workflow state
+        create a collection for each contextual workflow state
     """
     default_states = ['created', 'proposed_to_manager', 'proposed_to_service_chief',
                       'proposed_to_agent', 'in_treatment', 'closed']
@@ -146,30 +146,21 @@ def createStateTopics(folder, content_type):
             if value.id not in default_states:
                 default_states.append(value)
         for state in default_states:
-            try:
-                topic_id = "searchfor_%s" % state
-                if not base_hasattr(folder, topic_id):
-                    folder.invokeFactory("Topic", id=topic_id, title=_(topic_id))
-                    topic = folder[topic_id]
-                    topic.setCustomView(True)
-                    topic.setCustomViewFields(('Title', 'review_state', 'CreationDate', 'Creator'))
-                    topic.setSortCriterion('created', True)
-                    # add portal_type criterion
-                    crit = topic.addCriterion('portal_type', 'ATSimpleStringCriterion')
-                    crit.setValue(content_type)
-                    # criterion of state
-                    crit = topic.addCriterion(field='review_state', criterion_type='ATListCriterion')
-                    crit.setValue(state)
-                    #we limit the results by page
-                    topic.setLimitNumber(True)
-                    topic.setItemCount(30)
-                    topic.setSubject((u'search', ))
-                    topic.reindexObject(['Subject'])
-                    folder.portal_workflow.doActionFor(topic, "show_internally")
-            except:
-#                import traceback
-#                traceback.print_exc()
-                pass
+            col_id = "searchfor_%s" % state
+            if not base_hasattr(folder, col_id):
+                folder.invokeFactory("Collection", id=col_id, title=_(col_id),
+                                     query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                                             'v': [content_type]},
+                                            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
+                                             'v': [state]}],
+                                     customViewFields=(u'Title', u'CreationDate', u'review_state', u'treating_groups',
+                                                       u'assigned_user'),
+                                     sort_on=u'created', sort_reversed=True, b_size=30)
+                col = folder[col_id]
+                col.setSubject((u'search', ))
+                col.reindexObject(['Subject'])
+                col.setLayout('tabular_view')
+                folder.portal_workflow.doActionFor(col, "show_internally")
 
 
 def createIMCollections(folder):

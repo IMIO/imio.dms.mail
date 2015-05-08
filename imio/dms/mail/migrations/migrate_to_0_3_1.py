@@ -4,7 +4,7 @@ from zope.component import getUtility
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
-from imio.dms.mail.setuphandlers import createStateTopics, createIMCollections, setupFacetedContacts, mark_organizations
+from imio.dms.mail.setuphandlers import createStateCollections, createIMCollections, setupFacetedContacts, mark_organizations
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
@@ -57,7 +57,7 @@ class Migrate_To_0_3_1(Migrator):
         self.removeOldTopics(im_folder)
         self.createCollectionsFolder(im_folder)
         col_folder = im_folder['collections']
-        createStateTopics(col_folder, 'dmsincomingmail')
+        createStateCollections(col_folder, 'dmsincomingmail')
         createIMCollections(col_folder)
         col_folder.setDefaultPage('all_mails')
 

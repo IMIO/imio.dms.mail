@@ -33,7 +33,7 @@
     </table>
     <table>
         <tr><th i18n:translate="Main_menu_todo_section">Incoming mails todo</th></tr>
-        <tr tal:repeat="brain view/getIMTodoCollections">
+        <tr tal:repeat="brain python:view.getIMCollections(subject=['todo'])">
           <td>
             <a tal:attributes="href brain/getURL" i18n:translate="" tal:content="brain/Title">incoming mail todo collection</a>
           </td>
@@ -41,7 +41,7 @@
     </table>
     <table>
         <tr><th i18n:translate="Main_menu_search_section">Incoming mails searches</th></tr>
-        <tr tal:repeat="brain view/getIncomingMailsTopics">
+        <tr tal:repeat="brain python:view.getIMCollections(subject=['search'])">
           <td>
             <a tal:attributes="href brain/getURL" i18n:translate="" tal:content="brain/Title">incoming mail state topic</a>
           </td>
