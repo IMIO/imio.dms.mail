@@ -153,8 +153,8 @@ def createStateCollections(folder, content_type):
                                              'v': [content_type]},
                                             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                              'v': [state]}],
-                                     customViewFields=(u'Title', u'CreationDate', u'review_state', u'treating_groups',
-                                                       u'assigned_user'),
+                                     customViewFields=(u'Title', u'review_state', u'treating_groups',
+                                                       u'assigned_user', u'CreationDate'),
                                      sort_on=u'created', sort_reversed=True, b_size=30)
                 col = folder[col_id]
                 col.setSubject((u'search', ))
@@ -171,20 +171,20 @@ def createIMCollections(folder):
         {'id': 'all_mails', 'tit': _('all_incoming_mails'), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']}],
             'cond': u"",
-            'flds': (u'Title', u'CreationDate', u'review_state', u'treating_groups', u'assigned_user'),
+            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-highest-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
-            'flds': (u'Title', u'CreationDate', u'review_state', u'treating_groups', u'assigned_user'),
+            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_treat', 'tit': _('im_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},],
             'cond': u"",
-            'flds': (u'Title', u'CreationDate', u'review_state', u'treating_groups', u'assigned_user'),
+            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
             'sort': u'created', 'rev': True, },
     ]
     #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
