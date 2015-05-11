@@ -36,8 +36,8 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import is_develop_environment, generate_password
-from imio.dms.mail.interfaces import IInternalOrganization, IExternalOrganization
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
+from imio.dms.mail.subscribers import mark_organization
 
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -49,19 +49,10 @@ def _(msgid, domain='imio.dms.mail'):
 
 
 def mark_organizations(portal):
-    """Mark each organization as internal or external."""
-    catalog = api.portal.get_tool('portal_catalog')
-    plonegroup_org = portal.contacts['plonegroup-organization']
-    for brain in catalog.searchResults(portal_type='organization'):
-        organization = brain.getObject()
-        if plonegroup_org in organization.get_organizations_chain():
-            if not IInternalOrganization.providedBy(organization):
-                alsoProvides(organization, IInternalOrganization)
-        else:
-            if not IExternalOrganization.providedBy(organization):
-                alsoProvides(organization, IExternalOrganization)
-
-        organization.reindexObject(idxs='object_provides')
+    """Mark each contact content as internal or external."""
+    for brain in portal.portal_catalog.searchResults(
+            object_provides=['collective.contact.widget.interfaces.IContactContent']):
+        mark_organization(brain.getObject(), None)
 
 
 def postInstall(context):

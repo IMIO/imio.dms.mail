@@ -12,14 +12,14 @@
 
     <subscriber
         zcml:condition="installed zope.lifecycleevent"
-        for="collective.contact.core.content.organization.IOrganization
+        for="collective.contact.widget.interfaces.IContactContent
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
         handler=".subscribers.mark_organization"
         />
 
     <subscriber
         zcml:condition="installed zope.lifecycleevent"
-        for="collective.contact.core.content.organization.IOrganization
+        for="collective.contact.widget.interfaces.IContactContent
              zope.lifecycleevent.interfaces.IObjectMovedEvent"
         handler=".subscribers.mark_organization"
         />

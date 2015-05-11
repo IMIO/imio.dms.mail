@@ -10,12 +10,12 @@ class IDirectoryFacetedNavigable(IFacetedNavigable, IDirectory):
     """Marker interface for contacts directory."""
 
 
-class IExternalOrganization(Interface):
+class IExternalContact(Interface):
 
     """Marker interface for external organizations."""
 
 
-class IInternalOrganization(Interface):
+class IInternalContact(Interface):
 
     """Marker interface for internal organizations
 

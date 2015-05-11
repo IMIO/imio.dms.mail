@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
-from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
-from plone import api
-
-from collective.contact.core.content.person import IPerson
-from collective.contact.core.content.held_position import IHeldPosition
-
-from imio.dms.mail.interfaces import IInternalOrganization, IExternalOrganization
+from imio.dms.mail.interfaces import IInternalContact, IExternalContact
 
 
 class InterfacesShownInFacetedNav(object):
@@ -16,10 +11,8 @@ class InterfacesShownInFacetedNav(object):
 
     def __call__(self, context):
         interfaces = [
-            IExternalOrganization,
-            IInternalOrganization,
-            IPerson,
-            IHeldPosition
+            IExternalContact,
+            IInternalContact,
             ]
 
         terms = [SimpleVocabulary.createTerm(

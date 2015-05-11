@@ -5,7 +5,7 @@ from zope.interface import alsoProvides, noLongerProvides
 from Products.CMFCore.utils import getToolByName
 from plone import api
 
-from imio.dms.mail.interfaces import IInternalOrganization, IExternalOrganization
+from imio.dms.mail.interfaces import IInternalContact, IExternalContact
 
 
 def replace_scanner(imail, event):
@@ -44,25 +44,17 @@ def replace_scanner(imail, event):
         imail.reindexObjectSecurity()
 
 
-def mark_organization(organization, event):
-    """Set a marker interface on organization."""
-    try:
-        contacts = api.portal.get().contacts
-    except api.portal.CannotGetPortalError:
-        """ This happens when you delete a site """
-        return
-    plonegroup_org = contacts['plonegroup-organization']
-    if plonegroup_org in organization.get_organizations_chain():
-        if not IInternalOrganization.providedBy(organization):
-            alsoProvides(organization, IInternalOrganization)
-
-        if IExternalOrganization.providedBy(organization):
-            noLongerProvides(organization, IExternalOrganization)
+def mark_organization(contact, event):
+    """ Set a marker interface on contact content. """
+    if '/contacts/plonegroup-organization' in contact.absolute_url_path():
+        if not IInternalContact.providedBy(contact):
+            alsoProvides(contact, IInternalContact)
+        if IExternalContact.providedBy(contact):
+            noLongerProvides(contact, IExternalContact)
     else:
-        if not IExternalOrganization.providedBy(organization):
-            alsoProvides(organization, IExternalOrganization)
+        if not IExternalContact.providedBy(contact):
+            alsoProvides(contact, IExternalContact)
+        if IInternalContact.providedBy(contact):
+            noLongerProvides(contact, IInternalContact)
 
-        if IInternalOrganization.providedBy(organization):
-            noLongerProvides(organization, IInternalOrganization)
-
-    organization.reindexObject(idxs='object_provides')
+    contact.reindexObject(idxs='object_provides')

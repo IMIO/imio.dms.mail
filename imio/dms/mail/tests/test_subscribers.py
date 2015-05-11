@@ -9,7 +9,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone import api
 
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.interfaces import IInternalOrganization, IExternalOrganization
+from imio.dms.mail.interfaces import IInternalContact, IExternalContact
 
 
 class TestDmsmail(unittest.TestCase):
@@ -48,14 +48,19 @@ class TestDmsmail(unittest.TestCase):
         plonegroup_org = contacts['plonegroup-organization']
         external = api.content.create(
             type='organization', id='external', container=contacts)
-        self.assertTrue(IExternalOrganization.providedBy(external))
-        self.assertFalse(IInternalOrganization.providedBy(external))
+        self.assertTrue(IExternalContact.providedBy(external))
+        self.assertFalse(IInternalContact.providedBy(external))
 
         internal = api.content.create(
             type='organization', id='internal', container=plonegroup_org)
-        self.assertTrue(IInternalOrganization.providedBy(internal))
-        self.assertFalse(IExternalOrganization.providedBy(internal))
+        self.assertTrue(IInternalContact.providedBy(internal))
+        self.assertFalse(IExternalContact.providedBy(internal))
 
         api.content.move(source=internal, target=contacts)
-        self.assertTrue(IExternalOrganization.providedBy(internal))
-        self.assertFalse(IInternalOrganization.providedBy(internal))
+        self.assertTrue(IExternalContact.providedBy(internal))
+        self.assertFalse(IInternalContact.providedBy(internal))
+
+        internal = api.content.create(
+            type='person', id='person', container=contacts)
+        self.assertTrue(IExternalContact.providedBy(external))
+        self.assertFalse(IInternalContact.providedBy(external))
