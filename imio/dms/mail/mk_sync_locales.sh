@@ -18,6 +18,8 @@ install -d locales
 # Rebuild .pot
 echo "Rebuilding locales/generated.pot"
 i18ndude rebuild-pot --pot locales/generated.pot --create $CATALOGNAME .
+# remove bad generated msgid: "plone"
+sed -n '/^msgid "plone"/{N;s/.*//;x;d;};x;p;${x;p;}' locales/generated.pot |uniq |sed '1d' > locales/generated.pot
 
 #creating the first pot
 if ! test -f locales/$CATALOGNAME.pot; then

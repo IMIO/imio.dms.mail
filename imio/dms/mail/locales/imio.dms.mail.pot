@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-05-07 08:57+0000\n"
+"POT-Creation-Date: 2015-05-11 14:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./setuphandlers.py:93
+#: ./setuphandlers.py:85
 msgid "Incoming mail"
 msgstr ""
 
@@ -105,7 +105,7 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:106
+#: ./setuphandlers.py:98
 msgid "Outgoing mail"
 msgstr ""
 
@@ -123,6 +123,7 @@ msgid "Types of incoming mail"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
+#: ./setuphandlers.py:163
 msgid "all_incoming_mails"
 msgstr ""
 
@@ -131,27 +132,35 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./setuphandlers.py:262
+#: ./setuphandlers.py:240
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:263
+#: ./setuphandlers.py:241
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:261
+#: ./setuphandlers.py:239
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:208
+#: ./setuphandlers.py:188
+msgid "im_have_treated"
+msgstr ""
+
+#: ./setuphandlers.py:181
+msgid "im_im_treating"
+msgstr ""
+
+#: ./setuphandlers.py:175
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:200
+#: ./setuphandlers.py:168
 msgid "im_to_validate"
 msgstr ""
 
-#: ./setuphandlers.py:46
+#: ./setuphandlers.py:47
 msgid "imio.dms.mail"
 msgstr ""
 

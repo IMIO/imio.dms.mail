@@ -58,9 +58,9 @@ class Migrate_To_0_3_1(Migrator):
         self.removeOldTopics(im_folder)
         self.createCollectionsFolder(im_folder)
         col_folder = im_folder['collections']
-        createStateCollections(col_folder, 'dmsincomingmail')
         createIMCollections(col_folder)
         col_folder.setDefaultPage('all_mails')
+        createStateCollections(col_folder, 'dmsincomingmail')
 
     def replaceRoleByGroup(self):
         gp = api.group.get('encodeurs')

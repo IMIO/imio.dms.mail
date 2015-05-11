@@ -86,9 +86,9 @@ def postInstall(context):
         im_folder = getattr(site, folderid)
         col_folder = create_collections_folder(im_folder)
         #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createStateCollections(col_folder, 'dmsincomingmail')
         createIMCollections(col_folder)
         col_folder.setDefaultPage('all_mails')
+        createStateCollections(col_folder, 'dmsincomingmail')
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -174,14 +174,27 @@ def createIMCollections(folder):
             'sort': u'created', 'rev': True, },
         {'id': 'to_treat', 'tit': _('im_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
-            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},],
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']}],
+            'cond': u"",
+            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'sort': u'created', 'rev': True, },
+        {'id': 'im_treating', 'tit': _('im_im_treating'), 'subj': (u'todo', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['in_treatment']}],
+            'cond': u"",
+            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'sort': u'created', 'rev': True, },
+        {'id': 'have_treated', 'tit': _('im_have_treated'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed']}],
             'cond': u"",
             'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
             'sort': u'created', 'rev': True, },
     ]
     #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
-    #que je traite (utilisateur comme agent traitant du behavior tâche du courrier)
-    #que j'ai traité (utilisateur comme agent traitant du behavior tâche du courrier)
     #dans mon service (utilisateur dans un groupe "service"_editor)
 
     for dic in collections:
