@@ -4,7 +4,8 @@ from zope.component import getUtility
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
-from imio.dms.mail.setuphandlers import createStateCollections, createIMCollections, setupFacetedContacts, mark_organizations
+from imio.dms.mail.setuphandlers import createStateCollections, createIMCollections, setupFacetedContacts
+from imio.dms.mail.setuphandlers import mark_organizations
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 

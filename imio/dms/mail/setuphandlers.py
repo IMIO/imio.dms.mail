@@ -33,6 +33,7 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIO
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from dexterity.localroles.utils import add_fti_configuration
+from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import is_develop_environment, generate_password
@@ -708,6 +709,7 @@ def setupFacetedContacts(portal):
     """Setup facetednav for contacts."""
     alsoProvides(portal.contacts, IDirectoryFacetedNavigable)
     alsoProvides(portal.contacts, IActionsEnabled)
+    alsoProvides(portal.contacts, IDisableSmartFacets)
     # hide portlets columns in contacts
     alsoProvides(portal.contacts, IHidePloneLeftColumn)
     alsoProvides(portal.contacts, IHidePloneRightColumn)
