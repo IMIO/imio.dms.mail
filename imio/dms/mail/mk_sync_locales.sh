@@ -17,9 +17,10 @@ install -d locales
 
 # Rebuild .pot
 echo "Rebuilding locales/generated.pot"
-i18ndude rebuild-pot --pot locales/generated.pot --create $CATALOGNAME .
+i18ndude rebuild-pot --pot locales/generated_tmp.pot --create $CATALOGNAME .
 # remove bad generated msgid: "plone"
-sed -n '/^msgid "plone"/{N;s/.*//;x;d;};x;p;${x;p;}' locales/generated.pot |uniq |sed '1d' > locales/generated.pot
+sed -n '/^msgid "plone"/{N;s/.*//;x;d;};x;p;${x;p;}' locales/generated_tmp.pot |uniq |sed '1d' > locales/generated.pot
+rm locales/generated_tmp.pot
 
 #creating the first pot
 if ! test -f locales/$CATALOGNAME.pot; then
@@ -41,9 +42,12 @@ fi
 if ! test -f locales/plone.pot || [ "$1" == "rebuild-plone" ]; then
     echo "Rebuilding locales/plone.pot"
     i18ndude rebuild-pot --pot locales/plone.pot --create plone profiles/default/workflows
+    if [ `svn diff locales/generated.pot |grep "^\+[^+]" |wc -l` -le "1" ]; then
+        svn revert locales/generated.pot
+    else
+        i18ndude merge --pot locales/plone.pot --merge locales/plone-manual.pot 2>/dev/null
+    fi
 fi
-
-i18ndude merge --pot locales/plone.pot --merge locales/plone-manual.pot 2>/dev/null
 
 if ! test -f locales/collective.dms.basecontent.pot; then
     echo "Rebuilding locales/collective.dms.basecontent.pot"

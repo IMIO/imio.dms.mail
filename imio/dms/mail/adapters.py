@@ -23,7 +23,7 @@ def highest_review_level(portal_type, group_ids):
     return None
 
 
-class IncomingMailHighestValidationCriterionFilterAdapter(object):
+class IncomingMailHighestValidationCriterion(object):
 
     def __init__(self, context):
         self.context = context
@@ -45,6 +45,32 @@ class IncomingMailHighestValidationCriterionFilterAdapter(object):
                     organizations.append(group.id[:-len(highest_level)])
             ret[criterias['org']] = organizations
         return ret
+
+
+def organizations_with_suffixes(groups, suffixes):
+    """ Return organization uid with suffixes """
+    orgs = []
+    for group in groups:
+        parts = group.id.split('_')
+        if len(parts) == 1:
+            continue
+        for suffix in suffixes:
+            if suffix == parts[1] and parts[0] not in orgs:
+                orgs.append(parts[0])
+    return orgs
+
+
+class IncomingMailInTreatingGroupCriterion(object):
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        # if orgs is empty, nothing is returned
+        return {'treating_groups': orgs}
 
 
 class ActionsSubMenuItem(OrigActionsSubMenuItem):

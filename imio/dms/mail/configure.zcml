@@ -75,9 +75,14 @@
         /-->
 
     <adapter for="*"
-             factory=".adapters.IncomingMailHighestValidationCriterionFilterAdapter"
+             factory=".adapters.IncomingMailHighestValidationCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsincomingmail-highest-validation" />
+
+    <adapter for="*"
+             factory=".adapters.IncomingMailInTreatingGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="dmsincomingmail-in-a-treating-group" />
 
     <class class="plone.app.collection.collection.Collection">
         <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />
