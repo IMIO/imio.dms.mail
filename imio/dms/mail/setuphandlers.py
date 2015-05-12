@@ -196,13 +196,19 @@ def createIMCollections(folder):
         {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-             'v': 'dmsincomingmail-in-a-treating-group'}],
+             'v': 'dmsincomingmail-in-treating-group'}],
+            'cond': u"",
+            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'sort': u'created', 'rev': True, },
+        {'id': 'in_copy', 'tit': _('im_in_copy'), 'subj': (u'todo', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'dmsincomingmail-in-copy-group'}],
             'cond': u"",
             'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
             'sort': u'created', 'rev': True, },
     ]
     #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
-    #dans mon service (utilisateur dans un groupe "service"_editor)
 
     for dic in collections:
         if base_hasattr(folder, dic['id']):

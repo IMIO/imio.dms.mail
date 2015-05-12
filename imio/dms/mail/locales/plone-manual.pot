@@ -20,6 +20,12 @@ msgstr ""
 msgid "dmsincomingmail-highest-validation"
 msgstr ""
 
+msgid "dmsincomingmail-in-treating-group"
+msgstr ""
+
+msgid "dmsincomingmail-in-copy-group"
+msgstr ""
+
 msgid "Recipient groups"
 msgstr ""
 

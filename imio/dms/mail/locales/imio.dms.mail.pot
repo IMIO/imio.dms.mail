@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-05-12 06:46+0000\n"
+"POT-Creation-Date: 2015-05-12 10:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,15 +132,15 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./setuphandlers.py:248
+#: ./setuphandlers.py:254
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:249
+#: ./setuphandlers.py:255
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:247
+#: ./setuphandlers.py:253
 msgid "front_page_title"
 msgstr ""
 
@@ -150,6 +150,10 @@ msgstr ""
 
 #: ./setuphandlers.py:182
 msgid "im_im_treating"
+msgstr ""
+
+#: ./setuphandlers.py:203
+msgid "im_in_copy"
 msgstr ""
 
 #: ./setuphandlers.py:196

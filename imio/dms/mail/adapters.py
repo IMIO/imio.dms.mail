@@ -69,8 +69,21 @@ class IncomingMailInTreatingGroupCriterion(object):
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
-        # if orgs is empty, nothing is returned
+        # if orgs is empty list, nothing is returned => ok
         return {'treating_groups': orgs}
+
+
+class IncomingMailInCopyGroupCriterion(object):
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        # if orgs is empty list, nothing is returned => ok
+        return {'recipient_groups': orgs}
 
 
 class ActionsSubMenuItem(OrigActionsSubMenuItem):

@@ -82,7 +82,12 @@
     <adapter for="*"
              factory=".adapters.IncomingMailInTreatingGroupCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
-             name="dmsincomingmail-in-a-treating-group" />
+             name="dmsincomingmail-in-treating-group" />
+
+    <adapter for="*"
+             factory=".adapters.IncomingMailInCopyGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="dmsincomingmail-in-copy-group" />
 
     <class class="plone.app.collection.collection.Collection">
         <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />

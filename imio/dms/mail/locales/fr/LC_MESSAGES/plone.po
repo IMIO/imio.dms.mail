@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-05-07 10:15+0000\n"
+"POT-Creation-Date: 2015-05-12 10:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,6 +79,12 @@ msgstr "En création"
 
 msgid "dmsincomingmail-highest-validation"
 msgstr "Courrier entrant à valider"
+
+msgid "dmsincomingmail-in-copy-group"
+msgstr "Courrier entrant service en copie"
+
+msgid "dmsincomingmail-in-treating-group"
+msgstr "Courrier entrant service traitant"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "in_treatment"

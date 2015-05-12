@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-05-12 06:46+0000\n"
+"POT-Creation-Date: 2015-05-12 10:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -130,15 +130,15 @@ msgstr "Tous les courriers"
 msgid "backrefs_viewlet_title"
 msgstr "Contact utilisé par"
 
-#: ./setuphandlers.py:248
+#: ./setuphandlers.py:254
 msgid "front_page_descr"
 msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
 
-#: ./setuphandlers.py:249
+#: ./setuphandlers.py:255
 msgid "front_page_text"
 msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='login?came_from=incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
 
-#: ./setuphandlers.py:247
+#: ./setuphandlers.py:253
 msgid "front_page_title"
 msgstr "Gestion du courrier"
 
@@ -149,6 +149,10 @@ msgstr "Que j'ai traité"
 #: ./setuphandlers.py:182
 msgid "im_im_treating"
 msgstr "Que je traite"
+
+#: ./setuphandlers.py:203
+msgid "im_in_copy"
+msgstr "En copie"
 
 #: ./setuphandlers.py:196
 msgid "im_in_my_group"
