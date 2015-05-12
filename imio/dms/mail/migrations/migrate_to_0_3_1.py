@@ -5,7 +5,7 @@ from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
 from imio.dms.mail.setuphandlers import createStateCollections, createIMCollections, setupFacetedContacts
-from imio.dms.mail.setuphandlers import mark_organizations
+from imio.dms.mail.setuphandlers import mark_organizations, changeSearchedTypes
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
@@ -137,6 +137,8 @@ class Migrate_To_0_3_1(Migrator):
 
         # migrate plonegroup organizations
         mark_organizations(self.portal)
+
+        changeSearchedTypes(self.portal)
 
         self.upgradeAll()
         self.finish()

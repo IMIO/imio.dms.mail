@@ -67,6 +67,9 @@ def postInstall(context):
     # we adapt default portal
     adaptDefaultPortal(context)
 
+    # we change searched types
+    changeSearchedTypes(site)
+
     # we configure rolefields
     configure_rolefields(context)
 
@@ -282,6 +285,23 @@ def adaptDefaultPortal(context):
     #Hiding folder contents
     site.manage_permission('List folder contents', ('Manager', 'Site Administrator'),
                            acquire=0)
+
+
+def changeSearchedTypes(site):
+    """
+        Change searched types
+    """
+    to_show = ['dmsmainfile']
+    to_hide = ['Collection', 'Document', 'Event', 'File', 'Folder', 'Image', 'Link', 'News Item', 'Topic', 'directory',
+               'dmsdocument']
+    not_searched = list(site.portal_properties.site_properties.types_not_searched)
+    for typ in to_show:
+        if typ in not_searched:
+            not_searched.remove(typ)
+    for typ in to_hide:
+        if typ not in not_searched:
+            not_searched.append(typ)
+    site.portal_properties.site_properties.manage_changeProperties(types_not_searched=not_searched)
 
 
 def configure_rolefields(context):
