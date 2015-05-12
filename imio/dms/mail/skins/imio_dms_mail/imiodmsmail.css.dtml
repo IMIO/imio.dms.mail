@@ -53,6 +53,10 @@
  width: 50% !important;
 }
 
+.addnew-block > span {
+ display: None;
+}
+
 .state-created {
  color: red !important;
 }
