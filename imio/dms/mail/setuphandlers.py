@@ -208,7 +208,6 @@ def createIMCollections(folder):
             'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
             'sort': u'created', 'rev': True, },
     ]
-    #validable (utilisateur dans un groupe "service"_reviewer) (indexer service traitant)
 
     for dic in collections:
         if base_hasattr(folder, dic['id']):
