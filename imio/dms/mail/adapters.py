@@ -1,10 +1,17 @@
 # encoding: utf-8
+from zope.component import adapts
+from zope.interface import implements
 from collections import OrderedDict
+from collective import dexteritytextindexer
 from AccessControl import getSecurityManager
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
+from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.rfc822.interfaces import IPrimaryFieldInfo
+from Products.CMFCore.utils import getToolByName
+from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 
 review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': 'proposed_to_manager'}),
                                                  ('_validateur', {'st': 'proposed_to_service_chief',
@@ -110,3 +117,40 @@ class WorkflowMenu(OrigWorkflowMenu):
         if not getSecurityManager().checkPermission('Manage portal', context):
             return []
         return super(WorkflowMenu, self).getMenuItems(context, request)
+
+
+class ScanSearchableExtender(object):
+    adapts(IScanFields)
+    implements(dexteritytextindexer.IDynamicTextIndexExtender)
+
+    def __init__(self, context):
+        self.context = context
+
+    def searchable_text(self):
+        return u" ".join((
+            self.context.id,
+            self.context.title or u"",
+            IScanFields(self.context).scan_id is not None and IScanFields(self.context).scan_id.startswith('IMIO') and
+            IScanFields(self.context).scan_id[4:] or u'',
+            self.context.description or u"",
+        ))
+
+    def __call__(self):
+        """ Extend the searchable text with a custom string """
+        primary_field = IPrimaryFieldInfo(self.context)
+        if primary_field.value is None:
+            return self.searchable_text()
+        mimetype = primary_field.value.contentType
+        transforms = getToolByName(self.context, 'portal_transforms')
+        value = str(primary_field.value.data)
+        filename = primary_field.value.filename
+        try:
+            transformed_value = transforms.convertTo('text/plain', value,
+                                                     mimetype=mimetype,
+                                                     filename=filename)
+            if not transformed_value:
+                return self.searchable_text()
+            return _unicode_save_string_concat(self.searchable_text(),
+                                               transformed_value.getData())
+        except:
+            return self.searchable_text()

@@ -3,5 +3,6 @@
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   <element value="collective.dms.scanbehavior.behaviors.behaviors.IScanFields"/>
+  <element value="collective-dexteritytextindexer-behavior-IDexterityTextIndexer" />
  </property>
 </object>
