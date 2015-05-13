@@ -42,6 +42,9 @@ class TabularView(BrowserView):
         if not value:
             return ''
         if field_name == 'Title':
+            if self.context.getId() == 'searchfor_created' and item.getObject().wl_isLocked():
+                return '<img width="16" height="16" title="Locked" src="lock_icon.png"><a href="%s">%s</a>' % (
+                    item.getURL(), value)
             return '<a href="%s">%s</a>' % (item.getURL(), value)
         elif field_name == 'review_state':
             return _(value, domain='plone')

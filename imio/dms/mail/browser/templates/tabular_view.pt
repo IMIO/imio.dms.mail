@@ -5,7 +5,11 @@
       lang="en"
       metal:use-macro="here/main_template/macros/master"
       i18n:domain="plone">
-
+    <metal:slot fill-slot="head_slot">
+    <tal:created tal:condition="python:view.context.getId() == 'searchfor_created'">
+        <meta http-equiv="refresh" content="10"/>
+    </tal:created>
+    </metal:slot>
 <body>
 
     <div metal:fill-slot="content-core"
