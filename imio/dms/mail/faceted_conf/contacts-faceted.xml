@@ -21,7 +21,7 @@
   </criterion>
   <criterion name="texte">
    <property name="widget">text</property>
-   <property name="title">Rechercher :</property>
+   <property name="title">Rechercher mot complet</property>
    <property name="position">left</property>
    <property name="section">default</property>
    <property name="hidden">0</property>
@@ -62,18 +62,6 @@
    <property name="step">50</property>
    <property name="default">50</property>
   </criterion>
-  <criterion name="alphabetic">
-   <property name="widget">alphabetic</property>
-   <property name="title">Recherche alphabétique</property>
-   <property name="position">top</property>
-   <property name="section">default</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
-   <property name="index">sortable_title</property>
-   <property name="default"></property>
-  </criterion>
   <criterion name="orgtype">
    <property name="widget">checkbox</property>
    <property name="title">Type d'organisation</property>
@@ -92,9 +80,9 @@
    <property name="sortreversed">0</property>
    <property name="default"/>
   </criterion>
-  <criterion name="shown_interfaces">
+  <criterion name="shown-interfaces">
    <property name="widget">checkbox</property>
-   <property name="title">Interfaces montrées</property>
+   <property name="title">Contact externe/interne</property>
    <property name="position">left</property>
    <property name="section">default</property>
    <property name="hidden">1</property>
@@ -109,9 +97,7 @@
    <property name="catalog"></property>
    <property name="maxitems"></property>
    <property name="sortreversed">0</property>
-   <property name="default">
-    <element value="imio.dms.mail.interfaces.IExternalContact"/>
-   </property>
+   <property name="default">imio.dms.mail.interfaces.IExternalContact</property>
   </criterion>
  </criteria>
 </object>
