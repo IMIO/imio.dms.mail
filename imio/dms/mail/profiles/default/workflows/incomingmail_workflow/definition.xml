@@ -10,6 +10,7 @@
  <permission>Delete objects</permission>
  <permission>Review portal content</permission>
  <permission>imio.dms.mail : Write incoming mail field</permission>
+ <permission>collective.dms.basecontent: Add DmsFile</permission>
  <permission>Access contents information</permission>
  <state state_id="closed"
         title="closed"
@@ -47,6 +48,11 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+  </permission-map>
+  <permission-map name="collective.dms.basecontent: Add DmsFile"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
@@ -98,6 +104,13 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
   </permission-map>
+  <permission-map name="collective.dms.basecontent: Add DmsFile"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
+   <permission-role>IM Field Writer</permission-role>
+  </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
    <permission-role>Manager</permission-role>
@@ -145,6 +158,12 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
   </permission-map>
+  <permission-map name="collective.dms.basecontent: Add DmsFile"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>IM Field Writer</permission-role>
+  </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
    <permission-role>Manager</permission-role>
@@ -191,6 +210,12 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
   </permission-map>
+  <permission-map name="collective.dms.basecontent: Add DmsFile"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>IM Field Writer</permission-role>
+  </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
    <permission-role>Manager</permission-role>
@@ -235,6 +260,12 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+  </permission-map>
+  <permission-map name="collective.dms.basecontent: Add DmsFile"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>IM Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
@@ -281,6 +312,12 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+  </permission-map>
+  <permission-map name="collective.dms.basecontent: Add DmsFile"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>IM Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
