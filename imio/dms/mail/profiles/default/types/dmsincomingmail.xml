@@ -2,13 +2,13 @@
 <object name="dmsincomingmail" meta_type="Dexterity FTI" i18n:domain="plone"
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <property name="behaviors">
-  <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
-  <element value="collective.task.behaviors.ITaskContainer" />
-  <element value="collective.task.behaviors.ITask" />
   <element value="plone.app.content.interfaces.INameFromTitle"/>
   <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
+  <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
+  <element value="collective.task.behaviors.ITaskContainer" />
+  <element value="collective.task.behaviors.ITask" />
  </property>
  <property name="klass">imio.dms.mail.dmsmail.ImioDmsIncomingMail</property>
  <property name="schema_policy">schema_policy_imiodmsincomingmail</property>
