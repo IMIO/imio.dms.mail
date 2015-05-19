@@ -4,6 +4,12 @@ Changelog
 0.3.1 (unreleased)
 ----------------
 
+- On created collection, add locked icon and auto-refresh
+  [sgeulette]
+
+- Add "close" transition from "proposed_to_agent" (bypass "in_treatment")
+  [sgeulette]
+
 - Add more relevant columns in collections
   [sgeulette]
 
