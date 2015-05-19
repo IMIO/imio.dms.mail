@@ -11,6 +11,7 @@
  <permission>Review portal content</permission>
  <permission>imio.dms.mail : Write incoming mail field</permission>
  <permission>collective.dms.basecontent: Add DmsFile</permission>
+ <permission>Add portal content</permission>
  <permission>Access contents information</permission>
  <state state_id="closed"
         title="closed"
@@ -24,6 +25,11 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -73,6 +79,12 @@
    <permission-role>Contributor</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -133,6 +145,12 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
   </permission-map>
+  <permission-map name="Add portal content"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
+  </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
    <permission-role>Manager</permission-role>
@@ -185,6 +203,12 @@
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
   </permission-map>
+  <permission-map name="Add portal content"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
+  </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
    <permission-role>Manager</permission-role>
@@ -235,6 +259,12 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
@@ -287,6 +317,12 @@
    <permission-role>Reader</permission-role>
    <permission-role>Editor</permission-role>
    <permission-role>Reviewer</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content"
+                  acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
   </permission-map>
   <permission-map name="Delete objects"
                   acquired="False">
