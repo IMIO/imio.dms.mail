@@ -12,6 +12,13 @@
 
     <subscriber
         zcml:condition="installed zope.lifecycleevent"
+        for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.new_incomingmail"
+        />
+
+    <subscriber
+        zcml:condition="installed zope.lifecycleevent"
         for="collective.contact.widget.interfaces.IContactContent
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
         handler=".subscribers.mark_organization"

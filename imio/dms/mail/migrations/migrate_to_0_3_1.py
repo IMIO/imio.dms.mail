@@ -6,6 +6,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 
 from imio.dms.mail.setuphandlers import createStateCollections, createIMCollections, setupFacetedContacts
 from imio.dms.mail.setuphandlers import mark_organizations, changeSearchedTypes
+from imio.dms.mail.subscribers import new_incomingmail
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
@@ -88,10 +89,16 @@ class Migrate_To_0_3_1(Migrator):
         if 'created' not in lrc:
             lrc['created'] = {}
         if 'encodeurs' not in lrc['created']:
-            lrc['created']['encodeurs'] = ['IM Field Writer']
+            lrc['created']['encodeurs'] = ['Contributor', 'Editor', 'IM Field Writer']
         if 'encodeurs' in lrc['proposed_to_manager'] and 'IM Field Writer' not in \
                 lrc['proposed_to_manager']['encodeurs']:
             lrc['proposed_to_manager']['encodeurs'].append('IM Field Writer')
+        if 'encodeurs' not in lrc['closed']:
+            for state in ['proposed_to_manager', 'proposed_to_service_chief', 'proposed_to_agent', 'in_treatment',
+                          'closed']:
+                if 'encodeurs' not in lrc[state]:
+                    lrc[state]['encodeurs'] = []
+                lrc[state]['encodeurs'].append('Reader')
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
@@ -137,6 +144,10 @@ class Migrate_To_0_3_1(Migrator):
 
         # migrate plonegroup organizations
         mark_organizations(self.portal)
+
+        brains = catalog.searchResults(portal_type='dmsincomingmail')
+        for brain in brains:
+            new_incomingmail(brain.getObject(), None)
 
         changeSearchedTypes(self.portal)
 
