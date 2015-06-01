@@ -61,6 +61,10 @@
  display: None;
 }
 
+.template-dmsdocument-edit #fieldsetlegend-categorization, .template-dmsdocument-edit #fieldsetlegend-dates, .template-dmsdocument-edit #fieldsetlegend-ownership {
+ display: none !important;
+}
+
 .state-created {
  color: red !important;
 }
