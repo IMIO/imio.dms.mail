@@ -444,6 +444,7 @@
   <action url="" category="workflow" i18n:translate="">propose_to_agent</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
+    <guard-expression>object/@@idm-utils/idm_has_assigned_user</guard-expression>
   </guard>
  </transition>
  <transition transition_id="propose_to_manager"

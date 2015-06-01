@@ -123,6 +123,7 @@ class Migrate_To_0_3_1(Migrator):
             'jsregistry',
             'repositorytool',
             'actions',
+            'registry',
         ))
         api.portal.get_tool('portal_diff').setDiffForPortalType(
             'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})

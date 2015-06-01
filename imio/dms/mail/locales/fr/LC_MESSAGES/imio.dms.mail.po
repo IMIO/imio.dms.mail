@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-05-12 10:48+0000\n"
+"POT-Creation-Date: 2015-06-01 13:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,6 +19,10 @@ msgstr ""
 msgid "Active"
 msgstr "Activé"
 
+#: ./browser/settings.py:33
+msgid "Assigned user check"
+msgstr "Vérification sur l'utilisateur assigné"
+
 #: ./profiles/default/actions.xml
 msgid "Batch import"
 msgstr "Importation depuis dossier"
@@ -26,6 +30,10 @@ msgstr "Importation depuis dossier"
 #: ./profiles/default/actions.xml
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
+
+#: ./browser/settings.py:34
+msgid "Check if there is an assigned user before proposing incoming mail to an agent."
+msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent"
 
 #: ./dmsmail.py:34
 msgid "Choose a value !"
@@ -35,7 +43,7 @@ msgstr "Choisir une valeur !"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
-#: ./setuphandlers.py:85
+#: ./setuphandlers.py:88
 msgid "Incoming mail"
 msgstr "Courrier entrant"
 
@@ -103,7 +111,7 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:98
+#: ./setuphandlers.py:101
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
@@ -121,7 +129,7 @@ msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:163
+#: ./setuphandlers.py:166
 msgid "all_incoming_mails"
 msgstr "Tous les courriers"
 
@@ -130,39 +138,39 @@ msgstr "Tous les courriers"
 msgid "backrefs_viewlet_title"
 msgstr "Contact utilisé par"
 
-#: ./setuphandlers.py:254
+#: ./setuphandlers.py:256
 msgid "front_page_descr"
 msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
 
-#: ./setuphandlers.py:255
+#: ./setuphandlers.py:257
 msgid "front_page_text"
 msgstr "<p> </p><p>L'application intègre la gestion du courrier entrant et sortant:</p><ul><li>encodage du courrier</li><li>association des pièces scannées</li><li>gestion des contacts (expéditeurs, destinataires)</li><li>workflow de validation du courrier</li><li>choix des services concernés et du service traitant</li><li>création automatique du courrier entrant à partir des fichiers scannés</li><li>...</li></ul><p><a href='login?came_from=incoming-mail'>Cliquez ici pour accéder à l'application</a></p><p class='discreet'>Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
 
-#: ./setuphandlers.py:253
+#: ./setuphandlers.py:255
 msgid "front_page_title"
 msgstr "Gestion du courrier"
 
-#: ./setuphandlers.py:189
+#: ./setuphandlers.py:192
 msgid "im_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:182
+#: ./setuphandlers.py:185
 msgid "im_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:203
+#: ./setuphandlers.py:206
 msgid "im_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:196
+#: ./setuphandlers.py:199
 msgid "im_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:175
+#: ./setuphandlers.py:178
 msgid "im_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:168
+#: ./setuphandlers.py:171
 msgid "im_to_validate"
 msgstr "À valider"
 

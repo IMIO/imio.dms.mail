@@ -29,6 +29,12 @@ class IImioDmsMailConfig(Interface):
 
     widget(mail_types=DataGridFieldFactory)
 
+    assigned_user_check = schema.Bool(
+        title=_(u'Assigned user check'),
+        description=_(u'Check if there is an assigned user before proposing incoming mail to the agents.'),
+        default=True
+    )
+
 
 class SettingsEditForm(RegistryEditForm):
     """
