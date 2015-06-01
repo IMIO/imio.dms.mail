@@ -151,7 +151,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
         if the_form.context.portal_type != 'dmsincomingmail':
             the_form.widgets['internal_reference_no'].value = ''
 
-    for field in ['ITask.assigned_group', 'ITask.enquirer']:
+    for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
         the_form.widgets[field].mode = HIDDEN_MODE
 
 
@@ -185,6 +185,13 @@ class IMEdit(DmsDocumentEdit):
             for field in display_fields:
                 self.widgets[field].mode = 'display'
 
+        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+        if settings.assigned_user_check and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
+            self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
+                                                                      ' can propose to an agent !')
+        else:
+            self.widgets['ITask.assigned_user'].field.description = u''
+
 
 class IMView(DmsDocumentView):
     """
@@ -195,6 +202,13 @@ class IMView(DmsDocumentView):
         super(IMView, self).updateWidgets()
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
+
+        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+        if settings.assigned_user_check and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
+            self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
+                                                                      ' can propose to an agent !')
+        else:
+            self.widgets['ITask.assigned_user'].field.description = u''
 
 
 class Add(dexterity.AddForm):

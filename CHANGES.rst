@@ -4,6 +4,9 @@ Changelog
 0.3.1 (unreleased)
 ----------------
 
+- Add an optional condition on propose_to_agent transition to check assigned_user completion before proposing mail to agent
+  [sgeulette]
+
 - On created collection, add locked icon and auto-refresh
   [sgeulette]
 

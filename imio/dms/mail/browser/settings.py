@@ -31,7 +31,7 @@ class IImioDmsMailConfig(Interface):
 
     assigned_user_check = schema.Bool(
         title=_(u'Assigned user check'),
-        description=_(u'Check if there is an assigned user before proposing incoming mail to the agents.'),
+        description=_(u'Check if there is an assigned user before proposing incoming mail to an agent.'),
         default=True
     )
 

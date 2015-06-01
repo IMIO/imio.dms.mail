@@ -203,6 +203,10 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
+#: ./dmsmail.py:171
+msgid "You must select an assigned user before you can propose to an agent !"
+msgstr ""
+
 msgid "searchfor_closed"
 msgstr ""
 
