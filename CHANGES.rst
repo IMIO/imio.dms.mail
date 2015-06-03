@@ -1,8 +1,8 @@
 Changelog
 =========
 
-0.3.1 (unreleased)
-----------------
+0.3.1 (2015-06-03)
+------------------
 
 - Add an optional condition on propose_to_agent transition to check assigned_user completion before proposing mail to agent
   [sgeulette]
