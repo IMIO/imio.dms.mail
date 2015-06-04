@@ -135,7 +135,7 @@ class Migrate_To_0_3_1(Migrator):
                                                     'recipient_groups': ('KeywordIndex', {}),
                                                     'organization_type': ('FieldIndex', {}),
                                                     })
-        addOrUpdateColumns(self.portal, columns=('treating_groups', 'recipient_groups'))
+        addOrUpdateColumns(self.portal, columnInfos=('treating_groups', 'recipient_groups'))
         catalog = api.portal.get_tool('portal_catalog')
         brains = catalog.searchResults(portal_type='organization')
         for brain in brains:
