@@ -145,6 +145,8 @@ class Migrate_To_0_3_1(Migrator):
                             break
                     logger.warn("Kept %s" % keep)
                     im.treating_groups = keep
+                elif not im.treating_groups:
+                    im.treating_groups = None
                 elif im.treating_groups[0] in good_values:
                 #elif catalog(UID=im.treating_groups[0]):
                     im.treating_groups = im.treating_groups[0]
