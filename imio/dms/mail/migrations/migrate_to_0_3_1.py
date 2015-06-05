@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
@@ -128,16 +129,28 @@ class Migrate_To_0_3_1(Migrator):
 
         catalog = api.portal.get_tool('portal_catalog')
         brains = catalog.searchResults(portal_type='dmsincomingmail')
+        factory = getUtility(IVocabularyFactory, 'collective.dms.basecontent.treating_groups')
+        voc = factory(brains[0].getObject())
+        good_values = voc.by_token
         for brain in brains:
             im = brain.getObject()
             new_incomingmail(im, None)
             if isinstance(im.treating_groups, list):
                 if len(im.treating_groups) > 1:
-                    logger.error("More than one treating_groups on %s object" % im)
-                    continue
-                if catalog(UID=im.treating_groups[0]):
+                    logger.error("More than one treating_groups %s for %s object" % (im.treating_groups, im))
+                    keep = None
+                    for tg in im.treating_groups:
+                        if tg in good_values:
+                            keep = tg
+                            break
+                    logger.warn("Kept %s" % keep)
+                    im.treating_groups = keep
+                elif im.treating_groups[0] in good_values:
+                #elif catalog(UID=im.treating_groups[0]):
                     im.treating_groups = im.treating_groups[0]
                 else:
+                    # Cannot be none because field is required, unless not during migration
+                    logger.warn("Removed tg %s for %s object" % (im.treating_groups[0], im))
                     im.treating_groups = None
 
         addOrUpdateIndexes(self.portal, indexInfos={'treating_groups': ('KeywordIndex', {}),
