@@ -21,10 +21,10 @@ class Migrate_To_0_3_1(Migrator):
     def __init__(self, context):
         Migrator.__init__(self, context)
 
-    def importImioDmsMailStep(self, step_ids):
-        ''' Set ILocking behavior and reinstall workflow'''
-        for step_id in step_ids:
-            self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:default', step_id)
+    def runProfileSteps(self, profile, steps):
+        ''' Run specific steps for profile '''
+        for step_id in steps:
+            self.portal.portal_setup.runImportStepFromProfile('profile-%s:default' % profile, step_id)
 
     def createNotEncodedPerson(self):
         ''' add not encoded person if not exists'''
@@ -113,18 +113,12 @@ class Migrate_To_0_3_1(Migrator):
             'collective.contact.duplicated:default',
             'plone.app.versioningbehavior:default',
         ])
-        self.importImioDmsMailStep((
-            'typeinfo',
-            'workflow',
-            'update-workflow-rolemap',
-            'viewlets',
-            'componentregistry',
-            'catalog',
-            'jsregistry',
-            'repositorytool',
-            'actions',
-            'plone.app.registry',
-        ))
+        self.runProfileSteps('imio.dms.mail', ['actions', 'catalog', 'componentregistry', 'jsregistry',
+                                               'plone.app.registry', 'repositorytool', 'typeinfo',
+                                               'update-workflow-rolemap', 'viewlets', 'workflow'])
+        self.runProfileSteps('collective.dms.basecontent', ['atcttool', 'catalog'])
+        self.runProfileSteps('collective.dms.scanbehavior', ['catalog'])
+
         api.portal.get_tool('portal_diff').setDiffForPortalType(
             'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
         self.createNotEncodedPerson()
@@ -137,9 +131,10 @@ class Migrate_To_0_3_1(Migrator):
                                                     })
         addOrUpdateColumns(self.portal, columnInfos=('treating_groups', 'recipient_groups'))
         catalog = api.portal.get_tool('portal_catalog')
-        brains = catalog.searchResults(portal_type='organization')
-        for brain in brains:
-            brain.getObject().reindexObject(idxs=['organization_type'])
+        # a global recatalog is made after
+        #brains = catalog.searchResults(portal_type='organization')
+        #for brain in brains:
+        #    brain.getObject().reindexObject(idxs=['organization_type'])
 
         setupFacetedContacts(self.portal)
 
@@ -153,6 +148,7 @@ class Migrate_To_0_3_1(Migrator):
         changeSearchedTypes(self.portal)
 
         self.upgradeAll()
+        self.refreshDatabase()
         self.finish()
 
 
