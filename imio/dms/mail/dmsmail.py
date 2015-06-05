@@ -16,7 +16,7 @@ from dexterity.localrolesfield.field import LocalRolesField
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.registry.interfaces import IRegistry
-from Products.CMFCore.interfaces import IDublinCore
+from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
@@ -167,6 +167,7 @@ class IMEdit(DmsDocumentEdit):
         incomingmail_fti = api.portal.get_tool('portal_types').dmsincomingmail
         behaviors = incomingmail_fti.behaviors
         if not sm.checkPermission('imio.dms.mail : Write incoming mail field', self.context):
+            display_fields = []
             if IDublinCore.__identifier__ in behaviors:
                 display_fields = [
                     'IDublinCore.title',
@@ -180,7 +181,7 @@ class IMEdit(DmsDocumentEdit):
                 'sender',
                 'mail_type',
                 'reception_date'
-                ])
+            ])
 
             for field in display_fields:
                 self.widgets[field].mode = 'display'
