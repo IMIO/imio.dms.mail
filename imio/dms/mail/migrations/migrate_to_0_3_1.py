@@ -135,7 +135,10 @@ class Migrate_To_0_3_1(Migrator):
                 if len(im.treating_groups) > 1:
                     logger.error("More than one treating_groups on %s object" % im)
                     continue
-                im.treating_groups = im.treating_groups[0]
+                if catalog(UID=im.treating_groups[0]):
+                    im.treating_groups = im.treating_groups[0]
+                else:
+                    im.treating_groups = None
 
         addOrUpdateIndexes(self.portal, indexInfos={'treating_groups': ('KeywordIndex', {}),
                                                     'recipient_groups': ('KeywordIndex', {}),
