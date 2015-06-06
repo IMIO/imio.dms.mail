@@ -103,6 +103,7 @@ class Migrate_To_0_3_1(Migrator):
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.3.1...')
+        self.reinstall(['collective.task:uninstall_0.1'])
         self.cleanRegistries()
         self.reinstall([
             'imio.actionspanel:default',
