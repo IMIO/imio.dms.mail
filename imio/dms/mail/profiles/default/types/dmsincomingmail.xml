@@ -16,7 +16,6 @@
  <property name="allowed_content_types">
   <element value="dmsmainfile"/>
   <element value="dmsappendixfile"/>
-  <element value="task"/>
  </property>
  <alias from="edit" to="@@dmsdocument-edit"/>
 </object>
