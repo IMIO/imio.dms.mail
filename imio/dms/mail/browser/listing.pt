@@ -35,7 +35,7 @@
       <tal:mail repeat="mail python:results[service]['mails']">
         <tr>
             <td tal:content="python:mail.Title()">mail</td>
-            <td tal:content="python:mail.sender.to_object.Title()">sender</td>
+            <td tal:content="python:mail.sender and mail.sender.to_object.Title() or ''">sender</td>
             <td tal:content="python:mail.reception_date.strftime('%Y-%m-%d %H:%M')
 ">reception date</td>
         </tr>
