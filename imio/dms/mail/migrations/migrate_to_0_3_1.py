@@ -116,7 +116,7 @@ class Migrate_To_0_3_1(Migrator):
             'plone.app.versioningbehavior:default',
         ])
         self.runProfileSteps('imio.dms.mail', ['actions', 'catalog', 'componentregistry', 'jsregistry',
-                                               'plone.app.registry', 'repositorytool', 'typeinfo',
+                                               'plone.app.registry', 'repositorytool', 'rolemap', 'typeinfo',
                                                'update-workflow-rolemap', 'viewlets', 'workflow'])
         self.runProfileSteps('collective.dms.basecontent', ['atcttool', 'catalog'])
         self.runProfileSteps('collective.dms.scanbehavior', ['catalog'])
