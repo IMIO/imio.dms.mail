@@ -17,8 +17,7 @@ class IdmUtilsMethods(BrowserView):
         groups = api.group.get_groups(user=user)
         if portal_type is None:
             portal_type = self.context.portal_type
-        if highest_review_level(portal_type, str([g.id for g in groups])) is not None or \
-                user.has_role('Manager'):
+        if highest_review_level(portal_type, str([g.id for g in groups])) is not None:
             return True
         else:
             return False
