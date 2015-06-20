@@ -31,6 +31,9 @@ def highest_review_level(portal_type, group_ids):
 
 
 class IncomingMailHighestValidationCriterion(object):
+    """
+        Return catalog criteria following highest validation group member
+    """
 
     def __init__(self, context):
         self.context = context
@@ -68,6 +71,9 @@ def organizations_with_suffixes(groups, suffixes):
 
 
 class IncomingMailInTreatingGroupCriterion(object):
+    """
+        Return catalog criteria following treating group member
+    """
 
     def __init__(self, context):
         self.context = context
@@ -81,6 +87,9 @@ class IncomingMailInTreatingGroupCriterion(object):
 
 
 class IncomingMailInCopyGroupCriterion(object):
+    """
+        Return catalog criteria following recipient group member
+    """
 
     def __init__(self, context):
         self.context = context
@@ -150,7 +159,10 @@ class ScanSearchableExtender(object):
                                                      filename=filename)
             if not transformed_value:
                 return self.searchable_text()
-            return _unicode_save_string_concat(self.searchable_text(),
-                                               transformed_value.getData())
+            ret = _unicode_save_string_concat(self.searchable_text(),
+                                              transformed_value.getData())
+            if ret.startswith(' '):
+                ret = ret[1:]
+            return ret
         except:
             return self.searchable_text()

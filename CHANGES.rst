@@ -4,7 +4,11 @@ Changelog
 0.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Upgraded and migrated collective.behavior.talcondition
+  [sgeulette]
+
+- Added tests to improve coverage
+  [sgeulette]
 
 
 0.3.1 (2015-06-03)
