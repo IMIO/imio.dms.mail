@@ -16,7 +16,7 @@ class VersionsTitleColumn(VersionsTitleColumn):
             return
         scan_infos = [
             ('scan_id', item.scan_id or ''),
-            ('scan_date', obj.scan_date and item.toLocalizedTime(obj.scan_date, long_format=1) or ''),
+            ('scan_date', obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ''),
 #            ('scan_user', getattr(item, 'scan_user', '')),
         ]
         scan_infos = ["%s: %s" % (
