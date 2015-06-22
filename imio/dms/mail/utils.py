@@ -11,7 +11,7 @@ from browser.settings import IImioDmsMailConfig
 class IdmUtilsMethods(BrowserView):
     """ View containing utils methods """
 
-    def user_has_review_level(self, portal_type):
+    def user_has_review_level(self, portal_type=None):
         """ Test if the current user has a review level """
         user = api.user.get_current()
         groups = api.group.get_groups(user=user)
@@ -26,7 +26,6 @@ class IdmUtilsMethods(BrowserView):
         """ Test if assigned_user is set or if the test is required or if the user is admin """
         if self.context.assigned_user is not None:
             return True
-        pass
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         if not settings.assigned_user_check:
             return True
