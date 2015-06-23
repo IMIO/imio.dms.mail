@@ -17,7 +17,13 @@ DMSMAIL_Z2 = z2.IntegrationTesting(
     bases=(z2.STARTUP, DMSMAIL_ZCML),
     name='DMSMAIL_Z2')
 
-DMSMAIL_FIXTURE = PloneWithPackageLayer(
+
+class ImioDmsMailLayer(PloneWithPackageLayer):
+
+    def setUpPloneSite(self, portal):
+        self.applyProfile(portal, 'imio.dms.mail:testing')
+
+DMSMAIL_FIXTURE = ImioDmsMailLayer(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
     additional_z2_products=('Products.PythonScripts', 'imio.dms.mail', 'Products.PasswordStrength'),
@@ -39,4 +45,4 @@ DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     bases=(DMSMAIL_FIXTURE,
            REMOTE_LIBRARY_BUNDLE_FIXTURE,
            z2.ZSERVER_FIXTURE,),
-    name="DmsMailFixture:Functional")
+    name="DMSMAIL_ROBOT_TESTING")
