@@ -2,8 +2,9 @@
 <metadata>
   <version>0.1</version>
   <dependencies>
-  	<dependency>profile-Products.CMFPlone:plone</dependency>
-  	<dependency>profile-Products.CMFPlone:plone-content</dependency>
+  	<!--dependency>profile-Products.CMFPlone:plone</dependency>
+  	<dependency>profile-Products.CMFPlone:dependencies</dependency>
+  	<dependency>profile-Products.CMFPlone:plone-content</dependency-->
   	<dependency>profile-imio.dms.mail:examples</dependency>
   </dependencies>
 </metadata>
