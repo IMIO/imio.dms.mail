@@ -13,9 +13,8 @@ Test Setup  Test Setup
 *** Test cases ***
 
 Plone is installed
-    Go to  ${PLONE_URL}
+    Go to  ${PLONE_URL}/incoming-mail
     Page should contain  Powered by Plone
-    Debug
 
 *** Keywords ***
 Suite Setup
