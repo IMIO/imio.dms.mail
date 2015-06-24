@@ -130,9 +130,10 @@ class Migrate_To_0_3_1(Migrator):
 
         catalog = api.portal.get_tool('portal_catalog')
         brains = catalog.searchResults(portal_type='dmsincomingmail')
-        factory = getUtility(IVocabularyFactory, 'collective.dms.basecontent.treating_groups')
-        voc = factory(brains[0].getObject())
-        good_values = voc.by_token
+        if brains:
+            factory = getUtility(IVocabularyFactory, 'collective.dms.basecontent.treating_groups')
+            voc = factory(brains[0].getObject())
+            good_values = voc.by_token
         for brain in brains:
             im = brain.getObject()
             new_incomingmail(im, None)
