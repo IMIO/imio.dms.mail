@@ -605,6 +605,7 @@ def addTestMails(context):
                       'internal_reference_no': internalReferenceIncomingMailDefaultValue(data),
                       'reception_date': receptionDateDefaultValue(data),
                       'sender': RelationValue(senders_cycle.next()),
+                      'recipient_groups': [],
                       }
             ifld.invokeFactory('dmsincomingmail', id='courrier%d' % i, **params)
             mail = ifld['courrier%d' % i]
