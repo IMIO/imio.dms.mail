@@ -116,6 +116,8 @@ def postInstall(context):
         'profile-collective.contact.widget:default',
         'plone.app.registry')
 
+    configure_actions_panel(site)
+
 
 def blacklistPortletCategory(context, object, category, utilityname):
     """
@@ -768,3 +770,17 @@ def setupFacetedContacts(portal):
     alsoProvides(portal.contacts, IHidePloneLeftColumn)
     alsoProvides(portal.contacts, IHidePloneRightColumn)
     reimport_faceted_config(portal)
+
+
+def configure_actions_panel(portal):
+    """
+        Configure actions panel registry
+    """
+    logger.info('Configure actions panel registry')
+    registry = getUtility(IRegistry)
+
+    if not registry.get('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'):
+        registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] = \
+            ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
+             'dmsincomingmail.back_to_service_chief|', 'dmsincomingmail.back_to_treatment|',
+             'dmsincomingmail.back_to_agent|']
