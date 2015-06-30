@@ -29,7 +29,7 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertFalse(hasattr(self.portal, 'events'))
         self.assertFalse(hasattr(self.portal, 'Members'))
         #check front-page modification
-        self.assertEquals(getattr(self.portal, 'front-page').Title(), 'front_page_title')
+        self.assertEquals(getattr(self.portal, 'front-page').Title(), 'Gestion du courrier')
         #check old Topic activation
         self.assertTrue('Collection (old-style)' in [pt.title for pt in self.portal.allowedContentTypes()])
 
