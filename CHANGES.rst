@@ -40,6 +40,9 @@ Changelog
 - Protect some incomingmail attributes edition by a permission
   [sgeulette, anuyens]
 
+- Some improvements: contact add width, also validateur in assigned user, changed default position types, actions panel transition configuration
+  [sgeulette]
+
 0.3 (2015-02-25)
 ----------------
 
