@@ -259,6 +259,7 @@ def adaptDefaultPortal(context):
             frontpage.setText(_("front_page_text"), mimetype='text/html')
             #remove the presentation mode
             frontpage.setPresentation(False)
+            site.portal_workflow.doActionFor(frontpage, "show_internally")
             frontpage.reindexObject()
             logger.info('front page adapted')
     except AttributeError:
