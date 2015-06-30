@@ -449,11 +449,11 @@ def addTestDirectory(context):
         return
 
     # Directory creation
-    position_types = [{'name': u'Secrétaire', 'token': 'secretaire'},
+    position_types = [{'name': u'Président', 'token': 'president'},
+                      {'name': u'Directeur général', 'token': 'directeur-gen'},
+                      {'name': u'Directeur financier', 'token': 'directeur-fin'},
+                      {'name': u'Secrétaire', 'token': 'secretaire'},
                       {'name': u'Employé', 'token': 'employe'},
-                      {'name': u'Président', 'token': 'president'},
-                      {'name': u'Secrétaire général', 'token': 'secretaire-gen'},
-                      {'name': u'Receveur', 'token': 'receveur'},
                       ]
 
     organization_types = [{'name': u'Commune', 'token': 'commune'},
