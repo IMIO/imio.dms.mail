@@ -10,6 +10,9 @@ Changelog
 - Added tests to improve coverage
   [sgeulette]
 
+- Some improvements: contact add width, also validateur in assigned user, changed default position types, actions panel transition configuration
+  [sgeulette]
+
 
 0.3.1 (2015-06-03)
 ------------------
