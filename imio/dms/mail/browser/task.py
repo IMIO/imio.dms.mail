@@ -8,7 +8,7 @@ def filter_task_assigned_users(group):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(group, ['editeur'])
+    return voc_selected_org_suffix_users(group, ['editeur', 'validateur'])
 
 
 class TaskEdit(DefaultEditForm):
