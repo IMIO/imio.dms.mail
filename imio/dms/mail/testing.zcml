@@ -9,6 +9,7 @@
    <include package="imio.actionspanel"/>
 
    <include file="configure.zcml"/>
+   <includeOverrides file="overrides.zcml" />
 
     <genericsetup:registerProfile
       name="testing"
