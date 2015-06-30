@@ -46,7 +46,7 @@ logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 def _(msgid, domain='imio.dms.mail'):
     translation_domain = queryUtility(ITranslationDomain, domain)
-    return translation_domain.translate(msgid, context=getSite().REQUEST)
+    return translation_domain.translate(msgid, context=getSite().REQUEST, target_language='fr')
 
 
 def mark_organizations(portal):
