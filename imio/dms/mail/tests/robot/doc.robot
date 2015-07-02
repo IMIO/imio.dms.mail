@@ -22,10 +22,13 @@ Utilisateur
 # partie 2.2 Visualisation des éléments
     Go to  ${PLONE_URL}/incoming-mail
     Capture and crop page screenshot  doc/utilisation/2-2 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+
+Encodage depuis le scanner
 # partie 2.3.1 Encodage après envoi par le scanner
-    Enable autologin as  Manager
+    Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail
+    Capture and crop page screenshot  doc/utilisation/2-3-1 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     
     Capture viewport screenshot  doc/utilisation/test.png
 

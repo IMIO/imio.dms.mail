@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from Products.CMFPlone.utils import _createObjectByType
+from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from plone.testing import z2
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import PloneWithPackageLayer
@@ -15,6 +16,7 @@ class DmsmailLayer(PloneWithPackageLayer):
         # we create a front-page document that will be modified in setup
         _createObjectByType('Document', portal, id='front-page')
         portal.setDefaultPage('front-page')
+        manage_addExternalMethod(portal, 'import_scanned', 'import_scanned', 'imio.dms.mail.demo', 'import_scanned')
         # install dmsmail (apply profile)
         super(DmsmailLayer, self).setUpPloneSite(portal)
 
