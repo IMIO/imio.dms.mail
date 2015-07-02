@@ -609,6 +609,7 @@ def addTestMails(context):
                       'reception_date': receptionDateDefaultValue(data),
                       'sender': RelationValue(senders_cycle.next()),
                       'recipient_groups': [],
+                      'description': 'Ceci est la description du courrier %d' % i,
                       }
             ifld.invokeFactory('dmsincomingmail', id='courrier%d' % i, **params)
             mail = ifld['courrier%d' % i]
