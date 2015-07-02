@@ -69,28 +69,83 @@
  color: red !important;
 }
 
+#plone-contentmenu-workflow .state-created {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: red;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid red;
+}
+
 .state-proposed_to_manager {
  color: DarkOrange !important;
+}
+#plone-contentmenu-workflow .state-proposed_to_manager {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: DarkOrange;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid DarkOrange;
 }
 
 .state-proposed_to_division_head {
  color: blue !important;
 }
 
+#plone-contentmenu-workflow .state-proposed_to_division_head {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: blue;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid blue;
+}
+
 .state-proposed_to_service_chief {
  color: blueviolet !important;
+}
+
+#plone-contentmenu-workflow .state-proposed_to_service_chief {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: blueviolet;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid blueviolet;
 }
 
 .state-proposed_to_agent {
  color: blue !important;
 }
 
+#plone-contentmenu-workflow .state-proposed_to_agent {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: blue;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid blue;
+}
+
 .state-in_treatment {
  color: green !important;
 }
 
+#plone-contentmenu-workflow .state-in_treatment {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: green;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid green;
+}
+
 .state-closed {
  color: dimgrey !important;
+}
+
+#plone-contentmenu-workflow .state-closed {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: dimgrey;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid dimgrey;
 }
 
 .state-color {
