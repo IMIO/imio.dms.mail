@@ -65,6 +65,8 @@
  display: none !important;
 }
 
+/* colorization for incoming_mail_workflow */
+
 .state-created {
  color: red !important;
 }
@@ -146,6 +148,20 @@
     padding: 0 0.5em;
     color: white !important;
     border: 2px solid dimgrey;
+}
+
+/* colorization for internal_application_workflow */
+
+.state-internally_published {
+ color: #436976 !important;
+}
+
+#plone-contentmenu-workflow .state-internally_published {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: #436976;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid #436976;
 }
 
 .state-color {
