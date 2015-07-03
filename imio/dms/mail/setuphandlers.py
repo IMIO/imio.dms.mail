@@ -535,11 +535,23 @@ def addTestDirectory(context):
               'gender': u'M',
               'person_title': u'Monsieur',
               'birthday': datetime.date(1981, 11, 22),
-              'email': u'serge.robinet@electrabel.be',
+              'email': u'serge.robinet@swde.be',
               'phone': u'012/345.678',
               }
     contacts.invokeFactory('person', 'sergerobinet', **params)
     sergerobinet = contacts['sergerobinet']
+
+    params = {'lastname': u'Lermitte',
+              'firstname': u'Bernard',
+              'gender': u'M',
+              'person_title': u'Monsieur',
+              'birthday': datetime.date(1981, 11, 22),
+              'email': u'bernard.lermitte@swde.be',
+              'phone': u'012/345.678',
+              }
+    contacts.invokeFactory('person', 'bernardlermitte', **params)
+    bernardlermitte = contacts['bernardlermitte']
+
     # Held positions creation (in persons)
     intids = getUtility(IIntIds)
 
@@ -550,6 +562,7 @@ def addTestDirectory(context):
               'position': RelationValue(intids.getId(aswde)),
               }
     sergerobinet.invokeFactory('held_position', 'agent-swde', **params)
+    bernardlermitte.invokeFactory('held_position', 'agent-swde', **params)
 
     # link to an organisation
     aelec = electrabel['agent']
