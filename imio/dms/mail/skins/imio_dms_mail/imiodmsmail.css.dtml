@@ -11,16 +11,31 @@
 /* <dtml-with base_properties> (do not remove this :) */
 /* <dtml-call "REQUEST.set('portal_url', portal_url())"> (not this either :) */
 
-#fieldset-versions {
- width: 65% !important;
+/* view mode of dmsmail (ok) */
+
+.template-view.portaltype-dmsincomingmail #fieldset-versions {
+    display:table-cell;
+    min-width: 50%;
+    width: inherit !important;
 }
 
-.portaltype-dmsincomingmail #fields, .portaltype-dmsoutgoingmail #fields {
- width: 35% !important;
+.template-view.portaltype-dmsincomingmail #fields {
+    display:table-cell;
+    float:none !important;
 }
 
-#all-fields {
- width: 34% !important;
+.template-dmsdocument-edit #fieldset-versions {
+ width: 55% !important;
+}
+
+#all-fields, .template-dmsdocument-edit #content-core #fieldset-default {
+ width: 42% !important;
+ float: left;
+}
+
+.overlay.overlay-ajax.overlay-contact-addnew {
+ left: 5px !important;
+ width: 44% !important;
 }
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
@@ -50,11 +65,6 @@
 
 .portaltype-person #held_positions .held_position {
     min-height: 0em;
-}
-
-.overlay.overlay-ajax.overlay-contact-addnew {
- left: 5px !important;
- width: 35% !important;
 }
 
 .addnew-block > span {
