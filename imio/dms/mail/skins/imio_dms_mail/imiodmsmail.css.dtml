@@ -24,20 +24,45 @@
     float:none !important;
 }
 
+/* edit mode of dmsmail */
 
 .template-dmsdocument-edit #fieldset-versions {
- width: 60% !important;
+ width: 65% !important;
+ padding-top: 4em;
 }
 
 #all-fields, .template-dmsdocument-edit #content-core #fieldset-default {
- width: 37% !important;
- float: left;
+/* width: 32% !important;
+ float: left;*/
+ float: none !important;
+ width: auto !important;
 }
 
 .overlay.overlay-ajax.overlay-contact-addnew {
  left: 5px !important;
- width: 40% !important;
+ width: 35% !important;
 }
+
+.template-dmsdocument-edit #visual-portal-wrapper #content-core #fieldset-default .field {
+ clear: none;
+}
+
+.template-dmsdocument-edit #DV-container {
+ width: 100% !important;
+}
+
+/* Title 100% */
+
+.template-dmsdocument-edit #formfield-form-widgets-IDublinCore-title {
+    position: absolute;
+    width: 99%;
+}
+
+.template-dmsdocument-edit #formfield-form-widgets-IDublinCore-description {
+    padding-top: 5em;
+}
+
+/* Other */
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
  clear: both;
