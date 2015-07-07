@@ -15,7 +15,7 @@
 
 .template-view.portaltype-dmsincomingmail #fieldset-versions {
     display:table-cell;
-    min-width: 50%;
+    min-width: 60%;
     width: inherit !important;
 }
 
@@ -24,18 +24,19 @@
     float:none !important;
 }
 
+
 .template-dmsdocument-edit #fieldset-versions {
- width: 55% !important;
+ width: 60% !important;
 }
 
 #all-fields, .template-dmsdocument-edit #content-core #fieldset-default {
- width: 42% !important;
+ width: 37% !important;
  float: left;
 }
 
 .overlay.overlay-ajax.overlay-contact-addnew {
  left: 5px !important;
- width: 44% !important;
+ width: 40% !important;
 }
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
