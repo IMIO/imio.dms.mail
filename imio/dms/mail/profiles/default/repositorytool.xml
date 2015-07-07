@@ -2,8 +2,8 @@
 <repositorytool>
     <policymap>
         <type name="dmsincomingmail">
-            <policy name="at_edit_autoversion"/>
-            <policy name="version_on_revert"/>
+            <!--policy name="at_edit_autoversion"/>
+            <policy name="version_on_revert"/-->
         </type>
     </policymap>
 </repositorytool>
