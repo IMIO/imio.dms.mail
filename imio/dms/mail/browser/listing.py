@@ -37,15 +37,15 @@ class ListingView(BrowserView):
             if obj.reception_date.strftime('%Y%m%d') < start_date:
                 continue
             if obj.treating_groups:
-                for tg in obj.treating_groups:
-                    if not tg in results:
-                        results[tg] = {'mails': []}
-                        title = tg
-                        tgroup = uuidToObject(tg)
-                        if tgroup is not None:
-                            title = tgroup.get_full_title(separator=' - ', first_index=1)
-                        results[tg]['title'] = title
-                    results[tg]['mails'].append(obj)
+                tg = obj.treating_groups
+                if not tg in results:
+                    results[tg] = {'mails': []}
+                    title = tg
+                    tgroup = uuidToObject(tg)
+                    if tgroup is not None:
+                        title = tgroup.get_full_title(separator=' - ', first_index=1)
+                    results[tg]['title'] = title
+                results[tg]['mails'].append(obj)
             else:
                 results['1_no_group']['mails'].append(obj)
         if not results['1_no_group']['mails']:
