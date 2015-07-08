@@ -38,6 +38,7 @@ Encodage depuis le scanner
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
+    ### Edit mail
     Capture and crop page screenshot  doc/utilisation/2-3-1 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Wait until element is visible  css=.DV-pageImage  10
@@ -50,21 +51,25 @@ Encodage depuis le scanner
     Remove element  id=${note1}
     Input text  name=form.widgets.IDublinCore.title  Candidature à un poste d'ouvrier communal
     Input text  name=form.widgets.IDublinCore.description  Lettre de candidature spontanée
+    ### Sender field
     Input text  name=form.widgets.sender.widgets.query  le
     Wait until element is visible  css=.ac_results  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur recherche le.png  id=fieldset-default
     Click element  id=form-widgets-notes
     Wait until element is not visible  css=.ac_results  10
     Input text  name=form.widgets.sender.widgets.query  leduc
+    ### Create contact
     ${note2}  Add pointy note  css=.addnew  Lien nouveau contact  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur recherche leduc.png  id=fieldset-default
     Remove element  id=${note2}
     Click element  css=.addnew
-    Wait until element is visible  css=.overlay-contact-addnew
-    Sleep  2
+    Wait until element is visible  css=.overlay-contact-addnew  10
+    Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur création.png  css=.overlay-contact-addnew
+    ### Create organization
     Input text  name=oform.widgets.organization.widgets.query  IMIO
-    Wait until element is visible  css=#oform-widgets-organization-autocomplete .addnew
+    Wait until element is visible  css=#oform-widgets-organization-autocomplete .addnew  10
+    Update element style  css=#oform-widgets-organization-autocomplete .addnew  padding-right  1em
     ${note3}  Add pointy note  css=#oform-widgets-organization-autocomplete .addnew  Lien nouvelle organisation  position=right  color=blue
     Highlight  css=#oform-widgets-organization-autocomplete .addnew
     Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur création lien organisation.png  css=.overlay-contact-addnew  ${note3}
@@ -73,8 +78,52 @@ Encodage depuis le scanner
     Click element  css=#oform-widgets-organization-autocomplete .addnew
     Wait until element is visible  id=pb_2  10
     Update element style  id=formfield-form-widgets-activity  display  none
+    Select from list by value  id=form-widgets-organization_type  sa
     Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur création organisation.png  id=pb_2
-    
+    Click element  id=fieldsetlegend-contact_details
+    Wait until element is visible  id=formfield-form-widgets-IContactDetails-phone  10
+    Input text  name=form.widgets.IContactDetails.phone  +3265329670
+    Input text  name=form.widgets.IContactDetails.email  contact@imio.be
+    Input text  name=form.widgets.IContactDetails.website  www.imio.be
+    Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur création organisation details.png  id=pb_2
+    Click element  id=fieldsetlegend-address
+    Wait until element is visible  id=formfield-form-widgets-IContactDetails-city  10
+    Input text  name=form.widgets.IContactDetails.number  2
+    Input text  name=form.widgets.IContactDetails.street  Avenue Thomas Edison
+    Input text  name=form.widgets.IContactDetails.zip_code  7000
+    Input text  name=form.widgets.IContactDetails.city  Mons
+    Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur création organisation adresse.png  id=pb_2
+    Click button  css=#pb_2 #form-buttons-save
+    Sleep  1
+    Update element style  css=#oform-widgets-organization-1-wrapper > label  padding-right  1em
+    ${note4}  Add pointy note  css=#oform-widgets-organization-1-wrapper > label  Organisation créée et sélectionnée  position=right  color=blue
+    #Update element style  css=#oform-widgets-organization-autocomplete .addnew  padding-right  1em
+    ${note5}  Add pointy note  css=#oform-widgets-organization-autocomplete .addnew  Lien de création d'un sous-niveau  position=right  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur création organisation finie.png  id=pb_1  ${note4}  ${note5}
+    Remove elements  ${note4}  ${note5}
+    ### Create sub level
+    Click element  css=#oform-widgets-organization-autocomplete .addnew
+    Wait until element is visible  css=#pb_2 #form-widgets-IBasic-title  10
+    Input text  css=#pb_2 #form-widgets-IBasic-title  Logiciels libres
+    Click element  id=fieldsetlegend-contact_details
+    Wait until element is visible  id=formfield-form-widgets-IContactDetails-phone  10
+    Input text  name=form.widgets.IContactDetails.phone  +3265329677
+    Input text  name=form.widgets.IContactDetails.email  dll@imio.be
+    Input text  name=form.widgets.IContactDetails.website  www.imio.be
+    Click element  id=fieldsetlegend-address
+    Wait until element is visible  id=form-widgets-IContactDetails-use_parent_address-0  10
+    Unselect checkbox  id=form-widgets-IContactDetails-use_parent_address-0
+    Input text  name=form.widgets.IContactDetails.number  34
+    Input text  name=form.widgets.IContactDetails.street  Zoning Industriel
+    Input text  name=form.widgets.IContactDetails.zip_code  5190
+    Input text  name=form.widgets.IContactDetails.city  Mornimont
+    Click button  css=#pb_2 #form-buttons-save
+    Sleep  1
+    Capture and crop page screenshot  doc/utilisation/2-3-1 expéditeur création sous organisation finie.png  id=pb_1
+
+
+#    Mouse over  css=#oform-widgets-organization-2-wrapper a.link-tooltip
+#    Wait until element is visible  css=div.tooltip #organization  10
     Capture viewport screenshot  doc/utilisation/test.png
 
 *** Keywords ***
