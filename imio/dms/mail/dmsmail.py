@@ -187,7 +187,8 @@ class IMEdit(DmsDocumentEdit):
                 self.widgets[field].mode = 'display'
 
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-        if settings.assigned_user_check and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
+        if settings.assigned_user_check and not self.context.assigned_user \
+                and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
             self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
                                                                       ' can propose to an agent !')
         else:
@@ -205,7 +206,8 @@ class IMView(DmsDocumentView):
             self.widgets[field].mode = HIDDEN_MODE
 
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-        if settings.assigned_user_check and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
+        if settings.assigned_user_check and not self.context.assigned_user \
+                and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
             self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
                                                                       ' can propose to an agent !')
         else:
