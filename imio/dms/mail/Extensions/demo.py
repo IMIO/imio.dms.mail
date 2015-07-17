@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from collective.dms.batchimport.utils import createDocument
 from Products.CMFCore.utils import getToolByName
@@ -51,3 +52,19 @@ def import_scanned(self):
             setattr(main_file, key, value)
         main_file.reindexObject(idxs=('scan_id',))
     return portal.REQUEST.response.redirect(folder.absolute_url())
+
+
+def create_main_file(self, filename='', title=''):
+    """
+        Create a main file on context
+    """
+    if not filename:
+        return "You must pass the filename parameter"
+    exm = self.REQUEST['PUBLISHED']
+    path = os.path.dirname(exm.filepath())
+    filepath = os.path.join(path, filename)
+    if not os.path.exists(filepath):
+        return "The file path '%s' doesn't exist" % filepath
+    with open(filepath, 'rb') as fo:
+        file_object = NamedBlobFile(fo.read(), filename=unicode(filename))
+        createContentInContainer(self, 'dmsmainfile', title='1', file=file_object)
