@@ -116,7 +116,7 @@ class Migrate_To_0_3_1(Migrator):
             'plone.app.versioningbehavior:default',
         ])
         self.runProfileSteps('imio.dms.mail', ['actions', 'catalog', 'componentregistry', 'jsregistry',
-                                               'plone.app.registry', 'repositorytool', 'rolemap', 'typeinfo',
+                                               'plone.app.registry', 'rolemap', 'typeinfo',
                                                'update-workflow-rolemap', 'viewlets', 'workflow'])
         self.runProfileSteps('collective.dms.basecontent', ['atcttool', 'catalog'])
         self.runProfileSteps('collective.dms.scanbehavior', ['catalog'])
@@ -148,14 +148,16 @@ class Migrate_To_0_3_1(Migrator):
                     logger.warn("Kept %s" % keep)
                     im.treating_groups = keep
                 elif not im.treating_groups:
-                    im.treating_groups = None
+                    logger.warn("Replaced old value %s by first good value %s for %s object" % (im.treating_groups[0],
+                                good_values.keys()[0], im))
+                    im.treating_groups = good_values.keys()[0]
                 elif im.treating_groups[0] in good_values:
                 #elif catalog(UID=im.treating_groups[0]):
                     im.treating_groups = im.treating_groups[0]
                 else:
-                    # Cannot be none because field is required, unless not during migration
-                    logger.warn("Removed tg %s for %s object" % (im.treating_groups[0], im))
-                    im.treating_groups = None
+                    logger.warn("Replaced old value %s by first good value %s for %s object" % (im.treating_groups[0],
+                                good_values.keys()[0], im))
+                    im.treating_groups = good_values.keys()[0]
 
         addOrUpdateIndexes(self.portal, indexInfos={'treating_groups': ('KeywordIndex', {}),
                                                     'recipient_groups': ('KeywordIndex', {}),
