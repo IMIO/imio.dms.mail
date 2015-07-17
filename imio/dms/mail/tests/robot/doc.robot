@@ -202,9 +202,6 @@ Encodage manuel
     Click element  css=#imiodmsmail-mainportlet table tr a[href*='++add++dmsincomingmail']
     Wait until element is visible  css=.template-dmsincomingmail #formfield-form-widgets-sender  10
     Sleep  2
-    Update element style  id=formfield-form-widgets-IVersionable-changeNote  display  None
-    Update element style  id=formfield-form-widgets-ITask-assigned_group  display  None
-    Update element style  id=formfield-form-widgets-ITask-enquirer  display  None
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 1 création.png  id=content
     Input text  name=form.widgets.IDublinCore.title  Lettre de demande de stage
     Input text  name=form.widgets.sender.widgets.query  Non encod

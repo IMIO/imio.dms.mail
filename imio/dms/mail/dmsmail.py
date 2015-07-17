@@ -4,15 +4,14 @@ from zope.component import getUtility, queryUtility
 from zope.interface import implements, alsoProvides
 from zope.schema.fieldproperty import FieldProperty
 from plone import api
-from plone.directives import dexterity
 #from plone.autoform.interfaces import IFormFieldProvider
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
-from five import grok
 from plone.autoform import directives
 from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
 from dexterity.localrolesfield.field import LocalRolesField
+from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.registry.interfaces import IRegistry
@@ -214,17 +213,18 @@ class IMView(DmsDocumentView):
             self.widgets['ITask.assigned_user'].field.description = u''
 
 
-class Add(dexterity.AddForm):
-    """
-        Add form redefinition to customize fields.
-    """
-    #grok.context(IImioDmsIncomingMail)
-    grok.name('dmsincomingmail')
+class CustomAddForm(DefaultAddForm):
+
+    portal_type = 'dmsincomingmail'
 
     def updateWidgets(self):
-        super(Add, self).updateWidgets()
-        #self.widgets['treating_groups'].prompt = True
+        super(CustomAddForm, self).updateWidgets()
         ImioDmsIncomingMailUpdateWidgets(self)
+
+
+class AddIM(DefaultAddView):
+
+    form = CustomAddForm
 
 
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
