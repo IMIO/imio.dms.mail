@@ -27,28 +27,28 @@
 /* edit mode of dmsmail */
 
 .template-dmsdocument-edit #fieldset-versions {
- width: 65% !important;
- padding-top: 4em;
+    width: 65% !important;
+    padding-top: 4em;
 }
 
 #all-fields, .template-dmsdocument-edit #content-core #fieldset-default {
 /* width: 32% !important;
  float: left;*/
- float: none !important;
- width: auto !important;
+    float: none !important;
+    width: auto !important;
 }
 
 .overlay.overlay-ajax.overlay-contact-addnew {
- left: 5px !important;
- width: 35% !important;
+    left: 5px !important;
+    width: 35% !important;
 }
 
 .template-dmsdocument-edit #visual-portal-wrapper #content-core #fieldset-default .field {
- clear: none;
+    clear: none;
 }
 
 .template-dmsdocument-edit #DV-container {
- width: 100% !important;
+    width: 100% !important;
 }
 
 /* Title 100% */
@@ -62,10 +62,28 @@
     padding-top: 5em;
 }
 
+/* Display None */
+
+.portaltype-dmsincomingmail #formfield-form-widgets-signed {
+    display: None;
+}
+
+.template-dmsdocument-edit #fieldsetlegend-categorization, .template-dmsdocument-edit #fieldsetlegend-dates, .template-dmsdocument-edit #fieldsetlegend-ownership {
+    display: none !important;
+}
+
+.addnew-block > span {
+    display: None;
+}
+
+.template-dmsmainfile #content-core ul.formTabs li:nth-child(2) {
+    display: None;
+}
+
 /* Other */
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
- clear: both;
+    clear: both;
 }
 
 #imiodmsmail-mainportlet td {
@@ -91,14 +109,6 @@
 
 .portaltype-person #held_positions .held_position {
     min-height: 0em;
-}
-
-.addnew-block > span {
- display: None;
-}
-
-.template-dmsdocument-edit #fieldsetlegend-categorization, .template-dmsdocument-edit #fieldsetlegend-dates, .template-dmsdocument-edit #fieldsetlegend-ownership {
- display: none !important;
 }
 
 /* colorization for incoming_mail_workflow */
@@ -215,7 +225,7 @@
 }
 
 .taskContainerListing {
- width: 100%;
+    width: 100%;
 }
 
 /* </dtml-with> */
