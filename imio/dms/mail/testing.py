@@ -17,6 +17,8 @@ class DmsmailLayer(PloneWithPackageLayer):
         _createObjectByType('Document', portal, id='front-page')
         portal.setDefaultPage('front-page')
         manage_addExternalMethod(portal, 'import_scanned', 'import_scanned', 'imio.dms.mail.demo', 'import_scanned')
+        manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',
+                                 'create_main_file')
         # install dmsmail (apply profile)
         super(DmsmailLayer, self).setUpPloneSite(portal)
 
