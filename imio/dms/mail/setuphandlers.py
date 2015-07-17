@@ -290,6 +290,9 @@ def adaptDefaultPortal(context):
     #Hiding folder contents
     site.manage_permission('List folder contents', ('Manager', 'Site Administrator'),
                            acquire=0)
+    #List undo
+    site.manage_permission('List undoable changes', ('Manager', 'Site Administrator'),
+                           acquire=0)
 
 
 def changeSearchedTypes(site):

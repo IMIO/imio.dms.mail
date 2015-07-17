@@ -41,4 +41,12 @@
   </object>
 
  </object>
+
+ <object name="user" meta_type="CMF Action Category">
+
+  <object name="undo" meta_type="CMF Action" i18n:domain="plone">
+   <property name="visible">True</property>
+  </object>
+
+ </object>
 </object>

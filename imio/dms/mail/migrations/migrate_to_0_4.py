@@ -23,7 +23,7 @@ class Migrate_To_0_4(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
-        self.runProfileSteps('imio.dms.mail', ['repositorytool', ])
+        self.runProfileSteps('imio.dms.mail', ['actions', 'repositorytool', ])
         #self.reinstall([])
         #self.runProfileSteps('collective.dms.scanbehavior', ['catalog'])
 
