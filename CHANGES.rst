@@ -4,13 +4,19 @@ Changelog
 0.4 (unreleased)
 ----------------
 
-- Upgraded and migrated collective.behavior.talcondition
+- Added robot tests for screenshots
   [sgeulette]
 
-- Added tests to improve coverage
+- Upgraded and migrated collective.behavior.talcondition. Added conditions on some state collections.
   [sgeulette]
 
-- Some improvements: contact add width, also validateur in assigned user, changed default position types, actions panel transition configuration
+- Added unit tests to improve coverage
+  [sgeulette]
+
+- Some improvements: contact add width, also validateur in assigned user, changed default position types,
+                     actions panel transition configuration, corrected listing, removed adding mainfile from menu,
+                     colorized collection results, removed grok, improved assigned user warning, front page text,
+                     set undo visible, improved state colorization, 
   [sgeulette]
 
 
