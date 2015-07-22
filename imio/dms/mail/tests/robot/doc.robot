@@ -43,10 +43,10 @@ Encodage depuis le scanner
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier.png  css=.documentEditable
     Click element  css=.DV-textView span.DV-trigger
-    Highlight  css=.DV-textView
+    #Highlight  css=.DV-textView
     ${note1}  Add pointy note  css=.DV-textView  Onglet texte  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-2-1 édition texte océrisé.png  id=portal-columns  ${note1}
-    Clear highlight  css=.DV-textView
+    #Clear highlight  css=.DV-textView
     Remove element  id=${note1}
     Input text  name=form.widgets.IDublinCore.title  Candidature à un poste d'ouvrier communal
     Input text  name=form.widgets.IDublinCore.description  Lettre de candidature spontanée
@@ -73,10 +73,10 @@ Encodage depuis le scanner
     Wait until element is visible  css=#oform-widgets-organization-autocomplete .addnew  10
     Update element style  css=#oform-widgets-organization-autocomplete .addnew  padding-right  1em
     ${note3}  Add pointy note  css=#oform-widgets-organization-autocomplete .addnew  Lien nouvelle organisation  position=right  color=blue
-    Highlight  css=#oform-widgets-organization-autocomplete .addnew
+    #Highlight  css=#oform-widgets-organization-autocomplete .addnew
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 1 création lien organisation.png  css=.overlay-contact-addnew  ${note3}
     Remove element  id=${note3}
-    Clear highlight  css=#oform-widgets-organization-autocomplete .addnew
+    #Clear highlight  css=#oform-widgets-organization-autocomplete .addnew
     Click element  css=#oform-widgets-organization-autocomplete .addnew
     Wait until element is visible  id=pb_2  10
     Update element style  id=formfield-form-widgets-activity  display  none
@@ -189,10 +189,28 @@ Encodage depuis le scanner
     Click button  id=form-buttons-save
     Sleep  2
 
+#Visualisation
+# partie 2.3 Visualisation des éléments
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/incoming-mail
+    Capture and crop page screenshot  doc/utilisation/2-3 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  5
+    Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    Mouse over  css=#form-widgets-sender a.link-tooltip
+    Wait until element is visible  css=div.tooltip #person  10
+    # Le pointeur fait disparaître le tooltip
+    #${pointer}  Add pointer  css=#form-widgets-sender a.link-tooltip
+    Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant personne.png  id=content
+    #Remove element  ${pointer}
+    # La capture du tooltip title ne fonctionne pas!
+    #Mouse over  css=a.version-link
+    #Sleep  1
+    #Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant ged.png  id=content
+
 Encodage manuel
 # partie 2.2.2 Encodage manuel du courrier
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail
 
     ### Create incomingmail
@@ -217,6 +235,7 @@ Encodage manuel
     Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
     ${note11}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
     Click element  name=Add element
+    # La capture du menu ouvert ne fonctionne pas 
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 lien ajout.png  id=viewlet-above-content-title  ${note11}
     Remove element  id=${note11}
     Click element  css=#formfield-form-widgets-sender label
@@ -237,18 +256,14 @@ Encodage manuel
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 2 visualisation.png  id=content
 
-Visualisation
-# partie 2.3 Visualisation des éléments
+Menu courrier
+# partie 2.4 Menu courrier
+    Enable autologin as  Manager
     Go to  ${PLONE_URL}/incoming-mail
-    Capture and crop page screenshot  doc/utilisation/2-3 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
-    Go to  ${PLONE_URL}/incoming-mail/courrier3
-    Wait until element is visible  css=.DV-pageImage  5
-    Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    Capture and crop page screenshot  doc/utilisation/2-4 menu courrier.png  id=imiodmsmail-mainportlet
 
-
-#    Mouse over  css=#oform-widgets-organization-2-wrapper a.link-tooltip
-#    Wait until element is visible  css=div.tooltip #organization  10
-    Capture viewport screenshot  doc/utilisation/test.png
+Workflow
+# partie 2.5 Menu courrier
 
 *** Keywords ***
 Suite Setup
