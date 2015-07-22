@@ -116,7 +116,14 @@
         name="idm-utils"
         class=".utils.IdmUtilsMethods"
         permission="zope2.View"
-        allowed_attributes="user_has_review_level"
+        allowed_attributes="
+            created_col_cond
+            current_user_groups
+            proposed_to_manager_col_cond
+            proposed_to_serv_chief_col_cond
+            user_has_review_level
+            user_is_admin
+            "
     />
 
     <include file="profiles.zcml" />

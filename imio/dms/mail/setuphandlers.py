@@ -138,6 +138,11 @@ def createStateCollections(folder, content_type):
     """
     default_states = ['created', 'proposed_to_manager', 'proposed_to_service_chief',
                       'proposed_to_agent', 'in_treatment', 'closed']
+    conditions = {
+        'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
+        'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
+        'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils').proposed_to_serv_chief_col_cond()",
+    }
     for workflow in folder.portal_workflow.getWorkflowsFor(content_type):
         for value in workflow.states.values():
             if value.id not in default_states:
@@ -152,6 +157,8 @@ def createStateCollections(folder, content_type):
                                              'v': [state]}],
                                      customViewFields=(u'Title', u'review_state', u'treating_groups',
                                                        u'assigned_user', u'CreationDate'),
+                                     tal_condition=conditions.get(state),
+                                     roles_bypassing_talcondition=['Manager', 'Site Administrator'],
                                      sort_on=u'created', sort_reversed=True, b_size=30)
                 col = folder[col_id]
                 col.setSubject((u'search', ))

@@ -4,17 +4,30 @@ from zope.component import getUtility
 from plone import api
 from plone.registry.interfaces import IRegistry
 from Products.Five import BrowserView
-from adapters import highest_review_level
+from adapters import highest_review_level, organizations_with_suffixes
 from browser.settings import IImioDmsMailConfig
 
 
-class IdmUtilsMethods(BrowserView):
+class UtilsMethods(BrowserView):
     """ View containing utils methods """
+
+    def user_is_admin(self):
+        """ Test if current user is admin """
+        user = api.user.get_current()
+        if user.has_role('Manager') or user.has_role('Site Administrator'):
+            return True
+        return False
+
+    def current_user_groups(self):
+        return api.group.get_groups(user=api.user.get_current())
+
+
+class IdmUtilsMethods(UtilsMethods):
+    """ View containing incoming mail utils methods """
 
     def user_has_review_level(self, portal_type=None):
         """ Test if the current user has a review level """
-        user = api.user.get_current()
-        groups = api.group.get_groups(user=user)
+        groups = self.current_user_groups()
         if portal_type is None:
             portal_type = self.context.portal_type
         if highest_review_level(portal_type, str([g.id for g in groups])) is not None:
@@ -29,8 +42,25 @@ class IdmUtilsMethods(BrowserView):
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         if not settings.assigned_user_check:
             return True
-        user = api.user.get_current()
-        if user.has_role('Manager'):
+        if self.user_is_admin():
+            return True
+        return False
+
+    def created_col_cond(self):
+        """ Condition for searchfor_created collection """
+        if 'encodeurs' in self.current_user_groups():
+            return True
+        return False
+
+    def proposed_to_manager_col_cond(self):
+        """ Condition for searchfor_proposed_to_manager collection """
+        if 'dir_general' in self.current_user_groups():
+            return True
+        return False
+
+    def proposed_to_serv_chief_col_cond(self):
+        """ Condition for searchfor_proposed_to_service_chief collection """
+        if organizations_with_suffixes(self.current_user_groups(), ['validateur']):
             return True
         return False
 
