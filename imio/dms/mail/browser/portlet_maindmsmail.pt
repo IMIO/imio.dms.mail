@@ -16,20 +16,20 @@
         <span class="portletTopRight"></span>
     </dt>
 
-    <table tal:condition="view/canAddSomething">
+    <table tal:condition="view/canAddIncomingMail">
         <tr><th i18n:translate="Main_menu_addition_section">Add</th></tr>
-        <tr tal:condition="view/canAddIncomingMail"><td>
+        <tr><td>
             <a tal:attributes="href view/getIncomingMailAddUrl">
                 <span i18n:translate="Main_menu_add_incoming_mail">incoming mail</span>
                 <img tal:attributes="src string:$portal_url/++resource++dmsincomingmail_icon.png" />
             </a>
         </td></tr>
-        <tr tal:condition="view/canAddMainFile"><td>
+        <!--tr tal:condition="view/canAddMainFile"><td>
             <a tal:attributes="href view/getMainFileAddUrl">
                 <span i18n:translate="Main_menu_add_main_file">main file</span>
                 <img tal:attributes="src string:$portal_url/++resource++dmsmainfile_icon.png" />
             </a>
-        </td></tr>
+        </td></tr-->
     </table>
     <table>
         <tr><th i18n:translate="Main_menu_todo_section">Incoming mails todo</th></tr>
