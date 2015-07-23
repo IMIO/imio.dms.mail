@@ -11,7 +11,7 @@ Suite Teardown  Close all browsers
 
 *** Variables ***
 
-# ${SELENIUM_RUN_ON_FAILURE} =  Debug
+${SELENIUM_RUN_ON_FAILURE} =  Debug
 
 *** Test cases ***
 
@@ -190,12 +190,12 @@ Encodage depuis le scanner
     Sleep  2
 
 #Visualisation
-# partie 2.3 Visualisation des éléments
+# partie 2.3 Visualisation des courriers
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Capture and crop page screenshot  doc/utilisation/2-3 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  5
+    Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Mouse over  css=#form-widgets-sender a.link-tooltip
     Wait until element is visible  css=div.tooltip #person  10
@@ -204,9 +204,84 @@ Encodage depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant personne.png  id=content
     #Remove element  ${pointer}
     # La capture du tooltip title ne fonctionne pas!
-    #Mouse over  css=a.version-link
+    Mouse over  css=a.version-link
     #Sleep  1
     #Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant ged.png  id=content
+
+#Modification
+# partie 2.5 Modification des courriers
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    ${note20}  Add pointy note  id=contentview-edit  Lien d'édition  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-5 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table  ${note20}
+    Remove element  id=${note20}
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-5 édition courrier.png  css=.documentEditable
+    Click button  id=form-buttons-cancel
+    # Next screenshot in 2.6 part to avoid dirty history
+
+#Workflow
+# partie 2.6 Workflow
+    Enable autologin as  Manager
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    #Fire transition  ${UID}  back_to_creation
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    ${note30}  Add pointy note  css=input.apButtonWF_propose_to_manager  Transition  position=top  color=blue
+    ${note31}  Add pointy note  css=input.apButtonWF_propose_to_service_chief  Transition  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-6 bouton transition.png  id=contentview-view  id=content-history  css=table.actionspanel-no-style-table  ${note30}
+    Remove elements  id=${note30}  id=${note31}
+    Fire transition  ${UID}  propose_to_manager
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Capture and crop page screenshot  doc/utilisation/2-6 transition vers dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Enable autologin as  dirg
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Capture and crop page screenshot  doc/utilisation/2-6 état dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  propose_to_service_chief
+    Enable autologin as  chef
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue 
+    Capture and crop page screenshot  doc/utilisation/2-6 état chef.png  css=.documentEditable
+    Remove element  id=${note32}
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-5 édition limitée courrier.png  css=.documentEditable
+    Select from list by value  id=form-widgets-ITask-due_date-day  6
+    Select from list by value  id=form-widgets-ITask-due_date-month  6
+    Select from list by value  id=form-widgets-ITask-due_date-year  2015
+    Click button  id=form-buttons-save
+    Set field value  ${UID}  assigned_user  agent  field_type normal
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-6 état chef assigné.png  css=.documentEditable
+    Fire transition  ${UID}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-6 état agent à traiter.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  treat
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-6 état agent traitement.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  close
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-6 état agent clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Click button  css=input.apButtonWF_back_to_treatment
+    Wait until element is visible  css=form#confirmTransitionForm  10
+    Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
+    Capture viewport screenshot  doc/utilisation/2-6 transition retour.png
+    Click button  name=form.buttons.save
+    Wait until element is not visible  css=form#confirmTransitionForm  10
+    Capture and crop page screenshot  doc/utilisation/2-6 lien historique.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Click element  css=#content-history .link-overlay
+    #Wait until element is visible  css=#content-history #content  10
+    Sleep  1
+    Capture viewport screenshot  doc/utilisation/2-6 historique.png
+    
 
 Encodage manuel
 # partie 2.2.2 Encodage manuel du courrier
@@ -257,13 +332,12 @@ Encodage manuel
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 2 visualisation.png  id=content
 
 Menu courrier
-# partie 2.4 Menu courrier
+# partie 2.4 Menu de recherches prédéfinies
     Enable autologin as  Manager
     Go to  ${PLONE_URL}/incoming-mail
     Capture and crop page screenshot  doc/utilisation/2-4 menu courrier.png  id=imiodmsmail-mainportlet
 
-Workflow
-# partie 2.5 Menu courrier
+#    Capture viewport screenshot  doc/utilisation/test.png
 
 *** Keywords ***
 Suite Setup
