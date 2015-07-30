@@ -331,11 +331,13 @@ Encodage manuel
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 2 visualisation.png  id=content
 
+
 Menu courrier
 # partie 2.4 Menu de recherches prédéfinies
     Enable autologin as  Manager
     Go to  ${PLONE_URL}/incoming-mail
     Capture and crop page screenshot  doc/utilisation/2-4 menu courrier.png  id=imiodmsmail-mainportlet
+
 
 Contacts 1
 # partie 2.7.1 Recherche de contacts
@@ -363,6 +365,7 @@ Contacts 1
     Wait until element is visible  css=#faceted-results #msg-no-results  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-7-1 texte aucun résultat.png  id=content
+
 
 Contacts 2
 # partie 2.7.2 Modification de contacts
@@ -400,6 +403,24 @@ Contacts 2
     Click button  id=contact-facetednav-action-merge
     Wait until element is visible  css=form[action*="merge-contacts-apply"]  10
     Capture and crop page screenshot  doc/utilisation/2-7-2 fusion organisation.png  id=content
+
+
+Configuration
+    Enable autologin as  Manager
+    Go to  ${PLONE_URL}/@@overview-controlpanel
+    Wait until page contains  Configuration de module  10
+    Update element style  css=dl.warning  display  None
+    ${note50}  Add pointy note  css=.configlets li a[href$="/@@dmsmailcontent-settings"]  Configuration  position=top  color=blue
+    Capture and crop page screenshot  doc/configuration/3-3 Liens.png  id=content  ${note50}
+    Remove element  ${note50}
+    Go to  ${PLONE_URL}/@@dmsmailcontent-settings
+    Wait until element is visible  id=formfield-form-widgets-incomingmail_number  10
+    Capture and crop page screenshot  doc/configuration/3-3 config courrier.png  id=content
+    # Erreur chargement page
+    #Go to  ${PLONE_URL}/@@imiodmsmail-settings
+    #Wait until element is visible  id=formfield-form-widgets-mail_types  10
+    #Capture and crop page screenshot  doc/configuration/3-3 config courrier 2.png  id=content
+
 
 #    Capture viewport screenshot  doc/utilisation/test.png
 
