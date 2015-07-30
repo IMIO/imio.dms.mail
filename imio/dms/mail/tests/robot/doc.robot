@@ -387,7 +387,19 @@ Contacts 2
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-7-2 suppression organisation.png  css=.overlay[style*="display: block"]
     Click button  css=.overlay[style*="display: block"] input[name=cancel]
-
+    ### boutons de gestion
+    Go to  ${PLONE_URL}/contacts
+    Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
+    Sleep  0.5
+    Click element  css=.eea-preview-items .contact-entry:first-child .contact-selection input
+    Click element  css=.eea-preview-items .contact-entry:nth-child(2) .contact-selection input
+    ${note41}  Add pointy note  id=contact-facetednav-action-delete  Suppression sélection  position=top  color=blue
+    ${note42}  Add pointy note  id=contact-facetednav-action-merge  Fusion sélection  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-7-2 boutons.png  id=content  ${note41}  ${note42}
+    Remove elements  ${note41}  ${note42}
+    Click button  id=contact-facetednav-action-merge
+    Wait until element is visible  css=form[action*="merge-contacts-apply"]  10
+    Capture and crop page screenshot  doc/utilisation/2-7-2 fusion organisation.png  id=content
 
 #    Capture viewport screenshot  doc/utilisation/test.png
 
