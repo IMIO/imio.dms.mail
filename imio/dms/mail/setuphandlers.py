@@ -403,9 +403,12 @@ def configureImioDmsMail(context):
 
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'] = [
-            {'mt_value': u'Courrier', 'mt_title': u'Courrier', 'mt_active': True},
-            {'mt_value': u'Facture', 'mt_title': u'Facture', 'mt_active': True},
-            {'mt_value': u'Retour recommandé', 'mt_title': u'Retour recommandé', 'mt_active': True},
+            {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
+            {'mt_value': u'recommande', 'mt_title': u'Recommandé', 'mt_active': True},
+            {'mt_value': u'email', 'mt_title': u'E-mail', 'mt_active': True},
+            {'mt_value': u'fax', 'mt_title': u'Fax', 'mt_active': True},
+            {'mt_value': u'retour-recommande', 'mt_title': u'Retour recommandé', 'mt_active': True},
+            {'mt_value': u'facture', 'mt_title': u'Facture', 'mt_active': True},
         ]
     if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == \
             u"python:'in/'+number":
