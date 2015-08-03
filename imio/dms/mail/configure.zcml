@@ -36,6 +36,7 @@
     <include package="plone.app.lockingbehavior"/>
     <include package="collective.dexteritytextindexer"/>
     <include package="plone.app.versioningbehavior"/>
+    <include package="imio.dashboard"/>
     <include package="imio.history"/>
     <include package=".browser" />
 

@@ -5,6 +5,9 @@ from Products.CMFPlone.utils import base_hasattr
 from plone import api
 from collective.behavior.talcondition.utils import applyExtender
 from imio.migrator.migrator import Migrator
+from imio.dms.mail.setuphandlers import configure_incoming_mail
+from imio.dms.mail.setuphandlers import createIMCollections
+from imio.dms.mail.setuphandlers import createStateCollections
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -40,7 +43,23 @@ class Migrate_To_0_4(Migrator):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
         self.runProfileSteps('imio.dms.mail', ['actions', 'repositorytool', ])
-        #self.reinstall([])
+        self.reinstall([
+            'imio.dashboard:default',
+            ])
+
+        im_folder = self.portal['incoming-mail']
+        configure_incoming_mail(im_folder)
+
+        col_folder = im_folder['collections']
+
+        # remove collections
+        for collection in col_folder.listFolderContents():
+            if collection.portal_type != 'DashboardCollection':
+                api.content.delete(collection)
+
+        # re-create dashboard collections
+        createIMCollections(col_folder)
+        createStateCollections(col_folder, 'dmsincomingmail')
 
         self.migrateTalCondition()
 

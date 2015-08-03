@@ -36,6 +36,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
+from eea.facetednavigation.subtypes.interfaces import IPossibleFacetedNavigable
 from imio.helpers.security import is_develop_environment, generate_password
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.subscribers import mark_organization
@@ -76,17 +77,21 @@ def postInstall(context):
     def create_collections_folder(folder):
         if not base_hasattr(folder, 'collections'):
             folder.invokeFactory("Folder", id='collections', title=u"Collections: ne pas effacer")
-        folder.setDefaultPage('collections')
+
         col_folder = folder['collections']
         col_folder.setConstrainTypesMode(1)
-        col_folder.setLocallyAllowedTypes(['Topic', 'Collection'])
-        col_folder.setImmediatelyAddableTypes(['Topic', 'Collection'])
-        return folder['collections']
+        col_folder.setLocallyAllowedTypes(['DashboardCollection'])
+        col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
+        return col_folder
 
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
         im_folder = getattr(site, folderid)
+
+        # configure faceted navigation
+        configure_incoming_mail_folder(im_folder)
+
         col_folder = create_collections_folder(im_folder)
         #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createIMCollections(col_folder)
@@ -97,6 +102,7 @@ def postInstall(context):
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
         site.portal_workflow.doActionFor(im_folder, "show_internally")
         logger.info('incoming-mail folder created')
+
     if not base_hasattr(site, 'outgoing-mail'):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         om_folder = getattr(site, folderid)
@@ -150,7 +156,7 @@ def createStateCollections(folder, content_type):
         for state in default_states:
             col_id = "searchfor_%s" % state
             if not base_hasattr(folder, col_id):
-                folder.invokeFactory("Collection", id=col_id, title=_(col_id),
+                folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
                                      query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
                                              'v': [content_type]},
                                             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
@@ -225,7 +231,8 @@ def createIMCollections(folder):
     for dic in collections:
         if base_hasattr(folder, dic['id']):
             continue
-        folder.invokeFactory("Collection",
+
+        folder.invokeFactory("DashboardCollection",
                              dic['id'],
                              title=dic['tit'],
                              query=dic['query'],
@@ -811,3 +818,12 @@ def configure_actions_panel(portal):
             ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
              'dmsincomingmail.back_to_service_chief|', 'dmsincomingmail.back_to_treatment|',
              'dmsincomingmail.back_to_agent|']
+
+def configure_incoming_mail(im_folder):
+    """Configure faceted navigation for incoming-mail folder."""
+    alsoProvides(im_folder, IPossibleFacetedNavigable)
+    im_folder.unrestrictedTraverse('@@faceted_subtyper').enable()
+    im_folder.unrestrictedTraverse('@@faceted_exportimport').import_xml(
+        import_file=open(
+            os.path.dirname(__file__) + '/faceted_conf/im-faceted.xml'))
+    alsoProvides(im_folder, IActionsEnabled)

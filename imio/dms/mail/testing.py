@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+import zope.security.checker
 
 from Products.CMFPlone.utils import _createObjectByType
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from plone.testing import z2
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
-from plone.app.testing import PloneWithPackageLayer
+from plone.app.testing.helpers import PloneWithPackageLayer
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import FunctionalTesting
 import imio.dms.mail
@@ -25,7 +26,11 @@ class DmsmailLayer(PloneWithPackageLayer):
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
-    additional_z2_products=('Products.PythonScripts', 'imio.dms.mail', 'Products.PasswordStrength'),
+    additional_z2_products=(
+        'Products.PythonScripts',
+        'imio.dashboard',
+        'imio.dms.mail',
+        'Products.PasswordStrength'),
     gs_profile_id='imio.dms.mail:testing',
     name="DMSMAIL_FIXTURE")
 
