@@ -3,6 +3,7 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import getUtility
 from plone import api
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone.utils import getToolByName
 from Products.Five import BrowserView
 from adapters import highest_review_level, organizations_with_suffixes
 from browser.settings import IImioDmsMailConfig
@@ -19,7 +20,17 @@ class UtilsMethods(BrowserView):
         return False
 
     def current_user_groups(self):
+        """ Return current user groups """
         return api.group.get_groups(user=api.user.get_current())
+
+    def highest_scan_id(self):
+        """ Return highest scan id """
+        pc = getToolByName(self.context, 'portal_catalog')
+        brains = pc(portal_type='dmsmainfile', sort_on='scan_id', sort_order='descending', sort_limit=1)
+        if brains:
+            return brains[0].scan_id
+        else:
+            return 'No scan id'
 
 
 class IdmUtilsMethods(UtilsMethods):
