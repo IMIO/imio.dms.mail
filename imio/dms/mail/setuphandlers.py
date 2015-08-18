@@ -819,7 +819,8 @@ def configure_actions_panel(portal):
              'dmsincomingmail.back_to_service_chief|', 'dmsincomingmail.back_to_treatment|',
              'dmsincomingmail.back_to_agent|']
 
-def configure_incoming_mail(im_folder):
+
+def configure_incoming_mail_folder(im_folder):
     """Configure faceted navigation for incoming-mail folder."""
     alsoProvides(im_folder, IPossibleFacetedNavigable)
     im_folder.unrestrictedTraverse('@@faceted_subtyper').enable()
