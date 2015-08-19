@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<object name="incoming-mail" meta_type="ATFolder">
+<object name="incoming-mail" meta_type="ATFolder"
+ xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+ i18n:domain="eea">
  <criteria>
 
   <!-- default widgets -->
@@ -13,7 +15,7 @@
    <property name="default"></property>
   </criterion>
 
-  <criterion name="c1">
+  <criterion name="c1" i18n:attributes="title">
    <property name="widget">collection-link</property>
    <property name="title">Base collections</property>
    <property name="position">bottom</property>
@@ -42,7 +44,7 @@
    <property name="wildcard">1</property>
   </criterion>
 
-  <criterion name="c3">
+  <criterion name="c3" i18n:attributes="title">
    <property name="widget">resultsperpage</property>
    <property name="title">Per page</property>
    <property name="position">center</property>
