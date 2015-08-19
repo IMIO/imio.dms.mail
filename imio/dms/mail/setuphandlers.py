@@ -38,6 +38,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from eea.facetednavigation.subtypes.interfaces import IPossibleFacetedNavigable
 from imio.helpers.security import is_develop_environment, generate_password
+from imio.dashboard.utils import enableFacetedDashboardFor
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.subscribers import mark_organization
 
@@ -822,9 +823,4 @@ def configure_actions_panel(portal):
 
 def configure_incoming_mail_folder(im_folder):
     """Configure faceted navigation for incoming-mail folder."""
-    alsoProvides(im_folder, IPossibleFacetedNavigable)
-    im_folder.unrestrictedTraverse('@@faceted_subtyper').enable()
-    im_folder.unrestrictedTraverse('@@faceted_exportimport').import_xml(
-        import_file=open(
-            os.path.dirname(__file__) + '/faceted_conf/im-faceted.xml'))
-    alsoProvides(im_folder, IActionsEnabled)
+    enableFacetedDashboardFor(im_folder, os.path.dirname(__file__) + '/faceted_conf/im-faceted.xml')
