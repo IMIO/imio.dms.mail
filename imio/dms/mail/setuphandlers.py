@@ -36,9 +36,8 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
-from eea.facetednavigation.subtypes.interfaces import IPossibleFacetedNavigable
 from imio.helpers.security import is_develop_environment, generate_password
-from imio.dashboard.utils import enableFacetedDashboardFor
+from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.subscribers import mark_organization
 
@@ -179,7 +178,7 @@ def createIMCollections(folder):
         create some topic for incoming mails
     """
     collections = [
-        {'id': 'all_mails', 'tit': _('all_incoming_mails'), 'query': [
+        {'id': 'all_mails', 'tit': _('all_incoming_mails'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']}],
             'cond': u"", 'bypass': [],
             'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
@@ -824,3 +823,4 @@ def configure_actions_panel(portal):
 def configure_incoming_mail_folder(im_folder):
     """Configure faceted navigation for incoming-mail folder."""
     enableFacetedDashboardFor(im_folder, os.path.dirname(__file__) + '/faceted_conf/im-faceted.xml')
+    _updateDefaultCollectionFor(im_folder, im_folder['collections']['all_mails'].UID())
