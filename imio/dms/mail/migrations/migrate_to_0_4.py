@@ -27,6 +27,8 @@ class Migrate_To_0_4(Migrator):
         col_folder = self.portal['incoming-mail']['collections']
         col_folder.setLocallyAllowedTypes(['DashboardCollection'])
         col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
+        if col_folder.getDefaultPage() == 'all_mails':
+            col_folder.setDefaultPage(None)
 
         # remove collections
         for collection in col_folder.listFolderContents():
