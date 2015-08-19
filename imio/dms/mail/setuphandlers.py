@@ -95,7 +95,6 @@ def postInstall(context):
         col_folder = create_collections_folder(im_folder)
         #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createIMCollections(col_folder)
-        col_folder.setDefaultPage('all_mails')
         createStateCollections(col_folder, 'dmsincomingmail')
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
@@ -161,8 +160,8 @@ def createStateCollections(folder, content_type):
                                              'v': [content_type]},
                                             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                              'v': [state]}],
-                                     customViewFields=(u'Title', u'review_state', u'treating_groups',
-                                                       u'assigned_user', u'CreationDate'),
+                                     customViewFields=(u'pretty_link', u'review_state', u'treating_groups',
+                                                       u'assigned_user', u'CreationDate', u'actions'),
                                      tal_condition=conditions.get(state),
                                      roles_bypassing_talcondition=['Manager', 'Site Administrator'],
                                      sort_on=u'created', sort_reversed=True, b_size=30)
@@ -181,7 +180,8 @@ def createIMCollections(folder):
         {'id': 'all_mails', 'tit': _('all_incoming_mails'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                     u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -189,42 +189,48 @@ def createIMCollections(folder):
              'v': 'dmsincomingmail-highest-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
             'bypass': ['Manager', 'Site Administrator'],
-            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                     u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_treat', 'tit': _('im_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                     u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'im_treating', 'tit': _('im_im_treating'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['in_treatment']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                     u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'have_treated', 'tit': _('im_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                     u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
-            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                     u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'in_copy', 'tit': _('im_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
-            'flds': (u'Title', u'review_state', u'treating_groups', u'assigned_user', u'CreationDate'),
+            'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                     u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
     ]
 
