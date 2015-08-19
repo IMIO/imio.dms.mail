@@ -29,6 +29,8 @@ class Migrate_To_0_4(Migrator):
         col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
         if col_folder.getDefaultPage() == 'all_mails':
             col_folder.setDefaultPage(None)
+        if col_folder.title == u'Collections: ne pas effacer':
+            col_folder.title = u'Recherches'
 
         # remove collections
         for collection in col_folder.listFolderContents():
