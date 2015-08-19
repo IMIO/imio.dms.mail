@@ -33,12 +33,11 @@
 	    <property name="template">portlet_maindmsmail</property>
 	</assignment>
 
-	<!--portlet 
-		addview="imiodmsmail.portlet.main"
-		title="Main DmsMail Portlet"
-		description=""
-		i18n:attributes="title title_main_portlet;
-						 description description_main_portlet">
-		<for interface="plone.app.portlets.interfaces.ILeftColumn" />
-  </portlet-->
+    <assignment name="portlet_dashboard"
+                category="context"
+                key="/"
+                manager="plone.leftcolumn"
+                type="imio.dashboard.FacetedCollectionPortlet">
+	</assignment>
+
 </portlets>
