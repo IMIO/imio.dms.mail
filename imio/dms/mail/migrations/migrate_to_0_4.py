@@ -3,6 +3,7 @@
 from zope.component import getUtility
 from Products.CMFPlone.utils import base_hasattr
 from plone import api
+from imio.dashboard.utils import _updateDefaultCollectionFor
 from imio.migrator.migrator import Migrator
 from imio.dms.mail.setuphandlers import configure_incoming_mail_folder
 from imio.dms.mail.setuphandlers import createIMCollections
@@ -53,6 +54,7 @@ class Migrate_To_0_4(Migrator):
 
         im_folder = self.portal['incoming-mail']
         configure_incoming_mail_folder(im_folder)
+        _updateDefaultCollectionFor(im_folder, im_folder['collections']['all_mails'].UID())
 
         #self.upgradeAll()
         #self.refreshDatabase()

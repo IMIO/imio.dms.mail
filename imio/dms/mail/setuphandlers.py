@@ -96,6 +96,8 @@ def postInstall(context):
         #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createIMCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
+        # select default collection
+        _updateDefaultCollectionFor(im_folder, col_folder['all_mails'].UID())
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -829,4 +831,3 @@ def configure_actions_panel(portal):
 def configure_incoming_mail_folder(im_folder):
     """Configure faceted navigation for incoming-mail folder."""
     enableFacetedDashboardFor(im_folder, os.path.dirname(__file__) + '/faceted_conf/im-faceted.xml')
-    _updateDefaultCollectionFor(im_folder, im_folder['collections']['all_mails'].UID())
