@@ -13,6 +13,16 @@
         />
     </configure>
 
+    <configure package="collective.eeafaceted.collectionwidget">
+        <browser:page
+            for="*"
+            name="render_collection_widget_category"
+            class="imio.dms.mail.browser.overrides.IMRenderCategoryView"
+            template="browser/templates/category.pt"
+            permission="zope2.View"
+            />
+    </configure>
+
     <browser:page
         name="tabular_view"
         permission="zope2.View"

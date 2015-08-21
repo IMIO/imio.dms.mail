@@ -120,6 +120,7 @@
         allowed_attributes="
             created_col_cond
             current_user_groups
+            get_im_folder
             highest_scan_id
             proposed_to_manager_col_cond
             proposed_to_serv_chief_col_cond

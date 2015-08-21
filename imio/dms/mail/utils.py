@@ -1,4 +1,5 @@
 # encoding: utf-8
+from zope.component.hooks import getSite
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import getUtility
 from plone import api
@@ -35,6 +36,11 @@ class UtilsMethods(BrowserView):
 
 class IdmUtilsMethods(UtilsMethods):
     """ View containing incoming mail utils methods """
+
+    def get_im_folder(self):
+        """ Get the incoming-mail folder """
+        portal = getSite()
+        return portal['incoming-mail']
 
     def user_has_review_level(self, portal_type=None):
         """ Test if the current user has a review level """

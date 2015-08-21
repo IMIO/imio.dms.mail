@@ -111,6 +111,14 @@
     min-height: 0em;
 }
 
+dl.portletWidgetCollection div.portlet_add_icons {
+    float: right;
+    margin-right: 0.5em;
+}
+dl.portletWidgetCollection div.portlet_add_icons a {
+    margin-left: 0em;
+}
+
 /* colorization for incoming_mail_workflow */
 
 .state-created {
