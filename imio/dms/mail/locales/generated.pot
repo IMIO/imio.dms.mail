@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-06-01 13:48+0000\n"
+"POT-Creation-Date: 2015-08-21 09:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,7 +37,7 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./dmsmail.py:34
+#: ./dmsmail.py:35
 msgid "Choose a value !"
 msgstr ""
 
@@ -45,7 +45,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./setuphandlers.py:88
+#: ./setuphandlers.py:89
 msgid "Incoming mail"
 msgstr ""
 
@@ -58,7 +58,7 @@ msgid "Incoming mail listing"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:80
+#: ./dmsmail.py:81
 msgid "Mail type"
 msgstr ""
 
@@ -77,11 +77,6 @@ msgstr ""
 #. Default: "incoming mail"
 #: ./browser/portlet_maindmsmail.pt:23
 msgid "Main_menu_add_incoming_mail"
-msgstr ""
-
-#. Default: "main file"
-#: ./browser/portlet_maindmsmail.pt:29
-msgid "Main_menu_add_main_file"
 msgstr ""
 
 #. Default: "Add"
@@ -113,16 +108,16 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:101
+#: ./setuphandlers.py:108
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:74
+#: ./dmsmail.py:75
 msgid "Recipient groups"
 msgstr ""
 
-#: ./browser/table.py:33
-#: ./dmsmail.py:59
+#: ./browser/table.py:56
+#: ./dmsmail.py:60
 msgid "Treating groups"
 msgstr ""
 
@@ -130,8 +125,12 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
+#: ./dmsmail.py:191
+msgid "You must select an assigned user before you can propose to an agent !"
+msgstr ""
+
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:166
+#: ./setuphandlers.py:182
 msgid "all_incoming_mails"
 msgstr ""
 
@@ -140,43 +139,47 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./setuphandlers.py:256
+#: ./browser/templates/category_im.pt:12
+msgid "create_im"
+msgstr ""
+
+#: ./setuphandlers.py:282
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:257
+#: ./setuphandlers.py:283
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:255
+#: ./setuphandlers.py:281
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:192
+#: ./setuphandlers.py:213
 msgid "im_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:185
+#: ./setuphandlers.py:205
 msgid "im_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:206
+#: ./setuphandlers.py:229
 msgid "im_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:199
+#: ./setuphandlers.py:221
 msgid "im_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:178
+#: ./setuphandlers.py:197
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:171
+#: ./setuphandlers.py:188
 msgid "im_to_validate"
 msgstr ""
 
-#: ./setuphandlers.py:47
+#: ./setuphandlers.py:48
 msgid "imio.dms.mail"
 msgstr ""
 

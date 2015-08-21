@@ -21,7 +21,7 @@ msgstr ""
 
 #: profiles/default/types/dmsmainfile.xml
 msgid "DmsMainFile"
-msgstr ""
+msgstr "Dms main file"
 
 #: profiles/default/rolemap.xml
 msgid "General Manager"
@@ -81,10 +81,10 @@ msgid "dmsincomingmail-highest-validation"
 msgstr "Incoming mails to validate"
 
 msgid "dmsincomingmail-in-copy-group"
-msgstr ""
+msgstr "Incoming mails in copy group"
 
 msgid "dmsincomingmail-in-treating-group"
-msgstr ""
+msgstr "Incoming mail in my treating groups"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "in_treatment"

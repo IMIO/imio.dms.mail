@@ -16,8 +16,8 @@ msgstr ""
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
 msgid "header_assigned_user"
-msgstr ""
+msgstr "Assigned user"
 
 msgid "header_treating_groups"
-msgstr ""
+msgstr "Treating group"
 

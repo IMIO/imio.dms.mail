@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-06-01 13:48+0000\n"
+"POT-Creation-Date: 2015-08-21 09:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,7 +35,7 @@ msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent"
 
-#: ./dmsmail.py:34
+#: ./dmsmail.py:35
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
@@ -43,7 +43,7 @@ msgstr "Choisir une valeur !"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
-#: ./setuphandlers.py:88
+#: ./setuphandlers.py:89
 msgid "Incoming mail"
 msgstr "Courrier entrant"
 
@@ -56,7 +56,7 @@ msgid "Incoming mail listing"
 msgstr "Listing des courriers entrants"
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:80
+#: ./dmsmail.py:81
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -111,16 +111,16 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:101
+#: ./setuphandlers.py:108
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./dmsmail.py:74
+#: ./dmsmail.py:75
 msgid "Recipient groups"
 msgstr "Services en copie"
 
-#: ./browser/table.py:33
-#: ./dmsmail.py:59
+#: ./browser/table.py:56
+#: ./dmsmail.py:60
 msgid "Treating groups"
 msgstr "Service traitant"
 
@@ -128,12 +128,12 @@ msgstr "Service traitant"
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
-#: ./dmsmail.py:171
+#: ./dmsmail.py:191
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:166
+#: ./setuphandlers.py:182
 msgid "all_incoming_mails"
 msgstr "Tous les courriers"
 
@@ -142,43 +142,47 @@ msgstr "Tous les courriers"
 msgid "backrefs_viewlet_title"
 msgstr "Contact utilisé par"
 
-#: ./setuphandlers.py:256
+#: ./browser/templates/category_im.pt:12
+msgid "create_im"
+msgstr "Créer un courrier entrant"
+
+#: ./setuphandlers.py:282
 msgid "front_page_descr"
 msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
 
-#: ./setuphandlers.py:257
+#: ./setuphandlers.py:283
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>L'application intègre la gestion du courrier entrant:</p><ul><li>Création automatique du courrier entrant à partir de fichiers scannés avec séparateur (code autocollant)</li><li>Complétion du courrier entrant avec prévisualisation du document scanné et glisser/déplacer d'après le texte océrisé</li><li>Sans injection depuis le scanner, possibilité de créer le courrier manuellement et d'associer des pièces scannées</li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers</li><li>Gestion des contacts (expéditeurs, destinataires)</li><li>Choix des services concernés et du service traitant</li><li>Choix d'un utilisateur responsable au sein du service traitant</li><li>Workflow de validation du courrier</li><li>Workflow de traitement sur le courrier</li><li>etc.</li></ul><p>&nbsp;</p><p><a href=\"login?came_from=incoming-mail\">Cliquez ici pour accéder à l'application</a></p><p class=\"discreet\">Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
 
-#: ./setuphandlers.py:255
+#: ./setuphandlers.py:281
 msgid "front_page_title"
 msgstr "Gestion du courrier"
 
-#: ./setuphandlers.py:192
+#: ./setuphandlers.py:213
 msgid "im_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:185
+#: ./setuphandlers.py:205
 msgid "im_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:206
+#: ./setuphandlers.py:229
 msgid "im_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:199
+#: ./setuphandlers.py:221
 msgid "im_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:178
+#: ./setuphandlers.py:197
 msgid "im_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:171
+#: ./setuphandlers.py:188
 msgid "im_to_validate"
 msgstr "À valider"
 
-#: ./setuphandlers.py:47
+#: ./setuphandlers.py:48
 msgid "imio.dms.mail"
 msgstr "Gestion du courrier"
 
