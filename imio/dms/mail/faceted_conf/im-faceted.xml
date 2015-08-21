@@ -58,5 +58,25 @@
 
   <!-- advanced widgets -->
 
+  <criterion name="c4" i18n:attributes="title" i18n:domain="imio.dms.mail">
+   <property name="widget">checkbox</property>
+   <property name="title">Treating groups</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="count">0</property>
+   <property name="sortcountable">0</property>
+   <property name="hidezerocount">0</property>
+   <property name="index">treating_groups</property>
+   <property name="operator">or</property>
+   <property name="operator_visible">0</property>
+   <property
+      name="vocabulary">collective.dms.basecontent.treating_groups</property>
+   <property name="catalog"></property>
+   <property name="maxitems"></property>
+   <property name="sortreversed">0</property>
+   <property name="default"/>
+  </criterion>
+
  </criteria>
 </object>
