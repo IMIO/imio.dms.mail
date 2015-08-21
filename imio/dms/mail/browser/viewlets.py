@@ -38,4 +38,4 @@ class ContactContentBackrefsViewlet(ViewletBase):
             ret.append(relation.from_object)
         return ret
 
-    index = ViewPageTemplateFile("contactcontent_backrefs.pt")
+    index = ViewPageTemplateFile("templates/contactcontent_backrefs.pt")
