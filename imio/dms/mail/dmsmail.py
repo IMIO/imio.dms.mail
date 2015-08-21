@@ -185,6 +185,9 @@ class IMEdit(DmsDocumentEdit):
             for field in display_fields:
                 self.widgets[field].mode = 'display'
 
+        # disable left column
+        self.request.set('disable_plone.leftcolumn', 1)
+
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         if settings.assigned_user_check and not self.context.assigned_user \
                 and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
