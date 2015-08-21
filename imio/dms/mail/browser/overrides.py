@@ -10,6 +10,25 @@
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
+from collective.eeafaceted.z3ctable.columns import VocabularyColumn, MemberIdColumn
+from imio.dashboard.browser.overrides import IDFacetedTableView
+
+
+class FolderFacetedTableView(IDFacetedTableView):
+    """ Override of faceted-table-view for Folder (incomingmail) """
+
+    def _manualColumnFor(self, colName):
+        """Manage our own columns."""
+        if colName == u'treating_groups':
+            column = VocabularyColumn(self.context, self.request, self)
+            column.vocabulary = u'collective.dms.basecontent.treating_groups'
+        elif colName == u'assigned_user':
+            column = MemberIdColumn(self.context, self.request, self)
+            column.attrName = u'assigned_user'
+        else:
+            column = super(FolderFacetedTableView, self)._manualColumnFor(colName)
+
+        return column
 
 
 class IMRenderCategoryView(RenderCategoryView):

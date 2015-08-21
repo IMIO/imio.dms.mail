@@ -8,7 +8,7 @@
         <browser:view
             for="Products.ATContentTypes.interfaces.folder.IATFolder"
             name="faceted-table-view"
-            class="imio.dms.mail.browser.table.FolderFacetedTableView"
+            class="imio.dms.mail.browser.overrides.FolderFacetedTableView"
             permission="zope2.View"
         />
     </configure>
