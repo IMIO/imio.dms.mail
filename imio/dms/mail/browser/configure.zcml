@@ -23,7 +23,7 @@
         class=".listing.ListingView"
         permission="zope2.View"
         for="*"
-        template="listing.pt"
+        template="templates/listing.pt"
         />
 
     <browser:viewlet
