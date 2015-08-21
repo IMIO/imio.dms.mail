@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
+from zope.container import contained
 from Products.CMFPlone.utils import base_hasattr
 from plone import api
 from imio.dashboard.utils import _updateDefaultCollectionFor
@@ -22,6 +24,23 @@ class Migrate_To_0_4(Migrator):
         ''' Run specific steps for profile '''
         for step_id in steps:
             self.portal.portal_setup.runImportStepFromProfile('profile-%s:default' % profile, step_id)
+
+    def delete_portlet(self, obj, portlet):
+        """ Delete the defined portlet on obj """
+        ann = IAnnotations(obj)
+        columnkey = 'plone.leftcolumn'
+        if not 'plone.portlets.contextassignments' in ann:
+            logger.error("No portlets defined in this context")
+        elif not columnkey in ann['plone.portlets.contextassignments']:
+            logger.error("Column '%s' not found in portlets definition" % columnkey)
+        elif not portlet in ann['plone.portlets.contextassignments'][columnkey]:
+            logger.error("Portlet '%s' in '%s' not found in portlets definition" % (portlet, columnkey))
+        else:
+            fixing_up = contained.fixing_up
+            contained.fixing_up = True
+            del ann['plone.portlets.contextassignments'][columnkey][portlet]
+            # revert our fixing_up customization
+            contained.fixing_up = fixing_up
 
     def replaceCollections(self):
         """ Replace Collection by DashboardCollection """
@@ -49,6 +68,8 @@ class Migrate_To_0_4(Migrator):
         self.reinstall([
             'imio.dashboard:default',
         ])
+
+        self.delete_portlet(self.portal, 'portlet_maindmsmail')
 
         self.replaceCollections()
 

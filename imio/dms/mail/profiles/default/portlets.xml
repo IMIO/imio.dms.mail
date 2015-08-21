@@ -24,15 +24,6 @@
                 manager="plone.rightcolumn"
                 type="portlets.Events" />
 
-    <assignment name="portlet_maindmsmail"
-                category="context"
-                key="/"
-                manager="plone.leftcolumn"
-                type="imiodmsmail.portlet.main">
-	    <property name="macro">portlet</property>
-	    <property name="template">portlet_maindmsmail</property>
-	</assignment>
-
     <assignment name="portlet_dashboard"
                 category="context"
                 key="/"

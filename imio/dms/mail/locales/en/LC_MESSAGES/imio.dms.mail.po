@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-08-21 09:26+0000\n"
+"POT-Creation-Date: 2015-08-21 11:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -68,40 +68,6 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/portlets.py:26
-msgid "Main DmsMail Portlet"
-msgstr ""
-
-#. Default: "incoming mail"
-#: ./browser/portlet_maindmsmail.pt:23
-msgid "Main_menu_add_incoming_mail"
-msgstr ""
-
-#. Default: "main file"
-#: ./browser/portlet_maindmsmail.pt:29
-msgid "Main_menu_add_main_file"
-msgstr ""
-
-#. Default: "Add"
-#: ./browser/portlet_maindmsmail.pt:20
-msgid "Main_menu_addition_section"
-msgstr ""
-
-#. Default: "Incoming mails searches"
-#: ./browser/portlet_maindmsmail.pt:43
-msgid "Main_menu_search_section"
-msgstr ""
-
-#. Default: "Main menu"
-#: ./browser/portlet_maindmsmail.pt:15
-msgid "Main_menu_title"
-msgstr ""
-
-#. Default: "Incoming mails todo"
-#: ./browser/portlet_maindmsmail.pt:35
-msgid "Main_menu_todo_section"
-msgstr ""
-
 #: ./browser/listing.pt:25
 msgid "No incoming mail !"
 msgstr ""
@@ -119,7 +85,7 @@ msgstr ""
 msgid "Recipient groups"
 msgstr ""
 
-#: ./browser/table.py:56
+#: ./browser/table.py:35
 #: ./dmsmail.py:60
 msgid "Treating groups"
 msgstr ""
