@@ -4,6 +4,9 @@ Changelog
 0.4 (unreleased)
 ----------------
 
+- Replaced collection view and main portlet by dashboard and collectionwidget portlet
+  [sgeulette]
+
 - Added robot tests for screenshots
   [sgeulette]
 
