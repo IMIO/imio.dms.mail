@@ -40,6 +40,7 @@ from imio.helpers.security import is_develop_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.subscribers import mark_organization
+from imio.dms.mail.utils import list_wf_states
 
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -143,35 +144,30 @@ def createStateCollections(folder, content_type):
     """
         create a collection for each contextual workflow state
     """
-    default_states = ['created', 'proposed_to_manager', 'proposed_to_service_chief',
-                      'proposed_to_agent', 'in_treatment', 'closed']
-    conditions = {
+    conditions = {'dmsincomingmail': {
         'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
         'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
         'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils').proposed_to_serv_chief_col_cond()",
     }
-    for workflow in folder.portal_workflow.getWorkflowsFor(content_type):
-        for value in workflow.states.values():
-            if value.id not in default_states:
-                default_states.append(value)
-        for state in default_states:
-            col_id = "searchfor_%s" % state
-            if not base_hasattr(folder, col_id):
-                folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
-                                     query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                             'v': [content_type]},
-                                            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
-                                             'v': [state]}],
-                                     customViewFields=(u'pretty_link', u'review_state', u'treating_groups',
-                                                       u'assigned_user', u'CreationDate', u'actions'),
-                                     tal_condition=conditions.get(state),
-                                     roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                                     sort_on=u'created', sort_reversed=True, b_size=30)
-                col = folder[col_id]
-                col.setSubject((u'search', ))
-                col.reindexObject(['Subject'])
-                col.setLayout('tabular_view')
-                folder.portal_workflow.doActionFor(col, "show_internally")
+    }
+    for state in list_wf_states(folder, content_type):
+        col_id = "searchfor_%s" % state
+        if not base_hasattr(folder, col_id):
+            folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
+                                 query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': [content_type]},
+                                        {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': [state]}],
+                                 customViewFields=(u'pretty_link', u'review_state', u'treating_groups',
+                                                   u'assigned_user', u'CreationDate', u'actions'),
+                                 tal_condition=conditions[content_type].get(state),
+                                 roles_bypassing_talcondition=['Manager', 'Site Administrator'],
+                                 sort_on=u'created', sort_reversed=True, b_size=30)
+            col = folder[col_id]
+            col.setSubject((u'search', ))
+            col.reindexObject(['Subject'])
+            col.setLayout('tabular_view')
+            folder.portal_workflow.doActionFor(col, "show_internally")
 
 
 def createIMCollections(folder):

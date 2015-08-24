@@ -5,8 +5,12 @@
     i18n_domain="imio.dms.mail">
 
     <utility
+        name="imio.dms.mail.IMReviewStatesVocabulary"
+        factory="imio.dms.mail.vocabularies.IMReviewStatesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.InterfacesShownInFacetedNav"
-        provides="zope.schema.interfaces.IVocabularyFactory"
         factory="imio.dms.mail.vocabularies.InterfacesShownInFacetedNav"
         />
 

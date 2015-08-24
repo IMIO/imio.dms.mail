@@ -9,6 +9,8 @@ from Products.Five import BrowserView
 from adapters import highest_review_level, organizations_with_suffixes
 from browser.settings import IImioDmsMailConfig
 
+# views
+
 
 class UtilsMethods(BrowserView):
     """ View containing utils methods """
@@ -81,6 +83,8 @@ class IdmUtilsMethods(UtilsMethods):
             return True
         return False
 
+# methods
+
 
 def voc_selected_org_suffix_users(org_uid, suffixes):
     """
@@ -104,3 +108,28 @@ def voc_selected_org_suffix_users(org_uid, suffixes):
                     title=title))  # title
                 already_added.append(member_id)
     return SimpleVocabulary(terms)
+
+
+def list_wf_states(context, portal_type):
+    """
+        list all portal_type wf states
+    """
+    ordered_states = {'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
+                                          'proposed_to_agent', 'in_treatment', 'closed']}
+    if portal_type not in ordered_states:
+        return []
+    pw = getToolByName(context, 'portal_workflow')
+    ret = []
+    # wf states
+    for workflow in pw.getWorkflowsFor(portal_type):
+        state_ids = [value.id for value in workflow.states.values()]
+        break
+    # keep ordered states
+    for state in ordered_states[portal_type]:
+        if state in state_ids:
+            ret.append(state)
+            state_ids.remove(state)
+    # add missing
+    for missing in state_ids:
+        ret.append(missing)
+    return ret
