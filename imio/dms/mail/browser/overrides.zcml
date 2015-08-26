@@ -4,15 +4,6 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="imio.dms.mail">
 
-    <configure package="collective.eeafaceted.z3ctable">
-        <browser:view
-            for="Products.ATContentTypes.interfaces.folder.IATFolder"
-            name="faceted-table-view"
-            class="imio.dms.mail.browser.overrides.FolderFacetedTableView"
-            permission="zope2.View"
-        />
-    </configure>
-
     <configure package="collective.eeafaceted.collectionwidget">
         <browser:page
             for="*"

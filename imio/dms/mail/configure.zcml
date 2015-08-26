@@ -40,6 +40,8 @@
     <include package="imio.history"/>
     <include package=".browser" />
 
+    <include package="collective.querynextprev" />
+
     <utility
         factory=".dmsmail.ImioDmsIncomingMailSchemaPolicy"
         name="schema_policy_imiodmsincomingmail"
@@ -129,6 +131,7 @@
         "
     />
 
+    <include file="columns.zcml" />
     <include file="profiles.zcml" />
     <include file="skins.zcml" />
     <include file="subscribers.zcml" />
