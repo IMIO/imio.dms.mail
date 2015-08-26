@@ -10,8 +10,6 @@
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
-from collective.eeafaceted.z3ctable.columns import VocabularyColumn, MemberIdColumn
-from imio.dashboard.browser.overrides import IDFacetedTableView
 
 
 class IMRenderCategoryView(RenderCategoryView):
