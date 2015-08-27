@@ -48,7 +48,7 @@ def filter_dmsincomingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(org_uid, ['editeur'])
+    return voc_selected_org_suffix_users(org_uid, ['editeur', 'validateur'])
 
 
 class IImioDmsIncomingMail(IDmsIncomingMail):

@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
+from zope.component import getUtility
 from zope.i18n import translate
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
-from zope.schema.vocabulary import SimpleVocabulary
+from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from plone.memoize.instance import memoize
+from plone.registry.interfaces import IRegistry
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from imio.dms.mail.interfaces import IInternalContact, IExternalContact
-from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users
 
 
 class IMReviewStatesVocabulary(object):
@@ -20,6 +23,31 @@ class IMReviewStatesVocabulary(object):
             terms.append(SimpleVocabulary.createTerm(
                 state, state, translate(state, domain='plone', context=context.REQUEST)))
 
+        return SimpleVocabulary(terms)
+
+
+class AssignedUsersVocabulary(object):
+    """ All possible assigned users vocabulary """
+    implements(IVocabularyFactory)
+
+    @memoize
+    def __call__(self, context):
+        registry = getUtility(IRegistry)
+        terms = []
+        users = {}
+        titles = []
+        for uid in registry[ORGANIZATIONS_REGISTRY]:
+            members = get_selected_org_suffix_users(uid, ['editeur', 'validateur'])
+            for member in members:
+                title = member.getUser().getProperty('fullname') or member.getUserName()
+                if title not in titles:
+                    titles.append(title)
+                    users[title] = [member]
+                elif member not in users[title]:
+                    users[title].append(member)
+        for tit in sorted(titles):
+            for mb in users[tit]:
+                terms.append(SimpleTerm(mb.getUserName(), mb.getId(), tit))
         return SimpleVocabulary(terms)
 
 

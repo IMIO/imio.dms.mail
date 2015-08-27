@@ -1,4 +1,5 @@
 # encoding: utf-8
+from operator import methodcaller
 from zope.component.hooks import getSite
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import getUtility
@@ -86,27 +87,34 @@ class IdmUtilsMethods(UtilsMethods):
 # methods
 
 
-def voc_selected_org_suffix_users(org_uid, suffixes):
+def get_selected_org_suffix_users(org_uid, suffixes):
     """
         Get users that belongs to suffixed groups related to selected organization.
     """
-    if not org_uid or org_uid == u'--NOVALUE--':
-        return SimpleVocabulary([])
-    terms = []
-    already_added = []
+    org_members = []
     # only add to vocabulary users with these functions in the organization
     for function_id in suffixes:
         groupname = "{}_{}".format(org_uid, function_id)
         members = api.user.get_users(groupname=groupname)
         for member in members:
-            member_id = member.getId()
-            if member_id not in already_added:
-                title = member.getUser().getProperty('fullname') or member_id
-                terms.append(SimpleTerm(
-                    value=member.getUserName(),  # login
-                    token=member_id,  # id
-                    title=title))  # title
-                already_added.append(member_id)
+            if member not in org_members:
+                org_members.append(member)
+    return org_members
+
+
+def voc_selected_org_suffix_users(org_uid, suffixes):
+    """
+        Return users vocabulary that belongs to suffixed groups related to selected organization.
+    """
+    if not org_uid or org_uid == u'--NOVALUE--':
+        return SimpleVocabulary([])
+    terms = []
+    # only add to vocabulary users with these functions in the organization
+    for member in sorted(get_selected_org_suffix_users(org_uid, suffixes), key=methodcaller('getUserName')):
+            terms.append(SimpleTerm(
+                value=member.getUserName(),  # login
+                token=member.getId(),  # id
+                title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
     return SimpleVocabulary(terms)
 
 
