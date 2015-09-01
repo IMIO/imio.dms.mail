@@ -19,11 +19,10 @@ class IMRenderCategoryView(RenderCategoryView):
       are displayed to add items or meetings.
     '''
 
-    def __call__(self, category, widget):
-        self.category = category
+    def __call__(self, widget):
         self.widget = widget
 
-        if category[0] == 'collections':
+        if self.context.getId() == 'collections':
             return ViewPageTemplateFile("templates/category_im.pt")(self)
         else:
             return self.index()

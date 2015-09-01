@@ -1,5 +1,4 @@
-<tal:defines define="category view/category;
-                     member context/plone_portal_state/member;
+<tal:defines define="member context/plone_portal_state/member;
                      idm_utils context/@@idm-utils;
                      folder idm_utils/get_im_folder;
                      portal_url view/portal_url"
@@ -13,5 +12,5 @@
               title="create_im" i18n:attributes="title" />
         </a>
     </div>
-    <div class="title" tal:content="python: view.category[1]" tal:omit-tag="python: not category[1]">Category title</div>
+    <div class="title" tal:content="python: context.Title()">Category title</div>
 </tal:defines>
