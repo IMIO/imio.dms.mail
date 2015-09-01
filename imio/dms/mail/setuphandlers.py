@@ -36,7 +36,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
-from imio.helpers.security import is_develop_environment, generate_password
+from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.subscribers import mark_organization
@@ -688,7 +688,7 @@ def addTestUsersAndGroups(context):
         ('lecteur', u'Jef Lecteur'): [],
     }
     password = 'Dmsmail69!'
-    if not is_develop_environment():
+    if get_environment() == 'prod':
 #        password = site.portal_registration.generatePassword()
         password = generate_password()
     logger.info("Generated password='%s'" % password)
