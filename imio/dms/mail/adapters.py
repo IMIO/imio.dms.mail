@@ -47,13 +47,13 @@ class IncomingMailHighestValidationCriterion(object):
         ret = {}
         criterias = review_levels['dmsincomingmail'][highest_level]
         if 'st' in criterias:
-            ret['review_state'] = criterias['st']
+            ret['review_state'] = {'query': criterias['st']}
         if 'org' in criterias:
             organizations = []
             for group in groups:
                 if group.id.endswith(highest_level):
                     organizations.append(group.id[:-len(highest_level)])
-            ret[criterias['org']] = organizations
+            ret[criterias['org']] = {'query': organizations}
         return ret
 
 
@@ -83,7 +83,7 @@ class IncomingMailInTreatingGroupCriterion(object):
         groups = api.group.get_groups(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
         # if orgs is empty list, nothing is returned => ok
-        return {'treating_groups': orgs}
+        return {'treating_groups': {'query': orgs}}
 
 
 class IncomingMailInCopyGroupCriterion(object):
@@ -99,7 +99,7 @@ class IncomingMailInCopyGroupCriterion(object):
         groups = api.group.get_groups(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
         # if orgs is empty list, nothing is returned => ok
-        return {'recipient_groups': orgs}
+        return {'recipient_groups': {'query': orgs}}
 
 
 class ActionsSubMenuItem(OrigActionsSubMenuItem):
