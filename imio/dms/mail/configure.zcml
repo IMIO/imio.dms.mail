@@ -1,6 +1,5 @@
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:grok="http://namespaces.zope.org/grok"
     xmlns:plone="http://namespaces.plone.org/plone"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:five="http://namespaces.zope.org/five"
@@ -9,9 +8,6 @@
     i18n_domain="imio.dms.mail">
 
     <include package="Products.CMFCore"/>
-
-    <include package="five.grok" />
-    <grok:grok package="." />
 
     <five:registerPackage package="." initialize=".initialize" />
     <i18n:registerTranslations directory="locales" />
@@ -94,6 +90,8 @@
 
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />
+
+    <adapter name="mail_date" factory=".adapters.mail_date_index" />
 
     <adapter
         for="Products.CMFCore.interfaces.IFolderish

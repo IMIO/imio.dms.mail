@@ -9,9 +9,15 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.indexer import indexer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.CMFCore.utils import getToolByName
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from dmsmail import IDmsIncomingMail
+
+#######################
+# Compound criterions #
+#######################
 
 review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': 'proposed_to_manager'}),
                                                  ('_validateur', {'st': 'proposed_to_service_chief',
@@ -102,6 +108,10 @@ class IncomingMailInCopyGroupCriterion(object):
         return {'recipient_groups': {'query': orgs}}
 
 
+################
+# GUI cleaning #
+################
+
 class ActionsSubMenuItem(OrigActionsSubMenuItem):
 
     def available(self):
@@ -126,6 +136,15 @@ class WorkflowMenu(OrigWorkflowMenu):
         if not getSecurityManager().checkPermission('Manage portal', context):
             return []
         return super(WorkflowMenu, self).getMenuItems(context, request)
+
+
+####################
+# Indexes adapters #
+####################
+
+@indexer(IDmsIncomingMail)
+def mail_date_index(obj):
+    return obj.original_mail_date
 
 
 class ScanSearchableExtender(object):
