@@ -5,11 +5,13 @@ from zope.i18n import translate
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize.instance import memoize
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from imio.dms.mail.interfaces import IInternalContact, IExternalContact
 from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users
+from browser.settings import IImioDmsMailConfig
 
 
 class IMReviewStatesVocabulary(object):
@@ -48,6 +50,22 @@ class AssignedUsersVocabulary(object):
         for tit in sorted(titles):
             for mb in users[tit]:
                 terms.append(SimpleTerm(mb.getUserName(), mb.getId(), tit))
+        return SimpleVocabulary(terms)
+
+
+class IMMailTypesVocabulary(object):
+    """ Mail types vocabulary """
+    implements(IVocabularyFactory)
+
+    @memoize
+    def __call__(self, context):
+        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+        id_utility = getUtility(IIDNormalizer)
+        terms = []
+        for mail_type in settings.mail_types:
+            #value (stored), token (request), title
+            terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
+                         id_utility.normalize(mail_type['mt_value']), mail_type['mt_title']))
         return SimpleVocabulary(terms)
 
 

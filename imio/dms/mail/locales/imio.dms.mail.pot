@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-08-21 11:48+0000\n"
+"POT-Creation-Date: 2015-09-02 13:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,7 +45,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./setuphandlers.py:89
+#: ./setuphandlers.py:90
 msgid "Incoming mail"
 msgstr ""
 
@@ -53,7 +53,7 @@ msgstr ""
 msgid "Incoming mail daily listing"
 msgstr ""
 
-#: ./browser/listing.pt:22
+#: ./browser/templates/listing.pt:22
 msgid "Incoming mail listing"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/listing.pt:25
+#: ./browser/templates/listing.pt:25
 msgid "No incoming mail !"
 msgstr ""
 
@@ -79,7 +79,7 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:108
+#: ./setuphandlers.py:109
 msgid "Outgoing mail"
 msgstr ""
 
@@ -96,61 +96,61 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./dmsmail.py:191
+#: ./dmsmail.py:194
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:182
+#: ./setuphandlers.py:178
 msgid "all_incoming_mails"
 msgstr ""
 
 #. Default: "Backrefs"
-#: ./browser/contactcontent_backrefs.pt:8
+#: ./browser/templates/contactcontent_backrefs.pt:8
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./browser/templates/category_im.pt:12
+#: ./browser/templates/category_im.pt:11
 msgid "create_im"
 msgstr ""
 
-#: ./setuphandlers.py:282
+#: ./setuphandlers.py:278
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:283
+#: ./setuphandlers.py:279
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:281
+#: ./setuphandlers.py:277
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:213
+#: ./setuphandlers.py:209
 msgid "im_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:205
+#: ./setuphandlers.py:201
 msgid "im_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:229
+#: ./setuphandlers.py:225
 msgid "im_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:221
+#: ./setuphandlers.py:217
 msgid "im_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:197
+#: ./setuphandlers.py:193
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:188
+#: ./setuphandlers.py:184
 msgid "im_to_validate"
 msgstr ""
 
-#: ./setuphandlers.py:48
+#: ./setuphandlers.py:49
 msgid "imio.dms.mail"
 msgstr ""
 
@@ -159,7 +159,7 @@ msgid "imio.dms.mail test examples"
 msgstr ""
 
 #. Default: "Date"
-#: ./browser/listing.pt:33
+#: ./browser/templates/listing.pt:33
 msgid "listing_date_title"
 msgstr ""
 
@@ -168,12 +168,12 @@ msgid "listing_no_group"
 msgstr ""
 
 #. Default: "Object"
-#: ./browser/listing.pt:31
+#: ./browser/templates/listing.pt:31
 msgid "listing_object_title"
 msgstr ""
 
 #. Default: "Sender"
-#: ./browser/listing.pt:32
+#: ./browser/templates/listing.pt:32
 msgid "listing_sender_title"
 msgstr ""
 

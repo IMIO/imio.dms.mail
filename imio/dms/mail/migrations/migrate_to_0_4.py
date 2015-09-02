@@ -6,6 +6,7 @@ from zope.container import contained
 from Products.CMFPlone.utils import base_hasattr
 from plone import api
 from imio.dashboard.utils import _updateDefaultCollectionFor
+from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 from imio.dms.mail.setuphandlers import configure_incoming_mail_folder
 from imio.dms.mail.setuphandlers import createIMCollections
@@ -64,15 +65,26 @@ class Migrate_To_0_4(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
-        self.runProfileSteps('imio.dms.mail', ['actions', 'repositorytool', 'portlets'])
+        self.runProfileSteps('imio.dms.mail', ['actions', 'portlets', 'repositorytool'])
         self.reinstall([
             'imio.dashboard:default',
         ])
 
+        # delete old dmsmail portlet
         self.delete_portlet(self.portal, 'portlet_maindmsmail')
 
+        # replace collections by Dashboard collections
         self.replaceCollections()
 
+        # add new indexes for dashboard
+        addOrUpdateIndexes(self.portal, indexInfos={'mail_type': ('FieldIndex', {}),
+                                                    })
+        catalog = api.portal.get_tool('portal_catalog')
+        brains = catalog.searchResults(portal_type='dmsincomingmail')
+        for brain in brains:
+            brain.getObject().reindexObject(idxs=['mail_type'])
+
+        # set dashboard on incoming mail
         im_folder = self.portal['incoming-mail']
         configure_incoming_mail_folder(im_folder)
         _updateDefaultCollectionFor(im_folder, im_folder['collections']['all_mails'].UID())

@@ -16,10 +16,30 @@ msgstr ""
 "X-is-fallback-for: fr-fr fr-be fr-ca\n"
 
 #: ../faceted_conf/im-faceted:
+msgid "Assigned user"
+msgstr "Utilisateur assigné"
+
+#: ../faceted_conf/im-faceted:
 msgid "Base collections"
 msgstr "Menu courrier"
 
 #: ../faceted_conf/im-faceted:
+msgid "Mail type"
+msgstr "Type de courrier"
+
+#: ../faceted_conf/im-faceted:
 msgid "Per page"
 msgstr "Par page"
+
+#: ../faceted_conf/im-faceted:
+msgid "Recipient groups"
+msgstr "Services en copie"
+
+#: ../faceted_conf/im-faceted:
+msgid "Review state"
+msgstr "État"
+
+#: ../faceted_conf/im-faceted:
+msgid "Treating groups"
+msgstr "Service traitant"
 

@@ -15,6 +15,11 @@
         />
 
     <utility
+        name="imio.dms.mail.IMMailTypesVocabulary"
+        factory="imio.dms.mail.vocabularies.IMMailTypesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.InterfacesShownInFacetedNav"
         factory="imio.dms.mail.vocabularies.InterfacesShownInFacetedNav"
         />

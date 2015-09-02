@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <object name="portal_catalog" meta_type="Plone Catalog Tool">
+
  <index name="organization_type" meta_type="FieldIndex">
   <indexed_attr value="organization_type"/>
  </index>
+
+ <index name="mail_type" meta_type="FieldIndex">
+  <indexed_attr value="mail_type"/>
+ </index>
+
 </object>
