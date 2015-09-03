@@ -158,5 +158,16 @@
    <property name="default"/>
   </criterion>
 
+  <criterion name="c9" i18n:attributes="title">
+   <property name="widget">daterange</property>
+   <property name="title">Original Mail Date</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">mail_date</property>
+   <property name="default"></property>
+   <property name="calYearRange">-15:+0</property>
+  </criterion>
+
  </criteria>
 </object>

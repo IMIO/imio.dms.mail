@@ -41,3 +41,7 @@ msgstr ""
 #: ../faceted_conf/im-faceted:
 msgid "Mail type"
 msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Original Mail Date"
+msgstr ""

@@ -28,6 +28,10 @@ msgid "Mail type"
 msgstr "Type de courrier"
 
 #: ../faceted_conf/im-faceted:
+msgid "Original Mail Date"
+msgstr "Date courrier"
+
+#: ../faceted_conf/im-faceted:
 msgid "Per page"
 msgstr "Par page"
 
