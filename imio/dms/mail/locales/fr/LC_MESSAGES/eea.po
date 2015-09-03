@@ -48,6 +48,10 @@ msgid "Review state"
 msgstr "État"
 
 #: ../faceted_conf/im-faceted:
+msgid "Title only"
+msgstr "Titre uniquement"
+
+#: ../faceted_conf/im-faceted:
 msgid "Treating groups"
 msgstr "Service traitant"
 
