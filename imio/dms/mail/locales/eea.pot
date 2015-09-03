@@ -53,3 +53,7 @@ msgstr ""
 #: ../faceted_conf/im-faceted:
 msgid "Title only"
 msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Due date"
+msgstr ""

@@ -24,6 +24,10 @@ msgid "Base collections"
 msgstr "Menu courrier"
 
 #: ../faceted_conf/im-faceted:
+msgid "Due date"
+msgstr "Échéance"
+
+#: ../faceted_conf/im-faceted:
 msgid "Mail type"
 msgstr "Type de courrier"
 

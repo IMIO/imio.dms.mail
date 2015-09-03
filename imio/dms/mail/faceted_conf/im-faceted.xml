@@ -192,5 +192,16 @@
    <property name="wildcard">1</property>
   </criterion>
 
+  <criterion name="c12" i18n:attributes="title">
+   <property name="widget">daterange</property>
+   <property name="title">Due Date</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">due_date</property>
+   <property name="default"></property>
+   <property name="calYearRange">2013:+5</property>
+  </criterion>
+
  </criteria>
 </object>
