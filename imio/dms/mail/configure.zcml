@@ -91,6 +91,7 @@
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />
 
+    <adapter name="mail_type" factory=".adapters.mail_type_index" />
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
 
