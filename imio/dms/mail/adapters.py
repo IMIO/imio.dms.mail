@@ -11,7 +11,10 @@ from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
 from plone.indexer import indexer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
+from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import base_hasattr
+from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from dmsmail import IDmsIncomingMail
 
@@ -142,13 +145,23 @@ class WorkflowMenu(OrigWorkflowMenu):
 # Indexes adapters #
 ####################
 
+@indexer(IContentish)
+def mail_type_index(obj):
+    """ Index method escaping acquisition """
+    if base_hasattr(obj, 'mail_type'):
+        return obj.mail_type
+    return common_marker
+
+
 @indexer(IDmsIncomingMail)
 def mail_date_index(obj):
+    # No acquisition pb because mail_date isn't an attr
     return obj.original_mail_date
 
 
 @indexer(IDmsIncomingMail)
 def in_out_date_index(obj):
+    # No acquisition pb because in_out_date isn't an attr
     return obj.reception_date
 
 
