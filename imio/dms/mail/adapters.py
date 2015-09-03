@@ -147,6 +147,11 @@ def mail_date_index(obj):
     return obj.original_mail_date
 
 
+@indexer(IDmsIncomingMail)
+def in_out_date_index(obj):
+    return obj.reception_date
+
+
 class ScanSearchableExtender(object):
     adapts(IScanFields)
     implements(dexteritytextindexer.IDynamicTextIndexExtender)

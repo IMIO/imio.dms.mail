@@ -79,11 +79,12 @@ class Migrate_To_0_4(Migrator):
         # add new indexes for dashboard
         addOrUpdateIndexes(self.portal, indexInfos={'mail_type': ('FieldIndex', {}),
                                                     'mail_date': ('DateIndex', {}),
+                                                    'in_out_date': ('DateIndex', {}),
                                                     })
         catalog = api.portal.get_tool('portal_catalog')
         brains = catalog.searchResults(portal_type='dmsincomingmail')
         for brain in brains:
-            brain.getObject().reindexObject(idxs=['mail_type', 'mail_date'])
+            brain.getObject().reindexObject(idxs=['mail_type', 'mail_date', 'in_out_date'])
 
         # set dashboard on incoming mail
         im_folder = self.portal['incoming-mail']

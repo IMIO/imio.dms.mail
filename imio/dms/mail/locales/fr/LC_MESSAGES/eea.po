@@ -36,6 +36,10 @@ msgid "Per page"
 msgstr "Par page"
 
 #: ../faceted_conf/im-faceted:
+msgid "Reception Date"
+msgstr "Date réception"
+
+#: ../faceted_conf/im-faceted:
 msgid "Recipient groups"
 msgstr "Services en copie"
 
