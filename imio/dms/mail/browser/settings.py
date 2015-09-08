@@ -27,7 +27,7 @@ class IImioDmsMailConfig(Interface):
         value_type=DictRow(title=_("Mail type"),
                            schema=IMailTypeSchema))
 
-    widget(mail_types=DataGridFieldFactory)
+    widget('mail_types', DataGridFieldFactory, allow_reorder=True)
 
     assigned_user_check = schema.Bool(
         title=_(u'Assigned user check'),
