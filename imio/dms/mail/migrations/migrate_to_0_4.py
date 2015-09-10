@@ -69,6 +69,7 @@ class Migrate_To_0_4(Migrator):
         self.runProfileSteps('collective.dms.mailcontent', ['controlpanel'])
         self.runProfileSteps('collective.contact.plonegroup', ['controlpanel'])
         self.reinstall([
+            'collective.messagesviewlet:messages',
             'imio.dashboard:default',
         ])
         self.upgradeProfile('collective.task:default')
