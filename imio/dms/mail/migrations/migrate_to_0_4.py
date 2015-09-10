@@ -5,6 +5,7 @@ from zope.component import getUtility
 from zope.container import contained
 from Products.CMFPlone.utils import base_hasattr
 from plone import api
+from plone.registry.interfaces import IRegistry
 from imio.dashboard.utils import _updateDefaultCollectionFor
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
@@ -73,6 +74,10 @@ class Migrate_To_0_4(Migrator):
             'imio.dashboard:default',
         ])
         self.upgradeProfile('collective.task:default')
+
+        registry = getUtility(IRegistry)
+        # set jqueryui autocomplete to False. If not contact autocomplete doesn't work
+        registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
         # delete old dmsmail portlet
         self.delete_portlet(self.portal, 'portlet_maindmsmail')
