@@ -19,6 +19,7 @@ class TaskEdit(DefaultEditForm):
         super(TaskEdit, self).update()
         self.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
         self.fields['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
+        self.fields['ITask.assigned_group'].field.required = True
 
 
 class Add(DefaultAddView):
@@ -31,4 +32,5 @@ class Add(DefaultAddView):
         self.form_instance.updateFields()
         self.form_instance.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
         self.form_instance.fields['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
+        self.form_instance.fields['ITask.assigned_group'].field.required = True
         super(Add, self).update()
