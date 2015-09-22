@@ -3,25 +3,27 @@ from zope import schema
 from zope.component import getUtility, queryUtility
 from zope.interface import implements, alsoProvides
 from zope.schema.fieldproperty import FieldProperty
-from plone import api
 #from plone.autoform.interfaces import IFormFieldProvider
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
+from z3c.form.interfaces import HIDDEN_MODE
+from plone import api
 from plone.autoform import directives
-from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
-from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
-from dexterity.localrolesfield.field import LocalRolesField
 from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.registry.interfaces import IRegistry
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
-from browser.settings import IImioDmsMailConfig
-from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
 from AccessControl import getSecurityManager
+
+from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
+from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
+from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
 from collective.task.field import LocalRoleMasterSelectField
-from z3c.form.interfaces import HIDDEN_MODE
+from dexterity.localrolesfield.field import LocalRolesField
+
+from browser.settings import IImioDmsMailConfig
 from utils import voc_selected_org_suffix_users
 
 from . import _
