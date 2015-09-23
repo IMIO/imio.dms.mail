@@ -122,8 +122,11 @@ def list_wf_states(context, portal_type):
     """
         list all portal_type wf states
     """
-    ordered_states = {'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
-                                          'proposed_to_agent', 'in_treatment', 'closed']}
+    ordered_states = {
+        'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
+                            'proposed_to_agent', 'in_treatment', 'closed'],
+        'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed']
+    }
     if portal_type not in ordered_states:
         return []
     pw = getToolByName(context, 'portal_workflow')

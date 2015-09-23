@@ -9,8 +9,8 @@ from plone.registry.interfaces import IRegistry
 from imio.dashboard.utils import _updateDefaultCollectionFor
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
-from imio.dms.mail.setuphandlers import configure_incoming_mail_folder, configure_task_rolefields
-from imio.dms.mail.setuphandlers import createIMCollections, createStateCollections
+from imio.dms.mail.setuphandlers import configure_faceted_folder, configure_task_rolefields
+from imio.dms.mail.setuphandlers import add_db_col_folder, createIMCollections, createStateCollections
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -38,24 +38,28 @@ class Migrate_To_0_4(Migrator):
             # revert our fixing_up customization
             contained.fixing_up = fixing_up
 
-    def replaceCollections(self):
+    def replaceCollections(self, im_folder):
         """ Replace Collection by DashboardCollection """
-        col_folder = self.portal['incoming-mail']['collections']
-        col_folder.setLocallyAllowedTypes(['DashboardCollection'])
-        col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
-        if col_folder.getDefaultPage() == 'all_mails':
-            col_folder.setDefaultPage(None)
-        if col_folder.title == u'Collections: ne pas effacer':
-            col_folder.title = u'Recherches'
+        if 'collections' in im_folder:
+            api.content.delete(im_folder['collections'])
 
-        # remove collections
-        for collection in col_folder.listFolderContents():
-            if collection.portal_type != 'DashboardCollection':
-                api.content.delete(collection)
+        im_folder.setConstrainTypesMode(0)
+        col_folder = add_db_col_folder(im_folder, 'mail-searches',
+                                       u"Recherches courrier: ne pas effacer !", u'Courriers')
+        im_folder.moveObjectToPosition('mail-searches', 0)
 
         # re-create dashboard collections
         createIMCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
+        configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
+                                 default_UID=col_folder['all_mails'].UID())
+
+        col_folder = add_db_col_folder(im_folder, 'task-searches', u"Recherches tâches: ne pas effacer !",
+                                       u'Tâches')
+        im_folder.moveObjectToPosition('task-searches', 1)
+        createStateCollections(col_folder, 'task')
+
+        im_folder.setConstrainTypesMode(1)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
@@ -77,7 +81,8 @@ class Migrate_To_0_4(Migrator):
         self.delete_portlet(self.portal, 'portlet_maindmsmail')
 
         # replace collections by Dashboard collections
-        self.replaceCollections()
+        im_folder = self.portal['incoming-mail']
+        self.replaceCollections(im_folder)
 
         # add new indexes for dashboard
         addOrUpdateIndexes(self.portal, indexInfos={'mail_type': ('FieldIndex', {}),
@@ -90,9 +95,8 @@ class Migrate_To_0_4(Migrator):
 #            brain.getObject().reindexObject(idxs=['mail_type', 'mail_date', 'in_out_date'])
 
         # set dashboard on incoming mail
-        im_folder = self.portal['incoming-mail']
-        configure_incoming_mail_folder(im_folder)
-        _updateDefaultCollectionFor(im_folder, im_folder['collections']['all_mails'].UID())
+        configure_faceted_folder(im_folder, xml='default_dashboard_widgets.xml',
+                                 default_UID=im_folder['mail-searches']['all_mails'].UID())
 
         # set task local roles configuration
         configure_task_rolefields(self.portal)

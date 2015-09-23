@@ -58,6 +58,19 @@ def mark_organizations(portal):
         mark_organization(brain.getObject(), None)
 
 
+def add_db_col_folder(folder, id, title, displayed=''):
+    if base_hasattr(folder, id):
+        return folder[id]
+
+    folder.invokeFactory('Folder', id=id, title=title, rights=displayed)
+    col_folder = folder[id]
+    col_folder.setConstrainTypesMode(1)
+    col_folder.setLocallyAllowedTypes(['DashboardCollection'])
+    col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
+    folder.portal_workflow.doActionFor(col_folder, "show_internally")
+    return col_folder
+
+
 def postInstall(context):
     """Called as at the end of the setup process. """
     # the right place for your custom code
@@ -75,30 +88,29 @@ def postInstall(context):
     # we configure rolefields
     configure_rolefields(context)
 
-    def create_collections_folder(folder):
-        if not base_hasattr(folder, 'collections'):
-            folder.invokeFactory("Folder", id='collections', title=u"Collections: ne pas effacer")
-
-        col_folder = folder['collections']
-        col_folder.setConstrainTypesMode(1)
-        col_folder.setLocallyAllowedTypes(['DashboardCollection'])
-        col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
-        return col_folder
-
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
         im_folder = getattr(site, folderid)
 
-        # configure faceted navigation
-        configure_incoming_mail_folder(im_folder)
-
-        col_folder = create_collections_folder(im_folder)
-        #blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
+        # add mail-searches
+        col_folder = add_db_col_folder(im_folder, 'mail-searches', "Recherches courrier: ne pas effacer !",
+                                       'Courriers')
+        # blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createIMCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
-        # select default collection
-        _updateDefaultCollectionFor(im_folder, col_folder['all_mails'].UID())
+        configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
+                                 default_UID=col_folder['all_mails'].UID())
+
+        # configure incoming-mail faceted
+        configure_faceted_folder(im_folder, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_mails'].UID())
+
+        # add task-searches
+        col_folder = add_db_col_folder(im_folder, 'task-searches', "Recherches tâches: ne pas effacer !",
+                                       'Tâches')
+        createStateCollections(col_folder, 'task')
+
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -108,8 +120,8 @@ def postInstall(context):
     if not base_hasattr(site, 'outgoing-mail'):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         om_folder = getattr(site, folderid)
-        col_folder = create_collections_folder(om_folder)
-        #blacklistPortletCategory(context, om_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
+        # col_folder = add_db_col_folder(om_folder)
+        # blacklistPortletCategory(context, om_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         om_folder.setConstrainTypesMode(1)
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
@@ -144,11 +156,18 @@ def createStateCollections(folder, content_type):
     """
         create a collection for each contextual workflow state
     """
-    conditions = {'dmsincomingmail': {
+    conditions = {
+        'dmsincomingmail': {
         'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
         'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
         'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils').proposed_to_serv_chief_col_cond()",
+        },
+        'task': {}
     }
+    view_fields = {
+        'dmsincomingmail': (u'pretty_link', u'review_state', u'treating_groups',
+                            u'assigned_user', u'CreationDate', u'actions'),
+        'task': (u'pretty_link', u'review_state', u'assigned_user', u'CreationDate', u'actions'),
     }
     for state in list_wf_states(folder, content_type):
         col_id = "searchfor_%s" % state
@@ -158,8 +177,7 @@ def createStateCollections(folder, content_type):
                                          'v': [content_type]},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [state]}],
-                                 customViewFields=(u'pretty_link', u'review_state', u'treating_groups',
-                                                   u'assigned_user', u'CreationDate', u'actions'),
+                                 customViewFields=view_fields[content_type],
                                  tal_condition=conditions[content_type].get(state),
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
                                  sort_on=u'created', sort_reversed=True, b_size=30)
@@ -861,6 +879,8 @@ def configure_actions_panel(portal):
              'dmsincomingmail.back_to_agent|']
 
 
-def configure_incoming_mail_folder(im_folder):
+def configure_faceted_folder(folder, xml=None, default_UID=None):
     """Configure faceted navigation for incoming-mail folder."""
-    enableFacetedDashboardFor(im_folder, os.path.dirname(__file__) + '/faceted_conf/im-faceted.xml')
+    enableFacetedDashboardFor(folder, xml and os.path.dirname(__file__) + '/faceted_conf/%s' % xml or None)
+    if default_UID:
+        _updateDefaultCollectionFor(folder, default_UID)
