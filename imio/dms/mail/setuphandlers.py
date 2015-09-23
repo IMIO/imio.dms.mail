@@ -38,10 +38,10 @@ from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
-from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
-from imio.dms.mail.subscribers import mark_organization
-from imio.dms.mail.utils import list_wf_states
 
+from interfaces import IDirectoryFacetedNavigable
+from subscribers import mark_organization
+from utils import list_wf_states
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
