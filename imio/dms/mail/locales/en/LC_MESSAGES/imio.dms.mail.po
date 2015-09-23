@@ -182,7 +182,7 @@ msgid "searchfor_created"
 msgstr "Created"
 
 msgid "searchfor_in_progress"
-msgstr ""
+msgstr "In progress"
 
 msgid "searchfor_in_treatment"
 msgstr "In treatment"
@@ -197,11 +197,11 @@ msgid "searchfor_proposed_to_service_chief"
 msgstr "Proposed to service chief"
 
 msgid "searchfor_realized"
-msgstr ""
+msgstr "Realized"
 
 msgid "searchfor_to_assign"
-msgstr ""
+msgstr "To assign"
 
 msgid "searchfor_to_do"
-msgstr ""
+msgstr "To do"
 
