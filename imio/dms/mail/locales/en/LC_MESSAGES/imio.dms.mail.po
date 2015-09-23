@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-02 13:20+0000\n"
+"POT-Creation-Date: 2015-09-23 13:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -35,7 +35,7 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./dmsmail.py:35
+#: ./dmsmail.py:37
 msgid "Choose a value !"
 msgstr ""
 
@@ -43,7 +43,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./setuphandlers.py:90
+#: ./setuphandlers.py:94
 msgid "Incoming mail"
 msgstr ""
 
@@ -56,7 +56,7 @@ msgid "Incoming mail listing"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:81
+#: ./dmsmail.py:83
 msgid "Mail type"
 msgstr ""
 
@@ -77,16 +77,16 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:109
+#: ./setuphandlers.py:122
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:75
+#: ./dmsmail.py:77
 msgid "Recipient groups"
 msgstr ""
 
 #: ./browser/table.py:35
-#: ./dmsmail.py:60
+#: ./dmsmail.py:62
 msgid "Treating groups"
 msgstr ""
 
@@ -94,12 +94,12 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./dmsmail.py:194
+#: ./dmsmail.py:196
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:178
+#: ./setuphandlers.py:197
 msgid "all_incoming_mails"
 msgstr "All mails"
 
@@ -112,43 +112,43 @@ msgstr "Contact used by"
 msgid "create_im"
 msgstr "Create an incoming mail"
 
-#: ./setuphandlers.py:278
+#: ./setuphandlers.py:297
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:279
+#: ./setuphandlers.py:298
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:277
+#: ./setuphandlers.py:296
 msgid "front_page_title"
 msgstr "Mails management"
 
-#: ./setuphandlers.py:209
+#: ./setuphandlers.py:228
 msgid "im_have_treated"
 msgstr "That I have treated"
 
-#: ./setuphandlers.py:201
+#: ./setuphandlers.py:220
 msgid "im_im_treating"
 msgstr "That I treat"
 
-#: ./setuphandlers.py:225
+#: ./setuphandlers.py:244
 msgid "im_in_copy"
 msgstr "In copy"
 
-#: ./setuphandlers.py:217
+#: ./setuphandlers.py:236
 msgid "im_in_my_group"
 msgstr "In my group"
 
-#: ./setuphandlers.py:193
+#: ./setuphandlers.py:212
 msgid "im_to_treat"
 msgstr "To treat"
 
-#: ./setuphandlers.py:184
+#: ./setuphandlers.py:203
 msgid "im_to_validate"
 msgstr "To validate"
 
-#: ./setuphandlers.py:49
+#: ./setuphandlers.py:50
 msgid "imio.dms.mail"
 msgstr ""
 
@@ -181,6 +181,9 @@ msgstr "Closed"
 msgid "searchfor_created"
 msgstr "Created"
 
+msgid "searchfor_in_progress"
+msgstr ""
+
 msgid "searchfor_in_treatment"
 msgstr "In treatment"
 
@@ -192,4 +195,13 @@ msgstr "Proposed to manager"
 
 msgid "searchfor_proposed_to_service_chief"
 msgstr "Proposed to service chief"
+
+msgid "searchfor_realized"
+msgstr ""
+
+msgid "searchfor_to_assign"
+msgstr ""
+
+msgid "searchfor_to_do"
+msgstr ""
 
