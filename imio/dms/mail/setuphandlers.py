@@ -7,8 +7,8 @@
 # GNU General Public License (GPL)
 #
 
-__author__ = """Gauthier BASTIEN <gbastien@commune.sambreville.be>, Stephan GEULETTE
-<stephan.geulette@uvcw.be>"""
+__author__ = """Gauthier BASTIEN <gbastien@imio.be>, Stephan GEULETTE
+<stephan.geulette@imio.be>"""
 __docformat__ = 'plaintext'
 
 import datetime
@@ -377,6 +377,43 @@ def configure_rolefields(context):
     for keyname in roles_config:
         # don't overwrite existing configuration
         msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)
+        if msg:
+            logger.warn(msg)
+
+
+def configure_task_rolefields(context):
+    """
+        Configure the rolefields on task
+    """
+    roles_config = {
+        'localroleconfig': {
+        },
+        'assigned_group': {
+            'to_assign': {
+                'validateur': ['Editor', 'Reviewer'],
+            },
+            'to_do': {
+                'editeur': ['Editor'],
+                'validateur': ['Editor', 'Reviewer'],
+            },
+            'in_progress': {
+                'editeur': ['Editor'],
+                'validateur': ['Editor', 'Reviewer'],
+            },
+            'realized': {
+                'editeur': ['Editor'],
+                'validateur': ['Editor', 'Reviewer'],
+            },
+            'closed': {
+                'validateur': ['Editor', 'Reviewer'],
+            },
+        },
+        'assigned_user': {
+        },
+    }
+    for keyname in roles_config:
+        # we overwrite existing configuration from task installation !
+        msg = add_fti_configuration('task', roles_config[keyname], keyname=keyname, force=True)
         if msg:
             logger.warn(msg)
 

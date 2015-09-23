@@ -7,6 +7,9 @@ Changelog
 - Replaced collection view and main portlet by dashboard and collectionwidget portlet
   [sgeulette]
 
+- Setup task workflow, task local roles configuration
+  [sgeulette]
+
 - Added robot tests for screenshots
   [sgeulette]
 

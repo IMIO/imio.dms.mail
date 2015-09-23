@@ -9,9 +9,8 @@ from plone.registry.interfaces import IRegistry
 from imio.dashboard.utils import _updateDefaultCollectionFor
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
-from imio.dms.mail.setuphandlers import configure_incoming_mail_folder
-from imio.dms.mail.setuphandlers import createIMCollections
-from imio.dms.mail.setuphandlers import createStateCollections
+from imio.dms.mail.setuphandlers import configure_incoming_mail_folder, configure_task_rolefields
+from imio.dms.mail.setuphandlers import createIMCollections, createStateCollections
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -21,11 +20,6 @@ class Migrate_To_0_4(Migrator):
 
     def __init__(self, context):
         Migrator.__init__(self, context)
-
-    def runProfileSteps(self, profile, steps):
-        ''' Run specific steps for profile '''
-        for step_id in steps:
-            self.portal.portal_setup.runImportStepFromProfile('profile-%s:default' % profile, step_id)
 
     def delete_portlet(self, obj, portlet):
         """ Delete the defined portlet on obj """
@@ -66,9 +60,9 @@ class Migrate_To_0_4(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
-        self.runProfileSteps('imio.dms.mail', ['actions', 'controlpanel', 'portlets', 'repositorytool'])
-        self.runProfileSteps('collective.dms.mailcontent', ['controlpanel'])
-        self.runProfileSteps('collective.contact.plonegroup', ['controlpanel'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'controlpanel', 'portlets', 'repositorytool'])
+        self.runProfileSteps('collective.dms.mailcontent', steps=['controlpanel'])
+        self.runProfileSteps('collective.contact.plonegroup', steps=['controlpanel'])
         self.reinstall([
             'collective.messagesviewlet:messages',
             'imio.dashboard:default',
@@ -99,6 +93,9 @@ class Migrate_To_0_4(Migrator):
         im_folder = self.portal['incoming-mail']
         configure_incoming_mail_folder(im_folder)
         _updateDefaultCollectionFor(im_folder, im_folder['collections']['all_mails'].UID())
+
+        # set task local roles configuration
+        configure_task_rolefields(self.portal)
 
         #self.upgradeAll()
         #self.refreshDatabase()
