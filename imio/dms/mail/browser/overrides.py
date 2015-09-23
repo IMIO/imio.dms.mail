@@ -22,8 +22,5 @@ class IMRenderCategoryView(RenderCategoryView):
     def __call__(self, widget):
         self.widget = widget
 
-        if self.context.getId() == 'collections':
-            return ViewPageTemplateFile("templates/category_im.pt")(self)
-        else:
-            return self.index()
+        return ViewPageTemplateFile("templates/category_im.pt")(self)
 
