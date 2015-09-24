@@ -24,11 +24,19 @@ msgid "Base collections"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
+msgid "Created"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
 msgid "Due date"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
 msgid "Mail type"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Modified"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:

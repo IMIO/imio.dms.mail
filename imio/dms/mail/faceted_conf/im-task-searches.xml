@@ -129,5 +129,27 @@
    <property name="calYearRange">2013:+5</property>
   </criterion>
 
+  <criterion name="c8" i18n:attributes="title">
+   <property name="widget">daterange</property>
+   <property name="title">Modified</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">Date</property>
+   <property name="default"></property>
+   <property name="calYearRange">2013:+0</property>
+  </criterion>
+
+  <criterion name="c9" i18n:attributes="title">
+   <property name="widget">daterange</property>
+   <property name="title">Created</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">created</property>
+   <property name="default"></property>
+   <property name="calYearRange">2013:+0</property>
+  </criterion>
+
  </criteria>
 </object>

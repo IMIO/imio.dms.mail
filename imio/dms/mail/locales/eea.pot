@@ -57,3 +57,11 @@ msgstr ""
 #: ../faceted_conf/im-faceted:
 msgid "Due date"
 msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Modified"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Created"
+msgstr ""

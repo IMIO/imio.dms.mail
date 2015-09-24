@@ -192,6 +192,28 @@
   </criterion>
 
   <criterion name="c12" i18n:attributes="title">
+   <property name="widget">daterange</property>
+   <property name="title">Modified</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">Date</property>
+   <property name="default"></property>
+   <property name="calYearRange">2013:+0</property>
+  </criterion>
+
+  <criterion name="c13" i18n:attributes="title">
+   <property name="widget">daterange</property>
+   <property name="title">Created</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">created</property>
+   <property name="default"></property>
+   <property name="calYearRange">2013:+0</property>
+  </criterion>
+
+  <criterion name="c14" i18n:attributes="title">
    <property name="widget">text</property>
    <property name="title">Title only</property>
    <property name="position">top</property>

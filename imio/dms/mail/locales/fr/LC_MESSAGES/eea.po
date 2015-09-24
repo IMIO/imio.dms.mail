@@ -24,6 +24,10 @@ msgid "Base collections"
 msgstr "Menu courrier"
 
 #: ../faceted_conf/im-faceted:
+msgid "Created"
+msgstr "Créé le"
+
+#: ../faceted_conf/im-faceted:
 msgid "Due date"
 msgstr "Échéance"
 
@@ -32,8 +36,12 @@ msgid "Mail type"
 msgstr "Type de courrier"
 
 #: ../faceted_conf/im-faceted:
+msgid "Modified"
+msgstr "Dernière modification"
+
+#: ../faceted_conf/im-faceted:
 msgid "Original mail date"
-msgstr "Date courrier"
+msgstr "Date du courrier"
 
 #: ../faceted_conf/im-faceted:
 msgid "Per page"
@@ -41,7 +49,7 @@ msgstr "Par page"
 
 #: ../faceted_conf/im-faceted:
 msgid "Reception date"
-msgstr "Date réception"
+msgstr "Date de réception"
 
 #: ../faceted_conf/im-faceted:
 msgid "Recipient groups"
