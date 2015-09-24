@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-24 08:43+0000\n"
+"POT-Creation-Date: 2015-09-24 09:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
+#: ./migrations/migrate_to_0_4.py:59
 #: ./setuphandlers.py:111
 msgid "I.M. tasks"
 msgstr ""
@@ -59,10 +60,12 @@ msgstr ""
 msgid "Incoming mail listing"
 msgstr ""
 
+#: ./migrations/migrate_to_0_4.py:48
 #: ./setuphandlers.py:97
 msgid "Incoming mail searches"
 msgstr ""
 
+#: ./migrations/migrate_to_0_4.py:49
 #: ./setuphandlers.py:98
 msgid "Incoming mails"
 msgstr ""
@@ -97,6 +100,7 @@ msgstr ""
 msgid "Recipient groups"
 msgstr ""
 
+#: ./migrations/migrate_to_0_4.py:58
 #: ./setuphandlers.py:110
 msgid "Tasks searches"
 msgstr ""

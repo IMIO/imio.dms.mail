@@ -15,6 +15,12 @@ msgstr ""
 "Domain: collective.eeafaceted.z3ctable\n"
 "X-is-fallback-for: fr-fr fr-be fr-ca\n"
 
+msgid "assigned_group"
+msgstr "Groupe assigné"
+
+msgid "assigned_user"
+msgstr "Utilisateur assigné"
+
 msgid "header_assigned_group"
 msgstr "Groupe assigné"
 
@@ -22,5 +28,8 @@ msgid "header_assigned_user"
 msgstr "Utilisateur assigné"
 
 msgid "header_treating_groups"
+msgstr "Service traitant"
+
+msgid "treating_groups"
 msgstr "Service traitant"
 
