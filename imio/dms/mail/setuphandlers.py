@@ -97,7 +97,7 @@ def postInstall(context):
         col_folder = add_db_col_folder(im_folder, 'mail-searches', "Recherches courrier: ne pas effacer !",
                                        'Courriers')
         # blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
-        createIMCollections(col_folder)
+        createIMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
         configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
                                  default_UID=col_folder['all_mails'].UID())
@@ -109,6 +109,7 @@ def postInstall(context):
         # add task-searches
         col_folder = add_db_col_folder(im_folder, 'task-searches', "Recherches tâches: ne pas effacer !",
                                        'Tâches')
+        createIMTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
 
         im_folder.setConstrainTypesMode(1)
@@ -188,9 +189,35 @@ def createStateCollections(folder, content_type):
             folder.portal_workflow.doActionFor(col, "show_internally")
 
 
-def createIMCollections(folder):
+def createDashboardCollections(folder, collections):
     """
-        create some topic for incoming mails
+        create some dashboard collections in searches folder
+    """
+    for i, dic in enumerate(collections):
+        if not base_hasattr(folder, dic['id']):
+            folder.invokeFactory("DashboardCollection",
+                                 dic['id'],
+                                 title=dic['tit'],
+                                 query=dic['query'],
+                                 tal_condition=dic['cond'],
+                                 roles_bypassing_talcondition=dic['bypass'],
+                                 customViewFields=dic['flds'],
+                                 sort_on=dic['sort'],
+                                 sort_reversed=dic['rev'],
+                                 b_size=30)
+            collection = folder[dic['id']]
+            folder.portal_workflow.doActionFor(collection, "show_internally")
+            if 'subj' in dic:
+                collection.setSubject(dic['subj'])
+                collection.reindexObject(['Subject'])
+            collection.setLayout('tabular_view')
+        if folder.getObjectPosition(dic['id']) != i:
+            folder.moveObjectToPosition(dic['id'], i)
+
+
+def createIMailCollections(folder):
+    """
+        create some incoming mails dashboard collections
     """
     collections = [
         {'id': 'all_mails', 'tit': _('all_incoming_mails'), 'subj': (u'search', ), 'query': [
@@ -249,27 +276,22 @@ def createIMCollections(folder):
                      u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
     ]
+    createDashboardCollections(folder, collections)
 
-    for dic in collections:
-        if base_hasattr(folder, dic['id']):
-            continue
 
-        folder.invokeFactory("DashboardCollection",
-                             dic['id'],
-                             title=dic['tit'],
-                             query=dic['query'],
-                             tal_condition=dic['cond'],
-                             roles_bypassing_talcondition=dic['bypass'],
-                             customViewFields=dic['flds'],
-                             sort_on=dic['sort'],
-                             sort_reversed=dic['rev'],
-                             b_size=30)
-        collection = folder[dic['id']]
-        folder.portal_workflow.doActionFor(collection, "show_internally")
-        if 'subj' in dic:
-            collection.setSubject(dic['subj'])
-            collection.reindexObject(['Subject'])
-        collection.setLayout('tabular_view')
+def createIMTaskCollections(folder):
+    """
+        create some tasks dashboard collections
+    """
+    collections = [
+        {'id': 'all_tasks', 'tit': _('all_im_tasks'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user',
+                     u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, },
+    ]
+    createDashboardCollections(folder, collections)
 
 
 def adaptDefaultPortal(context):

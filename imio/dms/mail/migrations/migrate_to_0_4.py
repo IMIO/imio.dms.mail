@@ -6,11 +6,12 @@ from zope.container import contained
 from Products.CMFPlone.utils import base_hasattr
 from plone import api
 from plone.registry.interfaces import IRegistry
-from imio.dashboard.utils import _updateDefaultCollectionFor
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
-from imio.dms.mail.setuphandlers import configure_faceted_folder, configure_task_rolefields
-from imio.dms.mail.setuphandlers import add_db_col_folder, createIMCollections, createStateCollections
+
+from ..setuphandlers import configure_faceted_folder, configure_task_rolefields
+from ..setuphandlers import add_db_col_folder
+from ..setuphandlers import createIMailCollections, createIMTaskCollections, createStateCollections
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -49,7 +50,7 @@ class Migrate_To_0_4(Migrator):
         im_folder.moveObjectToPosition('mail-searches', 0)
 
         # re-create dashboard collections
-        createIMCollections(col_folder)
+        createIMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
         configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
                                  default_UID=col_folder['all_mails'].UID())
@@ -57,6 +58,7 @@ class Migrate_To_0_4(Migrator):
         col_folder = add_db_col_folder(im_folder, 'task-searches', u"Recherches tâches: ne pas effacer !",
                                        u'Tâches')
         im_folder.moveObjectToPosition('task-searches', 1)
+        createIMTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
 
         im_folder.setConstrainTypesMode(1)

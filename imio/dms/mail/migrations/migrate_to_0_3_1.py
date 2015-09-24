@@ -4,14 +4,14 @@ from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
+from Products.CMFPlone.utils import base_hasattr
 
-from imio.dms.mail.setuphandlers import createStateCollections, createIMCollections, setupFacetedContacts
-from imio.dms.mail.setuphandlers import mark_organizations, changeSearchedTypes, configure_actions_panel
-from imio.dms.mail.subscribers import new_incomingmail
 from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
-from Products.CMFPlone.utils import base_hasattr
+from ..setuphandlers import createStateCollections, createIMailCollections, setupFacetedContacts
+from ..setuphandlers import mark_organizations, changeSearchedTypes, configure_actions_panel
+from ..subscribers import new_incomingmail
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -60,7 +60,7 @@ class Migrate_To_0_3_1(Migrator):
         self.removeOldTopics(im_folder)
         self.createCollectionsFolder(im_folder)
         col_folder = im_folder['collections']
-        createIMCollections(col_folder)
+        createIMailCollections(col_folder)
         col_folder.setDefaultPage('all_mails')
         createStateCollections(col_folder, 'dmsincomingmail')
 

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-23 13:46+0000\n"
+"POT-Creation-Date: 2015-09-24 08:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,7 +77,7 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:121
+#: ./setuphandlers.py:122
 msgid "Outgoing mail"
 msgstr ""
 
@@ -98,8 +98,12 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
+#: ./setuphandlers.py:287
+msgid "all_im_tasks"
+msgstr "All tasks"
+
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:196
+#: ./setuphandlers.py:223
 msgid "all_incoming_mails"
 msgstr "All mails"
 
@@ -112,39 +116,39 @@ msgstr "Contact used by"
 msgid "create_im"
 msgstr "Create an incoming mail"
 
-#: ./setuphandlers.py:296
+#: ./setuphandlers.py:318
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:297
+#: ./setuphandlers.py:319
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:295
+#: ./setuphandlers.py:317
 msgid "front_page_title"
 msgstr "Mails management"
 
-#: ./setuphandlers.py:227
+#: ./setuphandlers.py:254
 msgid "im_have_treated"
 msgstr "That I have treated"
 
-#: ./setuphandlers.py:219
+#: ./setuphandlers.py:246
 msgid "im_im_treating"
 msgstr "That I treat"
 
-#: ./setuphandlers.py:243
+#: ./setuphandlers.py:270
 msgid "im_in_copy"
 msgstr "In copy"
 
-#: ./setuphandlers.py:235
+#: ./setuphandlers.py:262
 msgid "im_in_my_group"
 msgstr "In my group"
 
-#: ./setuphandlers.py:211
+#: ./setuphandlers.py:238
 msgid "im_to_treat"
 msgstr "To treat"
 
-#: ./setuphandlers.py:202
+#: ./setuphandlers.py:229
 msgid "im_to_validate"
 msgstr "To validate"
 
