@@ -21,11 +21,17 @@ msgstr "Groupe assigné"
 msgid "assigned_user"
 msgstr "Utilisateur assigné"
 
+msgid "due_date"
+msgstr "Échéance"
+
 msgid "header_assigned_group"
 msgstr "Groupe assigné"
 
 msgid "header_assigned_user"
 msgstr "Utilisateur assigné"
+
+msgid "header_due_date"
+msgstr "Échéance"
 
 msgid "header_treating_groups"
 msgstr "Service traitant"

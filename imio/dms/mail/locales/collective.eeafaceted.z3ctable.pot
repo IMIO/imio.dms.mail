@@ -34,3 +34,9 @@ msgstr ""
 
 msgid "assigned_user"
 msgstr ""
+
+msgid "header_due_date"
+msgstr ""
+
+msgid "due_date"
+msgstr ""

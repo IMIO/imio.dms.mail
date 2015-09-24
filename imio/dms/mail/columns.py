@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
-from collective.eeafaceted.z3ctable.columns import MemberIdColumn
-from collective.eeafaceted.z3ctable.columns import VocabularyColumn
+from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn
 
 
 class TreatingGroupsColumn(VocabularyColumn):
@@ -17,3 +16,8 @@ class AssignedGroupColumn(VocabularyColumn):
 class AssignedUserColumn(MemberIdColumn):
 
     attrName = u'assigned_user'
+
+
+class DueDateColumn(DateColumn):
+
+    attrName = u'due_date'
