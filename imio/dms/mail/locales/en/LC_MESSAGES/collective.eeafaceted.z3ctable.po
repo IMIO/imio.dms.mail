@@ -15,6 +15,9 @@ msgstr ""
 "Domain: collective.eeafaceted.z3ctable\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
+msgid "header_assigned_group"
+msgstr "Assigned group"
+
 msgid "header_assigned_user"
 msgstr "Assigned user"
 

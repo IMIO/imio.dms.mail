@@ -167,7 +167,7 @@ def createStateCollections(folder, content_type):
     view_fields = {
         'dmsincomingmail': (u'pretty_link', u'review_state', u'treating_groups',
                             u'assigned_user', u'CreationDate', u'actions'),
-        'task': (u'pretty_link', u'review_state', u'assigned_user', u'CreationDate', u'actions'),
+        'task': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'CreationDate', u'actions'),
     }
     for state in list_wf_states(folder, content_type):
         col_id = "searchfor_%s" % state

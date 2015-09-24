@@ -9,6 +9,11 @@ class TreatingGroupsColumn(VocabularyColumn):
     vocabulary = u'collective.dms.basecontent.treating_groups'
 
 
+class AssignedGroupColumn(VocabularyColumn):
+
+    vocabulary = u'collective.dms.basecontent.treating_groups'
+
+
 class AssignedUserColumn(MemberIdColumn):
 
     attrName = u'assigned_user'

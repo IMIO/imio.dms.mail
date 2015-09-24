@@ -20,5 +20,8 @@ msgstr ""
 msgid "header_treating_groups"
 msgstr ""
 
+msgid "header_assigned_group"
+msgstr ""
+
 msgid "header_assigned_user"
 msgstr ""
