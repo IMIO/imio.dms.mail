@@ -10,6 +10,11 @@
         />
 
     <utility
+        name="imio.dms.mail.TaskReviewStatesVocabulary"
+        factory="imio.dms.mail.vocabularies.TaskReviewStatesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.AssignedUsersVocabulary"
         factory="imio.dms.mail.vocabularies.AssignedUsersVocabulary"
         />

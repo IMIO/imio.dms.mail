@@ -24,7 +24,19 @@ class IMReviewStatesVocabulary(object):
         for state in list_wf_states(context, 'dmsincomingmail'):
             terms.append(SimpleVocabulary.createTerm(
                 state, state, translate(state, domain='plone', context=context.REQUEST)))
+        return SimpleVocabulary(terms)
 
+
+class TaskReviewStatesVocabulary(object):
+    """ Task states vocabulary """
+    implements(IVocabularyFactory)
+
+    @memoize
+    def __call__(self, context):
+        terms = []
+        for state in list_wf_states(context, 'task'):
+            terms.append(SimpleVocabulary.createTerm(
+                state, state, translate(state, domain='plone', context=context.REQUEST)))
         return SimpleVocabulary(terms)
 
 

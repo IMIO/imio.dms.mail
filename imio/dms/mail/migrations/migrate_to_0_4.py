@@ -60,6 +60,8 @@ class Migrate_To_0_4(Migrator):
         im_folder.moveObjectToPosition('task-searches', 1)
         createIMTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
+        configure_faceted_folder(col_folder, xml='im-task-searches.xml',
+                                 default_UID=col_folder['all_tasks'].UID())
 
         im_folder.setConstrainTypesMode(1)
 
