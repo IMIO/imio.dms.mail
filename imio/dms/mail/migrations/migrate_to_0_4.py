@@ -9,7 +9,7 @@ from plone.registry.interfaces import IRegistry
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
-from ..setuphandlers import configure_faceted_folder, configure_task_rolefields
+from ..setuphandlers import _, configure_faceted_folder, configure_task_rolefields
 from ..setuphandlers import add_db_col_folder
 from ..setuphandlers import createIMailCollections, createIMTaskCollections, createStateCollections
 
@@ -45,8 +45,8 @@ class Migrate_To_0_4(Migrator):
             api.content.delete(im_folder['collections'])
 
         im_folder.setConstrainTypesMode(0)
-        col_folder = add_db_col_folder(im_folder, 'mail-searches',
-                                       u"Recherches courrier: ne pas effacer !", u'Courriers')
+        col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
+                                       _('Incoming mails'))
         im_folder.moveObjectToPosition('mail-searches', 0)
 
         # re-create dashboard collections
@@ -55,8 +55,8 @@ class Migrate_To_0_4(Migrator):
         configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
                                  default_UID=col_folder['all_mails'].UID())
 
-        col_folder = add_db_col_folder(im_folder, 'task-searches', u"Recherches tâches: ne pas effacer !",
-                                       u'Tâches')
+        col_folder = add_db_col_folder(im_folder, 'task-searches', _("Tasks searches"),
+                                       _("I.M. tasks"))
         im_folder.moveObjectToPosition('task-searches', 1)
         createIMTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')

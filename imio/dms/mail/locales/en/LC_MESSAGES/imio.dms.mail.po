@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-24 08:29+0000\n"
+"POT-Creation-Date: 2015-09-24 08:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,10 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
+#: ./setuphandlers.py:111
+msgid "I.M. tasks"
+msgstr ""
+
 #: ./setuphandlers.py:93
 msgid "Incoming mail"
 msgstr ""
@@ -53,6 +57,14 @@ msgstr ""
 
 #: ./browser/templates/listing.pt:22
 msgid "Incoming mail listing"
+msgstr ""
+
+#: ./setuphandlers.py:97
+msgid "Incoming mail searches"
+msgstr ""
+
+#: ./setuphandlers.py:98
+msgid "Incoming mails"
 msgstr ""
 
 #: ./browser/settings.py:27
@@ -83,6 +95,10 @@ msgstr ""
 
 #: ./dmsmail.py:77
 msgid "Recipient groups"
+msgstr ""
+
+#: ./setuphandlers.py:110
+msgid "Tasks searches"
 msgstr ""
 
 #: ./browser/table.py:35

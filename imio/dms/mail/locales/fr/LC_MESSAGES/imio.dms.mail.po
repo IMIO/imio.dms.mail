@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-24 08:29+0000\n"
+"POT-Creation-Date: 2015-09-24 08:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -43,6 +43,10 @@ msgstr "Choisir une valeur !"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
+#: ./setuphandlers.py:111
+msgid "I.M. tasks"
+msgstr "Tâches c.e."
+
 #: ./setuphandlers.py:93
 msgid "Incoming mail"
 msgstr "Courrier entrant"
@@ -54,6 +58,14 @@ msgstr "Listing journalier des courriers entrants"
 #: ./browser/templates/listing.pt:22
 msgid "Incoming mail listing"
 msgstr "Listing des courriers entrants"
+
+#: ./setuphandlers.py:97
+msgid "Incoming mail searches"
+msgstr "Recherches courriers entrants"
+
+#: ./setuphandlers.py:98
+msgid "Incoming mails"
+msgstr "Courriers entrants"
 
 #: ./browser/settings.py:27
 #: ./dmsmail.py:83
@@ -84,6 +96,10 @@ msgstr "Courrier sortant"
 #: ./dmsmail.py:77
 msgid "Recipient groups"
 msgstr "Services en copie"
+
+#: ./setuphandlers.py:110
+msgid "Tasks searches"
+msgstr "Recherches tâches"
 
 #: ./browser/table.py:35
 #: ./dmsmail.py:62

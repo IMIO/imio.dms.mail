@@ -94,8 +94,8 @@ def postInstall(context):
         im_folder = getattr(site, folderid)
 
         # add mail-searches
-        col_folder = add_db_col_folder(im_folder, 'mail-searches', "Recherches courrier: ne pas effacer !",
-                                       'Courriers')
+        col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
+                                       _('Incoming mails'))
         # blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createIMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
@@ -107,8 +107,8 @@ def postInstall(context):
                                  default_UID=col_folder['all_mails'].UID())
 
         # add task-searches
-        col_folder = add_db_col_folder(im_folder, 'task-searches', "Recherches tâches: ne pas effacer !",
-                                       'Tâches')
+        col_folder = add_db_col_folder(im_folder, 'task-searches', _("Tasks searches"),
+                                       _("I.M. tasks"))
         createIMTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
 
