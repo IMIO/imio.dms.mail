@@ -530,19 +530,27 @@ def configureContactPloneGroup(context):
     if not registry.get(ORGANIZATIONS_REGISTRY):
         contacts = site['contacts']
         own_orga = contacts['plonegroup-organization']
+        (u'Direction générale', (u'Secrétariat', u'GRH', u'Informatique', u'Communication')),
+        (u'Direction financière', (u'Budgets', u'Comptabilité', u'Taxes', u'Marchés publics')),
+        (u'Direction technique', (u'Bâtiments', u'Voiries', u'Urbanisme')),
+        (u'Département population', (u'Population', u'État-civil')),
+        (u'Département culturel', (u'Enseignement', u'Culture-loisirs')),
+        (u'Collège communal', [])
         departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
-        services0 = own_orga[departments[0].id].listFolderContents(contentFilter={'portal_type': 'organization'})
-        services2 = own_orga[departments[2].id].listFolderContents(contentFilter={'portal_type': 'organization'})
-        registry[ORGANIZATIONS_REGISTRY] = [
-            services0[0].UID(),
-            services0[1].UID(),
-            departments[1].UID(),
-            services2[0].UID(),
-        ]
+        dep0 = departments[0]
+        dep1 = departments[1]
+        services0 = dep0.listFolderContents(contentFilter={'portal_type': 'organization'})
+        services1 = dep1.listFolderContents(contentFilter={'portal_type': 'organization'})
+        orgas = [dep0, services0[0], services0[1], dep1, services1[0], services1[1]]
+        registry[ORGANIZATIONS_REGISTRY] = [org.UID() for org in orgas]
+
         # Add users to created groups
-        site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % services0[0].UID())
-        site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % services0[0].UID())
-        site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % services0[0].UID())
+        for org in orgas:
+            uid = org.UID()
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % uid)
+            if org.organization_type == 'service':
+                site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
+                site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
 
 
 def addTestDirectory(context):
@@ -715,6 +723,10 @@ def addTestMails(context):
         intids.getId(contacts['sergerobinet']['agent-swde']),  # sender is a person with a position
     ]
     senders_cycle = cycle(senders)
+
+    registry = getUtility(IRegistry)
+    orgas_cycle = cycle(registry[ORGANIZATIONS_REGISTRY])
+
     # incoming mails
     ifld = site['incoming-mail']
     data = dummy(site, site.REQUEST)
@@ -725,6 +737,7 @@ def addTestMails(context):
                       'internal_reference_no': internalReferenceIncomingMailDefaultValue(data),
                       'reception_date': receptionDateDefaultValue(data),
                       'sender': RelationValue(senders_cycle.next()),
+                      'treating_groups': orgas_cycle.next(),
                       'recipient_groups': [],
                       'description': 'Ceci est la description du courrier %d' % i,
                       }
@@ -739,6 +752,7 @@ def addTestMails(context):
     # outgoing mails
     ofld = site['outgoing-mail']
     for i in range(1, 10):
+        continue
         if not 'reponse%d' % i in ofld:
             params = {'title': 'Réponse %d' % i,
                       'internal_reference_no': internalReferenceOutgoingMailDefaultValue(data),
@@ -797,7 +811,7 @@ def addTestUsersAndGroups(context):
 
 def addOwnOrganization(context):
     """
-        Add french test data: own organization
+        Add french test data: plonegroup organization
     """
     if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
@@ -821,20 +835,12 @@ def addOwnOrganization(context):
 
     # Departments and services creation
     sublevels = [
-        (u'Département Jeunesse', [u'Cité de l\'Enfance', u'AMO Ancrages', u'MCAE Cité P\'tit',
-                                    u'MCAE Bébé Lune', u'Crèche de Mons ', u'Crèche de Jemappes',
-                                    u'Crèche Nid Douillet', u'SAEC']),
-        (u'Département Égalité des chances', []),
-        (u'Département GRH', [u'Personnel', u'Traitements']),
-        (u'Département du Patrimoine', [u'Technique', u'Technique administratif', u'Patrimoine']),
-        (u'Département du DG', [u'Cabinet du DG', u'Cellule Marchés Publics', u'IPP', u'FRCE']),
-        (u'Département du Président', [u'Cabinet du Président']),
-        (u'Département des Aînés', [u'BMB', u'MRS Havré', u'Acasa']),
-        (u'Département Social', [u'Aide générale', u'Service personnes âgées', u'Service social administratif', u'SIP',
-                                  u'Guidance / Médiation', u'VIF', u'Logement', u'EFT', u'Service juridique']),
-        (u'Département informatique', []),
-        (u'Département des Finances', [u'Gestion Financière', u'Cellule Financière', u'Directeur financier',
-                                        u'Homes Extérieurs', u'Avances et Récupérations', u'Assurances']),
+        (u'Direction générale', (u'Secrétariat', u'GRH', u'Informatique', u'Communication')),
+        (u'Direction financière', (u'Budgets', u'Comptabilité', u'Taxes', u'Marchés publics')),
+        (u'Direction technique', (u'Bâtiments', u'Voiries', u'Urbanisme')),
+        (u'Département population', (u'Population', u'État-civil')),
+        (u'Département culturel', (u'Enseignement', u'Culture-loisirs')),
+        (u'Collège communal', [])
     ]
     idnormalizer = queryUtility(IIDNormalizer)
     for (department, services) in sublevels:
