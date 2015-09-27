@@ -36,9 +36,10 @@
         />
 
     <configure package="imio.actionspanel">
+        <!-- common for dmsincomingmail and task -->
         <browser:viewlet
             name="imio.actionspanel"
-            for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+            for="collective.task.behaviors.ITask"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             class="imio.dms.mail.browser.actionspanel.DmsIMActionsPanelViewlet"
