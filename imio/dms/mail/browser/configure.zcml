@@ -74,7 +74,7 @@
     </configure>
 
     <browser:page
-        for="collective.task.behaviors.ITask"
+        for="collective.task.interfaces.ITaskContent"
         name="edit"
         class=".task.TaskEdit"
         permission="cmf.ModifyPortalContent"
