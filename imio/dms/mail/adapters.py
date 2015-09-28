@@ -134,6 +134,22 @@ class IncomingMailInCopyGroupCriterion(object):
         return {'recipient_groups': {'query': orgs}}
 
 
+class TaskInAssignedGroupCriterion(object):
+    """
+        Return catalog criteria following assigned group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        # if orgs is empty list, nothing is returned => ok
+        return {'assigned_group': {'query': orgs}}
+
+
 ################
 # GUI cleaning #
 ################

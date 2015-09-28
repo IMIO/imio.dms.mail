@@ -93,6 +93,11 @@
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="task-highest-validation" />
 
+    <adapter for="*"
+             factory=".adapters.TaskInAssignedGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="task-in-assigned-group" />
+
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />
 

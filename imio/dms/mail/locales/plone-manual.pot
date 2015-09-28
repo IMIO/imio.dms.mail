@@ -29,6 +29,9 @@ msgstr ""
 msgid "task-highest-validation"
 msgstr ""
 
+msgid "task-in-assigned-group"
+msgstr ""
+
 msgid "Recipient groups"
 msgstr ""
 

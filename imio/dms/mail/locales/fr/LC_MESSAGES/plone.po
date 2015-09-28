@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-28 14:19+0000\n"
+"POT-Creation-Date: 2015-09-28 15:31+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -116,6 +116,9 @@ msgstr "A valider par le chef de service"
 
 msgid "task-highest-validation"
 msgstr "Tâche à valider"
+
+msgid "task-in-assigned-group"
+msgstr "Tâche groupe assigné"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "treat"

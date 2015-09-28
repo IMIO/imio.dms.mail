@@ -302,6 +302,14 @@ def createIMTaskCollections(folder):
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
                      u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
+        {'id': 'in_my_group', 'tit': _('tasks_in_my_group'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'task-in-assigned-group'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
+                     u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, },
     ]
     createDashboardCollections(folder, collections)
 
