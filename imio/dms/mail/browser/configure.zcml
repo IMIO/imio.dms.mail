@@ -73,16 +73,6 @@
             permission="zope2.View" />
     </configure>
 
-    <configure package="plone.app.dexterity">
-        <browser:page
-            for="collective.task.interfaces.ITaskContent"
-            name="view"
-            class="plone.dexterity.browser.view.DefaultView"
-            template="browser/item.pt"
-            permission="zope2.View"
-            />
-    </configure>
-
     <browser:page
         for="collective.task.interfaces.ITaskContent"
         name="edit"
