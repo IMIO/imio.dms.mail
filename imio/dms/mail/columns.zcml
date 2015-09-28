@@ -39,4 +39,15 @@
     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
     name="due_date"
     />
+
+
+  <adapter
+    for="zope.interface.Interface
+         zope.publisher.interfaces.browser.IBrowserRequest
+         collective.task.browser.table.TasksTable"
+    factory=".columns.TaskActionsColumn"
+    provides="z3c.table.interfaces.IColumn"
+    name="actions"
+    />
+
 </configure>
