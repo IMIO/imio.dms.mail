@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-24 12:22+0000\n"
+"POT-Creation-Date: 2015-09-28 14:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -136,15 +136,15 @@ msgstr "Contact used by"
 msgid "create_im"
 msgstr "Create an incoming mail"
 
-#: ./setuphandlers.py:321
+#: ./setuphandlers.py:330
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:322
+#: ./setuphandlers.py:331
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:320
+#: ./setuphandlers.py:329
 msgid "front_page_title"
 msgstr "Mails management"
 
@@ -240,4 +240,8 @@ msgstr "To assign"
 #: task
 msgid "searchfor_to_do"
 msgstr "To do"
+
+#: ./setuphandlers.py:296
+msgid "tasks_to_validate"
+msgstr "To validate"
 

@@ -88,6 +88,11 @@
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsincomingmail-in-copy-group" />
 
+    <adapter for="*"
+             factory=".adapters.TaskHighestValidationCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="task-highest-validation" />
+
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />
 

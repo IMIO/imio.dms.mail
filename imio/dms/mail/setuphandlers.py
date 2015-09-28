@@ -293,6 +293,15 @@ def createIMTaskCollections(folder):
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
                      u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
+        {'id': 'to_validate', 'tit': _('tasks_to_validate'), 'subj': (u'todo', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'task-highest-validation'}],
+            'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
+            'bypass': ['Manager', 'Site Administrator'],
+            'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
+                     u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, },
     ]
     createDashboardCollections(folder, collections)
 

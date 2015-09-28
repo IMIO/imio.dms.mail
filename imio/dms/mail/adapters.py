@@ -22,9 +22,14 @@ from dmsmail import IDmsIncomingMail
 # Compound criterions #
 #######################
 
-review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': 'proposed_to_manager'}),
-                                                 ('_validateur', {'st': 'proposed_to_service_chief',
-                                                                  'org': 'treating_groups'})])}
+review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                                 ('_validateur', {'st': ['proposed_to_service_chief'],
+                                                                  'org': 'treating_groups'})]),
+                 'task': OrderedDict([('_validateur', {'st': ['to_assign', 'realized'],
+                                                       'org': 'assigned_group'})])}
+
+default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager', 'proposed_to_service_chief']}},
+                     'task': {'review_state': {'query': ['to_assign', 'realized']}}}
 
 
 def highest_review_level(portal_type, group_ids):
@@ -39,6 +44,25 @@ def highest_review_level(portal_type, group_ids):
     return None
 
 
+def highest_validation_criterion(portal_type):
+    """ Return a query criterion corresponding to current user highest validation level """
+    groups = api.group.get_groups(user=api.user.get_current())
+    highest_level = highest_review_level(portal_type, str([g.id for g in groups]))
+    if highest_level is None:
+        return default_criterias[portal_type]
+    ret = {}
+    criterias = review_levels[portal_type][highest_level]
+    if 'st' in criterias:
+        ret['review_state'] = {'query': criterias['st']}
+    if 'org' in criterias:
+        organizations = []
+        for group in groups:
+            if group.id.endswith(highest_level):
+                organizations.append(group.id[:-len(highest_level)])
+        ret[criterias['org']] = {'query': organizations}
+    return ret
+
+
 class IncomingMailHighestValidationCriterion(object):
     """
         Return catalog criteria following highest validation group member
@@ -49,21 +73,20 @@ class IncomingMailHighestValidationCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        highest_level = highest_review_level('dmsincomingmail', str([g.id for g in groups]))
-        if highest_level is None:
-            return {}
-        ret = {}
-        criterias = review_levels['dmsincomingmail'][highest_level]
-        if 'st' in criterias:
-            ret['review_state'] = {'query': criterias['st']}
-        if 'org' in criterias:
-            organizations = []
-            for group in groups:
-                if group.id.endswith(highest_level):
-                    organizations.append(group.id[:-len(highest_level)])
-            ret[criterias['org']] = {'query': organizations}
-        return ret
+        return highest_validation_criterion('dmsincomingmail')
+
+
+class TaskHighestValidationCriterion(object):
+    """
+        Return catalog criteria following highest validation group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        return highest_validation_criterion('task')
 
 
 def organizations_with_suffixes(groups, suffixes):
