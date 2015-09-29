@@ -184,7 +184,7 @@ def createStateCollections(folder, content_type):
                                  customViewFields=view_fields[content_type],
                                  tal_condition=conditions[content_type].get(state),
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                                 sort_on=u'created', sort_reversed=True, b_size=30)
+                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
             col = folder[col_id]
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
@@ -207,7 +207,8 @@ def createDashboardCollections(folder, collections):
                                  customViewFields=dic['flds'],
                                  sort_on=dic['sort'],
                                  sort_reversed=dic['rev'],
-                                 b_size=30)
+                                 b_size=30,
+                                 limit=0)
             collection = folder[dic['id']]
             folder.portal_workflow.doActionFor(collection, "show_internally")
             if 'subj' in dic:
