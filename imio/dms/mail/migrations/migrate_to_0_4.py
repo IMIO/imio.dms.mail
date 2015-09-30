@@ -75,6 +75,7 @@ class Migrate_To_0_4(Migrator):
             'collective.messagesviewlet:messages',
             'imio.dashboard:default',
         ])
+        self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.task:default')
 
         registry = getUtility(IRegistry)

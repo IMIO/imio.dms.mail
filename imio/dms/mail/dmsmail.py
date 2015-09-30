@@ -105,7 +105,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     directives.order_before(notes='recipient_groups')
     directives.order_before(treating_groups='recipient_groups')
 
-    directives.omitted('in_reply_to', 'related_docs', 'recipients')
+    directives.omitted('reply_to', 'related_docs', 'recipients')
     #directives.widget(recipient_groups=SelectFieldWidget)
 
 
@@ -239,7 +239,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     directives.order_before(recipients='related_docs')  # temporary when removing *_groups
     directives.order_before(mail_date='related_docs')  # temporary when removing *_groups
     directives.order_before(internal_reference_no='related_docs')  # temporary when removing *_groups
-    directives.order_before(in_reply_to='related_docs')  # temporary when removing *_groups
+    directives.order_before(reply_to='related_docs')  # temporary when removing *_groups
     directives.order_after(notes='related_docs')  # temporary when removing *_groups
 
     directives.omitted('treating_groups', 'recipient_groups')
