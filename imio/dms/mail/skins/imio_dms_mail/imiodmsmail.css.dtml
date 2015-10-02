@@ -119,10 +119,6 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     margin-left: 0em;
 }
 
-#formfield-form-widgets-ITask-assigned_user .formHelp {
-    color: red;
-}
-
 /* colorization for incoming_mail_workflow */
 
 .state-created {
