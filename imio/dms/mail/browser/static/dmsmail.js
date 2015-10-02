@@ -12,4 +12,5 @@ dmsmail.manage_orgtype_filter = function () {
 
 $(document).ready(function(){
     $('#faceted-form #type_widget').click(dmsmail.manage_orgtype_filter);
+    $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization">Lien vers votre organisation</a></span>');
 });

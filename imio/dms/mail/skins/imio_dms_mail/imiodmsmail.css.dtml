@@ -119,6 +119,10 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     margin-left: 0em;
 }
 
+#pg-orga-link {
+    float: right;
+}
+
 /* colorization for incoming_mail_workflow */
 
 .state-created {
