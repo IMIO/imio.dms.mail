@@ -958,7 +958,8 @@ def configure_actions_panel(portal):
         registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] = \
             ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
              'dmsincomingmail.back_to_service_chief|', 'dmsincomingmail.back_to_treatment|',
-             'dmsincomingmail.back_to_agent|']
+             'dmsincomingmail.back_to_agent|', 'task.back_in_created|', 'task.back_in_to_assign|',
+             'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|', ]
 
 
 def configure_faceted_folder(folder, xml=None, default_UID=None):

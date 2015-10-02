@@ -21,6 +21,7 @@ class Migrate_To_0_4(Migrator):
 
     def __init__(self, context):
         Migrator.__init__(self, context)
+        self.registry = getUtility(IRegistry)
 
     def delete_portlet(self, obj, portlet):
         """ Delete the defined portlet on obj """
@@ -70,7 +71,8 @@ class Migrate_To_0_4(Migrator):
         self.cleanRegistries()
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.task:default')
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'controlpanel', 'portlets', 'repositorytool', 'typeinfo'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'controlpanel', 'portlets', 'repositorytool',
+                                                     'typeinfo'])
         self.runProfileSteps('collective.dms.mailcontent', steps=['controlpanel'])
         self.runProfileSteps('collective.contact.plonegroup', steps=['controlpanel'])
         self.reinstall([
@@ -78,9 +80,8 @@ class Migrate_To_0_4(Migrator):
             'imio.dashboard:default',
         ])
 
-        registry = getUtility(IRegistry)
         # set jqueryui autocomplete to False. If not contact autocomplete doesn't work
-        registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+        self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
         # delete old dmsmail portlet
         self.delete_portlet(self.portal, 'portlet_maindmsmail')
@@ -105,6 +106,11 @@ class Migrate_To_0_4(Migrator):
 
         # set task local roles configuration
         configure_task_rolefields(self.portal)
+
+        # add task actionspanel config
+        self.registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] += \
+            ['task.back_in_created|', 'task.back_in_to_assign|', 'task.back_in_to_do|',
+             'task.back_in_progress|', 'task.back_in_realized|']
 
         #self.upgradeAll()
         #self.refreshDatabase()
