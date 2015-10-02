@@ -68,15 +68,15 @@ class Migrate_To_0_4(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'controlpanel', 'portlets', 'repositorytool'])
+        self.upgradeProfile('collective.dms.mailcontent:default')
+        self.upgradeProfile('collective.task:default')
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'controlpanel', 'portlets', 'repositorytool', 'typeinfo'])
         self.runProfileSteps('collective.dms.mailcontent', steps=['controlpanel'])
         self.runProfileSteps('collective.contact.plonegroup', steps=['controlpanel'])
         self.reinstall([
             'collective.messagesviewlet:messages',
             'imio.dashboard:default',
         ])
-        self.upgradeProfile('collective.dms.mailcontent:default')
-        self.upgradeProfile('collective.task:default')
 
         registry = getUtility(IRegistry)
         # set jqueryui autocomplete to False. If not contact autocomplete doesn't work
