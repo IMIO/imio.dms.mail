@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-10-02 08:46+0000\n"
+"POT-Creation-Date: 2015-10-02 08:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -136,15 +136,15 @@ msgstr "Contact utilisé par"
 msgid "create_im"
 msgstr "Créer un courrier entrant"
 
-#: ./setuphandlers.py:347
+#: ./setuphandlers.py:355
 msgid "front_page_descr"
 msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
 
-#: ./setuphandlers.py:348
+#: ./setuphandlers.py:356
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>L'application intègre la gestion du courrier entrant:</p><ul><li>Création automatique du courrier entrant à partir de fichiers scannés avec séparateur (code autocollant)</li><li>Complétion du courrier entrant avec prévisualisation du document scanné et glisser/déplacer d'après le texte océrisé</li><li>Sans injection depuis le scanner, possibilité de créer le courrier manuellement et d'associer des pièces scannées</li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers</li><li>Gestion des contacts (expéditeurs, destinataires)</li><li>Choix des services concernés et du service traitant</li><li>Choix d'un utilisateur responsable au sein du service traitant</li><li>Workflow de validation du courrier</li><li>Workflow de traitement sur le courrier</li><li>etc.</li></ul><p>&nbsp;</p><p><a href=\"login?came_from=incoming-mail\">Cliquez ici pour accéder à l'application</a></p><p class=\"discreet\">Vous devez disposer d'un nom d'utilisateur et d'un mot de passe</p>"
 
-#: ./setuphandlers.py:346
+#: ./setuphandlers.py:354
 msgid "front_page_title"
 msgstr "Gestion du courrier"
 
@@ -241,11 +241,15 @@ msgstr "État: à assigner"
 msgid "searchfor_to_do"
 msgstr "État: à faire"
 
+#: ./setuphandlers.py:314
+msgid "task_im_treating"
+msgstr "Que je traite"
+
 #: ./setuphandlers.py:306
 msgid "task_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:314
+#: ./setuphandlers.py:322
 msgid "tasks_in_my_group"
 msgstr "Dans mon service"
 
