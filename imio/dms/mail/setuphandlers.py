@@ -303,6 +303,14 @@ def createIMTaskCollections(folder):
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
                      u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
+        {'id': 'to_treat', 'tit': _('task_to_treat'), 'subj': (u'todo', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['to_do']}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
+                     u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, },
         {'id': 'in_my_group', 'tit': _('tasks_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
@@ -890,7 +898,7 @@ def configureDocumentViewer(context):
     gsettings = GlobalSettings(site)
     gsettings.storage_location = os.path.join(os.getcwd(), 'var', 'dv_files')
     gsettings.storage_type = 'Blob'
-    gsettings.pdf_image_format = 'jpg'
+    gsettings.pdf_image_format = 'png'
     if 'excel' not in gsettings.auto_layout_file_types:
         gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ['excel', 'image']
     gsettings.show_search = True

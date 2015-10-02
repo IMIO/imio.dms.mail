@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-28 15:31+0000\n"
+"POT-Creation-Date: 2015-10-02 08:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -118,12 +118,12 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./setuphandlers.py:290
+#: ./setuphandlers.py:291
 msgid "all_im_tasks"
 msgstr "All tasks"
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:226
+#: ./setuphandlers.py:227
 msgid "all_incoming_mails"
 msgstr "All mails"
 
@@ -136,39 +136,39 @@ msgstr "Contact used by"
 msgid "create_im"
 msgstr "Create an incoming mail"
 
-#: ./setuphandlers.py:338
+#: ./setuphandlers.py:347
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:339
+#: ./setuphandlers.py:348
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:337
+#: ./setuphandlers.py:346
 msgid "front_page_title"
 msgstr "Mails management"
 
-#: ./setuphandlers.py:257
+#: ./setuphandlers.py:258
 msgid "im_have_treated"
 msgstr "That I have treated"
 
-#: ./setuphandlers.py:249
+#: ./setuphandlers.py:250
 msgid "im_im_treating"
 msgstr "That I treat"
 
-#: ./setuphandlers.py:273
+#: ./setuphandlers.py:274
 msgid "im_in_copy"
 msgstr "In copy"
 
-#: ./setuphandlers.py:265
+#: ./setuphandlers.py:266
 msgid "im_in_my_group"
 msgstr "In my group"
 
-#: ./setuphandlers.py:241
+#: ./setuphandlers.py:242
 msgid "im_to_treat"
 msgstr "To treat"
 
-#: ./setuphandlers.py:232
+#: ./setuphandlers.py:233
 msgid "im_to_validate"
 msgstr "To validate"
 
@@ -241,11 +241,15 @@ msgstr "To assign"
 msgid "searchfor_to_do"
 msgstr "To do"
 
-#: ./setuphandlers.py:305
+#: ./setuphandlers.py:306
+msgid "task_to_treat"
+msgstr "To treat"
+
+#: ./setuphandlers.py:314
 msgid "tasks_in_my_group"
 msgstr "In my group"
 
-#: ./setuphandlers.py:296
+#: ./setuphandlers.py:297
 msgid "tasks_to_validate"
 msgstr "To validate"
 
