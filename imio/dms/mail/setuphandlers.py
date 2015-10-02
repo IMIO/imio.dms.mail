@@ -319,6 +319,14 @@ def createIMTaskCollections(folder):
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
                      u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
+        {'id': 'have_treated', 'tit': _('task_have_treated'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed', 'realized']}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
+                     u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, },
         {'id': 'in_my_group', 'tit': _('tasks_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',

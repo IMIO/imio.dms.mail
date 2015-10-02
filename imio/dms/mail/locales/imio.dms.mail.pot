@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-10-02 08:58+0000\n"
+"POT-Creation-Date: 2015-10-02 09:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -138,15 +138,15 @@ msgstr ""
 msgid "create_im"
 msgstr ""
 
-#: ./setuphandlers.py:355
+#: ./setuphandlers.py:363
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:356
+#: ./setuphandlers.py:364
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:354
+#: ./setuphandlers.py:362
 msgid "front_page_title"
 msgstr ""
 
@@ -243,6 +243,10 @@ msgstr ""
 msgid "searchfor_to_do"
 msgstr ""
 
+#: ./setuphandlers.py:322
+msgid "task_have_treated"
+msgstr ""
+
 #: ./setuphandlers.py:314
 msgid "task_im_treating"
 msgstr ""
@@ -251,7 +255,7 @@ msgstr ""
 msgid "task_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:322
+#: ./setuphandlers.py:330
 msgid "tasks_in_my_group"
 msgstr ""
 
