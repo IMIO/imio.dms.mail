@@ -7,7 +7,7 @@
         <a id="newIMCreation" href="#"
            style="display: inline;"
            tal:condition="python: member.has_permission('collective.dms.mailcontent: Add Incoming Mail', folder)"
-           tal:attributes="href string:${folder/absolute_url}/++add++dmsincomingmail">
+           tal:attributes="href string:${folder/absolute_url}/++add++dmsincomingmail?no_redirect=1">
             <img tal:attributes="src string:$portal_url/++resource++dmsincomingmail_icon.png"
               title="create_im" i18n:attributes="title" />
         </a>
