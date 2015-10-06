@@ -181,7 +181,8 @@ class IMEdit(DmsDocumentEdit):
             display_fields.extend([
                 'sender',
                 'mail_type',
-                'reception_date'
+                'reception_date',
+                'original_mail_date',
             ])
 
             for field in display_fields:
