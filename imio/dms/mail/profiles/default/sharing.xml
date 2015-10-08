@@ -1,0 +1,14 @@
+<sharing xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+         i18n:domain="plone">
+  <role
+      id="IM Field Writer"
+      title="IM Field Writer"
+      i18n:attributes="title"
+      />
+
+  <role
+      id="IM Treating Group Writer"
+      title="IM Treating Group Writer"
+      i18n:attributes="title"
+      />
+</sharing>

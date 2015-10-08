@@ -72,7 +72,8 @@ class Migrate_To_0_4(Migrator):
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.task:default')
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'controlpanel', 'portlets', 'repositorytool',
-                                                     'typeinfo'])
+                                                     'rolemap', 'sharing', 'typeinfo', 'workflow'])
+        self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('collective.dms.mailcontent', steps=['controlpanel'])
         self.runProfileSteps('collective.contact.plonegroup', steps=['controlpanel'])
         self.reinstall([
