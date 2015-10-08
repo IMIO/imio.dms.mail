@@ -123,6 +123,9 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     float: right;
 }
 
+.template-localroles .datagridwidget-cell {
+    width: auto;
+}
 /* colorization for incoming_mail_workflow */
 
 .state-created {
