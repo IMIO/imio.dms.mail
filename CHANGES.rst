@@ -7,7 +7,10 @@ Changelog
 - Replaced collection view and main portlet by dashboard and collectionwidget portlet
   [sgeulette]
 
-- Setup task workflow, task local roles configuration
+- Setup task workflow, task local roles configuration, task collections
+  [sgeulette]
+
+- Protect treating_groups field by write permission
   [sgeulette]
 
 - Added robot tests for screenshots
@@ -22,7 +25,8 @@ Changelog
 - Some improvements: contact add width, also validateur in assigned user, changed default position types,
                      actions panel transition configuration, corrected listing, removed adding mainfile from menu,
                      colorized collection results, removed grok, improved assigned user warning, front page text,
-                     set undo visible, improved state colorization, changed configlet permission, added reorder on mail types
+                     set undo visible, improved state colorization, changed configlet permission, added reorder on mail types,
+                     added link to plonegroup-organization, 
   [sgeulette]
 
 

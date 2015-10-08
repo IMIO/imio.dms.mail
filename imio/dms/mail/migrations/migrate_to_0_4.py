@@ -3,9 +3,11 @@
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.container import contained
-from Products.CMFPlone.utils import base_hasattr
+
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
+
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
@@ -66,6 +68,23 @@ class Migrate_To_0_4(Migrator):
 
         im_folder.setConstrainTypesMode(1)
 
+    def update_local_roles(self):
+        """ Add dexterity local roles config """
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lrc = getattr(fti, 'localroleconfig')
+        if 'created' in lrc and 'encodeurs' in lrc['created'] and \
+                'IM Treating Group Writer' not in lrc['created']['encodeurs']:
+            lrc['created']['encodeurs'].append('IM Treating Group Writer')
+        for state in ['proposed_to_manager', 'proposed_to_service_chief', 'proposed_to_agent', 'in_treatment',
+                      'closed']:
+            if state in lrc and 'dir_general' in lrc[state] and \
+                    'IM Treating Group Writer' not in lrc[state]['dir_general']:
+                lrc[state]['dir_general'].append('IM Treating Group Writer')
+        tg = getattr(fti, 'treating_groups')
+        if 'proposed_to_service_chief' in tg and 'validateur' in tg['proposed_to_service_chief'] and \
+                'IM Treating Group Writer' not in tg['proposed_to_service_chief']['validateur']:
+            tg['proposed_to_service_chief']['validateur'].append('IM Treating Group Writer')
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
@@ -107,6 +126,9 @@ class Migrate_To_0_4(Migrator):
 
         # set task local roles configuration
         configure_task_rolefields(self.portal)
+
+        # update dexterity local roles configuration
+        self.update_local_roles()
 
         # add task actionspanel config
         self.registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] += \
