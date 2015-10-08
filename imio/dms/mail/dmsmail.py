@@ -72,6 +72,8 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
              },
         )
     )
+    # Using write_permission hides field. Using display in edit view is preferred
+    # directives.write_permission(treating_groups='imio.dms.mail.write_treating_group_field')
 
     recipient_groups = LocalRolesField(
         title=_(u"Recipient groups"),
@@ -167,8 +169,8 @@ class IMEdit(DmsDocumentEdit):
         sm = getSecurityManager()
         incomingmail_fti = api.portal.get_tool('portal_types').dmsincomingmail
         behaviors = incomingmail_fti.behaviors
+        display_fields = []
         if not sm.checkPermission('imio.dms.mail : Write incoming mail field', self.context):
-            display_fields = []
             if IDublinCore.__identifier__ in behaviors:
                 display_fields = [
                     'IDublinCore.title',
@@ -184,9 +186,11 @@ class IMEdit(DmsDocumentEdit):
                 'reception_date',
                 'original_mail_date',
             ])
+        if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
+            display_fields.append('treating_groups')
 
-            for field in display_fields:
-                self.widgets[field].mode = 'display'
+        for field in display_fields:
+            self.widgets[field].mode = 'display'
 
         # disable left column
         self.request.set('disable_plone.leftcolumn', 1)

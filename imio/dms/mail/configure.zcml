@@ -14,6 +14,8 @@
 
     <permission id="imio.dms.mail.write_im_field"
                 title="imio.dms.mail : Write incoming mail field"/>
+    <permission id="imio.dms.mail.write_treating_group_field"
+                title="imio.dms.mail : Write treating group field"/>
 
     <include package="Products.PasswordStrength" />
     <include package="collective.behavior.talcondition" />

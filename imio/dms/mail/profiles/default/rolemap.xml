@@ -2,6 +2,7 @@
 <rolemap>
   <roles>
     <role name="IM Field Writer"/>
+    <role name="IM Treating Group Writer"/>
 <!-- ##code-section roles -->
 <!-- ##/code-section roles -->
   </roles>

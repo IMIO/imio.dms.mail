@@ -17,6 +17,30 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: plone\n"
 
+#: profiles/default/types/dmsmainfile.xml
+msgid "Dms main file of a Dms document"
+msgstr ""
+
+#: profiles/default/types/dmsmainfile.xml
+msgid "DmsMainFile"
+msgstr ""
+
+#: profiles/default/rolemap.xml
+msgid "IM Field Writer"
+msgstr ""
+
+#: profiles/default/rolemap.xml
+msgid "IM Treating Group Writer"
+msgstr ""
+
+#: profiles/default/controlpanel.xml
+msgid "Imio Dms Mail settings"
+msgstr ""
+
+#: profiles/default/portal_atct.xml
+msgid "Internal Reference Number"
+msgstr ""
+
 msgid "dmsincomingmail-highest-validation"
 msgstr ""
 

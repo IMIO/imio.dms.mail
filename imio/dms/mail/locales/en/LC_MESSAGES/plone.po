@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-09-28 15:31+0000\n"
+"POT-Creation-Date: 2015-10-08 09:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,11 +24,11 @@ msgid "DmsMainFile"
 msgstr "Dms main file"
 
 #: profiles/default/rolemap.xml
-msgid "General Manager"
+msgid "IM Field Writer"
 msgstr ""
 
 #: profiles/default/rolemap.xml
-msgid "IM Field Writer"
+msgid "IM Treating Group Writer"
 msgstr ""
 
 #: profiles/default/controlpanel.xml
