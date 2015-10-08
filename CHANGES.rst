@@ -26,7 +26,7 @@ Changelog
                      actions panel transition configuration, corrected listing, removed adding mainfile from menu,
                      colorized collection results, removed grok, improved assigned user warning, front page text,
                      set undo visible, improved state colorization, changed configlet permission, added reorder on mail types,
-                     added link to plonegroup-organization, 
+                     added link to plonegroup-organization, improved localroles config column width
   [sgeulette]
 
 
