@@ -27,6 +27,10 @@ class UtilsMethods(BrowserView):
         """ Return current user groups """
         return api.group.get_groups(user=api.user.get_current())
 
+    def current_user_groups_ids(self):
+        """ Return current user groups ids """
+        return [g.id for g in api.group.get_groups(user=api.user.get_current())]
+
     def highest_scan_id(self):
         """ Return highest scan id """
         pc = getToolByName(self.context, 'portal_catalog')
@@ -68,13 +72,13 @@ class IdmUtilsMethods(UtilsMethods):
 
     def created_col_cond(self):
         """ Condition for searchfor_created collection """
-        if 'encodeurs' in self.current_user_groups():
+        if 'encodeurs' in self.current_user_groups_ids():
             return True
         return False
 
     def proposed_to_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_manager collection """
-        if 'dir_general' in self.current_user_groups():
+        if 'dir_general' in self.current_user_groups_ids():
             return True
         return False
 
