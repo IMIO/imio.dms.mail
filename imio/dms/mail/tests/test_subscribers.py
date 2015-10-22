@@ -42,25 +42,3 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(dfile.owner_info()['id'], 'encodeur')
         self.assertEquals(dfile.get_local_roles_for_userid('encodeur'), ('Owner',))
         self.assertEquals(dfile.get_local_roles_for_userid('scanner'), ())
-
-    def test_mark_organization(self):
-        contacts = self.portal.contacts
-        plonegroup_org = contacts['plonegroup-organization']
-        external = api.content.create(
-            type='organization', id='external', container=contacts)
-        self.assertTrue(IExternalContact.providedBy(external))
-        self.assertFalse(IInternalContact.providedBy(external))
-
-        internal = api.content.create(
-            type='organization', id='internal', container=plonegroup_org)
-        self.assertTrue(IInternalContact.providedBy(internal))
-        self.assertFalse(IExternalContact.providedBy(internal))
-
-        api.content.move(source=internal, target=contacts)
-        self.assertTrue(IExternalContact.providedBy(internal))
-        self.assertFalse(IInternalContact.providedBy(internal))
-
-        internal = api.content.create(
-            type='person', id='person', container=contacts)
-        self.assertTrue(IExternalContact.providedBy(external))
-        self.assertFalse(IInternalContact.providedBy(external))

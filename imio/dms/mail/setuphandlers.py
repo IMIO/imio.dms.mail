@@ -40,7 +40,6 @@ from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 
 from interfaces import IDirectoryFacetedNavigable
-from subscribers import mark_organization
 from utils import list_wf_states
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -49,13 +48,6 @@ logger = logging.getLogger('imio.dms.mail: setuphandlers')
 def _(msgid, domain='imio.dms.mail'):
     translation_domain = queryUtility(ITranslationDomain, domain)
     return translation_domain.translate(msgid, context=getSite().REQUEST, target_language='fr')
-
-
-def mark_organizations(portal):
-    """Mark each contact content as internal or external."""
-    for brain in portal.portal_catalog.searchResults(
-            object_provides=['collective.contact.widget.interfaces.IContactContent']):
-        mark_organization(brain.getObject(), None)
 
 
 def add_db_col_folder(folder, id, title, displayed=''):
@@ -733,9 +725,6 @@ def addTestDirectory(context):
     # we configure faceted navigations for contacts
     alsoProvides(contacts, IDirectoryFacetedNavigable)
     setupFacetedContacts(site)
-
-    # set marker interfaces on organizations
-    mark_organizations(site)
 
 
 def addTestMails(context):

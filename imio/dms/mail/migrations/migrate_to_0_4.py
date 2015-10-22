@@ -3,6 +3,7 @@
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.container import contained
+from zope.interface import noLongerProvides
 
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -11,8 +12,9 @@ from plone.registry.interfaces import IRegistry
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
-from ..setuphandlers import _, configure_faceted_folder, configure_task_rolefields
-from ..setuphandlers import add_db_col_folder
+from ..interfaces import IExternalContact, IInternalContact
+from ..setuphandlers import _, configure_faceted_folder, reimport_faceted_config
+from ..setuphandlers import add_db_col_folder, configure_task_rolefields
 from ..setuphandlers import createIMailCollections, createIMTaskCollections, createStateCollections
 
 import logging
@@ -68,6 +70,19 @@ class Migrate_To_0_4(Migrator):
 
         im_folder.setConstrainTypesMode(1)
 
+    def remove_contact_interfaces(self):
+        """ Remove deprecated interfaces on contact """
+        catalog = api.portal.get_tool('portal_catalog')
+        brains = catalog.searchResults(object_provides=['imio.dms.mail.interfaces.IInternalContact',
+                                                        'imio.dms.mail.interfaces.IExternalContact'])
+        for brain in brains:
+            obj = brain.getObject()
+            if IInternalContact.providedBy(obj):
+                noLongerProvides(obj, IInternalContact)
+            if IExternalContact.providedBy(obj):
+                noLongerProvides(obj, IExternalContact)
+            obj.reindexObject(idxs=['object_provides'])
+
     def update_local_roles(self):
         """ Add dexterity local roles config """
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
@@ -90,6 +105,7 @@ class Migrate_To_0_4(Migrator):
         self.cleanRegistries()
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.task:default')
+        self.upgradeProfile('collective.contact.plonegroup:default')
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'controlpanel', 'portlets', 'repositorytool',
                                                      'rolemap', 'sharing', 'typeinfo', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
@@ -106,19 +122,21 @@ class Migrate_To_0_4(Migrator):
         # delete old dmsmail portlet
         self.delete_portlet(self.portal, 'portlet_maindmsmail')
 
+        # remove deprecated interfaces
+        self.remove_contact_interfaces()
+
         # replace collections by Dashboard collections
         im_folder = self.portal['incoming-mail']
         self.replaceCollections(im_folder)
+
+        # apply contact faceted config
+        reimport_faceted_config(self.portal)
 
         # add new indexes for dashboard
         addOrUpdateIndexes(self.portal, indexInfos={'mail_type': ('FieldIndex', {}),
                                                     'mail_date': ('DateIndex', {}),
                                                     'in_out_date': ('DateIndex', {}),
                                                     })
-#        catalog = api.portal.get_tool('portal_catalog')
-#        brains = catalog.searchResults(portal_type='dmsincomingmail')
-#        for brain in brains:
-#            brain.getObject().reindexObject(idxs=['mail_type', 'mail_date', 'in_out_date'])
 
         # set dashboard on incoming mail
         configure_faceted_folder(im_folder, xml='default_dashboard_widgets.xml',

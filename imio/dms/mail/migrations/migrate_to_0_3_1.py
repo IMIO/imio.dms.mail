@@ -10,7 +10,7 @@ from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
 from ..setuphandlers import createStateCollections, createIMailCollections, setupFacetedContacts
-from ..setuphandlers import mark_organizations, changeSearchedTypes, configure_actions_panel
+from ..setuphandlers import changeSearchedTypes, configure_actions_panel
 from ..subscribers import new_incomingmail
 
 import logging
@@ -170,9 +170,6 @@ class Migrate_To_0_3_1(Migrator):
         #    brain.getObject().reindexObject(idxs=['organization_type'])
 
         setupFacetedContacts(self.portal)
-
-        # migrate plonegroup organizations
-        mark_organizations(self.portal)
 
         changeSearchedTypes(self.portal)
 

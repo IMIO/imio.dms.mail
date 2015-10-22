@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
-from zope.interface import alsoProvides, noLongerProvides
-from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from Products.CMFCore.utils import getToolByName
-
-from imio.dms.mail.interfaces import IInternalContact, IExternalContact
 
 
 def replace_scanner(imail, event):
@@ -49,21 +45,3 @@ def new_incomingmail(imail, event):
     """
     imail.__ac_local_roles_block__ = True
     imail.reindexObjectSecurity()
-
-
-def mark_organization(contact, event):
-    """ Set a marker interface on contact content. """
-    if IObjectRemovedEvent.providedBy(event):
-        return
-    if '/contacts/plonegroup-organization' in contact.absolute_url_path():
-        if not IInternalContact.providedBy(contact):
-            alsoProvides(contact, IInternalContact)
-        if IExternalContact.providedBy(contact):
-            noLongerProvides(contact, IExternalContact)
-    else:
-        if not IExternalContact.providedBy(contact):
-            alsoProvides(contact, IExternalContact)
-        if IInternalContact.providedBy(contact):
-            noLongerProvides(contact, IInternalContact)
-
-    contact.reindexObject(idxs='object_provides')

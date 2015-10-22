@@ -22,6 +22,9 @@ Changelog
 - Added unit tests to improve coverage
   [sgeulette]
 
+- Upgraded collective.contact.plonegroup. Removed deprecated interfaces usage.
+  [sgeulette]
+
 - Some improvements: contact add width, also validateur in assigned user, changed default position types,
                      actions panel transition configuration, corrected listing, removed adding mainfile from menu,
                      colorized collection results, removed grok, improved assigned user warning, front page text,

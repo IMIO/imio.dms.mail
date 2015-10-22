@@ -9,7 +9,7 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize.instance import memoize
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from imio.dms.mail.interfaces import IInternalContact, IExternalContact
+from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPloneGroupContact
 from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users
 from browser.settings import IImioDmsMailConfig
 
@@ -81,14 +81,14 @@ class IMMailTypesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-class InterfacesShownInFacetedNav(object):
+class PloneGroupInterfacesVocabulary(object):
     """List interfaces that will be shown in contacts faceted navigation."""
     implements(IVocabularyFactory)
 
     def __call__(self, context):
         interfaces = [
-            IExternalContact,
-            IInternalContact,
+            IPloneGroupContact,
+            INotPloneGroupContact,
         ]
 
         terms = [SimpleVocabulary.createTerm(
