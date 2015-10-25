@@ -3,17 +3,17 @@
   <utilities>
     <utility
       interface="zope.schema.interfaces.IVocabularyFactory"
-      factory="imio.dms.mail.dmsmail.TreatingGroupsVocabulary"
+      factory="collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
       name="collective.dms.basecontent.treating_groups"
     />
     <utility
       interface="zope.schema.interfaces.IVocabularyFactory"
-      factory="imio.dms.mail.dmsmail.RecipientGroupsVocabulary"
+      factory="collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
       name="collective.dms.basecontent.recipient_groups"
     />
     <utility
       interface="zope.schema.interfaces.IVocabularyFactory"
-      factory="imio.dms.mail.dmsmail.TreatingGroupsVocabulary"
+      factory="collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
       name="collective.task.AssignedGroups"
     />
   </utilities>

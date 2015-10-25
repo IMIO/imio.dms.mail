@@ -111,20 +111,6 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     #directives.widget(recipient_groups=SelectFieldWidget)
 
 
-class TreatingGroupsVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return selectedOrganizationsVocabulary()
-
-
-class RecipientGroupsVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return selectedOrganizationsVocabulary()
-
-
 class ImioDmsIncomingMailSchemaPolicy(DexteritySchemaPolicy):
     """ """
     def bases(self, schemaName, tree):

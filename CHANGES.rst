@@ -13,6 +13,9 @@ Changelog
 - Protect treating_groups field by write permission
   [sgeulette]
 
+- Use elephantvocabulary of plonegroup
+  [sgeulette]
+
 - Added robot tests for screenshots
   [sgeulette]
 
