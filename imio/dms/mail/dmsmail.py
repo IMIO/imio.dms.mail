@@ -5,7 +5,7 @@ from zope.interface import implements, alsoProvides
 from zope.schema.fieldproperty import FieldProperty
 #from plone.autoform.interfaces import IFormFieldProvider
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
+from zope.schema.interfaces import IContextSourceBinder
 from z3c.form.interfaces import HIDDEN_MODE
 from plone import api
 from plone.autoform import directives
@@ -17,7 +17,7 @@ from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
 from AccessControl import getSecurityManager
 
-from collective.contact.plonegroup.browser.settings import selectedOrganizationsVocabulary
+from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
 from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
 from collective.task.field import LocalRoleMasterSelectField
@@ -109,6 +109,10 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
 
     directives.omitted('reply_to', 'related_docs', 'recipients')
     #directives.widget(recipient_groups=SelectFieldWidget)
+
+# Compatibility with old vocabularies
+TreatingGroupsVocabulary = SelectedOrganizationsElephantVocabulary
+RecipientGroupsVocabulary = SelectedOrganizationsElephantVocabulary
 
 
 class ImioDmsIncomingMailSchemaPolicy(DexteritySchemaPolicy):
