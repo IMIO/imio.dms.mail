@@ -785,13 +785,14 @@ def addTestMails(context):
 
     # tasks
     mail = ifld['courrier1']
-    mail.invokeFactory('task', id='tache1', title='Tâche 1', assigned_group=mail.treating_groups)
-    mail.invokeFactory('task', id='tache2', title='Tâche 2', assigned_group=mail.treating_groups)
-    mail.invokeFactory('task', id='tache3', title='Tâche autre service', assigned_group=orgas_cycle.next())
+    mail.invokeFactory('task', id='tache1', title=u'Tâche 1', assigned_group=mail.treating_groups)
+    mail.invokeFactory('task', id='tache2', title=u'Tâche 2', assigned_group=mail.treating_groups)
+    mail.invokeFactory('task', id='tache3', title=u'Tâche autre service', assigned_group=orgas_cycle.next())
     task3 = mail['tache3']
-    task3.invokeFactory('task', id='tache3-1', title='Sous-tâche 1', assigned_group=task3.assigned_group)
-    task3.invokeFactory('task', id='tache3-2', title='Sous-tâche 2', assigned_group=task3.assigned_group)
+    task3.invokeFactory('task', id='tache3-1', title=u'Sous-tâche 1', assigned_group=task3.assigned_group)
+    task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group)
 
+    return
     senders_cycle = cycle(senders)
     # outgoing mails
     ofld = site['outgoing-mail']
