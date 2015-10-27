@@ -18,8 +18,7 @@
                 title="imio.dms.mail : Write treating group field"/>
 
     <include package="Products.PasswordStrength" />
-    <include package="collective.behavior.talcondition" />
-    <include package="collective.compoundcriterion" />
+    <include package="imio.dashboard"/>
     <include package="collective.dms.basecontent" />
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
@@ -34,8 +33,6 @@
     <include package="plone.app.lockingbehavior"/>
     <include package="collective.dexteritytextindexer"/>
     <include package="plone.app.versioningbehavior"/>
-    <include package="imio.dashboard"/>
-    <include package="imio.history"/>
     <include package=".browser" />
 
     <include package="collective.querynextprev" />

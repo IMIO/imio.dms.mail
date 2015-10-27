@@ -6,7 +6,6 @@
    <include package="communesplone.layout"/>
    <include package="imio.dms.mail"/>
    <include package="plonetheme.imioapps"/>
-   <include package="imio.actionspanel"/>
 
    <include file="configure.zcml"/>
    <includeOverrides file="overrides.zcml" />
