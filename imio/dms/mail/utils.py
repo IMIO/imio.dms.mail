@@ -10,8 +10,69 @@ from Products.Five import BrowserView
 from adapters import highest_review_level, organizations_with_suffixes
 from browser.settings import IImioDmsMailConfig
 
-# views
 
+# methods
+
+def get_selected_org_suffix_users(org_uid, suffixes):
+    """
+        Get users that belongs to suffixed groups related to selected organization.
+    """
+    org_members = []
+    # only add to vocabulary users with these functions in the organization
+    for function_id in suffixes:
+        groupname = "{}_{}".format(org_uid, function_id)
+        members = api.user.get_users(groupname=groupname)
+        for member in members:
+            if member not in org_members:
+                org_members.append(member)
+    return org_members
+
+
+def voc_selected_org_suffix_users(org_uid, suffixes):
+    """
+        Return users vocabulary that belongs to suffixed groups related to selected organization.
+    """
+    if not org_uid or org_uid == u'--NOVALUE--':
+        return SimpleVocabulary([])
+    terms = []
+    # only add to vocabulary users with these functions in the organization
+    for member in sorted(get_selected_org_suffix_users(org_uid, suffixes), key=methodcaller('getUserName')):
+            terms.append(SimpleTerm(
+                value=member.getUserName(),  # login
+                token=member.getId(),  # id
+                title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
+    return SimpleVocabulary(terms)
+
+
+def list_wf_states(context, portal_type):
+    """
+        list all portal_type wf states
+    """
+    ordered_states = {
+        'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
+                            'proposed_to_agent', 'in_treatment', 'closed'],
+        'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed']
+    }
+    if portal_type not in ordered_states:
+        return []
+    pw = getToolByName(context, 'portal_workflow')
+    ret = []
+    # wf states
+    for workflow in pw.getWorkflowsFor(portal_type):
+        state_ids = [value.id for value in workflow.states.values()]
+        break
+    # keep ordered states
+    for state in ordered_states[portal_type]:
+        if state in state_ids:
+            ret.append(state)
+            state_ids.remove(state)
+    # add missing
+    for missing in state_ids:
+        ret.append(missing)
+    return ret
+
+
+# views
 
 class UtilsMethods(BrowserView):
     """ View containing utils methods """
@@ -87,64 +148,3 @@ class IdmUtilsMethods(UtilsMethods):
         if organizations_with_suffixes(self.current_user_groups(), ['validateur']):
             return True
         return False
-
-# methods
-
-
-def get_selected_org_suffix_users(org_uid, suffixes):
-    """
-        Get users that belongs to suffixed groups related to selected organization.
-    """
-    org_members = []
-    # only add to vocabulary users with these functions in the organization
-    for function_id in suffixes:
-        groupname = "{}_{}".format(org_uid, function_id)
-        members = api.user.get_users(groupname=groupname)
-        for member in members:
-            if member not in org_members:
-                org_members.append(member)
-    return org_members
-
-
-def voc_selected_org_suffix_users(org_uid, suffixes):
-    """
-        Return users vocabulary that belongs to suffixed groups related to selected organization.
-    """
-    if not org_uid or org_uid == u'--NOVALUE--':
-        return SimpleVocabulary([])
-    terms = []
-    # only add to vocabulary users with these functions in the organization
-    for member in sorted(get_selected_org_suffix_users(org_uid, suffixes), key=methodcaller('getUserName')):
-            terms.append(SimpleTerm(
-                value=member.getUserName(),  # login
-                token=member.getId(),  # id
-                title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
-    return SimpleVocabulary(terms)
-
-
-def list_wf_states(context, portal_type):
-    """
-        list all portal_type wf states
-    """
-    ordered_states = {
-        'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
-                            'proposed_to_agent', 'in_treatment', 'closed'],
-        'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed']
-    }
-    if portal_type not in ordered_states:
-        return []
-    pw = getToolByName(context, 'portal_workflow')
-    ret = []
-    # wf states
-    for workflow in pw.getWorkflowsFor(portal_type):
-        state_ids = [value.id for value in workflow.states.values()]
-        break
-    # keep ordered states
-    for state in ordered_states[portal_type]:
-        if state in state_ids:
-            ret.append(state)
-            state_ids.remove(state)
-    # add missing
-    for missing in state_ids:
-        ret.append(missing)
-    return ret
