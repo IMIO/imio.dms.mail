@@ -3,6 +3,7 @@ from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 from zope.i18n import translate
 from z3c.table.column import Column
+from Products.CMFPlone.utils import safe_unicode
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.dms.mail import _
@@ -40,4 +41,4 @@ class AssignedGroupColumn(Column):
             return ''
         factory = getUtility(IVocabularyFactory, 'collective.task.AssignedGroups')
         voc = factory(item)
-        return voc.getTerm(item.assigned_group).title
+        return safe_unicode(voc.getTerm(item.assigned_group).title)
