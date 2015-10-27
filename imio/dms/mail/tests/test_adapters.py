@@ -5,6 +5,7 @@ from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from ..testing import DMSMAIL_INTEGRATION_TESTING
+from ..adapters import default_criterias
 from ..adapters import IncomingMailHighestValidationCriterion
 from ..adapters import IncomingMailInTreatingGroupCriterion
 from ..adapters import IncomingMailInCopyGroupCriterion
@@ -23,30 +24,30 @@ class TestAdapters(unittest.TestCase):
 
     def test_IncomingMailHighestValidationCriterion(self):
         crit = IncomingMailHighestValidationCriterion(self.portal)
-        # no groups
-        self.assertEqual(crit.query, {})
+        # no groups, => default criterias
+        self.assertEqual(crit.query, default_criterias['dmsincomingmail'])
         api.group.create(groupname='111_validateur')
         api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
         # in a group _validateur
-        self.assertEqual(crit.query, {'review_state': 'proposed_to_service_chief',
-                                      'treating_groups': ['111']})
+        self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_service_chief']},
+                                      'treating_groups': {'query': ['111']}})
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         # in a group dir_general
-        self.assertEqual(crit.query, {'review_state': 'proposed_to_manager'})
+        self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_manager']}})
 
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
-        self.assertEqual(crit.query, {'treating_groups': []})
+        self.assertEqual(crit.query, {'treating_groups': {'query': []}})
         api.group.create(groupname='111_validateur')
         api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'treating_groups': ['111']})
+        self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_IncomingMailInCopyGroupCriterion(self):
         crit = IncomingMailInCopyGroupCriterion(self.portal)
-        self.assertEqual(crit.query, {'recipient_groups': []})
+        self.assertEqual(crit.query, {'recipient_groups': {'query': []}})
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'recipient_groups': ['111']})
+        self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
 
     def test_ScanSearchableExtender(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
