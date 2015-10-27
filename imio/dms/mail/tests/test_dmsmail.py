@@ -17,22 +17,24 @@ class TestDmsmail(unittest.TestCase):
 
     def test_registeredMailTypes(self):
         from imio.dms.mail.dmsmail import registeredMailTypes
-        voc_dic = registeredMailTypes(self).by_token
-        voc_list = [(voc_dic[key].value, voc_dic[key].title) for key in voc_dic.keys()]
-        self.assertEquals(voc_list, [(None, 'Choose a value !'), (u'Courrier', u'Courrier'), (u'Facture', u'Facture'),
-                                     (u'Retour recommandé', u'Retour recommandé')])
+        voc_list = [(t.value, t.title) for t in registeredMailTypes(self)]
+        self.assertEquals(voc_list, [(None, 'Choose a value !'), (u'courrier', u'Courrier'),
+                                     (u'recommande', u'Recommandé'), (u'email', u'E-mail'), (u'fax', u'Fax'),
+                                     (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
 
     def test_TreatingGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary
         voc_inst = TreatingGroupsVocabulary()
-        voc_dic = voc_inst(self.portal).by_token
-        self.assertEquals(len(voc_dic), 4)
+        voc = voc_inst(self.portal)
+        self.assertEquals(len([t for t in voc]), 6)
+        self.assertNotEqual(len(voc), 6)  # len = full vocabulary with hidden terms
 
     def test_RecipientGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import RecipientGroupsVocabulary
         voc_inst = RecipientGroupsVocabulary()
-        voc_dic = voc_inst(self.portal).by_token
-        self.assertEquals(len(voc_dic), 4)
+        voc = voc_inst(self.portal)
+        self.assertEquals(len([t for t in voc]), 6)
+        self.assertNotEqual(len(voc), 6)  # len = full vocabulary with hidden terms
 
     def test_Title(self):
         imail1 = self.portal['incoming-mail']['courrier1']
