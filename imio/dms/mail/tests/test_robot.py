@@ -6,5 +6,6 @@ from imio.dms.mail.testing import DMSMAIL_ROBOT_TESTING
 
 
 def test_suite():
-    return layered(robotsuite.RobotTestSuite('robot/dmsmail.robot', 'robot/doc.robot'),
+    return layered(robotsuite.RobotTestSuite('robot/dmsmail.robot'),
                    layer=DMSMAIL_ROBOT_TESTING)
+#, 'robot/doc.robot'
