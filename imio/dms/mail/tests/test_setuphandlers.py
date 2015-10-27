@@ -71,13 +71,13 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertEquals(len(imails), 9)
         #checking outgoing mails
         omails = pc(portal_type=('dmsoutgoingmail',), path={"query": 'plone/outgoing-mail'})
-        self.assertEquals(len(omails), 9)
+        self.assertEquals(len(omails), 0)
 
     def test_addTestUsersAndGroups(self):
         #checking groups
         acl_users = getToolByName(self.portal, 'acl_users')
         lecteurs = [gd for gd in acl_users.searchGroups() if gd['groupid'].endswith('_lecteur')]
-        self.assertEquals(len(lecteurs), 4)
+        self.assertEquals(len(lecteurs), 6)
         #checking users
         mt = getToolByName(self.portal, 'portal_membership')
         users = [member for member in mt.listMembers()
