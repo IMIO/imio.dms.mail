@@ -15,4 +15,4 @@ class TestTabularView(unittest.TestCase):
 
     def test_render_field(self):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        view = self.portal.unrestrictedTraverse('incoming-mail/collections/all_mails/@@tabular_view')
+        view = self.portal.unrestrictedTraverse('incoming-mail/mail-searches/all_mails/@@tabular_view')
