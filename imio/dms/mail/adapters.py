@@ -157,7 +157,7 @@ class WorkflowMenu(OrigWorkflowMenu):
 @indexer(IContentish)
 def mail_type_index(obj):
     """ Index method escaping acquisition """
-    if base_hasattr(obj, 'mail_type'):
+    if base_hasattr(obj, 'mail_type') and obj.mail_type:
         return obj.mail_type
     return common_marker
 
