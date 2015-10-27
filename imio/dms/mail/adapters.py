@@ -1,7 +1,6 @@
 # encoding: utf-8
 from zope.component import adapts
 from zope.interface import implements
-from collections import OrderedDict
 from collective import dexteritytextindexer
 from AccessControl import getSecurityManager
 from plone import api
@@ -17,31 +16,15 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from dmsmail import IDmsIncomingMail
+from utils import review_levels, highest_review_level, organizations_with_suffixes
 
 #######################
 # Compound criterions #
 #######################
 
-review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
-                                                 ('_validateur', {'st': ['proposed_to_service_chief'],
-                                                                  'org': 'treating_groups'})]),
-                 'task': OrderedDict([('_validateur', {'st': ['to_assign', 'realized'],
-                                                       'org': 'assigned_group'})])}
-
-default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager', 'proposed_to_service_chief']}},
+default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager',
+                                                                    'proposed_to_service_chief']}},
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
-
-
-def highest_review_level(portal_type, group_ids):
-    """ Return the first review level """
-    if portal_type not in review_levels:
-        return None
-    for keyg in review_levels[portal_type].keys():
-        if keyg.startswith('_') and "%s'" % keyg in group_ids:
-            return keyg
-        elif "'%s'" % keyg in group_ids:
-            return keyg
-    return None
 
 
 def highest_validation_criterion(portal_type):
@@ -87,19 +70,6 @@ class TaskHighestValidationCriterion(object):
     @property
     def query(self):
         return highest_validation_criterion('task')
-
-
-def organizations_with_suffixes(groups, suffixes):
-    """ Return organization uid with suffixes """
-    orgs = []
-    for group in groups:
-        parts = group.id.split('_')
-        if len(parts) == 1:
-            continue
-        for suffix in suffixes:
-            if suffix == parts[1] and parts[0] not in orgs:
-                orgs.append(parts[0])
-    return orgs
 
 
 class IncomingMailInTreatingGroupCriterion(object):
