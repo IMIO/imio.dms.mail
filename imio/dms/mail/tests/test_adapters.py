@@ -4,13 +4,11 @@ from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
-from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.adapters import highest_review_level
-from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
-from imio.dms.mail.adapters import organizations_with_suffixes
-from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
-from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
-from imio.dms.mail.adapters import ScanSearchableExtender
+from ..testing import DMSMAIL_INTEGRATION_TESTING
+from ..adapters import IncomingMailHighestValidationCriterion
+from ..adapters import IncomingMailInTreatingGroupCriterion
+from ..adapters import IncomingMailInCopyGroupCriterion
+from ..adapters import ScanSearchableExtender
 
 
 class TestAdapters(unittest.TestCase):
@@ -22,12 +20,6 @@ class TestAdapters(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-
-    def test_highest_review_level(self):
-        self.assertIsNone(highest_review_level('a_type', ""))
-        self.assertIsNone(highest_review_level('dmsincomingmail', ""))
-        self.assertEquals(highest_review_level('dmsincomingmail', "['dir_general']"), 'dir_general')
-        self.assertEquals(highest_review_level('dmsincomingmail', "['111_validateur']"), '_validateur')
 
     def test_IncomingMailHighestValidationCriterion(self):
         crit = IncomingMailHighestValidationCriterion(self.portal)
@@ -41,18 +33,6 @@ class TestAdapters(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         # in a group dir_general
         self.assertEqual(crit.query, {'review_state': 'proposed_to_manager'})
-
-    def test_organizations_with_suffixes(self):
-        g1 = api.group.create(groupname='111_suf1')
-        g2 = api.group.create(groupname='112_suf1')
-        g3 = api.group.create(groupname='112_suf2')
-        self.assertEqual(organizations_with_suffixes([], []), [])
-        self.assertEqual(organizations_with_suffixes([g1, g2], []), [])
-        self.assertEqual(organizations_with_suffixes([], ['suf1']), [])
-        self.assertEqual(organizations_with_suffixes([g1, g2], ['suf1']),
-                         ['111', '112'])
-        self.assertEqual(organizations_with_suffixes([g1, g3], ['suf1', 'suf2']),
-                         ['111', '112'])
 
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)

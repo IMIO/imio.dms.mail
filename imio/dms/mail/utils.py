@@ -1,17 +1,52 @@
 # encoding: utf-8
 from operator import methodcaller
+from collections import OrderedDict
+
 from zope.component.hooks import getSite
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import getUtility
+
 from plone import api
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.Five import BrowserView
-from adapters import highest_review_level, organizations_with_suffixes
+
 from browser.settings import IImioDmsMailConfig
 
 
 # methods
+
+review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                                 ('_validateur', {'st': ['proposed_to_service_chief'],
+                                                                  'org': 'treating_groups'})]),
+                 'task': OrderedDict([('_validateur', {'st': ['to_assign', 'realized'],
+                                                       'org': 'assigned_group'})])}
+
+
+def highest_review_level(portal_type, group_ids):
+    """ Return the first review level """
+    if portal_type not in review_levels:
+        return None
+    for keyg in review_levels[portal_type].keys():
+        if keyg.startswith('_') and "%s'" % keyg in group_ids:
+            return keyg
+        elif "'%s'" % keyg in group_ids:
+            return keyg
+    return None
+
+
+def organizations_with_suffixes(groups, suffixes):
+    """ Return organization uid with suffixes """
+    orgs = []
+    for group in groups:
+        parts = group.id.split('_')
+        if len(parts) == 1:
+            continue
+        for suffix in suffixes:
+            if suffix == parts[1] and parts[0] not in orgs:
+                orgs.append(parts[0])
+    return orgs
+
 
 def get_selected_org_suffix_users(org_uid, suffixes):
     """

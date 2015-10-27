@@ -6,9 +6,11 @@ from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.utils import IdmUtilsMethods, voc_selected_org_suffix_users
-from imio.dms.mail.browser.settings import IImioDmsMailConfig
+
+from ..testing import DMSMAIL_INTEGRATION_TESTING
+from ..utils import highest_review_level, organizations_with_suffixes, voc_selected_org_suffix_users
+from ..utils import IdmUtilsMethods
+from ..browser.settings import IImioDmsMailConfig
 
 
 class TestUtils(unittest.TestCase):
@@ -20,6 +22,24 @@ class TestUtils(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
+
+    def test_highest_review_level(self):
+        self.assertIsNone(highest_review_level('a_type', ""))
+        self.assertIsNone(highest_review_level('dmsincomingmail', ""))
+        self.assertEquals(highest_review_level('dmsincomingmail', "['dir_general']"), 'dir_general')
+        self.assertEquals(highest_review_level('dmsincomingmail', "['111_validateur']"), '_validateur')
+
+    def test_organizations_with_suffixes(self):
+        g1 = api.group.create(groupname='111_suf1')
+        g2 = api.group.create(groupname='112_suf1')
+        g3 = api.group.create(groupname='112_suf2')
+        self.assertEqual(organizations_with_suffixes([], []), [])
+        self.assertEqual(organizations_with_suffixes([g1, g2], []), [])
+        self.assertEqual(organizations_with_suffixes([], ['suf1']), [])
+        self.assertEqual(organizations_with_suffixes([g1, g2], ['suf1']),
+                         ['111', '112'])
+        self.assertEqual(organizations_with_suffixes([g1, g3], ['suf1', 'suf2']),
+                         ['111', '112'])
 
     def test_IdmUtilsMethodsReviewLevel(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
