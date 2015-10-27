@@ -161,9 +161,9 @@ def createStateCollections(folder, content_type):
     }
     view_fields = {
         'dmsincomingmail': (u'pretty_link', u'review_state', u'treating_groups',
-                            u'assigned_user', u'due_date', u'CreationDate', u'actions'),
+                            u'assigned_user', u'due_date', u'CreationDate', u'actions', u'select_row'),
         'task': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                 u'CreationDate', u'actions'),
+                 u'CreationDate', u'actions', u'select_row'),
     }
     for state in list_wf_states(folder, content_type):
         col_id = "searchfor_%s" % state
@@ -220,7 +220,7 @@ def createIMailCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -229,7 +229,7 @@ def createIMailCollections(folder):
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_treat', 'tit': _('im_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -237,7 +237,7 @@ def createIMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'im_treating', 'tit': _('im_im_treating'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -245,7 +245,7 @@ def createIMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['in_treatment']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'have_treated', 'tit': _('im_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -253,7 +253,7 @@ def createIMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -261,7 +261,7 @@ def createIMailCollections(folder):
              'v': 'dmsincomingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'in_copy', 'tit': _('im_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -269,7 +269,7 @@ def createIMailCollections(folder):
              'v': 'dmsincomingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
     ]
     createDashboardCollections(folder, collections)
@@ -284,7 +284,7 @@ def createIMTaskCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_validate', 'tit': _('tasks_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
@@ -293,7 +293,7 @@ def createIMTaskCollections(folder):
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_treat', 'tit': _('task_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
@@ -301,7 +301,7 @@ def createIMTaskCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['to_do']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'im_treating', 'tit': _('task_im_treating'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
@@ -309,7 +309,7 @@ def createIMTaskCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['in_progress']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'have_treated', 'tit': _('task_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
@@ -317,7 +317,7 @@ def createIMTaskCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed', 'realized']}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
         {'id': 'in_my_group', 'tit': _('tasks_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
@@ -325,7 +325,7 @@ def createIMTaskCollections(folder):
              'v': 'task-in-assigned-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+                     u'CreationDate', u'actions', u'select_row'),
             'sort': u'created', 'rev': True, },
     ]
     createDashboardCollections(folder, collections)
