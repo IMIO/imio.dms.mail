@@ -6,9 +6,12 @@ from zope.container import contained
 from zope.interface import noLongerProvides
 
 from plone import api
+from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 
+from Products.CPUtils.Extensions.utils import configure_ckeditor
+#from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
@@ -125,6 +128,17 @@ class Migrate_To_0_4(Migrator):
         # remove deprecated interfaces
         self.remove_contact_interfaces()
 
+        # set old vocabulary fields with new elephantvocabulary field
+        #catalog = api.portal.get_tool('portal_catalog')
+        #brains = catalog.searchResults(portal_type='dmsincomingmail')
+        #for brain in brains:
+        #    obj = brain.getObject()
+        #    obj.treating_groups = obj.treating_groups and obj.treating_groups or
+        #self.registry[ORGANIZATIONS_REGISTRY][0]
+        #    obj.recipient_groups = obj.recipient_groups and obj.recipient_groups or None
+        #    obj.assigned_group = None
+        #    obj.reindexObject()
+
         # replace collections by Dashboard collections
         im_folder = self.portal['incoming-mail']
         self.replaceCollections(im_folder)
@@ -152,6 +166,13 @@ class Migrate_To_0_4(Migrator):
         self.registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] += \
             ['task.back_in_created|', 'task.back_in_to_assign|', 'task.back_in_to_do|',
              'task.back_in_progress|', 'task.back_in_realized|']
+
+        # activate ckeditor
+        configure_ckeditor(self.portal, custom='ged')
+
+        # Set markup allowed types
+        adapter = MarkupControlPanelAdapter(self.portal)
+        adapter.set_allowed_types(['text/html'])
 
         #self.upgradeAll()
         #self.refreshDatabase()

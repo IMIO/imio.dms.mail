@@ -15,19 +15,23 @@ import datetime
 import logging
 import os
 from itertools import cycle
-from Products.CMFPlone.utils import base_hasattr
 from zope.component import queryUtility, getMultiAdapter, getUtility
 from zope.component.hooks import getSite
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 from z3c.relationfield.relation import RelationValue
+
+from Products.CMFPlone.utils import base_hasattr
 from plone import api
+from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
 #from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
+
+from Products.CPUtils.Extensions.utils import configure_ckeditor
 from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
@@ -132,6 +136,8 @@ def postInstall(context):
         'plone.app.registry')
 
     configure_actions_panel(site)
+
+    configure_ckeditor(site, custom='ged')
 
 
 def blacklistPortletCategory(context, object, category, utilityname):
@@ -388,6 +394,10 @@ def adaptDefaultPortal(context):
     #List undo
     site.manage_permission('List undoable changes', ('Manager', 'Site Administrator'),
                            acquire=0)
+
+    # Set markup allowed types: for RichText field, don't display anymore types listbox
+    adapter = MarkupControlPanelAdapter(site)
+    adapter.set_allowed_types(['text/html'])
 
 
 def changeSearchedTypes(site):
