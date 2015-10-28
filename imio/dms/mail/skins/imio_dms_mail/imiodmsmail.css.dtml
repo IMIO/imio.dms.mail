@@ -64,6 +64,10 @@
 
 /* Display None */
 
+.template-view #formfield-form-widgets-ITask-task_description .formHelp {
+    display: None;
+}
+
 .portaltype-dmsincomingmail #formfield-form-widgets-signed {
     display: None;
 }
