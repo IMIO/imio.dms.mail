@@ -110,6 +110,8 @@ class Migrate_To_0_4(Migrator):
         self.cleanRegistries()
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.task:default')
+        self.upgradeProfile('dexterity.localroles:default')
+        self.upgradeProfile('dexterity.localrolesfield:default')
         self.upgradeProfile('collective.contact.plonegroup:default')
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'controlpanel', 'portlets',
                                                      'repositorytool', 'rolemap', 'sharing', 'typeinfo', 'workflow'])

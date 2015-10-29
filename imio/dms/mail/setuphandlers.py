@@ -84,6 +84,7 @@ def postInstall(context):
 
     # we configure rolefields
     configure_rolefields(context)
+    configure_task_rolefields(context)
 
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
@@ -425,7 +426,7 @@ def configure_rolefields(context):
     """
         Configure the rolefields on types
     """
-    roles_config = {'localroleconfig': {
+    roles_config = {'static_config': {
         'created': {'encodeurs': ['Contributor', 'Editor', 'IM Field Writer', 'IM Treating Group Writer']},
         'proposed_to_manager': {'dir_general': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
                                                 'IM Treating Group Writer'],
@@ -481,7 +482,7 @@ def configure_task_rolefields(context):
         Configure the rolefields on task
     """
     roles_config = {
-        'localroleconfig': {
+        'static_config': {
         },
         'assigned_group': {
             'to_assign': {
