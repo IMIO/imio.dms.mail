@@ -3,7 +3,7 @@
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.container import contained
-from zope.interface import noLongerProvides
+from zope.interface import alsoProvides, noLongerProvides
 
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
@@ -12,6 +12,7 @@ from plone.registry.interfaces import IRegistry
 
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 #from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
@@ -55,6 +56,7 @@ class Migrate_To_0_4(Migrator):
         im_folder.setConstrainTypesMode(0)
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
                                        _('Incoming mails'))
+        alsoProvides(col_folder, INextPrevNotNavigable)
         im_folder.moveObjectToPosition('mail-searches', 0)
 
         # re-create dashboard collections
@@ -141,6 +143,7 @@ class Migrate_To_0_4(Migrator):
 
         # replace collections by Dashboard collections
         im_folder = self.portal['incoming-mail']
+        alsoProvides(im_folder, INextPrevNotNavigable)
         self.replaceCollections(im_folder)
 
         # apply contact faceted config

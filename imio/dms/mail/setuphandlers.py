@@ -36,6 +36,7 @@ from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
@@ -88,10 +89,13 @@ def postInstall(context):
     if not base_hasattr(site, 'incoming-mail'):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
         im_folder = getattr(site, folderid)
+        alsoProvides(im_folder, INextPrevNotNavigable)
 
         # add mail-searches
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
                                        _('Incoming mails'))
+        alsoProvides(col_folder, INextPrevNotNavigable)
+
         # blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createIMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
