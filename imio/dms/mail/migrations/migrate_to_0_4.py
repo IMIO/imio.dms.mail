@@ -107,6 +107,14 @@ class Migrate_To_0_4(Migrator):
                 'IM Treating Group Writer' not in lrtg['proposed_to_service_chief']['validateur']['roles']:
             lrtg['proposed_to_service_chief']['validateur']['roles'].append('IM Treating Group Writer')
 
+    def update_dmsmainfile(self):
+        """ Update searchabletext """
+        catalog = api.portal.get_tool('portal_catalog')
+        brains = catalog.searchResults(portal_type='dmsmainfile')
+        for brain in brains:
+            obj = brain.getObject()
+            obj.reindexObject(idxs=['SearchableText'])
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
@@ -180,6 +188,8 @@ class Migrate_To_0_4(Migrator):
         # Set markup allowed types
         adapter = MarkupControlPanelAdapter(self.portal)
         adapter.set_allowed_types(['text/html'])
+
+        self.update_dmsmainfile()
 
         #self.upgradeAll()
         #self.refreshDatabase()
