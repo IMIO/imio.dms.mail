@@ -91,19 +91,21 @@ class Migrate_To_0_4(Migrator):
     def update_local_roles(self):
         """ Add dexterity local roles config """
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lrc = getattr(fti, 'localroleconfig')
-        if 'created' in lrc and 'encodeurs' in lrc['created'] and \
-                'IM Treating Group Writer' not in lrc['created']['encodeurs']:
-            lrc['created']['encodeurs'].append('IM Treating Group Writer')
-        for state in ['proposed_to_manager', 'proposed_to_service_chief', 'proposed_to_agent', 'in_treatment',
-                      'closed']:
-            if state in lrc and 'dir_general' in lrc[state] and \
-                    'IM Treating Group Writer' not in lrc[state]['dir_general']:
-                lrc[state]['dir_general'].append('IM Treating Group Writer')
-        tg = getattr(fti, 'treating_groups')
-        if 'proposed_to_service_chief' in tg and 'validateur' in tg['proposed_to_service_chief'] and \
-                'IM Treating Group Writer' not in tg['proposed_to_service_chief']['validateur']:
-            tg['proposed_to_service_chief']['validateur'].append('IM Treating Group Writer')
+        lr = getattr(fti, 'localroles')
+        if 'static_config' in lr:
+            lrsc = lr['static_config']
+            if 'created' in lrsc and 'encodeurs' in lrsc['created'] and \
+                    'IM Treating Group Writer' not in lrsc['created']['encodeurs']['roles']:
+                lrsc['created']['encodeurs']['roles'].append('IM Treating Group Writer')
+            for state in ['proposed_to_manager', 'proposed_to_service_chief', 'proposed_to_agent', 'in_treatment',
+                          'closed']:
+                if state in lrsc and 'dir_general' in lrsc[state] and \
+                        'IM Treating Group Writer' not in lrsc[state]['dir_general']['roles']:
+                    lrsc[state]['dir_general']['roles'].append('IM Treating Group Writer')
+        lrtg = lr['treating_groups']
+        if 'proposed_to_service_chief' in lrtg and 'validateur' in lrtg['proposed_to_service_chief'] and \
+                'IM Treating Group Writer' not in lrtg['proposed_to_service_chief']['validateur']['roles']:
+            lrtg['proposed_to_service_chief']['validateur']['roles'].append('IM Treating Group Writer')
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 0.4...')
