@@ -106,6 +106,8 @@ class Migrate_To_0_4(Migrator):
         if 'proposed_to_service_chief' in lrtg and 'validateur' in lrtg['proposed_to_service_chief'] and \
                 'IM Treating Group Writer' not in lrtg['proposed_to_service_chief']['validateur']['roles']:
             lrtg['proposed_to_service_chief']['validateur']['roles'].append('IM Treating Group Writer')
+        # We need to indicate that the object has been modified and must be "saved"
+        fti._p_changed = True
 
     def update_dmsmainfile(self):
         """ Update searchabletext """
