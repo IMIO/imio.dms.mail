@@ -9,7 +9,6 @@ from plone.dexterity.utils import createContentInContainer
 from plone import api
 
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.interfaces import IInternalContact, IExternalContact
 
 
 class TestDmsmail(unittest.TestCase):

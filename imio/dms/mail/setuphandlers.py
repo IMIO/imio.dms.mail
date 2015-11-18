@@ -84,7 +84,13 @@ def postInstall(context):
 
     # we configure rolefields
     configure_rolefields(context)
-    configure_task_rolefields(context)
+    if (base_hasattr(site.portal_types.task, 'localroles') and
+            site.portal_types.task.localroles.get('assigned_group', '') and
+            site.portal_types.task.localroles['assigned_group'].get('created') and
+            '' in site.portal_types.task.localroles['assigned_group']['created']):
+        configure_task_rolefields(context, force=True)
+    else:
+        configure_task_rolefields(context, force=False)
 
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
@@ -479,7 +485,7 @@ def configure_rolefields(context):
             logger.warn(msg)
 
 
-def configure_task_rolefields(context):
+def configure_task_rolefields(context, force=False):
     """
         Configure the rolefields on task
     """
@@ -488,22 +494,32 @@ def configure_task_rolefields(context):
         },
         'assigned_group': {
             'to_assign': {
-                'validateur': {'roles': ['Editor', 'Reviewer']},
+                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
+                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
             },
             'to_do': {
-                'editeur': {'roles': ['Editor']},
-                'validateur': {'roles': ['Editor', 'Reviewer']},
+                'editeur': {'roles': ['Contributor', 'Editor'],
+                            'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
+                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
             },
             'in_progress': {
-                'editeur': {'roles': ['Editor']},
-                'validateur': {'roles': ['Editor', 'Reviewer']},
+                'editeur': {'roles': ['Contributor', 'Editor'],
+                            'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
+                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
             },
             'realized': {
-                'editeur': {'roles': ['Editor']},
-                'validateur': {'roles': ['Editor', 'Reviewer']},
+                'editeur': {'roles': ['Contributor', 'Editor'],
+                            'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
+                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
             },
             'closed': {
-                'validateur': {'roles': ['Editor', 'Reviewer']},
+                'editeur': {'roles': ['Reader'],
+                            'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'validateur': {'roles': ['Editor', 'Reviewer'],
+                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
             },
         },
         'assigned_user': {
@@ -511,7 +527,7 @@ def configure_task_rolefields(context):
     }
     for keyname in roles_config:
         # we overwrite existing configuration from task installation !
-        msg = add_fti_configuration('task', roles_config[keyname], keyname=keyname, force=True)
+        msg = add_fti_configuration('task', roles_config[keyname], keyname=keyname, force=force)
         if msg:
             logger.warn(msg)
 

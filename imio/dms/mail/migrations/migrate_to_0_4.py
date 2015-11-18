@@ -135,7 +135,7 @@ class Migrate_To_0_4(Migrator):
             'imio.dashboard:default',
         ])
 
-        # set jqueryui autocomplete to False. If not contact autocomplete doesn't work
+        # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
         # delete old dmsmail portlet
