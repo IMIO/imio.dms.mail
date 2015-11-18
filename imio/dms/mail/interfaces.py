@@ -20,3 +20,8 @@ class IInternalContact(Interface):
     """Marker interface for internal organizations
 
     i.e. organizations in plonegroup-organization."""
+
+
+class IIMDashboard(Interface):
+
+    """Marker interface for incoming mail dashboard."""

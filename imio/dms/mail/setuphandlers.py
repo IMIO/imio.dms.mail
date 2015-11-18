@@ -43,6 +43,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
+from imio.dms.mail.interfaces import IIMDashboard
 
 from interfaces import IDirectoryFacetedNavigable
 from utils import list_wf_states
@@ -97,6 +98,7 @@ def postInstall(context):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
         im_folder = getattr(site, folderid)
         alsoProvides(im_folder, INextPrevNotNavigable)
+        alsoProvides(im_folder, IIMDashboard)
 
         # add mail-searches
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),

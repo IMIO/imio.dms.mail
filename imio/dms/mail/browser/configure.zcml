@@ -73,6 +73,21 @@
             permission="zope2.View" />
     </configure>
 
+    <browser:viewlet
+        name="batchactions_viewlet"
+        for="imio.dms.mail.interfaces.IIMDashboard"
+        manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
+        layer="*"
+        template="templates/batchactions_viewlet.pt"
+        permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboard"
+        name="batchactions"
+        class=".batchactions.IMBatchactionsForm"
+        permission="zope2.View"
+        />
+
     <browser:page
         for="collective.task.interfaces.ITaskContent"
         name="edit"

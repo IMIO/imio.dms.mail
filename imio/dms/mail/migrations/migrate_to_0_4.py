@@ -17,6 +17,7 @@ from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
 from ..interfaces import IExternalContact, IInternalContact
+from imio.dms.mail.interfaces import IIMDashboard
 from ..setuphandlers import _, configure_faceted_folder, reimport_faceted_config
 from ..setuphandlers import add_db_col_folder, configure_task_rolefields
 from ..setuphandlers import createIMailCollections, createIMTaskCollections, createStateCollections
@@ -57,6 +58,7 @@ class Migrate_To_0_4(Migrator):
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
                                        _('Incoming mails'))
         alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IIMDashboard)
         im_folder.moveObjectToPosition('mail-searches', 0)
 
         # re-create dashboard collections
@@ -158,6 +160,7 @@ class Migrate_To_0_4(Migrator):
         # replace collections by Dashboard collections
         im_folder = self.portal['incoming-mail']
         alsoProvides(im_folder, INextPrevNotNavigable)
+        alsoProvides(im_folder, IIMDashboard)
         self.replaceCollections(im_folder)
 
         # apply contact faceted config
