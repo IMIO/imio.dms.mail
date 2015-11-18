@@ -2,6 +2,7 @@
 """Custom columns."""
 from z3c.table import column
 from zope.component import getMultiAdapter
+from imio.dashboard.columns import ActionsColumn as IDActionsColumn
 from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn
 from collective.eeafaceted.z3ctable import _ as _cez
 
@@ -24,6 +25,11 @@ class AssignedUserColumn(MemberIdColumn):
 class DueDateColumn(DateColumn):
 
     attrName = u'due_date'
+
+
+class ActionsColumn(IDActionsColumn):
+
+    params = {'showHistory': True, 'showActions': False}
 
 # Columns for collective.task.browser.table.TasksTable
 
