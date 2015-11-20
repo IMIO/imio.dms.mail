@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-10-02 09:07+0000\n"
+"POT-Creation-Date: 2015-11-20 20:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,8 +21,16 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
+#: ./browser/batchactions.py:89
+msgid "Apply"
+msgstr ""
+
 #: ./browser/settings.py:33
 msgid "Assigned user check"
+msgstr ""
+
+#: ./browser/batchactions.py:30
+msgid "Batch action form"
 msgstr ""
 
 #: ./profiles/default/actions.xml
@@ -31,6 +39,10 @@ msgstr ""
 
 #: ./profiles/default/actions.xml
 msgid "Batch import of dms document"
+msgstr ""
+
+#: ./browser/batchactions.py:77
+msgid "Batch state change"
 msgstr ""
 
 #: ./browser/settings.py:34
@@ -45,12 +57,12 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:59
-#: ./setuphandlers.py:111
+#: ./migrations/migrate_to_0_4.py:71
+#: ./setuphandlers.py:120
 msgid "I.M. tasks"
 msgstr ""
 
-#: ./setuphandlers.py:93
+#: ./setuphandlers.py:98
 msgid "Incoming mail"
 msgstr ""
 
@@ -62,18 +74,18 @@ msgstr ""
 msgid "Incoming mail listing"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:48
-#: ./setuphandlers.py:97
+#: ./migrations/migrate_to_0_4.py:58
+#: ./setuphandlers.py:104
 msgid "Incoming mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:49
-#: ./setuphandlers.py:98
+#: ./migrations/migrate_to_0_4.py:59
+#: ./setuphandlers.py:105
 msgid "Incoming mails"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:83
+#: ./dmsmail.py:85
 msgid "Mail type"
 msgstr ""
 
@@ -94,20 +106,20 @@ msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:124
+#: ./setuphandlers.py:133
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:77
+#: ./dmsmail.py:79
 msgid "Recipient groups"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:58
-#: ./setuphandlers.py:110
+#: ./migrations/migrate_to_0_4.py:70
+#: ./setuphandlers.py:119
 msgid "Tasks searches"
 msgstr ""
 
-#: ./browser/table.py:35
+#: ./browser/table.py:36
 #: ./dmsmail.py:62
 msgid "Treating groups"
 msgstr ""
@@ -116,16 +128,16 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./dmsmail.py:196
+#: ./dmsmail.py:191
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./setuphandlers.py:291
+#: ./setuphandlers.py:302
 msgid "all_im_tasks"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:227
+#: ./setuphandlers.py:238
 msgid "all_incoming_mails"
 msgstr ""
 
@@ -138,43 +150,43 @@ msgstr ""
 msgid "create_im"
 msgstr ""
 
-#: ./setuphandlers.py:363
+#: ./setuphandlers.py:374
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:364
+#: ./setuphandlers.py:375
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:362
+#: ./setuphandlers.py:373
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:258
+#: ./setuphandlers.py:269
 msgid "im_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:250
+#: ./setuphandlers.py:261
 msgid "im_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:274
+#: ./setuphandlers.py:285
 msgid "im_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:266
+#: ./setuphandlers.py:277
 msgid "im_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:242
+#: ./setuphandlers.py:253
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:233
+#: ./setuphandlers.py:244
 msgid "im_to_validate"
 msgstr ""
 
-#: ./setuphandlers.py:49
+#: ./setuphandlers.py:54
 msgid "imio.dms.mail"
 msgstr ""
 
@@ -193,23 +205,23 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
-#: ./setuphandlers.py:322
+#: ./setuphandlers.py:333
 msgid "task_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:314
+#: ./setuphandlers.py:325
 msgid "task_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:306
+#: ./setuphandlers.py:317
 msgid "task_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:330
+#: ./setuphandlers.py:341
 msgid "tasks_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:297
+#: ./setuphandlers.py:308
 msgid "tasks_to_validate"
 msgstr ""
 

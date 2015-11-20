@@ -20,7 +20,7 @@ from .. import _
 class IIMBatchActionsFormSchema(model.Schema):
 
     uids = schema.TextLine(
-        title=_("uids"),
+        title="uids",
         description=u''
     )
 
