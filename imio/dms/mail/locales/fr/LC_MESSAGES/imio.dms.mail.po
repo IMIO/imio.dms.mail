@@ -273,3 +273,7 @@ msgstr "Dans mon service"
 msgid "tasks_to_validate"
 msgstr "À valider"
 
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt
+msgid "transition-batch-action-but"
+msgstr "Changer l'état"
+

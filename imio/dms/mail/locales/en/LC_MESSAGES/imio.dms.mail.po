@@ -273,3 +273,7 @@ msgstr "In my group"
 msgid "tasks_to_validate"
 msgstr "To validate"
 
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt
+msgid "transition-batch-action-but"
+msgstr "Change state"
+

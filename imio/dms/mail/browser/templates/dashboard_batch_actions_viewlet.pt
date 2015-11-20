@@ -1,4 +1,7 @@
 <script>dmsmail.init_batchactions_button()</script>
+<div xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="imio.dms.mail" id="dashboard-batch-actions">
 <form action="transition-batch-action" id="transition-batch-action">
-<input id="transition-batch-action-but" class="button" type="submit" value="Transitions"/>
+  <input id="transition-batch-action-but" class="button" type="submit" value="transition-batch-action-but"
+         i18n:attributes="value"/>
 </form>
+</div>

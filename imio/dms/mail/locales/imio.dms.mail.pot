@@ -275,3 +275,6 @@ msgstr ""
 msgid "tasks_to_validate"
 msgstr ""
 
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt
+msgid "transition-batch-action-but"
+msgstr ""
