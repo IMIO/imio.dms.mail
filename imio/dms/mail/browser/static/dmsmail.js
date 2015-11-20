@@ -11,16 +11,33 @@ dmsmail.manage_orgtype_filter = function () {
 };
 
 dmsmail.init_batchactions_button = function () {
-  $('#batchactions').click(function (e) {
+  $('#transition-batch-action-but').click(function (e) {
     e.preventDefault();
-    var uids = $(".faceted-table-results .select_item_checkbox input:checked").serialize();
-    window.location.href = $('base').attr('href') + '/@@batchactions?' + uids
-    // $.get($('base').attr('href') + '/@@batchactions', uids, function (json) {});
+    var uids = selectedCheckBoxes('select_item');
+    console.log(uids);
+    var ba_form = document.getElementById('transition-batch-action');
+    var form_id = ba_form.id;
+    if(typeof document.batch_actions === "undefined") {
+        document.batch_actions = [];
+    }
+    if(document.batch_actions[form_id] === undefined) {
+        document.batch_actions[form_id] = ba_form.action;
+    }
+    ba_form.action = document.batch_actions[form_id] + '?uids=' + uids;
+    console.log(ba_form.action);
+    dmsmail.initializeOverlays();
   });
-}
+};
 
+dmsmail.initializeOverlays = function () {
+    // Add batch actions popup
+    $('#transition-batch-action').prepOverlay({
+        subtype: 'ajax',
+        closeselector: '[name="form.buttons.cancel"]'
+    });
+};
+        
 $(document).ready(function(){
     $('#faceted-form #type_widget').click(dmsmail.manage_orgtype_filter);
     $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization">Lien vers votre organisation</a></span>');
-    dmsmail.init_batchactions_button();
 });

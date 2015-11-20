@@ -1,0 +1,4 @@
+<script>dmsmail.init_batchactions_button()</script>
+<form action="transition-batch-action" id="transition-batch-action">
+<input id="transition-batch-action-but" class="button" type="submit" value="Transitions"/>
+</form>

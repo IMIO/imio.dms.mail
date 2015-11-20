@@ -74,17 +74,17 @@
     </configure>
 
     <browser:viewlet
-        name="batchactions_viewlet"
+        name="dashboard_batch_actions_viewlet"
         for="imio.dms.mail.interfaces.IIMDashboard"
-        manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
-        layer="*"
-        template="templates/batchactions_viewlet.pt"
+        manager="collective.eeafaceted.z3ctable.interfaces.IBottomManager"
+        layer="imio.dashboard.interfaces.IImioDashboardLayer"
+        template="templates/dashboard_batch_actions_viewlet.pt"
         permission="zope2.View" />
 
     <browser:page
         for="imio.dms.mail.interfaces.IIMDashboard"
-        name="batchactions"
-        class=".batchactions.IMBatchactionsForm"
+        name="transition-batch-action"
+        class=".batchactions.TransitionBatchActionForm"
         permission="zope2.View"
         />
 

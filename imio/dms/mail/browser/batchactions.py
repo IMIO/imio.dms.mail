@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
-import json
 
 from zope import schema
-from zope.lifecycleevent import modified
+from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 
 from plone import api
 from plone.supermodel import model
@@ -12,10 +11,10 @@ from z3c.form import button
 from z3c.form.field import Fields
 from z3c.form.interfaces import HIDDEN_MODE
 
-from imio.dms.mail.dmsmail import IImioDmsIncomingMail
-from collective.task.behaviors import ITask
+from Products.CMFPlone import PloneMessageFactory as PMF
+from Products.CMFPlone.utils import safe_unicode
 
-from imio.dms.mail import _
+from .. import _
 
 
 class IIMBatchActionsFormSchema(model.Schema):
@@ -23,48 +22,76 @@ class IIMBatchActionsFormSchema(model.Schema):
     uids = schema.TextLine(
         title=_("uids"),
         description=u''
-        )
+    )
 
 
-class IMBatchactionsForm(Form):
+class DashboardBatchActionForm(Form):
 
-    label = _(u"Batch actions form")
+    label = _(u"Batch action form")
     fields = Fields(IIMBatchActionsFormSchema)
     fields['uids'].mode = HIDDEN_MODE
     ignoreContext = True
+    brains = []
 
     def update(self):
         form = self.request.form
         if 'form.widgets.uids' in form:
             uids = form['form.widgets.uids']
         else:
-            uids = self.request.get('select_item', [])
-            form['form.widgets.uids'] = json.dumps(uids)
+            uids = self.request.get('uids', '')
+            form['form.widgets.uids'] = uids
+        self.brains = self.brains or brains_from_uids(uids)
 
-        task_fields = Fields(ITask)
-        self.fields += task_fields.select('assigned_user')
-        im_fields = Fields(IImioDmsIncomingMail)
-        self.fields += im_fields.select('treating_groups')
-        # TODO: workflow state
-        super(IMBatchactionsForm, self).update()
+#    @button.buttonAndHandler(PMF(u'Cancel'), name='cancel')
+#    def handleCancel(self, action):
+#        self.request.response.redirect(self.request.get('HTTP_REFERER'))
 
-    @button.buttonAndHandler(_(u'Execute these actions'), name='execute')
+
+def brains_from_uids(uids):
+    """ Returns a list of brains from a string containing uids separated by comma """
+    uids = uids.split(',')
+    catalog = api.portal.get_tool('portal_catalog')
+    brains = catalog(UID=uids)
+    return brains
+
+
+def getAvailableTransitionsVoc(brains):
+    """ Returns available transitions common for all brains """
+    wtool = api.portal.get_tool(name='portal_workflow')
+    terms = []
+    transitions = set()
+    for brain in brains:
+        obj = brain.getObject()
+        if not transitions:
+            transitions = set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
+        else:
+            transitions &= set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
+    for tr in transitions:
+        terms.append(SimpleTerm(tr, tr, PMF(safe_unicode(tr))))
+    return SimpleVocabulary(terms)
+
+
+class TransitionBatchActionForm(DashboardBatchActionForm):
+
+    buttons = DashboardBatchActionForm.buttons.copy()
+    label = _(u"Batch state change")
+
+    def update(self):
+        super(TransitionBatchActionForm, self).update()
+        self.fields += Fields(schema.Choice(
+            __name__='transition',
+            title=u'Transition',
+            vocabulary=getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids'])),
+            required=False))
+
+        super(DashboardBatchActionForm, self).update()
+
+    @button.buttonAndHandler(_(u'Apply'), name='apply')
     def handleApply(self, action):
         """Handle apply button."""
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-            return
-
-        # we execute the changes on all items
-        catalog = api.portal.get_tool('portal_catalog')
-        brains = catalog.searchResults(UID=json.loads(data['uids']))
-        for brain in brains:
+        for brain in self.brains:
             obj = brain.getObject()
-            obj.assigned_user = data['assigned_user']
-            obj.treating_groups = data['treating_groups']
-            modified(obj)
-
-    def nextURL(self):
-        """Redirect to dashboard."""
-        return self.context.getParentNode().absolute_url()
+            api.content.transition(obj=obj, transition=data['transition'])
