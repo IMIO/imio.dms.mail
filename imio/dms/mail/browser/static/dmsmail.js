@@ -11,6 +11,13 @@ dmsmail.manage_orgtype_filter = function () {
 };
 
 dmsmail.init_batchactions_button = function () {
+
+  var glob_sel = $('input#select_unselect_items');
+  if( typeof glob_sel !== undefined && glob_sel[0].checked ) {
+    glob_sel[0].checked = false;
+    $('input[name="select_item"').attr('checked', false);
+  }
+
   $('#transition-batch-action-but').click(function (e) {
     e.preventDefault();
     var uids = selectedCheckBoxes('select_item');
