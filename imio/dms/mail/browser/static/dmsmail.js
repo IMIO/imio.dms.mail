@@ -22,6 +22,7 @@ dmsmail.init_batchactions_button = function () {
     e.preventDefault();
     var uids = selectedCheckBoxes('select_item');
     if (!uids.length) { alert('Aucun élément sélectionné'); return;}
+    var referer = document.location.href.replace('#','!').replace(/&/g,'@');
     var ba_form = document.getElementById('transition-batch-action');
     var form_id = ba_form.id;
     if(typeof document.batch_actions === "undefined") {
@@ -30,7 +31,7 @@ dmsmail.init_batchactions_button = function () {
     if(document.batch_actions[form_id] === undefined) {
         document.batch_actions[form_id] = ba_form.action;
     }
-    ba_form.action = document.batch_actions[form_id] + '?uids=' + uids;
+    ba_form.action = document.batch_actions[form_id] + '?uids=' + uids + '&referer=' + referer;
     dmsmail.initializeOverlays();
   });
 };

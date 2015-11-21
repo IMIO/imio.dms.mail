@@ -24,12 +24,18 @@ class IIMBatchActionsFormSchema(model.Schema):
         description=u''
     )
 
+    referer = schema.TextLine(
+        title=u'referer',
+        required=False,
+    )
+
 
 class DashboardBatchActionForm(Form):
 
     label = _(u"Batch action form")
     fields = Fields(IIMBatchActionsFormSchema)
     fields['uids'].mode = HIDDEN_MODE
+    fields['referer'].mode = HIDDEN_MODE
     ignoreContext = True
     brains = []
 
@@ -40,6 +46,10 @@ class DashboardBatchActionForm(Form):
         else:
             uids = self.request.get('uids', '')
             form['form.widgets.uids'] = uids
+
+        if 'form.widgets.referer' not in form:
+            form['form.widgets.referer'] = self.request.get('referer', '').replace('@', '&').replace('!', '#')
+
         self.brains = self.brains or brains_from_uids(uids)
 
 #    @button.buttonAndHandler(PMF(u'Cancel'), name='cancel')
@@ -82,7 +92,7 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
             __name__='transition',
             title=u'Transition',
             vocabulary=getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids'])),
-            required=False))
+            required=True))
 
         super(DashboardBatchActionForm, self).update()
 
@@ -95,3 +105,4 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
         for brain in self.brains:
             obj = brain.getObject()
             api.content.transition(obj=obj, transition=data['transition'])
+        self.request.response.redirect(self.request.form['form.widgets.referer'])
