@@ -21,7 +21,7 @@ dmsmail.init_batchactions_button = function () {
   $('#transition-batch-action-but').click(function (e) {
     e.preventDefault();
     var uids = selectedCheckBoxes('select_item');
-    console.log(uids);
+    if (!uids.length) { alert('Aucun élément sélectionné'); return;}
     var ba_form = document.getElementById('transition-batch-action');
     var form_id = ba_form.id;
     if(typeof document.batch_actions === "undefined") {
@@ -31,7 +31,6 @@ dmsmail.init_batchactions_button = function () {
         document.batch_actions[form_id] = ba_form.action;
     }
     ba_form.action = document.batch_actions[form_id] + '?uids=' + uids;
-    console.log(ba_form.action);
     dmsmail.initializeOverlays();
   });
 };
