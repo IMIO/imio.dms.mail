@@ -17,6 +17,9 @@ dmsmail.init_batchactions_button = function () {
     glob_sel[0].checked = false;
     $('input[name="select_item"').attr('checked', false);
   }
+  if ( $('.faceted-table-results')[0] == undefined ) {
+    $('#dashboard-batch-actions').hide();
+  }
 
   $('#transition-batch-action-but').click(function (e) {
     e.preventDefault();
