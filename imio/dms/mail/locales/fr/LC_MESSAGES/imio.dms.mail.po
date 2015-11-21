@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-20 20:25+0000\n"
+"POT-Creation-Date: 2015-11-21 14:49+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Active"
 msgstr "Activé"
 
-#: ./browser/batchactions.py:89
+#: ./browser/batchactions.py:104
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -27,7 +27,7 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./browser/batchactions.py:30
+#: ./browser/batchactions.py:35
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
@@ -39,7 +39,7 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./browser/batchactions.py:77
+#: ./browser/batchactions.py:87
 msgid "Batch state change"
 msgstr "Changement d'état en lot"
 
@@ -50,6 +50,10 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 #: ./dmsmail.py:37
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
+
+#: ./browser/batchactions.py:98
+msgid "Comment"
+msgstr "Commentaire"
 
 #: ./profiles/default/actions.xml
 msgid "Daily listing"
@@ -103,6 +107,10 @@ msgstr "Aucun courrier entrant trouvé !"
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
+#: ./browser/batchactions.py:99
+msgid "Optional comment to display in history"
+msgstr "Commentaire optionnel à afficher dans l'historique"
+
 #: ./migrations/migrate_to_0_2.py:115
 #: ./setuphandlers.py:133
 msgid "Outgoing mail"
@@ -116,6 +124,10 @@ msgstr "Services en copie"
 #: ./setuphandlers.py:119
 msgid "Tasks searches"
 msgstr "Recherches tâches"
+
+#: ./browser/batchactions.py:93
+msgid "Transition"
+msgstr "Transition"
 
 #: ./browser/table.py:36
 #: ./dmsmail.py:62
@@ -273,7 +285,7 @@ msgstr "Dans mon service"
 msgid "tasks_to_validate"
 msgstr "À valider"
 
-#: ./browser/templates/dashboard_batch_actions_viewlet.pt
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:4
 msgid "transition-batch-action-but"
 msgstr "Changer l'état"
 

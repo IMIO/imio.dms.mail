@@ -90,9 +90,14 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
         super(TransitionBatchActionForm, self).update()
         self.fields += Fields(schema.Choice(
             __name__='transition',
-            title=u'Transition',
+            title=_(u'Transition'),
             vocabulary=getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids'])),
             required=True))
+        self.fields += Fields(schema.Text(
+            __name__='comment',
+            title=_(u'Comment'),
+            description=_(u'Optional comment to display in history'),
+            required=False))
 
         super(DashboardBatchActionForm, self).update()
 
@@ -104,5 +109,6 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
             self.status = self.formErrorsMessage
         for brain in self.brains:
             obj = brain.getObject()
-            api.content.transition(obj=obj, transition=data['transition'])
+            api.content.transition(obj=obj, transition=data['transition'],
+                                   comment=self.request.form.get('form.widgets.comment', ''))
         self.request.response.redirect(self.request.form['form.widgets.referer'])
