@@ -130,6 +130,11 @@ dl.portletWidgetCollection div.portlet_add_icons a {
 .template-localroles .datagridwidget-cell {
     width: auto;
 }
+
+#formfield-form-widgets-transition .formHelp {
+    color: red;
+}
+
 /* colorization for incoming_mail_workflow */
 
 .state-created {

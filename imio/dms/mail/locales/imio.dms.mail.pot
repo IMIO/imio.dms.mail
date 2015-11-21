@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-21 14:49+0000\n"
+"POT-Creation-Date: 2015-11-21 16:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: ./browser/batchactions.py:104
+#: ./browser/batchactions.py:106
 msgid "Apply"
 msgstr ""
 
@@ -53,7 +53,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/batchactions.py:98
+#: ./browser/batchactions.py:100
 msgid "Comment"
 msgstr ""
 
@@ -101,6 +101,10 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
+#: ./browser/batchactions.py:96
+msgid "No common transition. Close this and modify your choice."
+msgstr ""
+
 #: ./browser/templates/listing.pt:25
 msgid "No incoming mail !"
 msgstr ""
@@ -109,7 +113,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./browser/batchactions.py:99
+#: ./browser/batchactions.py:101
 msgid "Optional comment to display in history"
 msgstr ""
 
@@ -127,7 +131,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./browser/batchactions.py:93
+#: ./browser/batchactions.py:94
 msgid "Transition"
 msgstr ""
 

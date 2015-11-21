@@ -88,10 +88,12 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
 
     def update(self):
         super(TransitionBatchActionForm, self).update()
+        voc = getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids']))
         self.fields += Fields(schema.Choice(
             __name__='transition',
             title=_(u'Transition'),
-            vocabulary=getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids'])),
+            vocabulary=voc,
+            description=len(voc) == 0 and _(u'No common transition. Close this and modify your choice.') or u'',
             required=True))
         self.fields += Fields(schema.Text(
             __name__='comment',
