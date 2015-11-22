@@ -131,7 +131,7 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     width: auto;
 }
 
-#formfield-form-widgets-transition .formHelp {
+#formfield-form-widgets-transition .formHelp, #formfield-form-widgets-treating_group .formHelp {
     color: red;
 }
 
