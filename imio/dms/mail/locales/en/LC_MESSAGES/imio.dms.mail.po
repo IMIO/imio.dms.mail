@@ -104,7 +104,7 @@ msgid "Mail type value"
 msgstr ""
 
 #: ./browser/batchactions.py:99
-msgid "No common transition. Close this and modify your choice."
+msgid "No common transition. Close this and modify your selection."
 msgstr ""
 
 #: ./browser/templates/listing.pt:25

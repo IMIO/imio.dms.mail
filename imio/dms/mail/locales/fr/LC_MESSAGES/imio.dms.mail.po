@@ -104,8 +104,8 @@ msgid "Mail type value"
 msgstr "Valeur stockée"
 
 #: ./browser/batchactions.py:99
-msgid "No common transition. Close this and modify your choice."
-msgstr "Aucune transition commune. Veuillez modifier votre choix et recommencer."
+msgid "No common transition. Close this and modify your selection."
+msgstr "Aucune transition commune. Recommencez en modifiant votre sélection."
 
 #: ./browser/templates/listing.pt:25
 msgid "No incoming mail !"
