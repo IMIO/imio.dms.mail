@@ -21,12 +21,12 @@ dmsmail.init_batchactions_button = function () {
     $('#dashboard-batch-actions').hide();
   }
 
-  $('#transition-batch-action-but').click(function (e) {
+  $('.batch-action-but').click(function (e) {
     e.preventDefault();
     var uids = selectedCheckBoxes('select_item');
     if (!uids.length) { alert('Aucun élément sélectionné'); return;}
     var referer = document.location.href.replace('#','!').replace(/&/g,'@');
-    var ba_form = document.getElementById('transition-batch-action');
+    var ba_form = $(this).parent()[0];
     var form_id = ba_form.id;
     if(typeof document.batch_actions === "undefined") {
         document.batch_actions = [];
@@ -41,7 +41,7 @@ dmsmail.init_batchactions_button = function () {
 
 dmsmail.initializeOverlays = function () {
     // Add batch actions popup
-    $('#transition-batch-action').prepOverlay({
+    $('.batch-action-form').prepOverlay({
         subtype: 'ajax',
         closeselector: '[name="form.buttons.cancel"]'
     });
