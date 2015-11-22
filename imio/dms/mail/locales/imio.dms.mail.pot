@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-22 21:30+0000\n"
+"POT-Creation-Date: 2015-11-22 22:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,7 +29,7 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
-#: ./browser/batchactions.py:41
+#: ./browser/batchactions.py:40
 msgid "Batch action form"
 msgstr ""
 
@@ -41,11 +41,11 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./browser/batchactions.py:93
+#: ./browser/batchactions.py:92
 msgid "Batch state change"
 msgstr ""
 
-#: ./browser/batchactions.py:127
+#: ./browser/batchactions.py:158
 msgid "Batch treating group change"
 msgstr ""
 
@@ -106,7 +106,7 @@ msgid "Mail type value"
 msgstr ""
 
 #: ./browser/batchactions.py:102
-msgid "No common or available transition. Close this and modify your selection."
+msgid "No common or available transition. Modify your selection."
 msgstr ""
 
 #: ./browser/templates/listing.pt:25
@@ -135,11 +135,11 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./browser/batchactions.py:100
+#: ./browser/batchactions.py:99
 msgid "Transition"
 msgstr ""
 
-#: ./browser/batchactions.py:166
+#: ./browser/batchactions.py:165
 #: ./browser/table.py:36
 #: ./dmsmail.py:62
 msgid "Treating groups"

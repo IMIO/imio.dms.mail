@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-22 21:30+0000\n"
+"POT-Creation-Date: 2015-11-22 22:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./browser/batchactions.py:41
+#: ./browser/batchactions.py:40
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
@@ -39,11 +39,11 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./browser/batchactions.py:93
+#: ./browser/batchactions.py:92
 msgid "Batch state change"
 msgstr "Changement d'état en lot"
 
-#: ./browser/batchactions.py:127
+#: ./browser/batchactions.py:158
 msgid "Batch treating group change"
 msgstr "Changement de service traitant"
 
@@ -104,7 +104,7 @@ msgid "Mail type value"
 msgstr "Valeur stockée"
 
 #: ./browser/batchactions.py:102
-msgid "No common or available transition. Close this and modify your selection."
+msgid "No common or available transition. Modify your selection."
 msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sélection."
 
 #: ./browser/templates/listing.pt:25
@@ -133,11 +133,11 @@ msgstr "Services en copie"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./browser/batchactions.py:100
+#: ./browser/batchactions.py:99
 msgid "Transition"
 msgstr "Transition"
 
-#: ./browser/batchactions.py:166
+#: ./browser/batchactions.py:165
 #: ./browser/table.py:36
 #: ./dmsmail.py:62
 msgid "Treating groups"

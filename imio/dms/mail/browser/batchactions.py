@@ -93,13 +93,14 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
 
     def update(self):
         super(TransitionBatchActionForm, self).update()
-        voc = getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids']))
+        self.voc = getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids']))
         self.fields += Fields(schema.Choice(
             __name__='transition',
             title=_(u'Transition'),
-            vocabulary=voc,
-            description=(len(voc) == 0 and _(u'No common or available transition. Close this and modify your selection.') or u''),
-            required=(len(voc) and True or False)))
+            vocabulary=self.voc,
+            description=(len(self.voc) == 0 and
+                         _(u'No common or available transition. Modify your selection.') or u''),
+            required=(len(self.voc) and True or False)))
         self.fields += Fields(schema.Text(
             __name__='comment',
             title=_(u'Comment'),
@@ -108,16 +109,17 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
 
         super(DashboardBatchActionForm, self).update()
 
-    @button.buttonAndHandler(_(u'Apply'), name='apply')
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: len(fi.voc))
     def handleApply(self, action):
         """Handle apply button."""
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        for brain in self.brains:
-            obj = brain.getObject()
-            api.content.transition(obj=obj, transition=data['transition'],
-                                   comment=self.request.form.get('form.widgets.comment', ''))
+        if data['transition']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                api.content.transition(obj=obj, transition=data['transition'],
+                                       comment=self.request.form.get('form.widgets.comment', ''))
         self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
@@ -157,25 +159,27 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
 
     def update(self):
         super(TreatingGroupBatchActionForm, self).update()
-        pb = checkSelectionAboutTreatingGroup(brains_from_uids(self.request.form['form.widgets.uids']))
+        self.pb = checkSelectionAboutTreatingGroup(brains_from_uids(self.request.form['form.widgets.uids']))
         self.fields += Fields(schema.Choice(
             __name__='treating_group',
             title=_(u"Treating groups"),
-            description=(len(pb) and _(u"You can't change this field on selected items. Modify your selection.") or u''),
-            required=(len(pb) == 0 and True or False),
-            vocabulary=(len(pb) == 0 and u'collective.dms.basecontent.treating_groups' or SimpleVocabulary([])),
+            description=(len(self.pb) and
+                         _(u"You can't change this field on selected items. Modify your selection.") or u''),
+            required=(len(self.pb) == 0 and True or False),
+            vocabulary=(len(self.pb) == 0 and u'collective.dms.basecontent.treating_groups' or SimpleVocabulary([])),
         ))
 
         super(DashboardBatchActionForm, self).update()
 
-    @button.buttonAndHandler(_(u'Apply'), name='apply')
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: not len(fi.pb))
     def handleApply(self, action):
         """Handle apply button."""
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        for brain in self.brains:
-            obj = brain.getObject()
-            obj.treating_groups = data['treating_group']
-            modified(obj)
+        if data['treating_group']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                obj.treating_groups = data['treating_group']
+                modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])
