@@ -17,7 +17,6 @@ from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
 
 from collective.task.behaviors import ITask
-from dexterity.localrolesfield.field import LocalRoleField
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 
 from .. import _
@@ -99,7 +98,7 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
             __name__='transition',
             title=_(u'Transition'),
             vocabulary=voc,
-            description=(len(voc) == 0 and _(u'No common transition. Close this and modify your selection.') or u''),
+            description=(len(voc) == 0 and _(u'No common or available transition. Close this and modify your selection.') or u''),
             required=(len(voc) and True or False)))
         self.fields += Fields(schema.Text(
             __name__='comment',
@@ -123,8 +122,6 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
 
 
 class OldTreatingGroupBatchActionForm(DashboardBatchActionForm):
-
-    label = _(u"Batch treating group change")
 
     def update(self):
         super(TreatingGroupBatchActionForm, self).update()
@@ -161,12 +158,12 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
     def update(self):
         super(TreatingGroupBatchActionForm, self).update()
         pb = checkSelectionAboutTreatingGroup(brains_from_uids(self.request.form['form.widgets.uids']))
-        self.fields += Fields(LocalRoleField(
+        self.fields += Fields(schema.Choice(
             __name__='treating_group',
             title=_(u"Treating groups"),
-            description=(len(pb) and _(u"You can't change this on all items. Modify your selection.") or u''),
+            description=(len(pb) and _(u"You can't change this field on selected items. Modify your selection.") or u''),
             required=(len(pb) == 0 and True or False),
-            vocabulary=u'collective.dms.basecontent.treating_groups',
+            vocabulary=(len(pb) == 0 and u'collective.dms.basecontent.treating_groups' or SimpleVocabulary([])),
         ))
 
         super(DashboardBatchActionForm, self).update()

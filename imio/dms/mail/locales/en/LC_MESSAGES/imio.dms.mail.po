@@ -104,7 +104,7 @@ msgid "Mail type value"
 msgstr ""
 
 #: ./browser/batchactions.py:102
-msgid "No common transition. Close this and modify your selection."
+msgid "No common or available transition. Close this and modify your selection."
 msgstr ""
 
 #: ./browser/templates/listing.pt:25
@@ -148,7 +148,7 @@ msgid "Types of incoming mail"
 msgstr ""
 
 #: ./browser/batchactions.py:167
-msgid "You can't change this on all items. Modify your selection."
+msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
 #: ./dmsmail.py:191

@@ -45,7 +45,7 @@ msgstr "Changement d'état en lot"
 
 #: ./browser/batchactions.py:127
 msgid "Batch treating group change"
-msgstr "Changement de service traitant ou d'utilisateur assigné"
+msgstr "Changement de service traitant"
 
 #: ./browser/settings.py:34
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
@@ -104,8 +104,8 @@ msgid "Mail type value"
 msgstr "Valeur stockée"
 
 #: ./browser/batchactions.py:102
-msgid "No common transition. Close this and modify your selection."
-msgstr "Aucune transition commune. Recommencez en modifiant votre sélection."
+msgid "No common or available transition. Close this and modify your selection."
+msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sélection."
 
 #: ./browser/templates/listing.pt:25
 msgid "No incoming mail !"
@@ -148,8 +148,8 @@ msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
 #: ./browser/batchactions.py:167
-msgid "You can't change this on all items. Modify your selection."
-msgstr "Vous ne pouvez pas changer ce champ sur tous les éléments. Recommencez en modifiant votre sélection."
+msgid "You can't change this field on selected items. Modify your selection."
+msgstr "Vous ne pouvez pas changer ce champ sur les éléments sélectionnés. Recommencez en modifiant votre sélection."
 
 #: ./dmsmail.py:191
 msgid "You must select an assigned user before you can propose to an agent !"
