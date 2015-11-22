@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-21 16:25+0000\n"
+"POT-Creation-Date: 2015-11-22 09:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Active"
 msgstr "Activé"
 
-#: ./browser/batchactions.py:106
+#: ./browser/batchactions.py:109
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -27,7 +27,7 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./browser/batchactions.py:35
+#: ./browser/batchactions.py:38
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
@@ -39,9 +39,13 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./browser/batchactions.py:87
+#: ./browser/batchactions.py:90
 msgid "Batch state change"
 msgstr "Changement d'état en lot"
+
+#: ./browser/batchactions.py:124
+msgid "Batch treating group change"
+msgstr "Changement de service traitant ou d'utilisateur assigné"
 
 #: ./browser/settings.py:34
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
@@ -51,7 +55,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/batchactions.py:100
+#: ./browser/batchactions.py:103
 msgid "Comment"
 msgstr "Commentaire"
 
@@ -99,7 +103,7 @@ msgstr "Intitulé du type"
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
-#: ./browser/batchactions.py:96
+#: ./browser/batchactions.py:99
 msgid "No common transition. Close this and modify your choice."
 msgstr "Aucune transition commune. Veuillez modifier votre choix et recommencer."
 
@@ -111,7 +115,7 @@ msgstr "Aucun courrier entrant trouvé !"
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
-#: ./browser/batchactions.py:101
+#: ./browser/batchactions.py:104
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
@@ -129,7 +133,7 @@ msgstr "Services en copie"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./browser/batchactions.py:94
+#: ./browser/batchactions.py:97
 msgid "Transition"
 msgstr "Transition"
 
@@ -292,4 +296,8 @@ msgstr "À valider"
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:4
 msgid "transition-batch-action-but"
 msgstr "Changer l'état"
+
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:8
+msgid "treatinggroup-batch-action-but"
+msgstr "Changer le service traitant"
 

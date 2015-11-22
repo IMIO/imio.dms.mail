@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-21 16:25+0000\n"
+"POT-Creation-Date: 2015-11-22 09:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: ./browser/batchactions.py:106
+#: ./browser/batchactions.py:109
 msgid "Apply"
 msgstr ""
 
@@ -29,7 +29,7 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
-#: ./browser/batchactions.py:35
+#: ./browser/batchactions.py:38
 msgid "Batch action form"
 msgstr ""
 
@@ -41,8 +41,12 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./browser/batchactions.py:87
+#: ./browser/batchactions.py:90
 msgid "Batch state change"
+msgstr ""
+
+#: ./browser/batchactions.py:124
+msgid "Batch treating group change"
 msgstr ""
 
 #: ./browser/settings.py:34
@@ -53,7 +57,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/batchactions.py:100
+#: ./browser/batchactions.py:103
 msgid "Comment"
 msgstr ""
 
@@ -101,7 +105,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/batchactions.py:96
+#: ./browser/batchactions.py:99
 msgid "No common transition. Close this and modify your choice."
 msgstr ""
 
@@ -113,7 +117,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./browser/batchactions.py:101
+#: ./browser/batchactions.py:104
 msgid "Optional comment to display in history"
 msgstr ""
 
@@ -131,7 +135,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./browser/batchactions.py:94
+#: ./browser/batchactions.py:97
 msgid "Transition"
 msgstr ""
 
@@ -243,5 +247,9 @@ msgstr ""
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:4
 msgid "transition-batch-action-but"
+msgstr ""
+
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:8
+msgid "treatinggroup-batch-action-but"
 msgstr ""
 

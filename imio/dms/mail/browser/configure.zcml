@@ -89,6 +89,13 @@
         />
 
     <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboard"
+        name="treatinggroup-batch-action"
+        class=".batchactions.TreatingGroupBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="collective.task.interfaces.ITaskContent"
         name="edit"
         class=".task.TaskEdit"

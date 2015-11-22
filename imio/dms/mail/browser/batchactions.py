@@ -3,6 +3,7 @@
 
 from zope import schema
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+from zope.lifecycleevent import modified
 
 from plone import api
 from plone.supermodel import model
@@ -13,6 +14,9 @@ from z3c.form.interfaces import HIDDEN_MODE
 
 from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
+
+from collective.task.behaviors import ITask
+from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 
 from .. import _
 
@@ -113,4 +117,37 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
             obj = brain.getObject()
             api.content.transition(obj=obj, transition=data['transition'],
                                    comment=self.request.form.get('form.widgets.comment', ''))
+        self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+
+class TreatingGroupBatchActionForm(DashboardBatchActionForm):
+
+    label = _(u"Batch treating group change")
+
+    def update(self):
+        super(TreatingGroupBatchActionForm, self).update()
+        #voc = getAvailableTreatingGroupVoc(brains_from_uids(self.request.form['form.widgets.uids']))
+        im_fields = Fields(IImioDmsIncomingMail)
+        self.fields += im_fields.select('treating_groups')
+        task_fields = Fields(ITask)
+        self.fields += task_fields.select('assigned_user')
+        fld = self.fields['treating_groups'].field
+        fld.slave_fields[0]['name'] = 'assigned_user'
+        fld.slave_fields[0]['slaveID'] = '#form-widgets-assigned_user'
+
+        super(DashboardBatchActionForm, self).update()
+
+#    def updateWidgets(self):
+#        super(TreatingGroupBatchActionForm, self).updateWidgets()
+
+    @button.buttonAndHandler(_(u'Apply'), name='apply')
+    def handleApply(self, action):
+        """Handle apply button."""
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+        for brain in self.brains:
+            obj = brain.getObject()
+            obj.treating_groups = data['treating_groups']
+            modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])
