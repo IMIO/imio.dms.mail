@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-22 09:50+0000\n"
+"POT-Creation-Date: 2015-11-22 21:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Active"
 msgstr "Activé"
 
-#: ./browser/batchactions.py:109
+#: ./browser/batchactions.py:112
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -27,7 +27,7 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./browser/batchactions.py:38
+#: ./browser/batchactions.py:41
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
@@ -39,11 +39,11 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./browser/batchactions.py:90
+#: ./browser/batchactions.py:93
 msgid "Batch state change"
 msgstr "Changement d'état en lot"
 
-#: ./browser/batchactions.py:124
+#: ./browser/batchactions.py:127
 msgid "Batch treating group change"
 msgstr "Changement de service traitant ou d'utilisateur assigné"
 
@@ -55,7 +55,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/batchactions.py:103
+#: ./browser/batchactions.py:106
 msgid "Comment"
 msgstr "Commentaire"
 
@@ -103,7 +103,7 @@ msgstr "Intitulé du type"
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
-#: ./browser/batchactions.py:99
+#: ./browser/batchactions.py:102
 msgid "No common transition. Close this and modify your selection."
 msgstr "Aucune transition commune. Recommencez en modifiant votre sélection."
 
@@ -115,7 +115,7 @@ msgstr "Aucun courrier entrant trouvé !"
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
-#: ./browser/batchactions.py:104
+#: ./browser/batchactions.py:107
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
@@ -133,10 +133,11 @@ msgstr "Services en copie"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./browser/batchactions.py:97
+#: ./browser/batchactions.py:100
 msgid "Transition"
 msgstr "Transition"
 
+#: ./browser/batchactions.py:166
 #: ./browser/table.py:36
 #: ./dmsmail.py:62
 msgid "Treating groups"
@@ -145,6 +146,10 @@ msgstr "Service traitant"
 #: ./browser/settings.py:25
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
+
+#: ./browser/batchactions.py:167
+msgid "You can't change this on all items. Modify your selection."
+msgstr "Vous ne pouvez pas changer ce champ sur tous les éléments. Recommencez en modifiant votre sélection."
 
 #: ./dmsmail.py:191
 msgid "You must select an assigned user before you can propose to an agent !"
