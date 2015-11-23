@@ -131,8 +131,15 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     width: auto;
 }
 
-#formfield-form-widgets-transition .formHelp, #formfield-form-widgets-treating_group .formHelp {
+/* Colorize batch action field description as error in overlay */
+#formfield-form-widgets-transition .formHelp, #formfield-form-widgets-treating_group .formHelp,
+#formfield-form-widgets-assigned_user .formHelp {
     color: red;
+}
+
+/* Align batch actions buttons */
+#dashboard-batch-actions .batch-action-form {
+    display: inline-block;
 }
 
 /* colorization for incoming_mail_workflow */

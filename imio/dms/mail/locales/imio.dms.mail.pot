@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-22 22:25+0000\n"
+"POT-Creation-Date: 2015-11-23 09:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: ./browser/batchactions.py:112
+#: ./browser/batchactions.py:116
 msgid "Apply"
 msgstr ""
 
@@ -29,8 +29,12 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
-#: ./browser/batchactions.py:40
+#: ./browser/batchactions.py:44
 msgid "Batch action form"
+msgstr ""
+
+#: ./browser/batchactions.py:218
+msgid "Batch assigned user change"
 msgstr ""
 
 #: ./profiles/default/actions.xml
@@ -41,11 +45,11 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./browser/batchactions.py:92
+#: ./browser/batchactions.py:96
 msgid "Batch state change"
 msgstr ""
 
-#: ./browser/batchactions.py:158
+#: ./browser/batchactions.py:162
 msgid "Batch treating group change"
 msgstr ""
 
@@ -57,7 +61,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/batchactions.py:106
+#: ./browser/batchactions.py:110
 msgid "Comment"
 msgstr ""
 
@@ -105,8 +109,12 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/batchactions.py:102
+#: ./browser/batchactions.py:106
 msgid "No common or available transition. Modify your selection."
+msgstr ""
+
+#: ./browser/batchactions.py:228
+msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
 #: ./browser/templates/listing.pt:25
@@ -117,7 +125,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./browser/batchactions.py:107
+#: ./browser/batchactions.py:111
 msgid "Optional comment to display in history"
 msgstr ""
 
@@ -135,11 +143,11 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./browser/batchactions.py:99
+#: ./browser/batchactions.py:103
 msgid "Transition"
 msgstr ""
 
-#: ./browser/batchactions.py:165
+#: ./browser/batchactions.py:169
 #: ./browser/table.py:36
 #: ./dmsmail.py:62
 msgid "Treating groups"
@@ -149,7 +157,7 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/batchactions.py:167
+#: ./browser/batchactions.py:171
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
@@ -164,6 +172,10 @@ msgstr ""
 #: ./migrations/migrate_to_0_2.py:106
 #: ./setuphandlers.py:238
 msgid "all_incoming_mails"
+msgstr ""
+
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:12
+msgid "assigneduser-batch-action-but"
 msgstr ""
 
 #. Default: "Backrefs"

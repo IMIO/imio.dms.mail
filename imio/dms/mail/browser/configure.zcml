@@ -96,6 +96,13 @@
         />
 
     <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboard"
+        name="assigneduser-batch-action"
+        class=".batchactions.AssignedUserBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="collective.task.interfaces.ITaskContent"
         name="edit"
         class=".task.TaskEdit"

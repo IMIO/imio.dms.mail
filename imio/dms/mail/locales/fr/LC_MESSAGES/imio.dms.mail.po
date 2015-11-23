@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-22 22:25+0000\n"
+"POT-Creation-Date: 2015-11-23 09:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "Active"
 msgstr "Activé"
 
-#: ./browser/batchactions.py:112
+#: ./browser/batchactions.py:116
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -27,9 +27,13 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./browser/batchactions.py:40
+#: ./browser/batchactions.py:44
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
+
+#: ./browser/batchactions.py:218
+msgid "Batch assigned user change"
+msgstr "Changement d'utilisateur assigné par lot"
 
 #: ./profiles/default/actions.xml
 msgid "Batch import"
@@ -39,13 +43,13 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./browser/batchactions.py:92
+#: ./browser/batchactions.py:96
 msgid "Batch state change"
-msgstr "Changement d'état en lot"
+msgstr "Changement d'état par lot"
 
-#: ./browser/batchactions.py:158
+#: ./browser/batchactions.py:162
 msgid "Batch treating group change"
-msgstr "Changement de service traitant"
+msgstr "Changement de service traitant par lot"
 
 #: ./browser/settings.py:34
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
@@ -55,7 +59,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/batchactions.py:106
+#: ./browser/batchactions.py:110
 msgid "Comment"
 msgstr "Commentaire"
 
@@ -103,9 +107,13 @@ msgstr "Intitulé du type"
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
-#: ./browser/batchactions.py:102
+#: ./browser/batchactions.py:106
 msgid "No common or available transition. Modify your selection."
 msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sélection."
+
+#: ./browser/batchactions.py:228
+msgid "No common or available treating group, or no available assigned user. Modify your selection."
+msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
 #: ./browser/templates/listing.pt:25
 msgid "No incoming mail !"
@@ -115,7 +123,7 @@ msgstr "Aucun courrier entrant trouvé !"
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
-#: ./browser/batchactions.py:107
+#: ./browser/batchactions.py:111
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
@@ -133,11 +141,11 @@ msgstr "Services en copie"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./browser/batchactions.py:99
+#: ./browser/batchactions.py:103
 msgid "Transition"
 msgstr "Transition"
 
-#: ./browser/batchactions.py:165
+#: ./browser/batchactions.py:169
 #: ./browser/table.py:36
 #: ./dmsmail.py:62
 msgid "Treating groups"
@@ -147,7 +155,7 @@ msgstr "Service traitant"
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
-#: ./browser/batchactions.py:167
+#: ./browser/batchactions.py:171
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas changer ce champ sur les éléments sélectionnés. Recommencez en modifiant votre sélection."
 
@@ -163,6 +171,10 @@ msgstr "Toutes les tâches"
 #: ./setuphandlers.py:238
 msgid "all_incoming_mails"
 msgstr "Tous les courriers"
+
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:12
+msgid "assigneduser-batch-action-but"
+msgstr "Changer l'utilisateur assigné"
 
 #. Default: "Backrefs"
 #: ./browser/templates/contactcontent_backrefs.pt:8

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
 
+from operator import methodcaller
+
 from zope import schema
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.lifecycleevent import modified
@@ -17,9 +19,11 @@ from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
 
 from collective.task.behaviors import ITask
-from imio.dms.mail.dmsmail import IImioDmsIncomingMail
+from collective.task import _ as TMF
 
 from .. import _
+from ..dmsmail import IImioDmsIncomingMail
+from ..utils import get_selected_org_suffix_users
 
 
 class IIMBatchActionsFormSchema(model.Schema):
@@ -181,5 +185,57 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.treating_groups = data['treating_group']
+                modified(obj)
+        self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+
+def getAvailableAssignedUserVoc(brains, attribute):
+    """ Returns available assigned users common for all brains. """
+    terms = []
+    users = set()
+    for brain in brains:
+        #obj = brain.getObject()
+        if not getattr(brain, attribute):
+            return SimpleVocabulary([])
+        if not users:
+            users = set(get_selected_org_suffix_users(getattr(brain, attribute), ['editeur', 'validateur']))
+        else:
+            users &= set(get_selected_org_suffix_users(getattr(brain, attribute), ['editeur', 'validateur']))
+    for member in sorted(users, key=methodcaller('getUserName')):
+        terms.append(SimpleTerm(
+            value=member.getUserName(),  # login
+            token=member.getId(),  # id
+            title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
+    return SimpleVocabulary(terms)
+
+
+class AssignedUserBatchActionForm(DashboardBatchActionForm):
+
+    label = _(u"Batch assigned user change")
+
+    def update(self):
+        super(AssignedUserBatchActionForm, self).update()
+        self.voc = getAvailableAssignedUserVoc(self.brains, 'treating_groups')
+        self.fields += Fields(schema.Choice(
+            __name__='assigned_user',
+            title=TMF(u'Assigned user'),
+            vocabulary=self.voc,
+            description=(len(self.voc) == 0 and
+                         _(u'No common or available treating group, or no available assigned user. '
+                           'Modify your selection.') or u''),
+            required=(len(self.voc) and True or False)))
+
+        super(DashboardBatchActionForm, self).update()
+
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: len(fi.voc))
+    def handleApply(self, action):
+        """Handle apply button."""
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+        if data['assigned_user']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                obj.assigned_user = data['assigned_user']
                 modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])

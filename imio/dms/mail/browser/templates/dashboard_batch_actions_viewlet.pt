@@ -8,4 +8,8 @@
   <input id="treatinggroup-batch-action-but" class="button batch-action-but" type="submit" value="treatinggroup-batch-action-but"
          i18n:attributes="value"/>
 </form>
+<form action="assigneduser-batch-action" id="assigneduser-batch-action" class="batch-action-form">
+  <input id="assigneduser-batch-action-but" class="button batch-action-but" type="submit" value="assigneduser-batch-action-but"
+         i18n:attributes="value"/>
+</form>
 </div>
