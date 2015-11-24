@@ -69,7 +69,6 @@ setup(name='imio.dms.mail',
       ],
       extras_require={'test':
         ['plone.app.testing',
-         'unittest2',
          'plone.app.robotframework',
          'plonetheme.imioapps',]},
       entry_points="""

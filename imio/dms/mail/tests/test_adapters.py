@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import unittest2 as unittest
+import unittest
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer

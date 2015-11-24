@@ -1,4 +1,4 @@
-import unittest2 as unittest
+import unittest
 from zope.component import getUtility
 from plone.app.testing import setRoles, TEST_USER_ID
 from Products.CMFCore.utils import getToolByName

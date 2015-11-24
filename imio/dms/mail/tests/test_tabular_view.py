@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import unittest2 as unittest
-from zope.component import getMultiAdapter, getUtility
-from plone.app.testing import setRoles, TEST_USER_ID, TEST_USER_NAME, login, logout
+import unittest
+from plone.app.testing import setRoles, TEST_USER_ID
 #from plone.dexterity.utils import createContentInContainer
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 
