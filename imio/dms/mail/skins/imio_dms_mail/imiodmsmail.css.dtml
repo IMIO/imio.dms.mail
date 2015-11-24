@@ -131,6 +131,30 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     width: auto;
 }
 
+/* Align (move up) the actionspanel add menu */
+.actionspanel-no-style-table {
+    line-height: 1.5em;
+}
+
+/* Align right nextprev links */
+#querynextprev-navigation {
+    float: right;
+}
+#query-nextprev-prev{
+    padding-right: 1em;
+}
+#query-nextprev-next{
+    padding-right: 1em;
+}
+#query-nextprev-prev::before {
+    content: "<<";
+    padding-right: 0.5em;
+}
+#query-nextprev-next::after {
+    content: ">>";
+    padding-left: 0.5em;
+}
+
 /* Colorize batch action field description as error in overlay */
 #formfield-form-widgets-transition .formHelp, #formfield-form-widgets-treating_group .formHelp,
 #formfield-form-widgets-assigned_user .formHelp {
