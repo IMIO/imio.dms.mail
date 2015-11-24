@@ -134,6 +134,7 @@ class Migrate_To_0_4(Migrator):
         self.runProfileSteps('collective.contact.plonegroup', steps=['controlpanel'])
         self.reinstall([
             'collective.messagesviewlet:messages',
+            'collective.querynextprev',
             'imio.dashboard:default',
         ])
 
