@@ -13,6 +13,9 @@ Changelog
 - Protect treating_groups field by write permission
   [sgeulette]
 
+- Added batch change on selected items: state change, treating group change, assigned user change
+  [sgeulette]
+
 - Use elephantvocabulary of plonegroup
   [sgeulette]
 
