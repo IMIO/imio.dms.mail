@@ -14,6 +14,7 @@
     <dependency>profile-collective.contact.facetednav:default</dependency>
     <dependency>profile-collective.contact.plonegroup:default</dependency>
     <dependency>profile-collective.externaleditor:default</dependency>
+    <dependency>profile-collective.messagesviewlet:messages</dependency>
     <dependency>profile-collective.querynextprev:default</dependency>
     <dependency>profile-collective.task:default</dependency>
     <dependency>profile-communesplone.layout:default</dependency>
