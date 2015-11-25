@@ -98,12 +98,12 @@ def postInstall(context):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
         im_folder = getattr(site, folderid)
         alsoProvides(im_folder, INextPrevNotNavigable)
-        alsoProvides(im_folder, IIMDashboard)
 
         # add mail-searches
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
                                        _('Incoming mails'))
         alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IIMDashboard)
 
         # blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
         createIMailCollections(col_folder)
