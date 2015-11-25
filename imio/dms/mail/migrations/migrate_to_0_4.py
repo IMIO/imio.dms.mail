@@ -3,12 +3,16 @@
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.container import contained
+from zope.event import notify
 from zope.interface import alsoProvides, noLongerProvides
 
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
+from plone.dexterity import utils as dxutils
 from plone.dexterity.interfaces import IDexterityFTI
+import plone.dexterity.schema
 from plone.registry.interfaces import IRegistry
+from plone.supermodel.utils import syncSchema
 
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 #from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
@@ -123,12 +127,23 @@ class Migrate_To_0_4(Migrator):
         logger.info('Migrating to imio.dms.mail 0.4...')
         self.cleanRegistries()
         self.upgradeProfile('collective.dms.mailcontent:default')
+        # We have to reapply type info before doing other subproducts migration
+        self.runProfileSteps('imio.dms.mail', steps=['typeinfo'])
+        # We have to update type schema because dexterity doesn't detect schema_policy modification. BUG
+        for portal_type in ['dmsincomingmail', 'dmsoutgoingmail']:
+            schemaName = dxutils.portalTypeToSchemaName(portal_type)
+            schema = getattr(plone.dexterity.schema.generated, schemaName)
+            fti = getUtility(IDexterityFTI, name=portal_type)
+            model = fti.lookupModel()
+            syncSchema(model.schema, schema, overwrite=True, sync_bases=True)
+            notify(plone.dexterity.schema.SchemaInvalidatedEvent(portal_type))
+
         self.upgradeProfile('collective.task:default')
         self.upgradeProfile('dexterity.localroles:default')
         self.upgradeProfile('dexterity.localrolesfield:default')
         self.upgradeProfile('collective.contact.plonegroup:default')
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'controlpanel', 'portlets',
-                                                     'repositorytool', 'rolemap', 'sharing', 'typeinfo', 'workflow'])
+                                                     'repositorytool', 'rolemap', 'sharing', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('collective.dms.mailcontent', steps=['controlpanel'])
         self.runProfileSteps('collective.contact.plonegroup', steps=['controlpanel'])
