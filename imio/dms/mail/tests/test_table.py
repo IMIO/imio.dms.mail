@@ -22,12 +22,12 @@ class TestTable(unittest.TestCase):
     def test_VersionsTitleColumn(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         createContentInContainer(imail, 'dmsmainfile', id='testid1', title='title',
-                                 scan_id='IMIO123456789')
+                                 scan_id='123456789')
         # Cannot use scan_date because toLocalizedTime causes error in test
         brains = self.portal.portal_catalog(portal_type='dmsmainfile', id='testid1')
         self.assertEqual(len(brains), 1)
         col = VersionsTitleColumn(self.portal, self.portal.REQUEST, None)
-        self.assertEqual(col.getLinkTitle(brains[0]), u'title="scan_id: IMIO123456789\nscan_date: "')
+        self.assertEqual(col.getLinkTitle(brains[0]), u'title="scan_id: 123456789\nscan_date: "')
 
     def test_AssignedGroupColumn(self):
         registry = getUtility(IRegistry)

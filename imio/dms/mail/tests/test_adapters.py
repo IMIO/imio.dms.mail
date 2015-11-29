@@ -52,14 +52,14 @@ class TestAdapters(unittest.TestCase):
     def test_ScanSearchableExtender(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid1', title='title', description='description',
-                                       scan_id='IMIO123456789')
+                                       scan_id='123456789')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), 'testid1 title 123456789 description')
+        self.assertEqual(ext(), 'testid1 title IMIO123456789 description')
         fh = open('testfile.txt', 'w+')
         fh.write("One word\n")
         fh.seek(0)
         file_object = NamedBlobFile(fh.read(), filename=u'testfile.txt')
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid2', title='title', description='description',
-                                       file=file_object, scan_id='IMIO123456789')
+                                       file=file_object, scan_id='123456789')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), 'testid2 title 123456789 description One word\n')
+        self.assertEqual(ext(), 'testid2 title IMIO123456789 description One word\n')
