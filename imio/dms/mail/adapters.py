@@ -182,13 +182,20 @@ class ScanSearchableExtender(object):
         self.context = context
 
     def searchable_text(self):
-        return u" ".join((
-            self.context.id.endswith('.pdf') and self.context.id[0:-4] or self.context.id,
-            (self.context.title and self.context.title != self.context.id and (self.context.title.endswith('.pdf') and
-             self.context.title[0:-4] or self.context.title) or u""),
-            IScanFields(self.context).scan_id and u"IMIO%s" % IScanFields(self.context).scan_id or u'',
-            self.context.description or u"",
-        ))
+        items = [self.context.id.endswith('.pdf') and self.context.id[0:-4] or self.context.id]
+        tit = (self.context.title and self.context.title != self.context.id and
+               (self.context.title.endswith('.pdf') and self.context.title[0:-4] or self.context.title) or u"")
+        if tit:
+            items.append(tit)
+        sid = (IScanFields(self.context).scan_id and IScanFields(self.context).scan_id.startswith('IMIO') and
+               IScanFields(self.context).scan_id[4:] or IScanFields(self.context).scan_id)
+        if sid:
+            if sid != items[0]:
+                items.append(sid)
+            items.append(u"IMIO%s" % sid)
+        if self.context.description:
+            items.append(self.context.description)
+        return u" ".join(items)
 
     def __call__(self):
         """ Extend the searchable text with a custom string """

@@ -51,10 +51,24 @@ class TestAdapters(unittest.TestCase):
 
     def test_ScanSearchableExtender(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
-        obj = createContentInContainer(imail, 'dmsmainfile', id='testid1', title='title', description='description',
-                                       scan_id='123456789')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='testid1.pdf', title='title', description='description')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), 'testid1 title IMIO123456789 description')
+        self.assertEqual(ext(), 'testid1 title description')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='testid1', title='title.pdf', description='description')
+        ext = ScanSearchableExtender(obj)
+        self.assertEqual(ext(), 'testid1 title description')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='testid2.pdf', title='testid2.pdf',
+                                       description='description')
+        ext = ScanSearchableExtender(obj)
+        self.assertEqual(ext(), 'testid2 description')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='123456789.pdf', title='123456789.pdf',
+                                       description='description', scan_id='123456789')
+        ext = ScanSearchableExtender(obj)
+        self.assertEqual(ext(), '123456789 IMIO123456789 description')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='1234567890.pdf', title='title',
+                                       description='description', scan_id='1234567890')
+        ext = ScanSearchableExtender(obj)
+        self.assertEqual(ext(), '1234567890 title IMIO1234567890 description')
         fh = open('testfile.txt', 'w+')
         fh.write("One word\n")
         fh.seek(0)
@@ -62,4 +76,4 @@ class TestAdapters(unittest.TestCase):
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid2', title='title', description='description',
                                        file=file_object, scan_id='123456789')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), 'testid2 title IMIO123456789 description One word\n')
+        self.assertEqual(ext(), 'testid2 title 123456789 IMIO123456789 description One word\n')
