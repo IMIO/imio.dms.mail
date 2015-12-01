@@ -20,9 +20,14 @@ Premiers pas
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1 accès à l'application.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
+    #Log in  encodeur  Dmsmail69!
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1 page d'accueil.png  css=.site-plone  id=portal-footer-wrapper
     Capture and crop page screenshot  doc/utilisation/2-1 fil d'ariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-1 page du courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    
 
 Encodage depuis le scanner
 # partie 2.2.1 Encodage après envoi par le scanner
