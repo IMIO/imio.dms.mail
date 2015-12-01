@@ -14,14 +14,13 @@ import plone.dexterity.schema
 from plone.registry.interfaces import IRegistry
 from plone.supermodel.utils import syncSchema
 
-from Products.CPUtils.Extensions.utils import configure_ckeditor
+from Products.CPUtils.Extensions.utils import configure_ckeditor, mark_last_version
 #from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
-from ..interfaces import IExternalContact, IInternalContact
-from imio.dms.mail.interfaces import IIMDashboard
+from ..interfaces import IExternalContact, IInternalContact, IIMDashboard
 from ..setuphandlers import _, configure_faceted_folder, reimport_faceted_config
 from ..setuphandlers import add_db_col_folder, configure_task_rolefields
 from ..setuphandlers import createIMailCollections, createIMTaskCollections, createStateCollections
@@ -212,7 +211,13 @@ class Migrate_To_0_4(Migrator):
 
         self.update_dmsmainfile()
 
-        #self.upgradeAll()
+        self.upgradeAll()
+        for prod in ['plone.formwidget.autocomplete', 'collective.documentviewer', 'plone.formwidget.masterselect',
+                     'collective.contact.core', 'collective.contact.duplicated', 'collective.dms.basecontent',
+                     'collective.dms.scanbehavior', 'collective.externaleditor', 'plone.app.collection',
+                     'plone.app.intid']:
+            mark_last_version(self.portal, product=prod)
+
         #self.refreshDatabase()
         self.finish()
 
