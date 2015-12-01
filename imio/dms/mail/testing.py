@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import zope.security.checker
-
 from Products.CMFPlone.utils import _createObjectByType
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from plone.testing import z2
@@ -8,6 +6,9 @@ from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing.helpers import PloneWithPackageLayer
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import FunctionalTesting
+
+from Testing import ZopeTestCase as ztc
+
 import imio.dms.mail
 
 
@@ -22,6 +23,10 @@ class DmsmailLayer(PloneWithPackageLayer):
                                  'create_main_file')
         # install dmsmail (apply profile)
         super(DmsmailLayer, self).setUpPloneSite(portal)
+
+    def setUpZope(self, app, configurationContext):
+        ztc.utils.setupCoreSessions(app)
+        super(DmsmailLayer, self).setUpZope(app, configurationContext)
 
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",
