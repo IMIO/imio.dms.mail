@@ -19,7 +19,8 @@ from AccessControl import getSecurityManager
 
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
 from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
-from collective.dms.mailcontent.dmsmail import IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail
+from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
+                                                originalMailDateDefaultValue)
 from collective.task.field import LocalRoleMasterSelectField
 from dexterity.localrolesfield.field import LocalRolesField
 
@@ -150,6 +151,9 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
     settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
     if settings.original_mail_date_required:
         the_form.widgets['original_mail_date'].required = True
+        if the_form.widgets['original_mail_date'].value == ('', '', ''):  # field value is None
+            date = originalMailDateDefaultValue(None)
+            the_form.widgets['original_mail_date'].value = (date.year, date.month, date.day)
     else:
         the_form.widgets['original_mail_date'].required = False
 
