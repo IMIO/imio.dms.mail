@@ -164,8 +164,10 @@ def mail_type_index(obj):
 
 @indexer(IDmsIncomingMail)
 def mail_date_index(obj):
-    # No acquisition pb because mail_date isn't an attr
-    return obj.original_mail_date
+    # No acquisition pb because mail_date isn't an attr but cannot store None
+    if obj.original_mail_date:
+        return obj.original_mail_date
+    return common_marker
 
 
 @indexer(IDmsIncomingMail)
