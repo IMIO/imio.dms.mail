@@ -147,6 +147,12 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
     for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
         the_form.widgets[field].mode = HIDDEN_MODE
 
+    settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+    if settings.original_mail_date_required:
+        the_form.widgets['original_mail_date'].required = True
+    else:
+        the_form.widgets['original_mail_date'].required = False
+
 
 class IMEdit(DmsDocumentEdit):
     """

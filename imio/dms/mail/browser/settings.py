@@ -35,6 +35,12 @@ class IImioDmsMailConfig(Interface):
         default=True
     )
 
+    original_mail_date_required = schema.Bool(
+        title=_(u'Original mail date requirement'),
+        description=_(u"Check if the incoming mail 'original mail date' field must be required."),
+        default=True
+    )
+
 
 class SettingsEditForm(RegistryEditForm):
     """

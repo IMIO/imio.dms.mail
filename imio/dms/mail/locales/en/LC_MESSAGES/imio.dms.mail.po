@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-11-23 09:52+0000\n"
+"POT-Creation-Date: 2015-12-10 13:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:218
+#: ./browser/batchactions.py:214
 msgid "Batch assigned user change"
 msgstr ""
 
@@ -51,6 +51,10 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
+#: ./browser/settings.py:40
+msgid "Check if the incoming mail 'original mail date' field must be required."
+msgstr ""
+
 #: ./browser/settings.py:34
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
@@ -67,7 +71,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:71
+#: ./migrations/migrate_to_1_0.py:74
 #: ./setuphandlers.py:120
 msgid "I.M. tasks"
 msgstr ""
@@ -84,13 +88,13 @@ msgstr ""
 msgid "Incoming mail listing"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:58
-#: ./setuphandlers.py:104
+#: ./migrations/migrate_to_1_0.py:61
+#: ./setuphandlers.py:103
 msgid "Incoming mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:59
-#: ./setuphandlers.py:105
+#: ./migrations/migrate_to_1_0.py:62
+#: ./setuphandlers.py:104
 msgid "Incoming mails"
 msgstr ""
 
@@ -111,7 +115,7 @@ msgstr ""
 msgid "No common or available transition. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:228
+#: ./browser/batchactions.py:224
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
@@ -127,6 +131,10 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
+#: ./browser/settings.py:39
+msgid "Original mail date requirement"
+msgstr ""
+
 #: ./migrations/migrate_to_0_2.py:115
 #: ./setuphandlers.py:133
 msgid "Outgoing mail"
@@ -136,7 +144,7 @@ msgstr ""
 msgid "Recipient groups"
 msgstr ""
 
-#: ./migrations/migrate_to_0_4.py:70
+#: ./migrations/migrate_to_1_0.py:73
 #: ./setuphandlers.py:119
 msgid "Tasks searches"
 msgstr ""
@@ -159,7 +167,7 @@ msgstr ""
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./dmsmail.py:191
+#: ./dmsmail.py:197
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
