@@ -218,6 +218,9 @@ class Migrate_To_0_4(Migrator):
                      'plone.app.intid']:
             mark_last_version(self.portal, product=prod)
 
+        self.portal.manage_permission('CMFEditions: Revert to previous versions', ('Manager', 'Site Administrator'),
+                                      acquire=0)
+
         #self.refreshDatabase()
         self.finish()
 

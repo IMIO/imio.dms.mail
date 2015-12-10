@@ -407,6 +407,9 @@ def adaptDefaultPortal(context):
     #List undo
     site.manage_permission('List undoable changes', ('Manager', 'Site Administrator'),
                            acquire=0)
+    #History: can revert to previous versions
+    site.manage_permission('CMFEditions: Revert to previous versions', ('Manager', 'Site Administrator'),
+                           acquire=0)
 
     # Set markup allowed types: for RichText field, don't display anymore types listbox
     adapter = MarkupControlPanelAdapter(site)
