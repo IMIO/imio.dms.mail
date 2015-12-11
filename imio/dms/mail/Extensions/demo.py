@@ -17,13 +17,13 @@ def import_scanned(self):
     docs = {
         '59.PDF':
         {
-            'c': {'mail_type': 'courrier', 'file_title': '010500000000001.pdf'},
+            'c': {'mail_type': 'courrier', 'file_title': '010500000000001.pdf', 'recipient_groups': []},
             'f': {'scan_id': '010500000000001', 'pages_number': 1, 'scan_date': now,
                   'scan_user': 'Opérateur', 'scanner': 'Ricola'}
         },
         '60.PDF':
         {
-            'c': {'mail_type': 'courrier', 'file_title': '010500000000002.pdf'},
+            'c': {'mail_type': 'courrier', 'file_title': '010500000000002.pdf', 'recipient_groups': []},
             'f': {'scan_id': '010500000000002', 'pages_number': 1, 'scan_date': now,
                   'scan_user': 'Opérateur', 'scanner': 'Ricola'}
         },
