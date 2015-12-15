@@ -23,22 +23,20 @@ Premiers pas
     #Log in  encodeur  Dmsmail69!
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1 page d'accueil.png  css=.site-plone  id=portal-footer-wrapper
-    Capture and crop page screenshot  doc/utilisation/2-1 fil d'ariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home
-    Go to  ${PLONE_URL}/incoming-mail
-    Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-1 page du courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
-    
+    Capture and crop page screenshot  doc/utilisation/2-1 fil d'ariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home    
 
 Encodage depuis le scanner
 # partie 2.2.1 Encodage après envoi par le scanner
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/create_lock
-    Go to  ${PLONE_URL}/incoming-mail/collections/searchfor_created
-    Capture and crop page screenshot  doc/utilisation/2-2-1 recherche en création.png  css=.site-plone  id=portal-footer-wrapper
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
+    debug
+    #Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/create_lock
+    #Go to  ${PLONE_URL}/incoming-mail/collections/searchfor_created
+    #Capture and crop page screenshot  doc/utilisation/2-2-1 recherche en création.png  css=.site-plone  id=portal-footer-wrapper
+    #Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
@@ -194,7 +192,7 @@ Encodage depuis le scanner
     Click button  id=form-buttons-save
     Sleep  2
 
-#Visualisation
+Visualisation
 # partie 2.3 Visualisation des courriers
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail

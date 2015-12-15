@@ -156,6 +156,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
             the_form.widgets['original_mail_date'].value = (date.year, date.month, date.day)
     else:
         the_form.widgets['original_mail_date'].required = False
+        the_form.widgets['original_mail_date'].value = ('', '', '')
 
 
 class IMEdit(DmsDocumentEdit):
