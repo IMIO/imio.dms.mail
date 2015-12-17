@@ -188,6 +188,7 @@ Encodage depuis le scanner
     Select from list by value  id=form-widgets-original_mail_date-day  6
     Select from list by value  id=form-widgets-original_mail_date-month  6
     Select from list by value  id=form-widgets-original_mail_date-year  2012
+    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier fini.png  css=.documentEditable
     Click button  id=form-buttons-save
     Sleep  2
