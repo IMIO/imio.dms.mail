@@ -193,10 +193,11 @@ Encodage depuis le scanner
     Click button  id=form-buttons-save
     Sleep  2
 
-Visualisation
+#Visualisation
 # partie 2.3 Visualisation des courriers
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-3 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
@@ -212,7 +213,7 @@ Visualisation
     #Sleep  1
     #Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant ged.png  id=content
 
-#Modification
+Modification
 # partie 2.5 Modification des courriers
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
