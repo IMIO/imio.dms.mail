@@ -8,6 +8,7 @@
    <include package="plonetheme.imioapps"/>
    <include package="collective.ckeditor"/>
    <include package="collective.messagesviewlet"/>
+   <includeDependencies package="." />
 
    <include file="configure.zcml"/>
    <includeOverrides file="overrides.zcml" />

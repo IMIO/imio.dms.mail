@@ -188,6 +188,7 @@ Encodage depuis le scanner
     Select from list by value  id=form-widgets-original_mail_date-day  6
     Select from list by value  id=form-widgets-original_mail_date-month  6
     Select from list by value  id=form-widgets-original_mail_date-year  2012
+    Select from list by index  id=form-widgets-treating_groups  2
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier fini.png  css=.documentEditable
     Click button  id=form-buttons-save
@@ -213,7 +214,7 @@ Encodage depuis le scanner
     #Sleep  1
     #Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant ged.png  id=content
 
-Modification
+#Modification
 # partie 2.5 Modification des courriers
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
