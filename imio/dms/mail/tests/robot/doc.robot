@@ -1,6 +1,7 @@
 *** Settings ***
 Resource  plone/app/robotframework/keywords.robot
 Resource  plone/app/robotframework/selenium.robot
+Resource  common.robot
 
 Library  Remote  ${PLONE_URL}/RobotRemote
 Library  plone.app.robotframework.keywords.Debugging
@@ -32,11 +33,10 @@ Encodage depuis le scanner
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
-    debug
-    #Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/create_lock
-    #Go to  ${PLONE_URL}/incoming-mail/collections/searchfor_created
-    #Capture and crop page screenshot  doc/utilisation/2-2-1 recherche en création.png  css=.site-plone  id=portal-footer-wrapper
-    #Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/create_lock
+    Select collection  incoming-mail/mail-searches/searchfor_created
+    Capture and crop page screenshot  doc/utilisation/2-2-1 recherche en création.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
