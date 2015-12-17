@@ -124,4 +124,12 @@
             />
     </class>
 
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+        name="plone"
+        class=".views.PloneView"
+        permission="zope.Public"
+        allowed_interface="Products.CMFPlone.browser.interfaces.IPlone"
+    />
+
 </configure>
