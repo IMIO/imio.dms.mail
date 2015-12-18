@@ -58,7 +58,7 @@ Encodage depuis le scanner
     Input text  name=form.widgets.sender.widgets.query  le
     Wait until element is visible  css=.ac_results  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur recherche le.png  id=fieldset-default
-    Click element  id=form-widgets-notes
+    Click element  id=form-widgets-external_reference_no
     Wait until element is not visible  css=.ac_results  10
     Input text  name=form.widgets.sender.widgets.query  leduc
 
@@ -293,21 +293,22 @@ Encodage manuel
 # partie 2.2.2 Encodage manuel du courrier
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
 
     ### Create incomingmail
-    ${note10}  Add pointy note  css=#imiodmsmail-mainportlet table tr a[href*='++add++dmsincomingmail']  Lien d'ajout  position=bottom  color=blue
+    ${note10}  Add pointy note  css=#newIMCreation  Lien d'ajout  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 1 lien ajout.png  id=portal-column-one  ${note10}
     Remove element  id=${note10}
-    Click element  css=#imiodmsmail-mainportlet table tr a[href*='++add++dmsincomingmail']
+    Click element  newIMCreation
     Wait until element is visible  css=.template-dmsincomingmail #formfield-form-widgets-sender  10
-    Sleep  2
+    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 1 création.png  id=content
     Input text  name=form.widgets.IDublinCore.title  Lettre de demande de stage
     Input text  name=form.widgets.sender.widgets.query  Non encod
     Wait until element is visible  css=.ac_results[style*="display: block"]  10
     Click element  css=.ac_results[style*="display: block"] li
     Select from list by value  id=form-widgets-mail_type  courrier
-    Select from list by index  id=form-widgets-treating_groups  3
+    Select from list by index  id=form-widgets-treating_groups  2
     Click button  id=form-buttons-save
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 1 création finie.png  id=content  id=viewlet-below-content
