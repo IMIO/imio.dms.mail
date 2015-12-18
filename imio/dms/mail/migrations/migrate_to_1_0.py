@@ -6,6 +6,7 @@ from zope.container import contained
 from zope.event import notify
 from zope.interface import alsoProvides, noLongerProvides
 
+from Products.CMFPlone.utils import base_hasattr
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity import utils as dxutils
@@ -24,6 +25,7 @@ from ..interfaces import IExternalContact, IInternalContact, IIMDashboard
 from ..setuphandlers import _, configure_faceted_folder, reimport_faceted_config
 from ..setuphandlers import add_db_col_folder, configure_task_rolefields
 from ..setuphandlers import createIMailCollections, createIMTaskCollections, createStateCollections
+from ..utils import create_richtextval
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -161,15 +163,16 @@ class Migrate_To_1_0(Migrator):
         # remove deprecated interfaces
         self.remove_contact_interfaces()
 
-        # set old vocabulary fields with new elephantvocabulary field
-        #catalog = api.portal.get_tool('portal_catalog')
-        #brains = catalog.searchResults(portal_type='dmsincomingmail')
-        #for brain in brains:
-        #    obj = brain.getObject()
-        #    obj.treating_groups = obj.treating_groups and obj.treating_groups or
-        #self.registry[ORGANIZATIONS_REGISTRY][0]
-        #    obj.recipient_groups = obj.recipient_groups and obj.recipient_groups or None
-        #    obj.assigned_group = None
+        # moved notes content to task_description
+        catalog = api.portal.get_tool('portal_catalog')
+        brains = catalog.searchResults(portal_type='dmsincomingmail')
+        for brain in brains:
+            obj = brain.getObject()
+            if not base_hasattr(obj, 'notes') or not obj.notes:
+                continue
+            text = u'<p>%s</p>\r\n' % obj.notes.replace('\r\n', '<br />\r\n')
+            obj.task_description = create_richtextval(text)
+            delattr(obj, 'notes')
         #    obj.reindexObject()
 
         # replace collections by Dashboard collections
@@ -209,6 +212,7 @@ class Migrate_To_1_0(Migrator):
         adapter = MarkupControlPanelAdapter(self.portal)
         adapter.set_allowed_types(['text/html'])
 
+        # update searchabletext
         self.update_dmsmainfile()
 
         self.upgradeAll()

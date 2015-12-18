@@ -108,7 +108,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     directives.order_before(notes='recipient_groups')
     directives.order_before(treating_groups='recipient_groups')
 
-    directives.omitted('reply_to', 'related_docs', 'recipients')
+    directives.omitted('reply_to', 'related_docs', 'recipients', 'notes')
     #directives.widget(recipient_groups=SelectFieldWidget)
 
 # Compatibility with old vocabularies

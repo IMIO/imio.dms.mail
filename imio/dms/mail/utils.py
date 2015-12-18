@@ -7,6 +7,7 @@ from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import getUtility
 
 from plone import api
+from plone.app.textfield.value import RichTextValue
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.Five import BrowserView
@@ -105,6 +106,14 @@ def list_wf_states(context, portal_type):
     for missing in state_ids:
         ret.append(missing)
     return ret
+
+
+# May be moved to imio.helpers ?
+def create_richtextval(text):
+    """ Return a RichTextValue """
+    if not isinstance(text, unicode):
+        text = text.decode('utf8')
+    return RichTextValue(raw=text, mimeType='text/html', outputMimeType='text/html', encoding='utf-8')
 
 
 # views
