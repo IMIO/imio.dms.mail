@@ -72,7 +72,8 @@
     display: None;
 }
 
-.template-dmsdocument-edit #fieldsetlegend-categorization, .template-dmsdocument-edit #fieldsetlegend-dates, .template-dmsdocument-edit #fieldsetlegend-ownership {
+.template-dmsdocument-edit #fieldsetlegend-categorization, .template-dmsdocument-edit #fieldsetlegend-dates, .template-dmsdocument-edit #fieldsetlegend-ownership,
+.template-dmsincomingmail #fieldsetlegend-categorization, .template-dmsincomingmail #fieldsetlegend-dates, .template-dmsincomingmail #fieldsetlegend-ownership {
     display: none !important;
 }
 
