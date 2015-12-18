@@ -29,7 +29,7 @@ import logging
 logger = logging.getLogger('imio.dms.mail')
 
 
-class Migrate_To_0_4(Migrator):
+class Migrate_To_1_0(Migrator):
 
     def __init__(self, context):
         Migrator.__init__(self, context)
@@ -123,12 +123,12 @@ class Migrate_To_0_4(Migrator):
             obj.reindexObject(idxs=['SearchableText'])
 
     def run(self):
-        logger.info('Migrating to imio.dms.mail 0.4...')
+        logger.info('Migrating to imio.dms.mail 1.0...')
         self.cleanRegistries()
         self.upgradeProfile('collective.dms.mailcontent:default')
         # We have to reapply type info before doing other subproducts migration
         self.runProfileSteps('imio.dms.mail', steps=['typeinfo'])
-        # We have to update type schema because dexterity doesn't detect schema_policy modification. BUG
+        # We have to update type schema because plone.dexterity doesn't detect schema_policy modification. BUG #44
         for portal_type in ['dmsincomingmail', 'dmsoutgoingmail']:
             schemaName = dxutils.portalTypeToSchemaName(portal_type)
             schema = getattr(plone.dexterity.schema.generated, schemaName)
@@ -228,4 +228,4 @@ class Migrate_To_0_4(Migrator):
 def migrate(context):
     '''
     '''
-    Migrate_To_0_4(context).run()
+    Migrate_To_1_0(context).run()
