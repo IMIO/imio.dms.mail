@@ -156,7 +156,9 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
             the_form.widgets['original_mail_date'].value = (date.year, date.month, date.day)
     else:
         the_form.widgets['original_mail_date'].required = False
-        the_form.widgets['original_mail_date'].value = ('', '', '')
+        # if the context original_mail_date is already set, the widget value is good and must be kept
+        if the_form.context.original_mail_date is None:
+            the_form.widgets['original_mail_date'].value = ('', '', '')
 
 
 class IMEdit(DmsDocumentEdit):
