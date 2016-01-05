@@ -7,6 +7,7 @@ from zope.schema.fieldproperty import FieldProperty
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.schema.interfaces import IContextSourceBinder
 from z3c.form.interfaces import HIDDEN_MODE
+from Products.CMFPlone.utils import base_hasattr
 from plone import api
 from plone.autoform import directives
 from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
@@ -157,7 +158,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
     else:
         the_form.widgets['original_mail_date'].required = False
         # if the context original_mail_date is already set, the widget value is good and must be kept
-        if the_form.context.original_mail_date is None:
+        if not base_hasattr(the_form.context, 'original_mail_date') or the_form.context.original_mail_date is None:
             the_form.widgets['original_mail_date'].value = ('', '', '')
 
 
