@@ -143,8 +143,9 @@ class Migrate_To_1_0(Migrator):
         self.upgradeProfile('dexterity.localroles:default')
         self.upgradeProfile('dexterity.localrolesfield:default')
         self.upgradeProfile('collective.contact.plonegroup:default')
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'controlpanel', 'portlets',
-                                                     'repositorytool', 'rolemap', 'sharing', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'controlpanel',
+                                                     'plone.app.registry', 'portlets', 'repositorytool',
+                                                     'rolemap', 'sharing', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('collective.dms.mailcontent', steps=['controlpanel'])
         self.runProfileSteps('collective.contact.plonegroup', steps=['controlpanel'])
