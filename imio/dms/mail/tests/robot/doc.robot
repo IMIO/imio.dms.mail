@@ -342,8 +342,10 @@ Encodage manuel
 Menu courrier
 # partie 2.4 Menu de recherches prédéfinies
     Enable autologin as  Manager
+    Set autologin username  encodeur
     Go to  ${PLONE_URL}/incoming-mail
-    Capture and crop page screenshot  doc/utilisation/2-4 menu courrier.png  id=imiodmsmail-mainportlet
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-4 menu courrier.png  css=.portletWidgetCollection
 
 
 Contacts 1
