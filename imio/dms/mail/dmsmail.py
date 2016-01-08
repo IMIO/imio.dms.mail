@@ -137,6 +137,18 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     recipient_groups = FieldProperty(IImioDmsIncomingMail[u'recipient_groups'])
 
 
+def ImioDmsIncomingMailUpdateFields(the_form):
+    """
+        Fields update method for add and edit
+    """
+    the_form.fields['original_mail_date'].field = copy.copy(the_form.fields['original_mail_date'].field)
+    settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+    if settings.original_mail_date_required:
+        the_form.fields['original_mail_date'].field.required = True
+    else:
+        the_form.fields['original_mail_date'].field.required = False
+
+
 def ImioDmsIncomingMailUpdateWidgets(the_form):
     """
         Widgets update method for add and edit
@@ -151,14 +163,11 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
     for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
         the_form.widgets[field].mode = HIDDEN_MODE
 
-    settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-    if settings.original_mail_date_required:
-        the_form.widgets['original_mail_date'].required = True
+    if the_form.widgets['original_mail_date'].field.required:
         if the_form.widgets['original_mail_date'].value == ('', '', ''):  # field value is None
             date = originalMailDateDefaultValue(None)
             the_form.widgets['original_mail_date'].value = (date.year, date.month, date.day)
     else:
-        the_form.widgets['original_mail_date'].required = False
         # if the context original_mail_date is already set, the widget value is good and must be kept
         if not base_hasattr(the_form.context, 'original_mail_date') or the_form.context.original_mail_date is None:
             the_form.widgets['original_mail_date'].value = ('', '', '')
@@ -168,6 +177,10 @@ class IMEdit(DmsDocumentEdit):
     """
         Edit form redefinition to customize fields.
     """
+
+    def updateFields(self):
+        super(IMEdit, self).updateFields()
+        ImioDmsIncomingMailUpdateFields(self)
 
     def updateWidgets(self):
         super(IMEdit, self).updateWidgets()
@@ -204,10 +217,9 @@ class IMEdit(DmsDocumentEdit):
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         if settings.assigned_user_check and not self.context.assigned_user \
                 and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
+            self.widgets['ITask.assigned_user'].field = copy.copy(self.widgets['ITask.assigned_user'].field)
             self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
                                                                       ' can propose to an agent !')
-        else:
-            self.widgets['ITask.assigned_user'].field.description = u''
 
 
 class IMView(DmsDocumentView):
@@ -231,6 +243,10 @@ class IMView(DmsDocumentView):
 class CustomAddForm(DefaultAddForm):
 
     portal_type = 'dmsincomingmail'
+
+    def updateFields(self):
+        super(CustomAddForm, self).updateFields()
+        ImioDmsIncomingMailUpdateFields(self)
 
     def updateWidgets(self):
         super(CustomAddForm, self).updateWidgets()
