@@ -37,7 +37,7 @@ Changelog
 - Some improvements: contact add width, also validateur in assigned user, changed default position types,
                      actions panel transition configuration, corrected listing, removed adding mainfile from menu,
                      colorized collection results, removed grok, improved assigned user warning, front page text,
-                     set undo visible, improved state colorization, changed configlet permission, added reorder on mail types,
+                     set undo visible, improved state colorization, changed configlet and view permissions, added reorder on mail types,
                      added link to plonegroup-organization, improved localroles config column width, ckeditor configuration,
                      original mail date requirement option, revert to previous version only for manager
   [sgeulette]

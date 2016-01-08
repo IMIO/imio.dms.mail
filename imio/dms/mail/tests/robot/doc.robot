@@ -195,24 +195,24 @@ Encodage depuis le scanner
     Sleep  2
 
 #Visualisation
-# partie 2.3 Visualisation des courriers
+# partie 2.4 Visualisation des courriers
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-3 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    Capture and crop page screenshot  doc/utilisation/2-4 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Mouse over  css=#form-widgets-sender a.link-tooltip
     Wait until element is visible  css=div.tooltip #person  10
     # Le pointeur fait disparaître le tooltip
     #${pointer}  Add pointer  css=#form-widgets-sender a.link-tooltip
-    Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant personne.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant personne.png  id=content
     #Remove element  ${pointer}
     # La capture du tooltip title ne fonctionne pas!
     Mouse over  css=a.version-link
     #Sleep  1
-    #Capture and crop page screenshot  doc/utilisation/2-3 courrier entrant ged.png  id=content
+    #Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant ged.png  id=content
 
 #Modification
 # partie 2.5 Modification des courriers
@@ -340,12 +340,12 @@ Encodage manuel
 
 
 Menu courrier
-# partie 2.4 Menu de recherches prédéfinies
+# partie 2.3 Menu de recherches prédéfinies
     Enable autologin as  Manager
     Set autologin username  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-4 menu courrier.png  css=.portletWidgetCollection
+    Capture and crop page screenshot  doc/utilisation/2-3 menu courrier.png  css=.portletWidgetCollection
 
 
 Contacts 1
