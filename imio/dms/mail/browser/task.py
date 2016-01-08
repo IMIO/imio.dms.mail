@@ -1,3 +1,5 @@
+import copy
+
 from z3c.form.interfaces import HIDDEN_MODE
 
 from plone import api
@@ -23,9 +25,9 @@ class TaskEdit(DefaultEditForm):
     def updateWidgets(self):
         super(TaskEdit, self).updateWidgets()
         # Override default vocabulary
-        # ERROR the modified behavior field is globally modified
-        self.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
-        self.fields['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
+        self.widgets['ITask.assigned_group'].field = copy.copy(self.widgets['ITask.assigned_group'].field)
+        self.widgets['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
+        self.widgets['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
         # Set assigned_group as required
         self.widgets['ITask.assigned_group'].required = True
         # Hide enquirer
@@ -39,8 +41,9 @@ class CustomAddForm(DefaultAddForm):
     def updateWidgets(self):
         super(CustomAddForm, self).updateWidgets()
         # Override default vocabulary
-        self.fields['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
-        self.fields['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
+        self.widgets['ITask.assigned_group'].field = copy.copy(self.widgets['ITask.assigned_group'].field)
+        self.widgets['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
+        self.widgets['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
         self.widgets['ITask.assigned_group'].required = True
         # Set parent assigned group as default value
         if base_hasattr(self.context, 'treating_groups'):
