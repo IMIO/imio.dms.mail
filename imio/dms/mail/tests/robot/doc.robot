@@ -287,7 +287,18 @@ Encodage depuis le scanner
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
     Capture viewport screenshot  doc/utilisation/2-6 historique.png
-    
+
+Tableaux de bord
+# partie 2.3.2 Tableaux de bord
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned?number=16
+#    Enable autologin as  dirg
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/create_lock
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord général.png  id=content
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
+
 
 Encodage manuel
 # partie 2.2.2 Encodage manuel du courrier
@@ -340,12 +351,12 @@ Encodage manuel
 
 
 Menu courrier
-# partie 2.3 Menu de recherches prédéfinies
+# partie 2.3.1 Menu de recherches prédéfinies
     Enable autologin as  Manager
     Set autologin username  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-3 menu courrier.png  css=.portletWidgetCollection
+    Capture and crop page screenshot  doc/utilisation/2-3-1 menu courrier.png  css=.portletWidgetCollection
 
 
 Contacts 1
