@@ -298,6 +298,12 @@ Tableaux de bord
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord général.png  id=content
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    Select checkbox  css=td.select_item_checkbox input[value='${UID}']
+    Click button  id=treatinggroup-batch-action-but
+    Wait until element is visible  id=formfield-form-widgets-treating_group  10
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord lot choix service.png  css=.pb-ajax
 
 
 Encodage manuel
