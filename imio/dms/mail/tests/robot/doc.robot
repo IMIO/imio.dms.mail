@@ -304,6 +304,12 @@ Tableaux de bord
     Wait until element is visible  id=formfield-form-widgets-treating_group  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord lot choix service.png  css=.pb-ajax
+    Click element  css=div.overlay-ajax .close
+    Wait until element is visible  css=.faceted-sections-buttons-more  10
+    Click element  css=.faceted-sections-buttons-more
+    Wait until element is visible  id=top---advanced---widgets  10
+    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord filtres avances.png  id=top---advanced---widgets
+   
 
 
 Encodage manuel
