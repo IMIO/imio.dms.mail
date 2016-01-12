@@ -131,7 +131,7 @@ Encodage depuis le scanner
     Click element  css=#pb_1 .close
     Wait until element is visible  css=.addnew  10
     Click element  css=.addnew
-    Sleep  1
+    Sleep  2
     Input text  name=oform.widgets.person.widgets.query  Leduc
     Wait until element is visible  css=#oform-widgets-person-autocomplete .addnew  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 2 création lien personne.png  css=.overlay-contact-addnew
@@ -288,6 +288,28 @@ Encodage depuis le scanner
     Sleep  1
     Capture viewport screenshot  doc/utilisation/2-6 historique.png
 
+#Tâche
+# partie 2.7.1 Ajout d'une tâche
+#    Enable autologin as  encodeur
+    Enable autologin as  dirg
+#    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Select from list by index  name=Add element  3
+    Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
+    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
+    Input text  name=form.widgets.title  Placer le CV dans notre référentiel
+    #Input text  css=#formfield-form-widgets-ITask-task_description #content  TEST
+    #Select from list by index  name=form.widgets.ITask.assigned_user:list  1
+    Click button  id=form-buttons-save
+    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout complete.png  id=content
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
+    Fire transition  ${UID}  do_to_assign
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
+    Wait until element is visible  css=#plone-contentmenu-workflow span.state-to_assign  10
+    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout to assign.png  id=content
+
+
 Tableaux de bord
 # partie 2.3.2 Tableaux de bord
     Enable autologin as  encodeur
@@ -309,8 +331,7 @@ Tableaux de bord
     Click element  css=.faceted-sections-buttons-more
     Wait until element is visible  id=top---advanced---widgets  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord filtres avances.png  id=top---advanced---widgets
-   
-
+  
 
 Encodage manuel
 # partie 2.2.2 Encodage manuel du courrier
