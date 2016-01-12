@@ -9,6 +9,7 @@ from plone.dexterity.browser.edit import DefaultEditForm
 from Products.CMFPlone.utils import base_hasattr
 
 from ..utils import voc_selected_org_suffix_users
+from collective.task import _
 
 
 def filter_task_assigned_users(group):
@@ -18,20 +19,29 @@ def filter_task_assigned_users(group):
     return voc_selected_org_suffix_users(group, ['editeur', 'validateur'])
 
 
+def TaskUpdateWidgets(self):
+    # Override default vocabulary
+    self.widgets['ITask.assigned_group'].field = copy.copy(self.widgets['ITask.assigned_group'].field)
+    self.widgets['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
+    self.widgets['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
+    # Set assigned_group as required
+    self.widgets['ITask.assigned_group'].required = True
+    # Hide enquirer
+    self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
+
+
 class TaskEdit(DefaultEditForm):
     """
       Edit view override of update
     """
     def updateWidgets(self):
         super(TaskEdit, self).updateWidgets()
-        # Override default vocabulary
-        self.widgets['ITask.assigned_group'].field = copy.copy(self.widgets['ITask.assigned_group'].field)
-        self.widgets['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
-        self.widgets['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
-        # Set assigned_group as required
-        self.widgets['ITask.assigned_group'].required = True
-        # Hide enquirer
-        self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
+        TaskUpdateWidgets(self)
+        if not self.context.assigned_user \
+                and api.content.get_state(obj=self.context) == 'to_assign':
+            self.widgets['ITask.assigned_user'].field = copy.copy(self.widgets['ITask.assigned_user'].field)
+            self.widgets['ITask.assigned_user'].field.description = \
+                _(u'You must select an assigned user before continuing !')
 
 
 class CustomAddForm(DefaultAddForm):
@@ -40,21 +50,16 @@ class CustomAddForm(DefaultAddForm):
 
     def updateWidgets(self):
         super(CustomAddForm, self).updateWidgets()
-        # Override default vocabulary
-        self.widgets['ITask.assigned_group'].field = copy.copy(self.widgets['ITask.assigned_group'].field)
-        self.widgets['ITask.assigned_group'].field.slave_fields[0]['vocab_method'] = filter_task_assigned_users
-        self.widgets['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
-        self.widgets['ITask.assigned_group'].required = True
+        TaskUpdateWidgets(self)
         # Set parent assigned group as default value
-        if base_hasattr(self.context, 'treating_groups'):
+        if base_hasattr(self.context, 'treating_groups') and self.context.treating_groups:
             self.widgets['ITask.assigned_group'].value = self.context.treating_groups
-        elif base_hasattr(self.context, 'assigned_group'):
+        elif base_hasattr(self.context, 'assigned_group') and self.context.assigned_group:
             self.widgets['ITask.assigned_group'].value = self.context.assigned_group
         # Set current user as enquirer and hide it
         userid = api.user.get_current().getId()
         if userid != 'admin':
             self.widgets['ITask.enquirer'].value = userid
-        self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
 
 
 class Add(DefaultAddView):
