@@ -76,7 +76,7 @@
     <browser:viewlet
         name="dashboard_batch_actions_viewlet"
         for="imio.dms.mail.interfaces.IIMDashboard"
-        manager="collective.eeafaceted.z3ctable.interfaces.IBottomManager"
+        manager="collective.eeafaceted.z3ctable.interfaces.IBottomAboveNavManager"
         layer="imio.dashboard.interfaces.IImioDashboardLayer"
         template="templates/dashboard_batch_actions_viewlet.pt"
         permission="zope2.View" />
