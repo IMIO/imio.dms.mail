@@ -14,7 +14,6 @@ from Products.Five import BrowserView
 
 from browser.settings import IImioDmsMailConfig
 
-
 # methods
 
 review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
@@ -134,7 +133,7 @@ class UtilsMethods(BrowserView):
 
     def current_user_groups_ids(self):
         """ Return current user groups ids """
-        return [g.id for g in api.group.get_groups(user=api.user.get_current())]
+        return [g.id for g in self.current_user_groups()]
 
     def highest_scan_id(self):
         """ Return highest scan id """
@@ -183,12 +182,13 @@ class IdmUtilsMethods(UtilsMethods):
 
     def proposed_to_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_manager collection """
-        if 'dir_general' in self.current_user_groups_ids():
+        if 'encodeurs' in self.current_user_groups_ids() or 'dir_general' in self.current_user_groups_ids():
             return True
         return False
 
     def proposed_to_serv_chief_col_cond(self):
         """ Condition for searchfor_proposed_to_service_chief collection """
-        if organizations_with_suffixes(self.current_user_groups(), ['validateur']):
+        if 'encodeurs' in self.current_user_groups_ids() or 'dir_general' in self.current_user_groups_ids() or \
+                organizations_with_suffixes(self.current_user_groups(), ['validateur']):
             return True
         return False
