@@ -649,12 +649,14 @@ def addTestDirectory(context):
                       {'name': u'Employé', 'token': 'employe'},
                       ]
 
-    organization_types = [{'name': u'Commune', 'token': 'commune'},
+    organization_types = [{'name': u'Non défini', 'token': 'non-defini'},
+                          {'name': u'Commune', 'token': 'commune'},
                           {'name': u'CPAS', 'token': 'cpas'},
                           {'name': u'SA', 'token': 'sa'},
                           ]
 
-    organization_levels = [{'name': u'Département', 'token': 'department'},
+    organization_levels = [{'name': u'Non défini', 'token': 'non-defini'},
+                           {'name': u'Département', 'token': 'department'},
                            {'name': u'Service', 'token': 'service'},
                            ]
 
