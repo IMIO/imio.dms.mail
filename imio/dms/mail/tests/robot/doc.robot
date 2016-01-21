@@ -176,6 +176,7 @@ Encodage depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 3 création fonction finie.png  id=pb_1
     Click element  css=#pb_1 .close
     #Click button  id=oform-buttons-save
+    Sleep  1
 
     ### Choose person
     Input text  name=form.widgets.sender.widgets.query  ledu
@@ -308,6 +309,15 @@ Encodage depuis le scanner
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
     Wait until element is visible  css=#plone-contentmenu-workflow span.state-to_assign  10
     Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout to assign.png  id=content
+# partie 2.7.2 Visualisation d'une tâche
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans courrier.png  id=content
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/task-searches/all_tasks
+    Wait until element is visible  css=.th_header_assigned_group  10
+    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
 
 
 Tableaux de bord
