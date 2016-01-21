@@ -85,6 +85,14 @@
     display: None;
 }
 
+#download_vcard {
+    display: None;
+}
+
+.subsection-plonegroup-organization a.addnewcontactfromorganization {
+    display: None;
+}
+
 /* Other */
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
