@@ -74,7 +74,7 @@ class IMMailTypesVocabulary(object):
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         id_utility = getUtility(IIDNormalizer)
         terms = []
-        for mail_type in settings.mail_types:
+        for mail_type in settings.mail_types or []:
             #value (stored), token (request), title
             terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
                          id_utility.normalize(mail_type['mt_value']), mail_type['mt_title']))
