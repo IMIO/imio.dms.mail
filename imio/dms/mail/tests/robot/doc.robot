@@ -282,7 +282,8 @@ Encodage depuis le scanner
     Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
     Capture viewport screenshot  doc/utilisation/2-6 transition retour.png
     Click button  name=form.buttons.save
-    Wait until element is not visible  css=form#confirmTransitionForm  10
+    #Wait until element is not visible  css=form#confirmTransitionForm  10
+    Wait until element is visible  css=.highlight-history-link  10
     Capture and crop page screenshot  doc/utilisation/2-6 lien historique.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Click element  css=#content-history .link-overlay
     #Wait until element is visible  css=#content-history #content  10
