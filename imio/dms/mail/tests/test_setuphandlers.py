@@ -48,8 +48,8 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertTrue(hasattr(self.portal, 'contacts'))
         contacts = self.portal['contacts']
         self.assertEquals(len(contacts.position_types), 5)
-        self.assertEquals(len(contacts.organization_types), 3)
-        self.assertEquals(len(contacts.organization_levels), 2)
+        self.assertEquals(len(contacts.organization_types), 4)
+        self.assertEquals(len(contacts.organization_levels), 3)
         #checking organizations
         organizations = contacts.listFolderContents(contentFilter={'portal_type': 'organization'})
         self.assertEquals(len(organizations), 3)
