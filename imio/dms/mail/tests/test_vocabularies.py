@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 
@@ -37,7 +38,13 @@ class TestVocabularies(unittest.TestCase):
     def test_AssignedUsersVocabulary(self):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [('agent', 'Fred Agent'), ('chef', 'Michel Chef')])
+        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
+        # We change the title to set the same fullname
+        member = api.user.get(userid='chef')
+        member.setMemberProperties({'fullname': 'Fred Agent'})
+        voc_inst = AssignedUsersVocabulary()
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Fred Agent')]))
 
     def test_IMMailTypesVocabulary(self):
         voc_inst = IMMailTypesVocabulary()
