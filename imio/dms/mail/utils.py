@@ -140,7 +140,7 @@ class UtilsMethods(BrowserView):
         pc = getToolByName(self.context, 'portal_catalog')
         brains = pc(portal_type='dmsmainfile', sort_on='scan_id', sort_order='descending', sort_limit=1)
         if brains:
-            return brains[0].scan_id
+            return "dmsmainfiles: %d, highest scanid: %s" % (len(brains), brains[0].scan_id)
         else:
             return 'No scan id'
 
@@ -155,10 +155,9 @@ class IdmUtilsMethods(UtilsMethods):
 
     def user_has_review_level(self, portal_type=None):
         """ Test if the current user has a review level """
-        groups = self.current_user_groups()
         if portal_type is None:
             portal_type = self.context.portal_type
-        if highest_review_level(portal_type, str([g.id for g in groups])) is not None:
+        if highest_review_level(portal_type, str(self.current_user_groups_ids())) is not None:
             return True
         else:
             return False

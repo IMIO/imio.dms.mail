@@ -2,14 +2,14 @@
 import unittest
 from zope.component import getUtility
 from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID
+from plone.app.testing import setRoles, TEST_USER_ID, login
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..utils import highest_review_level, organizations_with_suffixes, voc_selected_org_suffix_users, list_wf_states
-from ..utils import IdmUtilsMethods
+from ..utils import create_richtextval, UtilsMethods, IdmUtilsMethods
 from ..browser.settings import IImioDmsMailConfig
 
 
@@ -51,7 +51,44 @@ class TestUtils(unittest.TestCase):
         api.group.add_user(groupname='%s_encodeur' % org0, username=TEST_USER_ID)
         self.assertEqual(voc_selected_org_suffix_users(org0, ['encodeur']).by_token.keys(), [TEST_USER_ID])
 
-    def test_IdmUtilsMethodsReviewLevel(self):
+    def test_list_wf_states(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.assertEqual(list_wf_states(imail, 'unknown'), [])
+        self.assertEqual(list_wf_states(imail, 'task'), ['created', 'to_assign', 'to_do', 'in_progress', 'realized',
+                                                         'closed'])
+        # We rename a state id
+        states = imail.portal_workflow.task_workflow.states
+        states.manage_renameObject('to_do', 'NEW')
+        self.assertEqual(list_wf_states(imail, 'task'), ['created', 'to_assign', 'in_progress', 'realized', 'closed',
+                                                         'NEW'])
+
+    def test_create_richtextval(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
+                                         task_description=create_richtextval('Text content'))
+        self.assertEqual(imail.task_description.output, 'Text content')
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
+                                         task_description=create_richtextval(u'Text content'))
+        self.assertEqual(imail.task_description.output, 'Text content')
+
+    def test_UtilsMethods_current_user_groups_ids(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = UtilsMethods(imail, imail.REQUEST)
+        login(self.portal, 'dirg')
+        self.assertSetEqual(set(view.current_user_groups_ids()), set(['AuthenticatedUsers', 'dir_general']))
+
+    def test_UtilsMethods_highest_scan_id(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = UtilsMethods(imail, imail.REQUEST)
+        self.assertEqual(view.highest_scan_id(), 'No scan id')
+        createContentInContainer(imail, 'dmsmainfile', id='testid1.pdf', scan_id='010999900000069')
+        self.assertEqual(view.highest_scan_id(), 'dmsmainfiles: 1, highest scanid: 010999900000069')
+
+    def test_IdmUtilsMethods_get_im_folder(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        self.assertEqual(view.get_im_folder(), self.portal['incoming-mail'])
+
+    def test_IdmUtilsMethods_user_has_review_level(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.user_has_review_level())
@@ -64,7 +101,7 @@ class TestUtils(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
 
-    def test_IdmUtilsMethodsAssignedUser(self):
+    def test_IdmUtilsMethods_idm_has_assigned_user(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', assigned_user='thorgal')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertTrue(view.idm_has_assigned_user())
@@ -78,3 +115,30 @@ class TestUtils(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, [])
         self.assertNotIn('Manager', api.user.get_roles(username=TEST_USER_ID))
         self.assertFalse(view.idm_has_assigned_user())
+
+    def test_IdmUtilsMethods_created_col_cond(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        self.assertFalse(view.created_col_cond())
+        login(self.portal, 'encodeur')
+        self.assertTrue(view.created_col_cond())
+
+    def test_IdmUtilsMethods_proposed_to_manager_col_cond(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        self.assertFalse(view.proposed_to_manager_col_cond())
+        login(self.portal, 'encodeur')
+        self.assertTrue(view.proposed_to_manager_col_cond())
+        login(self.portal, 'dirg')
+        self.assertTrue(view.proposed_to_manager_col_cond())
+
+    def test_IdmUtilsMethods_proposed_to_serv_chief_col_cond(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        self.assertFalse(view.proposed_to_serv_chief_col_cond())
+        login(self.portal, 'encodeur')
+        self.assertTrue(view.proposed_to_serv_chief_col_cond())
+        login(self.portal, 'dirg')
+        self.assertTrue(view.proposed_to_serv_chief_col_cond())
+        login(self.portal, 'chef')
+        self.assertTrue(view.proposed_to_serv_chief_col_cond())
