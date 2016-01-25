@@ -9,7 +9,7 @@ from ..adapters import default_criterias
 from ..adapters import IncomingMailHighestValidationCriterion
 from ..adapters import IncomingMailInTreatingGroupCriterion
 from ..adapters import IncomingMailInCopyGroupCriterion
-from ..adapters import ScanSearchableExtender
+from ..adapters import ScanSearchableExtender, IdmSearchableExtender
 
 
 class TestAdapters(unittest.TestCase):
@@ -77,3 +77,22 @@ class TestAdapters(unittest.TestCase):
                                        file=file_object, scan_id='010999900000690')
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), 'testid2 title 010999900000690 IMIO010999900000690 690 description One word\n')
+
+    def test_IdmSearchableExtender(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='my-id', title='My title',
+                                         description='Description')
+        ext = IdmSearchableExtender(imail)
+        self.assertEqual(ext(), None)
+        createContentInContainer(imail, 'dmsmainfile', id='testid1', scan_id='010999900000690')
+        self.assertEqual(ext(), u'010999900000690 IMIO010999900000690 690')
+        pc = imail.portal_catalog
+        rid = pc(id='my-id')[0].getRID()
+        index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
+        self.assertListEqual(index_value, ['e0010', 'my', 'title', 'description', u'010999900000690',
+                                           'imio010999900000690', u'690'])
+        createContentInContainer(imail, 'dmsmainfile', id='testid2', scan_id='010999900000700')
+        self.assertEqual(ext(), u'010999900000690 IMIO010999900000690 690 010999900000700 IMIO010999900000700 700')
+        index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
+        self.assertListEqual(index_value, ['e0010', 'my', 'title', 'description', u'010999900000690',
+                                           'imio010999900000690', u'690', u'010999900000700', 'imio010999900000700',
+                                           u'700'])

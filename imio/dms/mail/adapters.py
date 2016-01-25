@@ -221,3 +221,28 @@ class ScanSearchableExtender(object):
             return ret
         except:
             return self.searchable_text()
+
+
+class IdmSearchableExtender(object):
+    """
+        Extends SearchableText of incoming mail.
+        Concatenate the contained dmsmainfiles scan_id infos.
+    """
+    adapts(IDmsIncomingMail)
+    implements(dexteritytextindexer.IDynamicTextIndexExtender)
+
+    def __init__(self, context):
+        self.context = context
+
+    def __call__(self):
+        brains = self.context.portal_catalog.unrestrictedSearchResults(portal_type='dmsmainfile',
+                                                                       path={'query':
+                                                                       '/'.join(self.context.getPhysicalPath()),
+                                                                       'depth': 1})
+        index = []
+        for brain in brains:
+            sid_infos = get_scan_id(brain)
+            if sid_infos[0]:
+                index += sid_infos
+        if index:
+            return u' '.join(index)

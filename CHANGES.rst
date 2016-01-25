@@ -4,8 +4,8 @@ Changelog
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Extends dmsincomingmail SearchableText with children's scan_id values.
+  [sgeulette]
 
 1.0 (2016-01-25)
 ----------------
