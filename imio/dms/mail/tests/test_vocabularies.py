@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 import unittest
-from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary,
-                            AssignedUsersVocabulary)
+                            AssignedUsersVocabulary, IMMailTypesVocabulary, PloneGroupInterfacesVocabulary)
 
 
 class TestVocabularies(unittest.TestCase):
@@ -38,4 +37,19 @@ class TestVocabularies(unittest.TestCase):
     def test_AssignedUsersVocabulary(self):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertEqual(voc_list, [])
+        self.assertListEqual(voc_list, [('agent', 'Fred Agent'), ('chef', 'Michel Chef')])
+
+    def test_IMMailTypesVocabulary(self):
+        voc_inst = IMMailTypesVocabulary()
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommand\xe9'),
+                                        (u'email', u'E-mail'), (u'fax', u'Fax'),
+                                        (u'retour-recommande', u'Retour recommand\xe9'), (u'facture', u'Facture')])
+
+    def test_PloneGroupInterfacesVocabulary(self):
+        voc_inst = PloneGroupInterfacesVocabulary()
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list, [('collective.contact.plonegroup.interfaces.IPloneGroupContact',
+                                         'IPloneGroupContact'),
+                                        ('collective.contact.plonegroup.interfaces.INotPloneGroupContact',
+                                         'INotPloneGroupContact')])
