@@ -61,19 +61,19 @@ class TestAdapters(unittest.TestCase):
                                        description='description')
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), 'testid2 description')
-        obj = createContentInContainer(imail, 'dmsmainfile', id='123456789.pdf', title='123456789.pdf',
-                                       description='description', scan_id='123456789')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='010999900000690.pdf', title='010999900000690.pdf',
+                                       description='description', scan_id='010999900000690')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), '123456789 IMIO123456789 description')
-        obj = createContentInContainer(imail, 'dmsmainfile', id='1234567890.pdf', title='title',
-                                       description='description', scan_id='1234567890')
+        self.assertEqual(ext(), '010999900000690 IMIO010999900000690 690 description')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='010999900000691.pdf', title='title',
+                                       description='description', scan_id='010999900000691')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), '1234567890 title IMIO1234567890 description')
+        self.assertEqual(ext(), '010999900000691 title IMIO010999900000691 691 description')
         fh = open('testfile.txt', 'w+')
         fh.write("One word\n")
         fh.seek(0)
         file_object = NamedBlobFile(fh.read(), filename=u'testfile.txt')
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid2', title='title', description='description',
-                                       file=file_object, scan_id='123456789')
+                                       file=file_object, scan_id='010999900000690')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), 'testid2 title 123456789 IMIO123456789 description One word\n')
+        self.assertEqual(ext(), 'testid2 title 010999900000690 IMIO010999900000690 690 description One word\n')

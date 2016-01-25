@@ -16,7 +16,7 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from dmsmail import IDmsIncomingMail
-from utils import review_levels, highest_review_level, organizations_with_suffixes
+from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id
 
 #######################
 # Compound criterions #
@@ -189,12 +189,12 @@ class ScanSearchableExtender(object):
                (self.context.title.endswith('.pdf') and self.context.title[0:-4] or self.context.title) or u"")
         if tit:
             items.append(tit)
-        sid = (IScanFields(self.context).scan_id and IScanFields(self.context).scan_id.startswith('IMIO') and
-               IScanFields(self.context).scan_id[4:] or IScanFields(self.context).scan_id)
+        (sid, sid_long, sid_short) = get_scan_id(self.context)
         if sid:
             if sid != items[0]:
                 items.append(sid)
-            items.append(u"IMIO%s" % sid)
+            items.append(sid_long)
+            items.append(sid_short)
         if self.context.description:
             items.append(self.context.description)
         return u" ".join(items)

@@ -9,7 +9,7 @@ from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..utils import highest_review_level, organizations_with_suffixes, voc_selected_org_suffix_users, list_wf_states
-from ..utils import create_richtextval, UtilsMethods, IdmUtilsMethods
+from ..utils import create_richtextval, get_scan_id, UtilsMethods, IdmUtilsMethods
 from ..browser.settings import IImioDmsMailConfig
 
 
@@ -69,6 +69,11 @@ class TestUtils(unittest.TestCase):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
                                          task_description=create_richtextval(u'Text content'))
         self.assertEqual(imail.task_description.output, 'Text content')
+
+    def test_get_scan_id(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='testid1.pdf', scan_id=u'010999900000690')
+        self.assertListEqual(get_scan_id(obj), [u'010999900000690', u'IMIO010999900000690', u'690'])
 
     def test_UtilsMethods_current_user_groups_ids(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

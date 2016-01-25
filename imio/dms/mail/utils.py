@@ -115,6 +115,16 @@ def create_richtextval(text):
     return RichTextValue(raw=text, mimeType='text/html', outputMimeType='text/html', encoding='utf-8')
 
 
+def get_scan_id(obj):
+    """ Return scan_id in multiple form """
+    sid = (obj.scan_id and obj.scan_id.startswith('IMIO') and obj.scan_id[4:] or obj.scan_id)
+    sid_long, sid_short = '', ''
+    if sid:
+        sid_long = u"IMIO%s" % sid
+        sid_short = (len(sid) == 15 and sid[7:].lstrip('0') or sid)
+    return [sid, sid_long, sid_short]
+
+
 # views
 
 class UtilsMethods(BrowserView):
