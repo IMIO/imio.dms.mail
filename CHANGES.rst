@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.0 (unreleased)
+1.0 (2016-01-25)
 ----------------
 
 - Replaced collection view and main portlet by dashboard and collectionwidget portlet
