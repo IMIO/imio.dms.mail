@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Products.CMFCore.utils import getToolByName
+from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 
 
 def replace_scanner(imail, event):
@@ -45,3 +46,12 @@ def new_incomingmail(imail, event):
     """
     imail.__ac_local_roles_block__ = True
     imail.reindexObjectSecurity()
+
+
+def dmsmainfile_modified(dmf, event):
+    """
+        Update the SearchableText mail index
+    """
+    imail = dmf.aq_parent
+    if IImioDmsIncomingMail.providedBy(imail):
+        imail.reindexObject(idxs=['SearchableText'])

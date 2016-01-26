@@ -17,4 +17,10 @@
         handler=".subscribers.new_incomingmail"
         />
 
+    <subscriber
+        for="collective.dms.basecontent.dmsfile.IDmsFile
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.dmsmainfile_modified"
+        />
+
 </configure>
