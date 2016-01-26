@@ -33,8 +33,14 @@ msgstr "Assigned user"
 msgid "header_due_date"
 msgstr "Due date"
 
+msgid "header_mail_type"
+msgstr "Mail type"
+
 msgid "header_treating_groups"
 msgstr "Treating group"
+
+msgid "mail_type"
+msgstr "Mail type"
 
 msgid "treating_groups"
 msgstr "Treating group"

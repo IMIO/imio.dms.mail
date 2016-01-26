@@ -9,7 +9,7 @@ from plone.dexterity.browser.edit import DefaultEditForm
 from Products.CMFPlone.utils import base_hasattr
 
 from ..utils import voc_selected_org_suffix_users
-from collective.task import _
+from collective.task import _ as _t
 
 
 def filter_task_assigned_users(group):
@@ -41,7 +41,7 @@ class TaskEdit(DefaultEditForm):
                 and api.content.get_state(obj=self.context) == 'to_assign':
             self.widgets['ITask.assigned_user'].field = copy.copy(self.widgets['ITask.assigned_user'].field)
             self.widgets['ITask.assigned_user'].field.description = \
-                _(u'You must select an assigned user before continuing !')
+                _t(u'You must select an assigned user before continuing !')
 
 
 class CustomAddForm(DefaultAddForm):

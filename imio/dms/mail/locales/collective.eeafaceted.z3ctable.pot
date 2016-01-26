@@ -40,3 +40,9 @@ msgstr ""
 
 msgid "due_date"
 msgstr ""
+
+msgid "header_mail_type"
+msgstr ""
+
+msgid "mail_type"
+msgstr ""

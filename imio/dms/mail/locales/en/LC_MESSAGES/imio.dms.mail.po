@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-12-10 13:16+0000\n"
+"POT-Creation-Date: 2016-01-26 11:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,7 +59,7 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./dmsmail.py:37
+#: ./dmsmail.py:41
 msgid "Choose a value !"
 msgstr ""
 
@@ -71,7 +71,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./migrations/migrate_to_1_0.py:74
+#: ./migrations/migrate_to_1_0.py:76
 #: ./setuphandlers.py:120
 msgid "I.M. tasks"
 msgstr ""
@@ -88,18 +88,18 @@ msgstr ""
 msgid "Incoming mail listing"
 msgstr ""
 
-#: ./migrations/migrate_to_1_0.py:61
+#: ./migrations/migrate_to_1_0.py:63
 #: ./setuphandlers.py:103
 msgid "Incoming mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_1_0.py:62
+#: ./migrations/migrate_to_1_0.py:64
 #: ./setuphandlers.py:104
 msgid "Incoming mails"
 msgstr ""
 
 #: ./browser/settings.py:27
-#: ./dmsmail.py:85
+#: ./dmsmail.py:89
 msgid "Mail type"
 msgstr ""
 
@@ -140,11 +140,11 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:79
+#: ./dmsmail.py:83
 msgid "Recipient groups"
 msgstr ""
 
-#: ./migrations/migrate_to_1_0.py:73
+#: ./migrations/migrate_to_1_0.py:75
 #: ./setuphandlers.py:119
 msgid "Tasks searches"
 msgstr ""
@@ -155,7 +155,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:169
 #: ./browser/table.py:36
-#: ./dmsmail.py:62
+#: ./dmsmail.py:66
 msgid "Treating groups"
 msgstr ""
 
@@ -167,7 +167,7 @@ msgstr ""
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./dmsmail.py:197
+#: ./dmsmail.py:221
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 

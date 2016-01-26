@@ -31,6 +31,11 @@ class ActionsColumn(IDActionsColumn):
 
     params = {'showHistory': True, 'showActions': False}
 
+
+class MailTypeColumn(VocabularyColumn):
+
+    vocabulary = u'imio.dms.mail.IMMailTypesVocabulary'
+
 # Columns for collective.task.browser.table.TasksTable
 
 

@@ -40,6 +40,14 @@
     name="due_date"
     />
 
+  <adapter
+    for="zope.interface.Interface
+         zope.publisher.interfaces.browser.IBrowserRequest
+         collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+    factory=".columns.MailTypeColumn"
+    provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+    name="mail_type"
+    />
 
   <adapter
     for="zope.interface.Interface

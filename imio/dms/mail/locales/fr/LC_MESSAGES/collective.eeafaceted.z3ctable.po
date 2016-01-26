@@ -33,8 +33,14 @@ msgstr "Utilisateur assigné"
 msgid "header_due_date"
 msgstr "Échéance"
 
+msgid "header_mail_type"
+msgstr "Type de courrier"
+
 msgid "header_treating_groups"
 msgstr "Service traitant"
+
+msgid "mail_type"
+msgstr "Type de courrier"
 
 msgid "treating_groups"
 msgstr "Service traitant"
