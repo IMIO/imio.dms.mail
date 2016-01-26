@@ -45,6 +45,7 @@
         destination="0.3"
         handler="imio.dms.mail.migrations.migrate_to_0_3.migrate"
         profile="imio.dms.mail:default" />
+
     <genericsetup:upgradeStep
         title="Go to imio.dms.mail 0.3.1"
         description=""
@@ -52,11 +53,20 @@
         destination="0.3.1"
         handler="imio.dms.mail.migrations.migrate_to_0_3_1.migrate"
         profile="imio.dms.mail:default" />
+
     <genericsetup:upgradeStep
         title="Go to imio.dms.mail 1.0"
         description=""
         source="0.3.1"
         destination="1.0"
         handler="imio.dms.mail.migrations.migrate_to_1_0.migrate"
+        profile="imio.dms.mail:default" />
+
+    <genericsetup:upgradeStep
+        title="Go to imio.dms.mail 1.1"
+        description=""
+        source="1.0"
+        destination="1.1"
+        handler="imio.dms.mail.migrations.migrate_to_1_1.migrate"
         profile="imio.dms.mail:default" />
 </configure>
