@@ -7,6 +7,9 @@ Changelog
 - Extends dmsincomingmail SearchableText with children's scan_id values.
   [sgeulette]
 
+- Added mail_type column
+  [sgeulette]
+
 1.0 (2016-01-25)
 ----------------
 
