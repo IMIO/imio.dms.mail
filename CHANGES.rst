@@ -10,7 +10,7 @@ Changelog
 - Added mail_type column
   [sgeulette]
 
-- Improvements: disable own delete on contacts
+- Improvements: disable own delete on contacts, block parent portlets on contacts
   [sgeulette]
 
 
