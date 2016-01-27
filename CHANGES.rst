@@ -10,6 +10,10 @@ Changelog
 - Added mail_type column
   [sgeulette]
 
+- Improvements: disable own delete on contacts
+  [sgeulette]
+
+
 1.0 (2016-01-25)
 ----------------
 
