@@ -29,7 +29,7 @@ class ContactActionsPanelView(ActionsPanelView):
     def __init__(self, context, request):
         super(ContactActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
-        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste']
+        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete']
 
 
 class ContactActionsPanelViewlet(ActionsPanelViewlet):
@@ -38,5 +38,5 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=True,
+        return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=False,
                                                                   showAddContent=True, showActions=True)
