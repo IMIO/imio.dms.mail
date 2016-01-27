@@ -206,7 +206,7 @@ class IMEdit(DmsDocumentEdit):
                 'original_mail_date',
             ])
         if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
-            display_fields.append('treating_groups')
+            self.widgets['treating_groups'].__dict__['disabled'] = True
 
         for field in display_fields:
             self.widgets[field].mode = 'display'
