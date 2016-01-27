@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from zope.component import getUtility
 
 from plone import api
@@ -8,7 +10,8 @@ from plone.registry.interfaces import IRegistry
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
-import logging
+from ..setuphandlers import blacklistPortletCategory
+
 logger = logging.getLogger('imio.dms.mail')
 
 
@@ -76,6 +79,9 @@ class Migrate_To_1_1(Migrator):
 
         # add metadata in portal_catalog
         addOrUpdateColumns(self.portal, columns=('mail_type',))
+
+        # block parent portlets on contacts
+        blacklistPortletCategory(self.portal, self.portal['contacts'])
 
 #        self.upgradeAll()
 

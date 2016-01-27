@@ -28,7 +28,7 @@ from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
-#from plone.portlets.constants import CONTEXT_CATEGORY
+from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
 
 from Products.CPUtils.Extensions.utils import configure_ckeditor
@@ -105,7 +105,7 @@ def postInstall(context):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IIMDashboard)
 
-        # blacklistPortletCategory(context, im_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
+        # blacklistPortletCategory(context, im_folder)
         createIMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')
         configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
@@ -133,7 +133,7 @@ def postInstall(context):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         om_folder = getattr(site, folderid)
         # col_folder = add_db_col_folder(om_folder)
-        # blacklistPortletCategory(context, om_folder, CONTEXT_CATEGORY, u"plone.leftcolumn")
+        # blacklistPortletCategory(context, om_folder)
         om_folder.setConstrainTypesMode(1)
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
@@ -153,7 +153,7 @@ def postInstall(context):
     configure_ckeditor(site, custom='ged')
 
 
-def blacklistPortletCategory(context, object, category, utilityname):
+def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
     """
         block portlets on object for the corresponding category
     """
@@ -161,9 +161,9 @@ def blacklistPortletCategory(context, object, category, utilityname):
     # Get the proper portlet manager
     manager = queryUtility(IPortletManager, name=utilityname)
     # Get the current blacklist for the location
-    blacklist = getMultiAdapter((object, manager), ILocalPortletAssignmentManager)
+    blacklist = getMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
     # Turn off the manager
-    blacklist.setBlacklistStatus(category, True)
+    blacklist.setBlacklistStatus(category, value)
 
 
 def createStateCollections(folder, content_type):
@@ -668,7 +668,7 @@ def addTestDirectory(context):
     site.invokeFactory('directory', 'contacts', **params)
     contacts = site['contacts']
     site.portal_workflow.doActionFor(contacts, "show_internally")
-    #blacklistPortletCategory(context, contacts, CONTEXT_CATEGORY, u"plone.leftcolumn")
+    blacklistPortletCategory(context, contacts)
 
     # create plonegroup-organization
     addOwnOrganization(context)
