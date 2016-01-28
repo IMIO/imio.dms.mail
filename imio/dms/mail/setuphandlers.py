@@ -892,6 +892,7 @@ def addTestUsersAndGroups(context):
     if api.group.get('dir_general') is None:
         api.group.create('dir_general', '1 Directeur général')
         api.group.add_user(groupname='dir_general', username='dirg')
+        site['contacts'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
 
 
 def addOwnOrganization(context):
