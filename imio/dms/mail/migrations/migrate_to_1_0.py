@@ -202,6 +202,8 @@ class Migrate_To_1_0(Migrator):
         self.update_local_roles()
 
         # add task actionspanel config
+        if not self.registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions']:
+            self.registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] = []
         self.registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] += \
             ['task.back_in_created|', 'task.back_in_to_assign|', 'task.back_in_to_do|',
              'task.back_in_progress|', 'task.back_in_realized|']
@@ -220,7 +222,8 @@ class Migrate_To_1_0(Migrator):
         for prod in ['plone.formwidget.autocomplete', 'collective.documentviewer', 'plone.formwidget.masterselect',
                      'collective.contact.core', 'collective.contact.duplicated', 'collective.dms.basecontent',
                      'collective.dms.scanbehavior', 'collective.externaleditor', 'plone.app.collection',
-                     'plone.app.intid']:
+                     'plone.app.intid', 'collective.contact.facetednav', 'plonetheme.imioapps', 'PasswordStrength',
+                     'imio.dms.mail']:
             mark_last_version(self.portal, product=prod)
 
         self.portal.manage_permission('CMFEditions: Revert to previous versions', ('Manager', 'Site Administrator'),

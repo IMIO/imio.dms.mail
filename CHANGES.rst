@@ -10,7 +10,8 @@ Changelog
 - Added mail_type column
   [sgeulette]
 
-- Improvements: disable own delete on contacts, block parent portlets on contacts
+- Improvements: disable own delete on contacts, block parent portlets on contacts, add local roles for dir_general
+                on contacts,
   [sgeulette]
 
 
