@@ -36,11 +36,17 @@ msgstr "Échéance"
 msgid "header_mail_type"
 msgstr "Type de courrier"
 
+msgid "header_sender"
+msgstr "Expéditeur"
+
 msgid "header_treating_groups"
 msgstr "Service traitant"
 
 msgid "mail_type"
 msgstr "Type de courrier"
+
+msgid "sender"
+msgstr "Expéditeur"
 
 msgid "treating_groups"
 msgstr "Service traitant"

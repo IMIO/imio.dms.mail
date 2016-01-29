@@ -7,6 +7,7 @@ from zope.component import getUtility
 from plone import api
 from plone.registry.interfaces import IRegistry
 
+from Products.CPUtils.Extensions.utils import mark_last_version
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
@@ -72,6 +73,7 @@ class Migrate_To_1_1(Migrator):
 
         # activate field on DashboardCollection
         self.add_view_field('mail_type', im_folder['mail-searches'], before='CreationDate')
+        self.add_view_field('sender', im_folder['mail-searches'], before='CreationDate')
 
         # update searchabletext
         self.update_dmsmainfile()
@@ -87,6 +89,9 @@ class Migrate_To_1_1(Migrator):
         self.portal['contacts'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
 
 #        self.upgradeAll()
+
+        for prod in ['imio.dms.mail']:
+            mark_last_version(self.portal, product=prod)
 
         #self.refreshDatabase()
         self.finish()

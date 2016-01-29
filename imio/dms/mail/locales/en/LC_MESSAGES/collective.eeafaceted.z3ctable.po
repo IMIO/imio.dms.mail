@@ -36,11 +36,17 @@ msgstr "Due date"
 msgid "header_mail_type"
 msgstr "Mail type"
 
+msgid "header_sender"
+msgstr "Sender"
+
 msgid "header_treating_groups"
 msgstr "Treating group"
 
 msgid "mail_type"
 msgstr "Mail type"
+
+msgid "sender"
+msgstr "Sender"
 
 msgid "treating_groups"
 msgstr "Treating group"

@@ -7,7 +7,7 @@ Changelog
 - Extends dmsincomingmail SearchableText with children's scan_id values.
   [sgeulette]
 
-- Added mail_type column
+- Added columns: mail_type, sender
   [sgeulette]
 
 - Improvements: disable own delete on contacts, block parent portlets on contacts, add local roles for dir_general

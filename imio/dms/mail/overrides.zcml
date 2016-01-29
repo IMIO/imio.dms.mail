@@ -28,7 +28,7 @@
         for="zope.interface.Interface
              zope.publisher.interfaces.browser.IBrowserRequest
              collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
-        factory=".columns.ActionsColumn"
+        factory=".columns.IMActionsColumn"
         provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
         name="actions"
     />

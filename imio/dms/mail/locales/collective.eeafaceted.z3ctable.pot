@@ -46,3 +46,9 @@ msgstr ""
 
 msgid "mail_type"
 msgstr ""
+
+msgid "header_sender"
+msgstr ""
+
+msgid "sender"
+msgstr ""

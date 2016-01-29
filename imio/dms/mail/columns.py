@@ -2,8 +2,8 @@
 """Custom columns."""
 from z3c.table import column
 from zope.component import getMultiAdapter
-from imio.dashboard.columns import ActionsColumn as IDActionsColumn
-from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn
+from imio.dashboard.columns import ActionsColumn
+from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
 from collective.eeafaceted.z3ctable import _ as _cez
 
 
@@ -27,7 +27,7 @@ class DueDateColumn(DateColumn):
     attrName = u'due_date'
 
 
-class ActionsColumn(IDActionsColumn):
+class IMActionsColumn(ActionsColumn):
 
     params = {'showHistory': True, 'showActions': False}
 
@@ -36,10 +36,17 @@ class MailTypeColumn(VocabularyColumn):
 
     vocabulary = u'imio.dms.mail.IMMailTypesVocabulary'
 
+
+class SenderColumn(DxWidgetRenderColumn):
+
+    field_name = 'sender'
+    prefix = 'escape'
+
+
 # Columns for collective.task.browser.table.TasksTable
 
 
-class BrowserViewCallColumn(column.Column):
+class ObjectBrowserViewCallColumn(column.Column):
     """A column that display the result of a given browser view name call."""
     # column not sortable
     sort_index = -1
@@ -52,7 +59,7 @@ class BrowserViewCallColumn(column.Column):
         return getMultiAdapter((item, self.request), name=self.view_name)(**self.params)
 
 
-class TaskActionsColumn(BrowserViewCallColumn):
+class TaskActionsColumn(ObjectBrowserViewCallColumn):
 
     header = _cez("header_actions")
     weight = 70
