@@ -2,9 +2,10 @@
 """Custom columns."""
 from z3c.table import column
 from zope.component import getMultiAdapter
-from imio.dashboard.columns import ActionsColumn
+from imio.dashboard.columns import ActionsColumn, PrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
 from collective.eeafaceted.z3ctable import _ as _cez
+from imio.prettylink.interfaces import IPrettyLink
 
 
 class TreatingGroupsColumn(VocabularyColumn):
@@ -37,11 +38,31 @@ class MailTypeColumn(VocabularyColumn):
     vocabulary = u'imio.dms.mail.IMMailTypesVocabulary'
 
 
-class SenderColumn(DxWidgetRenderColumn):
+class Sender2Column(DxWidgetRenderColumn):
+# 3 à 4 fois plus lent que SenderColumn
 
     field_name = 'sender'
     prefix = 'escape'
 
+
+class SenderColumn(PrettyLinkColumn):
+
+    sort_index = -1
+    attrName = 'sender'
+    showContentIcon = True
+
+    def renderCell(self, item):
+        """ """
+        obj = self._getObject(item)
+        rel_val = getattr(obj, self.attrName, None)
+        if not rel_val:
+            return u'-'
+        target = getattr(rel_val, 'to_object', None)
+        if not target:
+            return u'-'
+        pl = IPrettyLink(target)
+        pl.showContentIcon = self.showContentIcon
+        return pl.getLink()
 
 # Columns for collective.task.browser.table.TasksTable
 
