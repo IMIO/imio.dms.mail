@@ -230,8 +230,8 @@ class IMView(DmsDocumentView):
     def updateWidgets(self, prefix=None):
         super(IMView, self).updateWidgets()
         # this is added to escape treatment when displaying single widget in column
-        if prefix == 'escape':
-            return
+        #if prefix == 'escape':
+        #    return
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
 
