@@ -181,6 +181,10 @@ class IMEdit(DmsDocumentEdit):
     def updateFields(self):
         super(IMEdit, self).updateFields()
         ImioDmsIncomingMailUpdateFields(self)
+        #sm = getSecurityManager()
+        #if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
+        #    self.fields['treating_groups'].field = copy.copy(self.fields['treating_groups'].field)
+        #    self.fields['treating_groups'].field.required = False
 
     def updateWidgets(self):
         super(IMEdit, self).updateWidgets()
@@ -205,8 +209,12 @@ class IMEdit(DmsDocumentEdit):
                 'reception_date',
                 'original_mail_date',
             ])
+
         if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
-            self.widgets['treating_groups'].__dict__['disabled'] = True
+            # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
+            #self.widgets['treating_groups'].__dict__['disabled'] = True
+            self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
+                [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
 
         for field in display_fields:
             self.widgets[field].mode = 'display'
@@ -220,6 +228,13 @@ class IMEdit(DmsDocumentEdit):
             self.widgets['ITask.assigned_user'].field = copy.copy(self.widgets['ITask.assigned_user'].field)
             self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
                                                                       ' can propose to an agent !')
+
+    #def applyChanges(self, data):
+    #    """ We need to remove a disabled field from data """
+    #    sm = getSecurityManager()
+    #    if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
+    #        del data['treating_groups']
+    #    super(IMEdit, self).applyChanges(data)
 
 
 class IMView(DmsDocumentView):
