@@ -2,19 +2,17 @@
 import copy
 
 from zope import schema
-from zope.component import getUtility, queryUtility
-from zope.interface import implements, alsoProvides
+from zope.component import getUtility
+from zope.interface import implements
 from zope.schema.fieldproperty import FieldProperty
 #from plone.autoform.interfaces import IFormFieldProvider
-from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.vocabulary import SimpleVocabulary
 from z3c.form.interfaces import HIDDEN_MODE
 from Products.CMFPlone.utils import base_hasattr
 from plone import api
 from plone.autoform import directives
 from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
 from plone.dexterity.schema import DexteritySchemaPolicy
-from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.registry.interfaces import IRegistry
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
@@ -31,23 +29,6 @@ from browser.settings import IImioDmsMailConfig
 from utils import voc_selected_org_suffix_users
 
 from . import _
-
-
-def registeredMailTypes(context):
-    """
-        Use the mail_types variable from the registry
-    """
-    settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-    terms = [SimpleTerm(None, token='', title=_("Choose a value !"))]
-    id_utility = queryUtility(IIDNormalizer)
-    for mail_type in settings.mail_types:
-        #value (stored), token (request), title
-        if mail_type['mt_active']:
-            terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
-                         id_utility.normalize(mail_type['mt_value']), mail_type['mt_title']))
-    return SimpleVocabulary(terms)
-
-alsoProvides(registeredMailTypes, IContextSourceBinder)
 
 
 def filter_dmsincomingmail_assigned_users(org_uid):
@@ -90,7 +71,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
 #        description = _("help_mail_type",
 #            default=u"Enter the mail type"),
         required=True,
-        source=registeredMailTypes,
+        vocabulary=u'imio.dms.mail.IMActiveMailTypesVocabulary',
         default=None,
     )
 

@@ -25,6 +25,11 @@
         />
 
     <utility
+        name="imio.dms.mail.IMActiveMailTypesVocabulary"
+        factory="imio.dms.mail.vocabularies.IMActiveMailTypesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.PloneGroupInterfacesVocabulary"
         factory="imio.dms.mail.vocabularies.PloneGroupInterfacesVocabulary"
         />

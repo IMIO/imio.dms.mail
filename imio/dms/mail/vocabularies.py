@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
-from zope.component import getUtility
+from zope.component import getUtility, queryUtility
 from zope.i18n import translate
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
@@ -12,6 +12,7 @@ from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPloneGroupContact
 from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users
 from browser.settings import IImioDmsMailConfig
+from . import _
 
 
 class IMReviewStatesVocabulary(object):
@@ -65,20 +66,39 @@ class AssignedUsersVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+def getMailTypes(choose=False, active=[True, False]):
+    """
+        Create a vocabulary from registry mail_types variable
+    """
+    settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+    terms = []
+    if choose:
+        terms.append(SimpleVocabulary.createTerm(None, '', _("Choose a value !")))
+    id_utility = queryUtility(IIDNormalizer)
+    for mail_type in settings.mail_types:
+        #value (stored), token (request), title
+        if mail_type['mt_active'] in active:
+            terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
+                         id_utility.normalize(mail_type['mt_value']), mail_type['mt_title']))
+    return SimpleVocabulary(terms)
+
+
 class IMMailTypesVocabulary(object):
     """ Mail types vocabulary """
     implements(IVocabularyFactory)
 
     @memoize
     def __call__(self, context):
-        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-        id_utility = getUtility(IIDNormalizer)
-        terms = []
-        for mail_type in settings.mail_types or []:
-            #value (stored), token (request), title
-            terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
-                         id_utility.normalize(mail_type['mt_value']), mail_type['mt_title']))
-        return SimpleVocabulary(terms)
+        return getMailTypes()
+
+
+class IMActiveMailTypesVocabulary(object):
+    """ Active mail types vocabulary """
+    implements(IVocabularyFactory)
+
+    @memoize
+    def __call__(self, context):
+        return getMailTypes(choose=True, active=[True])
 
 
 class PloneGroupInterfacesVocabulary(object):

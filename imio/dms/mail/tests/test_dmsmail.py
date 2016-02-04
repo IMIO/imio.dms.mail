@@ -15,13 +15,6 @@ class TestDmsmail(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
 
-    def test_registeredMailTypes(self):
-        from imio.dms.mail.dmsmail import registeredMailTypes
-        voc_list = [(t.value, t.title) for t in registeredMailTypes(self)]
-        self.assertEquals(voc_list, [(None, 'Choose a value !'), (u'courrier', u'Courrier'),
-                                     (u'recommande', u'Recommandé'), (u'email', u'E-mail'), (u'fax', u'Fax'),
-                                     (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
-
     def test_TreatingGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary
         voc_inst = TreatingGroupsVocabulary()

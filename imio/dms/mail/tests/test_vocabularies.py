@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 import unittest
+from zope.component import getUtility
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
+from plone.registry.interfaces import IRegistry
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
-from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary,
-                            AssignedUsersVocabulary, IMMailTypesVocabulary, PloneGroupInterfacesVocabulary)
+from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary, AssignedUsersVocabulary,
+                            getMailTypes, IMMailTypesVocabulary, IMActiveMailTypesVocabulary,
+                            PloneGroupInterfacesVocabulary)
 
 
 class TestVocabularies(unittest.TestCase):
@@ -46,12 +50,31 @@ class TestVocabularies(unittest.TestCase):
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Fred Agent')]))
 
+    def test_getMailTypes(self):
+        voc_list = [(t.value, t.title) for t in getMailTypes()]
+        self.assertEquals(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'), (u'email', u'E-mail'),
+                                     (u'fax', u'Fax'), (u'retour-recommande', u'Retour recommandé'),
+                                     (u'facture', u'Facture')])
+
     def test_IMMailTypesVocabulary(self):
         voc_inst = IMMailTypesVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommand\xe9'),
                                         (u'email', u'E-mail'), (u'fax', u'Fax'),
                                         (u'retour-recommande', u'Retour recommand\xe9'), (u'facture', u'Facture')])
+
+    def test_IMActiveMailTypesVocabulary(self):
+        voc_inst = IMActiveMailTypesVocabulary()
+        voc_list = [t.value for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list, [None, u'courrier', u'recommande', u'email', u'fax', u'retour-recommande',
+                                        u'facture'])
+        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+        mail_types = settings.mail_types
+        mail_types[0]['mt_active'] = False
+        settings.mail_types = mail_types
+        voc_inst = IMActiveMailTypesVocabulary()
+        voc_list = [t.value for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list, [None, u'recommande', u'email', u'fax', u'retour-recommande', u'facture'])
 
     def test_PloneGroupInterfacesVocabulary(self):
         voc_inst = PloneGroupInterfacesVocabulary()
