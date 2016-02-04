@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
@@ -9,8 +10,7 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary, AssignedUsersVocabulary,
-                            getMailTypes, IMMailTypesVocabulary, IMActiveMailTypesVocabulary,
-                            PloneGroupInterfacesVocabulary)
+                            getMailTypes, PloneGroupInterfacesVocabulary)
 
 
 class TestVocabularies(unittest.TestCase):
@@ -57,14 +57,14 @@ class TestVocabularies(unittest.TestCase):
                                      (u'facture', u'Facture')])
 
     def test_IMMailTypesVocabulary(self):
-        voc_inst = IMMailTypesVocabulary()
+        voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommand\xe9'),
                                         (u'email', u'E-mail'), (u'fax', u'Fax'),
                                         (u'retour-recommande', u'Retour recommand\xe9'), (u'facture', u'Facture')])
 
     def test_IMActiveMailTypesVocabulary(self):
-        voc_inst = IMActiveMailTypesVocabulary()
+        voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMActiveMailTypesVocabulary')
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, [None, u'courrier', u'recommande', u'email', u'fax', u'retour-recommande',
                                         u'facture'])
@@ -72,7 +72,7 @@ class TestVocabularies(unittest.TestCase):
         mail_types = settings.mail_types
         mail_types[0]['mt_active'] = False
         settings.mail_types = mail_types
-        voc_inst = IMActiveMailTypesVocabulary()
+        # After a registry change, the vocabulary cache has been cleared
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, [None, u'recommande', u'email', u'fax', u'retour-recommande', u'facture'])
 

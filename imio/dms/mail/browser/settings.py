@@ -1,12 +1,16 @@
 from zope import schema
 from zope.interface import Interface
+from z3c.form import form
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.directives import widget
+from plone.registry.interfaces import IRecordModifiedEvent
 from plone.z3cform import layout
-from z3c.form import form
+
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
+from imio.helpers.cache import cleanVocabularyCacheFor
+
 from .. import _
 
 
@@ -50,3 +54,12 @@ class SettingsEditForm(RegistryEditForm):
     schema = IImioDmsMailConfig
 
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
+
+
+def manageIImioDmsMailConfigChange(event):
+    """ Manage a record change """
+    if (IRecordModifiedEvent.providedBy(event) and event.record.interface == IImioDmsMailConfig
+            and event.record.fieldName == 'mail_types'):
+        cleanVocabularyCacheFor('imio.dms.mail.IMMailTypesVocabulary')
+        cleanVocabularyCacheFor('imio.dms.mail.IMActiveMailTypesVocabulary')
+

@@ -23,4 +23,9 @@
         handler=".subscribers.dmsmainfile_modified"
         />
 
+    <subscriber
+        for="plone.registry.interfaces.IRecordModifiedEvent"
+        handler=".browser.settings.manageIImioDmsMailConfigChange"
+        />
+
 </configure>
