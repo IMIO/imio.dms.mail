@@ -72,6 +72,7 @@
         provides=".dmsmail.IImioDmsIncomingMail"
         /-->
 
+    <!-- CRITERIONS -->
     <adapter for="*"
              factory=".adapters.IncomingMailHighestValidationCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
@@ -97,6 +98,7 @@
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="task-in-assigned-group" />
 
+    <!-- INDEXES -->
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />
 
@@ -107,6 +109,7 @@
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
 
+    <!-- DMSMAIL -->
     <adapter
         for="Products.CMFCore.interfaces.IFolderish
              zope.publisher.interfaces.browser.IDefaultBrowserLayer
@@ -121,6 +124,18 @@
             interface="zope.publisher.interfaces.browser.IBrowserPage"
             />
     </class>
+
+    <!-- MISSING VOCABULARIES -->
+    <!-- type, layer, view, field, vocabulary, widget -->
+    <adapter
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail
+             z3c.form.interfaces.IFormLayer
+             zope.interface.Interface
+             zope.schema.interfaces.IChoice
+             zope.schema.interfaces.IBaseVocabulary
+             z3c.form.interfaces.ISelectWidget"
+        factory=".adapters.IMMCTV"
+    />
 
     <class class="plone.app.collection.collection.Collection">
         <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />

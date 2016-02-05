@@ -1,8 +1,16 @@
 # encoding: utf-8
-from zope.component import adapts
+from zope.component import adapts, getMultiAdapter, getUtility
 from zope.interface import implements
-from collective import dexteritytextindexer
+from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.vocabulary import SimpleVocabulary
+from z3c.form.term import MissingChoiceTermsVocabulary, MissingTermsMixin
+from z3c.form.interfaces import IContextAware, IDataManager
+
 from AccessControl import getSecurityManager
+from Products.CMFCore.interfaces import IContentish
+from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import base_hasattr
+from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
@@ -10,12 +18,11 @@ from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
 from plone.indexer import indexer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
-from Products.CMFCore.interfaces import IContentish
-from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import base_hasattr
-from Products.PluginIndexes.common.UnIndex import _marker as common_marker
+
+from collective import dexteritytextindexer
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from dmsmail import IDmsIncomingMail
+
 from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id
 
 #######################
@@ -246,3 +253,48 @@ class IdmSearchableExtender(object):
                 index += sid_infos
         if index:
             return u' '.join(index)
+
+
+#########################
+# vocabularies adapters #
+#########################
+
+class IMMCTV(MissingChoiceTermsVocabulary):
+    """ Managing missing terms for IImioDmsIncomingMail. """
+
+    def complete_voc(self):
+        if self.field.getName() == 'mail_type':
+            return getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')(self.context)
+        elif self.field.getName() == 'assigned_user':
+            return getUtility(IVocabularyFactory, 'plone.app.vocabularies.Users')(self.context)
+        else:
+            return SimpleVocabulary([])
+
+    def getTerm(self, value):
+        try:
+            return super(MissingTermsMixin, self).getTerm(value)
+        except LookupError:
+            try:
+                return self.complete_voc().getTerm(value)
+            except LookupError:
+                pass
+        if (IContextAware.providedBy(self.widget) and not self.widget.ignoreContext):
+            curValue = getMultiAdapter((self.widget.context, self.field), IDataManager).query()
+            if curValue == value:
+                return self._makeMissingTerm(value)
+        raise
+
+    def getTermByToken(self, token):
+        try:
+            return super(MissingTermsMixin, self).getTermByToken(token)
+        except LookupError:
+            try:
+                return self.complete_voc().getTermByToken(token)
+            except LookupError:
+                pass
+        if (IContextAware.providedBy(self.widget) and not self.widget.ignoreContext):
+            value = getMultiAdapter((self.widget.context, self.field), IDataManager).query()
+            term = self._makeMissingTerm(value)
+            if term.token == token:
+                return term
+        raise LookupError(token)

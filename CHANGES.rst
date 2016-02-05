@@ -10,6 +10,9 @@ Changelog
 - Added columns: mail_type, sender
   [sgeulette]
 
+- Managing missing values for mail_type and assigned_user on IImioDmsIncomingMail
+  [sgeulette]
+
 - Improvements: disable own delete on contacts, block parent portlets on contacts, add local roles for dir_general
                 on contacts, corrected disabled treating_groups bug
   [sgeulette]

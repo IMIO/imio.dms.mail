@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 import unittest
+from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from plone.registry.interfaces import IRegistry
+from ..browser.settings import IImioDmsMailConfig
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..adapters import default_criterias
 from ..adapters import IncomingMailHighestValidationCriterion
@@ -96,3 +100,25 @@ class TestAdapters(unittest.TestCase):
         self.assertListEqual(index_value, ['e0010', 'my', 'title', 'description', u'010999900000690',
                                            'imio010999900000690', u'690', u'010999900000700', 'imio010999900000700',
                                            u'700'])
+
+    def test_IMMCTV(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='my-id', title='My title',
+                                         mail_type='courrier', assigned_user='agent')
+        view = imail.restrictedTraverse('@@view')
+        view.update()
+        # the title from the vocabulary is well rendered
+        self.assertIn('Courrier', view.widgets['mail_type'].render())
+        # We deactivate the courrier mail type, the missing value is managed
+        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+        mail_types = settings.mail_types
+        mail_types[0]['mt_active'] = False
+        settings.mail_types = mail_types
+        voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMActiveMailTypesVocabulary')
+        self.assertNotIn('courrier', [t.value for t in voc_inst(imail)])
+        view.updateWidgets()
+        self.assertIn('Courrier', view.widgets['mail_type'].render())
+        # We remove the courrier mail type, the missing value cannot be managed anymore
+        settings.mail_types = settings.mail_types[1:]
+        view.updateWidgets()
+        self.assertNotIn('Courrier', view.widgets['mail_type'].render())
+        self.assertIn('Missing', view.widgets['mail_type'].render())
