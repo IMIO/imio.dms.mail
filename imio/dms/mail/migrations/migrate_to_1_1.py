@@ -63,6 +63,7 @@ class Migrate_To_1_1(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 1.1...')
         self.cleanRegistries()
+        self.runProfileSteps('imio.dms.mail', steps=['actions'])
         im_folder = self.portal['incoming-mail']
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
