@@ -64,6 +64,8 @@ class Migrate_To_1_1(Migrator):
         logger.info('Migrating to imio.dms.mail 1.1...')
         self.cleanRegistries()
         self.runProfileSteps('imio.dms.mail', steps=['actions'])
+        self.runProfileSteps('collective.messagesviewlet', steps=['collective-messagesviewlet-messages'],
+                             profile='messages')
         im_folder = self.portal['incoming-mail']
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
@@ -75,6 +77,10 @@ class Migrate_To_1_1(Migrator):
         # activate field on DashboardCollection
         self.add_view_field('mail_type', im_folder['mail-searches'], before='CreationDate')
         self.add_view_field('sender', im_folder['mail-searches'], before='CreationDate')
+
+        # Activate browser message
+        msg = self.portal['messages-config']['browser-warning']
+        api.content.transition(obj=msg, to_state='activated')
 
         # update searchabletext
         self.update_dmsmainfile()
