@@ -35,13 +35,13 @@ dmsmail.init_batchactions_button = function () {
         document.batch_actions[form_id] = ba_form.action;
     }
     ba_form.action = document.batch_actions[form_id] + '?uids=' + uids + '&referer=' + referer;
-    dmsmail.initializeOverlays();
+    dmsmail.initializeOverlays('#'+form_id);
   });
 };
 
-dmsmail.initializeOverlays = function () {
+dmsmail.initializeOverlays = function (form_id) {
     // Add batch actions popup
-    $('.batch-action-form').prepOverlay({
+    $(form_id).prepOverlay({
         subtype: 'ajax',
         closeselector: '[name="form.buttons.cancel"]'
     });
