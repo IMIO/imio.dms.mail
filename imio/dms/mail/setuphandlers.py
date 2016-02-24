@@ -181,8 +181,8 @@ def createStateCollections(folder, content_type):
     view_fields = {
         'dmsincomingmail': (u'select_row', u'pretty_link', u'review_state', u'treating_groups',
                             u'assigned_user', u'due_date', u'mail_type', u'sender', u'CreationDate', u'actions'),
-        'task': (u'select_row', u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                 u'CreationDate', u'actions'),
+        'task': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group', u'assigned_user',
+                 u'due_date', u'CreationDate', u'actions'),
     }
     for state in list_wf_states(folder, content_type):
         col_id = "searchfor_%s" % state
@@ -302,8 +302,8 @@ def createIMTaskCollections(folder):
         {'id': 'all_tasks', 'tit': _('all_im_tasks'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_validate', 'tit': _('tasks_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
@@ -311,40 +311,40 @@ def createIMTaskCollections(folder):
              'v': 'task-highest-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
             'bypass': ['Manager', 'Site Administrator'],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'to_treat', 'tit': _('task_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['to_do']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'im_treating', 'tit': _('task_im_treating'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['in_progress']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'have_treated', 'tit': _('task_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed', 'realized']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
         {'id': 'in_my_group', 'tit': _('tasks_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'task-in-assigned-group'}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'assigned_group', u'assigned_user', u'due_date',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, },
     ]
     createDashboardCollections(folder, collections)

@@ -39,6 +39,9 @@ msgstr "Type de courrier"
 msgid "header_sender"
 msgstr "Expéditeur"
 
+msgid "header_task_parent"
+msgstr "Courrier associé"
+
 msgid "header_treating_groups"
 msgstr "Service traitant"
 
@@ -47,6 +50,9 @@ msgstr "Type de courrier"
 
 msgid "sender"
 msgstr "Expéditeur"
+
+msgid "task_parent"
+msgstr "Courrier associé"
 
 msgid "treating_groups"
 msgstr "Service traitant"

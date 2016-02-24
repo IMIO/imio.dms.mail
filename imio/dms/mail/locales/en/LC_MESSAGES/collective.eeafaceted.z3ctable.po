@@ -39,6 +39,9 @@ msgstr "Mail type"
 msgid "header_sender"
 msgstr "Sender"
 
+msgid "header_task_parent"
+msgstr "Linked mail"
+
 msgid "header_treating_groups"
 msgstr "Treating group"
 
@@ -47,6 +50,9 @@ msgstr "Mail type"
 
 msgid "sender"
 msgstr "Sender"
+
+msgid "task_parent"
+msgstr "Linked mail"
 
 msgid "treating_groups"
 msgstr "Treating group"

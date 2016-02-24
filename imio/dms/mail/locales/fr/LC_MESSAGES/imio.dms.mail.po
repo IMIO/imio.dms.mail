@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-01-26 11:08+0000\n"
+"POT-Creation-Date: 2016-02-24 14:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Domain: imio.dms.mail\n"
 "X-is-fallback-for: fr-fr fr-be fr-ca\n"
 
-#: ./browser/settings.py:16
+#: ./browser/settings.py:20
 msgid "Active"
 msgstr "Activé"
 
@@ -23,7 +23,7 @@ msgstr "Activé"
 msgid "Apply"
 msgstr "Appliquer"
 
-#: ./browser/settings.py:33
+#: ./browser/settings.py:37
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
@@ -51,15 +51,15 @@ msgstr "Changement d'état par lot"
 msgid "Batch treating group change"
 msgstr "Changement de service traitant par lot"
 
-#: ./browser/settings.py:40
+#: ./browser/settings.py:44
 msgid "Check if the incoming mail 'original mail date' field must be required."
 msgstr "Cocher si le champ 'Date du courrier' d'un courrier entrant doit être requis."
 
-#: ./browser/settings.py:34
+#: ./browser/settings.py:38
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent"
 
-#: ./dmsmail.py:41
+#: ./vocabularies.py:76
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
@@ -98,16 +98,16 @@ msgstr "Recherches courriers entrants"
 msgid "Incoming mails"
 msgstr "Courriers entrants"
 
-#: ./browser/settings.py:27
-#: ./dmsmail.py:89
+#: ./browser/settings.py:31
+#: ./dmsmail.py:70
 msgid "Mail type"
 msgstr "Type de courrier"
 
-#: ./browser/settings.py:15
+#: ./browser/settings.py:19
 msgid "Mail type title"
 msgstr "Intitulé du type"
 
-#: ./browser/settings.py:14
+#: ./browser/settings.py:18
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
@@ -123,7 +123,7 @@ msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. 
 msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
-#: ./browser/settings.py:26
+#: ./browser/settings.py:30
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
@@ -131,7 +131,7 @@ msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifi�
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
-#: ./browser/settings.py:39
+#: ./browser/settings.py:43
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
@@ -140,7 +140,7 @@ msgstr "Obligation d'une date de courrier entrant"
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./dmsmail.py:83
+#: ./dmsmail.py:64
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -155,11 +155,11 @@ msgstr "Transition"
 
 #: ./browser/batchactions.py:169
 #: ./browser/table.py:36
-#: ./dmsmail.py:66
+#: ./dmsmail.py:47
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./browser/settings.py:25
+#: ./browser/settings.py:29
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
@@ -167,7 +167,7 @@ msgstr "Types de courrier entrant"
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas changer ce champ sur les éléments sélectionnés. Recommencez en modifiant votre sélection."
 
-#: ./dmsmail.py:221
+#: ./dmsmail.py:210
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 

@@ -77,6 +77,7 @@ class Migrate_To_1_1(Migrator):
         # activate field on DashboardCollection
         self.add_view_field('mail_type', im_folder['mail-searches'], before='CreationDate')
         self.add_view_field('sender', im_folder['mail-searches'], before='CreationDate')
+        self.add_view_field('task_parent', im_folder['task-searches'], before='review_state')
 
         # Activate browser message
         msg = self.portal['messages-config']['browser-warning']

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-01-26 11:08+0000\n"
+"POT-Creation-Date: 2016-02-24 14:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Domain: imio.dms.mail\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
-#: ./browser/settings.py:16
+#: ./browser/settings.py:20
 msgid "Active"
 msgstr ""
 
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ./browser/settings.py:33
+#: ./browser/settings.py:37
 msgid "Assigned user check"
 msgstr ""
 
@@ -51,15 +51,15 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:40
+#: ./browser/settings.py:44
 msgid "Check if the incoming mail 'original mail date' field must be required."
 msgstr ""
 
-#: ./browser/settings.py:34
+#: ./browser/settings.py:38
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./dmsmail.py:41
+#: ./vocabularies.py:76
 msgid "Choose a value !"
 msgstr ""
 
@@ -98,16 +98,16 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
-#: ./browser/settings.py:27
-#: ./dmsmail.py:89
+#: ./browser/settings.py:31
+#: ./dmsmail.py:70
 msgid "Mail type"
 msgstr ""
 
-#: ./browser/settings.py:15
+#: ./browser/settings.py:19
 msgid "Mail type title"
 msgstr ""
 
-#: ./browser/settings.py:14
+#: ./browser/settings.py:18
 msgid "Mail type value"
 msgstr ""
 
@@ -123,7 +123,7 @@ msgstr ""
 msgid "No incoming mail !"
 msgstr ""
 
-#: ./browser/settings.py:26
+#: ./browser/settings.py:30
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
@@ -131,7 +131,7 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./browser/settings.py:39
+#: ./browser/settings.py:43
 msgid "Original mail date requirement"
 msgstr ""
 
@@ -140,7 +140,7 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./dmsmail.py:83
+#: ./dmsmail.py:64
 msgid "Recipient groups"
 msgstr ""
 
@@ -155,11 +155,11 @@ msgstr ""
 
 #: ./browser/batchactions.py:169
 #: ./browser/table.py:36
-#: ./dmsmail.py:66
+#: ./dmsmail.py:47
 msgid "Treating groups"
 msgstr ""
 
-#: ./browser/settings.py:25
+#: ./browser/settings.py:29
 msgid "Types of incoming mail"
 msgstr ""
 
@@ -167,7 +167,7 @@ msgstr ""
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./dmsmail.py:221
+#: ./dmsmail.py:210
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
