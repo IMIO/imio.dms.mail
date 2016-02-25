@@ -22,6 +22,7 @@ from collective.contact.plonegroup.browser.settings import SelectedOrganizations
 from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
 from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
                                                 originalMailDateDefaultValue)
+from collective.dms.basecontent.relateddocs import RelatedDocs
 from collective.task.field import LocalRoleMasterSelectField
 from dexterity.localrolesfield.field import LocalRolesField
 
@@ -261,13 +262,19 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     """
         Extended schema for mail type field
     """
+
+    linked_mails = RelatedDocs(
+        title=_(u"Linked mails"),
+        required=False,
+        portal_types=('dmsincomingmail', 'dmsoutgoingmail'))
+
     directives.order_before(recipients='related_docs')  # temporary when removing *_groups
     directives.order_before(mail_date='related_docs')  # temporary when removing *_groups
     directives.order_before(internal_reference_no='related_docs')  # temporary when removing *_groups
-    directives.order_before(reply_to='related_docs')  # temporary when removing *_groups
     directives.order_after(notes='related_docs')  # temporary when removing *_groups
 
-    directives.omitted('treating_groups', 'recipient_groups')
+    directives.omitted(
+        'treating_groups', 'recipient_groups', 'related_docs', 'reply_to')
 
 
 class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):

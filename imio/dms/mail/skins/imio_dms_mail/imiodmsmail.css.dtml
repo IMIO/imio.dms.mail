@@ -297,7 +297,7 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     width: 100%;
 }
 
-#formfield-form-widgets-reply_to input.searchButton {
+#formfield-form-widgets-linked_mails input.searchButton {
     display: none;
 }
 
