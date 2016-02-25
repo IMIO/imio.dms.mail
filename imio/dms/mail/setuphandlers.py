@@ -837,12 +837,10 @@ def addTestMails(context):
     task3.invokeFactory('task', id='tache3-1', title=u'Sous-tâche 1', assigned_group=task3.assigned_group)
     task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group)
 
-    return
     senders_cycle = cycle(senders)
     # outgoing mails
     ofld = site['outgoing-mail']
     for i in range(1, 10):
-        continue
         if not 'reponse%d' % i in ofld:
             params = {'title': 'Réponse %d' % i,
                       'internal_reference_no': internalReferenceOutgoingMailDefaultValue(data),
