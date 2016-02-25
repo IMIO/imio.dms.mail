@@ -43,11 +43,12 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(imail.Title(), 'E0010 - Test with auto ref')
 
     def test_linked_mails(self):
+        catalog = getUtility(ICatalog)
+        intids = getUtility(IIntIds)
         imail1 = self.portal['incoming-mail']['courrier1']
         imail2 = self.portal['incoming-mail']['courrier2']
         omail1 = self.portal['outgoing-mail']['reponse1']
         omail2 = self.portal['outgoing-mail']['reponse2']
-        intids = getUtility(IIntIds)
         omail1.linked_mails = [
             RelationValue(intids.getId(imail1)),
             RelationValue(intids.getId(imail2)),
@@ -55,8 +56,6 @@ class TestDmsmail(unittest.TestCase):
         ]
         modified(omail1)
         self.assertEqual(len(omail1.linked_mails), 3)
-        catalog = getUtility(ICatalog)
-        intids = getUtility(IIntIds)
         omail_intid = intids.queryId(omail1)
         query = {
             'from_id': omail_intid,

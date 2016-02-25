@@ -132,4 +132,11 @@
         allowed_interface="Products.CMFPlone.browser.interfaces.IPlone"
     />
 
+    <browser:page
+        name="reply"
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+        class=".reply_form.ReplyForm"
+        permission="zope2.View"
+        />
+
 </configure>
