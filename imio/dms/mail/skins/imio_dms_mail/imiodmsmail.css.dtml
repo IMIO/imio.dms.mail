@@ -297,4 +297,8 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     width: 100%;
 }
 
+#formfield-form-widgets-reply_to input.searchButton {
+    display: none;
+}
+
 /* </dtml-with> */
