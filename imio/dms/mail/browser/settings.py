@@ -9,7 +9,7 @@ from plone.z3cform import layout
 
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
-from imio.helpers.cache import cleanVocabularyCacheFor
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from .. import _
 
@@ -60,6 +60,5 @@ def manageIImioDmsMailConfigChange(event):
     """ Manage a record change """
     if (IRecordModifiedEvent.providedBy(event) and event.record.interface == IImioDmsMailConfig
             and event.record.fieldName == 'mail_types'):
-        cleanVocabularyCacheFor('imio.dms.mail.IMMailTypesVocabulary')
-        cleanVocabularyCacheFor('imio.dms.mail.IMActiveMailTypesVocabulary')
-
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMMailTypesVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMActiveMailTypesVocabulary')

@@ -7,14 +7,17 @@ Changelog
 - Extends dmsincomingmail SearchableText with children's scan_id values.
   [sgeulette]
 
-- Added columns: mail_type, sender
+- Added count on "to do" collections
+  [sgeulette]
+
+- Added columns: mail_type, sender, task_parent
   [sgeulette]
 
 - Managing missing values for mail_type and assigned_user on IImioDmsIncomingMail
   [sgeulette]
 
 - Improvements: disable own delete on contacts, block parent portlets on contacts, add local roles for dir_general
-                on contacts, corrected disabled treating_groups bug
+                on contacts, corrected disabled treating_groups bug, updated voc cache
   [sgeulette]
 
 

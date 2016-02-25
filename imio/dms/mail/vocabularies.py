@@ -6,20 +6,25 @@ from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from plone.i18n.normalizer.interfaces import IIDNormalizer
-from plone.memoize.instance import memoize
+from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPloneGroupContact
 from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users
+from imio.helpers.cache import get_cachekey_volatile
 from browser.settings import IImioDmsMailConfig
 from . import _
+
+
+def voc_cache_key(method, self, context):
+    return get_cachekey_volatile(str(self.__class__)[8:-2])
 
 
 class IMReviewStatesVocabulary(object):
     """ Incoming mail states vocabulary """
     implements(IVocabularyFactory)
 
-    @memoize
+    @ram.cache(voc_cache_key)
     def __call__(self, context):
         terms = []
         for state in list_wf_states(context, 'dmsincomingmail'):
@@ -32,7 +37,7 @@ class TaskReviewStatesVocabulary(object):
     """ Task states vocabulary """
     implements(IVocabularyFactory)
 
-    @memoize
+    @ram.cache(voc_cache_key)
     def __call__(self, context):
         terms = []
         for state in list_wf_states(context, 'task'):
@@ -45,7 +50,7 @@ class AssignedUsersVocabulary(object):
     """ All possible assigned users vocabulary """
     implements(IVocabularyFactory)
 
-    @memoize
+    @ram.cache(voc_cache_key)
     def __call__(self, context):
         registry = getUtility(IRegistry)
         terms = []
@@ -87,7 +92,7 @@ class IMMailTypesVocabulary(object):
     """ Mail types vocabulary """
     implements(IVocabularyFactory)
 
-    @memoize
+    @ram.cache(voc_cache_key)
     def __call__(self, context):
         return getMailTypes()
 
@@ -96,7 +101,7 @@ class IMActiveMailTypesVocabulary(object):
     """ Active mail types vocabulary """
     implements(IVocabularyFactory)
 
-    @memoize
+    @ram.cache(voc_cache_key)
     def __call__(self, context):
         return getMailTypes(choose=True, active=[True])
 
