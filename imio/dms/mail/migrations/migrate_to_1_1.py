@@ -60,6 +60,17 @@ class Migrate_To_1_1(Migrator):
             fields.insert(i, fldname)
             col.setCustomViewFields(tuple(fields))
 
+    def update_count(self, folder, ids=[]):
+        """ Set showNumberOfItems on collection """
+        crit = {'portal_type': 'DashboardCollection',
+                'path': {'query': '/'.join(folder.getPhysicalPath()), 'depth': 1}}
+        if ids:
+            crit['id'] = ids
+        brains = self.catalog.searchResults(crit)
+        for brain in brains:
+            col = brain.getObject()
+            col.showNumberOfItems = True
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 1.1...')
         self.cleanRegistries()
@@ -78,6 +89,10 @@ class Migrate_To_1_1(Migrator):
         self.add_view_field('mail_type', im_folder['mail-searches'], before='CreationDate')
         self.add_view_field('sender', im_folder['mail-searches'], before='CreationDate')
         self.add_view_field('task_parent', im_folder['task-searches'], before='review_state')
+
+        # set showNumberOfItems on some collections
+        self.update_count(im_folder['mail-searches'], ids=['to_validate', 'to_treat', 'im_treating', 'created'])
+        self.update_count(im_folder['task-searches'], ids=['to_validate', 'to_treat', 'im_treating'])
 
         # Activate browser message
         msg = self.portal['messages-config']['browser-warning']

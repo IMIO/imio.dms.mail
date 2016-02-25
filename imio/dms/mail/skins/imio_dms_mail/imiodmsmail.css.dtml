@@ -140,6 +140,11 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     width: auto;
 }
 
+.term-count {
+    font-style: italic;
+    font-weight: bold;
+}
+
 /* Align (move up) the actionspanel add menu */
 .actionspanel-no-style-table {
     line-height: 1.5em;
