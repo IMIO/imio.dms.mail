@@ -1,0 +1,7 @@
+<td class="noPadding" i18n:domain="imio.dms.mail">
+  <a tal:attributes="href string:${context/absolute_url}/@@reply"
+     target="_parent">
+     <input type="button" value="Reply" class="apButton apButtonAction apButtonAction_reply" i18n:attributes="value" />
+  </a>
+</td>
+<td class="noPadding">

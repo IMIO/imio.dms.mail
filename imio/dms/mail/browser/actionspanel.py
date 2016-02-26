@@ -1,3 +1,5 @@
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+
 from imio.actionspanel.browser.views import ActionsPanelView
 from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
 
@@ -10,6 +12,26 @@ from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
 #        super(DmsIMActionsPanelView, self).__init__(context, request)
 #        # portal_actions.object_buttons action ids to keep
 #        self.ACCEPTABLE_ACTIONS = []
+
+
+class DmsIMActionsPanelView(ActionsPanelView):
+
+    def __init__(self, context, request):
+        super(DmsIMActionsPanelView, self).__init__(context, request)
+        self.SECTIONS_TO_RENDER += ('renderReplyButton', )
+
+    def mayReply(self):
+        """
+          Method that check if special 'reply' action has to be displayed.
+        """
+        return self.member.has_permission('Add portal content', self.context)
+
+    def renderReplyButton(self):
+        if self.mayReply():
+            return ViewPageTemplateFile(
+                "templates/actions_panel_reply.pt")(self)
+
+        return ""
 
 
 class DmsIMActionsPanelViewlet(ActionsPanelViewlet):
