@@ -3,6 +3,9 @@
 from Products.CMFCore.utils import getToolByName
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from plone.registry.interfaces import IRecordModifiedEvent
+
+from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from dmsmail import IImioDmsIncomingMail
 
@@ -60,13 +63,16 @@ def dmsmainfile_modified(dmf, event):
         imail.reindexObject(idxs=['SearchableText'])
 
 
-def user_modified(event):
+def user_related_modification(event):
     """
         Manage user modification
-        ignored Products.PluggableAuthService.interfaces.events.IPrincipalCreatedEvent
-        ignored Products.PluggableAuthService.interfaces.events.IPrincipalDeletedEvent
+          * ignored Products.PluggableAuthService.interfaces.events.IPrincipalCreatedEvent
+          * ignored Products.PluggableAuthService.interfaces.events.IPrincipalDeletedEvent
     """
     # we pass if the config change is not related to users
     if IConfigurationChangedEvent.providedBy(event) and not isinstance(event.context, UserDataConfiglet):
+        return
+    # we pass if the registry change is not related to plonegroup
+    if IRecordModifiedEvent.providedBy(event) and event.record.interface != IContactPlonegroupConfig:
         return
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')

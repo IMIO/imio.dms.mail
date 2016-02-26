@@ -2,13 +2,17 @@
 import unittest
 
 import zope.event
+from zope.component import getUtility
 from zope.lifecycleevent import ObjectModifiedEvent
 
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
+from plone.registry.interfaces import IRegistry
 from plone import api
+
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..vocabularies import AssignedUsersVocabulary
@@ -46,12 +50,19 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(dfile.get_local_roles_for_userid('encodeur'), ('Owner',))
         self.assertEquals(dfile.get_local_roles_for_userid('scanner'), ())
 
-    def test_user_modified(self):
+    def test_user_related_modification(self):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
+        # we change a user property
         member = api.user.get(userid='chef')
         member.setMemberProperties({'fullname': 'Michel Chef 2'})
+        # we simulate the user form change event
         zope.event.notify(ConfigurationChangedEvent(UserDataConfiglet(self.portal, self.portal.REQUEST), {}))
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef 2')]))
+        # we change the activated services
+        registry = getUtility(IRegistry)
+        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][0:1]
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertSetEqual(set(voc_list), set([('chef', 'Michel Chef 2')]))

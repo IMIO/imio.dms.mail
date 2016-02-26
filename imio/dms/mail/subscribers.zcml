@@ -30,7 +30,12 @@
 
     <subscriber
         for="plone.app.controlpanel.interfaces.IConfigurationChangedEvent"
-        handler=".subscribers.user_modified"
+        handler=".subscribers.user_related_modification"
+        />
+
+    <subscriber
+        for="plone.registry.interfaces.IRecordModifiedEvent"
+        handler=".subscribers.user_related_modification"
         />
 
 </configure>
