@@ -18,7 +18,8 @@ class TestReplyForm(unittest.TestCase):
         view = imail1.unrestrictedTraverse('@@reply')
         view.updateFields()
         form = self.portal.REQUEST.form
-        expected = ('/plone/incoming-mail/courrier1', )
-        self.assertEqual(form['linked_mails'], expected)
-        self.assertEqual(form['form.widgets.linked_mails'], expected)
+        expected_linked_mails = ('/plone/incoming-mail/courrier1', )
+        self.assertEqual(form['form.widgets.linked_mails'], expected_linked_mails)
         self.assertEqual(translate(view.label), u'Reply to E0001 - Courrier 1')
+        expected_recipients = ('/plone/contacts/electrabel', )
+        self.assertEqual(form['form.widgets.recipients'], expected_recipients)

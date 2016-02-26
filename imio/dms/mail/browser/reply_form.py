@@ -23,9 +23,13 @@ class ReplyForm(DefaultAddForm):
 
     def updateFields(self):
         super(ReplyForm, self).updateFields()
-        value = ('/'.join(self.context.getPhysicalPath()),)
-        self.request.form["linked_mails"] = value
-        self.request.form["form.widgets.linked_mails"] = value
+        imail = self.context
+        form = self.request.form
+        linked_mails = ('/'.join(imail.getPhysicalPath()),)
+        form["form.widgets.linked_mails"] = linked_mails
+
+        recipient_path = '/'.join(imail.sender.to_object.getPhysicalPath())
+        form["form.widgets.recipients"] = (recipient_path, )
         # self.fields['linked_mails'].mode = DISPLAY_MODE
 
     def add(self, obj):
