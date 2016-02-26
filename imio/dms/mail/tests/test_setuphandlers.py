@@ -83,3 +83,7 @@ class TestSetuphandlers(unittest.TestCase):
         users = [member for member in mt.listMembers()
                  if member.getProperty('fullname').find(' ') >= 1]
         self.assertEquals(len(users), 5)
+
+    def test_addTestModels(self):
+        self.assertIn('models', self.portal)
+        self.assertEqual(len(self.portal['models'].listFolderContents()), 2)
