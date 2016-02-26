@@ -28,4 +28,9 @@
         handler=".browser.settings.manageIImioDmsMailConfigChange"
         />
 
+    <subscriber
+        for="plone.app.controlpanel.interfaces.IConfigurationChangedEvent"
+        handler=".subscribers.user_modified"
+        />
+
 </configure>

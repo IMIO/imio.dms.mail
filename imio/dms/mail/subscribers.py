@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Products.CMFCore.utils import getToolByName
-from imio.dms.mail.dmsmail import IImioDmsIncomingMail
+from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
+from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from imio.helpers.cache import invalidate_cachekey_volatile_for
+from dmsmail import IImioDmsIncomingMail
 
 
 def replace_scanner(imail, event):
@@ -55,3 +58,15 @@ def dmsmainfile_modified(dmf, event):
     imail = dmf.aq_parent
     if IImioDmsIncomingMail.providedBy(imail):
         imail.reindexObject(idxs=['SearchableText'])
+
+
+def user_modified(event):
+    """
+        Manage user modification
+        ignored Products.PluggableAuthService.interfaces.events.IPrincipalCreatedEvent
+        ignored Products.PluggableAuthService.interfaces.events.IPrincipalDeletedEvent
+    """
+    # we pass if the config change is not related to users
+    if IConfigurationChangedEvent.providedBy(event) and not isinstance(event.context, UserDataConfiglet):
+        return
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
