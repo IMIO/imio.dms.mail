@@ -43,12 +43,6 @@ class TestVocabularies(unittest.TestCase):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
-        # We change the title to set the same fullname
-        member = api.user.get(userid='chef')
-        member.setMemberProperties({'fullname': 'Fred Agent'})
-        voc_inst = AssignedUsersVocabulary()
-        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Fred Agent')]))
 
     def test_getMailTypes(self):
         voc_list = [(t.value, t.title) for t in getMailTypes()]
