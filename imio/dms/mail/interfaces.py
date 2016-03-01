@@ -25,3 +25,8 @@ class IInternalContact(Interface):
 class IIMDashboard(Interface):
 
     """Marker interface for incoming mail dashboard."""
+
+
+class IIMTaskDashboard(Interface):
+
+    """Marker interface for incoming mail task dashboard."""

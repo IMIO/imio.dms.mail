@@ -45,7 +45,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
-from imio.dms.mail.interfaces import IIMDashboard
+from imio.dms.mail.interfaces import IIMDashboard, IIMTaskDashboard
 
 from interfaces import IDirectoryFacetedNavigable
 from utils import list_wf_states
@@ -120,6 +120,7 @@ def postInstall(context):
         # add task-searches
         col_folder = add_db_col_folder(im_folder, 'task-searches', _("Tasks searches"),
                                        _("I.M. tasks"))
+        alsoProvides(col_folder, IIMTaskDashboard)
         createIMTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
         configure_faceted_folder(col_folder, xml='im-task-searches.xml',
@@ -972,10 +973,12 @@ def refreshCatalog(context):
     site.portal_catalog.refreshCatalog()
 
 
-def reimport_faceted_config(portal):
+def reimport_faceted_config(folder, xml, default_UID=None):
     """Reimport faceted navigation config."""
-    portal['contacts'].unrestrictedTraverse('@@faceted_exportimport').import_xml(
-        import_file=open(os.path.dirname(__file__) + '/faceted_conf/contacts-faceted.xml'))
+    folder.unrestrictedTraverse('@@faceted_exportimport').import_xml(
+        import_file=open(os.path.dirname(__file__) + '/faceted_conf/%s' % xml))
+    if default_UID:
+        _updateDefaultCollectionFor(folder, default_UID)
 
 
 def setupFacetedContacts(portal):
@@ -986,7 +989,7 @@ def setupFacetedContacts(portal):
     # hide portlets columns in contacts
     alsoProvides(portal.contacts, IHidePloneLeftColumn)
     alsoProvides(portal.contacts, IHidePloneRightColumn)
-    reimport_faceted_config(portal)
+    reimport_faceted_config(portal['contacts'], 'contacts-faceted.xml')
 
 
 def configure_actions_panel(portal):

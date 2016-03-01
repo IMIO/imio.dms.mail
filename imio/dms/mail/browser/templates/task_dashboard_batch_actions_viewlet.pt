@@ -1,0 +1,15 @@
+<script>dmsmail.init_batchactions_button()</script>
+<div xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="imio.dms.mail" id="task-dashboard-batch-actions">
+<form action="transition-batch-action" id="transition-batch-action" class="batch-action-form">
+  <input id="transition-batch-action-but" class="button batch-action-but" type="submit" value="transition-batch-action-but"
+         i18n:attributes="value"/>
+</form>
+<form action="assignedgroup-batch-action" id="assignedgroup-batch-action" class="batch-action-form">
+  <input id="assignedgroup-batch-action-but" class="button batch-action-but" type="submit" value="assignedgroup-batch-action-but"
+         i18n:attributes="value"/>
+</form>
+<form action="assigneduser-batch-action" id="assigneduser-batch-action" class="batch-action-form">
+  <input id="assigneduser-batch-action-but" class="button batch-action-but" type="submit" value="assigneduser-batch-action-but"
+         i18n:attributes="value"/>
+</form>
+</div>

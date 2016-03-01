@@ -73,6 +73,8 @@ def brains_from_uids(uids):
     brains = catalog(UID=uids)
     return brains
 
+# IM batch actions
+
 
 def getAvailableTransitionsVoc(brains):
     """ Returns available transitions common for all brains """
@@ -148,13 +150,14 @@ class OldTreatingGroupBatchActionForm(DashboardBatchActionForm):
 
 def checkSelectionAboutTreatingGroup(brains):
     """ Check all brains to verify treating_groups change permission """
-    ret = []
+    pb = False
     sm = getSecurityManager()
     for brain in brains:
         obj = brain.getObject()
         if not sm.checkPermission('imio.dms.mail : Write treating group field', obj):
-            ret.append(obj)
-    return ret
+            pb = True
+            break
+    return pb
 
 
 class TreatingGroupBatchActionForm(DashboardBatchActionForm):
@@ -167,15 +170,15 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
         self.fields += Fields(schema.Choice(
             __name__='treating_group',
             title=_(u"Treating groups"),
-            description=(len(self.pb) and
+            description=(self.pb and
                          _(u"You can't change this field on selected items. Modify your selection.") or u''),
-            required=(len(self.pb) == 0 and True or False),
-            vocabulary=(len(self.pb) == 0 and u'collective.dms.basecontent.treating_groups' or SimpleVocabulary([])),
+            required=(self.pb and False or True),
+            vocabulary=(self.pb and SimpleVocabulary([]) or u'collective.dms.basecontent.treating_groups'),
         ))
 
         super(DashboardBatchActionForm, self).update()
 
-    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: not len(fi.pb))
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: not fi.pb)
     def handleApply(self, action):
         """Handle apply button."""
         data, errors = self.extractData()
@@ -212,17 +215,18 @@ def getAvailableAssignedUserVoc(brains, attribute):
 class AssignedUserBatchActionForm(DashboardBatchActionForm):
 
     label = _(u"Batch assigned user change")
+    master = 'treating_groups'
+    err_msg = _(u'No common or available treating group, or no available assigned user. '
+                'Modify your selection.')
 
     def update(self):
         super(AssignedUserBatchActionForm, self).update()
-        self.voc = getAvailableAssignedUserVoc(self.brains, 'treating_groups')
+        self.voc = getAvailableAssignedUserVoc(self.brains, self.master)
         self.fields += Fields(schema.Choice(
             __name__='assigned_user',
             title=TMF(u'Assigned user'),
             vocabulary=self.voc,
-            description=(len(self.voc) == 0 and
-                         _(u'No common or available treating group, or no available assigned user. '
-                           'Modify your selection.') or u''),
+            description=(len(self.voc) == 0 and self.err_msg or u''),
             required=(len(self.voc) and True or False)))
 
         super(DashboardBatchActionForm, self).update()
@@ -239,3 +243,45 @@ class AssignedUserBatchActionForm(DashboardBatchActionForm):
                 obj.assigned_user = data['assigned_user']
                 modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+# Task batch actions
+
+
+class AssignedGroupBatchActionForm(DashboardBatchActionForm):
+
+    label = _(u"Batch assigned group change")
+
+    def update(self):
+        super(AssignedGroupBatchActionForm, self).update()
+        #self.pb = checkSelectionAboutTreatingGroup(brains_from_uids(self.request.form['form.widgets.uids']))
+        self.pb = False
+        self.fields += Fields(schema.Choice(
+            __name__='assigned_group',
+            title=TMF(u"Assigned group"),
+            description=(self.pb and
+                         _(u"You can't change this field on selected items. Modify your selection.") or u''),
+            required=(self.pb and False or True),
+            vocabulary=(self.pb and SimpleVocabulary([]) or u'collective.dms.basecontent.treating_groups'),
+        ))
+
+        super(DashboardBatchActionForm, self).update()
+
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: not fi.pb)
+    def handleApply(self, action):
+        """Handle apply button."""
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+        if data['assigned_group']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                obj.assigned_group = data['assigned_group']
+                modified(obj)
+        self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+
+class TaskAssignedUserBatchActionForm(AssignedUserBatchActionForm):
+
+    master = 'assigned_group'
+    err_msg = _(u'No common or available assigned group, or no available assigned user. '
+                'Modify your selection.')
