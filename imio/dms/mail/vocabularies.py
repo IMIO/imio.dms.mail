@@ -17,7 +17,7 @@ from . import _
 
 
 def voc_cache_key(method, self, context):
-    return get_cachekey_volatile(str(self.__class__)[8:-2])
+    return get_cachekey_volatile("%s.%s" % (self.__class__.__module__, self.__class__.__name__))
 
 
 class IMReviewStatesVocabulary(object):
