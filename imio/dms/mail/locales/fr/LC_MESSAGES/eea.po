@@ -60,6 +60,10 @@ msgid "Review state"
 msgstr "État"
 
 #: ../faceted_conf/im-faceted:
+msgid "Sender"
+msgstr "Expéditeur"
+
+#: ../faceted_conf/im-faceted:
 msgid "Title only"
 msgstr "Titre uniquement"
 

@@ -13,6 +13,9 @@ Changelog
 - Added columns: mail_type, sender, task_parent
   [sgeulette]
 
+- Added sender criteria in dashboard
+  [sgeulette]
+
 - Managing missing values for mail_type and assigned_user on IImioDmsIncomingMail
   [sgeulette]
 

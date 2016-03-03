@@ -19,6 +19,7 @@
     <dependency>profile-collective.task:default</dependency>
     <dependency>profile-communesplone.layout:default</dependency>
     <dependency>profile-dexterity.localrolesfield:default</dependency>
+    <dependency>profile-eea.jquery:23-select2</dependency>
     <dependency>profile-imio.actionspanel:default</dependency>
     <dependency>profile-imio.dashboard:default</dependency>
     <dependency>profile-imio.history:default</dependency>

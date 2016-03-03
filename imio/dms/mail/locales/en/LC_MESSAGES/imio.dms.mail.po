@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-03-01 15:28+0000\n"
+"POT-Creation-Date: 2016-03-03 11:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,10 @@ msgstr ""
 
 #: ./browser/settings.py:20
 msgid "Active"
+msgstr ""
+
+#: ./browser/views.py:49
+msgid "All under"
 msgstr ""
 
 #: ./browser/batchactions.py:118
@@ -76,11 +80,11 @@ msgid "Daily listing"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:76
-#: ./setuphandlers.py:120
+#: ./setuphandlers.py:122
 msgid "I.M. tasks"
 msgstr ""
 
-#: ./setuphandlers.py:98
+#: ./setuphandlers.py:100
 msgid "Incoming mail"
 msgstr ""
 
@@ -93,12 +97,12 @@ msgid "Incoming mail listing"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:63
-#: ./setuphandlers.py:103
+#: ./setuphandlers.py:105
 msgid "Incoming mail searches"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:64
-#: ./setuphandlers.py:104
+#: ./setuphandlers.py:106
 msgid "Incoming mails"
 msgstr ""
 
@@ -117,6 +121,10 @@ msgstr ""
 
 #: ./browser/settings.py:18
 msgid "Mail type value"
+msgstr ""
+
+#: ./setuphandlers.py:1021
+msgid "Models"
 msgstr ""
 
 #: ./browser/batchactions.py:286
@@ -148,7 +156,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:134
+#: ./setuphandlers.py:136
 msgid "Outgoing mail"
 msgstr ""
 
@@ -160,12 +168,12 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
-#: ./browser/reply_form.py:18
+#: ./browser/reply_form.py:22
 msgid "Reply to ${ref}"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:75
-#: ./setuphandlers.py:119
+#: ./setuphandlers.py:121
 msgid "Tasks searches"
 msgstr ""
 
@@ -191,12 +199,12 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./setuphandlers.py:308
+#: ./setuphandlers.py:312
 msgid "all_im_tasks"
 msgstr "All tasks"
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:244
+#: ./setuphandlers.py:248
 msgid "all_incoming_mails"
 msgstr "All mails"
 
@@ -218,43 +226,43 @@ msgstr "Contact used by"
 msgid "create_im"
 msgstr "Create an incoming mail"
 
-#: ./setuphandlers.py:380
+#: ./setuphandlers.py:384
 msgid "front_page_descr"
 msgstr "Welcome on the mail management application"
 
-#: ./setuphandlers.py:381
+#: ./setuphandlers.py:385
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>The application integrates the management of incoming mail:</p><ul><li>Automatic creation of incoming mail from scanned files with a separator barcode stuck on the first page of every mail</li><li>Completion of incoming mail with preview of the scanned document and drag / drop from the extracted text by OCR</li><li>Without automatic injection from the scanner, the ability to create a mail and manually link the scanned document (for example, if the format is particular)</li><li>Predefined searches following actions to take and state of mails</li><li>Results display in a dynamic table with changeable fields filters, sorting, pagination, actions column, batch actions, etc.</li><li>Contact management (senders, recipients)</li><li>Choice of treating service, copy services and task management (that can be assigned to other services)</li><li>Choice of a responsible user in the treating service or on a task and also a due date</li><li>Mail validation workflow</li><li>Mail treatment workflow</li><li>Possibility to advance element by element from a search results</li><li>etc.</li></ul><p>&nbsp;</p>"
 
-#: ./setuphandlers.py:379
+#: ./setuphandlers.py:383
 msgid "front_page_title"
 msgstr "Mails management"
 
-#: ./setuphandlers.py:275
+#: ./setuphandlers.py:279
 msgid "im_have_treated"
 msgstr "That I have treated"
 
-#: ./setuphandlers.py:267
+#: ./setuphandlers.py:271
 msgid "im_im_treating"
 msgstr "That I treat"
 
-#: ./setuphandlers.py:291
+#: ./setuphandlers.py:295
 msgid "im_in_copy"
 msgstr "In copy"
 
-#: ./setuphandlers.py:283
+#: ./setuphandlers.py:287
 msgid "im_in_my_group"
 msgstr "In my group"
 
-#: ./setuphandlers.py:259
+#: ./setuphandlers.py:263
 msgid "im_to_treat"
 msgstr "To treat"
 
-#: ./setuphandlers.py:250
+#: ./setuphandlers.py:254
 msgid "im_to_validate"
 msgstr "To validate"
 
-#: ./setuphandlers.py:54
+#: ./setuphandlers.py:56
 msgid "imio.dms.mail"
 msgstr ""
 
@@ -323,23 +331,23 @@ msgstr "To assign"
 msgid "searchfor_to_do"
 msgstr "To do"
 
-#: ./setuphandlers.py:339
+#: ./setuphandlers.py:343
 msgid "task_have_treated"
 msgstr "That I have treated"
 
-#: ./setuphandlers.py:331
+#: ./setuphandlers.py:335
 msgid "task_im_treating"
 msgstr "That I treat"
 
-#: ./setuphandlers.py:323
+#: ./setuphandlers.py:327
 msgid "task_to_treat"
 msgstr "To treat"
 
-#: ./setuphandlers.py:347
+#: ./setuphandlers.py:351
 msgid "tasks_in_my_group"
 msgstr "In my group"
 
-#: ./setuphandlers.py:314
+#: ./setuphandlers.py:318
 msgid "tasks_to_validate"
 msgstr "To validate"
 

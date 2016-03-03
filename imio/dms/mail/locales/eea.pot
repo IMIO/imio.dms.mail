@@ -65,3 +65,7 @@ msgstr ""
 #: ../faceted_conf/im-faceted:
 msgid "Created"
 msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Sender"
+msgstr ""

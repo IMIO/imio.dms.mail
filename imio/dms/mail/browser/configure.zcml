@@ -35,6 +35,7 @@
         permission="zope2.View"
         />
 
+    <!-- ACTIONSPANEL -->
     <configure package="imio.actionspanel">
         <!-- common for dmsincomingmail and task -->
         <browser:viewlet
@@ -80,6 +81,7 @@
             permission="zope2.View" />
     </configure>
 
+    <!-- BATCH ACTIONS -->
     <browser:viewlet
         name="dashboard_batch_actions_viewlet"
         for="imio.dms.mail.interfaces.IIMDashboard"
@@ -109,6 +111,36 @@
         permission="zope2.View"
         />
 
+    <browser:viewlet
+        name="taskdashboard_batch_actions_viewlet"
+        for="imio.dms.mail.interfaces.IIMTaskDashboard"
+        manager="collective.eeafaceted.z3ctable.interfaces.IBottomAboveNavManager"
+        layer="imio.dashboard.interfaces.IImioDashboardLayer"
+        template="templates/task_dashboard_batch_actions_viewlet.pt"
+        permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMTaskDashboard"
+        name="transition-batch-action"
+        class=".batchactions.TransitionBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMTaskDashboard"
+        name="assignedgroup-batch-action"
+        class=".batchactions.AssignedGroupBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMTaskDashboard"
+        name="assigneduser-batch-action"
+        class=".batchactions.TaskAssignedUserBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <!-- ADD / EDIT FORMS -->
     <browser:page
         for="collective.task.interfaces.ITaskContent"
         name="edit"
@@ -145,5 +177,14 @@
         class=".reply_form.ReplyForm"
         permission="zope2.View"
         />
+
+    <!-- vocabulary for the sender autocomplete faceted widget -->
+    <browser:view
+        for="*"
+        provides="eea.faceted.vocabularies.autocomplete.IAutocompleteSuggest"
+        name="contact-autocomplete-suggest"
+        class=".views.ContactSuggest"
+        permission="zope2.View"
+    />
 
 </configure>

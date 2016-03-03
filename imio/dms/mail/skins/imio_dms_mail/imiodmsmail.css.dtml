@@ -93,6 +93,10 @@
     display: None;
 }
 
+#formfield-form-widgets-reply_to input.searchButton {
+    display: none;
+}
+
 /* Other */
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
@@ -145,6 +149,20 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     font-weight: bold;
 }
 
+
+/* Configure autocomplete widget */
+ul.select2-choices {
+    max-width: 18em !important;
+}
+
+.faceted-autocomplete-widget.section-sender {
+    min-width: 18em;
+}
+
+.select2-input {
+    min-width: 15em !important;
+}
+
 /* Align (move up) the actionspanel add menu */
 .actionspanel-no-style-table {
     line-height: 1.5em;
@@ -171,12 +189,12 @@ dl.portletWidgetCollection div.portlet_add_icons a {
 
 /* Colorize batch action field description as error in overlay */
 #formfield-form-widgets-transition .formHelp, #formfield-form-widgets-treating_group .formHelp,
-#formfield-form-widgets-assigned_user .formHelp {
+#formfield-form-widgets-assigned_user .formHelp, #formfield-form-widgets-assigned_group .formHelp {
     color: red;
 }
 
 /* Align batch actions buttons */
-#dashboard-batch-actions .batch-action-form {
+#dashboard-batch-actions .batch-action-form, #task-dashboard-batch-actions .batch-action-form {
     display: inline-block;
 }
 
@@ -295,10 +313,6 @@ dl.portletWidgetCollection div.portlet_add_icons a {
 
 .taskContainerListing {
     width: 100%;
-}
-
-#formfield-form-widgets-linked_mails input.searchButton {
-    display: none;
 }
 
 /* </dtml-with> */

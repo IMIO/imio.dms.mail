@@ -183,7 +183,7 @@ class Migrate_To_1_0(Migrator):
         self.replaceCollections(im_folder)
 
         # apply contact faceted config
-        reimport_faceted_config(self.portal)
+        reimport_faceted_config(self.portal['contacts'], 'contacts-faceted.xml')
 
         # add new indexes for dashboard
         addOrUpdateIndexes(self.portal, indexInfos={'mail_type': ('FieldIndex', {}),

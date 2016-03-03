@@ -214,6 +214,19 @@
   </criterion>
 
   <criterion name="c14" i18n:attributes="title">
+   <property name="widget">autocomplete</property>
+   <property name="title">Sender</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">sender</property>
+   <property name="default"></property>
+   <property name="autocomplete_view">contact-autocomplete-suggest</property>
+   <property name="onlyallelements">1</property>
+   <property name="multivalued">1</property>
+  </criterion>
+
+  <criterion name="c15" i18n:attributes="title">
    <property name="widget">text</property>
    <property name="title">Title only</property>
    <property name="position">top</property>

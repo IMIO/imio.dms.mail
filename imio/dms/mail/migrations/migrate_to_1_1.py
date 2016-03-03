@@ -3,15 +3,17 @@
 import logging
 
 from zope.component import getUtility
+from zope.interface import alsoProvides
 
 from plone import api
 from plone.registry.interfaces import IRegistry
 
 from Products.CPUtils.Extensions.utils import mark_last_version
-from imio.helpers.catalog import addOrUpdateColumns
+from imio.helpers.catalog import addOrUpdateColumns, addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
-from ..setuphandlers import blacklistPortletCategory
+from ..interfaces import IIMTaskDashboard
+from ..setuphandlers import blacklistPortletCategory, reimport_faceted_config
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -71,19 +73,23 @@ class Migrate_To_1_1(Migrator):
             col = brain.getObject()
             col.showNumberOfItems = True
 
+    def configure_autocomplete_widget(self, folder):
+        """ Configure and add autocomplete widget """
+        # ajouter ++resource++select2/select2_locale_fr.js dans portal_javascript
+        reimport_faceted_config(folder, xml='im-mail-searches.xml', default_UID=folder['all_mails'].UID())
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 1.1...')
         self.cleanRegistries()
         self.runProfileSteps('imio.dms.mail', steps=['actions'])
         self.runProfileSteps('collective.messagesviewlet', steps=['collective-messagesviewlet-messages'],
                              profile='messages')
+        self.upgradeProfile('collective.dms.mailcontent:default')
+        self.upgradeProfile('eea.facetednavigation:default')
         im_folder = self.portal['incoming-mail']
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
-
-        # apply contact faceted config
-#        reimport_faceted_config(self.portal)
 
         # activate field on DashboardCollection
         self.add_view_field('mail_type', im_folder['mail-searches'], before='CreationDate')
@@ -110,6 +116,12 @@ class Migrate_To_1_1(Migrator):
 
         # add local roles
         self.portal['contacts'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
+
+        # configure autocomplete widget
+        self.configure_autocomplete_widget(im_folder['mail-searches'])
+
+        # configure task batch actions
+        alsoProvides(im_folder['task-searches'], IIMTaskDashboard)
 
 #        self.upgradeAll()
 
