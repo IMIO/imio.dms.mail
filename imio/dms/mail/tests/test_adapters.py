@@ -13,7 +13,7 @@ from ..adapters import default_criterias
 from ..adapters import IncomingMailHighestValidationCriterion
 from ..adapters import IncomingMailInTreatingGroupCriterion
 from ..adapters import IncomingMailInCopyGroupCriterion
-from ..adapters import ScanSearchableExtender, IdmSearchableExtender
+from ..adapters import ScanSearchableExtender, IdmSearchableExtender, org_sortable_title_index
 
 
 class TestAdapters(unittest.TestCase):
@@ -100,6 +100,12 @@ class TestAdapters(unittest.TestCase):
         self.assertListEqual(index_value, ['e0010', 'my', 'title', 'description', u'010999900000690',
                                            'imio010999900000690', u'690', u'010999900000700', 'imio010999900000700',
                                            u'700'])
+
+    def test_org_sortable_title_index(self):
+        elec = self.portal['contacts']['electrabel']
+        trav = elec['travaux']
+        self.assertEqual(org_sortable_title_index(elec)(), 'electrabel|')
+        self.assertEqual(org_sortable_title_index(trav)(), 'electrabel|travaux 0001|')
 
     def test_IMMCTV(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='my-id', title='My title',

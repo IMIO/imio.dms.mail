@@ -9,6 +9,7 @@ from z3c.form.interfaces import IContextAware, IDataManager
 from AccessControl import getSecurityManager
 from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.CatalogTool import sortable_title
 from Products.CMFPlone.utils import base_hasattr
 from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from plone import api
@@ -20,6 +21,7 @@ from plone.indexer import indexer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 
 from collective import dexteritytextindexer
+from collective.contact.core.content.organization import IOrganization
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from dmsmail import IDmsIncomingMail
 
@@ -181,6 +183,15 @@ def mail_date_index(obj):
 def in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
     return obj.reception_date
+
+
+@indexer(IOrganization)
+def org_sortable_title_index(obj):
+    """ Return organization chain concatenated by | """
+    # sortable_title(org) returns <plone.indexer.delegate.DelegatingIndexer object> that must be called
+    parts = [sortable_title(org)() for org in obj.get_organizations_chain() if org.title]
+    parts and parts.append('')
+    return '|'.join(parts)
 
 
 class ScanSearchableExtender(object):

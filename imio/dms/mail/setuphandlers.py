@@ -697,6 +697,8 @@ def addTestDirectory(context):
     contacts.invokeFactory('organization', 'electrabel', **params)
     electrabel = contacts['electrabel']
 
+    electrabel.invokeFactory('organization', 'travaux', title=u'Travaux 1', organization_type=u'sa')
+
     params = {'title': u"SWDE",
               'organization_type': u'sa',
               'zip_code': u'0020',

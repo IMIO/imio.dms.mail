@@ -77,6 +77,9 @@ class Migrate_To_1_1(Migrator):
         """ Configure and add autocomplete widget """
         # ajouter ++resource++select2/select2_locale_fr.js dans portal_javascript
         reimport_faceted_config(folder, xml='im-mail-searches.xml', default_UID=folder['all_mails'].UID())
+        # we reindex organizations
+        for brain in self.catalog(portal_type='organization'):
+            brain.getObject().reindexObject(idxs=['sortable_title'])
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 1.1...')

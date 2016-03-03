@@ -108,6 +108,7 @@
     <adapter name="mail_type" factory=".adapters.mail_type_index" />
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
+    <adapter name="sortable_title" factory=".adapters.org_sortable_title_index" />
 
     <!-- DMSMAIL -->
     <adapter

@@ -54,7 +54,7 @@ class ContactSuggest(BrowserView):
         for brain in brains:
             hp.append({'id': brain.UID, 'text': brain.get_full_title})
         # search organizations
-        crit = {'portal_type': ('organization'), 'sort_on': 'path'}
+        crit = {'portal_type': ('organization'), 'sort_on': 'sortable_title'}
         crit.update(query)
         brains = self.context.portal_catalog(**crit)
         make_bis = (len(hp) + len(brains)) > 1 and True or False

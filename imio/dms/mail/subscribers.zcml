@@ -38,4 +38,16 @@
         handler=".subscribers.user_related_modification"
         />
 
+    <subscriber
+        for="collective.contact.core.content.organization.IOrganization
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.organization_modified"
+        />
+
+    <subscriber
+        for="collective.contact.core.content.organization.IOrganization
+             zope.lifecycleevent.interfaces.IObjectMovedEvent"
+        handler=".subscribers.organization_modified"
+        />
+
 </configure>
