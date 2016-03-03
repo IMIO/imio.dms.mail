@@ -8,6 +8,7 @@
  <index name="mail_type" meta_type="FieldIndex">
   <indexed_attr value="mail_type"/>
  </index>
+ <column value="mail_type"/>
 
  <index name="mail_date" meta_type="DateIndex">
   <property name="index_naive_time_as_local">True</property>
