@@ -5,7 +5,7 @@ from zope.i18n import translate
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 
-from ..browser.batchactions import getAvailableTransitionsVoc
+from ..browser.batchactions import getAvailableTransitionsVoc, checkSelectionAboutTreatingGroup
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 
 
@@ -24,6 +24,7 @@ class BatchActions(unittest.TestCase):
         self.im3 = self.imf['courrier3']
         self.im4 = self.imf['courrier4']
         self.ta1 = self.im1['tache1']
+        self.pgof = self.portal['contacts']['plonegroup-organization']
 
     def test_getAvailableTransitionsVoc(self):
         api.content.transition(obj=self.im3, to_state='proposed_to_manager')
@@ -49,10 +50,26 @@ class BatchActions(unittest.TestCase):
     def test_TransitionBatchActionForm(self):
         self.assertEqual('created', api.content.get_state(self.im1))
         view = self.msf.unrestrictedTraverse('@@transition-batch-action')
-        form = view.request.form
-        form['form.widgets.uids'] = ','.join([self.im1.UID(), self.im2.UID()])
+        view.request.form['form.widgets.uids'] = ','.join([self.im1.UID(), self.im2.UID()])
         view.update()
-        view.widgets.extract = lambda *a, **kw: ({'transition': u'propose_to_manager'}, [])
+        view.widgets.extract = lambda *a, **kw: ({'transition': u'propose_to_manager'}, [1])
         view.handleApply(view, 'apply')
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im1))
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im2))
+
+    def test_checkSelectionAboutTreatingGroup(self):
+        brains = self.pc(UID=[self.im1.UID()])
+        self.assertFalse(checkSelectionAboutTreatingGroup(brains))
+        self.im1.manage_permission('imio.dms.mail : Write treating group field', (), acquire=0)
+        self.assertTrue(checkSelectionAboutTreatingGroup(brains))
+
+    def test_TreatingGroupBatchActionForm(self):
+        self.assertEqual(self.im1.treating_groups, self.pgof['direction-generale'].UID())
+        self.assertEqual(self.im2.treating_groups, self.pgof['direction-generale']['secretariat'].UID())
+        view = self.msf.unrestrictedTraverse('@@treatinggroup-batch-action')
+        view.request['uids'] = ','.join([self.im1.UID(), self.im2.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'treating_group': self.pgof['direction-financiere'].UID()}, [1])
+        view.handleApply(view, 'apply')
+        self.assertEqual(self.im1.treating_groups, self.pgof['direction-financiere'].UID())
+        self.assertEqual(self.im2.treating_groups, self.pgof['direction-financiere'].UID())
