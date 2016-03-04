@@ -18,6 +18,7 @@ class BatchActions(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pc = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
+        self.msf = self.imf['mail-searches']
         self.im1 = self.imf['courrier1']
         self.im2 = self.imf['courrier2']
         self.im3 = self.imf['courrier3']
@@ -42,3 +43,16 @@ class BatchActions(unittest.TestCase):
         brains = self.pc(UID=[self.im1.UID(), self.ta1.UID()])
         self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(brains)]),
                             set([]))
+        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc([])]),
+                            set([]))
+
+    def test_TransitionBatchActionForm(self):
+        self.assertEqual('created', api.content.get_state(self.im1))
+        view = self.msf.unrestrictedTraverse('@@transition-batch-action')
+        form = view.request.form
+        form['form.widgets.uids'] = ','.join([self.im1.UID(), self.im2.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'transition': u'propose_to_manager'}, [])
+        view.handleApply(view, 'apply')
+        self.assertEqual('proposed_to_manager', api.content.get_state(self.im1))
+        self.assertEqual('proposed_to_manager', api.content.get_state(self.im2))

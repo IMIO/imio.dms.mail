@@ -87,8 +87,9 @@ def getAvailableTransitionsVoc(brains):
             transitions = set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
         else:
             transitions &= set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
-    for tr in transitions:
-        terms.append(SimpleTerm(tr, tr, PMF(safe_unicode(tr))))
+    if transitions:
+        for tr in transitions:
+            terms.append(SimpleTerm(tr, tr, PMF(safe_unicode(tr))))
     return SimpleVocabulary(terms)
 
 
@@ -106,7 +107,7 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
             vocabulary=self.voc,
             description=(len(self.voc) == 0 and
                          _(u'No common or available transition. Modify your selection.') or u''),
-            required=(len(self.voc) and True or False)))
+            required=len(self.voc) > 0))
         self.fields += Fields(schema.Text(
             __name__='comment',
             title=_(u'Comment'),
