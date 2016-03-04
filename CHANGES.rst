@@ -20,7 +20,8 @@ Changelog
   [sgeulette]
 
 - Improvements: disable own delete on contacts, block parent portlets on contacts, add local roles for dir_general
-                on contacts, corrected disabled treating_groups bug, updated voc cache
+                on contacts, corrected disabled treating_groups bug, updated voc cache, corrected transition batch
+                action, 
   [sgeulette]
 
 
