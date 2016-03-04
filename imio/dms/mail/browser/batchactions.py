@@ -80,10 +80,10 @@ def getAvailableTransitionsVoc(brains):
     """ Returns available transitions common for all brains """
     wtool = api.portal.get_tool(name='portal_workflow')
     terms = []
-    transitions = set()
+    transitions = None
     for brain in brains:
         obj = brain.getObject()
-        if not transitions:
+        if transitions is None:
             transitions = set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
         else:
             transitions &= set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
