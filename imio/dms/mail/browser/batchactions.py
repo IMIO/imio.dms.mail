@@ -196,20 +196,21 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
 def getAvailableAssignedUserVoc(brains, attribute):
     """ Returns available assigned users common for all brains. """
     terms = []
-    users = set()
+    users = None
     for brain in brains:
         #obj = brain.getObject()
         if not getattr(brain, attribute):
             return SimpleVocabulary([])
-        if not users:
+        if users is None:
             users = set(get_selected_org_suffix_users(getattr(brain, attribute), ['editeur', 'validateur']))
         else:
             users &= set(get_selected_org_suffix_users(getattr(brain, attribute), ['editeur', 'validateur']))
-    for member in sorted(users, key=methodcaller('getUserName')):
-        terms.append(SimpleTerm(
-            value=member.getUserName(),  # login
-            token=member.getId(),  # id
-            title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
+    if users:
+        for member in sorted(users, key=methodcaller('getUserName')):
+            terms.append(SimpleTerm(
+                value=member.getUserName(),  # login
+                token=member.getId(),  # id
+                title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
     return SimpleVocabulary(terms)
 
 

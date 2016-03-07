@@ -5,7 +5,8 @@ from zope.i18n import translate
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 
-from ..browser.batchactions import getAvailableTransitionsVoc, checkSelectionAboutTreatingGroup
+from ..browser.batchactions import (getAvailableTransitionsVoc, checkSelectionAboutTreatingGroup,
+                                    getAvailableAssignedUserVoc)
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 
 
@@ -73,3 +74,29 @@ class BatchActions(unittest.TestCase):
         view.handleApply(view, 'apply')
         self.assertEqual(self.im1.treating_groups, self.pgof['direction-financiere'].UID())
         self.assertEqual(self.im2.treating_groups, self.pgof['direction-financiere'].UID())
+
+    def test_getAvailableAssignedUserVoc(self):
+        brains = self.pc(UID=[self.im1.UID()])
+        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
+                            set(['chef']))
+        brains = self.pc(UID=[self.im2.UID()])
+        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
+                            set(['chef', 'agent']))
+        brains = self.pc(UID=[self.im1.UID(), self.im2.UID()])
+        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
+                            set(['chef']))
+        brains = self.pc(UID=[self.im1.UID(), self.imf.UID()])
+        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
+                            set([]))
+
+    def test_AssignedUserBatchActionForm(self):
+        self.assertIsNone(self.im1.assigned_user)
+        self.assertIsNone(self.im2.assigned_user)
+        view = self.msf.unrestrictedTraverse('@@assigneduser-batch-action')
+        view.request['uids'] = ','.join([self.im1.UID(), self.im2.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'assigned_user': 'agent'}, [1])
+        view.handleApply(view, 'apply')
+        self.assertEqual(self.im1.assigned_user, 'agent')
+        self.assertEqual(self.im2.assigned_user, 'agent')
+
