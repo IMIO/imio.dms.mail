@@ -132,7 +132,7 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
 
 class OldTreatingGroupBatchActionForm(DashboardBatchActionForm):
 
-    def update(self):
+    def update(self):  # pragma: no cover
         super(TreatingGroupBatchActionForm, self).update()
         #voc = getAvailableTreatingGroupVoc(brains_from_uids(self.request.form['form.widgets.uids']))
         im_fields = Fields(IImioDmsIncomingMail)

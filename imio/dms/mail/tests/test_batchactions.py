@@ -24,7 +24,10 @@ class BatchActions(unittest.TestCase):
         self.im2 = self.imf['courrier2']
         self.im3 = self.imf['courrier3']
         self.im4 = self.imf['courrier4']
+        self.tsf = self.imf['task-searches']
         self.ta1 = self.im1['tache1']
+        self.ta2 = self.im1['tache2']
+        self.ta3 = self.im1['tache3']
         self.pgof = self.portal['contacts']['plonegroup-organization']
 
     def test_getAvailableTransitionsVoc(self):
@@ -100,3 +103,35 @@ class BatchActions(unittest.TestCase):
         self.assertEqual(self.im1.assigned_user, 'agent')
         self.assertEqual(self.im2.assigned_user, 'agent')
 
+    def test_TransitionBatchActionFormOnTasks(self):
+        self.assertEqual('created', api.content.get_state(self.ta1))
+        self.assertEqual('created', api.content.get_state(self.ta2))
+        view = self.tsf.unrestrictedTraverse('@@transition-batch-action')
+        view.request.form['form.widgets.uids'] = ','.join([self.ta1.UID(), self.ta2.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'transition': u'do_to_assign'}, [1])
+        view.handleApply(view, 'apply')
+        self.assertEqual('to_assign', api.content.get_state(self.ta1))
+        self.assertEqual('to_assign', api.content.get_state(self.ta2))
+
+    def test_AssignedGroupBatchActionForm(self):
+        self.assertEqual(self.ta1.assigned_group, self.pgof['direction-generale'].UID())
+        self.assertEqual(self.ta3.assigned_group, self.pgof['direction-financiere'].UID())
+        view = self.tsf.unrestrictedTraverse('@@assignedgroup-batch-action')
+        view.request['uids'] = ','.join([self.ta1.UID(), self.ta3.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'assigned_group': self.pgof['direction-financiere']['budgets'].UID()}, [1])
+        view.handleApply(view, 'apply')
+        self.assertEqual(self.ta1.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
+        self.assertEqual(self.ta3.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
+
+    def test_TaskAssignedUserBatchActionForm(self):
+        self.assertIsNone(self.ta1.assigned_user)
+        self.assertIsNone(self.ta2.assigned_user)
+        view = self.msf.unrestrictedTraverse('@@assigneduser-batch-action')
+        view.request['uids'] = ','.join([self.ta1.UID(), self.ta2.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'assigned_user': 'chef'}, [1])
+        view.handleApply(view, 'apply')
+        self.assertEqual(self.ta1.assigned_user, 'chef')
+        self.assertEqual(self.ta2.assigned_user, 'chef')
