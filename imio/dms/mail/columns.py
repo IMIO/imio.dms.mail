@@ -2,10 +2,16 @@
 """Custom columns."""
 from z3c.table import column
 from zope.component import getMultiAdapter
-from imio.dashboard.columns import ActionsColumn, RelationPrettyLinkColumn, PrettyLinkColumn
+from zope.i18n import translate
+
+from plone import api
+from plone.app.uuid.utils import uuidToCatalogBrain
+from Products.CMFPlone.utils import safe_unicode
+
 from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.task.interfaces import ITaskMethods
+from imio.dashboard.columns import ActionsColumn, RelationPrettyLinkColumn, PrettyLinkColumn
 
 
 class TreatingGroupsColumn(VocabularyColumn):
@@ -38,17 +44,56 @@ class MailTypeColumn(VocabularyColumn):
     vocabulary = u'imio.dms.mail.IMMailTypesVocabulary'
 
 
-class Sender2Column(DxWidgetRenderColumn):
-# 3 à 4 fois plus lent que SenderColumn
+class Sender2Column(DxWidgetRenderColumn):  # pragma: no cover
+# 3 à 4 fois plus lent que Sender3Column
 
     field_name = 'sender'
     prefix = 'escape'
 
 
-class SenderColumn(RelationPrettyLinkColumn):
-
+class Sender3Column(RelationPrettyLinkColumn):  # pragma: no cover
+# 3 à 4 fois plus lent que SenderColumn
     attrName = 'sender'
     params = {'showContentIcon': True, 'target': '_blank'}
+
+    def target_display(self, obj):
+        self.params['contentValue'] = obj.get_full_title()
+        return PrettyLinkColumn.getPrettyLink(self, obj)
+
+
+class SenderColumn(PrettyLinkColumn):
+
+    attrName = 'sender_index'
+    i_cache = {}
+
+    def _icons(self, c_brain):
+        """See docstring in interfaces.py."""
+        if c_brain.portal_type not in self.i_cache:
+            icons = []
+            purl = api.portal.get_tool('portal_url')()
+            typeInfo = api.portal.get_tool('portal_types')[c_brain.portal_type]
+            if typeInfo.icon_expr:
+                # we assume that stored icon_expr is like string:${portal_url}/myContentIcon.png
+                contentIcon = typeInfo.icon_expr.split('/')[-1]
+                icons.append((contentIcon,
+                              translate(typeInfo.title,
+                                        domain=typeInfo.i18n_domain,
+                                        context=self.request)))
+            self.i_cache[c_brain.portal_type] = ' '.join([u"<img title='{0}' src='{1}' />".format(safe_unicode(icon[1]),
+                                                         "{0}/{1}".format(purl, icon[0])) for icon in icons])
+        return self.i_cache[c_brain.portal_type]
+
+    def renderCell(self, item):
+        """ """
+        value = self.getValue(item)
+        if not value:
+            return '-'
+        c_brain = uuidToCatalogBrain(value[0])
+        if not c_brain:
+            return '-'
+        return u"<a href='%s' target='_blank'><span class='pretty_link_icons'>%s</span>" \
+               u"<span class='pretty_link_content'>%s</span></a>" \
+               % (c_brain.getURL(), self._icons(c_brain), safe_unicode(c_brain.get_full_title))
 
 
 class TaskParentColumn(PrettyLinkColumn):
@@ -84,4 +129,5 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     header = _cez("header_actions")
     weight = 70
     view_name = 'actions_panel'
+    attrName = 'actions'
     params = {'showHistory': True, 'showActions': False}
