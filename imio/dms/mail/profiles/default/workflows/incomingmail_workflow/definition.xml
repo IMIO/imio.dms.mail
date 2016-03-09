@@ -407,7 +407,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">back_to_agent</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_back_to_agent.png"
+          category="workflow" i18n:translate="">back_to_agent</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -419,7 +420,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">back_to_creation</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_back_to_creation.png"
+          category="workflow" i18n:translate="">back_to_creation</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -431,7 +433,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">back_to_manager</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_back_to_manager.png"
+          category="workflow" i18n:translate="">back_to_manager</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -443,7 +446,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">back_to_service_chief</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_back_to_service_chief.png"
+          category="workflow" i18n:translate="">back_to_service_chief</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -455,7 +459,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">back_to_treatment</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_back_to_treatment.png"
+          category="workflow" i18n:translate="">back_to_treatment</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -467,7 +472,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">close</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_close.png"
+          category="workflow" i18n:translate="">close</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -479,7 +485,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">propose_to_agent</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_propose_to_agent.png"
+          category="workflow" i18n:translate="">propose_to_agent</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
     <guard-expression>object/@@idm-utils/idm_has_assigned_user</guard-expression>
@@ -492,7 +499,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">propose_to_manager</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_propose_to_manager.png"
+          category="workflow" i18n:translate="">propose_to_manager</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -504,7 +512,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">propose_to_service_chief</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_propose_to_service_chief.png"
+          category="workflow" i18n:translate="">propose_to_service_chief</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>
@@ -516,7 +525,8 @@
              before_script=""
              after_script=""
              i18n:attributes="title">
-  <action url="" category="workflow" i18n:translate="">treat</action>
+  <action url="" icon="%(portal_url)s/++resource++imio.dms.mail/im_treat.png"
+          category="workflow" i18n:translate="">treat</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
   </guard>

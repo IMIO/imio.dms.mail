@@ -84,7 +84,7 @@ class Migrate_To_1_1(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 1.1...')
         self.cleanRegistries()
-        self.runProfileSteps('imio.dms.mail', steps=['actions'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'workflow'])
         self.runProfileSteps('collective.messagesviewlet', steps=['collective-messagesviewlet-messages'],
                              profile='messages')
         self.upgradeProfile('collective.dms.mailcontent:default')
