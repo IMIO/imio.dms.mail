@@ -47,7 +47,7 @@ msgstr "Service traitant"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_agent"
-msgstr "Renvoyer à l'agent"
+msgstr "Remettre à traiter"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_creation"
