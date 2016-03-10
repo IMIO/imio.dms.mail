@@ -167,6 +167,10 @@ ul.select2-choices {
 .actionspanel-no-style-table {
     line-height: 1.5em;
 }
+/* Add little space between icons */
+.actionspanel-no-style-table a > img {
+    padding-right: 1px;
+}
 
 /* Align right nextprev links */
 #querynextprev-navigation {
