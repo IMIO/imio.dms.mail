@@ -120,6 +120,7 @@ def postInstall(context):
         # add task-searches
         col_folder = add_db_col_folder(im_folder, 'task-searches', _("Tasks searches"),
                                        _("I.M. tasks"))
+        alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IIMTaskDashboard)
         createIMTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')

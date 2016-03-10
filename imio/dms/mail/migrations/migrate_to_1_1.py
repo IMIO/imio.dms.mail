@@ -9,7 +9,8 @@ from plone import api
 from plone.registry.interfaces import IRegistry
 
 from Products.CPUtils.Extensions.utils import mark_last_version
-from imio.helpers.catalog import addOrUpdateColumns, addOrUpdateIndexes
+from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
 from ..interfaces import IIMTaskDashboard
@@ -94,6 +95,10 @@ class Migrate_To_1_1(Migrator):
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+
+        # set mail-searches folder as not newt/prev navigable
+        if not INextPrevNotNavigable.providedBy(im_folder['task-searches']):
+            alsoProvides(im_folder['task-searches'], INextPrevNotNavigable)
 
         # activate field on DashboardCollection
         self.add_view_field('mail_type', im_folder['mail-searches'], before='CreationDate')
