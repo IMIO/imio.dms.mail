@@ -88,6 +88,7 @@ class Migrate_To_1_1(Migrator):
         self.runProfileSteps('collective.messagesviewlet', steps=['collective-messagesviewlet-messages'],
                              profile='messages')
         self.upgradeProfile('collective.dms.mailcontent:default')
+        self.upgradeProfile('collective.task:default')
         self.upgradeProfile('eea.facetednavigation:default')
         im_folder = self.portal['incoming-mail']
 
