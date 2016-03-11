@@ -6,6 +6,7 @@ from zope.component import getUtility
 from zope.lifecycleevent import ObjectModifiedEvent, Attributes
 
 from plone.app.controlpanel.events import ConfigurationChangedEvent
+from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.testing import setRoles, TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
@@ -87,4 +88,15 @@ class TestDmsmail(unittest.TestCase):
         zope.event.notify(ObjectModifiedEvent(f1))
 
     def test_organization_modified(self):
-        pass
+        pc = self.portal.portal_catalog
+        self.elec = self.portal['contacts']['electrabel']
+        rid = pc(id='travaux')[0].getRID()
+        index_value = pc._catalog.getIndex("sortable_title").getEntryForObject(rid, default=[])
+        self.assertEqual(index_value, 'electrabel|travaux 0001|')
+        self.elec.title = 'Electrabel 1'
+        zope.event.notify(ObjectModifiedEvent(self.elec, Attributes(IBasic, 'IBasic.title')))
+        index_value = pc._catalog.getIndex("sortable_title").getEntryForObject(rid, default=[])
+        self.assertEqual(index_value, 'electrabel 0001|travaux 0001|')
+        rid = pc(id='electrabel')[0].getRID()
+        index_value = pc._catalog.getIndex("sortable_title").getEntryForObject(rid, default=[])
+        self.assertEqual(index_value, 'electrabel 0001|')
