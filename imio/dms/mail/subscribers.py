@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
+from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from plone import api
 from Products.CMFCore.utils import getToolByName
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
@@ -92,13 +93,16 @@ def organization_modified(obj, event):
     """
         Update the sortable_title index
     """
-    pc = api.portal.get_tool('portal_catalog')
+    # at site removal
+    if IObjectRemovedEvent.providedBy(event):
+        return
     # zope.container.contained.ContainerModifiedEvent: descriptions is () when it's called after children creation
     if hasattr(event, 'descriptions') and not event.descriptions:
         return
     # zope.lifecycleevent.ObjectAddedEvent: oldParent is None when creation
     if hasattr(event, 'oldParent') and not event.oldParent:
         return
+    pc = api.portal.get_tool('portal_catalog')
     for brain in pc(portal_type='organization', path='/'.join(obj.getPhysicalPath()), sort_on='path')[1:]:
         brain.getObject().reindexObject(idxs=['sortable_title'])
 

@@ -85,3 +85,6 @@ class TestDmsmail(unittest.TestCase):
         self.assertListEqual(index_value, ['e0010', u'010999900000691', 'imio010999900000691', u'691'])
         # event without scan_id attribute
         zope.event.notify(ObjectModifiedEvent(f1))
+
+    def test_organization_modified(self):
+        pass
