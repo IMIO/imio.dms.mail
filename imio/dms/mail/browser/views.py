@@ -17,16 +17,16 @@ class PloneView(Plone):
     """
 
     def showEditableBorder(self):
-        """Determine if the editable border should be shown
+        """Determine if the editable border (green bar) should be shown
         """
         return True
 
 
-def parse_query(query):
+def parse_query(text):
     """ Copied from plone.app.vocabularies.catalog.parse_query but cleaned.
     """
     for char in '?-+*()':
-        text = query.replace(char, ' ')
+        text = text.replace(char, ' ')
     query = {'SearchableText': " AND ".join(x + "*" for x in text.split())}
     return query
 

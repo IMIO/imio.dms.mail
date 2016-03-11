@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Test views."""
 import unittest
-from zope.i18n import translate
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 
@@ -120,7 +119,8 @@ class BatchActions(unittest.TestCase):
         view = self.tsf.unrestrictedTraverse('@@assignedgroup-batch-action')
         view.request['uids'] = ','.join([self.ta1.UID(), self.ta3.UID()])
         view.update()
-        view.widgets.extract = lambda *a, **kw: ({'assigned_group': self.pgof['direction-financiere']['budgets'].UID()}, [1])
+        view.widgets.extract = lambda *a, **kw: ({'assigned_group':
+                                                  self.pgof['direction-financiere']['budgets'].UID()}, [1])
         view.handleApply(view, 'apply')
         self.assertEqual(self.ta1.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
         self.assertEqual(self.ta3.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
