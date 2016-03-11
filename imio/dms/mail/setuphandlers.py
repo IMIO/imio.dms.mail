@@ -834,7 +834,8 @@ def addTestMails(context):
             filename = files_cycle.next()
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
-                createContentInContainer(mail, 'dmsmainfile', title='', file=file_object)
+                createContentInContainer(mail, 'dmsmainfile', title='', file=file_object,
+                                         scan_id='0509999000000%02d' % i)
 
     # tasks
     mail = ifld['courrier1']

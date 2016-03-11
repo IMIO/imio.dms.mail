@@ -84,9 +84,7 @@ class TestUtils(unittest.TestCase):
     def test_UtilsMethods_highest_scan_id(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         view = UtilsMethods(imail, imail.REQUEST)
-        self.assertEqual(view.highest_scan_id(), 'No scan id')
-        createContentInContainer(imail, 'dmsmainfile', id='testid1.pdf', scan_id='010999900000069')
-        self.assertEqual(view.highest_scan_id(), 'dmsmainfiles: 1, highest scanid: 010999900000069')
+        self.assertEqual(view.highest_scan_id(), "dmsmainfiles: '9', highest scan_id: '050999900000009'")
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

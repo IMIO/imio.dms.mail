@@ -148,10 +148,10 @@ class UtilsMethods(BrowserView):
     def highest_scan_id(self):
         """ Return highest scan id """
         pc = getToolByName(self.context, 'portal_catalog')
-        brains = pc(portal_type='dmsmainfile', sort_on='scan_id', sort_order='descending', sort_limit=1)
+        brains = pc(portal_type='dmsmainfile', sort_on='scan_id', sort_order='descending')
         if brains:
-            return "dmsmainfiles: %d, highest scanid: %s" % (len(brains), brains[0].scan_id)
-        else:
+            return "dmsmainfiles: '%d', highest scan_id: '%s'" % (len(brains), brains[0].scan_id)
+        else:  # pragma: no cover
             return 'No scan id'
 
 
