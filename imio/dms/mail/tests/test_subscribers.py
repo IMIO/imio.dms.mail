@@ -52,23 +52,6 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(dfile.get_local_roles_for_userid('encodeur'), ('Owner',))
         self.assertEquals(dfile.get_local_roles_for_userid('scanner'), ())
 
-    def test_user_related_modification(self):
-        voc_inst = AssignedUsersVocabulary()
-        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
-        # we change a user property
-        member = api.user.get(userid='chef')
-        member.setMemberProperties({'fullname': 'Michel Chef 2'})
-        # we simulate the user form change event
-        zope.event.notify(ConfigurationChangedEvent(UserDataConfiglet(self.portal, self.portal.REQUEST), {}))
-        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef 2')]))
-        # we change the activated services
-        registry = getUtility(IRegistry)
-        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][0:1]
-        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('chef', 'Michel Chef 2')]))
-
     def test_dmsmainfile_modified(self):
         pc = self.portal.portal_catalog
         rid = pc(id='c1')[0].getRID()
@@ -86,6 +69,25 @@ class TestDmsmail(unittest.TestCase):
         self.assertListEqual(index_value, ['e0010', u'010999900000691', 'imio010999900000691', u'691'])
         # event without scan_id attribute
         zope.event.notify(ObjectModifiedEvent(f1))
+
+    def test_user_related_modification(self):
+        voc_inst = AssignedUsersVocabulary()
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
+        # we change a user property
+        member = api.user.get(userid='chef')
+        member.setMemberProperties({'fullname': 'Michel Chef 2'})
+        # we simulate the user form change event
+        zope.event.notify(ConfigurationChangedEvent(UserDataConfiglet(self.portal, self.portal.REQUEST), {}))
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef 2')]))
+        # we change the activated services
+        registry = getUtility(IRegistry)
+        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][0:1]
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertSetEqual(set(voc_list), set([('chef', 'Michel Chef 2')]))
+        # wrong configuration change
+        zope.event.notify(ConfigurationChangedEvent(self.portal, {}))
 
     def test_organization_modified(self):
         pc = self.portal.portal_catalog
