@@ -105,5 +105,3 @@ def organization_modified(obj, event):
     pc = api.portal.get_tool('portal_catalog')
     for brain in pc(portal_type='organization', path='/'.join(obj.getPhysicalPath()), sort_on='path')[1:]:
         brain.getObject().reindexObject(idxs=['sortable_title'])
-
-
