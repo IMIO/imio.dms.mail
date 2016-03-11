@@ -3,7 +3,7 @@ import unittest
 
 import zope.event
 from zope.component import getUtility
-from zope.lifecycleevent import ObjectModifiedEvent
+from zope.lifecycleevent import ObjectModifiedEvent, Attributes
 
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.testing import setRoles, TEST_USER_ID
@@ -13,6 +13,7 @@ from plone.registry.interfaces import IRegistry
 from plone import api
 
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..vocabularies import AssignedUsersVocabulary
@@ -25,7 +26,7 @@ class TestDmsmail(unittest.TestCase):
     def setUp(self):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='c1')
 
     def test_replace_scanner(self):
         with api.env.adopt_user(username='scanner'):
@@ -66,3 +67,21 @@ class TestDmsmail(unittest.TestCase):
         registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][0:1]
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertSetEqual(set(voc_list), set([('chef', 'Michel Chef 2')]))
+
+    def test_dmsmainfile_modified(self):
+        pc = self.portal.portal_catalog
+        rid = pc(id='c1')[0].getRID()
+        # before mainfile creation
+        index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
+        self.assertListEqual(index_value, ['e0010'])
+        # after mainfile creation
+        f1 = createContentInContainer(self.imail, 'dmsmainfile', id='f1', scan_id='010999900000690')
+        index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
+        self.assertListEqual(index_value, ['e0010', u'010999900000690', 'imio010999900000690', u'690'])
+        # after mainfile modification
+        f1.scan_id = '010999900000691'
+        zope.event.notify(ObjectModifiedEvent(f1, Attributes(IScanFields, 'IScanFields.scan_id')))
+        index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
+        self.assertListEqual(index_value, ['e0010', u'010999900000691', 'imio010999900000691', u'691'])
+        # event without scan_id attribute
+        zope.event.notify(ObjectModifiedEvent(f1))

@@ -7,6 +7,7 @@ from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.registry.interfaces import IRecordModifiedEvent
 
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
+from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from dmsmail import IImioDmsIncomingMail
 
@@ -59,6 +60,14 @@ def dmsmainfile_modified(dmf, event):
     """
         Update the SearchableText mail index
     """
+    reindex = False
+    if event.descriptions:
+        for desc in event.descriptions:
+            if desc.interface == IScanFields and 'IScanFields.scan_id' in desc.attributes:
+                reindex = True
+                break
+    if not reindex:
+        return
     imail = dmf.aq_parent
     if IImioDmsIncomingMail.providedBy(imail):
         imail.reindexObject(idxs=['SearchableText'])
@@ -81,7 +90,7 @@ def user_related_modification(event):
 
 def organization_modified(obj, event):
     """
-        Update the sortable_test index
+        Update the sortable_title index
     """
     pc = api.portal.get_tool('portal_catalog')
     # zope.container.contained.ContainerModifiedEvent: descriptions is () when it's called after children creation
