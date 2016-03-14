@@ -22,4 +22,16 @@
         class=".browser.tabular_view.TabularView"
         />
 
+    <configure package="collective.task">
+        <browser:viewlet
+            name="collective.task.task_parent"
+            class="imio.dms.mail.browser.viewlets.DMSTaskParentViewlet"
+            template="browser/templates/task_parent.pt"
+            for="collective.task.interfaces.ITaskContent"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
+            layer="collective.task.interfaces.ICollectiveTaskLayer"
+            permission="zope2.View"
+        />
+    </configure>
+
 </configure>

@@ -5,6 +5,7 @@ from zc.relation.interfaces import ICatalog
 from plone.app.layout.viewlets import ViewletBase
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.contact.widget.interfaces import IContactContent
+from collective.task.browser.viewlets import TaskParentViewlet
 
 
 class ContactContentBackrefsViewlet(ViewletBase):
@@ -39,3 +40,8 @@ class ContactContentBackrefsViewlet(ViewletBase):
         return ret
 
     index = ViewPageTemplateFile("templates/contactcontent_backrefs.pt")
+
+
+class DMSTaskParentViewlet(TaskParentViewlet):
+
+    display_above_element = False
