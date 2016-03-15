@@ -126,7 +126,7 @@ msgid "Mail type value"
 msgstr ""
 
 #: ./setuphandlers.py:1025
-msgid "Models"
+msgid "Templates"
 msgstr ""
 
 #: ./browser/batchactions.py:288

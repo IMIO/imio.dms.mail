@@ -126,8 +126,8 @@ msgid "Mail type value"
 msgstr "Valeur stockée"
 
 #: ./setuphandlers.py:1025
-msgid "Models"
-msgstr "Modèles"
+msgid "Templates"
+msgstr "Modèles doc"
 
 #: ./browser/batchactions.py:288
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."

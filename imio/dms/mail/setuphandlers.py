@@ -37,7 +37,6 @@ from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
-from collective.documentgenerator.config import POD_TEMPLATE_TYPES
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
@@ -156,7 +155,7 @@ def postInstall(context):
 
     configure_ckeditor(site, custom='ged')
 
-    add_test_models(site)
+#    add_templates(site)
 
 
 def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
@@ -1018,30 +1017,31 @@ def configure_faceted_folder(folder, xml=None, default_UID=None):
         _updateDefaultCollectionFor(folder, default_UID)
 
 
-def add_test_models(site):
-    """Create test models."""
-    if not base_hasattr(site, 'models'):
-        folderid = site.invokeFactory(
-            "Folder", id='models', title=_(u"Models"))
-        models_folder = getattr(site, folderid)
-        template_types = POD_TEMPLATE_TYPES.keys()
-        models_folder.setLocallyAllowedTypes(template_types)
-        models_folder.setImmediatelyAddableTypes(template_types)
-        # alsoProvides(im_folder, INextPrevNotNavigable)
-        logger.info('models folder created')
-        if not 'modele1' in models_folder:
+def add_templates(site):
+    """Create pod templates."""
+    from collective.documentgenerator.config import POD_TEMPLATE_TYPES
+    if not base_hasattr(site, 'templates'):
+        folderid = site.invokeFactory("Folder", id='templates', title=_(u"Templates"))
+        tplt_fld = getattr(site, folderid)
+
+        template_types = POD_TEMPLATE_TYPES.keys() + ['Folder']
+        tplt_fld.setLocallyAllowedTypes(template_types)
+        tplt_fld.setImmediatelyAddableTypes(template_types)
+        tplt_fld.setConstrainTypesMode(1)
+        alsoProvides(tplt_fld, INextPrevNotNavigable)
+        logger.info('Templates folder created')
+        if not 'modele1' in tplt_fld:
             api.content.create(
                 type='PODTemplate',
                 id='modele1',
                 title='Modèle 1',
                 enabled=False,
-                container=models_folder,
-                )
+                container=tplt_fld,
+            )
 
-        template_path = pkg_resources.resource_filename(
-            'collective.documentgenerator',
-            'profiles/demo/templates/modele_general.odt')
-        if not 'modele2' in models_folder:
+        template_path = pkg_resources.resource_filename('collective.documentgenerator',
+                                                        'profiles/demo/templates/modele_general.odt')
+        if not 'modele2' in tplt_fld:
             with open(template_path) as template_file:
                 api.content.create(
                     type='PODTemplate',
@@ -1052,6 +1052,5 @@ def add_test_models(site):
                         contentType='applications/odt',
                         filename=u'modele_general.odt',
                     ),
-                    container=models_folder,
+                    container=tplt_fld,
                 )
-

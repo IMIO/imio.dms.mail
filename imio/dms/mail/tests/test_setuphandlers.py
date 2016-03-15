@@ -29,7 +29,7 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertFalse(hasattr(self.portal, 'events'))
         self.assertFalse(hasattr(self.portal, 'Members'))
         #check front-page modification
-        self.assertEquals(getattr(self.portal, 'front-page').Title(), 'Gestion du courrier')
+        self.assertIn('Gestion du courrier', self.portal['front-page'].Title())
         #check old Topic activation
         self.assertTrue('Collection (old-style)' in [pt.title for pt in self.portal.allowedContentTypes()])
 
@@ -84,6 +84,6 @@ class TestSetuphandlers(unittest.TestCase):
                  if member.getProperty('fullname').find(' ') >= 1]
         self.assertEquals(len(users), 5)
 
-    def test_addTestModels(self):
-        self.assertIn('models', self.portal)
-        self.assertEqual(len(self.portal['models'].listFolderContents()), 2)
+    def ttest_addTemplates(self):
+        self.assertIn('templates', self.portal)
+        self.assertEqual(len(self.portal['templates'].listFolderContents()), 2)
