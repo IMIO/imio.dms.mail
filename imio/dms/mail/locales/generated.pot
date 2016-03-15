@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-03-03 11:09+0000\n"
+"POT-Creation-Date: 2016-03-15 12:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "All under"
 msgstr ""
 
-#: ./browser/batchactions.py:118
+#: ./browser/batchactions.py:119
 msgid "Apply"
 msgstr ""
 
@@ -37,11 +37,11 @@ msgstr ""
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:252
+#: ./browser/batchactions.py:254
 msgid "Batch assigned group change"
 msgstr ""
 
-#: ./browser/batchactions.py:217
+#: ./browser/batchactions.py:219
 msgid "Batch assigned user change"
 msgstr ""
 
@@ -53,11 +53,11 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./browser/batchactions.py:98
+#: ./browser/batchactions.py:99
 msgid "Batch state change"
 msgstr ""
 
-#: ./browser/batchactions.py:165
+#: ./browser/batchactions.py:166
 msgid "Batch treating group change"
 msgstr ""
 
@@ -73,7 +73,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/batchactions.py:112
+#: ./browser/batchactions.py:113
 msgid "Comment"
 msgstr ""
 
@@ -125,19 +125,19 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./setuphandlers.py:1021
+#: ./setuphandlers.py:1025
 msgid "Models"
 msgstr ""
 
-#: ./browser/batchactions.py:286
+#: ./browser/batchactions.py:288
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:108
+#: ./browser/batchactions.py:109
 msgid "No common or available transition. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:219
+#: ./browser/batchactions.py:221
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
@@ -149,7 +149,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./browser/batchactions.py:113
+#: ./browser/batchactions.py:114
 msgid "Optional comment to display in history"
 msgstr ""
 
@@ -158,7 +158,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:136
+#: ./setuphandlers.py:137
 msgid "Outgoing mail"
 msgstr ""
 
@@ -179,11 +179,11 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./browser/batchactions.py:105
+#: ./browser/batchactions.py:106
 msgid "Transition"
 msgstr ""
 
-#: ./browser/batchactions.py:172
+#: ./browser/batchactions.py:173
 #: ./browser/table.py:36
 #: ./dmsmail.py:48
 msgid "Treating groups"
@@ -193,7 +193,7 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/batchactions.py:174
+#: ./browser/batchactions.py:175
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
@@ -201,12 +201,12 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./setuphandlers.py:312
+#: ./setuphandlers.py:313
 msgid "all_im_tasks"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:248
+#: ./setuphandlers.py:249
 msgid "all_incoming_mails"
 msgstr ""
 
@@ -228,39 +228,39 @@ msgstr ""
 msgid "create_im"
 msgstr ""
 
-#: ./setuphandlers.py:384
+#: ./setuphandlers.py:385
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:385
+#: ./setuphandlers.py:386
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:383
+#: ./setuphandlers.py:384
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:279
+#: ./setuphandlers.py:280
 msgid "im_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:271
+#: ./setuphandlers.py:272
 msgid "im_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:295
+#: ./setuphandlers.py:296
 msgid "im_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:287
+#: ./setuphandlers.py:288
 msgid "im_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:263
+#: ./setuphandlers.py:264
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:254
+#: ./setuphandlers.py:255
 msgid "im_to_validate"
 msgstr ""
 
@@ -283,23 +283,23 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
-#: ./setuphandlers.py:343
+#: ./setuphandlers.py:344
 msgid "task_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:335
+#: ./setuphandlers.py:336
 msgid "task_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:327
+#: ./setuphandlers.py:328
 msgid "task_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:351
+#: ./setuphandlers.py:352
 msgid "tasks_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:318
+#: ./setuphandlers.py:319
 msgid "tasks_to_validate"
 msgstr ""
 
