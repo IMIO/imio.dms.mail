@@ -132,12 +132,12 @@ Encodage depuis le scanner
     Wait until element is visible  css=.addnew  10
     Click element  css=.addnew
     Sleep  2
-    Input text  name=oform.widgets.person.widgets.query  Leduc
+    Input text  name=oform.widgets.person.widgets.query  Marc Leduc
     Wait until element is visible  css=#oform-widgets-person-autocomplete .addnew  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 2 création lien personne.png  css=.overlay-contact-addnew
     Click element  css=#oform-widgets-person-autocomplete .addnew
     Wait until element is visible  id=pb_6  10
-    Input text  name=form.widgets.firstname  Marc
+    #Input text  name=form.widgets.firstname  Marc
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 2 création personne.png  id=pb_6
     Click element  id=fieldsetlegend-contact_details
     Wait until element is visible  id=formfield-form-widgets-IContactDetails-cell_phone  10
@@ -342,7 +342,10 @@ Tableaux de bord
     Click element  css=.faceted-sections-buttons-more
     Wait until element is visible  id=top---advanced---widgets  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord filtres avances.png  id=top---advanced---widgets
-  
+    click element  css=.select2-container
+    Input text  css=.select2-input  elec
+    Wait until element is visible  css=.select2-results  10
+    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord filtre expéditeur.png  id=top---advanced---widgets  css=.select2-results
 
 Encodage manuel
 # partie 2.2.2 Encodage manuel du courrier
@@ -408,26 +411,26 @@ Contacts 1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/contacts
     Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
-    Sleep  0.5
+    Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1 base.png  id=content
     Select radio button  type  held_position
     Wait until element is visible  css=.contact-entry a[title*="Courant (Electrabel"]  10
-    Sleep  0.5
+    Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1 type fonction.png  id=content
     Select radio button  type  person
     Wait until element is visible  css=.contact-entry a[title*="Non encodé"]  10
-    Sleep  0.5
+    Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1 type personne.png  id=content
     ### Recherche mot complet
-    Input text  css=.section-rechercher-mot-complet #texte  Cour*
-    Click button  css=.section-rechercher-mot-complet #texte_button
+    Input text  css=.section-rechercher-dans-lintitule #texte  Cour
+    Click button  css=.section-rechercher-dans-lintitule #texte_button
     Wait until element is not visible  css=.contact-entry a[title*="Non encodé"]  10
     Wait until element is visible  css=.contact-entry a[title~="Courant"]  10
-    Sleep  0.5
+    Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1 texte.png  id=content
     Select radio button  type  organization
     Wait until element is visible  css=#faceted-results #msg-no-results  10
-    Sleep  0.5
+    Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1 texte aucun résultat.png  id=content
 
 
@@ -444,7 +447,7 @@ Contacts 2
     Click element  css=.contact-entry:first-child .contacts-facetednav-action:first-child a
     Wait until element is visible  id=formfield-form-widgets-organization_type  10
     Update element style  id=formfield-form-widgets-activity  display  none
-    Capture and crop page screenshot  doc/utilisation/2-8-2 edition organisation.png  id=pb_4
+    Capture and crop page screenshot  doc/utilisation/2-8-2 edition organisation.png  id=pb_5
     Click button  id=form-buttons-cancel
     Wait until element is not visible  css=.overlay[style*="display: block"]
     Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
@@ -492,8 +495,11 @@ Configuration
     #Capture and crop page screenshot  doc/configuration/3-3 config services.png  id=content
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
     Wait until element is visible  id=sub_organizations  10
+    Capture and crop page screenshot  doc/configuration/3-3 config propre organisation.png  id=content
+# contacts
+    Go to  ${PLONE_URL}/contacts/edit
+    Wait until element is visible  id=formfield-form-widgets-position_types  10
     Capture and crop page screenshot  doc/configuration/3-3 config contacts.png  id=content
-
 
 #    Capture viewport screenshot  doc/utilisation/test.png
 
