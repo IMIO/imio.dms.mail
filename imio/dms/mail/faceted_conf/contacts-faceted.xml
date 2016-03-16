@@ -3,7 +3,7 @@
  <criteria>
   <criterion name="type">
    <property name="widget">radio</property>
-   <property name="title">Rechercher</property>
+   <property name="title">Type d'élément</property>
    <property name="position">left</property>
    <property name="section">default</property>
    <property name="hidden">0</property>
@@ -21,13 +21,14 @@
   </criterion>
   <criterion name="texte">
    <property name="widget">text</property>
-   <property name="title">Rechercher mot complet</property>
+   <property name="title">Rechercher dans l'intitulé</property>
    <property name="position">left</property>
    <property name="section">default</property>
    <property name="hidden">0</property>
    <property name="index">SearchableText</property>
    <property name="default"></property>
    <property name="onlyallelements">1</property>
+   <property name="wildcard">1</property>
   </criterion>
   <criterion name="path">
    <property name="widget">path</property>

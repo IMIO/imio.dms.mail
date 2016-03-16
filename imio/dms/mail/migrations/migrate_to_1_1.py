@@ -132,6 +132,9 @@ class Migrate_To_1_1(Migrator):
         # configure task batch actions
         alsoProvides(im_folder['task-searches'], IIMTaskDashboard)
 
+        # reimport contact facted config
+        reimport_faceted_config(self.portal['contacts'], xml='contacts-faceted.xml')
+
 #        self.upgradeAll()
 
         for prod in ['imio.dms.mail']:
