@@ -8,7 +8,7 @@ from Products.Five import BrowserView
 
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 
-from .. import _
+from ..setuphandlers import _
 
 
 class PloneView(Plone):
