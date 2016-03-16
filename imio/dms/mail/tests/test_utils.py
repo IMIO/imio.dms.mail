@@ -79,12 +79,31 @@ class TestUtils(unittest.TestCase):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         view = UtilsMethods(imail, imail.REQUEST)
         login(self.portal, 'dirg')
-        self.assertSetEqual(set(view.current_user_groups_ids()), set(['AuthenticatedUsers', 'dir_general']))
+        self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
+                            set(['AuthenticatedUsers', 'dir_general']))
 
     def test_UtilsMethods_highest_scan_id(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         view = UtilsMethods(imail, imail.REQUEST)
         self.assertEqual(view.highest_scan_id(), "dmsmainfiles: '9', highest scan_id: '050999900000009'")
+
+    def test_UtilsMethods_is_in_user_groups(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = UtilsMethods(imail, imail.REQUEST)
+        self.assertListEqual(view.current_user_groups_ids(api.user.get_current()), ['AuthenticatedUsers'])
+        # current user is Manager
+        self.assertTrue(view.is_in_user_groups(groups=['abc']))
+        self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False))
+        self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False, test='all'))
+        # current user is not Manager
+        login(self.portal, 'dirg')
+        self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
+                            set(['AuthenticatedUsers', 'dir_general']))
+        self.assertFalse(view.is_in_user_groups(groups=['abc']))
+        self.assertTrue(view.is_in_user_groups(groups=['abc', 'dir_general']))
+        self.assertFalse(view.is_in_user_groups(groups=['abc', 'dir_general'], test='all'))
+        self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers', 'dir_general']))
+        self.assertFalse(view.is_in_user_groups(groups=['dir_general'], test='other'))
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

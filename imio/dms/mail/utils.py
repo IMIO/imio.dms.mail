@@ -137,13 +137,13 @@ class UtilsMethods(BrowserView):
             return True
         return False
 
-    def current_user_groups(self):
+    def current_user_groups(self, user):
         """ Return current user groups """
-        return api.group.get_groups(user=api.user.get_current())
+        return api.group.get_groups(user=user)
 
-    def current_user_groups_ids(self):
+    def current_user_groups_ids(self, user):
         """ Return current user groups ids """
-        return [g.id for g in self.current_user_groups()]
+        return [g.id for g in self.current_user_groups(user)]
 
     def highest_scan_id(self):
         """ Return highest scan id """
@@ -153,6 +153,18 @@ class UtilsMethods(BrowserView):
             return "dmsmainfiles: '%d', highest scan_id: '%s'" % (len(brains), brains[0].scan_id)
         else:  # pragma: no cover
             return 'No scan id'
+
+    def is_in_user_groups(self, groups=[], admin=True, test='any'):
+        """ Test if one or all of a given group list is part of the current user groups """
+        # for admin, we bypass the check
+        if admin and self.user_is_admin():
+            return True
+        u_groups = self.current_user_groups_ids(api.user.get_current())
+        if test == 'any':
+            return any(x in u_groups for x in groups)
+        elif test == 'all':
+            return all(x in u_groups for x in groups)
+        return False
 
 
 class IdmUtilsMethods(UtilsMethods):
@@ -167,7 +179,7 @@ class IdmUtilsMethods(UtilsMethods):
         """ Test if the current user has a review level """
         if portal_type is None:
             portal_type = self.context.portal_type
-        if highest_review_level(portal_type, str(self.current_user_groups_ids())) is not None:
+        if highest_review_level(portal_type, str(self.current_user_groups_ids(api.user.get_current()))) is not None:
             return True
         else:
             return False
@@ -185,19 +197,15 @@ class IdmUtilsMethods(UtilsMethods):
 
     def created_col_cond(self):
         """ Condition for searchfor_created collection """
-        if 'encodeurs' in self.current_user_groups_ids():
-            return True
-        return False
+        return self.is_in_user_groups(['encodeurs'], admin=False)
 
     def proposed_to_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_manager collection """
-        if 'encodeurs' in self.current_user_groups_ids() or 'dir_general' in self.current_user_groups_ids():
-            return True
-        return False
+        return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False)
 
     def proposed_to_serv_chief_col_cond(self):
         """ Condition for searchfor_proposed_to_service_chief collection """
-        if 'encodeurs' in self.current_user_groups_ids() or 'dir_general' in self.current_user_groups_ids() or \
-                organizations_with_suffixes(self.current_user_groups(), ['validateur']):
+        if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False) or \
+                organizations_with_suffixes(self.current_user_groups(api.user.get_current()), ['validateur']):
             return True
         return False
