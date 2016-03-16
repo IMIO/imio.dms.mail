@@ -72,6 +72,6 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(ret.pop(0),
                          {"text": "Monsieur Jean Courant", "id": self.ctct['jeancourant'].UID()})
         self.assertEqual(ret.pop(0),
-                         {"text": "Electrabel [All under]", "id": 'l:%s' % self.elec.UID()})
+                         {"text": "Electrabel [TOUT]", "id": 'l:%s' % self.elec.UID()})
         self.assertEqual(ret.pop(0),
-                         {"text": "Electrabel / Travaux 1 [All under]", "id": 'l:%s' % self.elec['travaux'].UID()})
+                         {"text": "Electrabel / Travaux 1 [TOUT]", "id": 'l:%s' % self.elec['travaux'].UID()})
