@@ -163,6 +163,14 @@ ul.select2-choices {
     min-width: 15em !important;
 }
 
+.select2-results {
+    max-height: 1000px;
+}
+
+.select2-with-searchbox {
+    min-width: 15em !important
+}
+
 /* Align (move up) the actionspanel add menu */
 .actionspanel-no-style-table {
     line-height: 1.5em;
