@@ -177,9 +177,10 @@ def createStateCollections(folder, content_type):
     """
     conditions = {
         'dmsincomingmail': {
-        'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
-        'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
-        'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils').proposed_to_serv_chief_col_cond()",
+            'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
+            'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
+            'proposed_to_service_chief':
+                "python: object.restrictedTraverse('idm-utils').proposed_to_serv_chief_col_cond()",
         },
         'task': {}
     }
@@ -1030,7 +1031,7 @@ def add_templates(site):
         tplt_fld.setConstrainTypesMode(1)
         alsoProvides(tplt_fld, INextPrevNotNavigable)
         logger.info('Templates folder created')
-        if not 'modele1' in tplt_fld:
+        if 'modele1' not in tplt_fld:
             api.content.create(
                 type='PODTemplate',
                 id='modele1',
@@ -1041,7 +1042,7 @@ def add_templates(site):
 
         template_path = pkg_resources.resource_filename('collective.documentgenerator',
                                                         'profiles/demo/templates/modele_general.odt')
-        if not 'modele2' in tplt_fld:
+        if 'modele2' not in tplt_fld:
             with open(template_path) as template_file:
                 api.content.create(
                     type='PODTemplate',
