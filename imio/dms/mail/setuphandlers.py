@@ -694,6 +694,7 @@ def addTestDirectory(context):
               'city': u'E-ville',
               'street': u"Rue de la l'électron",
               'number': u'1',
+              'use_parent_address': False
               }
     contacts.invokeFactory('organization', 'electrabel', **params)
     electrabel = contacts['electrabel']
@@ -706,6 +707,7 @@ def addTestDirectory(context):
               'city': u'E-ville',
               'street': u"Rue de l'eau vive",
               'number': u'1',
+              'use_parent_address': False
               }
     contacts.invokeFactory('organization', 'swde', **params)
     swde = contacts['swde']
@@ -729,6 +731,11 @@ def addTestDirectory(context):
               'birthday': datetime.date(1981, 11, 22),
               'email': u'jean.courant@electrabel.be',
               'phone': u'012/345.678',
+              'zip_code': u'0020',
+              'city': u'E-ville',
+              'street': u"Rue de l'electron",
+              'number': u'1',
+              'use_parent_address': False
               }
     contacts.invokeFactory('person', 'jeancourant', **params)
     jeancourant = contacts['jeancourant']
@@ -740,6 +747,11 @@ def addTestDirectory(context):
               'birthday': datetime.date(1981, 11, 22),
               'email': u'serge.robinet@swde.be',
               'phone': u'012/345.678',
+              'zip_code': u'0020',
+              'city': u'E-ville',
+              'street': u"Rue de l'eau vive",
+              'number': u'1',
+              'use_parent_address': False
               }
     contacts.invokeFactory('person', 'sergerobinet', **params)
     sergerobinet = contacts['sergerobinet']
@@ -751,6 +763,11 @@ def addTestDirectory(context):
               'birthday': datetime.date(1981, 11, 22),
               'email': u'bernard.lermitte@swde.be',
               'phone': u'012/345.678',
+              'zip_code': u'0020',
+              'city': u'E-ville',
+              'street': u"Rue de l'eau vive",
+              'number': u'1',
+              'use_parent_address': False
               }
     contacts.invokeFactory('person', 'bernardlermitte', **params)
     bernardlermitte = contacts['bernardlermitte']
