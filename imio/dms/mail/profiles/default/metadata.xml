@@ -22,7 +22,6 @@
     <dependency>profile-eea.jquery:23-select2</dependency>
     <dependency>profile-imio.actionspanel:default</dependency>
     <dependency>profile-imio.dashboard:default</dependency>
-    <dependency>profile-imio.history:default</dependency>
     <dependency>profile-plone.app.versioningbehavior:default</dependency>
     <dependency>profile-plonetheme.imioapps:dmsmailskin</dependency>
     <!-- comment: must be at the end to hide viewlets -->

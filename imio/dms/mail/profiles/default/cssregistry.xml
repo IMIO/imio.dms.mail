@@ -9,4 +9,104 @@
     enabled="1" expression="" id="imiodmsmail_print.css" media="print"
     rel="stylesheet" rendering="link" insert-after="print.css" />
 
+ <stylesheet id="++resource++jquery.css" insert-bottom="" />
+
+ <stylesheet id="++resource++jquery.select2uislider.css" insert-after="++resource++jquery.css" />
+
+ <stylesheet id="reset.css" insert-after="++resource++jquery.select2uislider.css" />
+
+ <stylesheet id="member.css" insert-after="reset.css" />
+
+ <stylesheet id="base.css" insert-after="member.css" />
+
+ <stylesheet id="public.css" insert-after="base.css" />
+
+ <stylesheet id="collective.js.jqueryui.custom.min.css" insert-after="public.css" />
+
+ <stylesheet id="columns.css" insert-after="collective.js.jqueryui.custom.min.css" />
+
+ <stylesheet id="authoring.css" insert-after="columns.css" />
+
+ <stylesheet id="portlets.css" insert-after="authoring.css" />
+
+ <stylesheet id="controlpanel.css" insert-after="portlets.css" />
+
+ <stylesheet id="deprecated.css" insert-after="controlpanel.css" />
+
+ <stylesheet id="navtree.css" insert-after="deprecated.css" />
+
+ <stylesheet id="invisibles.css" insert-after="navtree.css" />
+
+ <stylesheet id="forms.css" insert-after="invisibles.css" />
+
+ <stylesheet id="++resource++plone.app.discussion.stylesheets/discussion.css" insert-after="forms.css" />
+
+ <stylesheet id="++resource++tinymce.stylesheets/tinymce.css" insert-after="++resource++plone.app.discussion.stylesheets/discussion.css" />
+
+ <stylesheet id="print.css" insert-after="++resource++tinymce.stylesheets/tinymce.css" />
+
+ <stylesheet id="imiodmsmail_print.css" insert-after="print.css" />
+
+ <stylesheet id="mobile.css" insert-after="imiodmsmail_print.css" />
+
+ <stylesheet id="RTL.css" insert-after="mobile.css" />
+
+ <stylesheet id="++resource++plone.app.jquerytools.overlays.css" insert-after="RTL.css" />
+
+ <stylesheet id="++resource++plone.app.jquerytools.dateinput.css" insert-after="++resource++plone.app.jquerytools.overlays.css" />
+
+ <stylesheet id="IEFixes.css" insert-after="++resource++plone.app.jquerytools.dateinput.css" />
+
+ <stylesheet id="++resource++collective.z3cform.datagridfield/datagridfield.css" insert-after="IEFixes.css" />
+
+ <stylesheet id="faceted_view.css" insert-after="++resource++collective.z3cform.datagridfield/datagridfield.css" />
+
+ <stylesheet id="faceted_edit.css" insert-after="faceted_view.css" />
+
+ <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" insert-after="faceted_edit.css" />
+
+ <stylesheet id="++resource++imio.history/imiohistory.css" insert-after="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" />
+
+ <stylesheet id="++resource++imio.actionspanel/actionspanel.css" insert-after="++resource++imio.history/imiohistory.css" />
+
+ <stylesheet id="++resource++imio.dashboard/imio.dashboard.css" insert-after="++resource++imio.actionspanel/actionspanel.css" />
+
+ <stylesheet id="++resource++plone.formwidget.autocomplete/jquery.autocomplete.css" insert-after="++resource++imio.dashboard/imio.dashboard.css" />
+
+ <stylesheet id="++resource++plone.formwidget.contenttree/contenttree.css" insert-after="++resource++plone.formwidget.autocomplete/jquery.autocomplete.css" />
+
+ <stylesheet id="++resource++collective.js.chosen/chosen.css" insert-after="++resource++plone.formwidget.contenttree/contenttree.css" />
+
+ <stylesheet id="++resource++plone.formwidget.datetime/styles.css" insert-after="++resource++collective.js.chosen/chosen.css" />
+
+ <stylesheet id="style.css" insert-after="++resource++plone.formwidget.datetime/styles.css" />
+
+ <stylesheet id="++resource++collective.contact.duplicated/duplicated.css" insert-after="style.css" />
+
+ <stylesheet id="++resource++collective.contact.facetednav/style.css" insert-after="++resource++collective.contact.duplicated/duplicated.css" />
+
+ <stylesheet id="++resource++collective.messagesviewlet/messagesviewlet.css" insert-after="++resource++collective.contact.facetednav/style.css" />
+
+ <stylesheet id="++resource++collective.task/collectivetask.css" insert-after="++resource++collective.messagesviewlet/messagesviewlet.css" />
+
+ <stylesheet id="++resource++dexterity.localroles/settings.css" insert-after="++resource++collective.task/collectivetask.css" />
+
+ <stylesheet id="++resource++quickupload_static/uploadify.css" insert-after="++resource++dexterity.localroles/settings.css" />
+
+ <stylesheet id="++resource++quickupload_static/fileuploader.css" insert-after="++resource++quickupload_static/uploadify.css" />
+
+ <stylesheet id="++resource++collective.documentgenerator.css/documentgenerator.css" insert-after="++resource++quickupload_static/fileuploader.css" />
+
+ <stylesheet id="++resource++select2/select2.css" insert-after="++resource++collective.documentgenerator.css/documentgenerator.css" />
+
+ <stylesheet id="imioapps.css" insert-after="++resource++select2/select2.css" />
+
+ <stylesheet id="dmsmailskin.css" insert-after="imioapps.css" />
+
+ <stylesheet id="imioapps_IEFixes.css" insert-after="dmsmailskin.css" />
+
+ <stylesheet id="imiodmsmail.css" insert-after="imioapps_IEFixes.css" />
+
+ <stylesheet id="ploneCustom.css" insert-after="imiodmsmail.css" />
+
 </object>
