@@ -57,6 +57,20 @@ def new_incomingmail(imail, event):
     imail.reindexObjectSecurity()
 
 
+def incomingmail_transition(imail, event):
+    """
+        update indexes after a transition
+    """
+    imail.reindexObject(['state_group'])
+
+
+def task_transition(task, event):
+    """
+        update indexes after a transition
+    """
+    task.reindexObject(['state_group'])
+
+
 def dmsmainfile_modified(dmf, event):
     """
         Update the SearchableText mail index

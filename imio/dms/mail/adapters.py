@@ -23,9 +23,10 @@ from plone.rfc822.interfaces import IPrimaryFieldInfo
 from collective import dexteritytextindexer
 from collective.contact.core.content.organization import IOrganization
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.task.interfaces import ITaskContent
 from dmsmail import IDmsIncomingMail
 
-from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id
+from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id, list_wf_states
 
 #######################
 # Compound criterions #
@@ -34,6 +35,10 @@ from utils import review_levels, highest_review_level, organizations_with_suffix
 default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager',
                                                                     'proposed_to_service_chief']}},
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
+no_group_validation_states = {
+    'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_agent', 'in_treatment', 'closed'],
+    'task': ['created', 'to_do', 'in_progress', 'closed']
+    }
 
 
 def highest_validation_criterion(portal_type):
@@ -79,6 +84,49 @@ class TaskHighestValidationCriterion(object):
     @property
     def query(self):
         return highest_validation_criterion('task')
+
+
+def validation_criterion(context, portal_type):
+    """ Return a query criterion corresponding to current user validation level """
+    groups = api.group.get_groups(user=api.user.get_current())
+    orgs = organizations_with_suffixes(groups, ['validateur'])
+    ret = {'state_group': {'query': []}}
+    if 'dir_general' in [g.id for g in groups]:
+        ret['state_group']['query'].append('proposed_to_manager')
+    if orgs:
+        # we get group validation states
+        states = [st for st in list_wf_states(context, portal_type)
+                  if st not in no_group_validation_states[portal_type]]
+        for state in states:
+            for org in orgs:
+                ret['state_group']['query'].append('%s,%s' % (state, org))
+    return ret
+
+
+class IncomingMailValidationCriterion(object):
+    """
+        Return catalog criteria following validation group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        return validation_criterion(self.context, 'dmsincomingmail')
+
+
+class TaskValidationCriterion(object):
+    """
+        Return catalog criteria following validation group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        return validation_criterion(self.context, 'task')
 
 
 class IncomingMailInTreatingGroupCriterion(object):
@@ -183,6 +231,23 @@ def mail_date_index(obj):
 def in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
     return obj.reception_date
+
+
+@indexer(IDmsIncomingMail)
+def state_group_index(obj):
+    # No acquisition pb because state_group isn't an attr
+    state = api.content.get_state(obj=obj)
+    if state in ('created', 'proposed_to_manager'):
+        return state
+    else:
+        return "%s,%s" % (state, obj.treating_groups)
+
+
+@indexer(ITaskContent)
+def task_state_group_index(obj):
+    # No acquisition pb because state_group isn't an attr
+    state = api.content.get_state(obj=obj)
+    return "%s,%s" % (state, obj.assigned_group)
 
 
 @indexer(IOrganization)

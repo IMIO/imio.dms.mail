@@ -6,6 +6,7 @@ from plone.app.testing import setRoles, TEST_USER_ID, login
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..utils import highest_review_level, organizations_with_suffixes, voc_selected_org_suffix_users, list_wf_states
@@ -59,6 +60,9 @@ class TestUtils(unittest.TestCase):
         # We rename a state id
         states = imail.portal_workflow.task_workflow.states
         states.manage_renameObject('to_do', 'NEW')
+        self.assertEqual(list_wf_states(imail, 'task'), ['created', 'to_assign', 'to_do', 'in_progress', 'realized',
+                                                         'closed'])
+        invalidate_cachekey_volatile_for('list_wf_states.task')
         self.assertEqual(list_wf_states(imail, 'task'), ['created', 'to_assign', 'in_progress', 'realized', 'closed',
                                                          'NEW'])
 

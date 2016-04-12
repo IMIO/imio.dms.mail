@@ -24,7 +24,6 @@ class IMReviewStatesVocabulary(object):
     """ Incoming mail states vocabulary """
     implements(IVocabularyFactory)
 
-    @ram.cache(voc_cache_key)
     def __call__(self, context):
         terms = []
         for state in list_wf_states(context, 'dmsincomingmail'):
@@ -37,7 +36,6 @@ class TaskReviewStatesVocabulary(object):
     """ Task states vocabulary """
     implements(IVocabularyFactory)
 
-    @ram.cache(voc_cache_key)
     def __call__(self, context):
         terms = []
         for state in list_wf_states(context, 'task'):

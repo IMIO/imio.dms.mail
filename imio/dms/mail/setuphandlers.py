@@ -255,7 +255,7 @@ def createIMailCollections(folder):
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-             'v': 'dmsincomingmail-highest-validation'}],
+             'v': 'dmsincomingmail-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
@@ -319,7 +319,7 @@ def createIMTaskCollections(folder):
         {'id': 'to_validate', 'tit': _('tasks_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-             'v': 'task-highest-validation'}],
+             'v': 'task-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',

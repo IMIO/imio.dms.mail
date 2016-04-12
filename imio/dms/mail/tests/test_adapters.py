@@ -11,9 +11,11 @@ from ..browser.settings import IImioDmsMailConfig
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..adapters import default_criterias
 from ..adapters import IncomingMailHighestValidationCriterion
+from ..adapters import IncomingMailValidationCriterion, TaskValidationCriterion
 from ..adapters import IncomingMailInTreatingGroupCriterion
 from ..adapters import IncomingMailInCopyGroupCriterion
 from ..adapters import ScanSearchableExtender, IdmSearchableExtender, org_sortable_title_index
+from ..adapters import state_group_index, task_state_group_index
 
 
 class TestAdapters(unittest.TestCase):
@@ -25,6 +27,7 @@ class TestAdapters(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.pgof = self.portal['contacts']['plonegroup-organization']
 
     def test_IncomingMailHighestValidationCriterion(self):
         crit = IncomingMailHighestValidationCriterion(self.portal)
@@ -39,6 +42,32 @@ class TestAdapters(unittest.TestCase):
         # in a group dir_general
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_manager']}})
 
+    def test_IncomingMailValidationCriterion(self):
+        crit = IncomingMailValidationCriterion(self.portal)
+        # no groups
+        self.assertEqual(crit.query, {'state_group': {'query': []}})
+        # in a group _validateur
+        api.group.create(groupname='111_validateur')
+        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        # in a group dir_general
+        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
+                                                                'proposed_to_service_chief,111']}})
+
+    def test_TaskValidationCriterion(self):
+        crit = TaskValidationCriterion(self.portal)
+        # no groups
+        self.assertEqual(crit.query, {'state_group': {'query': []}})
+        # in a group _validateur
+        api.group.create(groupname='111_validateur')
+        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
+        # in a group dir_general, but no effect for task criterion
+        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
+                                                                'to_assign,111', 'realized,111']}})
+
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
@@ -52,6 +81,29 @@ class TestAdapters(unittest.TestCase):
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
+
+    def test_state_group_index(self):
+        dguid = self.pgof['direction-generale'].UID()
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
+                                         treating_groups=dguid, assigned_user='chef')
+        indexer = state_group_index(imail)
+        self.assertEqual(indexer(), 'created')
+        api.content.transition(obj=imail, to_state='proposed_to_manager')
+        self.assertEqual(indexer(), 'proposed_to_manager')
+        api.content.transition(obj=imail, to_state='proposed_to_service_chief')
+        self.assertEqual(indexer(), 'proposed_to_service_chief,%s' % dguid)
+        api.content.transition(obj=imail, to_state='proposed_to_agent')
+        self.assertEqual(indexer(), 'proposed_to_agent,%s' % dguid)
+
+    def test_task_state_group_index(self):
+        dguid = self.pgof['direction-generale'].UID()
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
+                                         treating_groups=dguid, assigned_user='chef')
+        task = createContentInContainer(imail, 'task', assigned_group=dguid)
+        indexer = task_state_group_index(task)
+        self.assertEqual(indexer(), 'created,%s' % dguid)
+        api.content.transition(obj=task, to_state='to_assign')
+        self.assertEqual(indexer(), 'to_assign,%s' % dguid)
 
     def test_ScanSearchableExtender(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

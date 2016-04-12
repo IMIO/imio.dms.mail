@@ -10,7 +10,7 @@ from plone.registry.interfaces import IRegistry
 
 from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.querynextprev.interfaces import INextPrevNotNavigable
-from imio.helpers.catalog import addOrUpdateColumns
+from imio.helpers.catalog import addOrUpdateColumns, addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
 from ..interfaces import IIMTaskDashboard
@@ -82,10 +82,18 @@ class Migrate_To_1_1(Migrator):
         for brain in self.catalog(portal_type='organization'):
             brain.getObject().reindexObject(idxs=['sortable_title'])
 
+    def update_validation_collections(self):
+        brains = self.catalog.searchResults(portal_type='DashboardCollection', id='to_validate')
+        for brain in brains:
+            col = brain.getObject()
+            for dic in col.query:
+                if dic['i'] == 'CompoundCriterion' and dic['v'].endswith('-highest-validation'):
+                    dic['v'] = dic['v'].replace('-highest-validation', '-validation')
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 1.1...')
         self.cleanRegistries()
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'workflow'])
         self.runProfileSteps('collective.messagesviewlet', steps=['collective-messagesviewlet-messages'],
                              profile='messages')
         self.upgradeProfile('collective.dms.mailcontent:default')
@@ -109,6 +117,9 @@ class Migrate_To_1_1(Migrator):
         self.update_count(im_folder['mail-searches'], ids=['to_validate', 'to_treat', 'im_treating', 'created'])
         self.update_count(im_folder['task-searches'], ids=['to_validate', 'to_treat', 'im_treating'])
 
+        # update criterion on validation collections
+        self.update_validation_collections()
+
         # Activate browser message
         msg = self.portal['messages-config']['browser-warning']
         api.content.transition(obj=msg, to_state='activated')
@@ -116,6 +127,9 @@ class Migrate_To_1_1(Migrator):
         # update searchabletext
         self.update_dmsmainfile()
         self.update_dmsincomingmail()
+
+        # add new indexes
+        addOrUpdateIndexes(self.portal, indexInfos={'state_group': ('FieldIndex', {})})
 
         # add metadata in portal_catalog
         addOrUpdateColumns(self.portal, columns=('mail_type',))

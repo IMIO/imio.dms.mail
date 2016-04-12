@@ -79,6 +79,11 @@
              name="dmsincomingmail-highest-validation" />
 
     <adapter for="*"
+             factory=".adapters.IncomingMailValidationCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="dmsincomingmail-validation" />
+
+    <adapter for="*"
              factory=".adapters.IncomingMailInTreatingGroupCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsincomingmail-in-treating-group" />
@@ -92,6 +97,11 @@
              factory=".adapters.TaskHighestValidationCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="task-highest-validation" />
+
+    <adapter for="*"
+             factory=".adapters.TaskValidationCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="task-validation" />
 
     <adapter for="*"
              factory=".adapters.TaskInAssignedGroupCriterion"
@@ -109,6 +119,8 @@
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
     <adapter name="sortable_title" factory=".adapters.org_sortable_title_index" />
+    <adapter name="state_group" factory=".adapters.state_group_index" />
+    <adapter name="state_group" factory=".adapters.task_state_group_index" />
 
     <!-- DMSMAIL -->
     <adapter

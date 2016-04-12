@@ -18,6 +18,18 @@
         />
 
     <subscriber
+        for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
+             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+        handler=".subscribers.incomingmail_transition"
+      />
+
+    <subscriber
+        for="collective.task.interfaces.ITaskContent
+             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+        handler=".subscribers.task_transition"
+      />
+
+    <subscriber
         for="collective.dms.basecontent.dmsfile.IDmsFile
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.dmsmainfile_modified"

@@ -8,10 +8,12 @@ from zope.component import getUtility
 
 from plone import api
 from plone.app.textfield.value import RichTextValue
+from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.Five import BrowserView
 
+from imio.helpers.cache import get_cachekey_volatile
 from browser.settings import IImioDmsMailConfig
 
 # methods
@@ -79,6 +81,11 @@ def voc_selected_org_suffix_users(org_uid, suffixes):
     return SimpleVocabulary(terms)
 
 
+def list_wf_states_cache_key(function, context, portal_type):
+    return get_cachekey_volatile("%s.%s" % (function.func_name, portal_type))
+
+
+@ram.cache(list_wf_states_cache_key)
 def list_wf_states(context, portal_type):
     """
         list all portal_type wf states

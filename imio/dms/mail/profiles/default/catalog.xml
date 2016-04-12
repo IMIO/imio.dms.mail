@@ -18,4 +18,8 @@
   <property name="index_naive_time_as_local">True</property>
  </index>
 
+ <index name="state_group" meta_type="FieldIndex">
+  <indexed_attr value="state_group"/>
+ </index>
+
 </object>
