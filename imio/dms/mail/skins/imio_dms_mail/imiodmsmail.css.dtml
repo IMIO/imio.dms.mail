@@ -97,6 +97,10 @@
     display: none;
 }
 
+.portaltype-folder.template-facetednavigation_view #plone-document-byline, .portaltype-directory.template-facetednavigation_view #plone-document-byline{
+    display: none;
+}
+
 /* Other */
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
