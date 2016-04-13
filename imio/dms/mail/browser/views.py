@@ -29,6 +29,12 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
 
     """Create a document from a collective.documentgenerator template."""
 
+    def label(self):
+        return translate(
+            _(u"${title}: create from template",
+              mapping={'title': self.context.Title()}),
+            context=self.request)
+
     def get_action_name(self):
         return translate(_("Choose this template"), context=self.request)
 
