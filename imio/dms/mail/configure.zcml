@@ -27,6 +27,7 @@
     <include package="collective.contact.duplicated" />
     <include package="collective.contact.facetednav" />
     <include package="collective.contact.plonegroup" />
+    <include package="collective.js.fancytree" />
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
     <include package="dexterity.localrolesfield"/>

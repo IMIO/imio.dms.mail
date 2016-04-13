@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from zope.i18n import translate
 
 import json
 from zope.interface import implements
@@ -6,8 +7,10 @@ from zope.interface import implements
 from Products.CMFPlone.browser.ploneview import Plone
 from Products.Five import BrowserView
 
+from imio.helpers.fancytree.views import BaseRenderFancyTree
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 
+from .. import _
 from ..setuphandlers import _
 
 
@@ -20,6 +23,36 @@ class PloneView(Plone):
         """Determine if the editable border (green bar) should be shown
         """
         return True
+
+
+class ChooseDocumentTemplateForm(BaseRenderFancyTree):
+
+    """Form to choose a collective.documentgenerator template."""
+
+    def get_action_name(self):
+        return translate(_("Choose this template"), context=self.request)
+
+    def get_query(self):
+        path = '/'.join(self.context.getPhysicalPath()) + '/models'
+        return {
+            'path': {'query': path, 'depth': -1},
+            'portal_type': (
+                'Folder',
+                'ConfigurablePODTemplate',
+                'PODTemplate',
+                'StyleTemplate',
+                # 'SubTemplate',
+                ),
+        }
+
+    def redirect_url(self, uid):
+        """Redirect to document generation from selected template."""
+        portal_url = self.context.absolute_url()
+        params = [
+            "template_uid={}".format(uid),
+            "output_format=odt",
+        ]
+        return  "{}/document-generation?{}".format(portal_url, "&".join(params))
 
 
 def parse_query(text):

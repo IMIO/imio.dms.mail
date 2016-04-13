@@ -12,6 +12,13 @@
       />
 
     <browser:page
+        name="choose-model"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        permission="zope2.View"
+        class=".views.ChooseDocumentTemplateForm"
+        />
+
+    <browser:page
         name="imiodmsmail-settings"
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
         permission="plone.app.controlpanel.Site"
