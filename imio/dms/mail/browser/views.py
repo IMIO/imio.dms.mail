@@ -6,12 +6,12 @@ from zope.interface import implements
 
 from Products.CMFPlone.browser.ploneview import Plone
 from Products.Five import BrowserView
+from plone import api
 
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 
-from .. import _
-from ..setuphandlers import _
+from imio.dms.mail import _
 
 
 class PloneView(Plone):
@@ -25,15 +25,16 @@ class PloneView(Plone):
         return True
 
 
-class ChooseDocumentTemplateForm(BaseRenderFancyTree):
+class CreateFromTemplateForm(BaseRenderFancyTree):
 
-    """Form to choose a collective.documentgenerator template."""
+    """Create a document from a collective.documentgenerator template."""
 
     def get_action_name(self):
         return translate(_("Choose this template"), context=self.request)
 
     def get_query(self):
-        path = '/'.join(self.context.getPhysicalPath()) + '/models'
+        portal = api.portal.get()
+        path = '/'.join(portal.getPhysicalPath()) + '/models'
         return {
             'path': {'query': path, 'depth': -1},
             'portal_type': (

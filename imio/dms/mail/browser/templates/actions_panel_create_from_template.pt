@@ -1,0 +1,8 @@
+<td class="noPadding" i18n:domain="imio.dms.mail">
+  <a tal:attributes="href string:${context/absolute_url}/@@create-from-template"
+     target="_parent"
+     class="overlay overlay-ajax overlay-contact-addnew">
+     <input type="button" value="Create from template" class="apButton apButtonAction apButtonAction_create-from-template" i18n:attributes="value" />
+  </a>
+</td>
+<td class="noPadding">

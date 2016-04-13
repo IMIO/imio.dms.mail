@@ -46,8 +46,38 @@ dmsmail.initializeOverlays = function (form_id) {
         closeselector: '[name="form.buttons.cancel"]'
     });
 };
-        
+
+/* we have to copy this from imio.helpers to make it work in overlays */
+dmsmail.initialize_fancytree = function () {
+  var submitButton = $("#tree-form input[type='submit'");
+  var uidInput = $('#tree-form input[name="uid"]');
+  var nodes = JSON.parse(document.getElementById('tree').dataset.nodes);
+
+  submitButton.prop('disabled', true);
+  $('#tree').fancytree({
+    source: nodes,
+    activate: function (event, data) {
+      if (!data.node.folder) {
+        uidInput.attr('value', data.node.key);
+        submitButton.prop('disabled', false);
+      } else {
+        submitButton.prop('disabled', true);
+      }
+    }
+  });
+}
+
 $(document).ready(function(){
     $('#faceted-form #type_widget').click(dmsmail.manage_orgtype_filter);
     $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers votre organisation</a></span>');
+
+    $('.overlay').prepOverlay({
+        subtype: 'ajax',
+        closeselector: '[name="form.buttons.cancel"]'
+    });
+
+    $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
+        dmsmail.initialize_fancytree();
+    });
+
 });

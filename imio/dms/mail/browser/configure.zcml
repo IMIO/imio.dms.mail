@@ -12,10 +12,10 @@
       />
 
     <browser:page
-        name="choose-model"
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        name="create-from-template"
+        for="*"
         permission="zope2.View"
-        class=".views.ChooseDocumentTemplateForm"
+        class=".views.CreateFromTemplateForm"
         />
 
     <browser:page
