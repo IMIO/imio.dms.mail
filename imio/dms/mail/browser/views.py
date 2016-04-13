@@ -54,12 +54,12 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
 
     def redirect_url(self, uid):
         """Redirect to document generation from selected template."""
-        portal_url = self.context.absolute_url()
+        url = self.context.absolute_url()
         params = [
             "template_uid={}".format(uid),
             "output_format=odt",
         ]
-        return  "{}/document-generation?{}".format(portal_url, "&".join(params))
+        return  "{}/document-generation?{}".format(url, "&".join(params))
 
 
 def parse_query(text):
