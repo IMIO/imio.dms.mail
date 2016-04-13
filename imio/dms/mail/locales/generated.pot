@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-03-15 12:21+0000\n"
+"POT-Creation-Date: 2016-04-13 14:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,15 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
 
+#: ./browser/views.py:34
+msgid "${title}: create from template"
+msgstr ""
+
 #: ./browser/settings.py:20
 msgid "Active"
 msgstr ""
 
-#: ./browser/views.py:49
+#: ./browser/views.py:89
 msgid "All under"
 msgstr ""
 
@@ -69,12 +73,20 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./vocabularies.py:81
+#: ./vocabularies.py:79
 msgid "Choose a value !"
+msgstr ""
+
+#: ./browser/views.py:39
+msgid "Choose this template"
 msgstr ""
 
 #: ./browser/batchactions.py:113
 msgid "Comment"
+msgstr ""
+
+#: ./browser/templates/actions_panel_create_from_template.pt:5
+msgid "Create from template"
 msgstr ""
 
 #: ./profiles/default/actions.xml
@@ -82,11 +94,11 @@ msgid "Daily listing"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:76
-#: ./setuphandlers.py:122
+#: ./setuphandlers.py:121
 msgid "I.M. tasks"
 msgstr ""
 
-#: ./setuphandlers.py:100
+#: ./setuphandlers.py:99
 msgid "Incoming mail"
 msgstr ""
 
@@ -99,12 +111,12 @@ msgid "Incoming mail listing"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:63
-#: ./setuphandlers.py:105
+#: ./setuphandlers.py:104
 msgid "Incoming mail searches"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:64
-#: ./setuphandlers.py:106
+#: ./setuphandlers.py:105
 msgid "Incoming mails"
 msgstr ""
 
@@ -123,10 +135,6 @@ msgstr ""
 
 #: ./browser/settings.py:18
 msgid "Mail type value"
-msgstr ""
-
-#: ./setuphandlers.py:1025
-msgid "Models"
 msgstr ""
 
 #: ./browser/batchactions.py:288
@@ -158,7 +166,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:137
+#: ./setuphandlers.py:136
 msgid "Outgoing mail"
 msgstr ""
 
@@ -175,8 +183,12 @@ msgid "Reply to ${ref}"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:75
-#: ./setuphandlers.py:121
+#: ./setuphandlers.py:120
 msgid "Tasks searches"
+msgstr ""
+
+#: ./setuphandlers.py:1042
+msgid "Templates"
 msgstr ""
 
 #: ./browser/batchactions.py:106
@@ -264,7 +276,7 @@ msgstr ""
 msgid "im_to_validate"
 msgstr ""
 
-#: ./setuphandlers.py:56
+#: ./setuphandlers.py:55
 msgid "imio.dms.mail"
 msgstr ""
 
