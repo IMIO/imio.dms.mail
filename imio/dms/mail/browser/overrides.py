@@ -10,6 +10,7 @@
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
+from imio.history.browser.views import IHDocumentBylineViewlet
 
 
 class IMRenderCategoryView(RenderCategoryView):
@@ -24,3 +25,19 @@ class IMRenderCategoryView(RenderCategoryView):
 
         return ViewPageTemplateFile("templates/category_im.pt")(self)
 
+
+class DocumentBylineViewlet(IHDocumentBylineViewlet):
+    '''
+      Overrides the IHDocumentBylineViewlet to hide it for some layouts.
+    '''
+
+    def show(self):
+        currentLayout = self.context.getLayout()
+        if currentLayout in ['facetednavigation_view', ]:
+            return False
+        return True
+
+    def creator(self):
+        if self.context.portal_type == 'dmsincomingmail':
+            return None
+        return super(DocumentBylineViewlet, self).creator()
