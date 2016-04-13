@@ -8,7 +8,7 @@ from zope.interface import alsoProvides
 from plone import api
 from plone.registry.interfaces import IRegistry
 
-from Products.CPUtils.Extensions.utils import mark_last_version
+from Products.CPUtils.Extensions.utils import mark_last_version, configure_ckeditor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns, addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
@@ -93,7 +93,7 @@ class Migrate_To_1_1(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 1.1...')
         self.cleanRegistries()
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'workflow'])
         self.runProfileSteps('collective.messagesviewlet', steps=['collective-messagesviewlet-messages'],
                              profile='messages')
         self.upgradeProfile('collective.dms.mailcontent:default')
@@ -146,8 +146,11 @@ class Migrate_To_1_1(Migrator):
         # configure task batch actions
         alsoProvides(im_folder['task-searches'], IIMTaskDashboard)
 
-        # reimport contact facted config
+        # reimport contact faceted config
         reimport_faceted_config(self.portal['contacts'], xml='contacts-faceted.xml')
+
+        # remove tinymce resources
+        configure_ckeditor(self.portal, default=0, allusers=0, forceTextPaste=0, scayt=0)
 
 #        self.upgradeAll()
 

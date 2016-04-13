@@ -13,4 +13,168 @@
     id="++resource++imio.dms.mail/dmsmail.js"
     inline="False"/>
 
+  <stylesheet id="++resource++plone.app.jquery.js" insert-after="" />
+
+  <stylesheet id="jquery-integration.js" insert-after="++resource++plone.app.jquery.js" />
+
+  <stylesheet id="event-registration.js" insert-after="jquery-integration.js" />
+
+  <stylesheet id="register_function.js" insert-after="event-registration.js" />
+
+  <stylesheet id="plone_javascript_variables.js" insert-after="register_function.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.js" insert-after="plone_javascript_variables.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.form.js" insert-after="++resource++plone.app.jquerytools.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.overlayhelpers.js" insert-after="++resource++plone.app.jquerytools.form.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.dateinput.js" insert-after="++resource++plone.app.jquerytools.overlayhelpers.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.rangeinput.js" insert-after="++resource++plone.app.jquerytools.dateinput.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.validator.js" insert-after="++resource++plone.app.jquerytools.rangeinput.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.plugins.js" insert-after="++resource++plone.app.jquerytools.validator.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.tooltip.js" insert-after="++resource++plone.app.jquerytools.plugins.js" />
+
+  <stylesheet id="++resource++plone.app.jquerytools.tooltip.plugins.js" insert-after="++resource++plone.app.jquerytools.tooltip.js" />
+
+  <stylesheet id="nodeutilities.js" insert-after="++resource++plone.app.jquerytools.tooltip.plugins.js" />
+
+  <stylesheet id="cookie_functions.js" insert-after="nodeutilities.js" />
+
+  <stylesheet id="modernizr.js" insert-after="cookie_functions.js" />
+
+  <stylesheet id="livesearch.js" insert-after="modernizr.js" />
+
+  <stylesheet id="++resource++search.js" insert-after="livesearch.js" />
+
+  <stylesheet id="fullscreenmode.js" insert-after="++resource++search.js" />
+
+  <stylesheet id="select_all.js" insert-after="fullscreenmode.js" />
+
+  <stylesheet id="dragdropreorder.js" insert-after="select_all.js" />
+
+  <stylesheet id="mark_special_links.js" insert-after="dragdropreorder.js" />
+
+  <stylesheet id="collapsiblesections.js" insert-after="mark_special_links.js" />
+
+  <stylesheet id="form_tabbing.js" insert-after="collapsiblesections.js" />
+
+  <stylesheet id="popupforms.js" insert-after="form_tabbing.js" />
+
+  <stylesheet id="jquery.highlightsearchterms.js" insert-after="popupforms.js" />
+
+  <stylesheet id="first_input_focus.js" insert-after="jquery.highlightsearchterms.js" />
+
+  <stylesheet id="accessibility.js" insert-after="first_input_focus.js" />
+
+  <stylesheet id="styleswitcher.js" insert-after="accessibility.js" />
+
+  <stylesheet id="toc.js" insert-after="styleswitcher.js" />
+
+  <stylesheet id="collapsibleformfields.js" insert-after="toc.js" />
+
+  <stylesheet id="++resource++plone.app.discussion.javascripts/comments.js" insert-after="collapsibleformfields.js" />
+
+  <stylesheet id="dropdown.js" insert-after="++resource++plone.app.discussion.javascripts/comments.js" />
+
+  <stylesheet id="inline_validation.js" insert-after="dropdown.js" />
+
+  <stylesheet id="kss-bbb.js" insert-after="inline_validation.js" />
+
+  <stylesheet id="table_sorter.js" insert-after="kss-bbb.js" />
+
+  <stylesheet id="calendar_formfield.js" insert-after="table_sorter.js" />
+
+  <stylesheet id="formUnload.js" insert-after="calendar_formfield.js" />
+
+  <stylesheet id="formsubmithelpers.js" insert-after="formUnload.js" />
+
+  <stylesheet id="unlockOnFormUnload.js" insert-after="formsubmithelpers.js" />
+
+  <stylesheet id="jquery.tinymce.js" insert-after="unlockOnFormUnload.js" />
+
+  <stylesheet id="tiny_mce_gzip.js" insert-after="jquery.tinymce.js" />
+
+  <stylesheet id="++resource++plone.formwidget.autocomplete/jquery.autocomplete.min.js" insert-after="tiny_mce_gzip.js" />
+
+  <stylesheet id="++resource++plone.formwidget.autocomplete/formwidget-autocomplete.js" insert-after="++resource++plone.formwidget.autocomplete/jquery.autocomplete.min.js" />
+
+  <stylesheet id="++resource++plone.formwidget.contenttree/contenttree.js" insert-after="++resource++plone.formwidget.autocomplete/formwidget-autocomplete.js" />
+
+  <stylesheet id="++resource++collective.js.chosen/chosen.jquery.js" insert-after="++resource++plone.formwidget.contenttree/contenttree.js" />
+
+  <stylesheet id="++resource++collective.js.chosen/ajax-chosen.js" insert-after="++resource++collective.js.chosen/chosen.jquery.js" />
+
+  <stylesheet id="++resource++collective.js.chosen/chosen.proto.js" insert-after="++resource++collective.js.chosen/ajax-chosen.js" />
+
+  <stylesheet id="++resource++collective.js.chosen/chosen.proto.min.js" insert-after="++resource++collective.js.chosen/chosen.proto.js" />
+
+  <stylesheet id="++resource++collective.js.chosen/chosen.jquery.min.js" insert-after="++resource++collective.js.chosen/chosen.proto.min.js" />
+
+  <stylesheet id="++resource++collective.js.chosen/ajax-chosen.min.js" insert-after="++resource++collective.js.chosen/chosen.jquery.min.js" />
+
+  <stylesheet id="++resource++plone.formwidget.masterselect/masterselect.js" insert-after="++resource++collective.js.chosen/ajax-chosen.min.js" />
+
+  <stylesheet id="++resource++collective.z3cform.datagridfield/datagridfield.js" insert-after="++resource++plone.formwidget.masterselect/masterselect.js" />
+
+  <stylesheet id="++resource++collective.contact.core/forms.js" insert-after="++resource++collective.z3cform.datagridfield/datagridfield.js" />
+
+  <stylesheet id="++resource++collective.contact.duplicated/duplicated.js" insert-after="++resource++collective.contact.core/forms.js" />
+
+  <stylesheet id="++resource++jquery.cookie.js" insert-after="++resource++collective.contact.duplicated/duplicated.js" />
+
+  <stylesheet id="collective.js.jqueryui.custom.min.js" insert-after="++resource++jquery.cookie.js" />
+
+  <stylesheet id="++resource++jquery.ajaxfileupload.js" insert-after="collective.js.jqueryui.custom.min.js" />
+
+  <stylesheet id="++resource++jquery.bbq.js" insert-after="++resource++jquery.ajaxfileupload.js" />
+
+  <stylesheet id="++resource++jquery.jstree.js" insert-after="++resource++jquery.bbq.js" />
+
+  <stylesheet id="++resource++jquery.select2uislider.js" insert-after="++resource++jquery.jstree.js" />
+
+  <stylesheet id="++resource++jquery.tagcloud.js" insert-after="++resource++jquery.select2uislider.js" />
+
+  <stylesheet id="faceted_view.js" insert-after="++resource++jquery.tagcloud.js" />
+
+  <stylesheet id="faceted_edit.js" insert-after="faceted_view.js" />
+
+  <stylesheet id="++resource++collective.js.underscore/underscore.min.js" insert-after="faceted_edit.js" />
+
+  <stylesheet id="++resource++collective.js.backbone/backbone.min.js" insert-after="++resource++collective.js.underscore/underscore.min.js" />
+
+  <stylesheet id="++resource++collective.contact.facetednav/javascript.js" insert-after="++resource++collective.js.backbone/backbone.min.js" />
+
+  <stylesheet id="++resource++collective.contact.plonegroup/plonegroup.js" insert-after="++resource++collective.contact.facetednav/javascript.js" />
+
+  <stylesheet id="++resource++imio.actionspanel/actionspanel.js" insert-after="++resource++collective.contact.plonegroup/plonegroup.js" />
+
+  <stylesheet id="actions_panel_javascript_variables.js" insert-after="++resource++imio.actionspanel/actionspanel.js" />
+
+  <stylesheet id="++resource++collective.eeafaceted.z3ctable/collective.eeafaceted.z3ctable.js" insert-after="actions_panel_javascript_variables.js" />
+
+  <stylesheet id="++resource++imio.dashboard/imio.dashboard.js" insert-after="++resource++collective.eeafaceted.z3ctable/collective.eeafaceted.z3ctable.js" />
+
+  <stylesheet id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
+
+  <stylesheet id="++resource++quickupload_static/swfobject.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
+
+  <stylesheet id="++resource++quickupload_static/jquery.uploadify.js" insert-after="++resource++quickupload_static/swfobject.js" />
+
+  <stylesheet id="++resource++quickupload_static/fileuploader.js" insert-after="++resource++quickupload_static/jquery.uploadify.js" />
+
+  <stylesheet id="++resource++quickupload_static/helpers.js" insert-after="++resource++quickupload_static/fileuploader.js" />
+
+  <stylesheet id="ckeditor_vars.js" insert-after="++resource++quickupload_static/helpers.js" />
+
+  <stylesheet id="++resource++ckeditor/ckeditor.js" insert-after="ckeditor_vars.js" />
+
+  <stylesheet id="++resource++ckeditor_for_plone/ckeditor_plone.js" insert-after="++resource++ckeditor/ckeditor.js" />
+
+  <stylesheet id="++resource++select2/select2.min.js" insert-after="++resource++ckeditor_for_plone/ckeditor_plone.js" />
+
 </object>
