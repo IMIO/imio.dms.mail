@@ -24,7 +24,7 @@ Premiers pas
     #Log in  encodeur  Dmsmail69!
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1 page d'accueil.png  css=.site-plone  id=portal-footer-wrapper
-    Capture and crop page screenshot  doc/utilisation/2-1 fil d'ariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home    
+    Capture and crop page screenshot  doc/utilisation/2-1 fil d'ariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home
 
 Encodage depuis le scanner
 # partie 2.2.1 Encodage après envoi par le scanner
@@ -43,6 +43,7 @@ Encodage depuis le scanner
     ### Edit mail
     Capture and crop page screenshot  doc/utilisation/2-2-1 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier.png  css=.documentEditable
     Click element  css=.DV-textView span.DV-trigger
@@ -130,6 +131,7 @@ Encodage depuis le scanner
     ### Create person
     Click element  css=#pb_1 .close
     Wait until element is visible  css=.addnew  10
+    Sleep  1
     Click element  css=.addnew
     Sleep  2
     Input text  name=oform.widgets.person.widgets.query  Marc Leduc
@@ -250,7 +252,7 @@ Encodage depuis le scanner
     Enable autologin as  chef
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-    ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue 
+    ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-6 état chef.png  css=.documentEditable
     Remove element  id=${note32}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
@@ -375,7 +377,7 @@ Encodage manuel
     Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
     ${note11}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
     Click element  name=Add element
-    # La capture du menu ouvert ne fonctionne pas 
+    # La capture du menu ouvert ne fonctionne pas
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 lien ajout.png  id=viewlet-above-content-title  ${note11}
     Remove element  id=${note11}
     Click element  css=#formfield-form-widgets-sender label
@@ -424,6 +426,7 @@ Contacts 1
     ### Recherche mot complet
     Input text  css=.section-rechercher-dans-lintitule #texte  Cour
     Click button  css=.section-rechercher-dans-lintitule #texte_button
+    Sleep  0.5
     Wait until element is not visible  css=.contact-entry a[title*="Non encodé"]  10
     Wait until element is visible  css=.contact-entry a[title~="Courant"]  10
     Sleep  1
@@ -441,7 +444,7 @@ Contacts 2
     Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
     Sleep  0.5
     ### icones de gestion
-    ${note40}  Add pointy note  css=.contacts-facetednav-action:first-child  Icônes  position=bottom  color=blue 
+    ${note40}  Add pointy note  css=.contacts-facetednav-action:first-child  Icônes  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-8-2 icone edition.png  id=content  ${note40}
     Remove element  id=${note40}
     Click element  css=.contact-entry:first-child .contacts-facetednav-action:first-child a
@@ -449,6 +452,7 @@ Contacts 2
     Update element style  id=formfield-form-widgets-activity  display  none
     Capture and crop page screenshot  doc/utilisation/2-8-2 edition organisation.png  id=pb_5
     Click button  id=form-buttons-cancel
+    Sleep  0.5
     Wait until element is not visible  css=.overlay[style*="display: block"]
     Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
     Sleep  0.5
