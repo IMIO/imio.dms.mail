@@ -1,7 +1,7 @@
 Changelog
 =========
 
-1.1 (unreleased)
+1.1 (2016-04-14)
 ----------------
 
 - Extends dmsincomingmail SearchableText with children's scan_id values.
