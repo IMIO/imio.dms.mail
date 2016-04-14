@@ -28,10 +28,10 @@ class TestColumns(unittest.TestCase):
         column = SenderColumn(self.portal, self.portal.REQUEST, self.mail_table)
         brain = self.portal.portal_catalog(UID=self.im5.UID())[0]
         self.assertEqual(column.renderCell(brain),
-                         u"<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank'>"
-                         "<span class='pretty_link_icons'><img title='Held position' src='http://nohost/plone/"
-                         "held_position_icon.png' /></span><span class='pretty_link_content'>Monsieur Jean Courant "
-                         "(Electrabel - Agent)</span></a>")
+                         u"<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank' "
+                         "class='pretty_link'><span class='pretty_link_icons'><img title='Held position' "
+                         "src='http://nohost/plone/held_position_icon.png' /></span><span class='pretty_link_content'"
+                         ">Monsieur Jean Courant (Electrabel - Agent)</span></a>")
         # no sender
         imail = createContentInContainer(self.imf, 'dmsincomingmail', id='my-id', title='My title',
                                          description='Description')
