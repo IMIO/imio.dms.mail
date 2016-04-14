@@ -202,6 +202,7 @@ Encodage depuis le scanner
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
+    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-4 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
@@ -478,6 +479,7 @@ Contacts 2
 
 Configuration
     Enable autologin as  Manager
+    Set autologin username  dirg
     Go to  ${PLONE_URL}/@@overview-controlpanel
     Wait until page contains  Configuration de module  10
     Update element style  css=dl.warning  display  None
