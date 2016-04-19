@@ -8,7 +8,6 @@
     <dependency>profile-collective.dms.mailcontent:default</dependency>
     <dependency>profile-collective.dms.batchimport:default</dependency>
     <dependency>profile-collective.dms.scanbehavior:default</dependency>
-    <dependency>profile-collective.documentgenerator:default</dependency>
     <dependency>profile-collective.compoundcriterion:default</dependency>
     <dependency>profile-collective.contact.core:default</dependency>
     <dependency>profile-collective.contact.duplicated:default</dependency>
