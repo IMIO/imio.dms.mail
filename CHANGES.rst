@@ -29,6 +29,7 @@ Changelog
                 on contacts, corrected disabled treating_groups bug, updated voc cache, corrected transition batch
                 action, added task parent on task view, added method to test user group membership, ordered css
                 ordered javascript, improved validation criterion, hide dmsincomingmail creator
+                display again scan information
   [sgeulette]
 
 

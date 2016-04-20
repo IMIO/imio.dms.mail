@@ -11,7 +11,7 @@ from imio.dms.mail import _
 # z3c.table standard columns
 
 
-class VersionsTitleColumn(VersionsTitleColumn):
+class IMVersionsTitleColumn(VersionsTitleColumn):
 
     def getLinkTitle(self, item):
         obj = item.getObject()
@@ -20,7 +20,7 @@ class VersionsTitleColumn(VersionsTitleColumn):
         scan_infos = [
             ('scan_id', item.scan_id or ''),
             ('scan_date', obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ''),
-#            ('scan_user', getattr(item, 'scan_user', '')),
+            ('Version', obj.version or ''),
         ]
         scan_infos = ["%s: %s" % (
             translate(name, domain='collective.dms.scanbehavior', context=item.REQUEST), value)

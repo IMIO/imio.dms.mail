@@ -194,4 +194,14 @@
         permission="zope2.View"
     />
 
+    <!-- VersionsTitleColumn -->
+    <adapter
+        for="zope.interface.Interface
+             zope.publisher.interfaces.browser.IBrowserRequest
+             collective.dms.basecontent.browser.listing.VersionsTable"
+        factory=".table.IMVersionsTitleColumn"
+        provides="z3c.table.interfaces.IColumn"
+        name="dms.title"
+    />
+
 </configure>
