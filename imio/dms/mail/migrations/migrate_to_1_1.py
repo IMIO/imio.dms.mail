@@ -154,7 +154,7 @@ class Migrate_To_1_1(Migrator):
 
         self.upgradeAll()
 
-        for prod in ['plone.formwidget.autocomplete', 'collective.plonefinder', 'plone.formwidget.contentree',
+        for prod in ['plone.formwidget.autocomplete', 'collective.plonefinder', 'plone.formwidget.contenttree',
                      'plone.app.dexterity', 'plone.formwidget.masterselect', 'collective.behavior.talcondition',
                      'collective.contact.facetednav', 'collective.contact.plonegroup', 'collective.contact.widget',
                      'collective.dms.batchimport', 'collective.dms.scanbehavior', 'collective.documentgenerator',
