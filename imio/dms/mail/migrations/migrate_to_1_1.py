@@ -154,7 +154,14 @@ class Migrate_To_1_1(Migrator):
 
         self.upgradeAll()
 
-        for prod in ['imio.dms.mail']:
+        for prod in ['plone.formwidget.autocomplete', 'collective.plonefinder', 'plone.formwidget.contentree',
+                     'plone.app.dexterity', 'plone.formwidget.masterselect', 'collective.behavior.talcondition',
+                     'collective.contact.facetednav', 'collective.contact.plonegroup', 'collective.contact.widget',
+                     'collective.dms.batchimport', 'collective.dms.scanbehavior', 'collective.documentgenerator',
+                     'collective.eeafaceted.collectionwidget', 'collective.eeafaceted.z3ctable',
+                     'collective.messagesviewlet', 'collective.querynextprev', 'dexterity.localroles',
+                     'dexterity.localrolesfield', 'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail',
+                     'plone.formwidget.datetime', 'plonetheme.imioapps']:
             mark_last_version(self.portal, product=prod)
 
         #self.refreshDatabase()
