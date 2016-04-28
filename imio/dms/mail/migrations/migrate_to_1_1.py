@@ -154,6 +154,8 @@ class Migrate_To_1_1(Migrator):
 
 #        self.upgradeAll()
 
+        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+
         for prod in ['plone.formwidget.autocomplete', 'collective.plonefinder', 'plone.formwidget.contenttree',
                      'plone.app.dexterity', 'plone.formwidget.masterselect', 'collective.behavior.talcondition',
                      'collective.contact.facetednav', 'collective.contact.plonegroup', 'collective.contact.widget',
