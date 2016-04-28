@@ -101,9 +101,6 @@ class Migrate_To_1_1(Migrator):
         self.upgradeProfile('eea.facetednavigation:default')
         im_folder = self.portal['incoming-mail']
 
-        # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
-        self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
-
         # set mail-searches folder as not newt/prev navigable
         if not INextPrevNotNavigable.providedBy(im_folder['task-searches']):
             alsoProvides(im_folder['task-searches'], INextPrevNotNavigable)
@@ -155,6 +152,10 @@ class Migrate_To_1_1(Migrator):
         self.upgradeAll()
 
         self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+
+        # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
+        self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+
 
         for prod in ['plone.formwidget.autocomplete', 'collective.plonefinder', 'plone.formwidget.contenttree',
                      'plone.app.dexterity', 'plone.formwidget.masterselect', 'collective.behavior.talcondition',
