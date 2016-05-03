@@ -156,7 +156,6 @@ class Migrate_To_1_1(Migrator):
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
-
         for prod in ['plone.formwidget.autocomplete', 'collective.plonefinder', 'plone.formwidget.contenttree',
                      'plone.app.dexterity', 'plone.formwidget.masterselect', 'collective.behavior.talcondition',
                      'collective.contact.facetednav', 'collective.contact.plonegroup', 'collective.contact.widget',
