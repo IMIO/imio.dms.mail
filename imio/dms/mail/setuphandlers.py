@@ -426,6 +426,10 @@ def adaptDefaultPortal(context):
     adapter = MarkupControlPanelAdapter(site)
     adapter.set_allowed_types(['text/html'])
 
+    # Activate browser message
+    msg = site['messages-config']['browser-warning']
+    api.content.transition(obj=msg, to_state='activated')
+
 
 def changeSearchedTypes(site):
     """
