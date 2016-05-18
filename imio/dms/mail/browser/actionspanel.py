@@ -31,7 +31,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """ Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
+        lst.sort(lambda x, y: cmp(self.tr_order.get(x['id'], 99), self.tr_order.get(y['id'], 99)))
 
     def renderCreateFromTemplateButton(self):
         return ViewPageTemplateFile(
