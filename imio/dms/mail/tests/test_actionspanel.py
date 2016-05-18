@@ -26,6 +26,12 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         api.content.transition(obj=self.im1, to_state='proposed_to_agent')
         self.assertListEqual([t['id'] for t in self.view.getTransitions()],
                              ['back_to_service_chief', 'treat', 'close'])
+        to_sort = [{'id': 'close'}, {'id': 'back_to_creation'}, {'id': 'treat'}]
+        self.view.sortTransitions(to_sort)
+        self.assertListEqual(to_sort, [{'id': 'back_to_creation'}, {'id': 'treat'}, {'id': 'close'}])
+        to_sort = [{'id': 'unknown'}, {'id': 'close'}, {'id': 'back_to_creation'}, {'id': 'treat'}]
+        self.view.sortTransitions(to_sort)
+        self.assertListEqual(to_sort, [{'id': 'back_to_creation'}, {'id': 'treat'}, {'id': 'close'}, {'id': 'unknown'}])
 
 
 class TestContactActionsPanelView(unittest.TestCase):
