@@ -57,6 +57,7 @@ Encodage depuis le scanner
 
     ### Sender field
     Input text  name=form.widgets.sender.widgets.query  le
+    Sleep  0.5
     Wait until element is visible  css=.ac_results  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur recherche le.png  id=fieldset-default
     Click element  id=form-widgets-external_reference_no
@@ -202,6 +203,7 @@ Encodage depuis le scanner
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
+    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-4 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
@@ -299,6 +301,7 @@ Encodage depuis le scanner
 #    Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
+    Sleep  0.5
     Select from list by index  name=Add element  3
     Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
@@ -478,6 +481,7 @@ Contacts 2
 
 Configuration
     Enable autologin as  Manager
+    Set autologin username  dirg
     Go to  ${PLONE_URL}/@@overview-controlpanel
     Wait until page contains  Configuration de module  10
     Update element style  css=dl.warning  display  None

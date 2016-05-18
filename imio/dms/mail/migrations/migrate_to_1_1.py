@@ -149,7 +149,7 @@ class Migrate_To_1_1(Migrator):
         # remove tinymce resources
         configure_ckeditor(self.portal, default=0, allusers=0, forceTextPaste=0, scayt=0)
 
-#        self.upgradeAll()
+        self.upgradeAll()
 
         self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
 

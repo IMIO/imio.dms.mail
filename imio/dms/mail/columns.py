@@ -91,7 +91,7 @@ class SenderColumn(PrettyLinkColumn):
         c_brain = uuidToCatalogBrain(value[0])
         if not c_brain:
             return '-'
-        return u"<a href='%s' target='_blank'><span class='pretty_link_icons'>%s</span>" \
+        return u"<a href='%s' target='_blank' class='pretty_link'><span class='pretty_link_icons'>%s</span>" \
                u"<span class='pretty_link_content'>%s</span></a>" \
                % (c_brain.getURL(), self._icons(c_brain), safe_unicode(c_brain.get_full_title))
 
