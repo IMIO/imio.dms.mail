@@ -179,8 +179,8 @@ def createStateCollections(folder, content_type):
         'dmsincomingmail': {
             'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
             'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
-            'proposed_to_service_chief':
-                "python: object.restrictedTraverse('idm-utils').proposed_to_serv_chief_col_cond()",
+            'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils')."
+                                         "proposed_to_serv_chief_col_cond()",
         },
         'task': {}
     }
@@ -422,6 +422,12 @@ def adaptDefaultPortal(context):
     site.manage_permission('CMFEditions: Revert to previous versions', ('Manager', 'Site Administrator'),
                            acquire=0)
 
+    #History: add
+    site.manage_permission('CMFEditions: Access previous versions', ('Manager', 'Site Administrator', 'Contributor',
+                           'Editor', 'IM Field Writer', 'Owner', 'Reviewer'), acquire=0)
+    site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
+                           'Editor', 'IM Field Writer', 'Owner', 'Reviewer'), acquire=0)
+
     # Set markup allowed types: for RichText field, don't display anymore types listbox
     adapter = MarkupControlPanelAdapter(site)
     adapter.set_allowed_types(['text/html'])
@@ -456,19 +462,19 @@ def configure_rolefields(context):
         'created': {'encodeurs': {'roles': ['Contributor', 'Editor', 'IM Field Writer', 'IM Treating Group Writer']}},
         'proposed_to_manager': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
                                                 'IM Treating Group Writer']},
-                                'encodeurs': {'roles': ['Reader']}},
+                                'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
         'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
                                                       'IM Treating Group Writer']},
-                                      'encodeurs': {'roles': ['Reader']}},
+                                      'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
         'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
                                               'IM Treating Group Writer']},
-                              'encodeurs': {'roles': ['Reader']}},
+                              'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
         'in_treatment': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
                                          'IM Treating Group Writer']},
-                         'encodeurs': {'roles': ['Reader']}},
+                         'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
         'closed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
                                              'IM Treating Group Writer']},
-                   'encodeurs': {'roles': ['Reader']}},
+                   'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
     }, 'treating_groups': {
         #'created': {},
         #'proposed_to_manager': {},
