@@ -99,6 +99,7 @@ class Migrate_To_1_1(Migrator):
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.task:default')
         self.upgradeProfile('eea.facetednavigation:default')
+        self.upgradeProfile('collective.querynextprev:default')
         im_folder = self.portal['incoming-mail']
 
         # set mail-searches folder as not newt/prev navigable
