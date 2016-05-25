@@ -34,8 +34,8 @@ Changelog
 - Improvements: disable own delete on contacts, block parent portlets on contacts, add local roles for dir_general
                 on contacts, corrected disabled treating_groups bug, updated voc cache, corrected transition batch
                 action, added task parent on task view, added method to test user group membership, ordered css
-                ordered javascript, improved validation criterion, hide dmsincomingmail creator
-                display again scan information
+                ordered javascript, improved validation criterion, hide dmsincomingmail creator,
+                display again scan information, corrected merging permission problem
   [sgeulette]
 
 
