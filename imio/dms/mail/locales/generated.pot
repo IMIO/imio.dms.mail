@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-04-13 14:51+0000\n"
+"POT-Creation-Date: 2016-05-18 13:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,6 +25,10 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
+#: ./profiles.zcml:22
+msgid "Add test examples for imio.dms.mail"
+msgstr ""
+
 #: ./browser/views.py:89
 msgid "All under"
 msgstr ""
@@ -37,15 +41,19 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
+#: ./profiles.zcml:31
+msgid "Basic temporary configuration for imio.dms.mail"
+msgstr ""
+
 #: ./browser/batchactions.py:44
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:254
+#: ./browser/batchactions.py:283
 msgid "Batch assigned group change"
 msgstr ""
 
-#: ./browser/batchactions.py:219
+#: ./browser/batchactions.py:248
 msgid "Batch assigned user change"
 msgstr ""
 
@@ -55,6 +63,10 @@ msgstr ""
 
 #: ./profiles/default/actions.xml
 msgid "Batch import of dms document"
+msgstr ""
+
+#: ./browser/batchactions.py:198
+msgid "Batch recipient groups change"
 msgstr ""
 
 #: ./browser/batchactions.py:99
@@ -98,6 +110,10 @@ msgstr ""
 msgid "I.M. tasks"
 msgstr ""
 
+#: ./testing.zcml:22
+msgid "Imio Dms Mail testing profile"
+msgstr ""
+
 #: ./setuphandlers.py:99
 msgid "Incoming mail"
 msgstr ""
@@ -120,6 +136,10 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
+#: ./profiles.zcml:14
+msgid "Installs the imio.dms.mail package"
+msgstr ""
+
 #: ./dmsmail.py:267
 msgid "Linked mails"
 msgstr ""
@@ -137,7 +157,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/batchactions.py:288
+#: ./browser/batchactions.py:317
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr ""
 
@@ -145,7 +165,7 @@ msgstr ""
 msgid "No common or available transition. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:221
+#: ./browser/batchactions.py:250
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
@@ -170,6 +190,7 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
+#: ./browser/batchactions.py:204
 #: ./dmsmail.py:65
 msgid "Recipient groups"
 msgstr ""
@@ -187,8 +208,12 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1042
+#: ./setuphandlers.py:1046
 msgid "Templates"
+msgstr ""
+
+#: ./overrides.zcml:43
+msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
 #: ./browser/batchactions.py:106
@@ -276,8 +301,17 @@ msgstr ""
 msgid "im_to_validate"
 msgstr ""
 
+#: ./profiles.zcml:14
 #: ./setuphandlers.py:55
 msgid "imio.dms.mail"
+msgstr ""
+
+#: ./profiles.zcml:31
+msgid "imio.dms.mail basic version"
+msgstr ""
+
+#: ./profiles.zcml:22
+msgid "imio.dms.mail test examples"
 msgstr ""
 
 #. Default: "Date"
@@ -293,6 +327,10 @@ msgstr ""
 #. Default: "Sender"
 #: ./browser/templates/listing.pt:32
 msgid "listing_sender_title"
+msgstr ""
+
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
+msgid "recipientgroup-batch-action-but"
 msgstr ""
 
 #: ./setuphandlers.py:344
@@ -323,4 +361,3 @@ msgstr ""
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:8
 msgid "treatinggroup-batch-action-but"
 msgstr ""
-

@@ -193,6 +193,35 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
         self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
+class RecipientGroupBatchActionForm(DashboardBatchActionForm):
+
+    label = _(u"Batch recipient groups change")
+
+    def update(self):
+        super(RecipientGroupBatchActionForm, self).update()
+        self.fields += Fields(schema.List(
+            __name__='recipient_group',
+            title=_(u"Recipient groups"),
+            required=True,
+            value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
+        ))
+
+        super(DashboardBatchActionForm, self).update()
+
+    @button.buttonAndHandler(_(u'Apply'), name='apply')
+    def handleApply(self, action):
+        """Handle apply button."""
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+        if data['recipient_group']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                obj.recipient_groups = data['recipient_group']
+                modified(obj)
+        self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+
 def getAvailableAssignedUserVoc(brains, attribute):
     """ Returns available assigned users common for all brains. """
     terms = []
