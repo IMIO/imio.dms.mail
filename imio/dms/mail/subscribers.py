@@ -98,7 +98,8 @@ def user_related_modification(event):
     if IConfigurationChangedEvent.providedBy(event) and not isinstance(event.context, UserDataConfiglet):
         return
     # we pass if the registry change is not related to plonegroup
-    if IRecordModifiedEvent.providedBy(event) and event.record.interface != IContactPlonegroupConfig:
+    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
+            event.record.interface != IContactPlonegroupConfig):
         return
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
 

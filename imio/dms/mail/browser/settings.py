@@ -58,7 +58,7 @@ SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
 
 def manageIImioDmsMailConfigChange(event):
     """ Manage a record change """
-    if (IRecordModifiedEvent.providedBy(event) and event.record.interface == IImioDmsMailConfig
-            and event.record.fieldName == 'mail_types'):
+    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
+            event.record.interface == IImioDmsMailConfig and event.record.fieldName == 'mail_types'):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMActiveMailTypesVocabulary')
