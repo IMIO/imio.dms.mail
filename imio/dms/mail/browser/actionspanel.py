@@ -13,7 +13,9 @@ class DmsIMActionsPanelView(ActionsPanelView):
     def __init__(self, context, request):
         super(DmsIMActionsPanelView, self).__init__(context, request)
         self.SECTIONS_TO_RENDER += (
-            'renderReplyButton', 'renderCreateFromTemplateButton')
+            'renderReplyButton',
+            # 'renderCreateFromTemplateButton'
+        )
 
     def mayReply(self):
         """
@@ -22,11 +24,9 @@ class DmsIMActionsPanelView(ActionsPanelView):
         return self.member.has_permission('Add portal content', self.context)
 
     def renderReplyButton(self):
-        return ''
         if self.mayReply():
             return ViewPageTemplateFile(
                 "templates/actions_panel_reply.pt")(self)
-
         return ""
 
     def sortTransitions(self, lst):
