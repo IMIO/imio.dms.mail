@@ -210,6 +210,19 @@ ul.select2-choices {
     display: inline-block;
 }
 
+/* Positions of added , removed */
+#recipientgroup-batchaction-form #formfield-form-widgets-removed_values,
+#recipientgroup-batchaction-form #formfield-form-widgets-added_values {
+    clear: none;
+    float: left;
+}
+#recipientgroup-batchaction-form #formfield-form-widgets-removed_values {
+    margin-right: 30px;
+}
+.pb-ajax #recipientgroup-batchaction-form .formControls {
+    clear: both;
+}
+
 /* colorization for incoming_mail_workflow */
 
 .state-created {

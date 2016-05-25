@@ -102,7 +102,7 @@ class Migrate_To_1_1(Migrator):
         self.upgradeProfile('collective.querynextprev:default')
         im_folder = self.portal['incoming-mail']
 
-        # set mail-searches folder as not newt/prev navigable
+        # set mail-searches folder as not next/prev navigable
         if not INextPrevNotNavigable.providedBy(im_folder['task-searches']):
             alsoProvides(im_folder['task-searches'], INextPrevNotNavigable)
 
