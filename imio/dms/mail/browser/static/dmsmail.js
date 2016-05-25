@@ -76,8 +76,8 @@ $(document).ready(function(){
         closeselector: '[name="form.buttons.cancel"]'
     });
 
-    $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
+/*    $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
         dmsmail.initialize_fancytree();
-    });
+    });*/
 
 });
