@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-03-15 12:21+0000\n"
+"POT-Creation-Date: 2016-05-26 07:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,11 +21,23 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: ./browser/views.py:49
+#: ./browser/batchactions.py:208
+msgid "Add items"
+msgstr ""
+
+#: ./profiles.zcml:22
+msgid "Add test examples for imio.dms.mail"
+msgstr ""
+
+#: ./browser/batchactions.py:238
+msgid "Added values"
+msgstr ""
+
+#: ./browser/views.py:89
 msgid "All under"
 msgstr ""
 
-#: ./browser/batchactions.py:119
+#: ./browser/batchactions.py:121
 msgid "Apply"
 msgstr ""
 
@@ -33,15 +45,23 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
-#: ./browser/batchactions.py:44
+#: ./profiles.zcml:31
+msgid "Basic temporary configuration for imio.dms.mail"
+msgstr ""
+
+#: ./browser/batchactions.py:207
+msgid "Batch action choice"
+msgstr ""
+
+#: ./browser/batchactions.py:46
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:254
+#: ./browser/batchactions.py:327
 msgid "Batch assigned group change"
 msgstr ""
 
-#: ./browser/batchactions.py:219
+#: ./browser/batchactions.py:292
 msgid "Batch assigned user change"
 msgstr ""
 
@@ -53,11 +73,15 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./browser/batchactions.py:99
+#: ./browser/batchactions.py:200
+msgid "Batch recipient groups change"
+msgstr ""
+
+#: ./browser/batchactions.py:101
 msgid "Batch state change"
 msgstr ""
 
-#: ./browser/batchactions.py:166
+#: ./browser/batchactions.py:168
 msgid "Batch treating group change"
 msgstr ""
 
@@ -73,7 +97,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/batchactions.py:113
+#: ./browser/batchactions.py:115
 msgid "Comment"
 msgstr ""
 
@@ -86,7 +110,11 @@ msgstr ""
 msgid "I.M. tasks"
 msgstr ""
 
-#: ./setuphandlers.py:100
+#: ./testing.zcml:22
+msgid "Imio Dms Mail testing profile"
+msgstr ""
+
+#: ./setuphandlers.py:99
 msgid "Incoming mail"
 msgstr ""
 
@@ -108,6 +136,10 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
+#: ./profiles.zcml:14
+msgid "Installs the imio.dms.mail package"
+msgstr ""
+
 #: ./dmsmail.py:267
 msgid "Linked mails"
 msgstr ""
@@ -125,19 +157,15 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./setuphandlers.py:1025
-msgid "Templates"
-msgstr ""
-
-#: ./browser/batchactions.py:288
+#: ./browser/batchactions.py:361
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:109
+#: ./browser/batchactions.py:111
 msgid "No common or available transition. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:221
+#: ./browser/batchactions.py:294
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
@@ -149,7 +177,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./browser/batchactions.py:114
+#: ./browser/batchactions.py:116
 msgid "Optional comment to display in history"
 msgstr ""
 
@@ -162,8 +190,24 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
+#: ./browser/batchactions.py:211
+msgid "Overwrite"
+msgstr ""
+
 #: ./dmsmail.py:65
 msgid "Recipient groups"
+msgstr ""
+
+#: ./browser/batchactions.py:209
+msgid "Remove items"
+msgstr ""
+
+#: ./browser/batchactions.py:231
+msgid "Removed values"
+msgstr ""
+
+#: ./browser/batchactions.py:210
+msgid "Replace some items by others"
 msgstr ""
 
 #: ./browser/templates/actions_panel_reply.pt:4
@@ -174,16 +218,32 @@ msgstr ""
 msgid "Reply to ${ref}"
 msgstr ""
 
+#: ./browser/batchactions.py:239
+msgid "Select the values to add (CTRL+click)"
+msgstr ""
+
+#: ./browser/batchactions.py:232
+msgid "Select the values to remove (CTRL+click)"
+msgstr ""
+
 #: ./migrations/migrate_to_1_0.py:75
 #: ./setuphandlers.py:121
 msgid "Tasks searches"
 msgstr ""
 
-#: ./browser/batchactions.py:106
+#: ./setuphandlers.py:1052
+msgid "Templates"
+msgstr ""
+
+#: ./overrides.zcml:43
+msgid "The 'workflow' menu - allows the user to execute workflow transitions"
+msgstr ""
+
+#: ./browser/batchactions.py:108
 msgid "Transition"
 msgstr ""
 
-#: ./browser/batchactions.py:173
+#: ./browser/batchactions.py:175
 #: ./browser/table.py:36
 #: ./dmsmail.py:48
 msgid "Treating groups"
@@ -193,7 +253,7 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/batchactions.py:175
+#: ./browser/batchactions.py:177
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
@@ -264,11 +324,16 @@ msgstr ""
 msgid "im_to_validate"
 msgstr ""
 
-#: ./setuphandlers.py:56
+#: ./profiles.zcml:14
+#: ./setuphandlers.py:55
 msgid "imio.dms.mail"
 msgstr ""
 
-#: ./configure.zcml:
+#: ./profiles.zcml:31
+msgid "imio.dms.mail basic version"
+msgstr ""
+
+#: ./profiles.zcml:22
 msgid "imio.dms.mail test examples"
 msgstr ""
 
@@ -289,6 +354,10 @@ msgstr ""
 #. Default: "Sender"
 #: ./browser/templates/listing.pt:32
 msgid "listing_sender_title"
+msgstr ""
+
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
+msgid "recipientgroup-batch-action-but"
 msgstr ""
 
 #: dmsincomingmail
@@ -361,4 +430,3 @@ msgstr ""
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:8
 msgid "treatinggroup-batch-action-but"
 msgstr ""
-

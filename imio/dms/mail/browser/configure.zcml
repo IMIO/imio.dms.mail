@@ -113,6 +113,13 @@
 
     <browser:page
         for="imio.dms.mail.interfaces.IIMDashboard"
+        name="recipientgroup-batch-action"
+        class=".batchactions.RecipientGroupBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboard"
         name="assigneduser-batch-action"
         class=".batchactions.AssignedUserBatchActionForm"
         permission="zope2.View"

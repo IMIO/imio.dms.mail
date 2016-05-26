@@ -55,6 +55,7 @@ class BatchActions(unittest.TestCase):
         view = self.msf.unrestrictedTraverse('@@transition-batch-action')
         view.request.form['form.widgets.uids'] = ','.join([self.im1.UID(), self.im2.UID()])
         view.update()
+        # override z3c.form.field.FieldWidgets.extract
         view.widgets.extract = lambda *a, **kw: ({'transition': u'propose_to_manager'}, [1])
         view.handleApply(view, 'apply')
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im1))
@@ -76,6 +77,51 @@ class BatchActions(unittest.TestCase):
         view.handleApply(view, 'apply')
         self.assertEqual(self.im1.treating_groups, self.pgof['direction-financiere'].UID())
         self.assertEqual(self.im2.treating_groups, self.pgof['direction-financiere'].UID())
+
+    def test_RecipientGroupBatchActionForm(self):
+        self.im1.recipient_groups = [self.pgof['direction-generale'].UID(),
+                                     self.pgof['direction-financiere']['budgets'].UID()]
+        self.im2.recipient_groups = [self.pgof['direction-generale'].UID(),
+                                     self.pgof['direction-generale']['secretariat'].UID()]
+        view = self.msf.unrestrictedTraverse('@@recipientgroup-batch-action')
+        view.request['uids'] = ','.join([self.im1.UID(), self.im2.UID()])
+        view.update()
+        # test remove action
+        view.widgets.extract = lambda *a, **kw: ({'action_choice': 'remove', 'removed_values':
+                                                  [self.pgof['direction-generale'].UID()]}, [1])
+        view.handleApply(view, 'apply')
+        self.assertListEqual(self.im1.recipient_groups, [self.pgof['direction-financiere']['budgets'].UID()])
+        self.assertListEqual(self.im2.recipient_groups, [self.pgof['direction-generale']['secretariat'].UID()])
+        # test add action
+        view.widgets.extract = lambda *a, **kw: ({'action_choice': 'add', 'added_values':
+                                                  [self.pgof['direction-financiere'].UID()]}, [1])
+        view.handleApply(view, 'apply')
+        self.assertSetEqual(set(self.im1.recipient_groups), set([self.pgof['direction-financiere']['budgets'].UID(),
+                                                                 self.pgof['direction-financiere'].UID()]))
+        self.assertSetEqual(set(self.im2.recipient_groups), set([self.pgof['direction-generale']['secretariat'].UID(),
+                                                                 self.pgof['direction-financiere'].UID()]))
+        # test replace action
+        view.widgets.extract = lambda *a, **kw: ({'action_choice': 'replace', 'removed_values':
+                                                  [self.pgof['direction-financiere'].UID(),
+                                                   self.pgof['direction-financiere']['budgets'].UID()],
+                                                  'added_values': [self.pgof['direction-generale'].UID(),
+                                                  self.pgof['direction-generale']['secretariat'].UID()]}, [1])
+        view.handleApply(view, 'apply')
+        self.assertSetEqual(set(self.im1.recipient_groups), set([self.pgof['direction-generale'].UID(),
+                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
+        self.assertSetEqual(set(self.im2.recipient_groups), set([self.pgof['direction-generale'].UID(),
+                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
+        # test overwrite action
+        view.widgets.extract = lambda *a, **kw: ({'action_choice': 'replace', 'removed_values':
+                                                  [self.pgof['direction-financiere'].UID(),
+                                                   self.pgof['direction-financiere']['budgets'].UID()],
+                                                  'added_values': [self.pgof['direction-generale'].UID(),
+                                                  self.pgof['direction-generale']['secretariat'].UID()]}, [1])
+        view.handleApply(view, 'apply')
+        self.assertSetEqual(set(self.im1.recipient_groups), set([self.pgof['direction-generale'].UID(),
+                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
+        self.assertSetEqual(set(self.im2.recipient_groups), set([self.pgof['direction-generale'].UID(),
+                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
 
     def test_getAvailableAssignedUserVoc(self):
         brains = self.pc(UID=[self.im1.UID()])

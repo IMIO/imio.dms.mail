@@ -10,8 +10,10 @@ from zope.lifecycleevent import modified
 from AccessControl import getSecurityManager
 from plone import api
 from plone.supermodel import model
+from plone.formwidget.masterselect import MasterSelectField
 from z3c.form.form import Form
 from z3c.form import button
+from z3c.form.browser.select import SelectFieldWidget
 from z3c.form.field import Fields
 from z3c.form.interfaces import HIDDEN_MODE
 
@@ -189,6 +191,85 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.treating_groups = data['treating_group']
+                modified(obj)
+        self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+
+class RecipientGroupBatchActionForm(DashboardBatchActionForm):
+
+    label = _(u"Batch recipient groups change")
+    id = 'recipientgroup-batchaction-form'
+
+    def update(self):
+        super(RecipientGroupBatchActionForm, self).update()
+        self.fields += Fields(MasterSelectField(
+            __name__='action_choice',
+            title=_(u'Batch action choice'),
+            vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add items')),
+                                         SimpleTerm(value=u'remove', title=_(u'Remove items')),
+                                         SimpleTerm(value=u'replace', title=_(u'Replace some items by others')),
+                                         SimpleTerm(value=u'overwrite', title=_(u'Overwrite'))]),
+            slave_fields=(
+                {'name': 'removed_values',
+                 'slaveID': '#form-widgets-removed_values',
+                 'action': 'hide',
+                 'hide_values': (u'add', u'overwrite'),
+                 'siblings': True,
+                 },
+                {'name': 'added_values',
+                 'slaveID': '#form-widgets-added_values',
+                 'action': 'hide',
+                 'hide_values': (u'remove'),
+                 'siblings': True,
+                 },
+            ),
+            required=True,
+            default=u'add'
+        ))
+        self.fields += Fields(schema.List(
+            __name__='removed_values',
+            title=_(u"Removed values"),
+            description=_(u"Select the values to remove (CTRL+click)"),
+            required=False,
+            value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
+        ))
+        self.fields += Fields(schema.List(
+            __name__='added_values',
+            title=_(u"Added values"),
+            description=_(u"Select the values to add (CTRL+click)"),
+            required=False,
+            value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
+        ))
+        self.fields["removed_values"].widgetFactory = SelectFieldWidget
+        self.fields["added_values"].widgetFactory = SelectFieldWidget
+
+        super(DashboardBatchActionForm, self).update()
+
+#        self.widgets['action_choice'].size = 4
+        self.widgets['removed_values'].multiple = 'multiple'
+        self.widgets['removed_values'].size = 5
+        self.widgets['added_values'].multiple = 'multiple'
+        self.widgets['added_values'].size = 5
+
+    @button.buttonAndHandler(_(u'Apply'), name='apply')
+    def handleApply(self, action):
+        """Handle apply button."""
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+        if ((data.get('removed_values', None) and data['action_choice'] in ('remove', 'replace')) or
+                (data.get('added_values', None)) and data['action_choice'] in ('add', 'replace', 'overwrite')):
+            for brain in self.brains:
+                obj = brain.getObject()
+                if data['action_choice'] in ('overwrite'):
+                    items = set(data['added_values'])
+                else:
+                    items = set(obj.recipient_groups or [])
+                    if data['action_choice'] in ('remove', 'replace'):
+                        items = items.difference(data['removed_values'])
+                    if data['action_choice'] in ('add', 'replace'):
+                        items = items.union(data['added_values'])
+                obj.recipient_groups = list(items)
                 modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])
 

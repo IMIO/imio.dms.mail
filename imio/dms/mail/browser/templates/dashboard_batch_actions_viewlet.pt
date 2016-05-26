@@ -12,4 +12,8 @@
   <input id="assigneduser-batch-action-but" class="button batch-action-but" type="submit" value="assigneduser-batch-action-but"
          i18n:attributes="value"/>
 </form>
+<form action="recipientgroup-batch-action" id="recipientgroup-batch-action" class="batch-action-form">
+  <input id="recipientgroup-batch-action-but" class="button batch-action-but" type="submit" value="recipientgroup-batch-action-but"
+         i18n:attributes="value"/>
+</form>
 </div>
