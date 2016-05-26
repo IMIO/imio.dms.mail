@@ -254,14 +254,22 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
     @button.buttonAndHandler(_(u'Apply'), name='apply')
     def handleApply(self, action):
         """Handle apply button."""
-        # NEED TO BE UPDATED !!
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        if data['recipient_group']:
+        if ((data.get('removed_values', None) and data['action_choice'] in ('remove', 'replace')) or
+                (data.get('added_values', None)) and data['action_choice'] in ('add', 'replace', 'overwrite')):
             for brain in self.brains:
                 obj = brain.getObject()
-                obj.recipient_groups = data['recipient_group']
+                if data['action_choice'] in ('overwrite'):
+                    items = set(data['added_values'])
+                else:
+                    items = set(obj.recipient_groups or [])
+                    if data['action_choice'] in ('remove', 'replace'):
+                        items = items.difference(data['removed_values'])
+                    if data['action_choice'] in ('add', 'replace'):
+                        items = items.union(data['added_values'])
+                obj.recipient_groups = list(items)
                 modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])
 
