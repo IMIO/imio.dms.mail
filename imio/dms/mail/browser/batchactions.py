@@ -205,10 +205,10 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
         self.fields += Fields(MasterSelectField(
             __name__='action_choice',
             title=_(u'Batch action choice'),
-            vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add selected values')),
-                                         SimpleTerm(value=u'remove', title=_(u'Remove selected values')),
-                                         SimpleTerm(value=u'replace', title=_(u'Replace some values by other ones')),
-                                         SimpleTerm(value=u'overwrite', title=_(u'Overwrite by selected values'))]),
+            vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add items')),
+                                         SimpleTerm(value=u'remove', title=_(u'Remove items')),
+                                         SimpleTerm(value=u'replace', title=_(u'Replace some items by others')),
+                                         SimpleTerm(value=u'overwrite', title=_(u'Overwrite'))]),
             slave_fields=(
                 {'name': 'removed_values',
                  'slaveID': '#form-widgets-removed_values',
@@ -229,12 +229,14 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
         self.fields += Fields(schema.List(
             __name__='removed_values',
             title=_(u"Removed values"),
+            description=_(u"Select the values to remove (CTRL+click)"),
             required=False,
             value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
         ))
         self.fields += Fields(schema.List(
             __name__='added_values',
             title=_(u"Added values"),
+            description=_(u"Select the values to add (CTRL+click)"),
             required=False,
             value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
         ))
