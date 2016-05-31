@@ -16,6 +16,7 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.registry.interfaces import IRegistry
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
+from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from AccessControl import getSecurityManager
 
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
@@ -267,6 +268,9 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         title=_(u"Linked mails"),
         required=False,
         portal_types=('dmsincomingmail', 'dmsoutgoingmail'))
+
+    outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
+    directives.widget(outgoing_date=DatetimeFieldWidget)
 
     directives.order_before(recipients='related_docs')  # temporary when removing *_groups
     directives.order_before(mail_date='related_docs')  # temporary when removing *_groups
