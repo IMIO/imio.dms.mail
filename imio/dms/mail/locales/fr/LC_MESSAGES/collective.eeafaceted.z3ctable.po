@@ -56,4 +56,3 @@ msgstr "Courrier associé"
 
 msgid "treating_groups"
 msgstr "Service traitant"
-

@@ -56,4 +56,3 @@ msgstr "Linked mail"
 
 msgid "treating_groups"
 msgstr "Treating group"
-

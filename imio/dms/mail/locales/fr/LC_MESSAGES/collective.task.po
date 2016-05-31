@@ -18,4 +18,3 @@ msgstr ""
 #: ../browser/templates/task_parent.pt:9
 msgid "Highest task"
 msgstr "Courrier associé"
-

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-05-26 07:37+0000\n"
+"POT-Creation-Date: 2016-05-31 13:19+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -61,11 +61,11 @@ msgstr "Choix de l'action à effectuer"
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
-#: ./browser/batchactions.py:327
+#: ./browser/batchactions.py:335
 msgid "Batch assigned group change"
 msgstr "Changement de groupe assigné par lot"
 
-#: ./browser/batchactions.py:292
+#: ./browser/batchactions.py:300
 msgid "Batch assigned user change"
 msgstr "Changement d'utilisateur assigné par lot"
 
@@ -152,12 +152,12 @@ msgstr "Courriers entrants"
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./dmsmail.py:267
+#: ./dmsmail.py:268
 msgid "Linked mails"
 msgstr "Courriers liés"
 
 #: ./browser/settings.py:31
-#: ./dmsmail.py:71
+#: ./dmsmail.py:72
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -169,7 +169,7 @@ msgstr "Intitulé du type"
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
-#: ./browser/batchactions.py:361
+#: ./browser/batchactions.py:369
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr "Aucun groupe assigné commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
@@ -177,7 +177,7 @@ msgstr "Aucun groupe assigné commun ou valide, ou aucun utilisateur assigné. R
 msgid "No common or available transition. Modify your selection."
 msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sélection."
 
-#: ./browser/batchactions.py:294
+#: ./browser/batchactions.py:302
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
@@ -197,6 +197,10 @@ msgstr "Commentaire optionnel à afficher dans l'historique"
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
+#: ./dmsmail.py:272
+msgid "Outgoing Date"
+msgstr "Date d'expédition"
+
 #: ./migrations/migrate_to_0_2.py:115
 #: ./setuphandlers.py:136
 msgid "Outgoing mail"
@@ -206,7 +210,7 @@ msgstr "Courrier sortant"
 msgid "Overwrite"
 msgstr "Écraser le contenu avec les éléments choisis"
 
-#: ./dmsmail.py:65
+#: ./dmsmail.py:66
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -257,7 +261,7 @@ msgstr "Transition"
 
 #: ./browser/batchactions.py:175
 #: ./browser/table.py:36
-#: ./dmsmail.py:48
+#: ./dmsmail.py:49
 msgid "Treating groups"
 msgstr "Service traitant"
 
@@ -269,7 +273,7 @@ msgstr "Types de courrier entrant"
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas changer ce champ sur les éléments sélectionnés. Recommencez en modifiant votre sélection."
 
-#: ./dmsmail.py:211
+#: ./dmsmail.py:212
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 

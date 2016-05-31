@@ -26,4 +26,3 @@ msgstr ""
 #: ../browser/viewlets.py:42
 msgid "Versions"
 msgstr ""
-

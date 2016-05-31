@@ -123,4 +123,3 @@ msgstr "Task in my groups"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "treat"
 msgstr "Treat"
-
