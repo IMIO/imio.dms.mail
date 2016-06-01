@@ -977,6 +977,32 @@ def addOwnOrganization(context):
                               **{'title': service, 'organization_type': u'service'})
 
 
+def addOwnPersonnel(context):
+    """
+        Add french test data: personnel folder
+    """
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    site = context.getSite()
+    contacts = site['contacts']
+
+    if base_hasattr(contacts, 'personnel-folder'):
+        if contacts['personnel-folder'].portal_type != 'Folder':
+            raise Exception('Subfolder personnel-folder already exists')
+        logger.warn('Nothing done: personnel-folder already exists. You must first delete it to reimport!')
+        return
+
+    site.portal_types.directory.filter_content_types = False
+    pf = api.content.create(container=contacts, type='Folder', id='personnel-folder', title='Mon personnel')
+    site.portal_types.directory.filter_content_types = True
+    api.content.transition(obj=pf, transition='show_internally')
+    # Set restrictions
+    site.portal_types.person.global_allow = True
+    pf.setConstrainTypesMode(1)
+    pf.setLocallyAllowedTypes(['person'])
+    pf.setImmediatelyAddableTypes(['person'])
+
+
 def configureDocumentViewer(context):
     """
         Set the settings of document viewer product

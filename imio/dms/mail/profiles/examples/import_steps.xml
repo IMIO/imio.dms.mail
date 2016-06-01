@@ -57,6 +57,14 @@ Add french configuration for collective.contact.plonegroup
 Add test own organization for imio.dms.mail
 </import-step>
 <import-step
+            id="imiodmsmail-addOwnPersonnel"
+            handler="imio.dms.mail.setuphandlers.addOwnPersonnel"
+            title="Add test own personnel for imio.dms.mail"
+            version="2013-03-14T15:00:00.00000">
+           <dependency step="imiodmsmail-addTestDirectory"/>
+Add test own personnel for imio.dms.mail
+</import-step>
+<import-step
             id="imiodmsmail-configureDocumentViewer"
             handler="imio.dms.mail.setuphandlers.configureDocumentViewer"
             title="Configure document viewer for imio.dms.mail"
