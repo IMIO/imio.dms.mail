@@ -77,4 +77,10 @@
         handler=".subscribers.mark_contact"
         />
 
+    <subscriber
+        for="collective.contact.widget.interfaces.IContactContent
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.contact_modified"
+        />
+
 </configure>

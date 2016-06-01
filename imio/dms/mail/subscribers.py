@@ -127,12 +127,14 @@ def organization_modified(obj, event):
 def mark_contact(contact, event):
     """ Set a marker interface on contact content. """
     if IObjectRemovedEvent.providedBy(event):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
         return
     if '/personnel-folder/' in contact.absolute_url_path() or '/plonegroup-organization' in contact.absolute_url_path():
         if not IPloneGroupContact.providedBy(contact):
             alsoProvides(contact, IPloneGroupContact)
         if INotPloneGroupContact.providedBy(contact):
             noLongerProvides(contact, INotPloneGroupContact)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
     else:
         if not INotPloneGroupContact.providedBy(contact):
             alsoProvides(contact, INotPloneGroupContact)
@@ -140,3 +142,14 @@ def mark_contact(contact, event):
             noLongerProvides(contact, IPloneGroupContact)
 
     contact.reindexObject(idxs='object_provides')
+
+
+def contact_modified(obj, event):
+    """
+        Update the sortable_title index
+    """
+    # at site removal
+#    if IObjectRemovedEvent.providedBy(event):
+#        return
+    if IPloneGroupContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')

@@ -4,8 +4,8 @@ Changelog
 2.0 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Reviewed dmsoutgoingmail schema.
+  [sgeulette]
 
 1.1 (2016-04-14)
 ----------------
