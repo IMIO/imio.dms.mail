@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
+from zope.interface import alsoProvides, noLongerProvides
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from plone import api
 from Products.CMFCore.utils import getToolByName
@@ -7,6 +8,7 @@ from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.registry.interfaces import IRecordModifiedEvent
 
+from collective.contact.plonegroup.interfaces import INotPloneGroupContact, IPloneGroupContact
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -120,3 +122,21 @@ def organization_modified(obj, event):
     pc = api.portal.get_tool('portal_catalog')
     for brain in pc(portal_type='organization', path='/'.join(obj.getPhysicalPath()), sort_on='path')[1:]:
         brain.getObject().reindexObject(idxs=['sortable_title'])
+
+
+def mark_contact(contact, event):
+    """ Set a marker interface on contact content. """
+    if IObjectRemovedEvent.providedBy(event):
+        return
+    if '/personnel-folder/' in contact.absolute_url_path() or '/plonegroup-organization' in contact.absolute_url_path():
+        if not IPloneGroupContact.providedBy(contact):
+            alsoProvides(contact, IPloneGroupContact)
+        if INotPloneGroupContact.providedBy(contact):
+            noLongerProvides(contact, INotPloneGroupContact)
+    else:
+        if not INotPloneGroupContact.providedBy(contact):
+            alsoProvides(contact, INotPloneGroupContact)
+        if IPloneGroupContact.providedBy(contact):
+            noLongerProvides(contact, IPloneGroupContact)
+
+    contact.reindexObject(idxs='object_provides')

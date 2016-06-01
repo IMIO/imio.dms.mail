@@ -62,4 +62,19 @@
         handler=".subscribers.organization_modified"
         />
 
+    <include package="z3c.unconfigure" file="meta.zcml" />
+    <unconfigure>
+        <subscriber
+            for="collective.contact.widget.interfaces.IContactContent
+                 zope.lifecycleevent.interfaces.IObjectMovedEvent"
+            handler="collective.contact.plonegroup.subscribers.mark_organization"
+        />
+    </unconfigure>
+
+    <subscriber
+        for="collective.contact.widget.interfaces.IContactContent
+             zope.lifecycleevent.interfaces.IObjectMovedEvent"
+        handler=".subscribers.mark_contact"
+        />
+
 </configure>

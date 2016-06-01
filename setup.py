@@ -69,6 +69,7 @@ setup(name='imio.dms.mail',
           'plone.app.dexterity[grok]',
           'plone.app.lockingbehavior',
           'plonetheme.imioapps',
+          'z3c.unconfigure',
           # -*- Extra requirements: -*-
       ],
       extras_require={'test':
