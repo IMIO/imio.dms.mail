@@ -23,10 +23,8 @@ class Migrate_To_2_0(Migrator):
         self.catalog = api.portal.get_tool('portal_catalog')
 
     def delete_outgoing_examples(self):
-        brains = self.catalog(portal_type=['dmsoutgoingmail'], id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
-                                                                   'reponse5', 'reponse6', 'reponse7', 'reponse8',
-                                                                   'reponse9'])
-        for brain in brains:
+        for brain in self.catalog(portal_type='dmsoutgoingmail', id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
+                                  'reponse5', 'reponse6', 'reponse7', 'reponse8', 'reponse9']):
             api.content.delete(obj=brain.getObject())
 
     def run(self):
