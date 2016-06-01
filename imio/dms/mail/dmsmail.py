@@ -25,7 +25,7 @@ from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMai
                                                 originalMailDateDefaultValue)
 from collective.dms.basecontent.relateddocs import RelatedDocs
 from collective.task.field import LocalRoleMasterSelectField
-from dexterity.localrolesfield.field import LocalRolesField
+from dexterity.localrolesfield.field import LocalRolesField, LocalRoleField
 
 from browser.settings import IImioDmsMailConfig
 from utils import voc_selected_org_suffix_users
@@ -264,6 +264,18 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         Extended schema for mail type field
     """
 
+    treating_groups = LocalRoleField(
+        title=_(u"Treating groups"),
+        required=True,
+        vocabulary=u'collective.dms.basecontent.treating_groups',
+    )
+
+    recipient_groups = LocalRolesField(
+        title=_(u"Recipient groups"),
+        required=False,
+        value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
+    )
+
     linked_mails = RelatedDocs(
         title=_(u"Linked mails"),
         required=False,
@@ -272,13 +284,17 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
     directives.widget(outgoing_date=DatetimeFieldWidget)
 
-    directives.order_before(recipients='related_docs')  # temporary when removing *_groups
-    directives.order_before(mail_date='related_docs')  # temporary when removing *_groups
-    directives.order_before(internal_reference_no='related_docs')  # temporary when removing *_groups
-    directives.order_after(notes='related_docs')  # temporary when removing *_groups
-
-    directives.omitted(
-        'treating_groups', 'recipient_groups', 'related_docs', 'reply_to')
+    directives.order_before(treating_groups='linked_mails')
+    directives.order_before(sender='linked_mails')
+    directives.order_before(recipients='linked_mails')
+    directives.order_before(mail_date='linked_mails')
+    directives.order_before(recipient_groups='linked_mails')
+    directives.order_before(reply_to='linked_mails')
+    directives.order_before(outgoing_date='linked_mails')
+    directives.order_before(internal_reference_no='linked_mails')
+    directives.order_before(notes='linked_mails')
+    directives.order_before(linked_mails='linked_mails')
+    directives.omitted('related_docs')
 
 
 class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
