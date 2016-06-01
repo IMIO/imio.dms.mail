@@ -28,9 +28,9 @@ class Migrate_To_2_0(Migrator):
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-addOwnPersonnel'], profile='examples')
         #self.runProfileSteps('imio.dms.mail', steps=[])
 
-        # set mail-searches folder as not next/prev navigable
-        # if not INextPrevNotNavigable.providedBy(im_folder['task-searches']):
-        #     alsoProvides(im_folder['task-searches'], INextPrevNotNavigable)
+        # set front-page folder as not next/prev navigable
+        if not INextPrevNotNavigable.providedBy(self.portal['front-page']):
+            alsoProvides(self.portal['front-page'], INextPrevNotNavigable)
 
         # self.upgradeAll()
 

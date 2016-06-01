@@ -389,6 +389,10 @@ def adaptDefaultPortal(context):
             site.portal_workflow.doActionFor(frontpage, "show_internally")
             frontpage.reindexObject()
             logger.info('front page adapted')
+        # set front-page folder as not next/prev navigable
+        if not INextPrevNotNavigable.providedBy(frontpage):
+            alsoProvides(frontpage, INextPrevNotNavigable)
+
     except AttributeError:
         #the 'front-page' object does not exist...
         pass
