@@ -34,4 +34,9 @@
         factory="imio.dms.mail.vocabularies.PloneGroupInterfacesVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.OMSenderVocabulary"
+        factory="imio.dms.mail.vocabularies.OMSenderVocabulary"
+        />
+
 </configure>

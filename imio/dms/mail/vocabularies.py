@@ -5,6 +5,7 @@ from zope.i18n import translate
 from zope.interface import implements
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
@@ -120,4 +121,20 @@ class PloneGroupInterfacesVocabulary(object):
             interface.__name__)
             for interface in interfaces]
 
+        return SimpleVocabulary(terms)
+
+
+class OMSenderVocabulary(object):
+    """ Outgoing mail sender vocabulary """
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        catalog = api.portal.get_tool('portal_catalog')
+        brains = catalog(portal_type=['person', 'held_position'],
+                         object_provides='collective.contact.plonegroup.interfaces.IPloneGroupContact',
+                         sort_on='sortable_title')
+        terms = []
+        for brain in brains:
+            terms.append(SimpleVocabulary.createTerm(brain.UID, brain.UID, brain.get_full_title))
         return SimpleVocabulary(terms)
