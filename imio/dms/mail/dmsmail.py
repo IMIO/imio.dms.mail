@@ -22,7 +22,8 @@ from AccessControl import getSecurityManager
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
 from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
 from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
-                                                originalMailDateDefaultValue)
+                                                originalMailDateDefaultValue, DmsOutgoingMail)
+from collective.dms.mailcontent import _ as _cdmsm
 from collective.dms.basecontent.relateddocs import RelatedDocs
 from collective.task.field import LocalRoleMasterSelectField
 from dexterity.localrolesfield.field import LocalRolesField, LocalRoleField
@@ -276,6 +277,12 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
     )
 
+    sender = schema.Choice(
+        title=_cdmsm(u'Sender'),
+        required=True,
+        vocabulary=u'imio.dms.mail.OMSenderVocabulary',
+    )
+
     linked_mails = RelatedDocs(
         title=_(u"Linked mails"),
         required=False,
@@ -301,3 +308,14 @@ class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
     """ """
     def bases(self, schemaName, tree):
         return (IImioDmsOutgoingMail, )
+
+
+class ImioDmsOutgoingMail(DmsOutgoingMail):
+    """
+    """
+    implements(IImioDmsOutgoingMail)
+    __ac_local_roles_block__ = False
+
+    # Needed by collective.z3cform.rolefield. Need to be overriden here
+    treating_groups = FieldProperty(IImioDmsOutgoingMail[u'treating_groups'])
+    recipient_groups = FieldProperty(IImioDmsOutgoingMail[u'recipient_groups'])

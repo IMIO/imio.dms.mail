@@ -26,7 +26,7 @@ class Migrate_To_2_0(Migrator):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-addOwnPersonnel'], profile='examples')
-        #self.runProfileSteps('imio.dms.mail', steps=[])
+        self.runProfileSteps('imio.dms.mail', steps=['typeinfo'])
 
         # set front-page folder as not next/prev navigable
         if not INextPrevNotNavigable.providedBy(self.portal['front-page']):
