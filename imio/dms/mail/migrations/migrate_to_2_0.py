@@ -22,9 +22,17 @@ class Migrate_To_2_0(Migrator):
         self.registry = getUtility(IRegistry)
         self.catalog = api.portal.get_tool('portal_catalog')
 
+    def delete_outgoing_examples(self):
+        brains = self.catalog(portal_type=['dmsoutgoingmail'], id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
+                                                                   'reponse5', 'reponse6', 'reponse7', 'reponse8',
+                                                                   'reponse9'])
+        for brain in brains:
+            api.content.delete(obj=brain.getObject())
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
+        self.delete_outgoing_examples()
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-addOwnPersonnel'], profile='examples')
         self.runProfileSteps('imio.dms.mail', steps=['typeinfo'])
 
