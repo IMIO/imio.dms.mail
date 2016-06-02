@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-05-31 13:19+0000\n"
+"POT-Creation-Date: 2016-06-02 11:48+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,7 +45,7 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ./browser/settings.py:37
+#: ./browser/settings.py:45
 msgid "Assigned user check"
 msgstr ""
 
@@ -89,15 +89,15 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:44
+#: ./browser/settings.py:52
 msgid "Check if the incoming mail 'original mail date' field must be required."
 msgstr ""
 
-#: ./browser/settings.py:38
+#: ./browser/settings.py:46
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./vocabularies.py:79
+#: ./vocabularies.py:80
 msgid "Choose a value !"
 msgstr ""
 
@@ -152,12 +152,12 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./dmsmail.py:268
+#: ./dmsmail.py:296
 msgid "Linked mails"
 msgstr ""
 
 #: ./browser/settings.py:31
-#: ./dmsmail.py:72
+#: ./dmsmail.py:76
 msgid "Mail type"
 msgstr ""
 
@@ -193,11 +193,11 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./browser/settings.py:43
+#: ./browser/settings.py:51
 msgid "Original mail date requirement"
 msgstr ""
 
-#: ./dmsmail.py:272
+#: ./dmsmail.py:300
 msgid "Outgoing Date"
 msgstr ""
 
@@ -210,7 +210,7 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: ./dmsmail.py:66
+#: ./dmsmail.py:70
 msgid "Recipient groups"
 msgstr ""
 
@@ -247,7 +247,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1052
+#: ./setuphandlers.py:1087
 msgid "Templates"
 msgstr ""
 
@@ -261,7 +261,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:175
 #: ./browser/table.py:36
-#: ./dmsmail.py:49
+#: ./dmsmail.py:51
 msgid "Treating groups"
 msgstr ""
 
@@ -269,11 +269,15 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
+#: ./browser/settings.py:37
+msgid "Types of outgoing mail"
+msgstr ""
+
 #: ./browser/batchactions.py:177
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./dmsmail.py:212
+#: ./dmsmail.py:209
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
