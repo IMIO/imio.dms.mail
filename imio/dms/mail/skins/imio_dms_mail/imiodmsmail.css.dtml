@@ -163,6 +163,9 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     font-weight: bold;
 }
 
+.apButtonAction_reply {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/reply_icon.png');
+}
 
 /* Configure autocomplete widget */
 ul.select2-choices {
