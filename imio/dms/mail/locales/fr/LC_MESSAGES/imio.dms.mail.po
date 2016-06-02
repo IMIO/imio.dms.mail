@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-06-02 11:48+0000\n"
+"POT-Creation-Date: 2016-06-02 13:27+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -152,10 +152,6 @@ msgstr "Courriers entrants"
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./dmsmail.py:296
-msgid "Linked mails"
-msgstr "Courriers liés"
-
 #: ./browser/settings.py:31
 #: ./dmsmail.py:76
 msgid "Mail type"
@@ -197,7 +193,7 @@ msgstr "Commentaire optionnel à afficher dans l'historique"
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
-#: ./dmsmail.py:300
+#: ./dmsmail.py:296
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -277,7 +273,7 @@ msgstr "Types de courrier sortant"
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas changer ce champ sur les éléments sélectionnés. Recommencez en modifiant votre sélection."
 
-#: ./dmsmail.py:209
+#: ./dmsmail.py:210
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 

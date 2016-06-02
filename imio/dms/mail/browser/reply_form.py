@@ -25,12 +25,10 @@ class ReplyForm(DefaultAddForm):
         super(ReplyForm, self).updateFields()
         imail = self.context
         form = self.request.form
-        linked_mails = ('/'.join(imail.getPhysicalPath()),)
-        form["form.widgets.linked_mails"] = linked_mails
-
-        recipient_path = '/'.join(imail.sender.to_object.getPhysicalPath())
-        form["form.widgets.recipients"] = (recipient_path, )
-        # self.fields['linked_mails'].mode = DISPLAY_MODE
+        form["form.widgets.reply_to"] = ('/'.join(imail.getPhysicalPath()),)
+        form["form.widgets.recipients"] = ('/'.join(imail.sender.to_object.getPhysicalPath()), )
+        if imail.external_reference_no:
+            form["form.widgets.external_reference_no"] = imail.external_reference_no
 
     def add(self, obj):
         """Create outgoing mail in outgoing-mail folder."""

@@ -42,24 +42,24 @@ class TestDmsmail(unittest.TestCase):
                                          **{'title': 'Test with auto ref'})
         self.assertEquals(imail.Title(), 'E0010 - Test with auto ref')
 
-    def test_linked_mails(self):
+    def test_reply_to(self):
         catalog = getUtility(ICatalog)
         intids = getUtility(IIntIds)
         imail1 = self.portal['incoming-mail']['courrier1']
         imail2 = self.portal['incoming-mail']['courrier2']
         omail1 = self.portal['outgoing-mail']['reponse1']
         omail2 = self.portal['outgoing-mail']['reponse2']
-        omail1.linked_mails = [
+        omail1.reply_to = [
             RelationValue(intids.getId(imail1)),
             RelationValue(intids.getId(imail2)),
             RelationValue(intids.getId(omail2)),
         ]
         modified(omail1)
-        self.assertEqual(len(omail1.linked_mails), 3)
+        self.assertEqual(len(omail1.reply_to), 3)
         omail_intid = intids.queryId(omail1)
         query = {
             'from_id': omail_intid,
-            'from_attribute': 'linked_mails'
+            'from_attribute': 'reply_to'
         }
 
         linked = set([rel.to_object for rel in catalog.findRelations(query)])

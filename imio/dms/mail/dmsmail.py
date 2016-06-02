@@ -90,8 +90,9 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     directives.order_before(external_reference_no='recipient_groups')
     directives.order_before(notes='recipient_groups')
     directives.order_before(treating_groups='recipient_groups')
+    directives.order_after(reply_to='recipient_groups')
 
-    directives.omitted('reply_to', 'related_docs', 'recipients', 'notes')
+    directives.omitted('related_docs', 'recipients', 'notes')
     #directives.widget(recipient_groups=SelectFieldWidget)
 
 # Compatibility with old vocabularies
@@ -292,26 +293,19 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         title=_cdmsm(u"External Reference Number"),
         required=False,)
 
-    linked_mails = RelatedDocs(
-        title=_(u"Linked mails"),
-        required=False,
-        portal_types=('dmsincomingmail', 'dmsoutgoingmail'))
-
     outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
     directives.widget(outgoing_date=DatetimeFieldWidget)
 
-    directives.order_before(treating_groups='linked_mails')
-    directives.order_before(sender='linked_mails')
-    directives.order_before(recipients='linked_mails')
-    directives.order_before(mail_date='linked_mails')
-    directives.order_before(mail_type='linked_mails')
-    directives.order_before(recipient_groups='linked_mails')
-    directives.order_before(reply_to='linked_mails')
-    directives.order_before(outgoing_date='linked_mails')
-    directives.order_before(internal_reference_no='linked_mails')
-    directives.order_before(external_reference_no='linked_mails')
-    directives.order_before(notes='linked_mails')
-    directives.order_before(linked_mails='linked_mails')
+    directives.order_before(treating_groups='notes')
+    directives.order_before(sender='notes')
+    directives.order_before(recipients='notes')
+    directives.order_before(mail_date='notes')
+    directives.order_before(mail_type='notes')
+    directives.order_before(recipient_groups='notes')
+    directives.order_before(reply_to='notes')
+    directives.order_before(internal_reference_no='notes')
+    directives.order_before(external_reference_no='notes')
+    directives.order_before(outgoing_date='notes')
     directives.omitted('related_docs')
 
 

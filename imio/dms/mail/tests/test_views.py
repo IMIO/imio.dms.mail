@@ -21,7 +21,7 @@ class TestReplyForm(unittest.TestCase):
         view.updateFields()
         form = self.portal.REQUEST.form
         expected_linked_mails = ('/plone/incoming-mail/courrier1', )
-        self.assertEqual(form['form.widgets.linked_mails'], expected_linked_mails)
+        self.assertEqual(form['form.widgets.reply_to'], expected_linked_mails)
         self.assertEqual(translate(view.label), u'Reply to E0001 - Courrier 1')
         expected_recipients = ('/plone/contacts/electrabel', )
         self.assertEqual(form['form.widgets.recipients'], expected_recipients)
