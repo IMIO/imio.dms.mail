@@ -11,7 +11,7 @@
 /* <dtml-with base_properties> (do not remove this :) */
 /* <dtml-call "REQUEST.set('portal_url', portal_url())"> (not this either :) */
 
-/* view mode of dmsmail (ok) */
+/* view mode of IMdmsmail (ok) */
 
 .template-view.portaltype-dmsincomingmail #fieldset-versions {
     display:table-cell;
@@ -62,6 +62,20 @@
     padding-top: 5em;
 }
 
+/* edit mode of OGdmsmail */
+
+#form_widgets_sender_select_chzn {
+    width: auto !important;
+}
+
+#content #form_widgets_sender_select_chzn a:link, a:visited {
+    border: 1px solid #aaa;
+    color: inherit;
+}
+
+.chzn-container {
+    font-size: inherit;
+}
 /* Display None */
 
 .template-view #formfield-form-widgets-ITask-task_description .formHelp {

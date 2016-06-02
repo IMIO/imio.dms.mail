@@ -26,6 +26,7 @@ from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMai
 from collective.dms.mailcontent import _ as _cdmsm
 from collective.dms.basecontent.relateddocs import RelatedDocs
 from collective.task.field import LocalRoleMasterSelectField
+from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from dexterity.localrolesfield.field import LocalRolesField, LocalRoleField
 
 from browser.settings import IImioDmsMailConfig
@@ -282,6 +283,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         required=True,
         vocabulary=u'imio.dms.mail.OMSenderVocabulary',
     )
+    directives.widget('sender', AjaxChosenFieldWidget, populate_select=True)
 
     linked_mails = RelatedDocs(
         title=_(u"Linked mails"),
