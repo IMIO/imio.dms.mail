@@ -61,6 +61,8 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
              },
         )
     )
+    # master select don't work with AjaxChosenFieldWidget widget
+    # directives.widget('treating_groups', AjaxChosenFieldWidget, populate_select=True)
     # Using write_permission hides field. Using display in edit view is preferred
     # directives.write_permission(treating_groups='imio.dms.mail.write_treating_group_field')
 
@@ -271,6 +273,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         required=True,
         vocabulary=u'collective.dms.basecontent.treating_groups',
     )
+    directives.widget('treating_groups', AjaxChosenFieldWidget, populate_select=True, prompt=False)
 
     recipient_groups = LocalRolesField(
         title=_(u"Recipient groups"),
