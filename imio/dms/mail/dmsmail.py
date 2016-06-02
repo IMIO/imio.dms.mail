@@ -81,13 +81,6 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         default=None,
     )
 
-    #password = schema.Password(
-    #    title=_(u"Password"),
-    #    description=_(u"Your password."),
-    #    required=True,
-    #    default='password'
-    #)
-
     # doesn't work well if IImioDmsIncomingMail is a behavior instead a subclass
     directives.order_before(sender='recipient_groups')
     directives.order_before(mail_type='recipient_groups')
@@ -295,6 +288,10 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         default=None,
     )
 
+    external_reference_no = schema.TextLine(
+        title=_cdmsm(u"External Reference Number"),
+        required=False,)
+
     linked_mails = RelatedDocs(
         title=_(u"Linked mails"),
         required=False,
@@ -312,6 +309,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     directives.order_before(reply_to='linked_mails')
     directives.order_before(outgoing_date='linked_mails')
     directives.order_before(internal_reference_no='linked_mails')
+    directives.order_before(external_reference_no='linked_mails')
     directives.order_before(notes='linked_mails')
     directives.order_before(linked_mails='linked_mails')
     directives.omitted('related_docs')
