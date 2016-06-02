@@ -33,6 +33,14 @@ class IImioDmsMailConfig(Interface):
 
     widget('mail_types', DataGridFieldFactory, allow_reorder=True)
 
+    omail_types = schema.List(
+        title=_(u'Types of outgoing mail'),
+        description=_(u"Once created and used, value doesn't be changed anymore."),
+        value_type=DictRow(title=_("Mail type"),
+                           schema=IMailTypeSchema))
+
+    widget('omail_types', DataGridFieldFactory, allow_reorder=True)
+
     assigned_user_check = schema.Bool(
         title=_(u'Assigned user check'),
         description=_(u'Check if there is an assigned user before proposing incoming mail to an agent.'),
@@ -62,3 +70,7 @@ def manageIImioDmsMailConfigChange(event):
             event.record.interface == IImioDmsMailConfig and event.record.fieldName == 'mail_types'):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMActiveMailTypesVocabulary')
+    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
+            event.record.interface == IImioDmsMailConfig and event.record.fieldName == 'omail_types'):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMMailTypesVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')

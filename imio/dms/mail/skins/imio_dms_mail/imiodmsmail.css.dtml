@@ -62,7 +62,7 @@
     padding-top: 5em;
 }
 
-/* edit mode of OGdmsmail */
+/* edit mode of OMdmsmail */
 
 #form_widgets_sender_select_chzn {
     width: auto !important;

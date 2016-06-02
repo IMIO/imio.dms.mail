@@ -288,6 +288,13 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     )
     directives.widget('sender', AjaxChosenFieldWidget, populate_select=True)
 
+    mail_type = schema.Choice(
+        title=_("Mail type"),
+        required=True,
+        vocabulary=u'imio.dms.mail.OMActiveMailTypesVocabulary',
+        default=None,
+    )
+
     linked_mails = RelatedDocs(
         title=_(u"Linked mails"),
         required=False,
@@ -300,6 +307,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     directives.order_before(sender='linked_mails')
     directives.order_before(recipients='linked_mails')
     directives.order_before(mail_date='linked_mails')
+    directives.order_before(mail_type='linked_mails')
     directives.order_before(recipient_groups='linked_mails')
     directives.order_before(reply_to='linked_mails')
     directives.order_before(outgoing_date='linked_mails')

@@ -39,4 +39,14 @@
         factory="imio.dms.mail.vocabularies.OMSenderVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.OMMailTypesVocabulary"
+        factory="imio.dms.mail.vocabularies.OMMailTypesVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.OMActiveMailTypesVocabulary"
+        factory="imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary"
+        />
+
 </configure>

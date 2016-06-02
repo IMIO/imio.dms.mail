@@ -374,3 +374,42 @@ class IMMCTV(MissingChoiceTermsVocabulary):
             if term.token == token:
                 return term
         raise LookupError(token)
+
+
+class OMMCTV(MissingChoiceTermsVocabulary):
+    """ Managing missing terms for IImioDmsOutgoingMail. """
+
+    def complete_voc(self):
+        if self.field.getName() == 'mail_type':
+            return getUtility(IVocabularyFactory, 'imio.dms.mail.OMMailTypesVocabulary')(self.context)
+        else:
+            return SimpleVocabulary([])
+
+    def getTerm(self, value):
+        try:
+            return super(MissingTermsMixin, self).getTerm(value)
+        except LookupError:
+            try:
+                return self.complete_voc().getTerm(value)
+            except LookupError:
+                pass
+        if (IContextAware.providedBy(self.widget) and not self.widget.ignoreContext):
+            curValue = getMultiAdapter((self.widget.context, self.field), IDataManager).query()
+            if curValue == value:
+                return self._makeMissingTerm(value)
+        raise
+
+    def getTermByToken(self, token):
+        try:
+            return super(MissingTermsMixin, self).getTermByToken(token)
+        except LookupError:
+            try:
+                return self.complete_voc().getTermByToken(token)
+            except LookupError:
+                pass
+        if (IContextAware.providedBy(self.widget) and not self.widget.ignoreContext):
+            value = getMultiAdapter((self.widget.context, self.field), IDataManager).query()
+            term = self._makeMissingTerm(value)
+            if term.token == token:
+                return term
+        raise LookupError(token)

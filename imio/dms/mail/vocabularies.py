@@ -70,7 +70,7 @@ class AssignedUsersVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-def getMailTypes(choose=False, active=[True, False]):
+def getMailTypes(choose=False, active=[True, False], field='mail_types'):
     """
         Create a vocabulary from registry mail_types variable
     """
@@ -79,7 +79,7 @@ def getMailTypes(choose=False, active=[True, False]):
     if choose:
         terms.append(SimpleVocabulary.createTerm(None, '', _("Choose a value !")))
     id_utility = queryUtility(IIDNormalizer)
-    for mail_type in settings.mail_types:
+    for mail_type in getattr(settings, field) or []:
         #value (stored), token (request), title
         if mail_type['mt_active'] in active:
             terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
@@ -138,3 +138,21 @@ class OMSenderVocabulary(object):
         for brain in brains:
             terms.append(SimpleVocabulary.createTerm(brain.UID, brain.UID, brain.get_full_title))
         return SimpleVocabulary(terms)
+
+
+class OMMailTypesVocabulary(object):
+    """ Mail types vocabulary """
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        return getMailTypes(field='omail_types')
+
+
+class OMActiveMailTypesVocabulary(object):
+    """ Active mail types vocabulary """
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        return getMailTypes(choose=True, active=[True], field='omail_types')
