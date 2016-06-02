@@ -69,7 +69,7 @@ dmsmail.initialize_fancytree = function () {
 
 $(document).ready(function(){
     $('#faceted-form #type_widget').click(dmsmail.manage_orgtype_filter);
-    $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers votre organisation</a></span>');
+    $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a></span>');
 
     $('.overlay').prepOverlay({
         subtype: 'ajax',
