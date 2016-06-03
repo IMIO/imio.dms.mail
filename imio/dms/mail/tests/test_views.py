@@ -3,6 +3,9 @@
 import json
 import unittest
 from zope.i18n import translate
+from plone import api
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 
 from ..browser.views import parse_query
 from ..testing import DMSMAIL_INTEGRATION_TESTING
@@ -25,6 +28,14 @@ class TestReplyForm(unittest.TestCase):
         self.assertEqual(translate(view.label), u'Reply to E0001 - Courrier 1')
         expected_recipients = ('/plone/contacts/electrabel', )
         self.assertEqual(form['form.widgets.recipients'], expected_recipients)
+
+    def test_add(self):
+        setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
+        imail1 = self.portal['incoming-mail']['courrier1']
+        omail1 = api.content.create(container=self.portal, type='dmsoutgoingmail', id='newo1', title='TEST')
+        view = imail1.unrestrictedTraverse('@@reply')
+        view.add(omail1)
+        self.assertIn('newo1', self.portal['outgoing-mail'])
 
 
 class TestPloneView(unittest.TestCase):
