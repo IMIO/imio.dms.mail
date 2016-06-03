@@ -16,6 +16,7 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.registry.interfaces import IRegistry
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
+from plone.app.textfield import RichText
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from AccessControl import getSecurityManager
 
@@ -24,6 +25,7 @@ from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumen
 from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
                                                 originalMailDateDefaultValue, DmsOutgoingMail)
 from collective.dms.mailcontent import _ as _cdmsm
+from collective.dms.basecontent import _ as _cdmsbc
 from collective.dms.basecontent.relateddocs import RelatedDocs
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
@@ -295,6 +297,11 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
 
     outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
     directives.widget(outgoing_date=DatetimeFieldWidget)
+
+    notes = RichText(
+        title=_cdmsbc(u"Notes"),
+        required=False,
+    )
 
     directives.order_before(treating_groups='notes')
     directives.order_before(sender='notes')
