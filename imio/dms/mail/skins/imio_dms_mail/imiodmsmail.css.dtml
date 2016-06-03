@@ -11,15 +11,15 @@
 /* <dtml-with base_properties> (do not remove this :) */
 /* <dtml-call "REQUEST.set('portal_url', portal_url())"> (not this either :) */
 
-/* view mode of IMdmsmail (ok) */
+/* view mode of IMdmsmail and OMdmsmail (ok) */
 
-.template-view.portaltype-dmsincomingmail #fieldset-versions {
+.template-view.portaltype-dmsincomingmail #fieldset-versions, .template-view.portaltype-dmsoutgoingmail #fieldset-versions {
     display:table-cell;
     min-width: 60%;
     width: inherit !important;
 }
 
-.template-view.portaltype-dmsincomingmail #fields {
+.template-view.portaltype-dmsincomingmail #fields, .template-view.portaltype-dmsoutgoingmail #fields {
     display:table-cell;
     float:none !important;
 }

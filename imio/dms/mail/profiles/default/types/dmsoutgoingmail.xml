@@ -7,4 +7,5 @@
  <!--property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property-->
  <property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property>
  <property name="schema_policy">schema_policy_imiodmsoutgoingmail</property>
+ <alias from="edit" to="@@dmsdocument-edit"/>
 </object>
