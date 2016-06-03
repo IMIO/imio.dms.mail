@@ -140,6 +140,7 @@ def postInstall(context):
         om_folder.setConstrainTypesMode(1)
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
+        site.portal_workflow.doActionFor(om_folder, "show_internally")
         logger.info('outgoing-mail folder created')
 
     # enable portal diff on incoming mail

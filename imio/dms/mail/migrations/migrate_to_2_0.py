@@ -27,10 +27,16 @@ class Migrate_To_2_0(Migrator):
                                   'reponse5', 'reponse6', 'reponse7', 'reponse8', 'reponse9']):
             api.content.delete(obj=brain.getObject())
 
+    def update_outgoingmail_folder(self):
+        omf = self.portal['outgoing-mail']
+        if api.content.get_state(omf) != 'internally_published':
+            api.content.transition(obj=omf, to_state="internally_published")
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
         self.delete_outgoing_examples()
+        self.update_outgoingmail_folder()
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo'])
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
