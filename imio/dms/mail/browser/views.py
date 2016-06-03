@@ -49,7 +49,7 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
                 'PODTemplate',
                 'StyleTemplate',
                 # 'SubTemplate',
-                ),
+            ),
         }
 
     def redirect_url(self, uid):
@@ -59,7 +59,7 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
             "template_uid={}".format(uid),
             "output_format=odt",
         ]
-        return  "{}/document-generation?{}".format(url, "&".join(params))
+        return "{}/document-generation?{}".format(url, "&".join(params))
 
 
 def parse_query(text):

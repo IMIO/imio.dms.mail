@@ -18,10 +18,16 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.view = self.im1.unrestrictedTraverse('@@actions_panel')
 
     def test_renderReplyButton(self):
+        self.view.useIcons = True
+        self.assertEqual(self.view.renderReplyButton(),
+                         '<td class="noPadding">\n  <a target="_parent" href="http://nohost/plone/incoming-mail/'
+                         'courrier1/@@reply">\n     \n     <img title="Reply" src=" http://nohost/plone/'
+                         '++resource++imio.dms.mail/reply_icon.png" />\n  </a>\n</td>\n<td class="noPadding"></td>\n')
+        self.view.useIcons = False
         self.assertEqual(self.view.renderReplyButton(),
                          '<td class="noPadding">\n  <a target="_parent" href="http://nohost/plone/incoming-mail/'
                          'courrier1/@@reply">\n     <input type="button" value="Reply" class="apButton apButtonAction '
-                         'apButtonAction_reply" />\n  </a>\n</td>\n<td class="noPadding"></td>\n')
+                         'apButtonAction_reply" />\n     \n  </a>\n</td>\n<td class="noPadding"></td>\n')
 
     def test_sortTransitions(self):
         self.assertListEqual([t['id'] for t in self.view.getTransitions()],
