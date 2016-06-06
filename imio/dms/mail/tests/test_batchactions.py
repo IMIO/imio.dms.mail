@@ -4,8 +4,7 @@ import unittest
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 
-from ..browser.batchactions import (getAvailableTransitionsVoc, checkSelectionAboutTreatingGroup,
-                                    getAvailableAssignedUserVoc)
+from ..browser.batchactions import (getAvailableTransitionsVoc, canNotModify, getAvailableAssignedUserVoc)
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 
 
@@ -61,11 +60,11 @@ class BatchActions(unittest.TestCase):
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im1))
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im2))
 
-    def test_checkSelectionAboutTreatingGroup(self):
+    def test_canNotModify(self):
         brains = self.pc(UID=[self.im1.UID()])
-        self.assertFalse(checkSelectionAboutTreatingGroup(brains))
+        self.assertFalse(canNotModify(brains, perm='imio.dms.mail : Write treating group field'))
         self.im1.manage_permission('imio.dms.mail : Write treating group field', (), acquire=0)
-        self.assertTrue(checkSelectionAboutTreatingGroup(brains))
+        self.assertTrue(canNotModify(brains, perm='imio.dms.mail : Write treating group field'))
 
     def test_TreatingGroupBatchActionForm(self):
         self.assertEqual(self.im1.treating_groups, self.pgof['direction-generale'].UID())

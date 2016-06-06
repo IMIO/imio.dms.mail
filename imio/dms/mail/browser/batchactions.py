@@ -75,6 +75,20 @@ def brains_from_uids(uids):
     brains = catalog(UID=uids)
     return brains
 
+
+def canNotModify(brains, perm='Modify portal content'):
+    """ Check all brains to verify change permission """
+    pb = False
+    sm = getSecurityManager()
+    for brain in brains:
+        obj = brain.getObject()
+        if not sm.checkPermission(perm, obj):
+            pb = True
+            break
+    return pb
+
+cannot_modify_msg = _(u"You can't change this field on selected items. Modify your selection.")
+
 # IM batch actions
 
 
@@ -102,7 +116,7 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
 
     def update(self):
         super(TransitionBatchActionForm, self).update()
-        self.voc = getAvailableTransitionsVoc(brains_from_uids(self.request.form['form.widgets.uids']))
+        self.voc = getAvailableTransitionsVoc(self.brains)
         self.fields += Fields(schema.Choice(
             __name__='transition',
             title=_(u'Transition'),
@@ -151,30 +165,17 @@ class OldTreatingGroupBatchActionForm(DashboardBatchActionForm):
 #        super(TreatingGroupBatchActionForm, self).updateWidgets()
 
 
-def checkSelectionAboutTreatingGroup(brains):
-    """ Check all brains to verify treating_groups change permission """
-    pb = False
-    sm = getSecurityManager()
-    for brain in brains:
-        obj = brain.getObject()
-        if not sm.checkPermission('imio.dms.mail : Write treating group field', obj):
-            pb = True
-            break
-    return pb
-
-
 class TreatingGroupBatchActionForm(DashboardBatchActionForm):
 
     label = _(u"Batch treating group change")
 
     def update(self):
         super(TreatingGroupBatchActionForm, self).update()
-        self.pb = checkSelectionAboutTreatingGroup(brains_from_uids(self.request.form['form.widgets.uids']))
+        self.pb = canNotModify(self.brains, perm='imio.dms.mail : Write treating group field')
         self.fields += Fields(schema.Choice(
             __name__='treating_group',
             title=_(u"Treating groups"),
-            description=(self.pb and
-                         _(u"You can't change this field on selected items. Modify your selection.") or u''),
+            description=(self.pb and cannot_modify_msg or u''),
             required=(self.pb and False or True),
             vocabulary=(self.pb and SimpleVocabulary([]) or u'collective.dms.basecontent.treating_groups'),
         ))
@@ -202,9 +203,11 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
 
     def update(self):
         super(RecipientGroupBatchActionForm, self).update()
+        self.pb = canNotModify(self.brains)
         self.fields += Fields(MasterSelectField(
             __name__='action_choice',
             title=_(u'Batch action choice'),
+            description=(self.pb and cannot_modify_msg or u''),
             vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add items')),
                                          SimpleTerm(value=u'remove', title=_(u'Remove items')),
                                          SimpleTerm(value=u'replace', title=_(u'Replace some items by others')),
@@ -223,35 +226,37 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
                  'siblings': True,
                  },
             ),
-            required=True,
+            required=(self.pb and False or True),
             default=u'add'
         ))
-        self.fields += Fields(schema.List(
-            __name__='removed_values',
-            title=_(u"Removed values"),
-            description=_(u"Select the values to remove (CTRL+click)"),
-            required=False,
-            value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
-        ))
-        self.fields += Fields(schema.List(
-            __name__='added_values',
-            title=_(u"Added values"),
-            description=_(u"Select the values to add (CTRL+click)"),
-            required=False,
-            value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
-        ))
-        self.fields["removed_values"].widgetFactory = SelectFieldWidget
-        self.fields["added_values"].widgetFactory = SelectFieldWidget
+        if not self.pb:
+            self.fields += Fields(schema.List(
+                __name__='removed_values',
+                title=_(u"Removed values"),
+                description=_(u"Select the values to remove (CTRL+click)"),
+                required=False,
+                value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
+            ))
+            self.fields += Fields(schema.List(
+                __name__='added_values',
+                title=_(u"Added values"),
+                description=_(u"Select the values to add (CTRL+click)"),
+                required=False,
+                value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
+            ))
+            self.fields["removed_values"].widgetFactory = SelectFieldWidget
+            self.fields["added_values"].widgetFactory = SelectFieldWidget
 
         super(DashboardBatchActionForm, self).update()
 
-#        self.widgets['action_choice'].size = 4
-        self.widgets['removed_values'].multiple = 'multiple'
-        self.widgets['removed_values'].size = 5
-        self.widgets['added_values'].multiple = 'multiple'
-        self.widgets['added_values'].size = 5
+        if not self.pb:
+            #        self.widgets['action_choice'].size = 4
+            self.widgets['removed_values'].multiple = 'multiple'
+            self.widgets['removed_values'].size = 5
+            self.widgets['added_values'].multiple = 'multiple'
+            self.widgets['added_values'].size = 5
 
-    @button.buttonAndHandler(_(u'Apply'), name='apply')
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: not fi.pb)
     def handleApply(self, action):
         """Handle apply button."""
         data, errors = self.extractData()
@@ -305,16 +310,17 @@ class AssignedUserBatchActionForm(DashboardBatchActionForm):
     def update(self):
         super(AssignedUserBatchActionForm, self).update()
         self.voc = getAvailableAssignedUserVoc(self.brains, self.master)
+        self.pb = canNotModify(self.brains)
         self.fields += Fields(schema.Choice(
             __name__='assigned_user',
             title=TMF(u'Assigned user'),
             vocabulary=self.voc,
-            description=(len(self.voc) == 0 and self.err_msg or u''),
-            required=(len(self.voc) and True or False)))
+            description=((len(self.voc) == 0 and self.err_msg) or (self.pb and cannot_modify_msg) or u''),
+            required=(len(self.voc) and not self.pb and True or False)))
 
         super(DashboardBatchActionForm, self).update()
 
-    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: len(fi.voc))
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: len(fi.voc) and not fi.pb)
     def handleApply(self, action):
         """Handle apply button."""
         data, errors = self.extractData()
@@ -337,12 +343,11 @@ class AssignedGroupBatchActionForm(DashboardBatchActionForm):
     def update(self):
         super(AssignedGroupBatchActionForm, self).update()
         #self.pb = checkSelectionAboutTreatingGroup(brains_from_uids(self.request.form['form.widgets.uids']))
-        self.pb = False
+        self.pb = canNotModify(self.brains)
         self.fields += Fields(schema.Choice(
             __name__='assigned_group',
             title=TMF(u"Assigned group"),
-            description=(self.pb and
-                         _(u"You can't change this field on selected items. Modify your selection.") or u''),
+            description=(self.pb and cannot_modify_msg or u''),
             required=(self.pb and False or True),
             vocabulary=(self.pb and SimpleVocabulary([]) or u'collective.dms.basecontent.treating_groups'),
         ))
