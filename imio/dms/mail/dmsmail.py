@@ -114,7 +114,7 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     """
     """
     implements(IImioDmsIncomingMail)
-    __ac_local_roles_block__ = False
+    __ac_local_roles_block__ = True
 
     treating_groups = FieldProperty(IImioDmsIncomingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsIncomingMail[u'recipient_groups'])
