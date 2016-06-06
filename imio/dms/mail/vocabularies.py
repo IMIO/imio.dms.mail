@@ -2,8 +2,8 @@
 """Vocabularies."""
 from zope.component import getUtility, queryUtility
 from zope.i18n import translate
-from zope.interface import implements
-from zope.schema.interfaces import IVocabularyFactory
+from zope.interface import implements, alsoProvides
+from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
@@ -11,7 +11,7 @@ from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPloneGroupContact
-from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users
+from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users, organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile
 from browser.settings import IImioDmsMailConfig
 from . import _
@@ -156,3 +156,16 @@ class OMActiveMailTypesVocabulary(object):
     @ram.cache(voc_cache_key)
     def __call__(self, context):
         return getMailTypes(choose=True, active=[True], field='omail_types')
+
+
+def encodeur_active_orgs(context):
+    current_user = api.user.get_current()
+    factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
+    voc = factory(context)
+    # !! TO BE CONTINUED !!
+    if not current_user.has_role(['Manager', 'Site Administrator']) and api.content.get_state(context) == 'private':
+        orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), ['encodeur', 'validateur'])
+        voc.vocab = SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
+    return voc
+
+alsoProvides(encodeur_active_orgs, IContextSourceBinder)

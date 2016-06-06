@@ -26,13 +26,13 @@ from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMai
                                                 originalMailDateDefaultValue, DmsOutgoingMail)
 from collective.dms.mailcontent import _ as _cdmsm
 from collective.dms.basecontent import _ as _cdmsbc
-from collective.dms.basecontent.relateddocs import RelatedDocs
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from dexterity.localrolesfield.field import LocalRolesField, LocalRoleField
 
 from browser.settings import IImioDmsMailConfig
 from utils import voc_selected_org_suffix_users
+from vocabularies import encodeur_active_orgs
 
 from . import _
 
@@ -258,6 +258,10 @@ class AddIM(DefaultAddView):
 
     form = CustomAddForm
 
+###################################################################
+######                   OUTGOING MAILS                       #####
+###################################################################
+
 
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
     """
@@ -267,7 +271,8 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     treating_groups = LocalRoleField(
         title=_(u"Treating groups"),
         required=True,
-        vocabulary=u'collective.dms.basecontent.treating_groups',
+        source=encodeur_active_orgs
+        #vocabulary=u'collective.dms.basecontent.treating_groups',
     )
     directives.widget('treating_groups', AjaxChosenFieldWidget, populate_select=True, prompt=False)
 
