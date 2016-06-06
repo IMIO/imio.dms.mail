@@ -60,6 +60,7 @@ def import_scanned(self, number=2):
         for key, value in docs[doc]['f'].items():
             setattr(main_file, key, value)
         main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
+        document.reindexObject(idxs=('SearchableText'))
         count += 1
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
