@@ -218,7 +218,8 @@ ul.select2-choices {
 
 /* Colorize batch action field description as error in overlay */
 #formfield-form-widgets-transition .formHelp, #formfield-form-widgets-treating_group .formHelp,
-#formfield-form-widgets-assigned_user .formHelp, #formfield-form-widgets-assigned_group .formHelp {
+#formfield-form-widgets-assigned_user .formHelp, #formfield-form-widgets-assigned_group .formHelp,
+#formfield-form-widgets-action_choice .formHelp {
     color: red;
 }
 

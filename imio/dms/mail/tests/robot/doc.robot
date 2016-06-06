@@ -343,6 +343,12 @@ Tableaux de bord
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord lot choix service.png  css=.pb-ajax
     Click element  css=div.overlay-ajax .close
+    Click button  id=recipientgroup-batch-action-but
+    Wait until element is visible  id=formfield-form-widgets-action_choice  10
+    Select from list by value  id=form-widgets-action_choice  replace
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord lot services en copie.png  css=.pb-ajax
+    Click element  css=div.overlay-ajax .close
     Wait until element is visible  css=.faceted-sections-buttons-more  10
     Click element  css=.faceted-sections-buttons-more
     Wait until element is visible  id=top---advanced---widgets  10

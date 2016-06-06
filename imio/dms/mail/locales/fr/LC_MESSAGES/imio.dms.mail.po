@@ -271,7 +271,7 @@ msgstr "Types de courrier sortant"
 
 #: ./browser/batchactions.py:177
 msgid "You can't change this field on selected items. Modify your selection."
-msgstr "Vous ne pouvez pas changer ce champ sur les éléments sélectionnés. Recommencez en modifiant votre sélection."
+msgstr "Vous ne pouvez pas modifier ce champ sur l'ensemble des éléments sélectionnés. Recommencez en modifiant votre sélection."
 
 #: ./dmsmail.py:210
 msgid "You must select an assigned user before you can propose to an agent !"
