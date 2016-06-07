@@ -112,7 +112,8 @@ class Migrate_To_1_1(Migrator):
         self.add_view_field('task_parent', im_folder['task-searches'], before='review_state')
 
         # set showNumberOfItems on some collections
-        self.update_count(im_folder['mail-searches'], ids=['to_validate', 'to_treat', 'im_treating', 'created'])
+        self.update_count(im_folder['mail-searches'], ids=['to_validate', 'to_treat', 'im_treating',
+                                                           'searchfor_created'])
         self.update_count(im_folder['task-searches'], ids=['to_validate', 'to_treat', 'im_treating'])
 
         # update criterion on validation collections
