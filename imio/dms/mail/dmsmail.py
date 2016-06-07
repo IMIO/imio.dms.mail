@@ -331,7 +331,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     """
     """
     implements(IImioDmsOutgoingMail)
-    __ac_local_roles_block__ = False
+    __ac_local_roles_block__ = True
 
     # Needed by collective.z3cform.rolefield. Need to be overriden here
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u'treating_groups'])

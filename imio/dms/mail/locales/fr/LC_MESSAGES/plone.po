@@ -90,6 +90,46 @@ msgstr "Courrier entrant service traitant"
 msgid "in_treatment"
 msgstr "En cours de traitement"
 
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_be_signed"
+msgstr "Remettre à signer"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_creation"
+msgstr "Remettre en création"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_service_chief"
+msgstr "Renvoyer au chef de service"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_created"
+msgstr "En création"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_mark_as_sent"
+msgstr "Indiquer comme envoyé"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_propose_to_be_signed"
+msgstr "Mettre à signer"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_propose_to_service_chief"
+msgstr "Proposer au chef de service"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_proposed_to_service_chief"
+msgstr "A valider par le chef de service"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_sent"
+msgstr "Envoyé"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_to_be_signed"
+msgstr "À signer"
+
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_agent"
 msgstr "Proposer à l'agent"

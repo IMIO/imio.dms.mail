@@ -90,6 +90,46 @@ msgstr "Incoming mail in my treating groups"
 msgid "in_treatment"
 msgstr "In treatment"
 
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_be_signed"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_creation"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_service_chief"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_created"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_mark_as_sent"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_propose_to_be_signed"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_propose_to_service_chief"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_proposed_to_service_chief"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_sent"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_to_be_signed"
+msgstr ""
+
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_agent"
 msgstr "Propose to agent"
