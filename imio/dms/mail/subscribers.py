@@ -127,6 +127,9 @@ def organization_modified(obj, event):
 def mark_contact(contact, event):
     """ Set a marker interface on contact content. """
     if IObjectRemovedEvent.providedBy(event):
+        # at site removal
+        if event.object.portal_type == 'Plone Site':
+            return
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
         return
     if '/personnel-folder/' in contact.absolute_url_path() or '/plonegroup-organization' in contact.absolute_url_path():
