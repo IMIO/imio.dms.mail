@@ -87,6 +87,7 @@
    <permission-role>Site Administrator</permission-role>
   </permission-map>
   <permission-map name="collective.dms.basecontent: Add DmsFile" acquired="False">
+   <permission-role>Contributor</permission-role>
    <permission-role>IM Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>

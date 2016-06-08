@@ -516,6 +516,45 @@ def configure_rolefields(context):
             logger.warn(msg)
 
 
+def configure_om_rolefields(context):
+    """
+        Configure the rolefields on types
+    """
+    roles_config = {'static_config': {
+        'om_to_be_signed': {'expedition': {'roles': ['Editor', 'Reviewer']}},
+        'om_sent': {'expedition': {'roles': ['Reader', 'Reviewer']}},
+    }, 'treating_groups': {
+        'om_created': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
+                       'validateur': {'roles': ['Reader']}}},
+        'om_proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+                                         'encodeur': {'roles': ['Reader']}},
+        'om_to_be_signed': {'validateur': {'roles': ['Reader']},
+                            'encodeur': {'roles': ['Reader']},
+                            'editeur': {'roles': ['Reader']},
+                            'lecteur': {'roles': ['Reader']}},
+        'om_sent': {'validateur': {'roles': ['Reader']},
+                    'encodeur': {'roles': ['Reader']},
+                    'editeur': {'roles': ['Reader']},
+                    'lecteur': {'roles': ['Reader']}},
+    }, 'recipient_groups': {
+        'om_proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
+        'om_to_be_signed': {'validateur': {'roles': ['Reader']},
+                            'encodeur': {'roles': ['Reader']},
+                            'editeur': {'roles': ['Reader']},
+                            'lecteur': {'roles': ['Reader']}},
+        'om_sent': {'validateur': {'roles': ['Reader']},
+                    'encodeur': {'roles': ['Reader']},
+                    'editeur': {'roles': ['Reader']},
+                    'lecteur': {'roles': ['Reader']}},
+    },
+    }
+    for keyname in roles_config:
+        # don't overwrite existing configuration
+        msg = add_fti_configuration('dmsoutgoingmail', roles_config[keyname], keyname=keyname)
+        if msg:
+            logger.warn(msg)
+
+
 def configure_task_rolefields(context, force=False):
     """
         Configure the rolefields on task
@@ -933,7 +972,7 @@ def addTestUsersAndGroups(context):
             logger("Error creating user '%s': %s" % (uid, exc))
 
     if api.group.get('encodeurs') is None:
-        api.group.create('encodeurs', '1 Encodeurs courrier')
+        api.group.create('encodeurs', '1 Encodeurs courrier entrant')
         site['incoming-mail'].manage_addLocalRoles('encodeurs', ['Contributor', 'Reader'])
         site['contacts'].manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
 #        site['incoming-mail'].reindexObjectSecurity()
@@ -943,6 +982,9 @@ def addTestUsersAndGroups(context):
         api.group.create('dir_general', '1 Directeur général')
         api.group.add_user(groupname='dir_general', username='dirg')
         site['contacts'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
+    if api.group.get('expedition') is None:
+        api.group.create('expedition', '1 Expédition courrier sortant')
+        api.group.add_user(groupname='expedition', username='encodeur')
 
 
 def addOwnOrganization(context):

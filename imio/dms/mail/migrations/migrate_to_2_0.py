@@ -12,6 +12,8 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.migrator.migrator import Migrator
 
+from ..setuphandlers import configure_om_rolefields
+
 logger = logging.getLogger('imio.dms.mail')
 
 
@@ -27,19 +29,32 @@ class Migrate_To_2_0(Migrator):
                                   'reponse5', 'reponse6', 'reponse7', 'reponse8', 'reponse9']):
             api.content.delete(obj=brain.getObject())
 
-    def update_outgoingmail_folder(self):
+    def update_site(self):
         omf = self.portal['outgoing-mail']
+        # publish outgoing-mail folder
         if api.content.get_state(omf) != 'internally_published':
             api.content.transition(obj=omf, to_state="internally_published")
+        # add group
+        if api.group.get('expedition') is None:
+            api.group.create('expedition', '1 Expédition courrier sortant')
+        # rename group title
+        encodeurs = api.group.get('encodeurs')
+        if encodeurs.getProperty('title') != '1 Encodeurs courrier entrant':
+            self.portal.portal_groups.editGroup('encodeurs', title='1 Encodeurs courrier entrant')
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
         self.delete_outgoing_examples()
-        self.update_outgoingmail_folder()
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo'])
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
+
+        # do various global adaptations
+        self.update_site()
+
+        # configure role fields on dmsoutgoingmail
+        configure_om_rolefields(self.portal)
 
         # set front-page folder as not next/prev navigable
         if not INextPrevNotNavigable.providedBy(self.portal['front-page']):
