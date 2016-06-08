@@ -999,12 +999,13 @@ def addOwnPersonnel(context):
 
     if base_hasattr(contacts, 'personnel-folder'):
         if contacts['personnel-folder'].portal_type != 'Folder':
-            raise Exception('Subfolder personnel-folder already exists')
+            raise Exception('Object personnel-folder already exists')
         logger.warn('Nothing done: personnel-folder already exists. You must first delete it to reimport!')
         return
 
     site.portal_types.directory.filter_content_types = False
-    pf = api.content.create(container=contacts, type='Folder', id='personnel-folder', title='Mon personnel')
+    contacts.invokeFactory('Folder', 'personnel-folder', title=u'Mon personnel')
+    pf = contacts['personnel-folder']
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
     # Set restrictions
