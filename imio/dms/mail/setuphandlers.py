@@ -1012,6 +1012,32 @@ def addOwnPersonnel(context):
     pf.setLocallyAllowedTypes(['person'])
     pf.setImmediatelyAddableTypes(['person'])
 
+    # params = {'lastname': u'DG',
+    #           'firstname': u'Maxime',
+    #           'gender': u'M',
+    #           'person_title': u'Monsieur',
+    #           'zip_code': u'0020',
+    #           'city': u'E-ville',
+    #           'street': u"Rue de l'electron",
+    #           'number': u'1',
+    #           'use_parent_address': False
+    #           }
+
+    persons = {
+        'dirg': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
+                 'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'electron",
+                 'number': u'1', 'use_parent_address': False},
+        'chef': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
+                 'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
+                 'number': u'2', 'use_parent_address': False},
+        'agent': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
+                  'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
+                  'number': u'3', 'use_parent_address': False},
+    }
+
+    for person in persons:
+        api.content.create(container=pf, type='person', id=person, **persons[person])
+
 
 def configureDocumentViewer(context):
     """
