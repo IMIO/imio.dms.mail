@@ -657,6 +657,7 @@ def configureContactPloneGroup(context):
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % uid)
             if org.organization_type == 'service':
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
+                site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_encodeur" % uid)
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
 
 
@@ -1011,17 +1012,6 @@ def addOwnPersonnel(context):
     pf.setConstrainTypesMode(1)
     pf.setLocallyAllowedTypes(['person'])
     pf.setImmediatelyAddableTypes(['person'])
-
-    # params = {'lastname': u'DG',
-    #           'firstname': u'Maxime',
-    #           'gender': u'M',
-    #           'person_title': u'Monsieur',
-    #           'zip_code': u'0020',
-    #           'city': u'E-ville',
-    #           'street': u"Rue de l'electron",
-    #           'number': u'1',
-    #           'use_parent_address': False
-    #           }
 
     persons = {
         'dirg': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
