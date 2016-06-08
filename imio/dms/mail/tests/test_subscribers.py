@@ -28,6 +28,7 @@ class TestDmsmail(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='c1')
+        self.omf = self.portal['outgoing-mail']
 
     def test_replace_scanner(self):
         with api.env.adopt_user(username='scanner'):
@@ -102,3 +103,11 @@ class TestDmsmail(unittest.TestCase):
         rid = pc(id='electrabel')[0].getRID()
         index_value = pc._catalog.getIndex("sortable_title").getEntryForObject(rid, default=[])
         self.assertEqual(index_value, 'electrabel 0001|')
+
+    def test_contact_plonegroup_change(self):
+        registry = getUtility(IRegistry)
+        e_groups = [('%s_encodeur' % uid, ('Contributor', )) for uid in registry[ORGANIZATIONS_REGISTRY]]
+        e_groups.append(('admin', ('Owner',)))
+        self.assertSetEqual(set(self.omf.get_local_roles()), set(e_groups))
+        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][:3]
+        self.assertEqual(len(self.omf.get_local_roles()), 4)

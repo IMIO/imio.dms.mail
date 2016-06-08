@@ -7,6 +7,9 @@ Changelog
 - Reviewed dmsoutgoingmail schema.
   [sgeulette]
 
+- Added workflow and local roles of dmsoutgoingmail.
+  [sgeulette]
+
 1.1 (2016-04-14)
 ----------------
 

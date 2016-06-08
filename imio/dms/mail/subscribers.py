@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
+from zope.component import getUtility
 from zope.interface import alsoProvides, noLongerProvides
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from plone import api
 from Products.CMFCore.utils import getToolByName
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
-from plone.registry.interfaces import IRecordModifiedEvent
+from plone.registry.interfaces import IRecordModifiedEvent, IRegistry
 
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY, FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact, IPloneGroupContact
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+
+
 from dmsmail import IImioDmsIncomingMail
 
 
@@ -156,3 +160,22 @@ def contact_modified(obj, event):
 #        return
     if IPloneGroupContact.providedBy(obj):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+
+
+def contact_plonegroup_change(event):
+    """
+        Update outgoing-mail folder local roles for encodeur
+    """
+    if IRecordModifiedEvent.providedBy(event) and event.record.interface == IContactPlonegroupConfig:
+        registry = getUtility(IRegistry)
+        if not registry[FUNCTIONS_REGISTRY] or not registry[ORGANIZATIONS_REGISTRY]:
+            return
+        portal = api.portal.get()
+        omf = portal['outgoing-mail']
+        dic = omf.__ac_local_roles__
+        for principal in dic.keys():
+            if principal.endswith('_encodeur'):
+                del dic[principal]
+        for uid in registry[ORGANIZATIONS_REGISTRY]:
+            dic["%s_encodeur" % uid] = ['Contributor']
+        omf._p_changed = True
