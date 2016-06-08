@@ -11,13 +11,6 @@
         />
 
     <subscriber
-        zcml:condition="installed zope.lifecycleevent"
-        for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
-             zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".subscribers.new_incomingmail"
-        />
-
-    <subscriber
         for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"
         handler=".subscribers.incomingmail_transition"

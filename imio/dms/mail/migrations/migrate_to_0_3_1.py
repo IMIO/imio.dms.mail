@@ -11,7 +11,6 @@ from imio.migrator.migrator import Migrator
 
 from ..setuphandlers import createStateCollections, createIMailCollections, setupFacetedContacts
 from ..setuphandlers import changeSearchedTypes, configure_actions_panel
-from ..subscribers import new_incomingmail
 
 import logging
 logger = logging.getLogger('imio.dms.mail')
@@ -136,7 +135,7 @@ class Migrate_To_0_3_1(Migrator):
             good_values = voc.by_token
         for brain in brains:
             im = brain.getObject()
-            new_incomingmail(im, None)
+            #new_incomingmail(im, None)
             if isinstance(im.treating_groups, list):
                 if len(im.treating_groups) > 1:
                     logger.error("More than one treating_groups %s for %s object" % (im.treating_groups, im))

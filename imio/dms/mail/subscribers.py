@@ -55,14 +55,6 @@ def replace_scanner(imail, event):
         imail.reindexObjectSecurity()
 
 
-def new_incomingmail(imail, event):
-    """
-        Block local roles
-    """
-    imail.__ac_local_roles_block__ = True
-    imail.reindexObjectSecurity()
-
-
 def incomingmail_transition(imail, event):
     """
         update indexes after a transition
