@@ -163,7 +163,7 @@ def encodeur_active_orgs(context):
     factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
     voc = factory(context)
     # !! TO BE CONTINUED !!
-    if not current_user.has_role(['Manager', 'Site Administrator']) and api.content.get_state(context) == 'private':
+    if not current_user.has_role(['Manager', 'Site Administrator']) and api.content.get_state(context) == 'created':
         orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), ['encodeur', 'validateur'])
         voc.vocab = SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
     return voc
