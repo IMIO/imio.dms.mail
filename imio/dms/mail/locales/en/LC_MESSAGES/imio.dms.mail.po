@@ -336,7 +336,7 @@ msgstr "To treat"
 
 #: ./setuphandlers.py:297
 msgid "im_to_treat_in_my_group"
-msgstr ""
+msgstr "To treat in my group"
 
 #: ./setuphandlers.py:256
 msgid "im_to_validate"
