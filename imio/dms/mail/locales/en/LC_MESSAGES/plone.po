@@ -92,43 +92,43 @@ msgstr "In treatment"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_be_signed"
-msgstr ""
+msgstr "Back to be signed"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_creation"
-msgstr ""
+msgstr "Back to creation"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_service_chief"
-msgstr ""
+msgstr "Back to service chief"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_created"
-msgstr ""
+msgstr "Created"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_mark_as_sent"
-msgstr ""
+msgstr "Mark as sent"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_propose_to_be_signed"
-msgstr ""
+msgstr "Propose to be signed"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_propose_to_service_chief"
-msgstr ""
+msgstr "Propose to service chief"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_proposed_to_service_chief"
-msgstr ""
+msgstr "Proposed to service chief"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_sent"
-msgstr ""
+msgstr "Sent"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"
-msgstr ""
+msgstr "To be signed"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_agent"
