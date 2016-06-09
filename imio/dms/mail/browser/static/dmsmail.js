@@ -76,6 +76,7 @@ $(document).ready(function(){
         closeselector: '[name="form.buttons.cancel"]'
     });
 
+    $('.template-dmsoutgoingmail .z3cformInlineValidation').removeClass('z3cformInlineValidation');
 /*    $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
         dmsmail.initialize_fancytree();
     });*/
