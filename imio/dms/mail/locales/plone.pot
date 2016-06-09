@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2015-10-08 09:35+0000\n"
+"POT-Creation-Date: 2016-06-09 10:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -92,40 +92,6 @@ msgstr ""
 msgid "in_treatment"
 msgstr ""
 
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_agent"
-msgstr ""
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_manager"
-msgstr ""
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_service_chief"
-msgstr ""
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_agent"
-msgstr ""
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_manager"
-msgstr ""
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_service_chief"
-msgstr ""
-
-msgid "task-highest-validation"
-msgstr ""
-
-msgid "task-in-assigned-group"
-msgstr ""
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "treat"
-msgstr ""
-
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_be_signed"
 msgstr ""
@@ -166,3 +132,36 @@ msgstr ""
 msgid "om_to_be_signed"
 msgstr ""
 
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_agent"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_manager"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_service_chief"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_agent"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_manager"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_service_chief"
+msgstr ""
+
+msgid "task-highest-validation"
+msgstr ""
+
+msgid "task-in-assigned-group"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "treat"
+msgstr ""

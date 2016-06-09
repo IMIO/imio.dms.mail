@@ -12,7 +12,7 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.migrator.migrator import Migrator
 
-from ..setuphandlers import configure_om_rolefields
+from ..setuphandlers import configure_om_rolefields, createIMailCollections
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -23,6 +23,8 @@ class Migrate_To_2_0(Migrator):
         Migrator.__init__(self, context)
         self.registry = getUtility(IRegistry)
         self.catalog = api.portal.get_tool('portal_catalog')
+        self.imf = self.portal['incoming-mail']
+        self.omf = self.portal['outgoing-mail']
 
     def delete_outgoing_examples(self):
         for brain in self.catalog(portal_type='dmsoutgoingmail', id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
@@ -41,6 +43,8 @@ class Migrate_To_2_0(Migrator):
         encodeurs = api.group.get('encodeurs')
         if encodeurs.getProperty('title') != '1 Encodeurs courrier entrant':
             self.portal.portal_groups.editGroup('encodeurs', title='1 Encodeurs courrier entrant')
+        # add new collection to_treat_in_my_group
+        createIMailCollections(self.imf['mail-searches'])
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
