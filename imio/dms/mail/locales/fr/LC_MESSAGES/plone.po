@@ -25,11 +25,11 @@ msgstr "Fichier ged"
 
 #: profiles/default/rolemap.xml
 msgid "IM Field Writer"
-msgstr "Editeur champs CE"
+msgstr "Éditeur champs CE"
 
 #: profiles/default/rolemap.xml
 msgid "IM Treating Group Writer"
-msgstr "Editeur service traitant CE"
+msgstr "Éditeur service traitant CE"
 
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
@@ -120,7 +120,7 @@ msgstr "Proposer au chef de service"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_proposed_to_service_chief"
-msgstr "A valider par le chef de service"
+msgstr "À valider par le chef de service"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_sent"
@@ -144,15 +144,15 @@ msgstr "Proposer au chef de service"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_agent"
-msgstr "A traiter"
+msgstr "À traiter"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
-msgstr "A valider par le DG"
+msgstr "À valider par le DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_service_chief"
-msgstr "A valider par le chef de service"
+msgstr "À valider par le chef de service"
 
 msgid "task-highest-validation"
 msgstr "Tâche à valider"
