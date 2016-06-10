@@ -10,6 +10,9 @@ Changelog
 - Added workflow and local roles of dmsoutgoingmail.
   [sgeulette]
 
+- Added im collection: to treat in my group
+  [sgeulette]
+
 1.1 (2016-04-14)
 ----------------
 
