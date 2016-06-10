@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-09 10:12+0000\n"
+"POT-Creation-Date: 2016-06-10 14:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -204,6 +204,10 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
+#: ./overrides.py:23
+msgid "Plone user"
+msgstr ""
+
 #: ./dmsmail.py:72
 msgid "Recipient groups"
 msgstr ""
@@ -241,7 +245,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1156
+#: ./setuphandlers.py:1181
 msgid "Templates"
 msgstr ""
 
@@ -326,7 +330,7 @@ msgstr "That I treat"
 msgid "im_in_copy"
 msgstr "In copy"
 
-#: ./setuphandlers.py:289
+#: ./setuphandlers.py:298
 msgid "im_in_my_group"
 msgstr "In my group"
 
@@ -334,7 +338,7 @@ msgstr "In my group"
 msgid "im_to_treat"
 msgstr "To treat"
 
-#: ./setuphandlers.py:297
+#: ./setuphandlers.py:289
 msgid "im_to_treat_in_my_group"
 msgstr "To treat in my group"
 
