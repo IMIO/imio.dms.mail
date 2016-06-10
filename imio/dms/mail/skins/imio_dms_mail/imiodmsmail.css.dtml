@@ -111,6 +111,10 @@
     display: none;
 }
 
+.section-contacts.subsection-personnel-folder .addnew-block { /*Remove add-organization link in widget*/
+    display: none !important;
+}
+
 /* Other */
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
