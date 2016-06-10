@@ -2,15 +2,15 @@
 import unittest
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
-from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID
+from plone.app.testing import setRoles, TEST_USER_ID, login
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary, AssignedUsersVocabulary,
-                            getMailTypes, PloneGroupInterfacesVocabulary)
+                            getMailTypes, PloneGroupInterfacesVocabulary, OMSenderVocabulary, OMMailTypesVocabulary,
+                            OMActiveMailTypesVocabulary, encodeur_active_orgs)
 
 
 class TestVocabularies(unittest.TestCase):
@@ -23,6 +23,7 @@ class TestVocabularies(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
 
     def test_IMReviewStatesVocabulary(self):
         voc_inst = IMReviewStatesVocabulary()
@@ -77,3 +78,20 @@ class TestVocabularies(unittest.TestCase):
                                          'IPloneGroupContact'),
                                         ('collective.contact.plonegroup.interfaces.INotPloneGroupContact',
                                          'INotPloneGroupContact')])
+
+    def test_OMSenderVocabulary(self):
+        voc_inst = OMSenderVocabulary()
+        self.assertEqual(len(voc_inst(self.omail)), 5)
+
+    def test_OMMailTypesVocabulary(self):
+        voc_inst = OMMailTypesVocabulary()
+        voc_list = [t.value for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list, [u'courrier', u'recommande'])
+
+    def test_OMActiveMailTypesVocabulary(self):
+        voc_inst = OMActiveMailTypesVocabulary()
+        voc_list = [t.value for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list, [None, u'courrier', u'recommande'])
+
+    def test_encodeur_active_orgs(self):
+        login(self.portal, 'agent')

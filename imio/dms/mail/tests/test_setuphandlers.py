@@ -61,7 +61,8 @@ class TestSetuphandlers(unittest.TestCase):
         persons = contacts.listFolderContents(contentFilter={'portal_type': 'person'})
         self.assertEquals(len(persons), 4)
         #checking held positions
-        held_positions = pc(portal_type=('held_position',), path={"query": 'plone/contacts'})
+        held_positions = pc(portal_type=('held_position',), path={"query": 'plone/contacts'},
+                            object_provides='collective.contact.plonegroup.interfaces.INotPloneGroupContact')
         self.assertEquals(len(held_positions), 3)
 
     def test_addTestMails(self):
