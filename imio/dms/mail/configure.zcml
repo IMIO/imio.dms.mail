@@ -16,6 +16,8 @@
                 title="imio.dms.mail : Write incoming mail field"/>
     <permission id="imio.dms.mail.write_treating_group_field"
                 title="imio.dms.mail : Write treating group field"/>
+    <permission id="imio.dms.mail.write_userid_field"
+                title="imio.dms.mail : Write userid field"/>
 
     <include package="Products.PasswordStrength" />
     <include package="imio.dashboard"/>
@@ -46,6 +48,11 @@
     <utility
         factory=".dmsmail.ImioDmsOutgoingMailSchemaPolicy"
         name="schema_policy_imiodmsoutgoingmail"
+    />
+
+    <utility
+        factory=".overrides.DmsPersonSchemaPolicy"
+        name="schema_policy_dmsperson"
     />
 
     <interface interface=".browser.settings.IImioDmsMailConfig" />
@@ -117,6 +124,8 @@
              name="imio.dms.mail.adapters.IdmSearchableExtender" />
 
     <adapter name="mail_type" factory=".adapters.mail_type_index" />
+    <adapter name="mail_type" factory=".adapters.userid_person_index" />
+    <adapter name="mail_type" factory=".adapters.userid_heldposition_index" />
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
     <adapter name="sortable_title" factory=".adapters.org_sortable_title_index" />

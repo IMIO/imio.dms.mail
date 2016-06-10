@@ -442,6 +442,10 @@ def adaptDefaultPortal(context):
     site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
                            'Editor', 'IM Field Writer', 'Owner', 'Reviewer'), acquire=0)
 
+    #View and set userid field
+    site.manage_permission('imio.dms.mail : Write userid field', ('Manager', 'Site Administrator'),
+                           acquire=0)
+
     # Set markup allowed types: for RichText field, don't display anymore types listbox
     adapter = MarkupControlPanelAdapter(site)
     adapter.set_allowed_types(['text/html'])
@@ -1094,7 +1098,7 @@ def addOwnPersonnel(context):
 
     normalizer = getUtility(IIDNormalizer)
     for person in persons:
-        pers = api.content.create(container=pf, type='person', id=person, **persons[person]['pers'])
+        pers = api.content.create(container=pf, type='person', id=person, userid=person, **persons[person]['pers'])
         for fct_dic in persons[person]['fcts']:
             fct = api.content.create(container=pers, id=normalizer.normalize(fct_dic['label']), type='held_position',
                                      **fct_dic)

@@ -3,4 +3,5 @@
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
  </property>
+ <property name="schema_policy">schema_policy_dmsperson</property>
 </object>

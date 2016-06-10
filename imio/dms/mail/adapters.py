@@ -21,10 +21,12 @@ from plone.indexer import indexer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 
 from collective import dexteritytextindexer
+from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
 from dmsmail import IDmsIncomingMail
+from .overrides import IDmsPerson
 
 from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id, list_wf_states
 
@@ -37,8 +39,7 @@ default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
 no_group_validation_states = {
     'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_agent', 'in_treatment', 'closed'],
-    'task': ['created', 'to_do', 'in_progress', 'closed']
-    }
+    'task': ['created', 'to_do', 'in_progress', 'closed']}
 
 
 def highest_validation_criterion(portal_type):
@@ -216,6 +217,23 @@ def mail_type_index(obj):
     """ Index method escaping acquisition """
     if base_hasattr(obj, 'mail_type') and obj.mail_type:
         return obj.mail_type
+    return common_marker
+
+
+@indexer(IDmsPerson)
+def userid_person_index(obj):
+    """ Index method escaping acquisition. We use an existing index to store person userid """
+    if base_hasattr(obj, 'userid') and obj.userid:
+        return obj.userid
+    return common_marker
+
+
+@indexer(IHeldPosition)
+def userid_heldposition_index(obj):
+    """ Index method escaping acquisition. We use an existing index to store heldposition userid """
+    parent = obj.aq_parent
+    if base_hasattr(parent, 'userid') and parent.userid:
+        return parent.userid
     return common_marker
 
 

@@ -45,6 +45,12 @@ class Migrate_To_2_0(Migrator):
             self.portal.portal_groups.editGroup('encodeurs', title='1 Encodeurs courrier entrant')
         # add new collection to_treat_in_my_group
         createIMailCollections(self.imf['mail-searches'])
+        # update permission
+        if 'Site Administrator' not in [dic['name'] for dic in
+                                        self.portal.rolesOfPermission("imio.dms.mail : Write userid field")
+                                        if dic['selected'] == 'SELECTED']:
+            self.portal.manage_permission('imio.dms.mail : Write userid field', ('Manager', 'Site Administrator'),
+                                          acquire=0)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
