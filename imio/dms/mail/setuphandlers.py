@@ -286,17 +286,17 @@ def createIMailCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
-        {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
+        {'id': 'to_treat_in_my_group', 'tit': _('im_to_treat_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
-        {'id': 'to_treat_in_my_group', 'tit': _('im_to_treat_in_my_group'), 'subj': (u'search', ), 'query': [
+        {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
-            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
@@ -1065,20 +1065,41 @@ def addOwnPersonnel(context):
     pf.setLocallyAllowedTypes(['person'])
     pf.setImmediatelyAddableTypes(['person'])
 
+    intids = getUtility(IIntIds)
+    own_orga = contacts['plonegroup-organization']
     persons = {
-        'dirg': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
+        'dirg': {'pers': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
                  'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'electron",
                  'number': u'1', 'use_parent_address': False},
-        'chef': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
+                 'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale'])),
+                           'label': u'Directeur général', 'start_date': datetime.date(2016, 6, 15), 'end_date': None},
+                          {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
+                           'label': u'Directeur du personnel', 'start_date': datetime.date(2012, 9, 1),
+                           'end_date': datetime.date(2016, 6, 14)}]},
+        'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
                  'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
                  'number': u'2', 'use_parent_address': False},
-        'agent': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
+                 'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale']['secretariat'])),
+                           'label': u'Responsable secrétariat', 'start_date': None, 'end_date': None},
+                          {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
+                           'label': u'Responsable GRH', 'start_date': None, 'end_date': None}]},
+        'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
                   'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
                   'number': u'3', 'use_parent_address': False},
+                  'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale']['secretariat'])),
+                            'label': u'Agent secrétariat', 'start_date': None, 'end_date': None},
+                           {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
+                            'label': u'Agent GRH', 'start_date': None, 'end_date': None}]},
     }
 
+    normalizer = getUtility(IIDNormalizer)
     for person in persons:
-        api.content.create(container=pf, type='person', id=person, **persons[person])
+        pers = api.content.create(container=pf, type='person', id=person, **persons[person]['pers'])
+        for fct_dic in persons[person]['fcts']:
+            fct = api.content.create(container=pers, id=normalizer.normalize(fct_dic['label']), type='held_position',
+                                     **fct_dic)
+            if fct_dic['end_date']:
+                api.content.transition(obj=fct, transition='deactivate')
 
 
 def configureDocumentViewer(context):
