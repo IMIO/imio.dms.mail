@@ -131,8 +131,9 @@ class OMSenderVocabulary(object):
     @ram.cache(voc_cache_key)
     def __call__(self, context):
         catalog = api.portal.get_tool('portal_catalog')
-        brains = catalog(portal_type=['person', 'held_position'],
+        brains = catalog(portal_type=['held_position'],
                          object_provides='collective.contact.plonegroup.interfaces.IPloneGroupContact',
+                         review_state='active',
                          sort_on='sortable_title')
         terms = []
         for brain in brains:
