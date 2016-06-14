@@ -336,3 +336,43 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     # Needed by collective.z3cform.rolefield. Need to be overriden here
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u'recipient_groups'])
+
+
+def ImioDmsOutgoingMailUpdateWidgets(the_form):
+    """
+        Widgets update method for add and edit
+    """
+    current_user = api.user.get_current()
+    # context can be the parent in add. Or None if om is created by worker.
+    if not base_hasattr(the_form.context, 'sender') or not the_form.context.sender:
+        # we search for a held position related to current user and take the first one !
+        default = None
+        for term in the_form.widgets['sender'].bound_source:
+            if term.token.endswith('_%s' % current_user.id):
+                default = term.token
+                break
+        the_form.widgets['sender'].value = [default]
+
+
+class OMEdit(DmsDocumentEdit):
+    """
+        Edit form redefinition to customize fields.
+    """
+
+    def updateWidgets(self):
+        super(OMEdit, self).updateWidgets()
+        ImioDmsOutgoingMailUpdateWidgets(self)
+
+
+class OMCustomAddForm(DefaultAddForm):
+
+    portal_type = 'dmsoutgoingmail'
+
+    def updateWidgets(self):
+        super(OMCustomAddForm, self).updateWidgets()
+        ImioDmsOutgoingMailUpdateWidgets(self)
+
+
+class AddOM(DefaultAddView):
+
+    form = OMCustomAddForm

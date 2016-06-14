@@ -74,6 +74,13 @@
         />
     </configure>
 
+    <browser:page
+        for=".dmsmail.IImioDmsOutgoingMail"
+        name="dmsdocument-edit"
+        class=".dmsmail.OMEdit"
+        permission="cmf.ModifyPortalContent"
+    />
+
     <!--plone:behavior
         title="Mail Type field"
         description="Add a mail type field."
@@ -144,6 +151,21 @@
     <class class=".dmsmail.AddIM">
         <require
             permission="collective.dms.mailcontent.dmsincomingmail.add"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".dmsmail.AddOM"
+        name="dmsoutgoingmail"
+        />
+    <class class=".dmsmail.AddOM">
+        <require
+            permission="collective.dms.mailcontent.dmsoutgoingmail.add"
             interface="zope.publisher.interfaces.browser.IBrowserPage"
             />
     </class>

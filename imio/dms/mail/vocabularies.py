@@ -137,7 +137,8 @@ class OMSenderVocabulary(object):
                          sort_on='sortable_title')
         terms = []
         for brain in brains:
-            terms.append(SimpleVocabulary.createTerm(brain.UID, brain.UID, brain.get_full_title))
+            terms.append(SimpleVocabulary.createTerm(brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
+                                                     brain.get_full_title))
         return SimpleVocabulary(terms)
 
 
