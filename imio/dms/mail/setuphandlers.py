@@ -534,8 +534,10 @@ def configure_om_rolefields(context):
         Configure the rolefields on types
     """
     roles_config = {'static_config': {
-        'om_to_be_signed': {'expedition': {'roles': ['Editor', 'Reviewer']}},
-        'om_sent': {'expedition': {'roles': ['Reader', 'Reviewer']}},
+        'om_to_be_signed': {'expedition': {'roles': ['Editor', 'Reviewer']},
+                            'dir_general': {'roles': ['Reader']}},
+        'om_sent': {'expedition': {'roles': ['Reader', 'Reviewer']},
+                    'dir_general': {'roles': ['Reader']}},
     }, 'treating_groups': {
         'om_created': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                        'validateur': {'roles': ['Reader']}}},
