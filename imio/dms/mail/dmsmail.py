@@ -342,10 +342,10 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
     """
         Widgets update method for add and edit
     """
-    current_user = api.user.get_current()
     # context can be the parent in add. Or None if om is created by worker.
     if not base_hasattr(the_form.context, 'sender') or not the_form.context.sender:
         # we search for a held position related to current user and take the first one !
+        current_user = api.user.get_current()
         default = None
         for term in the_form.widgets['sender'].bound_source:
             if term.token.endswith('_%s' % current_user.id):
