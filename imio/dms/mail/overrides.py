@@ -25,7 +25,7 @@ class IDmsPerson(IPerson):
         vocabulary=u'plone.app.vocabularies.Users',
     )
 
-    directives.widget('userid', AjaxChosenFieldWidget, populate_select=True)
+    #directives.widget('userid', AjaxChosenFieldWidget, populate_select=True)
     directives.read_permission(userid='imio.dms.mail.write_userid_field')
     directives.write_permission(userid='imio.dms.mail.write_userid_field')
 
@@ -34,5 +34,3 @@ class DmsPersonSchemaPolicy(DexteritySchemaPolicy):
     """ """
     def bases(self, schemaName, tree):
         return (IDmsPerson, )
-
-
