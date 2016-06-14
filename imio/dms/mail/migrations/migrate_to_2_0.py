@@ -12,7 +12,9 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.migrator.migrator import Migrator
 
-from ..setuphandlers import configure_om_rolefields, createIMailCollections
+from ..interfaces import IOMDashboard
+from ..setuphandlers import (_, configure_om_rolefields, createIMailCollections, add_db_col_folder,
+                             createStateCollections)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -52,6 +54,22 @@ class Migrate_To_2_0(Migrator):
             self.portal.manage_permission('imio.dms.mail : Write userid field', ('Manager', 'Site Administrator'),
                                           acquire=0)
 
+    def add_collections(self):
+        """ add DashboardCollection """
+        self.omf.setConstrainTypesMode(0)
+        col_folder = add_db_col_folder(self.omf, 'mail-searches', _("Outgoing mail searches"),
+                                       _('Outgoing mails'))
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IOMDashboard)
+        self.omf.moveObjectToPosition('mail-searches', 0)
+
+        #createIMailCollections(col_folder)
+        createStateCollections(col_folder, 'dmsoutgoingmail')
+        #configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
+        #                         default_UID=col_folder['all_mails'].UID())
+
+        self.omf.setConstrainTypesMode(1)
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
@@ -62,6 +80,11 @@ class Migrate_To_2_0(Migrator):
 
         # do various global adaptations
         self.update_site()
+
+        # Add collections to omf
+        alsoProvides(self.omf, INextPrevNotNavigable)
+        alsoProvides(self.omf, IOMDashboard)
+        self.add_collections()
 
         # configure role fields on dmsoutgoingmail
         configure_om_rolefields(self.portal)

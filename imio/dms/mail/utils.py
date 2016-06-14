@@ -93,7 +93,8 @@ def list_wf_states(context, portal_type):
     ordered_states = {
         'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
                             'proposed_to_agent', 'in_treatment', 'closed'],
-        'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed']
+        'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
+        'dmsoutgoingmail': ['om_created', 'om_proposed_to_service_chief', 'om_to_be_signed', 'om_sent']
     }
     if portal_type not in ordered_states:
         return []

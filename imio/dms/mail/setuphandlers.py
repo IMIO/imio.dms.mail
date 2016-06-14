@@ -44,7 +44,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
-from imio.dms.mail.interfaces import IIMDashboard, IIMTaskDashboard
+from imio.dms.mail.interfaces import IIMDashboard, IIMTaskDashboard, IOMDashboard
 
 from interfaces import IDirectoryFacetedNavigable
 from utils import list_wf_states
@@ -136,7 +136,21 @@ def postInstall(context):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         om_folder = getattr(site, folderid)
         # col_folder = add_db_col_folder(om_folder)
-        # blacklistPortletCategory(context, om_folder)
+
+        # add mail-searches
+        col_folder = add_db_col_folder(om_folder, 'mail-searches', _("Outgoing mail searches"),
+                                       _('Outgoing mails'))
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IOMDashboard)
+        #createIMailCollections(col_folder)
+        createStateCollections(col_folder, 'dmsoutgoingmail')
+        #configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
+        #                         default_UID=col_folder['all_mails'].UID())
+
+        # configure incoming-mail faceted
+        #configure_faceted_folder(im_folder, xml='default_dashboard_widgets.xml',
+        #                         default_UID=col_folder['all_mails'].UID())
+
         om_folder.setConstrainTypesMode(1)
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
@@ -183,13 +197,16 @@ def createStateCollections(folder, content_type):
             'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils')."
                                          "proposed_to_serv_chief_col_cond()",
         },
-        'task': {}
+        'task': {},
+        'dmsoutgoingmail': {}
     }
     view_fields = {
-        'dmsincomingmail': (u'select_row', u'pretty_link', u'review_state', u'treating_groups',
+        'dmsincomingmail': (u'select_row', u'pretty_link', u'treating_groups',
                             u'assigned_user', u'due_date', u'mail_type', u'sender', u'CreationDate', u'actions'),
-        'task': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group', u'assigned_user',
+        'task': (u'select_row', u'pretty_link', u'task_parent', u'assigned_group', u'assigned_user',
                  u'due_date', u'CreationDate', u'actions'),
+        'dmsoutgoingmail': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'mail_type',
+                            u'CreationDate', u'actions')
     }
     showNumberOfItems = {
         'dmsincomingmail': ('created',),

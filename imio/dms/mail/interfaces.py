@@ -27,6 +27,11 @@ class IIMDashboard(Interface):
     """Marker interface for incoming mail dashboard."""
 
 
+class IOMDashboard(Interface):
+
+    """Marker interface for outgoing mail dashboard."""
+
+
 class IIMTaskDashboard(Interface):
 
     """Marker interface for incoming mail task dashboard."""

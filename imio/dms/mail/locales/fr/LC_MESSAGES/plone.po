@@ -128,7 +128,7 @@ msgstr "Envoyé"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"
-msgstr "À signer"
+msgstr "À la signature"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_agent"
