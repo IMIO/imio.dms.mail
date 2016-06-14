@@ -53,10 +53,19 @@
             class="imio.dms.mail.browser.actionspanel.DmsIMActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
+        <!-- common for dmsincomingmail and dmsoutgoingmail -->
         <browser:viewlet
             name="imio.actionspanel2"
-            for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+            for="collective.dms.basecontent.dmsdocument.IDmsDocument"
             manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.DmsIMActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             class="imio.dms.mail.browser.actionspanel.DmsIMActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"

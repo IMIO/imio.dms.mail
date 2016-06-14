@@ -48,6 +48,17 @@ class DmsIMActionsPanelViewlet(ActionsPanelViewlet):
                                                                   showAddContent=True, showActions=False)
 
 
+class DmsOMActionsPanelView(ActionsPanelView):
+
+    transitions = ['back_to_creation', 'back_to_service_chief', 'back_to_be_signed', 'propose_to_service_chief',
+                   'propose_to_be_signed', 'mark_as_sent']
+    tr_order = dict((val, i) for (i, val) in enumerate(transitions))
+
+    def sortTransitions(self, lst):
+        """ Sort transitions following transitions list order"""
+        lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
+
+
 class ContactActionsPanelView(ActionsPanelView):
     """
       This manage the view displaying actions on contact
