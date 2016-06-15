@@ -89,11 +89,6 @@
 
     <!-- CRITERIONS -->
     <adapter for="*"
-             factory=".adapters.IncomingMailHighestValidationCriterion"
-             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
-             name="dmsincomingmail-highest-validation" />
-
-    <adapter for="*"
              factory=".adapters.IncomingMailValidationCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsincomingmail-validation" />
@@ -107,11 +102,6 @@
              factory=".adapters.IncomingMailInCopyGroupCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsincomingmail-in-copy-group" />
-
-    <adapter for="*"
-             factory=".adapters.TaskHighestValidationCriterion"
-             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
-             name="task-highest-validation" />
 
     <adapter for="*"
              factory=".adapters.TaskValidationCriterion"
