@@ -41,19 +41,36 @@ msgstr ""
 msgid "Internal Reference Number"
 msgstr ""
 
-msgid "dmsincomingmail-highest-validation"
+#: configure.zcml
+msgid "dmsincomingmail-validation"
 msgstr ""
 
+#: configure.zcml
 msgid "dmsincomingmail-in-treating-group"
 msgstr ""
 
+#: configure.zcml
 msgid "dmsincomingmail-in-copy-group"
 msgstr ""
 
-msgid "task-highest-validation"
+#: configure.zcml
+msgid "task-validation"
 msgstr ""
 
+#: configure.zcml
 msgid "task-in-assigned-group"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsoutgoingmail-validation"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsoutgoingmail-in-treating-group"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsoutgoingmail-in-copy-group"
 msgstr ""
 
 msgid "Recipient groups"

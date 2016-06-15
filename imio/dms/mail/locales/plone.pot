@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-09 10:12+0000\n"
+"POT-Creation-Date: 2016-06-15 09:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,13 +79,28 @@ msgstr ""
 msgid "created"
 msgstr ""
 
-msgid "dmsincomingmail-highest-validation"
-msgstr ""
-
+#: configure.zcml
 msgid "dmsincomingmail-in-copy-group"
 msgstr ""
 
+#: configure.zcml
 msgid "dmsincomingmail-in-treating-group"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsincomingmail-validation"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsoutgoingmail-in-copy-group"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsoutgoingmail-in-treating-group"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsoutgoingmail-validation"
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
@@ -156,10 +171,12 @@ msgstr ""
 msgid "proposed_to_service_chief"
 msgstr ""
 
-msgid "task-highest-validation"
+#: configure.zcml
+msgid "task-in-assigned-group"
 msgstr ""
 
-msgid "task-in-assigned-group"
+#: configure.zcml
+msgid "task-validation"
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-09 10:12+0000\n"
+"POT-Creation-Date: 2016-06-15 09:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,14 +77,29 @@ msgstr "Clôturé"
 msgid "created"
 msgstr "En création"
 
-msgid "dmsincomingmail-highest-validation"
+#: configure.zcml
+msgid "dmsincomingmail-in-copy-group"
+msgstr "Courrier entrant mes services en copie"
+
+#: configure.zcml
+msgid "dmsincomingmail-in-treating-group"
+msgstr "Courrier entrant mes services traitants"
+
+#: configure.zcml
+msgid "dmsincomingmail-validation"
 msgstr "Courrier entrant à valider"
 
-msgid "dmsincomingmail-in-copy-group"
-msgstr "Courrier entrant service en copie"
+#: configure.zcml
+msgid "dmsoutgoingmail-in-copy-group"
+msgstr "Courrier sortant mes services en copie"
 
-msgid "dmsincomingmail-in-treating-group"
-msgstr "Courrier entrant service traitant"
+#: configure.zcml
+msgid "dmsoutgoingmail-in-treating-group"
+msgstr "Courrier sortant mes services traitants"
+
+#: configure.zcml
+msgid "dmsoutgoingmail-validation"
+msgstr "Courrier sortant à valider"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "in_treatment"
@@ -154,11 +169,13 @@ msgstr "À valider par le DG"
 msgid "proposed_to_service_chief"
 msgstr "À valider par le chef de service"
 
-msgid "task-highest-validation"
-msgstr "Tâche à valider"
-
+#: configure.zcml
 msgid "task-in-assigned-group"
-msgstr "Tâche groupe assigné"
+msgstr "Tâche mes groupes assignés"
+
+#: configure.zcml
+msgid "task-validation"
+msgstr "Tâche à valider"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "treat"
