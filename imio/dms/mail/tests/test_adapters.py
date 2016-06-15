@@ -110,7 +110,7 @@ class TestAdapters(unittest.TestCase):
 
     def test_TaskInAssignedGroupCriterion(self):
         crit = TaskInAssignedGroupCriterion(self.portal)
-        self.assertEqual(crit.query, {'treating_groups': {'query': []}})
+        self.assertEqual(crit.query, {'assigned_group': {'query': []}})
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'assigned_group': {'query': ['111']}})
