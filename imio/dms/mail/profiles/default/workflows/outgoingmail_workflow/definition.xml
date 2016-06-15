@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<dc-workflow workflow_id="outgoingmail_workflow" title="Outgoing mail workflow" description="" state_variable="review_state" initial_state="om_created" manager_bypass="False" xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="plone">
+<dc-workflow workflow_id="outgoingmail_workflow" title="Outgoing mail workflow" description="" state_variable="review_state" initial_state="created" manager_bypass="False" xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="plone">
  <permission>Access contents information</permission>
  <permission>Add portal content</permission>
  <permission>Delete objects</permission>
@@ -7,8 +7,8 @@
  <permission>Review portal content</permission>
  <permission>View</permission>
  <permission>collective.dms.basecontent: Add DmsFile</permission>
- <state state_id="om_created" title="om_created" i18n:attributes="title">
-  <exit-transition transition_id="om_propose_to_service_chief"/>
+ <state state_id="created" title="om_created" i18n:attributes="title">
+  <exit-transition transition_id="propose_to_service_chief"/>
   <permission-map name="Access contents information" acquired="False">
    <permission-role>Editor</permission-role>
    <permission-role>Manager</permission-role>
@@ -50,9 +50,9 @@
    <permission-role>Site Administrator</permission-role>
   </permission-map>
  </state>
- <state state_id="om_proposed_to_service_chief" title="om_proposed_to_service_chief" i18n:attributes="title">
-  <exit-transition transition_id="om_back_to_creation"/>
-  <exit-transition transition_id="om_propose_to_be_signed"/>
+ <state state_id="proposed_to_service_chief" title="om_proposed_to_service_chief" i18n:attributes="title">
+  <exit-transition transition_id="back_to_creation"/>
+  <exit-transition transition_id="propose_to_be_signed"/>
   <permission-map name="Access contents information" acquired="False">
    <permission-role>Editor</permission-role>
    <permission-role>Manager</permission-role>
@@ -93,8 +93,8 @@
    <permission-role>Site Administrator</permission-role>
   </permission-map>
  </state>
- <state state_id="om_sent" title="om_sent" i18n:attributes="title">
-  <exit-transition transition_id="om_back_to_be_signed"/>
+ <state state_id="sent" title="om_sent" i18n:attributes="title">
+  <exit-transition transition_id="back_to_be_signed"/>
   <permission-map name="Access contents information" acquired="False">
    <permission-role>Editor</permission-role>
    <permission-role>Manager</permission-role>
@@ -134,10 +134,10 @@
    <permission-role>Site Administrator</permission-role>
   </permission-map>
  </state>
- <state state_id="om_to_be_signed" title="om_to_be_signed" i18n:attributes="title">
-  <exit-transition transition_id="om_back_to_creation"/>
-  <exit-transition transition_id="om_back_to_service_chief"/>
-  <exit-transition transition_id="om_mark_as_sent"/>
+ <state state_id="to_be_signed" title="om_to_be_signed" i18n:attributes="title">
+  <exit-transition transition_id="back_to_creation"/>
+  <exit-transition transition_id="back_to_service_chief"/>
+  <exit-transition transition_id="mark_as_sent"/>
   <permission-map name="Access contents information" acquired="False">
    <permission-role>Editor</permission-role>
    <permission-role>Manager</permission-role>
@@ -177,37 +177,37 @@
    <permission-role>Site Administrator</permission-role>
   </permission-map>
  </state>
- <transition transition_id="om_back_to_be_signed" title="om_back_to_be_signed" new_state="om_to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+ <transition transition_id="back_to_be_signed" title="om_back_to_be_signed" new_state="to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_be_signed.png" i18n:translate="">om_back_to_be_signed</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
- <transition transition_id="om_back_to_creation" title="om_back_to_creation" new_state="om_created" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+ <transition transition_id="back_to_creation" title="om_back_to_creation" new_state="created" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_creation.png" i18n:translate="">om_back_to_creation</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
- <transition transition_id="om_back_to_service_chief" title="om_back_to_service_chief" new_state="om_proposed_to_service_chief" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+ <transition transition_id="back_to_service_chief" title="om_back_to_service_chief" new_state="proposed_to_service_chief" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_service_chief.png" i18n:translate="">om_back_to_service_chief</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
- <transition transition_id="om_mark_as_sent" title="om_mark_as_sent" new_state="om_sent" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+ <transition transition_id="mark_as_sent" title="om_mark_as_sent" new_state="sent" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_mark_as_sent.png" i18n:translate="">om_mark_as_sent</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
- <transition transition_id="om_propose_to_be_signed" title="om_propose_to_be_signed" new_state="om_to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+ <transition transition_id="propose_to_be_signed" title="om_propose_to_be_signed" new_state="to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_propose_to_be_signed.png" i18n:translate="">om_propose_to_be_signed</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
- <transition transition_id="om_propose_to_service_chief" title="om_propose_to_service_chief" new_state="om_proposed_to_service_chief" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+ <transition transition_id="propose_to_service_chief" title="om_propose_to_service_chief" new_state="proposed_to_service_chief" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_propose_to_service_chief.png" i18n:translate="">om_propose_to_service_chief</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
