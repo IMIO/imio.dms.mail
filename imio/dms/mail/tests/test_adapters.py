@@ -11,9 +11,10 @@ from ..browser.settings import IImioDmsMailConfig
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..adapters import default_criterias
 from ..adapters import IncomingMailHighestValidationCriterion
-from ..adapters import IncomingMailValidationCriterion, TaskValidationCriterion
-from ..adapters import IncomingMailInTreatingGroupCriterion
-from ..adapters import IncomingMailInCopyGroupCriterion
+from ..adapters import IncomingMailValidationCriterion, TaskValidationCriterion, OutgoingMailValidationCriterion
+from ..adapters import IncomingMailInTreatingGroupCriterion, OutgoingMailInTreatingGroupCriterion
+from ..adapters import TaskInAssignedGroupCriterion
+from ..adapters import IncomingMailInCopyGroupCriterion, OutgoingMailInCopyGroupCriterion
 from ..adapters import ScanSearchableExtender, IdmSearchableExtender, org_sortable_title_index
 from ..adapters import state_group_index, task_state_group_index
 
@@ -55,6 +56,18 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
                                                                 'proposed_to_service_chief,111']}})
 
+    def test_OutgoingMailValidationCriterion(self):
+        crit = OutgoingMailValidationCriterion(self.portal)
+        # no groups
+        self.assertEqual(crit.query, {'state_group': {'query': []}})
+        # in a group _validateur
+        api.group.create(groupname='111_validateur')
+        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        # in a group dir_general
+        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+
     def test_TaskValidationCriterion(self):
         crit = TaskValidationCriterion(self.portal)
         # no groups
@@ -74,12 +87,33 @@ class TestAdapters(unittest.TestCase):
         api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
+    def test_OutgoingMailInTreatingGroupCriterion(self):
+        crit = OutgoingMailInTreatingGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {'treating_groups': {'query': []}})
+        api.group.create(groupname='111_validateur')
+        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
+
     def test_IncomingMailInCopyGroupCriterion(self):
         crit = IncomingMailInCopyGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'recipient_groups': {'query': []}})
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
+
+    def test_OutgoingMailInCopyGroupCriterion(self):
+        crit = OutgoingMailInCopyGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {'recipient_groups': {'query': []}})
+        api.group.create(groupname='111_editeur')
+        api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
+
+    def test_TaskInAssignedGroupCriterion(self):
+        crit = TaskInAssignedGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {'treating_groups': {'query': []}})
+        api.group.create(groupname='111_editeur')
+        api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'assigned_group': {'query': ['111']}})
 
     def test_state_group_index(self):
         dguid = self.pgof['direction-generale'].UID()
