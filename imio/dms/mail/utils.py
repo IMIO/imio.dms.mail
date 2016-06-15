@@ -22,7 +22,9 @@ review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': ['propos
                                                  ('_validateur', {'st': ['proposed_to_service_chief'],
                                                                   'org': 'treating_groups'})]),
                  'task': OrderedDict([('_validateur', {'st': ['to_assign', 'realized'],
-                                                       'org': 'assigned_group'})])}
+                                                       'org': 'assigned_group'})]),
+                 'dmsoutgoingmail': OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'],
+                                                  'org': 'treating_groups'})])}
 
 
 def highest_review_level(portal_type, group_ids):
@@ -174,15 +176,6 @@ class UtilsMethods(BrowserView):
             return all(x in u_groups for x in groups)
         return False
 
-
-class IdmUtilsMethods(UtilsMethods):
-    """ View containing incoming mail utils methods """
-
-    def get_im_folder(self):
-        """ Get the incoming-mail folder """
-        portal = getSite()
-        return portal['incoming-mail']
-
     def user_has_review_level(self, portal_type=None):
         """ Test if the current user has a review level """
         if portal_type is None:
@@ -191,6 +184,15 @@ class IdmUtilsMethods(UtilsMethods):
             return True
         else:
             return False
+
+
+class IdmUtilsMethods(UtilsMethods):
+    """ View containing incoming mail utils methods """
+
+    def get_im_folder(self):
+        """ Get the incoming-mail folder """
+        portal = getSite()
+        return portal['incoming-mail']
 
     def idm_has_assigned_user(self):
         """ Test if assigned_user is set or if the test is required or if the user is admin """
@@ -217,3 +219,12 @@ class IdmUtilsMethods(UtilsMethods):
                 organizations_with_suffixes(self.current_user_groups(api.user.get_current()), ['validateur']):
             return True
         return False
+
+
+class OdmUtilsMethods(UtilsMethods):
+    """ View containing outgoing mail utils methods """
+
+    def get_om_folder(self):
+        """ Get the outgoing-mail folder """
+        portal = getSite()
+        return portal['outgoing-mail']

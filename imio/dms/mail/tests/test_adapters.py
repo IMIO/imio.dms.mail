@@ -65,8 +65,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
         # in a group dir_general, but no effect for task criterion
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
-                                                                'to_assign,111', 'realized,111']}})
+        self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
 
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
@@ -93,7 +92,7 @@ class TestAdapters(unittest.TestCase):
         api.content.transition(obj=imail, to_state='proposed_to_service_chief')
         self.assertEqual(indexer(), 'proposed_to_service_chief,%s' % dguid)
         api.content.transition(obj=imail, to_state='proposed_to_agent')
-        self.assertEqual(indexer(), 'proposed_to_agent,%s' % dguid)
+        self.assertEqual(indexer(), 'proposed_to_agent')
 
     def test_task_state_group_index(self):
         dguid = self.pgof['direction-generale'].UID()

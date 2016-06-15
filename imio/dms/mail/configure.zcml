@@ -123,6 +123,21 @@
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="task-in-assigned-group" />
 
+    <adapter for="*"
+             factory=".adapters.OutgoingMailValidationCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="dmsoutgoingmail-validation" />
+
+    <adapter for="*"
+             factory=".adapters.OutgoingMailInTreatingGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="dmsoutgoingmail-in-treating-group" />
+
+    <adapter for="*"
+             factory=".adapters.OutgoingMailInCopyGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="dmsoutgoingmail-in-copy-group" />
+
     <!-- INDEXES -->
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />
@@ -209,6 +224,21 @@
             highest_scan_id
             proposed_to_manager_col_cond
             proposed_to_serv_chief_col_cond
+            user_has_review_level
+            user_is_admin
+        "
+    />
+
+    <browser:page
+        for="Products.CMFCore.interfaces.IContentish"
+        name="odm-utils"
+        class=".utils.OdmUtilsMethods"
+        permission="zope2.View"
+        allowed_attributes="
+            current_user_groups
+            current_user_groups_ids
+            get_om_folder
+            highest_scan_id
             user_has_review_level
             user_is_admin
         "

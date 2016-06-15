@@ -14,7 +14,7 @@ from imio.migrator.migrator import Migrator
 
 from ..interfaces import IOMDashboard
 from ..setuphandlers import (_, configure_om_rolefields, createIMailCollections, add_db_col_folder,
-                             createStateCollections)
+                             createStateCollections, createOMailCollections)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -63,7 +63,7 @@ class Migrate_To_2_0(Migrator):
         alsoProvides(col_folder, IOMDashboard)
         self.omf.moveObjectToPosition('mail-searches', 0)
 
-        #createIMailCollections(col_folder)
+        createOMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsoutgoingmail')
         #configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
         #                         default_UID=col_folder['all_mails'].UID())

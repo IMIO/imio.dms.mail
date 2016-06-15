@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-14 14:38+0000\n"
+"POT-Creation-Date: 2016-06-15 08:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -257,7 +257,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1202
+#: ./setuphandlers.py:1242
 msgid "Templates"
 msgstr ""
 
@@ -300,6 +300,10 @@ msgstr ""
 msgid "all_incoming_mails"
 msgstr ""
 
+#: ./setuphandlers.py:396
+msgid "all_outgoing_mails"
+msgstr ""
+
 #: ./browser/templates/task_dashboard_batch_actions_viewlet.pt:8
 msgid "assignedgroup-batch-action-but"
 msgstr ""
@@ -318,15 +322,15 @@ msgstr ""
 msgid "create_im"
 msgstr ""
 
-#: ./setuphandlers.py:412
+#: ./setuphandlers.py:452
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:413
+#: ./setuphandlers.py:453
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:411
+#: ./setuphandlers.py:451
 msgid "front_page_title"
 msgstr ""
 
@@ -390,6 +394,18 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
+#: ./setuphandlers.py:419
+msgid "om_in_copy"
+msgstr ""
+
+#: ./setuphandlers.py:411
+msgid "om_in_my_group"
+msgstr ""
+
+#: ./setuphandlers.py:402
+msgid "om_to_validate"
+msgstr ""
+
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
 msgid "recipientgroup-batch-action-but"
 msgstr ""
@@ -400,6 +416,7 @@ msgid "searchfor_closed"
 msgstr ""
 
 #: dmsincomingmail
+#: dmsoutgoingmail
 #: task
 msgid "searchfor_created"
 msgstr ""
@@ -412,22 +429,6 @@ msgstr ""
 msgid "searchfor_in_treatment"
 msgstr ""
 
-#: dmsoutgoingmail
-msgid "searchfor_om_created"
-msgstr ""
-
-#: dmsoutgoingmail
-msgid "searchfor_om_proposed_to_service_chief"
-msgstr ""
-
-#: dmsoutgoingmail
-msgid "searchfor_om_sent"
-msgstr ""
-
-#: dmsoutgoingmail
-msgid "searchfor_om_to_be_signed"
-msgstr ""
-
 #: dmsincomingmail
 msgid "searchfor_proposed_to_agent"
 msgstr ""
@@ -437,6 +438,7 @@ msgid "searchfor_proposed_to_manager"
 msgstr ""
 
 #: dmsincomingmail
+#: dmsoutgoingmail
 msgid "searchfor_proposed_to_service_chief"
 msgstr ""
 
@@ -444,8 +446,16 @@ msgstr ""
 msgid "searchfor_realized"
 msgstr ""
 
+#: dmsoutgoingmail
+msgid "searchfor_sent"
+msgstr ""
+
 #: task
 msgid "searchfor_to_assign"
+msgstr ""
+
+#: dmsoutgoingmail
+msgid "searchfor_to_be_signed"
 msgstr ""
 
 #: task

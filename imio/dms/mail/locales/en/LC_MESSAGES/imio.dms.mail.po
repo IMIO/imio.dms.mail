@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-14 14:38+0000\n"
+"POT-Creation-Date: 2016-06-15 08:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -255,7 +255,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1202
+#: ./setuphandlers.py:1242
 msgid "Templates"
 msgstr ""
 
@@ -298,6 +298,10 @@ msgstr "All tasks"
 msgid "all_incoming_mails"
 msgstr "All mails"
 
+#: ./setuphandlers.py:396
+msgid "all_outgoing_mails"
+msgstr ""
+
 #: ./browser/templates/task_dashboard_batch_actions_viewlet.pt:8
 msgid "assignedgroup-batch-action-but"
 msgstr "Change assigned group"
@@ -316,15 +320,15 @@ msgstr "Contact used by"
 msgid "create_im"
 msgstr "Create an incoming mail"
 
-#: ./setuphandlers.py:412
+#: ./setuphandlers.py:452
 msgid "front_page_descr"
 msgstr "Welcome on the mail management application"
 
-#: ./setuphandlers.py:413
+#: ./setuphandlers.py:453
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>The application integrates the management of incoming mail:</p><ul><li>Automatic creation of incoming mail from scanned files with a separator barcode stuck on the first page of every mail</li><li>Completion of incoming mail with preview of the scanned document and drag / drop from the extracted text by OCR</li><li>Without automatic injection from the scanner, the ability to create a mail and manually link the scanned document (for example, if the format is particular)</li><li>Predefined searches following actions to take and state of mails</li><li>Results display in a dynamic table with changeable fields filters, sorting, pagination, actions column, batch actions, etc.</li><li>Contact management (senders, recipients)</li><li>Choice of treating service, copy services and task management (that can be assigned to other services)</li><li>Choice of a responsible user in the treating service or on a task and also a due date</li><li>Mail validation workflow</li><li>Mail treatment workflow</li><li>Possibility to advance element by element from a search results</li><li>etc.</li></ul><p>&nbsp;</p>"
 
-#: ./setuphandlers.py:411
+#: ./setuphandlers.py:451
 msgid "front_page_title"
 msgstr "Mails management"
 
@@ -388,6 +392,18 @@ msgstr "Title"
 msgid "listing_sender_title"
 msgstr "Sender"
 
+#: ./setuphandlers.py:419
+msgid "om_in_copy"
+msgstr "In copy"
+
+#: ./setuphandlers.py:411
+msgid "om_in_my_group"
+msgstr "In my group"
+
+#: ./setuphandlers.py:402
+msgid "om_to_validate"
+msgstr "To validate"
+
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
 msgid "recipientgroup-batch-action-but"
 msgstr "Change recipient groups"
@@ -398,6 +414,7 @@ msgid "searchfor_closed"
 msgstr "Closed"
 
 #: dmsincomingmail
+#: dmsoutgoingmail
 #: task
 msgid "searchfor_created"
 msgstr "Created"
@@ -410,22 +427,6 @@ msgstr "In progress"
 msgid "searchfor_in_treatment"
 msgstr "In treatment"
 
-#: dmsoutgoingmail
-msgid "searchfor_om_created"
-msgstr "Created"
-
-#: dmsoutgoingmail
-msgid "searchfor_om_proposed_to_service_chief"
-msgstr "Proposed to service chief"
-
-#: dmsoutgoingmail
-msgid "searchfor_om_sent"
-msgstr "Sent"
-
-#: dmsoutgoingmail
-msgid "searchfor_om_to_be_signed"
-msgstr "To be signed"
-
 #: dmsincomingmail
 msgid "searchfor_proposed_to_agent"
 msgstr "Proposed to agent"
@@ -435,6 +436,7 @@ msgid "searchfor_proposed_to_manager"
 msgstr "Proposed to manager"
 
 #: dmsincomingmail
+#: dmsoutgoingmail
 msgid "searchfor_proposed_to_service_chief"
 msgstr "Proposed to service chief"
 
@@ -442,9 +444,17 @@ msgstr "Proposed to service chief"
 msgid "searchfor_realized"
 msgstr "Realized"
 
+#: dmsoutgoingmail
+msgid "searchfor_sent"
+msgstr "Sent"
+
 #: task
 msgid "searchfor_to_assign"
 msgstr "To assign"
+
+#: dmsoutgoingmail
+msgid "searchfor_to_be_signed"
+msgstr "To be signed"
 
 #: task
 msgid "searchfor_to_do"

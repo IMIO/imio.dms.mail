@@ -25,7 +25,7 @@ from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
-from dmsmail import IDmsIncomingMail
+from dmsmail import IImioDmsIncomingMail, IImioDmsOutgoingMail
 from .overrides import IDmsPerson
 
 from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id, list_wf_states
@@ -39,7 +39,8 @@ default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
 no_group_validation_states = {
     'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_agent', 'in_treatment', 'closed'],
-    'task': ['created', 'to_do', 'in_progress', 'closed']}
+    'task': ['created', 'to_do', 'in_progress', 'closed'],
+    'dmsoutgoingmail': ['created', 'to_be_signed', 'sent']}
 
 
 def highest_validation_criterion(portal_type):
@@ -92,7 +93,7 @@ def validation_criterion(context, portal_type):
     groups = api.group.get_groups(user=api.user.get_current())
     orgs = organizations_with_suffixes(groups, ['validateur'])
     ret = {'state_group': {'query': []}}
-    if 'dir_general' in [g.id for g in groups]:
+    if portal_type == 'dmsincomingmail' and 'dir_general' in [g.id for g in groups]:
         ret['state_group']['query'].append('proposed_to_manager')
     if orgs:
         # we get group validation states
@@ -130,6 +131,19 @@ class TaskValidationCriterion(object):
         return validation_criterion(self.context, 'task')
 
 
+class OutgoingMailValidationCriterion(object):
+    """
+        Return catalog criteria following validation group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        return validation_criterion(self.context, 'dmsoutgoingmail')
+
+
 class IncomingMailInTreatingGroupCriterion(object):
     """
         Return catalog criteria following treating group member
@@ -146,6 +160,22 @@ class IncomingMailInTreatingGroupCriterion(object):
         return {'treating_groups': {'query': orgs}}
 
 
+class OutgoingMailInTreatingGroupCriterion(object):
+    """
+        Return catalog criteria following treating group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, ['encodeur', 'validateur', 'editeur', 'lecteur'])
+        # if orgs is empty list, nothing is returned => ok
+        return {'treating_groups': {'query': orgs}}
+
+
 class IncomingMailInCopyGroupCriterion(object):
     """
         Return catalog criteria following recipient group member
@@ -158,6 +188,22 @@ class IncomingMailInCopyGroupCriterion(object):
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        # if orgs is empty list, nothing is returned => ok
+        return {'recipient_groups': {'query': orgs}}
+
+
+class OutgoingMailInCopyGroupCriterion(object):
+    """
+        Return catalog criteria following recipient group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, ['encodeur', 'validateur', 'editeur', 'lecteur'])
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}}
 
@@ -237,7 +283,7 @@ def userid_heldposition_index(obj):
     return common_marker
 
 
-@indexer(IDmsIncomingMail)
+@indexer(IImioDmsIncomingMail)
 def mail_date_index(obj):
     # No acquisition pb because mail_date isn't an attr but cannot store None
     if obj.original_mail_date:
@@ -245,17 +291,18 @@ def mail_date_index(obj):
     return common_marker
 
 
-@indexer(IDmsIncomingMail)
+@indexer(IImioDmsIncomingMail)
 def in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
     return obj.reception_date
 
 
-@indexer(IDmsIncomingMail)
+@indexer(IImioDmsIncomingMail)
+@indexer(IImioDmsOutgoingMail)
 def state_group_index(obj):
     # No acquisition pb because state_group isn't an attr
     state = api.content.get_state(obj=obj)
-    if state in ('created', 'proposed_to_manager'):
+    if state in no_group_validation_states[obj.portal_type]:
         return state
     else:
         return "%s,%s" % (state, obj.treating_groups)
@@ -329,7 +376,7 @@ class IdmSearchableExtender(object):
         Extends SearchableText of incoming mail.
         Concatenate the contained dmsmainfiles scan_id infos.
     """
-    adapts(IDmsIncomingMail)
+    adapts(IImioDmsIncomingMail)
     implements(dexteritytextindexer.IDynamicTextIndexExtender)
 
     def __init__(self, context):
