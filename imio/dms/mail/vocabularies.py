@@ -176,10 +176,14 @@ def encodeur_active_orgs(context):
     current_user = api.user.get_current()
     factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
     voc = factory(context)
-    # !! TO BE CONTINUED !!
-    if not current_user.has_role(['Manager', 'Site Administrator']) and api.content.get_state(context) == 'created':
+    # we filter orgs if
+    #   * current user is not admin
+    #   * portal_type is not dmsoutgoingmail (on adding or reply)
+    #   * state is created
+    if (not current_user.has_role(['Manager', 'Site Administrator']) and
+            (context.portal_type != 'dmsoutgoingmail' or api.content.get_state(context) == 'created')):
         orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), ['encodeur', 'validateur'])
-        voc.vocab = SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
+        return SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
     return voc
 
 alsoProvides(encodeur_active_orgs, IContextSourceBinder)
