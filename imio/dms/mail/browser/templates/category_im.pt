@@ -3,7 +3,7 @@
                      folder idm_utils/get_im_folder;
                      portal_url view/portal_url"
              i18n:domain="imio.dms.mail">
-    <div class="portlet_add_icons" tal:condition="python: context.getId()=='mail-searches'">
+    <div class="portlet_add_icons">
         <a id="newIMCreation" href="#"
            style="display: inline;"
            tal:condition="python: member.has_permission('collective.dms.mailcontent: Add Incoming Mail', folder)"

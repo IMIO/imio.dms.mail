@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-15 08:58+0000\n"
+"POT-Creation-Date: 2016-06-16 08:53+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,7 +95,7 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./vocabularies.py:80
+#: ./vocabularies.py:92
 msgid "Choose a value !"
 msgstr ""
 
@@ -200,12 +200,12 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:60
+#: ./migrations/migrate_to_2_0.py:62
 #: ./setuphandlers.py:141
 msgid "Outgoing mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:61
+#: ./migrations/migrate_to_2_0.py:63
 #: ./setuphandlers.py:142
 msgid "Outgoing mails"
 msgstr ""
@@ -319,6 +319,10 @@ msgstr "Contact used by"
 #: ./browser/templates/category_im.pt:11
 msgid "create_im"
 msgstr "Create an incoming mail"
+
+#: ./browser/templates/category_om.pt:11
+msgid "create_om"
+msgstr "Create an outgoing mail"
 
 #: ./setuphandlers.py:452
 msgid "front_page_descr"

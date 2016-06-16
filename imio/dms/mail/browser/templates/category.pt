@@ -1,0 +1,3 @@
+<tal:defines i18n:domain="imio.dms.mail">
+    <div class="title" tal:content="python: context.Rights()">Category title</div>
+</tal:defines>

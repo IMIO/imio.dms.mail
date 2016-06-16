@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-06-15 08:58+0000\n"
+"POT-Creation-Date: 2016-06-16 08:53+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -97,7 +97,7 @@ msgstr "Cocher si le champ 'Date du courrier' d'un courrier entrant doit être r
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent"
 
-#: ./vocabularies.py:80
+#: ./vocabularies.py:92
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
@@ -202,12 +202,12 @@ msgstr "Date d'expédition"
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:60
+#: ./migrations/migrate_to_2_0.py:62
 #: ./setuphandlers.py:141
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
 
-#: ./migrations/migrate_to_2_0.py:61
+#: ./migrations/migrate_to_2_0.py:63
 #: ./setuphandlers.py:142
 msgid "Outgoing mails"
 msgstr "Courriers sortants"
@@ -321,6 +321,10 @@ msgstr "Contact utilisé par"
 #: ./browser/templates/category_im.pt:11
 msgid "create_im"
 msgstr "Créer un courrier entrant"
+
+#: ./browser/templates/category_om.pt:11
+msgid "create_om"
+msgstr "Créer un courrier sortant"
 
 #: ./setuphandlers.py:452
 msgid "front_page_descr"

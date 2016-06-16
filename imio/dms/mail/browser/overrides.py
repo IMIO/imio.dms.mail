@@ -12,6 +12,8 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
 from imio.history.browser.views import IHDocumentBylineViewlet
 
+from ..interfaces import IIMDashboard, IOMDashboard
+
 
 class IMRenderCategoryView(RenderCategoryView):
     '''
@@ -22,8 +24,11 @@ class IMRenderCategoryView(RenderCategoryView):
 
     def __call__(self, widget):
         self.widget = widget
-
-        return ViewPageTemplateFile("templates/category_im.pt")(self)
+        if IIMDashboard.providedBy(self.context):
+            return ViewPageTemplateFile("templates/category_im.pt")(self)
+        if IOMDashboard.providedBy(self.context):
+            return ViewPageTemplateFile("templates/category_om.pt")(self)
+        return ViewPageTemplateFile("templates/category.pt")(self)
 
 
 class DocumentBylineViewlet(IHDocumentBylineViewlet):
