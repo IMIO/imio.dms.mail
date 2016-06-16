@@ -1,0 +1,6 @@
+To create a new colored image:
+* Add transparent layer
+* If no selection, select with fuzzy select tool
+* Change foreground color
+* Bucket fill tool
+* Export as png
