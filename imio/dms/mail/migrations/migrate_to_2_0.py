@@ -14,7 +14,7 @@ from imio.migrator.migrator import Migrator
 
 from ..interfaces import IOMDashboard
 from ..setuphandlers import (_, configure_om_rolefields, createIMailCollections, add_db_col_folder,
-                             createStateCollections, createOMailCollections)
+                             createStateCollections, createOMailCollections, configure_faceted_folder)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -54,8 +54,10 @@ class Migrate_To_2_0(Migrator):
             self.portal.manage_permission('imio.dms.mail : Write userid field', ('Manager', 'Site Administrator'),
                                           acquire=0)
 
-    def add_collections(self):
+    def configure_dashboard(self):
         """ add DashboardCollection """
+        alsoProvides(self.omf, INextPrevNotNavigable)
+        alsoProvides(self.omf, IOMDashboard)
         self.omf.setConstrainTypesMode(0)
         col_folder = add_db_col_folder(self.omf, 'mail-searches', _("Outgoing mail searches"),
                                        _('Outgoing mails'))
@@ -65,26 +67,25 @@ class Migrate_To_2_0(Migrator):
 
         createOMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsoutgoingmail')
-        #configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
-        #                         default_UID=col_folder['all_mails'].UID())
-
+        configure_faceted_folder(col_folder, xml='om-mail-searches.xml',
+                                 default_UID=col_folder['all_mails'].UID())
         self.omf.setConstrainTypesMode(1)
+        configure_faceted_folder(self.omf, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_mails'].UID())
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
         self.delete_outgoing_examples()
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry', 'typeinfo'])
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
 
         # do various global adaptations
         self.update_site()
 
-        # Add collections to omf
-        alsoProvides(self.omf, INextPrevNotNavigable)
-        alsoProvides(self.omf, IOMDashboard)
-        self.add_collections()
+        # configure dashboard on omf
+        self.configure_dashboard()
 
         # configure role fields on dmsoutgoingmail
         configure_om_rolefields(self.portal)

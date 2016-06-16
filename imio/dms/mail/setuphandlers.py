@@ -144,12 +144,12 @@ def postInstall(context):
         alsoProvides(col_folder, IOMDashboard)
         createOMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsoutgoingmail')
-        #configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
-        #                         default_UID=col_folder['all_mails'].UID())
+        configure_faceted_folder(col_folder, xml='om-mail-searches.xml',
+                                 default_UID=col_folder['all_mails'].UID())
 
-        # configure incoming-mail faceted
-        #configure_faceted_folder(im_folder, xml='default_dashboard_widgets.xml',
-        #                         default_UID=col_folder['all_mails'].UID())
+        # configure outgoing-mail faceted
+        configure_faceted_folder(om_folder, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_mails'].UID())
 
         om_folder.setConstrainTypesMode(1)
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
