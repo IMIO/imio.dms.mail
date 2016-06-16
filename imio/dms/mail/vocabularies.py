@@ -33,6 +33,18 @@ class IMReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+class OMReviewStatesVocabulary(object):
+    """ Outgoing mail states vocabulary """
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        terms = []
+        for state in list_wf_states(context, 'dmsoutgoingmail'):
+            terms.append(SimpleVocabulary.createTerm(
+                state, state, translate('om_%s' % state, domain='plone', context=context.REQUEST)))
+        return SimpleVocabulary(terms)
+
+
 class TaskReviewStatesVocabulary(object):
     """ Task states vocabulary """
     implements(IVocabularyFactory)
