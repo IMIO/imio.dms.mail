@@ -330,6 +330,33 @@ ul.select2-choices {
     border: 2px solid dimgrey;
 }
 
+/* colorization for outgoing_mail_workflow */
+/* created and proposed_to_service_chief already defined in incoming mail */
+
+.state-to_be_signed {
+ color: green !important;
+}
+
+#plone-contentmenu-workflow .state-to_be_signed {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: green;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid green;
+}
+
+.state-sent {
+ color: dimgrey !important;
+}
+
+#plone-contentmenu-workflow .state-sent {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: dimgrey;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid dimgrey;
+}
+
 /* colorization for internal_application_workflow */
 
 .state-internally_published {
