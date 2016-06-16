@@ -176,6 +176,9 @@ def encodeur_active_orgs(context):
     current_user = api.user.get_current()
     factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
     voc = factory(context)
+    # this is the case when calling ++widget++...
+    if current_user.getId() is None:
+        return voc
     # we filter orgs if
     #   * current user is not admin
     #   * portal_type is not dmsoutgoingmail (on adding or reply)

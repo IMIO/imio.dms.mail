@@ -13,6 +13,9 @@ Changelog
 - Added im collection: to treat in my group
   [sgeulette]
 
+- Added dashboard on outgoing-mail folder
+  [sgeulette]
+
 1.1 (2016-04-14)
 ----------------
 
