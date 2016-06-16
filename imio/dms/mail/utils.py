@@ -15,6 +15,7 @@ from Products.Five import BrowserView
 
 from imio.helpers.cache import get_cachekey_volatile
 from browser.settings import IImioDmsMailConfig
+from interfaces import IIMDashboard
 
 # methods
 
@@ -217,6 +218,11 @@ class IdmUtilsMethods(UtilsMethods):
         """ Condition for searchfor_proposed_to_service_chief collection """
         if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False) or \
                 organizations_with_suffixes(self.current_user_groups(api.user.get_current()), ['validateur']):
+            return True
+        return False
+
+    def must_render_im_listing(self):
+        if IIMDashboard.providedBy(self.context):
             return True
         return False
 
