@@ -91,7 +91,7 @@ class TestVocabularies(unittest.TestCase):
     def test_OMActiveMailTypesVocabulary(self):
         voc_inst = OMActiveMailTypesVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [None, u'courrier', u'recommande'])
+        self.assertListEqual(voc_list, [u'courrier', u'recommande'])
 
     def test_encodeur_active_orgs(self):
         login(self.portal, 'agent')

@@ -169,7 +169,7 @@ class OMActiveMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return getMailTypes(choose=True, active=[True], field='omail_types')
+        return getMailTypes(active=[True], field='omail_types')
 
 
 def encodeur_active_orgs(context):
