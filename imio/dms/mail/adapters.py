@@ -17,12 +17,14 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.app.uuid.utils import uuidToObject
 from plone.indexer import indexer
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 
 from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
+from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
 from dmsmail import IImioDmsIncomingMail, IImioDmsOutgoingMail
@@ -297,8 +299,7 @@ def in_out_date_index(obj):
     return obj.reception_date
 
 
-@indexer(IImioDmsIncomingMail)
-@indexer(IImioDmsOutgoingMail)
+@indexer(IDmsDocument)
 def state_group_index(obj):
     # No acquisition pb because state_group isn't an attr
     state = api.content.get_state(obj=obj)
@@ -322,6 +323,25 @@ def org_sortable_title_index(obj):
     parts = [sortable_title(org)() for org in obj.get_organizations_chain() if org.title]
     parts and parts.append('')
     return '|'.join(parts)
+
+
+@indexer(IImioDmsOutgoingMail)
+def sender_index(obj):
+    """
+        return an index containing:
+        * the sender UID
+        * the organizations chain UIDs if the sender is held position, prefixed by 'l:'
+    """
+    if not obj.sender:
+        return common_marker
+    index = [obj.sender]
+
+    def add_parent_organizations(obj, index):
+        for org in obj.get_organizations_chain():
+            index.append('l:%s' % org.UID())
+
+    add_parent_organizations(uuidToObject(obj.sender).get_organization(), index)
+    return index
 
 
 class ScanSearchableExtender(object):
