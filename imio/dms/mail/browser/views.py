@@ -12,6 +12,7 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 
 from imio.dms.mail import _
+from ..setuphandlers import _ as _fr
 
 
 class PloneView(Plone):
@@ -86,7 +87,7 @@ class ContactSuggest(BrowserView):
         self.request.response.setHeader("Content-type", "application/json")
         query = parse_query(query)
         hp, org_bis = [], []
-        all_str = _('All under')
+        all_str = _fr('All under')
         # search held_positions
         crit = {'portal_type': 'held_position', 'sort_on': 'sortable_title'}
         crit.update(query)
@@ -110,5 +111,44 @@ class ContactSuggest(BrowserView):
         for brain in brains:
             result.append({'id': brain.UID, 'text': brain.get_full_title})
         # add organizations bis
+        result += org_bis
+        return json.dumps(result)
+
+
+class SenderSuggest(BrowserView):
+    """ Contact Autocomplete view """
+    implements(IAutocompleteSuggest)
+
+    label = u"Sender"
+
+    def __call__(self):
+        result = []
+        query = self.request.get('term')
+        if not query:
+            return json.dumps(result)
+
+        self.request.response.setHeader("Content-type", "application/json")
+        query = parse_query(query)
+        hp, org_bis = [], []
+        all_str = _fr('All under')
+        portal_path = '/'.join(api.portal.get().getPhysicalPath())
+        # search held_positions in personnel-folder
+        crit = {'portal_type': 'held_position', 'sort_on': 'sortable_title',
+                'path': '%s/contacts/personnel-folder' % portal_path}
+        crit.update(query)
+        brains = self.context.portal_catalog(**crit)
+        for brain in brains:
+            hp.append({'id': brain.UID, 'text': brain.get_full_title})
+        # search organizations in plonegroup-organization folder
+        crit = {'portal_type': ('organization'), 'sort_on': 'sortable_title',
+                'path': '%s/contacts/plonegroup-organization' % portal_path}
+        crit.update(query)
+        brains = self.context.portal_catalog(**crit)
+        make_bis = (len(hp) + len(brains)) > 1 and True or False
+        for brain in brains:
+            result.append({'id': brain.UID, 'text': brain.get_full_title})
+            if make_bis:
+                org_bis.append({'id': 'l:%s' % brain.UID, 'text': '%s [%s]' % (brain.get_full_title, all_str)})
+        result += hp
         result += org_bis
         return json.dumps(result)

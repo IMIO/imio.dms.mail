@@ -224,6 +224,14 @@
         permission="zope2.View"
     />
 
+    <browser:view
+        for="*"
+        provides="eea.faceted.vocabularies.autocomplete.IAutocompleteSuggest"
+        name="sender-autocomplete-suggest"
+        class=".views.SenderSuggest"
+        permission="zope2.View"
+    />
+
     <!-- VersionsTitleColumn -->
     <adapter
         for="zope.interface.Interface
