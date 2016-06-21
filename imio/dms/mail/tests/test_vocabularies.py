@@ -81,7 +81,7 @@ class TestVocabularies(unittest.TestCase):
 
     def test_OMSenderVocabulary(self):
         voc_inst = OMSenderVocabulary()
-        self.assertEqual(len(voc_inst(self.omail)), 5)
+        self.assertEqual(len(voc_inst(self.omail)), 6)
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
