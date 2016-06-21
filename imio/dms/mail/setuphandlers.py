@@ -1161,10 +1161,8 @@ def addOwnPersonnel(context):
     for person in persons:
         pers = api.content.create(container=pf, type='person', id=person, userid=person, **persons[person]['pers'])
         for fct_dic in persons[person]['fcts']:
-            fct = api.content.create(container=pers, id=normalizer.normalize(fct_dic['label']), type='held_position',
-                                     **fct_dic)
-            if fct_dic['end_date']:
-                api.content.transition(obj=fct, transition='deactivate')
+            api.content.create(container=pers, id=normalizer.normalize(fct_dic['label']), type='held_position',
+                               **fct_dic)
 
 
 def configureDocumentViewer(context):
