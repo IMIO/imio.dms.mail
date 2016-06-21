@@ -126,15 +126,15 @@ class SenderSuggest(BrowserView):
         query = self.request.get('term')
         if not query:
             return json.dumps(result)
-
         self.request.response.setHeader("Content-type", "application/json")
         query = parse_query(query)
         hp, org_bis = [], []
         all_str = _fr('All under')
         portal_path = '/'.join(api.portal.get().getPhysicalPath())
         # search held_positions in personnel-folder
-        crit = {'portal_type': 'held_position', 'sort_on': 'sortable_title',
-                'path': '%s/contacts/personnel-folder' % portal_path}
+        crit = {'portal_type': 'held_position', 'path': '%s/contacts/personnel-folder' % portal_path,
+                'sort_on': ['end', 'sortable_title'], 'sort_order': ['descending', 'ascending']
+                }
         crit.update(query)
         brains = self.context.portal_catalog(**crit)
         for brain in brains:
