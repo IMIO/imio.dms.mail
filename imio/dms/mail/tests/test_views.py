@@ -58,6 +58,8 @@ class TestContactSuggest(unittest.TestCase):
         self.portal = self.layer['portal']
         self.ctct = self.portal['contacts']
         self.elec = self.ctct['electrabel']
+        self.pf = self.ctct['personnel-folder']
+        self.pgo = self.portal['contacts']['plonegroup-organization']
 
     def test_parse_query(self):
         self.assertEqual(parse_query('dir*'),
@@ -83,6 +85,39 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(ret.pop(0),
                          {"text": "Monsieur Jean Courant", "id": self.ctct['jeancourant'].UID()})
         self.assertEqual(ret.pop(0),
-                         {"text": "Electrabel [All under]", "id": 'l:%s' % self.elec.UID()})
+                         {"text": "Electrabel [TOUT]", "id": 'l:%s' % self.elec.UID()})
         self.assertEqual(ret.pop(0),
-                         {"text": "Electrabel / Travaux 1 [All under]", "id": 'l:%s' % self.elec['travaux'].UID()})
+                         {"text": "Electrabel / Travaux 1 [TOUT]", "id": 'l:%s' % self.elec['travaux'].UID()})
+
+    def test_call_SenderSuggest(self):
+        omail1 = self.portal['incoming-mail']['courrier1']
+        view = omail1.unrestrictedTraverse('@@sender-autocomplete-suggest')
+        # no term
+        self.assertEqual(view(), '[]')
+        # search held position
+        view.request['term'] = 'directeur'
+        ret = json.loads(view())
+        self.assertEqual(ret.pop(0),
+                         {'text': u'Monsieur Maxime DG (Mon organisation - Directeur général)',
+                          'id': self.pf['dirg']['directeur-general'].UID()})
+        self.assertEqual(ret.pop(0),
+                         {'text': u'Monsieur Maxime DG (Mon organisation - Directeur du personnel)',
+                          'id': self.pf['dirg']['directeur-du-personnel'].UID()})
+        # search organization
+        view.request['term'] = 'direction générale grh'
+        ret = json.loads(view())
+        self.assertEqual(ret.pop(0),
+                         {'text': u'Mon organisation / Direction générale / GRH',
+                          u'id': self.pgo['direction-generale']['grh'].UID()})
+        self.assertEqual(ret.pop(0),
+                         {"text": "Monsieur Fred Agent (Mon organisation - Agent GRH)",
+                          "id": self.pf['agent']['agent-grh'].UID()})
+        self.assertEqual(ret.pop(0),
+                         {"text": "Monsieur Michel Chef (Mon organisation - Responsable GRH)",
+                          "id": self.pf['chef']['responsable-grh'].UID()})
+        self.assertEqual(ret.pop(0),
+                         {'text': u'Monsieur Maxime DG (Mon organisation - Directeur du personnel)',
+                          'id': self.pf['dirg']['directeur-du-personnel'].UID()})
+        self.assertEqual(ret.pop(0),
+                         {'text': u'Mon organisation / Direction générale / GRH [TOUT]',
+                          u'id': 'l:%s' % self.pgo['direction-generale']['grh'].UID()})
