@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-16 08:53+0000\n"
+"POT-Creation-Date: 2016-06-22 08:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
 
-#: ./browser/views.py:34
+#: ./browser/views.py:35
 msgid "${title}: create from template"
 msgstr ""
 
@@ -37,20 +37,12 @@ msgstr ""
 msgid "Added values"
 msgstr ""
 
-#: ./browser/views.py:89
-msgid "All under"
-msgstr ""
-
 #: ./browser/batchactions.py:135
 msgid "Apply"
 msgstr ""
 
 #: ./browser/settings.py:45
 msgid "Assigned user check"
-msgstr ""
-
-#: ./profiles.zcml:31
-msgid "Basic temporary configuration for imio.dms.mail"
 msgstr ""
 
 #: ./browser/batchactions.py:209
@@ -101,7 +93,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:39
+#: ./browser/views.py:40
 msgid "Choose this template"
 msgstr ""
 
@@ -257,7 +249,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1242
+#: ./setuphandlers.py:1240
 msgid "Templates"
 msgstr ""
 
@@ -369,10 +361,6 @@ msgstr ""
 #: ./profiles.zcml:14
 #: ./setuphandlers.py:55
 msgid "imio.dms.mail"
-msgstr ""
-
-#: ./profiles.zcml:31
-msgid "imio.dms.mail basic version"
 msgstr ""
 
 #: ./profiles.zcml:22

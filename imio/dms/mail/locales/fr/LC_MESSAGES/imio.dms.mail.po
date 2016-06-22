@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-06-16 08:53+0000\n"
+"POT-Creation-Date: 2016-06-22 08:43+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,7 +17,7 @@ msgstr ""
 "Language: fr\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: ./browser/views.py:34
+#: ./browser/views.py:35
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -101,7 +101,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:39
+#: ./browser/views.py:40
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -257,7 +257,7 @@ msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1242
+#: ./setuphandlers.py:1240
 msgid "Templates"
 msgstr "Modèles doc"
 

@@ -43,6 +43,10 @@ msgstr ""
 msgid "Original mail date"
 msgstr ""
 
+#: ../faceted_conf/om-faceted:
+msgid "Outgoing Date"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Per page"
 msgstr ""
