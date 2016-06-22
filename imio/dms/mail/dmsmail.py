@@ -17,7 +17,7 @@ from plone.registry.interfaces import IRegistry
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.textfield import RichText
-from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
+from plone.formwidget.datetime.z3cform.widget import DateFieldWidget
 from AccessControl import getSecurityManager
 
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
@@ -300,8 +300,8 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         title=_cdmsm(u"External Reference Number"),
         required=False,)
 
-    outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
-    directives.widget(outgoing_date=DatetimeFieldWidget)
+    outgoing_date = schema.Date(title=_(u'Outgoing Date'), required=False)
+    directives.widget('outgoing_date', DateFieldWidget, show_today_link=True)
 
     notes = RichText(
         title=_cdmsbc(u"Notes"),
