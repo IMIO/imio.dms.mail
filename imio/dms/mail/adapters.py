@@ -25,6 +25,7 @@ from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.dms.basecontent.dmsdocument import IDmsDocument
+from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
 from dmsmail import IImioDmsIncomingMail, IImioDmsOutgoingMail
@@ -349,11 +350,7 @@ def sender_index(obj):
     """
     if not obj.sender:
         return common_marker
-    index = [obj.sender]
-
-    def add_parent_organizations(obj, index):
-        for org in obj.get_organizations_chain():
-            index.append('l:%s' % org.UID())
+    index = set([obj.sender])
 
     add_parent_organizations(uuidToObject(obj.sender).get_organization(), index)
     return index
