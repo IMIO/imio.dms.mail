@@ -99,19 +99,6 @@
   </criterion>
 
   <criterion name="c6" i18n:attributes="title">
-   <property name="widget">autocomplete</property>
-   <property name="title">Sender</property>
-   <property name="position">top</property>
-   <property name="section">advanced</property>
-   <property name="hidden">0</property>
-   <property name="index">sender</property>
-   <property name="default"></property>
-   <property name="autocomplete_view">sender-autocomplete-suggest</property>
-   <property name="onlyallelements">1</property>
-   <property name="multivalued">1</property>
-  </criterion>
-
-  <criterion name="c7" i18n:attributes="title">
    <property name="widget">checkbox</property>
    <property name="title">Recipient groups</property>
    <property name="position">top</property>
@@ -131,7 +118,33 @@
    <property name="default"/>
   </criterion>
 
+  <criterion name="c7" i18n:attributes="title">
+   <property name="widget">autocomplete</property>
+   <property name="title">Sender</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">sender</property>
+   <property name="default"></property>
+   <property name="autocomplete_view">sender-autocomplete-suggest</property>
+   <property name="onlyallelements">1</property>
+   <property name="multivalued">1</property>
+  </criterion>
+
   <criterion name="c8" i18n:attributes="title">
+   <property name="widget">autocomplete</property>
+   <property name="title">Recipients</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">0</property>
+   <property name="index">recipients</property>
+   <property name="default"></property>
+   <property name="autocomplete_view">contact-autocomplete-suggest</property>
+   <property name="onlyallelements">1</property>
+   <property name="multivalued">1</property>
+  </criterion>
+
+  <criterion name="c9" i18n:attributes="title">
    <property name="widget">checkbox</property>
    <property name="title">Mail type</property>
    <property name="position">top</property>
@@ -151,7 +164,7 @@
    <property name="default"/>
   </criterion>
 
-  <criterion name="c9" i18n:attributes="title">
+  <criterion name="c10" i18n:attributes="title">
    <property name="widget">daterange</property>
    <property name="title">Original mail date</property>
    <property name="position">top</property>
@@ -162,7 +175,7 @@
    <property name="calYearRange">2013:+0</property>
   </criterion>
 
-  <criterion name="c10" i18n:attributes="title">
+  <criterion name="c11" i18n:attributes="title">
    <property name="widget">daterange</property>
    <property name="title">Outgoing Date</property>
    <property name="position">top</property>
@@ -173,7 +186,7 @@
    <property name="calYearRange">2016:+0</property>
   </criterion>
 
-  <criterion name="c11" i18n:attributes="title">
+  <criterion name="c12" i18n:attributes="title">
    <property name="widget">daterange</property>
    <property name="title">Created</property>
    <property name="position">top</property>
@@ -184,7 +197,7 @@
    <property name="calYearRange">2016:+0</property>
   </criterion>
 
-  <criterion name="c12" i18n:attributes="title">
+  <criterion name="c13" i18n:attributes="title">
    <property name="widget">checkbox</property>
    <property name="title">Creator</property>
    <property name="position">top</property>
@@ -204,7 +217,7 @@
    <property name="default"/>
   </criterion>
 
-  <criterion name="c13" i18n:attributes="title">
+  <criterion name="c14" i18n:attributes="title">
    <property name="widget">daterange</property>
    <property name="title">Modified</property>
    <property name="position">top</property>
@@ -215,7 +228,7 @@
    <property name="calYearRange">2016:+0</property>
   </criterion>
 
-  <criterion name="c14" i18n:attributes="title">
+  <criterion name="c15" i18n:attributes="title">
    <property name="widget">text</property>
    <property name="title">Title only</property>
    <property name="position">top</property>

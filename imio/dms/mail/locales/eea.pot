@@ -73,3 +73,7 @@ msgstr ""
 #: ../faceted_conf/om-faceted:
 msgid "Outgoing Date"
 msgstr ""
+
+#: ../faceted_conf/om-faceted:
+msgid "Recipients"
+msgstr ""

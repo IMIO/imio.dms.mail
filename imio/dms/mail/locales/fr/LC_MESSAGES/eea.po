@@ -59,6 +59,10 @@ msgstr "Date de réception"
 msgid "Recipient groups"
 msgstr "Services en copie"
 
+#: ../faceted_conf/om-faceted:
+msgid "Recipients"
+msgstr "Destinataires"
+
 #: ../faceted_conf/im-faceted:
 msgid "Review state"
 msgstr "État"

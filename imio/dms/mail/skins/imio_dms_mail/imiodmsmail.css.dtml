@@ -176,7 +176,7 @@ ul.select2-choices {
     max-width: 18em !important;
 }
 
-.faceted-autocomplete-widget.section-sender {
+.faceted-autocomplete-widget.section-sender, .faceted-autocomplete-widget.section-recipients {
     min-width: 18em;
 }
 

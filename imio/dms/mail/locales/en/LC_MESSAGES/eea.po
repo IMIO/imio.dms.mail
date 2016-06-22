@@ -59,6 +59,10 @@ msgstr ""
 msgid "Recipient groups"
 msgstr ""
 
+#: ../faceted_conf/om-faceted:
+msgid "Recipients"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Review state"
 msgstr ""
