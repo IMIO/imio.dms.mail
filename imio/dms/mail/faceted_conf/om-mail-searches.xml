@@ -108,7 +108,7 @@
    <property name="default"></property>
    <property name="autocomplete_view">sender-autocomplete-suggest</property>
    <property name="onlyallelements">1</property>
-   <property name="multivalued">0</property>
+   <property name="multivalued">1</property>
   </criterion>
 
   <criterion name="c7" i18n:attributes="title">
