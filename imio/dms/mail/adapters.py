@@ -350,7 +350,7 @@ def sender_index(obj):
     """
     if not obj.sender:
         return common_marker
-    index = set([obj.sender])
+    index = [obj.sender]
 
     add_parent_organizations(uuidToObject(obj.sender).get_organization(), index)
     return index
