@@ -293,10 +293,25 @@ def mail_date_index(obj):
     return common_marker
 
 
+@indexer(IImioDmsOutgoingMail)
+def om_mail_date_index(obj):
+    if base_hasattr(obj, 'mail_date') and obj.mail_date:
+        return obj.mail_date
+    return common_marker
+
+
 @indexer(IImioDmsIncomingMail)
 def in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
     return obj.reception_date
+
+
+@indexer(IImioDmsOutgoingMail)
+def om_in_out_date_index(obj):
+    # No acquisition pb because in_out_date isn't an attr
+    if obj.outgoing_date:
+        return obj.outgoing_date
+    return common_marker
 
 
 @indexer(IDmsDocument)

@@ -139,7 +139,9 @@
     <adapter name="mail_type" factory=".adapters.userid_person_index" />
     <adapter name="mail_type" factory=".adapters.userid_heldposition_index" />
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
+    <adapter name="mail_date" factory=".adapters.om_mail_date_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
+    <adapter name="in_out_date" factory=".adapters.om_in_out_date_index" />
     <adapter name="sortable_title" factory=".adapters.org_sortable_title_index" />
     <adapter name="state_group" factory=".adapters.state_group_index" />
     <adapter name="state_group" factory=".adapters.task_state_group_index" />
