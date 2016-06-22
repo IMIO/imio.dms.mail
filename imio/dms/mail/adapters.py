@@ -408,7 +408,7 @@ class IdmSearchableExtender(object):
         Extends SearchableText of incoming mail.
         Concatenate the contained dmsmainfiles scan_id infos.
     """
-    adapts(IImioDmsIncomingMail)
+    adapts(IDmsDocument)
     implements(dexteritytextindexer.IDynamicTextIndexExtender)
 
     def __init__(self, context):
@@ -426,7 +426,6 @@ class IdmSearchableExtender(object):
                 index += sid_infos
         if index:
             return u' '.join(index)
-
 
 #########################
 # vocabularies adapters #
