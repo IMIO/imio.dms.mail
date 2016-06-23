@@ -180,3 +180,8 @@ class RecipientsColumn(PrettyLinkColumn):
             return '<ul class="recipients_col"><li>%s</li></ul>' % '</li>\n<li>'.join(ret)
         else:
             return '-'
+
+
+class OutgoingDateColumn(DateColumn):
+
+    attrName = u'in_out_date'

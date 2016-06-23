@@ -201,12 +201,20 @@ def createStateCollections(folder, content_type):
         'dmsoutgoingmail': {}
     }
     view_fields = {
-        'dmsincomingmail': (u'select_row', u'pretty_link', u'treating_groups',
-                            u'assigned_user', u'due_date', u'mail_type', u'sender', u'CreationDate', u'actions'),
-        'task': (u'select_row', u'pretty_link', u'task_parent', u'assigned_group', u'assigned_user',
-                 u'due_date', u'CreationDate', u'actions'),
-        'dmsoutgoingmail': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'recipients', u'mail_type',
-                            u'CreationDate', u'actions')
+        'dmsincomingmail': {
+            '*': (u'select_row', u'pretty_link', u'treating_groups', u'assigned_user', u'due_date', u'mail_type',
+                  u'sender', u'CreationDate', u'actions'),
+        },
+        'task': {
+            '*': (u'select_row', u'pretty_link', u'task_parent', u'assigned_group', u'assigned_user', u'due_date',
+                  u'CreationDate', u'actions'),
+        },
+        'dmsoutgoingmail': {
+            '*': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'recipients', u'mail_type',
+                  u'CreationDate', u'actions'),
+            'sent': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'recipients', u'mail_type',
+                     u'CreationDate', u'outgoing_date', u'actions')
+        }
     }
     showNumberOfItems = {
         'dmsincomingmail': ('created',),
@@ -219,7 +227,8 @@ def createStateCollections(folder, content_type):
                                          'v': [content_type]},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [state]}],
-                                 customViewFields=view_fields[content_type],
+                                 customViewFields=(state in view_fields[content_type] and
+                                                   view_fields[content_type][state] or view_fields[content_type]['*']),
                                  tal_condition=conditions[content_type].get(state),
                                  showNumberOfItems=(state in showNumberOfItems.get(content_type, [])),
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
@@ -397,7 +406,7 @@ def createOMailCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'mail_type', u'CreationDate', u'actions'),
+                     u'mail_type', u'CreationDate', u'outgoing_date', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('om_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
@@ -414,7 +423,7 @@ def createOMailCollections(folder):
              'v': 'dmsoutgoingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'mail_type', u'CreationDate', u'actions'),
+                     u'mail_type', u'CreationDate', u'outgoing_date', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'in_copy', 'tit': _('om_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
@@ -422,7 +431,7 @@ def createOMailCollections(folder):
              'v': 'dmsoutgoingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'mail_type', u'CreationDate', u'actions'),
+                     u'mail_type', u'CreationDate', u'outgoing_date', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
     ]
     createDashboardCollections(folder, collections)

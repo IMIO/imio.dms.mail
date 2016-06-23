@@ -64,3 +64,9 @@ msgstr ""
 
 msgid "recipients"
 msgstr ""
+
+msgid "header_outgoing_date"
+msgstr ""
+
+msgid "outgoing_date"
+msgstr ""

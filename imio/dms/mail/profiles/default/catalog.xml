@@ -17,6 +17,7 @@
  <index name="in_out_date" meta_type="DateIndex">
   <property name="index_naive_time_as_local">True</property>
  </index>
+ <column value="in_out_date"/>
 
  <index name="state_group" meta_type="FieldIndex">
   <indexed_attr value="state_group"/>

@@ -10,6 +10,7 @@ from plone.registry.interfaces import IRegistry
 
 from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
 from ..interfaces import IOMDashboard
@@ -72,6 +73,8 @@ class Migrate_To_2_0(Migrator):
         self.omf.setConstrainTypesMode(1)
         configure_faceted_folder(self.omf, xml='default_dashboard_widgets.xml',
                                  default_UID=col_folder['all_mails'].UID())
+        # add metadata in portal_catalog
+        addOrUpdateColumns(self.portal, columns=('in_out_date',))
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
@@ -94,6 +97,11 @@ class Migrate_To_2_0(Migrator):
         if not INextPrevNotNavigable.providedBy(self.portal['front-page']):
             alsoProvides(self.portal['front-page'], INextPrevNotNavigable)
 
+        # refresh some indexes
+        brains = self.catalog.searchResults(portal_type=['dmsincomingmail'])
+        for brain in brains:
+            obj = brain.getObject()
+            obj.reindexObject(idxs=['in_out_date'])
         # self.upgradeAll()
 
         # self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])

@@ -36,6 +36,9 @@ msgstr "Échéance"
 msgid "header_mail_type"
 msgstr "Type de courrier"
 
+msgid "header_outgoing_date"
+msgstr "Date d'expédition"
+
 msgid "header_recipients"
 msgstr "Destinataires"
 
@@ -51,6 +54,9 @@ msgstr "Service traitant"
 msgid "mail_type"
 msgstr "Type de courrier"
 
+msgid "outgoing_date"
+msgstr "Date d'expédition"
+
 msgid "recipients"
 msgstr "Destinataires"
 
@@ -58,7 +64,7 @@ msgid "sender"
 msgstr "Expéditeur"
 
 msgid "task_parent"
-msgstr "Courrier associé"
+msgstr "Parent tâche"
 
 msgid "treating_groups"
 msgstr "Service traitant"
