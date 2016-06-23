@@ -192,6 +192,13 @@ ul.select2-choices {
     min-width: 15em !important
 }
 
+/* columns */
+
+#content .recipients_col {
+    list-style-type: none;
+    margin-left: 0;
+}
+
 /* Align (move up) the actionspanel add menu */
 .actionspanel-no-style-table {
     line-height: 1.5em;

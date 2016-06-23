@@ -36,6 +36,9 @@ msgstr "Due date"
 msgid "header_mail_type"
 msgstr "Mail type"
 
+msgid "header_recipients"
+msgstr "Recipients"
+
 msgid "header_sender"
 msgstr "Sender"
 
@@ -47,6 +50,9 @@ msgstr "Treating group"
 
 msgid "mail_type"
 msgstr "Mail type"
+
+msgid "recipients"
+msgstr "Recipients"
 
 msgid "sender"
 msgstr "Sender"

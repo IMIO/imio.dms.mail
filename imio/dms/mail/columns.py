@@ -132,3 +132,51 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     view_name = 'actions_panel'
     attrName = 'actions'
     params = {'showHistory': True, 'showActions': False}
+
+
+class RecipientsColumn(PrettyLinkColumn):
+
+    attrName = 'recipients_index'
+    i_cache = {}
+
+    def _icons(self, c_brain):
+        """See docstring in interfaces.py."""
+        if c_brain.portal_type not in self.i_cache:
+            icons = []
+            purl = api.portal.get_tool('portal_url')()
+            typeInfo = api.portal.get_tool('portal_types')[c_brain.portal_type]
+            if typeInfo.icon_expr:
+                # we assume that stored icon_expr is like string:${portal_url}/myContentIcon.png
+                contentIcon = typeInfo.icon_expr.split('/')[-1]
+                icons.append((contentIcon,
+                              translate(typeInfo.title,
+                                        domain=typeInfo.i18n_domain,
+                                        context=self.request)))
+            self.i_cache[c_brain.portal_type] = ' '.join([u"<img title='{0}' src='{1}' />".format(safe_unicode(icon[1]),
+                                                         "{0}/{1}".format(purl, icon[0])) for icon in icons])
+        return self.i_cache[c_brain.portal_type]
+
+    def renderCell(self, item):
+        """ """
+        value = self.getValue(item)
+        if not value:
+            return '-'
+        ret = []
+        for val in value:
+            if val.startswith('l:'):
+                continue
+            c_brain = uuidToCatalogBrain(val)
+            if not c_brain:
+                ret.append('-')
+            ret.append(u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
+                       u"<span class='pretty_link_icons'>%s</span>"
+                       u"<span class='pretty_link_content'>%s</span></a>"
+                       % (c_brain.getURL(), self._icons(c_brain), safe_unicode(c_brain.get_full_title))
+                       )
+        l_ret = len(ret)
+        if l_ret == 1:
+            return ret[0]
+        elif l_ret > 1:
+            return '<ul class="recipients_col"><li>%s</li></ul>' % '</li>\n<li>'.join(ret)
+        else:
+            return '-'

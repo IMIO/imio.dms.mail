@@ -58,3 +58,9 @@ msgstr ""
 
 msgid "task_parent"
 msgstr ""
+
+msgid "header_recipients"
+msgstr ""
+
+msgid "recipients"
+msgstr ""

@@ -205,7 +205,7 @@ def createStateCollections(folder, content_type):
                             u'assigned_user', u'due_date', u'mail_type', u'sender', u'CreationDate', u'actions'),
         'task': (u'select_row', u'pretty_link', u'task_parent', u'assigned_group', u'assigned_user',
                  u'due_date', u'CreationDate', u'actions'),
-        'dmsoutgoingmail': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'mail_type',
+        'dmsoutgoingmail': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'recipients', u'mail_type',
                             u'CreationDate', u'actions')
     }
     showNumberOfItems = {
@@ -396,8 +396,8 @@ def createOMailCollections(folder):
         {'id': 'all_mails', 'tit': _('all_outgoing_mails'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'mail_type',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
+                     u'mail_type', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('om_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
@@ -405,24 +405,24 @@ def createOMailCollections(folder):
              'v': 'dmsoutgoingmail-validation'}],
             'cond': u"python:object.restrictedTraverse('odm-utils').user_has_review_level('dmsoutgoingmail')",
             'bypass': ['Manager', 'Site Administrator'],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'mail_type',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
+                     u'mail_type', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': True},
         {'id': 'in_my_group', 'tit': _('om_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsoutgoingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'mail_type',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
+                     u'mail_type', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'in_copy', 'tit': _('om_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsoutgoingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'mail_type',
-                     u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
+                     u'mail_type', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
     ]
     createDashboardCollections(folder, collections)
