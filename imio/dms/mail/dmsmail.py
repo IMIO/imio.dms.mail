@@ -16,8 +16,8 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.registry.interfaces import IRegistry
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
-from plone.app.textfield import RichText
 from plone.formwidget.datetime.z3cform.widget import DateFieldWidget
+from plone.z3cform.fieldsets.utils import move
 from AccessControl import getSecurityManager
 
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
@@ -25,10 +25,9 @@ from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumen
 from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
                                                 originalMailDateDefaultValue, DmsOutgoingMail)
 from collective.dms.mailcontent import _ as _cdmsm
-from collective.dms.basecontent import _ as _cdmsbc
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
-from dexterity.localrolesfield.field import LocalRolesField, LocalRoleField
+from dexterity.localrolesfield.field import LocalRolesField
 
 from browser.settings import IImioDmsMailConfig
 from utils import voc_selected_org_suffix_users
@@ -137,7 +136,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
         Widgets update method for add and edit
     """
     current_user = api.user.get_current()
-    if not current_user.has_role('Manager') and not current_user.has_role('Site Administrator'):
+    if not current_user.has_role('Manager', 'Site Administrator'):
         the_form.widgets['internal_reference_no'].mode = 'hidden'
         # we empty value to bypass validator when creating object
         if the_form.context.portal_type != 'dmsincomingmail':
@@ -263,18 +262,35 @@ class AddIM(DefaultAddView):
 ###################################################################
 
 
+def filter_dmsoutgoingmail_assigned_users(org_uid):
+    """
+        Filter assigned_user in dms outgoing mail
+    """
+    return voc_selected_org_suffix_users(org_uid, ['encodeur', 'validateur'])
+
+
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
     """
         Extended schema for mail type field
     """
 
-    treating_groups = LocalRoleField(
+    treating_groups = LocalRoleMasterSelectField(
         title=_(u"Treating groups"),
         required=True,
-        source=encodeur_active_orgs
         #vocabulary=u'collective.dms.basecontent.treating_groups',
+        source=encodeur_active_orgs,
+        slave_fields=(
+            {'name': 'ITask.assigned_user',
+             'slaveID': '#form-widgets-ITask-assigned_user',
+             'action': 'vocabulary',
+             'vocab_method': filter_dmsoutgoingmail_assigned_users,
+             'control_param': 'org_uid',
+             'initial_trigger': True,
+             },
+        )
     )
-    directives.widget('treating_groups', AjaxChosenFieldWidget, populate_select=True, prompt=False)
+    # master select don't work with AjaxChosenFieldWidget widget
+    # directives.widget('treating_groups', AjaxChosenFieldWidget, populate_select=True, prompt=False)
 
     recipient_groups = LocalRolesField(
         title=_(u"Recipient groups"),
@@ -303,22 +319,16 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     outgoing_date = schema.Date(title=_(u'Outgoing Date'), required=False)
     directives.widget('outgoing_date', DateFieldWidget, show_today_link=True)
 
-    notes = RichText(
-        title=_cdmsbc(u"Notes"),
-        required=False,
-    )
-
-    directives.order_before(treating_groups='notes')
-    directives.order_before(sender='notes')
-    directives.order_before(recipients='notes')
-    directives.order_before(mail_date='notes')
-    directives.order_before(mail_type='notes')
-    directives.order_before(recipient_groups='notes')
-    directives.order_before(reply_to='notes')
-    directives.order_before(internal_reference_no='notes')
-    directives.order_before(external_reference_no='notes')
-    directives.order_before(outgoing_date='notes')
-    directives.omitted('related_docs')
+    directives.order_before(treating_groups='outgoing_date')
+    directives.order_before(sender='outgoing_date')
+    directives.order_before(recipients='outgoing_date')
+    directives.order_before(mail_date='outgoing_date')
+    directives.order_before(mail_type='outgoing_date')
+    directives.order_before(recipient_groups='outgoing_date')
+    directives.order_before(reply_to='outgoing_date')
+    directives.order_before(internal_reference_no='outgoing_date')
+    directives.order_before(external_reference_no='outgoing_date')
+    directives.omitted('related_docs', 'notes')
 
 
 class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
@@ -338,6 +348,13 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u'recipient_groups'])
 
 
+def ImioDmsOutgoingMailUpdateFields(the_form):
+    """
+        Fields update method for add and edit
+    """
+    move(the_form, 'assigned_user', after='treating_groups', prefix='ITask')
+
+
 def ImioDmsOutgoingMailUpdateWidgets(the_form):
     """
         Widgets update method for add and edit
@@ -353,11 +370,18 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
                 break
         the_form.widgets['sender'].value = [default]
 
+    for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
+        the_form.widgets[field].mode = HIDDEN_MODE
+
 
 class OMEdit(DmsDocumentEdit):
     """
         Edit form redefinition to customize fields.
     """
+
+    def updateFields(self):
+        super(OMEdit, self).updateFields()
+        ImioDmsOutgoingMailUpdateFields(self)
 
     def updateWidgets(self):
         super(OMEdit, self).updateWidgets()
@@ -368,11 +392,35 @@ class OMCustomAddForm(DefaultAddForm):
 
     portal_type = 'dmsoutgoingmail'
 
+    def updateFields(self):
+        super(OMCustomAddForm, self).updateFields()
+        ImioDmsOutgoingMailUpdateFields(self)
+
     def updateWidgets(self):
         super(OMCustomAddForm, self).updateWidgets()
         ImioDmsOutgoingMailUpdateWidgets(self)
+        # the following doesn't work
+        # userid = api.user.get_current().getId()
+        # if userid != 'admin':
+        #     self.widgets['ITask.assigned_user'].value = [userid]
 
 
 class AddOM(DefaultAddView):
 
     form = OMCustomAddForm
+
+
+class OMView(DmsDocumentView):
+    """
+        View form redefinition to customize fields.
+    """
+
+    def updateFieldsFromSchemata(self):
+        super(OMView, self).updateFieldsFromSchemata()
+        move(self, 'assigned_user', after='treating_groups', prefix='ITask')
+
+    def updateWidgets(self, prefix=None):
+        super(OMView, self).updateWidgets()
+
+        for field in ['ITask.assigned_group', 'ITask.enquirer']:
+            self.widgets[field].mode = HIDDEN_MODE

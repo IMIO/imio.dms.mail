@@ -7,6 +7,8 @@
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
   <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
+  <element value="collective.task.behaviors.ITaskContainer" />
+  <element value="collective.task.behaviors.ITask" />
  </property>
  <!--property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property-->
  <property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property>

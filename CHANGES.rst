@@ -7,13 +7,16 @@ Changelog
 - Reviewed dmsoutgoingmail schema.
   [sgeulette]
 
-- Added workflow and local roles of dmsoutgoingmail.
+- Added workflow and local roles on dmsoutgoingmail.
   [sgeulette]
 
 - Added im collection: to treat in my group
   [sgeulette]
 
 - Added dashboard on outgoing-mail folder
+  [sgeulette]
+
+- Added task behavior
   [sgeulette]
 
 1.1 (2016-04-14)

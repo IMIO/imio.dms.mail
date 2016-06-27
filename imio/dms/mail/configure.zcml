@@ -81,6 +81,16 @@
         permission="cmf.ModifyPortalContent"
     />
 
+    <configure package="collective.dms.basecontent">
+        <browser:page
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            name="view"
+            class="imio.dms.mail.dmsmail.OMView"
+            template="browser/templates/dmsdocument_view.pt"
+            permission="zope2.View"
+        />
+    </configure>
+
     <!--plone:behavior
         title="Mail Type field"
         description="Add a mail type field."
