@@ -68,7 +68,7 @@ class AssignedUsersVocabulary(object):
         users = {}
         titles = []
         for uid in registry[ORGANIZATIONS_REGISTRY]:
-            members = get_selected_org_suffix_users(uid, ['editeur', 'validateur'])
+            members = get_selected_org_suffix_users(uid, ['editeur', 'encodeur', 'validateur'])
             for member in members:
                 title = member.getUser().getProperty('fullname') or member.getUserName()
                 if title not in titles:
