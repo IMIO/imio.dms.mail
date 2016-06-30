@@ -8,7 +8,7 @@
     compression="safe"
     conditionalcomment=""
     cookable="True"
-    enabled="on"
+    enabled="True"
     expression=""
     id="++resource++imio.dms.mail/dmsmail.js"
     inline="False"/>
@@ -20,7 +20,7 @@
     compression="safe"
     conditionalcomment=""
     cookable="True"
-    enabled="on"
+    enabled="True"
     expression=""
     id="++resource++select2/select2_locale_fr.js"
     inline="False"/>
@@ -93,7 +93,7 @@
 
   <javascript id="dropdown.js" insert-after="++resource++plone.app.discussion.javascripts/comments.js" />
 
-  <javascript id="inline_validation.js" insert-after="dropdown.js" />
+  <javascript id="inline_validation.js" insert-after="dropdown.js" enabled="False"/>
 
   <javascript id="kss-bbb.js" insert-after="inline_validation.js" />
 

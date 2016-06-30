@@ -104,7 +104,7 @@ class Migrate_To_2_0(Migrator):
             obj.reindexObject(idxs=['in_out_date'])
         # self.upgradeAll()
 
-        # self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
