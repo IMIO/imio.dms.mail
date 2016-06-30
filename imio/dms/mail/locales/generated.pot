@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-22 08:43+0000\n"
+"POT-Creation-Date: 2016-06-30 13:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -145,7 +145,7 @@ msgid "Installs the imio.dms.mail package"
 msgstr ""
 
 #: ./browser/settings.py:31
-#: ./dmsmail.py:78
+#: ./dmsmail.py:77
 msgid "Mail type"
 msgstr ""
 
@@ -185,7 +185,7 @@ msgstr ""
 msgid "Original mail date requirement"
 msgstr ""
 
-#: ./dmsmail.py:303
+#: ./dmsmail.py:319
 msgid "Outgoing Date"
 msgstr ""
 
@@ -194,12 +194,12 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:62
+#: ./migrations/migrate_to_2_0.py:63
 #: ./setuphandlers.py:141
 msgid "Outgoing mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:63
+#: ./migrations/migrate_to_2_0.py:64
 #: ./setuphandlers.py:142
 msgid "Outgoing mails"
 msgstr ""
@@ -212,7 +212,7 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./dmsmail.py:72
+#: ./dmsmail.py:71
 msgid "Recipient groups"
 msgstr ""
 
@@ -249,7 +249,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1240
+#: ./setuphandlers.py:1274
 msgid "Templates"
 msgstr ""
 
@@ -263,7 +263,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:177
 #: ./browser/table.py:36
-#: ./dmsmail.py:53
+#: ./dmsmail.py:52
 msgid "Treating groups"
 msgstr ""
 
@@ -279,20 +279,20 @@ msgstr ""
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./dmsmail.py:212
+#: ./dmsmail.py:211
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./setuphandlers.py:340
+#: ./setuphandlers.py:349
 msgid "all_im_tasks"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:267
+#: ./setuphandlers.py:276
 msgid "all_incoming_mails"
 msgstr ""
 
-#: ./setuphandlers.py:396
+#: ./setuphandlers.py:405
 msgid "all_outgoing_mails"
 msgstr ""
 
@@ -318,43 +318,43 @@ msgstr ""
 msgid "create_om"
 msgstr ""
 
-#: ./setuphandlers.py:452
+#: ./setuphandlers.py:486
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:453
+#: ./setuphandlers.py:487
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:451
+#: ./setuphandlers.py:485
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:298
+#: ./setuphandlers.py:307
 msgid "im_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:290
+#: ./setuphandlers.py:299
 msgid "im_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:323
+#: ./setuphandlers.py:332
 msgid "im_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:315
+#: ./setuphandlers.py:324
 msgid "im_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:282
+#: ./setuphandlers.py:291
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:306
+#: ./setuphandlers.py:315
 msgid "im_to_treat_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:273
+#: ./setuphandlers.py:282
 msgid "im_to_validate"
 msgstr ""
 
@@ -382,15 +382,27 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
-#: ./setuphandlers.py:419
+#: ./setuphandlers.py:437
+msgid "om_have_treated"
+msgstr ""
+
+#: ./setuphandlers.py:428
+msgid "om_im_treating"
+msgstr ""
+
+#: ./setuphandlers.py:453
 msgid "om_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:411
+#: ./setuphandlers.py:445
 msgid "om_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:402
+#: ./setuphandlers.py:420
+msgid "om_to_treat"
+msgstr ""
+
+#: ./setuphandlers.py:411
 msgid "om_to_validate"
 msgstr ""
 
@@ -398,23 +410,23 @@ msgstr ""
 msgid "recipientgroup-batch-action-but"
 msgstr ""
 
-#: ./setuphandlers.py:371
+#: ./setuphandlers.py:380
 msgid "task_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:363
+#: ./setuphandlers.py:372
 msgid "task_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:355
+#: ./setuphandlers.py:364
 msgid "task_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:379
+#: ./setuphandlers.py:388
 msgid "tasks_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:346
+#: ./setuphandlers.py:355
 msgid "tasks_to_validate"
 msgstr ""
 
