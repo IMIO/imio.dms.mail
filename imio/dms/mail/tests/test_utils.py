@@ -2,7 +2,7 @@
 import unittest
 from zope.component import getUtility
 from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID, login
+from plone.app.testing import setRoles, TEST_USER_ID, login, TEST_USER_NAME
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
@@ -46,11 +46,15 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(voc_selected_org_suffix_users(None, []).by_token, {})
         self.assertEqual(voc_selected_org_suffix_users(u'--NOVALUE--', []).by_token, {})
         registry = getUtility(IRegistry)
-        org0 = registry[ORGANIZATIONS_REGISTRY][0]
-        self.assertEqual(voc_selected_org_suffix_users(org0, []).by_token, {})
-        self.assertEqual(voc_selected_org_suffix_users(org0, ['encodeur']).by_token, {})
-        api.group.add_user(groupname='%s_encodeur' % org0, username=TEST_USER_ID)
-        self.assertEqual(voc_selected_org_suffix_users(org0, ['encodeur']).by_token.keys(), [TEST_USER_ID])
+        org1 = registry[ORGANIZATIONS_REGISTRY][1]
+        self.assertEqual(voc_selected_org_suffix_users(org1, []).by_token, {})
+        self.assertListEqual([t.value for t in voc_selected_org_suffix_users(org1, ['editeur'])], ['agent'])
+        api.group.add_user(groupname='%s_editeur' % org1, username=TEST_USER_ID)
+        self.assertListEqual([t.value for t in voc_selected_org_suffix_users(org1, ['editeur'])],
+                             ['agent', TEST_USER_NAME])
+        self.assertListEqual([t.value for t in voc_selected_org_suffix_users(org1, ['editeur'],
+                                                                             first_member=api.user.get_current())],
+                             [TEST_USER_NAME, 'agent'])
 
     def test_list_wf_states(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

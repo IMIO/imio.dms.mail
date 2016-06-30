@@ -68,7 +68,7 @@ def get_selected_org_suffix_users(org_uid, suffixes):
     return org_members
 
 
-def voc_selected_org_suffix_users(org_uid, suffixes):
+def voc_selected_org_suffix_users(org_uid, suffixes, first_member=None):
     """
         Return users vocabulary that belongs to suffixed groups related to selected organization.
     """
@@ -77,6 +77,12 @@ def voc_selected_org_suffix_users(org_uid, suffixes):
     terms = []
     # only add to vocabulary users with these functions in the organization
     for member in sorted(get_selected_org_suffix_users(org_uid, suffixes), key=methodcaller('getUserName')):
+        if member == first_member:
+            terms.insert(0, SimpleTerm(
+                value=member.getUserName(),  # login
+                token=member.getId(),  # id
+                title=member.getUser().getProperty('fullname') or member.getUserName()))
+        else:
             terms.append(SimpleTerm(
                 value=member.getUserName(),  # login
                 token=member.getId(),  # id

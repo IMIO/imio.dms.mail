@@ -266,7 +266,7 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms outgoing mail
     """
-    return voc_selected_org_suffix_users(org_uid, ['encodeur', 'validateur'])
+    return voc_selected_org_suffix_users(org_uid, ['encodeur', 'validateur'], api.user.get_current())
 
 
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
@@ -352,6 +352,7 @@ def ImioDmsOutgoingMailUpdateFields(the_form):
     """
         Fields update method for add and edit
     """
+    the_form.fields['ITask.assigned_user'].field.required = True
     move(the_form, 'assigned_user', after='treating_groups', prefix='ITask')
 
 
