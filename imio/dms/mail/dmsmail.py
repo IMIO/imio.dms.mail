@@ -350,7 +350,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
 def ImioDmsOutgoingMailUpdateFields(the_form):
     """
-        Fields update method for add and edit
+        Fields update method for add, edit and reply !
     """
     the_form.fields['ITask.assigned_user'].field.required = True
     move(the_form, 'assigned_user', after='treating_groups', prefix='ITask')
@@ -358,10 +358,11 @@ def ImioDmsOutgoingMailUpdateFields(the_form):
 
 def ImioDmsOutgoingMailUpdateWidgets(the_form):
     """
-        Widgets update method for add and edit
+        Widgets update method for add, edit and reply !
     """
-    # context can be the parent in add. Or None if om is created by worker.
-    if not base_hasattr(the_form.context, 'sender') or not the_form.context.sender:
+    # context can be the folder in add or an im in reply.
+    # sender can be None if om is created by worker.
+    if the_form.context.portal_type != 'dmsoutgoingmail' or not the_form.context.sender:
         # we search for a held position related to current user and take the first one !
         current_user = api.user.get_current()
         default = None

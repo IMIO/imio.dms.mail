@@ -8,6 +8,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import addContentToContainer
 
 from imio.dms.mail import _
+from ..dmsmail import ImioDmsOutgoingMailUpdateFields, ImioDmsOutgoingMailUpdateWidgets
 
 
 class ReplyForm(DefaultAddForm):
@@ -29,6 +30,11 @@ class ReplyForm(DefaultAddForm):
         form["form.widgets.recipients"] = ('/'.join(imail.sender.to_object.getPhysicalPath()), )
         if imail.external_reference_no:
             form["form.widgets.external_reference_no"] = imail.external_reference_no
+        ImioDmsOutgoingMailUpdateFields(self)
+
+    def updateWidgets(self):
+        super(ReplyForm, self).updateWidgets()
+        ImioDmsOutgoingMailUpdateWidgets(self)
 
     def add(self, obj):
         """Create outgoing mail in outgoing-mail folder."""
