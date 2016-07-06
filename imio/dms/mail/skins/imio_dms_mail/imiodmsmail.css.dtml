@@ -88,7 +88,8 @@
 
 .template-dmsdocument-edit #fieldsetlegend-categorization, .template-dmsdocument-edit #fieldsetlegend-dates, .template-dmsdocument-edit #fieldsetlegend-ownership,
 .template-dmsincomingmail #fieldsetlegend-categorization, .template-dmsincomingmail #fieldsetlegend-dates, .template-dmsincomingmail #fieldsetlegend-ownership,
-.template-dmsoutgoingmail #fieldsetlegend-categorization, .template-dmsoutgoingmail #fieldsetlegend-dates, .template-dmsoutgoingmail #fieldsetlegend-ownership {
+.template-dmsoutgoingmail #fieldsetlegend-categorization, .template-dmsoutgoingmail #fieldsetlegend-dates, .template-dmsoutgoingmail #fieldsetlegend-ownership,
+.template-reply #fieldsetlegend-categorization, .template-reply #fieldsetlegend-dates, .template-reply #fieldsetlegend-ownership {
     display: none !important;
 }
 
