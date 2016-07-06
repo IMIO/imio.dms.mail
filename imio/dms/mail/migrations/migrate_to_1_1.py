@@ -13,7 +13,7 @@ from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns, addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 
-from ..interfaces import IIMTaskDashboard
+from ..interfaces import ITaskDashboard
 from ..setuphandlers import blacklistPortletCategory, reimport_faceted_config
 
 logger = logging.getLogger('imio.dms.mail')
@@ -143,7 +143,7 @@ class Migrate_To_1_1(Migrator):
         self.configure_autocomplete_widget(im_folder['mail-searches'])
 
         # configure task batch actions
-        alsoProvides(im_folder['task-searches'], IIMTaskDashboard)
+        alsoProvides(im_folder['task-searches'], ITaskDashboard)
 
         # reimport contact faceted config
         reimport_faceted_config(self.portal['contacts'], xml='contacts-faceted.xml')

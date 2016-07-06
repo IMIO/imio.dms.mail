@@ -22,7 +22,7 @@ class BatchActions(unittest.TestCase):
         self.im2 = self.imf['courrier2']
         self.im3 = self.imf['courrier3']
         self.im4 = self.imf['courrier4']
-        self.tsf = self.imf['task-searches']
+        self.tsf = self.portal['tasks']['task-searches']
         self.ta1 = self.im1['tache1']
         self.ta2 = self.im1['tache2']
         self.ta3 = self.im1['tache3']
