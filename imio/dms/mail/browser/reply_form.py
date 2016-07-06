@@ -7,6 +7,8 @@ from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import addContentToContainer
 
+from Products.CPUtils.Extensions.utils import safe_encode
+
 from imio.dms.mail import _
 from ..dmsmail import ImioDmsOutgoingMailUpdateFields, ImioDmsOutgoingMailUpdateWidgets
 
@@ -26,6 +28,7 @@ class ReplyForm(DefaultAddForm):
         super(ReplyForm, self).updateFields()
         imail = self.context
         form = self.request.form
+        form["form.widgets.IDublinCore.title"] = "Réponse: %s" % safe_encode(imail.title)
         form["form.widgets.reply_to"] = ('/'.join(imail.getPhysicalPath()),)
         form["form.widgets.recipients"] = ('/'.join(imail.sender.to_object.getPhysicalPath()), )
         if imail.external_reference_no:
