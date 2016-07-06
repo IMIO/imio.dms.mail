@@ -19,6 +19,9 @@ Changelog
 - Added task behavior
   [sgeulette]
 
+- Added tasks tab
+  [sgeulette]
+
 1.1 (2016-04-14)
 ----------------
 

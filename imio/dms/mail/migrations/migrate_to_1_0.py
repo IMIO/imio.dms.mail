@@ -24,7 +24,7 @@ from imio.migrator.migrator import Migrator
 from ..interfaces import IExternalContact, IInternalContact, IIMDashboard
 from ..setuphandlers import _, configure_faceted_folder, reimport_faceted_config
 from ..setuphandlers import add_db_col_folder, configure_task_rolefields
-from ..setuphandlers import createIMailCollections, createIMTaskCollections, createStateCollections
+from ..setuphandlers import createIMailCollections, createTaskCollections, createStateCollections
 from ..utils import create_richtextval
 
 import logging
@@ -73,9 +73,9 @@ class Migrate_To_1_0(Migrator):
                                  default_UID=col_folder['all_mails'].UID())
 
         col_folder = add_db_col_folder(im_folder, 'task-searches', _("Tasks searches"),
-                                       _("I.M. tasks"))
+                                       _("Tasks"))
         im_folder.moveObjectToPosition('task-searches', 1)
-        createIMTaskCollections(col_folder)
+        createTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
         configure_faceted_folder(col_folder, xml='im-task-searches.xml',
                                  default_UID=col_folder['all_tasks'].UID())

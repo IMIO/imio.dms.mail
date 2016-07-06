@@ -44,7 +44,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
-from imio.dms.mail.interfaces import IIMDashboard, IIMTaskDashboard, IOMDashboard
+from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard
 
 from interfaces import IDirectoryFacetedNavigable
 from utils import list_wf_states
@@ -116,16 +116,6 @@ def postInstall(context):
         configure_faceted_folder(im_folder, xml='default_dashboard_widgets.xml',
                                  default_UID=col_folder['all_mails'].UID())
 
-        # add task-searches
-        col_folder = add_db_col_folder(im_folder, 'task-searches', _("Tasks searches"),
-                                       _("I.M. tasks"))
-        alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IIMTaskDashboard)
-        createIMTaskCollections(col_folder)
-        createStateCollections(col_folder, 'task')
-        configure_faceted_folder(col_folder, xml='im-task-searches.xml',
-                                 default_UID=col_folder['all_tasks'].UID())
-
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
@@ -135,7 +125,7 @@ def postInstall(context):
     if not base_hasattr(site, 'outgoing-mail'):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         om_folder = getattr(site, folderid)
-        # col_folder = add_db_col_folder(om_folder)
+        alsoProvides(om_folder, INextPrevNotNavigable)
 
         # add mail-searches
         col_folder = add_db_col_folder(om_folder, 'mail-searches', _("Outgoing mail searches"),
@@ -156,6 +146,28 @@ def postInstall(context):
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
         site.portal_workflow.doActionFor(om_folder, "show_internally")
         logger.info('outgoing-mail folder created')
+
+    if not base_hasattr(site, 'tasks'):
+        folderid = site.invokeFactory("Folder", id='tasks', title=_(u"Tasks"))
+        tsk_folder = getattr(site, folderid)
+        # add task-searches
+        col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
+                                       _("Tasks"))
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, ITaskDashboard)
+        createTaskCollections(col_folder)
+        createStateCollections(col_folder, 'task')
+        configure_faceted_folder(col_folder, xml='im-task-searches.xml',
+                                 default_UID=col_folder['all_tasks'].UID())
+        # configure outgoing-mail faceted
+        configure_faceted_folder(tsk_folder, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_tasks'].UID())
+
+        tsk_folder.setConstrainTypesMode(1)
+        tsk_folder.setLocallyAllowedTypes(['task'])
+        tsk_folder.setImmediatelyAddableTypes(['task'])
+        site.portal_workflow.doActionFor(tsk_folder, "show_internally")
+        logger.info('tasks folder created')
 
     # enable portal diff on incoming mail
     api.portal.get_tool('portal_diff').setDiffForPortalType(
@@ -341,7 +353,7 @@ def createIMailCollections(folder):
     createDashboardCollections(folder, collections)
 
 
-def createIMTaskCollections(folder):
+def createTaskCollections(folder):
     """
         create some tasks dashboard collections
     """

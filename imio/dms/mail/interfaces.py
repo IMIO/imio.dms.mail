@@ -35,3 +35,8 @@ class IOMDashboard(Interface):
 class IIMTaskDashboard(Interface):
 
     """Marker interface for incoming mail task dashboard."""
+
+
+class ITaskDashboard(Interface):
+
+    """Marker interface for task dashboard."""

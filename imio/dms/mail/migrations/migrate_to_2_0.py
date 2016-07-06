@@ -7,15 +7,17 @@ from zope.interface import alsoProvides
 
 from plone import api
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone.utils import base_hasattr
 
 from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
-from ..interfaces import IOMDashboard
+from ..interfaces import IOMDashboard, ITaskDashboard
 from ..setuphandlers import (_, configure_om_rolefields, createIMailCollections, add_db_col_folder,
-                             createStateCollections, createOMailCollections, configure_faceted_folder)
+                             createStateCollections, createOMailCollections, configure_faceted_folder,
+                             createTaskCollections)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -34,11 +36,36 @@ class Migrate_To_2_0(Migrator):
                                   'reponse5', 'reponse6', 'reponse7', 'reponse8', 'reponse9']):
             api.content.delete(obj=brain.getObject())
 
+    def create_tasks_folder(self):
+        if base_hasattr(self.portal['incoming-mail'], 'task-searches'):
+            api.content.delete(obj=self.portal['incoming-mail']['task-searches'])
+        if not base_hasattr(self.portal, 'tasks'):
+            self.portal.invokeFactory("Folder", id='tasks', title=_(u"Tasks"))
+            tsk_folder = getattr(self.portal, 'tasks')
+            self.portal.moveObjectToPosition('tasks', self.portal.getObjectPosition('contacts'))
+            # add task-searches
+            col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
+                                           _("Tasks"))
+            alsoProvides(col_folder, INextPrevNotNavigable)
+            alsoProvides(col_folder, ITaskDashboard)
+            createTaskCollections(col_folder)
+            createStateCollections(col_folder, 'task')
+            configure_faceted_folder(col_folder, xml='im-task-searches.xml',
+                                     default_UID=col_folder['all_tasks'].UID())
+            # configure outgoing-mail faceted
+            configure_faceted_folder(tsk_folder, xml='default_dashboard_widgets.xml',
+                                     default_UID=col_folder['all_tasks'].UID())
+
+            tsk_folder.setConstrainTypesMode(1)
+            tsk_folder.setLocallyAllowedTypes(['task'])
+            tsk_folder.setImmediatelyAddableTypes(['task'])
+            self.portal.portal_workflow.doActionFor(tsk_folder, "show_internally")
+            logger.info('tasks folder created')
+
     def update_site(self):
-        omf = self.portal['outgoing-mail']
         # publish outgoing-mail folder
-        if api.content.get_state(omf) != 'internally_published':
-            api.content.transition(obj=omf, to_state="internally_published")
+        if api.content.get_state(self.omf) != 'internally_published':
+            api.content.transition(obj=self.omf, to_state="internally_published")
         # add group
         if api.group.get('expedition') is None:
             api.group.create('expedition', '1 Expédition courrier sortant')
@@ -89,6 +116,9 @@ class Migrate_To_2_0(Migrator):
 
         # configure dashboard on omf
         self.configure_dashboard()
+
+        # manage task for both incoming and outgoing mails
+        self.create_tasks_folder()
 
         # configure role fields on dmsoutgoingmail
         configure_om_rolefields(self.portal)
