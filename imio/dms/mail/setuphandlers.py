@@ -86,6 +86,8 @@ def postInstall(context):
 
     # we configure rolefields
     configure_rolefields(context)
+    configure_om_rolefields(context)
+
     if (base_hasattr(site.portal_types.task, 'localroles') and
             site.portal_types.task.localroles.get('assigned_group', '') and
             site.portal_types.task.localroles['assigned_group'].get('created') and
@@ -644,26 +646,22 @@ def configure_om_rolefields(context):
                  'encodeurs': {'roles': ['Reader']},
                  'dir_general': {'roles': ['Reader']}},
     }, 'treating_groups': {
-        'created': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
+        'created': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                     'validateur': {'roles': ['Reader']}}},
         'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
-                                      'encodeur': {'roles': ['Reader']}},
+                                      'editeur': {'roles': ['Reader']}},
         'to_be_signed': {'validateur': {'roles': ['Reader']},
-                         'encodeur': {'roles': ['Reader']},
                          'editeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
         'sent': {'validateur': {'roles': ['Reader']},
-                 'encodeur': {'roles': ['Reader']},
                  'editeur': {'roles': ['Reader']},
                  'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
         'proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
         'to_be_signed': {'validateur': {'roles': ['Reader']},
-                         'encodeur': {'roles': ['Reader']},
                          'editeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
         'sent': {'validateur': {'roles': ['Reader']},
-                 'encodeur': {'roles': ['Reader']},
                  'editeur': {'roles': ['Reader']},
                  'lecteur': {'roles': ['Reader']}},
     },
