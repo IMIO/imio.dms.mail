@@ -107,7 +107,7 @@ class Migrate_To_2_0(Migrator):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
         self.delete_outgoing_examples()
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry', 'typeinfo'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry', 'typeinfo', 'workflow'])
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
 

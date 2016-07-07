@@ -340,6 +340,7 @@
         title="proposed_to_service_chief"
         i18n:attributes="title">
   <exit-transition transition_id="propose_to_agent"/>
+  <exit-transition transition_id="close"/>
   <exit-transition transition_id="back_to_manager"/>
   <exit-transition transition_id="back_to_creation"/>
   <permission-map name="Access contents information"
