@@ -410,7 +410,7 @@ msgstr "Dans mon service"
 
 #: ./setuphandlers.py:434
 msgid "om_to_treat"
-msgstr "À traiter"
+msgstr "Qui m'est assigné"
 
 #: ./setuphandlers.py:425
 msgid "om_to_validate"
