@@ -150,7 +150,7 @@ class UtilsMethods(BrowserView):
     def user_is_admin(self):
         """ Test if current user is admin """
         user = api.user.get_current()
-        if user.has_role('Manager') or user.has_role('Site Administrator'):
+        if user.has_role(['Manager', 'Site Administrator']):
             return True
         return False
 
