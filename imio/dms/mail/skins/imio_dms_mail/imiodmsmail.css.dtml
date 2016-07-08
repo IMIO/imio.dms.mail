@@ -347,6 +347,18 @@ ul.select2-choices {
 /* colorization for outgoing_mail_workflow */
 /* created and proposed_to_service_chief already defined in incoming mail */
 
+.state-scanned {
+ color: blue !important;
+}
+
+#plone-contentmenu-workflow .state-scanned {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: blue;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid blue;
+}
+
 .state-to_be_signed {
  color: green !important;
 }

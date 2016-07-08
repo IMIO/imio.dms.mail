@@ -645,6 +645,8 @@ def configure_om_rolefields(context):
         'sent': {'expedition': {'roles': ['Reader', 'Reviewer']},
                  'encodeurs': {'roles': ['Reader']},
                  'dir_general': {'roles': ['Reader']}},
+        'scanned': {'expedition': {'roles': ['Contributor', 'Editor', 'Reader', 'Reviewer']},
+                    'encodeurs': {'roles': ['Reader']}},
     }, 'treating_groups': {
         'created': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                     'validateur': {'roles': ['Reader']}}},

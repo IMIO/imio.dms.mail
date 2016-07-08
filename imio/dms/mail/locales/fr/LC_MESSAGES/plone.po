@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-06-15 09:29+0000\n"
+"POT-Creation-Date: 2016-07-08 09:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,7 +47,7 @@ msgstr "Service traitant"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_agent"
-msgstr "Remettre à traiter"
+msgstr "Remettre à l'agent"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_creation"
@@ -106,12 +106,20 @@ msgid "in_treatment"
 msgstr "En cours de traitement"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_agent"
+msgstr "Proposer à l'agent"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_be_signed"
 msgstr "Remettre à signer"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_creation"
 msgstr "Remettre en création"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_scanned"
+msgstr "Remettre en scanné"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_service_chief"
@@ -138,8 +146,16 @@ msgid "om_proposed_to_service_chief"
 msgstr "À valider par le chef de service"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_scanned"
+msgstr "Scanné"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_sent"
 msgstr "Envoyé"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_set_scanned"
+msgstr "Mettre à scanné"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"
