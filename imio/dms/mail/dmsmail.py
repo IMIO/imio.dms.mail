@@ -136,7 +136,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
         Widgets update method for add and edit
     """
     current_user = api.user.get_current()
-    if not current_user.has_role('Manager', 'Site Administrator'):
+    if not current_user.has_role(['Manager', 'Site Administrator']):
         the_form.widgets['internal_reference_no'].mode = 'hidden'
         # we empty value to bypass validator when creating object
         if the_form.context.portal_type != 'dmsincomingmail':
