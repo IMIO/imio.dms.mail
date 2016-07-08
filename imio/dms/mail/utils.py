@@ -240,3 +240,8 @@ class OdmUtilsMethods(UtilsMethods):
         """ Get the outgoing-mail folder """
         portal = getSite()
         return portal['outgoing-mail']
+
+    def scanned_col_cond(self):
+        """ Condition for searchfor_scanned collection """
+        return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False)
+

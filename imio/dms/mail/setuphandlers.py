@@ -212,7 +212,9 @@ def createStateCollections(folder, content_type):
                                          "proposed_to_serv_chief_col_cond()",
         },
         'task': {},
-        'dmsoutgoingmail': {}
+        'dmsoutgoingmail': {
+            'scanned': "python: object.restrictedTraverse('odm-utils').scanned_col_cond()",
+        }
     }
     view_fields = {
         'dmsincomingmail': {
@@ -232,6 +234,7 @@ def createStateCollections(folder, content_type):
     }
     showNumberOfItems = {
         'dmsincomingmail': ('created',),
+        'dmsoutgoingmail': ('scanned',),
     }
     for state in list_wf_states(folder, content_type):
         col_id = "searchfor_%s" % state
@@ -451,7 +454,7 @@ def createOMailCollections(folder):
         {'id': 'have_treated', 'tit': _('om_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
-            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed']}],
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['sent']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'CreationDate', u'actions'),
