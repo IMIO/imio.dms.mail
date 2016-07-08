@@ -86,6 +86,15 @@
     />
 
   <adapter
+     for="imio.dms.mail.interfaces.IOMDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.OutgoingStateColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="review_state"
+  />
+
+  <adapter
     for="zope.interface.Interface
          zope.publisher.interfaces.browser.IBrowserRequest
          collective.task.browser.table.TasksTable"

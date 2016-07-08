@@ -9,6 +9,7 @@ from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
 
 from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
+from collective.eeafaceted.z3ctable.columns import I18nColumn
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.task.interfaces import ITaskMethods
 from imio.dashboard.columns import ActionsColumn, RelationPrettyLinkColumn, PrettyLinkColumn
@@ -185,3 +186,8 @@ class RecipientsColumn(PrettyLinkColumn):
 class OutgoingDateColumn(DateColumn):
 
     attrName = u'in_out_date'
+
+
+class OutgoingStateColumn(I18nColumn):
+
+    msgid_prefix = 'om_'
