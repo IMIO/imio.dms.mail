@@ -19,19 +19,18 @@ from imio.helpers.cache import invalidate_cachekey_volatile_for
 from dmsmail import IImioDmsIncomingMail
 
 
-def replace_scanner(imail, event):
+def replace_scanner(mail, event):
     """
         Replace the batch creator by the editor
     """
-    if imail.owner_info().get('id') == 'scanner':
-        pms = getToolByName(imail, 'portal_membership')
-        user = pms.getAuthenticatedMember()
+    if mail.owner_info().get('id') == 'scanner':
+        user = api.user.get_current()
         userid = user.getId()
         # pass if the container is modified when creating a sub element
         if userid == 'scanner':
             return
-        pcat = getToolByName(imail, 'portal_catalog')
-        path = '/'.join(imail.getPhysicalPath())
+        pcat = getToolByName(mail, 'portal_catalog')
+        path = '/'.join(mail.getPhysicalPath())
         brains = pcat(path=path)
         for brain in brains:
             obj = brain.getObject()
@@ -52,7 +51,7 @@ def replace_scanner(imail, event):
                 roles.append('Owner')
                 obj.manage_setLocalRoles(userid, roles)
             obj.reindexObject()
-        imail.reindexObjectSecurity()
+        mail.reindexObjectSecurity()
 
 
 def incomingmail_transition(imail, event):

@@ -11,6 +11,13 @@
         />
 
     <subscriber
+        zcml:condition="installed zope.lifecycleevent"
+        for="collective.dms.mailcontent.dmsmail.IDmsOutgoingMail
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.replace_scanner"
+        />
+
+    <subscriber
         for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"
         handler=".subscribers.incomingmail_transition"
