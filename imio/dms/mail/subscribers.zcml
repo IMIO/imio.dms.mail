@@ -4,23 +4,15 @@
     i18n_domain="imio.dms.mail">
 
     <subscriber
-        zcml:condition="installed zope.lifecycleevent"
-        for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.replace_scanner"
         />
 
     <subscriber
-        zcml:condition="installed zope.lifecycleevent"
-        for="collective.dms.mailcontent.dmsmail.IDmsOutgoingMail
-             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".subscribers.replace_scanner"
-        />
-
-    <subscriber
-        for="collective.dms.mailcontent.dmsmail.IDmsIncomingMail
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"
-        handler=".subscribers.incomingmail_transition"
+        handler=".subscribers.dmsdocument_transition"
       />
 
     <subscriber

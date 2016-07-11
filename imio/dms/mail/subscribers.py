@@ -54,11 +54,11 @@ def replace_scanner(mail, event):
         mail.reindexObjectSecurity()
 
 
-def incomingmail_transition(imail, event):
+def dmsdocument_transition(mail, event):
     """
         update indexes after a transition
     """
-    imail.reindexObject(['state_group'])
+    mail.reindexObject(['state_group'])
 
 
 def task_transition(task, event):
