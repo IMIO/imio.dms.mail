@@ -1,6 +1,6 @@
 <tal:defines define="member context/plone_portal_state/member;
-                     idm_utils context/@@odm-utils;
-                     folder idm_utils/get_om_folder;
+                     odm_utils context/@@odm-utils;
+                     folder odm_utils/get_om_folder;
                      portal_url view/portal_url"
              i18n:domain="imio.dms.mail">
     <div class="portlet_add_icons">
