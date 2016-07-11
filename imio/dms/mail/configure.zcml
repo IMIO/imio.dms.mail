@@ -242,6 +242,7 @@
             current_user_groups_ids
             get_om_folder
             highest_scan_id
+            scanned_col_cond
             user_has_review_level
             user_is_admin
         "
