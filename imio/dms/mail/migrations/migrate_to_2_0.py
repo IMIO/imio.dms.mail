@@ -69,6 +69,11 @@ class Migrate_To_2_0(Migrator):
         # add group
         if api.group.get('expedition') is None:
             api.group.create('expedition', '1 Expédition courrier sortant')
+            self.portal['outgoing-mail'].manage_addLocalRoles('expedition', ['Contributor'])
+            self.portal['contacts'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
+            api.group.add_user(groupname='expedition', username='scanner')
+            api.group.add_user(groupname='expedition', username='encodeur')
+
         # rename group title
         encodeurs = api.group.get('encodeurs')
         if encodeurs.getProperty('title') != '1 Encodeurs courrier entrant':
