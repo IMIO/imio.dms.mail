@@ -2,7 +2,8 @@
 import unittest
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
-from plone.app.testing import setRoles, TEST_USER_ID, login
+from plone import api
+from plone.app.testing import setRoles, TEST_USER_ID, login, logout
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
@@ -94,4 +95,14 @@ class TestVocabularies(unittest.TestCase):
         self.assertListEqual(voc_list, [u'courrier', u'recommande'])
 
     def test_encodeur_active_orgs(self):
+        factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
+        all_titles = [t.title for t in factory(self.omail)]
+        login(self.portal, 'encodeur')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+        logout()
         login(self.portal, 'agent')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
+                             [t for i, t in enumerate(all_titles) if i not in (0, 3)])
+        with api.env.adopt_roles(['Manager']):
+            api.content.transition(obj=self.omail, transition='propose_to_service_chief')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)

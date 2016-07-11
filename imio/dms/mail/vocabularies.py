@@ -179,6 +179,9 @@ def encodeur_active_orgs(context):
     # this is the case when calling ++widget++...
     if current_user.getId() is None:
         return voc
+    # the expedition group must have all values
+    if 'expedition' in [g.id for g in api.group.get_groups(user=current_user)]:
+        return voc
     # we filter orgs if
     #   * current user is not admin
     #   * portal_type is not dmsoutgoingmail (on adding or reply)

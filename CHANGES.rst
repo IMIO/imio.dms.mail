@@ -16,10 +16,10 @@ Changelog
 - Added dashboard on outgoing-mail folder
   [sgeulette]
 
-- Added task behavior
+- Added tasks tab and task behavior
   [sgeulette]
 
-- Added tasks tab
+- Manage outgoing mails batch creation
   [sgeulette]
 
 1.1 (2016-04-14)
