@@ -405,7 +405,7 @@ class ScanSearchableExtender(object):
 
 class IdmSearchableExtender(object):
     """
-        Extends SearchableText of incoming mail.
+        Extends SearchableText of dms document.
         Concatenate the contained dmsmainfiles scan_id infos.
     """
     adapts(IDmsDocument)
