@@ -653,7 +653,8 @@ def configure_om_rolefields(context):
     }, 'treating_groups': {
         'created': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                     'validateur': {'roles': ['Reader']}}},
-        'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+        'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
+                                                               'IM Treating Group Writer']},
                                       'editeur': {'roles': ['Reader']}},
         'to_be_signed': {'validateur': {'roles': ['Reader']},
                          'editeur': {'roles': ['Reader']},

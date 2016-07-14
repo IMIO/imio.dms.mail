@@ -7,6 +7,7 @@
  <permission>Review portal content</permission>
  <permission>View</permission>
  <permission>collective.dms.basecontent: Add DmsFile</permission>
+ <permission>imio.dms.mail : Write treating group field</permission>
  <state state_id="created" title="om_created" i18n:attributes="title">
   <exit-transition transition_id="propose_to_service_chief"/>
   <exit-transition transition_id="set_scanned"/>
@@ -57,6 +58,13 @@
    <permission-role>Owner</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
+  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Contributor</permission-role>
+   <permission-role>Editor</permission-role>
+   <permission-role>IM Treating Group Writer</permission-role>
+  </permission-map>
  </state>
  <state state_id="proposed_to_service_chief" title="om_proposed_to_service_chief" i18n:attributes="title">
   <exit-transition transition_id="back_to_creation"/>
@@ -102,6 +110,11 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
+  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>IM Treating Group Writer</permission-role>
+  </permission-map>
  </state>
  <state state_id="scanned" title="om_scanned" i18n:attributes="title">
   <exit-transition transition_id="mark_as_sent"/>
@@ -145,6 +158,12 @@
    <permission-role>IM Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>Editor</permission-role>
+   <permission-role>IM Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="sent" title="om_sent" i18n:attributes="title">
@@ -190,6 +209,11 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
+  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>IM Treating Group Writer</permission-role>
+  </permission-map>
  </state>
  <state state_id="to_be_signed" title="om_to_be_signed" i18n:attributes="title">
   <exit-transition transition_id="back_to_creation"/>
@@ -234,6 +258,11 @@
    <permission-role>IM Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+   <permission-role>IM Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <transition transition_id="back_to_agent" title="om_back_to_agent" new_state="created" trigger="USER" before_script="" after_script="" i18n:attributes="title">
