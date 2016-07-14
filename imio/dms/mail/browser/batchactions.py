@@ -25,10 +25,11 @@ from collective.task import _ as TMF
 
 from .. import _
 from ..dmsmail import IImioDmsIncomingMail
+from ..interfaces import IOMDashboard
 from ..utils import get_selected_org_suffix_users
 
 
-class IIMBatchActionsFormSchema(model.Schema):
+class IDashboardBatchActionsFormSchema(model.Schema):
 
     uids = schema.TextLine(
         title=u"uids",
@@ -44,7 +45,7 @@ class IIMBatchActionsFormSchema(model.Schema):
 class DashboardBatchActionForm(Form):
 
     label = _(u"Batch action form")
-    fields = Fields(IIMBatchActionsFormSchema)
+    fields = Fields(IDashboardBatchActionsFormSchema)
     fields['uids'].mode = HIDDEN_MODE
     fields['referer'].mode = HIDDEN_MODE
     ignoreContext = True
@@ -92,7 +93,7 @@ cannot_modify_msg = _(u"You can't change this field on selected items. Modify yo
 # IM batch actions
 
 
-def getAvailableTransitionsVoc(brains):
+def getAvailableTransitionsVoc(db, brains):
     """ Returns available transitions common for all brains """
     wtool = api.portal.get_tool(name='portal_workflow')
     terms = []
@@ -105,7 +106,7 @@ def getAvailableTransitionsVoc(brains):
             transitions &= set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
     if transitions:
         for tr in transitions:
-            terms.append(SimpleTerm(tr, tr, PMF(safe_unicode(tr))))
+            terms.append(SimpleTerm(tr, tr, PMF(safe_unicode(IOMDashboard.providedBy(db) and "om_%s" % tr or tr))))
     return SimpleVocabulary(terms)
 
 
@@ -116,7 +117,7 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
 
     def update(self):
         super(TransitionBatchActionForm, self).update()
-        self.voc = getAvailableTransitionsVoc(self.brains)
+        self.voc = getAvailableTransitionsVoc(self.context, self.brains)
         self.fields += Fields(schema.Choice(
             __name__='transition',
             title=_(u'Transition'),
