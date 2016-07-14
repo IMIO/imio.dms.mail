@@ -29,7 +29,7 @@ msgstr ""
 
 #: profiles/default/rolemap.xml
 msgid "IM Treating Group Writer"
-msgstr ""
+msgstr "Treating Group Writer"
 
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
