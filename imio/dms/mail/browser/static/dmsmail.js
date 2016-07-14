@@ -76,8 +76,8 @@ $(document).ready(function(){
         closeselector: '[name="form.buttons.cancel"]'
     });
 
-    /* remove inline validation for dmsoutgoingmail */
-    $('.template-dmsoutgoingmail .z3cformInlineValidation, .template-dmsdocument-edit.portaltype-dmsoutgoingmail .z3cformInlineValidation').removeClass('z3cformInlineValidation');
+    /* remove inline validation for dmsoutgoingmail
+    $('.template-dmsoutgoingmail .z3cformInlineValidation, .template-dmsdocument-edit.portaltype-dmsoutgoingmail .z3cformInlineValidation').removeClass('z3cformInlineValidation'); */
 
 /*    $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
         dmsmail.initialize_fancytree();
