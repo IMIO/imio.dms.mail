@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
-from zope.component import getUtility
+from Acquisition import aq_get
+from zc.relation.interfaces import ICatalog
+from zope.component import getUtility, queryUtility
 from zope.interface import alsoProvides, noLongerProvides
+from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
+
 from plone import api
 from Products.CMFCore.utils import getToolByName
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
+from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.registry.interfaces import IRecordModifiedEvent, IRegistry
 
@@ -170,3 +175,29 @@ def contact_plonegroup_change(event):
         for uid in registry[ORGANIZATIONS_REGISTRY]:
             dic["%s_encodeur" % uid] = ['Contributor']
         omf._p_changed = True
+
+
+def referenceDocumentRemoved(obj, event):
+    """
+        Check if there is a relation with another Document.
+        Like collective.contact.core.subscribers.referenceRemoved.
+        Where referenceObjectRemoved is also used
+    """
+    request = aq_get(obj, 'REQUEST', None)
+    if not request:
+        return
+    storage = ILinkIntegrityInfo(request)
+
+    catalog = queryUtility(ICatalog)
+    intids = queryUtility(IIntIds)
+    if catalog is None or intids is None:
+        return
+
+    obj_id = intids.queryId(obj)
+
+    # find all relations that point to us
+    for rel in catalog.findRelations({'to_id': obj_id, 'from_attribute': 'reply_to'}):
+        storage.addBreach(rel.from_object, rel.to_object)
+    # find relations we point
+    for rel in catalog.findRelations({'from_id': obj_id, 'from_attribute': 'reply_to'}):
+        storage.addBreach(rel.to_object, rel.from_object)
