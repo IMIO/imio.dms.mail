@@ -16,6 +16,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
             'renderReplyButton',
             # 'renderCreateFromTemplateButton'
         )
+        self.ACCEPTABLE_ACTIONS = ['delete']
 
     def mayReply(self):
         """
@@ -38,14 +39,14 @@ class DmsIMActionsPanelView(ActionsPanelView):
             "templates/actions_panel_create_from_template.pt")(self)
 
 
-class DmsIMActionsPanelViewlet(ActionsPanelViewlet):
+class DmsActionsPanelViewlet(ActionsPanelViewlet):
     """
         Override render method for dms incoming mail
     """
 
     def renderViewlet(self):
-        return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=True,
-                                                                  showAddContent=True, showActions=False)
+        return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=False,
+                                                                  showAddContent=True, showActions=True)
 
 
 class DmsOMActionsPanelView(ActionsPanelView):
@@ -53,6 +54,27 @@ class DmsOMActionsPanelView(ActionsPanelView):
     transitions = ['back_to_agent', 'back_to_creation', 'back_to_service_chief', 'back_to_be_signed', 'back_to_scanned',
                    'propose_to_service_chief', 'propose_to_be_signed', 'mark_as_sent', 'set_scanned']
     tr_order = dict((val, i) for (i, val) in enumerate(transitions))
+
+    def __init__(self, context, request):
+        super(DmsOMActionsPanelView, self).__init__(context, request)
+        # portal_actions.object_buttons action ids to keep
+        self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
+
+    def sortTransitions(self, lst):
+        """ Sort transitions following transitions list order"""
+        lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
+
+
+class DmsTaskActionsPanelView(ActionsPanelView):
+
+    transitions = ['back_in_created', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress', 'back_in_realized',
+                   'do_to_assign', 'do_to_do', 'do_in_progress', 'do_realized', 'do_closed']
+    tr_order = dict((val, i) for (i, val) in enumerate(transitions))
+
+    def __init__(self, context, request):
+        super(DmsTaskActionsPanelView, self).__init__(context, request)
+        # portal_actions.object_buttons action ids to keep
+        self.ACCEPTABLE_ACTIONS = ['copy', 'cut', 'paste', 'delete']
 
     def sortTransitions(self, lst):
         """ Sort transitions following transitions list order"""
@@ -77,14 +99,3 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     def renderViewlet(self):
         return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=False,
                                                                   showAddContent=True, showActions=True)
-
-
-class DmsTaskActionsPanelView(ActionsPanelView):
-
-    transitions = ['back_in_created', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress', 'back_in_realized',
-                   'do_to_assign', 'do_to_do', 'do_in_progress', 'do_realized', 'do_closed']
-    tr_order = dict((val, i) for (i, val) in enumerate(transitions))
-
-    def sortTransitions(self, lst):
-        """ Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
