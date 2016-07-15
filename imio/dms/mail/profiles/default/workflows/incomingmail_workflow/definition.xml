@@ -127,7 +127,7 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Contributor</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
@@ -135,7 +135,7 @@
    <permission-role>Site Administrator</permission-role>
    <permission-role>Contributor</permission-role>
    <permission-role>Editor</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write treating group field"
                   acquired="False">
@@ -143,7 +143,7 @@
    <permission-role>Site Administrator</permission-role>
    <permission-role>Contributor</permission-role>
    <permission-role>Editor</permission-role>
-   <permission-role>IM Treating Group Writer</permission-role>
+   <permission-role>Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="in_treatment"
@@ -194,19 +194,19 @@
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Treating Group Writer</permission-role>
+   <permission-role>Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_agent"
@@ -258,19 +258,19 @@
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Treating Group Writer</permission-role>
+   <permission-role>Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_manager"
@@ -321,19 +321,19 @@
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Treating Group Writer</permission-role>
+   <permission-role>Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="proposed_to_service_chief"
@@ -386,19 +386,19 @@
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write incoming mail field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Field Writer</permission-role>
+   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail : Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>IM Treating Group Writer</permission-role>
+   <permission-role>Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <transition transition_id="back_to_agent"
