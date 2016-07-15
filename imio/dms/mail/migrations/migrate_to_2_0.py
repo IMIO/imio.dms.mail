@@ -6,6 +6,7 @@ from zope.component import getUtility
 from zope.interface import alsoProvides
 
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 
@@ -35,6 +36,27 @@ class Migrate_To_2_0(Migrator):
         for brain in self.catalog(portal_type='dmsoutgoingmail', id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
                                   'reponse5', 'reponse6', 'reponse7', 'reponse8', 'reponse9']):
             api.content.delete(obj=brain.getObject())
+
+    def manage_localroles(self):
+        rpl = {'IM Field Writer': 'Base Field Writer', 'IM Treating Group Writer': 'Treating Group Writer'}
+        # add new roles, remove old sharing utilities, add new sharing utilities
+        self.runProfileSteps('imio.dms.mail', steps=['rolemap', 'sharing'])
+        if 'IM Field Writer' not in self.portal.__ac_roles__:
+            return
+        # delete old roles
+        roles = list(self.portal.__ac_roles__)
+        for role in rpl.keys():
+            roles.remove(role)
+        self.portal.__ac_roles__ = tuple(roles)
+        # replace old_roles in fti config
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        # k is 'static_config' or a field name
+        for k in lr:
+            for state in lr[k]:
+                for princ in lr[k][state]:
+                    lr[k][state][princ]['roles'] = [r in rpl and rpl[r] or r for r in lr[k][state][princ]['roles']]
+        fti._p_changed = True
 
     def create_tasks_folder(self):
         if base_hasattr(self.portal['incoming-mail'], 'task-searches'):
@@ -112,6 +134,7 @@ class Migrate_To_2_0(Migrator):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
         self.delete_outgoing_examples()
+        self.manage_localroles()
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry', 'typeinfo', 'workflow'])
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])

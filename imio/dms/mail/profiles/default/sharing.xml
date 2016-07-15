@@ -4,11 +4,25 @@
       id="IM Field Writer"
       title="IM Field Writer"
       i18n:attributes="title"
+      remove="True"
       />
 
   <role
       id="IM Treating Group Writer"
       title="IM Treating Group Writer"
+      i18n:attributes="title"
+      remove="True"
+      />
+
+  <role
+      id="Base Field Writer"
+      title="Base Field Writer"
+      i18n:attributes="title"
+      />
+
+  <role
+      id="Treating Group Writer"
+      title="Treating Group Writer"
       i18n:attributes="title"
       />
 </sharing>

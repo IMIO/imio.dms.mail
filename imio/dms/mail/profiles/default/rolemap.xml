@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <rolemap>
   <roles>
-    <role name="IM Field Writer"/>
-    <role name="IM Treating Group Writer"/>
+    <role name="Base Field Writer"/>
+    <role name="Treating Group Writer"/>
 <!-- ##code-section roles -->
 <!-- ##/code-section roles -->
   </roles>

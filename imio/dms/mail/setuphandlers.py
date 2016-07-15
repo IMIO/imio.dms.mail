@@ -546,9 +546,9 @@ def adaptDefaultPortal(context):
 
     #History: add
     site.manage_permission('CMFEditions: Access previous versions', ('Manager', 'Site Administrator', 'Contributor',
-                           'Editor', 'IM Field Writer', 'Owner', 'Reviewer'), acquire=0)
+                           'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
     site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
-                           'Editor', 'IM Field Writer', 'Owner', 'Reviewer'), acquire=0)
+                           'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
 
     #View and set userid field
     site.manage_permission('imio.dms.mail : Write userid field', ('Manager', 'Site Administrator'),
@@ -585,27 +585,27 @@ def configure_rolefields(context):
         Configure the rolefields on types
     """
     roles_config = {'static_config': {
-        'created': {'encodeurs': {'roles': ['Contributor', 'Editor', 'IM Field Writer', 'IM Treating Group Writer']}},
-        'proposed_to_manager': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
-                                                'IM Treating Group Writer']},
-                                'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
-        'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
-                                                      'IM Treating Group Writer']},
-                                      'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
-        'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
-                                              'IM Treating Group Writer']},
-                              'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
-        'in_treatment': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
-                                         'IM Treating Group Writer']},
-                         'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
-        'closed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'IM Field Writer',
-                                             'IM Treating Group Writer']},
-                   'encodeurs': {'roles': ['IM Field Writer', 'Reader']}},
+        'created': {'encodeurs': {'roles': ['Contributor', 'Editor', 'Base Field Writer', 'Treating Group Writer']}},
+        'proposed_to_manager': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                                'Treating Group Writer']},
+                                'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
+        'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                                      'Treating Group Writer']},
+                                      'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
+        'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                              'Treating Group Writer']},
+                              'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
+        'in_treatment': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                         'Treating Group Writer']},
+                         'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
+        'closed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                             'Treating Group Writer']},
+                   'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
     }, 'treating_groups': {
         #'created': {},
         #'proposed_to_manager': {},
         'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                               'IM Treating Group Writer']}},
+                                                               'Treating Group Writer']}},
         'proposed_to_agent': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                               'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                               'lecteur': {'roles': ['Reader']}},
@@ -654,7 +654,7 @@ def configure_om_rolefields(context):
         'created': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                     'validateur': {'roles': ['Reader']}}},
         'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                               'IM Treating Group Writer']},
+                                                               'Treating Group Writer']},
                                       'editeur': {'roles': ['Reader']}},
         'to_be_signed': {'validateur': {'roles': ['Reader']},
                          'editeur': {'roles': ['Reader']},

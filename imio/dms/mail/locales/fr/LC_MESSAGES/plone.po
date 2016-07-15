@@ -24,11 +24,11 @@ msgid "DmsMainFile"
 msgstr "Fichier ged"
 
 #: profiles/default/rolemap.xml
-msgid "IM Field Writer"
-msgstr "Éditeur champs CE"
+msgid "Base Field Writer"
+msgstr "Éditeur champs base"
 
 #: profiles/default/rolemap.xml
-msgid "IM Treating Group Writer"
+msgid "Treating Group Writer"
 msgstr "Éditeur service traitant"
 
 #: profiles/default/controlpanel.xml
