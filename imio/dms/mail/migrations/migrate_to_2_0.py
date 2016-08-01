@@ -137,6 +137,7 @@ class Migrate_To_2_0(Migrator):
         self.delete_outgoing_examples()
         self.manage_localroles()
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry', 'typeinfo', 'workflow'])
+        self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
 

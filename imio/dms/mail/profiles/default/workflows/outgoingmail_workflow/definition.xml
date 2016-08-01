@@ -52,6 +52,7 @@
    <permission-role>Site Administrator</permission-role>
   </permission-map>
   <permission-map name="collective.dms.basecontent: Add DmsFile" acquired="False">
+   <permission-role>Batch importer</permission-role>
    <permission-role>DmsFile Contributor</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Owner</permission-role>
@@ -151,6 +152,7 @@
    <permission-role>Site Administrator</permission-role>
   </permission-map>
   <permission-map name="collective.dms.basecontent: Add DmsFile" acquired="False">
+   <permission-role>Batch importer</permission-role>
    <permission-role>DmsFile Contributor</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
