@@ -199,9 +199,9 @@
   </permission-map>
   <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
+   <permission-role>Base Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
@@ -263,9 +263,9 @@
   </permission-map>
   <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
+   <permission-role>Base Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
@@ -326,9 +326,9 @@
   </permission-map>
   <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
+   <permission-role>Base Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
@@ -391,9 +391,9 @@
   </permission-map>
   <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
+   <permission-role>Base Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
-   <permission-role>Base Field Writer</permission-role>
   </permission-map>
   <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
