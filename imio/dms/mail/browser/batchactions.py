@@ -172,7 +172,7 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
 
     def update(self):
         super(TreatingGroupBatchActionForm, self).update()
-        self.pb = canNotModify(self.brains, perm='imio.dms.mail : Write treating group field')
+        self.pb = canNotModify(self.brains, perm='imio.dms.mail: Write treating group field')
         self.fields += Fields(schema.Choice(
             __name__='treating_group',
             title=_(u"Treating groups"),

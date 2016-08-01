@@ -9,10 +9,10 @@
  <permission>Modify portal content</permission>
  <permission>Delete objects</permission>
  <permission>Review portal content</permission>
- <permission>imio.dms.mail : Write incoming mail field</permission>
+ <permission>imio.dms.mail: Write mail base fields</permission>
  <permission>collective.dms.basecontent: Add DmsFile</permission>
  <permission>Add portal content</permission>
- <permission>imio.dms.mail : Write treating group field</permission>
+ <permission>imio.dms.mail: Write treating group field</permission>
  <permission>Access contents information</permission>
  <state state_id="closed"
         title="closed"
@@ -61,12 +61,12 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write incoming mail field"
+  <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field"
+  <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
@@ -129,7 +129,7 @@
    <permission-role>Contributor</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write incoming mail field"
+  <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
@@ -137,7 +137,7 @@
    <permission-role>Editor</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field"
+  <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
@@ -196,13 +196,13 @@
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write incoming mail field"
+  <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field"
+  <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
@@ -260,13 +260,13 @@
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write incoming mail field"
+  <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field"
+  <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
@@ -323,13 +323,13 @@
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write incoming mail field"
+  <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field"
+  <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
@@ -388,13 +388,13 @@
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write incoming mail field"
+  <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Base Field Writer</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field"
+  <permission-map name="imio.dms.mail: Write treating group field"
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>

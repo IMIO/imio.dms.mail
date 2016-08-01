@@ -7,7 +7,7 @@
  <permission>Review portal content</permission>
  <permission>View</permission>
  <permission>collective.dms.basecontent: Add DmsFile</permission>
- <permission>imio.dms.mail : Write treating group field</permission>
+ <permission>imio.dms.mail: Write treating group field</permission>
  <state state_id="created" title="om_created" i18n:attributes="title">
   <exit-transition transition_id="propose_to_service_chief"/>
   <exit-transition transition_id="set_scanned"/>
@@ -58,7 +58,7 @@
    <permission-role>Owner</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+  <permission-map name="imio.dms.mail: Write treating group field" acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Owner</permission-role>
    <permission-role>Site Administrator</permission-role>
@@ -108,7 +108,7 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+  <permission-map name="imio.dms.mail: Write treating group field" acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Treating Group Writer</permission-role>
@@ -157,7 +157,7 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+  <permission-map name="imio.dms.mail: Write treating group field" acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Treating Group Writer</permission-role>
@@ -206,7 +206,7 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+  <permission-map name="imio.dms.mail: Write treating group field" acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Treating Group Writer</permission-role>
@@ -256,7 +256,7 @@
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
-  <permission-map name="imio.dms.mail : Write treating group field" acquired="False">
+  <permission-map name="imio.dms.mail: Write treating group field" acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Treating Group Writer</permission-role>

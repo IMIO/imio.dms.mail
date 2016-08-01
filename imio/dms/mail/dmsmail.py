@@ -164,7 +164,7 @@ class IMEdit(DmsDocumentEdit):
         super(IMEdit, self).updateFields()
         ImioDmsIncomingMailUpdateFields(self)
         #sm = getSecurityManager()
-        #if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
+        #if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
         #    self.fields['treating_groups'].field = copy.copy(self.fields['treating_groups'].field)
         #    self.fields['treating_groups'].field.required = False
 
@@ -175,7 +175,7 @@ class IMEdit(DmsDocumentEdit):
         incomingmail_fti = api.portal.get_tool('portal_types').dmsincomingmail
         behaviors = incomingmail_fti.behaviors
         display_fields = []
-        if not sm.checkPermission('imio.dms.mail : Write incoming mail field', self.context):
+        if not sm.checkPermission('imio.dms.mail: Write mail base fields', self.context):
             if IDublinCore.__identifier__ in behaviors:
                 display_fields = [
                     'IDublinCore.title',
@@ -192,7 +192,7 @@ class IMEdit(DmsDocumentEdit):
                 'original_mail_date',
             ])
 
-        if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
+        if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
             #self.widgets['treating_groups'].__dict__['disabled'] = True
             self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
@@ -214,7 +214,7 @@ class IMEdit(DmsDocumentEdit):
     #def applyChanges(self, data):
     #    """ We need to remove a disabled field from data """
     #    sm = getSecurityManager()
-    #    if not sm.checkPermission('imio.dms.mail : Write treating group field', self.context):
+    #    if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
     #        del data['treating_groups']
     #    super(IMEdit, self).applyChanges(data)
 

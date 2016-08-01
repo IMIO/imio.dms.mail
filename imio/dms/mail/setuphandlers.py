@@ -551,11 +551,11 @@ def adaptDefaultPortal(context):
                            'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
 
     # Default roles for own permissions
-    site.manage_permission('imio.dms.mail : Write mail base fields', ('Manager', 'Site Administrator'),
+    site.manage_permission('imio.dms.mail: Write mail base fields', ('Manager', 'Site Administrator'),
                            acquire=0)
-    site.manage_permission('imio.dms.mail : Write treating group field', ('Manager', 'Site Administrator'),
+    site.manage_permission('imio.dms.mail: Write treating group field', ('Manager', 'Site Administrator'),
                            acquire=0)
-    site.manage_permission('imio.dms.mail : Write userid field', ('Manager', 'Site Administrator'),
+    site.manage_permission('imio.dms.mail: Write userid field', ('Manager', 'Site Administrator'),
                            acquire=0)
 
     # Set markup allowed types: for RichText field, don't display anymore types listbox

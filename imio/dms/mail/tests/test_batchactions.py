@@ -62,9 +62,9 @@ class BatchActions(unittest.TestCase):
 
     def test_canNotModify(self):
         brains = self.pc(UID=[self.im1.UID()])
-        self.assertFalse(canNotModify(brains, perm='imio.dms.mail : Write treating group field'))
-        self.im1.manage_permission('imio.dms.mail : Write treating group field', (), acquire=0)
-        self.assertTrue(canNotModify(brains, perm='imio.dms.mail : Write treating group field'))
+        self.assertFalse(canNotModify(brains, perm='imio.dms.mail: Write treating group field'))
+        self.im1.manage_permission('imio.dms.mail: Write treating group field', (), acquire=0)
+        self.assertTrue(canNotModify(brains, perm='imio.dms.mail: Write treating group field'))
 
     def test_TreatingGroupBatchActionForm(self):
         self.assertEqual(self.im1.treating_groups, self.pgof['direction-generale'].UID())

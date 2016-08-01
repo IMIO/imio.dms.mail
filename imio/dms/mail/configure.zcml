@@ -12,12 +12,12 @@
     <five:registerPackage package="." initialize=".initialize" />
     <i18n:registerTranslations directory="locales" />
 
-    <permission id="imio.dms.mail.write_im_field"
-                title="imio.dms.mail : Write incoming mail field"/>
+    <permission id="imio.dms.mail.write_base_fields"
+                title="imio.dms.mail: Write mail base fields"/>
     <permission id="imio.dms.mail.write_treating_group_field"
-                title="imio.dms.mail : Write treating group field"/>
+                title="imio.dms.mail: Write treating group field"/>
     <permission id="imio.dms.mail.write_userid_field"
-                title="imio.dms.mail : Write userid field"/>
+                title="imio.dms.mail: Write userid field"/>
 
     <include package="Products.PasswordStrength" />
     <include package="imio.dashboard"/>
