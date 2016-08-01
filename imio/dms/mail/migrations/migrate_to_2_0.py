@@ -41,22 +41,27 @@ class Migrate_To_2_0(Migrator):
         rpl = {'IM Field Writer': 'Base Field Writer', 'IM Treating Group Writer': 'Treating Group Writer'}
         # add new roles, remove old sharing utilities, add new sharing utilities
         self.runProfileSteps('imio.dms.mail', steps=['rolemap', 'sharing'])
-        if 'IM Field Writer' not in self.portal.__ac_roles__:
-            return
-        # delete old roles
-        roles = list(self.portal.__ac_roles__)
-        for role in rpl.keys():
-            roles.remove(role)
-        self.portal.__ac_roles__ = tuple(roles)
-        # replace old roles in incomingmail fti config
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
-        # k is 'static_config' or a field name
-        for k in lr:
-            for state in lr[k]:
-                for princ in lr[k][state]:
-                    lr[k][state][princ]['roles'] = [r in rpl and rpl[r] or r for r in lr[k][state][princ]['roles']]
-        fti._p_changed = True
+        if 'IM Field Writer' in self.portal.__ac_roles__:
+            # delete old roles
+            roles = list(self.portal.__ac_roles__)
+            for role in rpl.keys():
+                roles.remove(role)
+            self.portal.__ac_roles__ = tuple(roles)
+            # replace old roles in incomingmail fti config
+            for k in lr:  # k is 'static_config' or a field name
+                for state in lr[k]:
+                    for princ in lr[k][state]:
+                        lr[k][state][princ]['roles'] = [r in rpl and rpl[r] or r for r in lr[k][state][princ]['roles']]
+            fti._p_changed = True
+        # add DmsFile Contributor role
+        if 'static_config' in lr:
+            lrsc = lr['static_config']
+            if 'created' in lrsc and 'encodeurs' in lrsc['created'] and \
+                    'DmsFile Contributor' not in lrsc['created']['encodeurs']['roles']:
+                lrsc['created']['encodeurs']['roles'].append('DmsFile Contributor')
+                fti._p_changed = True
         # obj.reindexObjectSecurity() is done later
 
     def create_tasks_folder(self):

@@ -588,8 +588,10 @@ def configure_rolefields(context):
     """
         Configure the rolefields on types
     """
+
     roles_config = {'static_config': {
-        'created': {'encodeurs': {'roles': ['Contributor', 'Editor', 'Base Field Writer', 'Treating Group Writer']}},
+        'created': {'encodeurs': {'roles': ['Contributor', 'Editor', 'DmsFile Contributor', 'Base Field Writer',
+                                            'Treating Group Writer']}},
         'proposed_to_manager': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
                                                 'Treating Group Writer']},
                                 'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
