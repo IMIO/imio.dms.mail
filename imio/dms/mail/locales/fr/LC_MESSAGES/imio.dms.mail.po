@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-07-08 09:08+0000\n"
+"POT-Creation-Date: 2016-08-01 10:58+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,7 +25,7 @@ msgstr "${title}: créer à partir d'un modèle"
 msgid "Active"
 msgstr "Activé"
 
-#: ./browser/batchactions.py:211
+#: ./browser/batchactions.py:212
 msgid "Add items"
 msgstr "Ajouter des éléments"
 
@@ -33,7 +33,7 @@ msgstr "Ajouter des éléments"
 msgid "Add test examples for imio.dms.mail"
 msgstr "Configuration de base fr pour imio.dms.mail"
 
-#: ./browser/batchactions.py:242
+#: ./browser/batchactions.py:243
 msgid "Added values"
 msgstr "Éléments à ajouter"
 
@@ -41,7 +41,7 @@ msgstr "Éléments à ajouter"
 msgid "All under"
 msgstr "TOUT"
 
-#: ./browser/batchactions.py:135
+#: ./browser/batchactions.py:136
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -49,19 +49,19 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./browser/batchactions.py:209
+#: ./browser/batchactions.py:210
 msgid "Batch action choice"
 msgstr "Choix de l'action à effectuer"
 
-#: ./browser/batchactions.py:46
+#: ./browser/batchactions.py:47
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
-#: ./browser/batchactions.py:341
+#: ./browser/batchactions.py:342
 msgid "Batch assigned group change"
 msgstr "Changement de groupe assigné par lot"
 
-#: ./browser/batchactions.py:305
+#: ./browser/batchactions.py:306
 msgid "Batch assigned user change"
 msgstr "Changement d'utilisateur assigné par lot"
 
@@ -73,15 +73,15 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./browser/batchactions.py:201
+#: ./browser/batchactions.py:202
 msgid "Batch recipient groups change"
 msgstr "Changement de services en copie par lot"
 
-#: ./browser/batchactions.py:115
+#: ./browser/batchactions.py:116
 msgid "Batch state change"
 msgstr "Changement d'état par lot"
 
-#: ./browser/batchactions.py:170
+#: ./browser/batchactions.py:171
 msgid "Batch treating group change"
 msgstr "Changement de service traitant par lot"
 
@@ -101,7 +101,7 @@ msgstr "Choisir une valeur !"
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
-#: ./browser/batchactions.py:129
+#: ./browser/batchactions.py:130
 msgid "Comment"
 msgstr "Commentaire"
 
@@ -156,15 +156,15 @@ msgstr "Intitulé du type"
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
-#: ./browser/batchactions.py:374
+#: ./browser/batchactions.py:375
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr "Aucun groupe assigné commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./browser/batchactions.py:125
+#: ./browser/batchactions.py:126
 msgid "No common or available transition. Modify your selection."
 msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sélection."
 
-#: ./browser/batchactions.py:307
+#: ./browser/batchactions.py:308
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
@@ -176,7 +176,7 @@ msgstr "Aucun courrier entrant trouvé !"
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifiée."
 
-#: ./browser/batchactions.py:130
+#: ./browser/batchactions.py:131
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
@@ -193,17 +193,17 @@ msgstr "Date d'expédition"
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:90
+#: ./migrations/migrate_to_2_0.py:118
 #: ./setuphandlers.py:133
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
 
-#: ./migrations/migrate_to_2_0.py:91
+#: ./migrations/migrate_to_2_0.py:119
 #: ./setuphandlers.py:134
 msgid "Outgoing mails"
 msgstr "Courriers sortants"
 
-#: ./browser/batchactions.py:214
+#: ./browser/batchactions.py:215
 msgid "Overwrite"
 msgstr "Écraser le contenu avec les éléments choisis"
 
@@ -215,15 +215,15 @@ msgstr "Identifiant Plone"
 msgid "Recipient groups"
 msgstr "Services en copie"
 
-#: ./browser/batchactions.py:212
+#: ./browser/batchactions.py:213
 msgid "Remove items"
 msgstr "Retirer des éléments"
 
-#: ./browser/batchactions.py:235
+#: ./browser/batchactions.py:236
 msgid "Removed values"
 msgstr "Éléments à retirer"
 
-#: ./browser/batchactions.py:213
+#: ./browser/batchactions.py:214
 msgid "Replace some items by others"
 msgstr "Remplacer des éléments par d'autres"
 
@@ -235,27 +235,27 @@ msgstr "Répondre"
 msgid "Reply to ${ref}"
 msgstr "Répondre à ${ref}"
 
-#: ./browser/batchactions.py:243
+#: ./browser/batchactions.py:244
 msgid "Select the values to add (CTRL+click)"
 msgstr "Sélectionner les éléments à ajouter (CTRL+clic)"
 
-#: ./browser/batchactions.py:236
+#: ./browser/batchactions.py:237
 msgid "Select the values to remove (CTRL+click)"
 msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
 
 #: ./migrations/migrate_to_1_0.py:76
-#: ./migrations/migrate_to_2_0.py:43
+#: ./migrations/migrate_to_2_0.py:66
 #: ./setuphandlers.py:153
 msgid "Tasks"
 msgstr "Tâches"
 
 #: ./migrations/migrate_to_1_0.py:75
-#: ./migrations/migrate_to_2_0.py:47
+#: ./migrations/migrate_to_2_0.py:70
 #: ./setuphandlers.py:156
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1284
+#: ./setuphandlers.py:1299
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -263,11 +263,11 @@ msgstr "Modèles doc"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./browser/batchactions.py:122
+#: ./browser/batchactions.py:123
 msgid "Transition"
 msgstr "Transition"
 
-#: ./browser/batchactions.py:177
+#: ./browser/batchactions.py:178
 #: ./browser/table.py:36
 #: ./dmsmail.py:52
 msgid "Treating groups"
@@ -281,7 +281,7 @@ msgstr "Types de courrier entrant"
 msgid "Types of outgoing mail"
 msgstr "Types de courrier sortant"
 
-#: ./browser/batchactions.py:90
+#: ./browser/batchactions.py:91
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas modifier ce champ sur l'ensemble des éléments sélectionnés. Recommencez en modifiant votre sélection."
 
@@ -289,16 +289,16 @@ msgstr "Vous ne pouvez pas modifier ce champ sur l'ensemble des éléments séle
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./setuphandlers.py:363
+#: ./setuphandlers.py:366
 msgid "all_im_tasks"
 msgstr "Toutes les tâches"
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:290
+#: ./setuphandlers.py:293
 msgid "all_incoming_mails"
 msgstr "Tous les courriers"
 
-#: ./setuphandlers.py:419
+#: ./setuphandlers.py:422
 msgid "all_outgoing_mails"
 msgstr "Tous les courriers"
 
@@ -324,43 +324,43 @@ msgstr "Créer un courrier entrant"
 msgid "create_om"
 msgstr "Créer un courrier sortant"
 
-#: ./setuphandlers.py:500
+#: ./setuphandlers.py:503
 msgid "front_page_descr"
 msgstr "Bienvenue sur le site vous permettant d'utiliser la gestion du courrier"
 
-#: ./setuphandlers.py:501
+#: ./setuphandlers.py:504
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>L'application intègre la gestion du courrier entrant:</p><ul><li>Création automatique du courrier entrant à partir de fichiers scannés avec un code barre séparateur collé sur la première page de chaque courrier</li><li>Complétion du courrier entrant avec prévisualisation du document scanné et glisser/déplacer depuis le texte océrisé</li><li>Possibilité de créer un courrier manuellement et d'associer un document scanné (par exemple si son format est particulier et ne passe pas dans le scanner)</li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments \"à traiter\"</li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Choix du service traitant, des services en copie et gestion des tâches qui peuvent être assignées à d'autres services</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires)</li><li>Workflow de validation et de traitement du courrier et des tâches</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale</li><li>etc.</li></ul><p>&nbsp;</p>"
 
-#: ./setuphandlers.py:499
+#: ./setuphandlers.py:502
 msgid "front_page_title"
 msgstr "Gestion du courrier 1.1"
 
-#: ./setuphandlers.py:321
+#: ./setuphandlers.py:324
 msgid "im_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:313
+#: ./setuphandlers.py:316
 msgid "im_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:346
+#: ./setuphandlers.py:349
 msgid "im_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:338
+#: ./setuphandlers.py:341
 msgid "im_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:305
+#: ./setuphandlers.py:308
 msgid "im_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:329
+#: ./setuphandlers.py:332
 msgid "im_to_treat_in_my_group"
 msgstr "À traiter dans mon service"
 
-#: ./setuphandlers.py:296
+#: ./setuphandlers.py:299
 msgid "im_to_validate"
 msgstr "À valider"
 
@@ -392,27 +392,27 @@ msgstr "Objet"
 msgid "listing_sender_title"
 msgstr "Expéditeur"
 
-#: ./setuphandlers.py:451
+#: ./setuphandlers.py:454
 msgid "om_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:442
+#: ./setuphandlers.py:445
 msgid "om_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:467
+#: ./setuphandlers.py:470
 msgid "om_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:459
+#: ./setuphandlers.py:462
 msgid "om_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:434
+#: ./setuphandlers.py:437
 msgid "om_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:425
+#: ./setuphandlers.py:428
 msgid "om_to_validate"
 msgstr "À valider"
 
@@ -476,31 +476,33 @@ msgstr "État: à la signature"
 msgid "searchfor_to_do"
 msgstr "État: à faire"
 
-#: ./setuphandlers.py:394
+#: ./setuphandlers.py:397
 msgid "task_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:386
+#: ./setuphandlers.py:389
 msgid "task_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:378
+#: ./setuphandlers.py:381
 msgid "task_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:402
+#: ./setuphandlers.py:405
 msgid "tasks_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:369
+#: ./setuphandlers.py:372
 msgid "tasks_to_validate"
 msgstr "À valider"
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:4
+#: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:4
 #: ./browser/templates/task_dashboard_batch_actions_viewlet.pt:4
 msgid "transition-batch-action-but"
 msgstr "Changer l'état"
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:8
+#: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:8
 msgid "treatinggroup-batch-action-but"
 msgstr "Changer le service traitant"

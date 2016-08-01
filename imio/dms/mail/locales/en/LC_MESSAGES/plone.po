@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-07-08 09:08+0000\n"
+"POT-Creation-Date: 2016-08-01 10:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,21 +15,21 @@ msgstr ""
 "Domain: plone\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
+#: profiles/default/rolemap.xml
+msgid "Base Field Writer"
+msgstr ""
+
 #: profiles/default/types/dmsmainfile.xml
 msgid "Dms main file of a Dms document"
+msgstr ""
+
+#: profiles/default/rolemap.xml
+msgid "DmsFile Contributor"
 msgstr ""
 
 #: profiles/default/types/dmsmainfile.xml
 msgid "DmsMainFile"
 msgstr "Dms main file"
-
-#: profiles/default/rolemap.xml
-msgid "Base Field Writer"
-msgstr ""
-
-#: profiles/default/rolemap.xml
-msgid "Treating Group Writer"
-msgstr ""
 
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
@@ -40,6 +40,10 @@ msgid "Internal Reference Number"
 msgstr ""
 
 msgid "Recipient groups"
+msgstr ""
+
+#: profiles/default/rolemap.xml
+msgid "Treating Group Writer"
 msgstr ""
 
 msgid "Treating groups"

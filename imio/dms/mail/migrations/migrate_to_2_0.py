@@ -48,7 +48,7 @@ class Migrate_To_2_0(Migrator):
         for role in rpl.keys():
             roles.remove(role)
         self.portal.__ac_roles__ = tuple(roles)
-        # replace old_roles in fti config
+        # replace old roles in incomingmail fti config
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
         # k is 'static_config' or a field name
@@ -57,6 +57,7 @@ class Migrate_To_2_0(Migrator):
                 for princ in lr[k][state]:
                     lr[k][state][princ]['roles'] = [r in rpl and rpl[r] or r for r in lr[k][state][princ]['roles']]
         fti._p_changed = True
+        # obj.reindexObjectSecurity() is done later
 
     def create_tasks_folder(self):
         if base_hasattr(self.portal['incoming-mail'], 'task-searches'):
@@ -160,6 +161,7 @@ class Migrate_To_2_0(Migrator):
         for brain in brains:
             obj = brain.getObject()
             obj.reindexObject(idxs=['in_out_date'])
+            obj.reindexObjectSecurity()
         # self.upgradeAll()
 
         self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])

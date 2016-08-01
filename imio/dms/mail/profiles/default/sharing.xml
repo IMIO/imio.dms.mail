@@ -21,6 +21,12 @@
       />
 
   <role
+      id="DmsFile Contributor"
+      title="DmsFile Contributor"
+      i18n:attributes="title"
+      />
+
+  <role
       id="Treating Group Writer"
       title="Treating Group Writer"
       i18n:attributes="title"

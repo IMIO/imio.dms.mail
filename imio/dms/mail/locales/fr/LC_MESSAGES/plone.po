@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-07-08 09:08+0000\n"
+"POT-Creation-Date: 2016-08-01 10:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,21 +15,21 @@ msgstr ""
 "Domain: plone\n"
 "X-is-fallback-for: fr-fr fr-be fr-ca\n"
 
-#: profiles/default/types/dmsmainfile.xml
-msgid "Dms main file of a Dms document"
-msgstr "Fichier ged principal d'un document"
-
-#: profiles/default/types/dmsmainfile.xml
-msgid "DmsMainFile"
-msgstr "Fichier ged"
-
 #: profiles/default/rolemap.xml
 msgid "Base Field Writer"
 msgstr "Éditeur champs base"
 
+#: profiles/default/types/dmsmainfile.xml
+msgid "Dms main file of a Dms document"
+msgstr "Fichier ged principal d'un document"
+
 #: profiles/default/rolemap.xml
-msgid "Treating Group Writer"
-msgstr "Éditeur service traitant"
+msgid "DmsFile Contributor"
+msgstr "Ajout fichier ged"
+
+#: profiles/default/types/dmsmainfile.xml
+msgid "DmsMainFile"
+msgstr "Fichier ged"
 
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
@@ -41,6 +41,10 @@ msgstr "Référence interne"
 
 msgid "Recipient groups"
 msgstr "Services en copie"
+
+#: profiles/default/rolemap.xml
+msgid "Treating Group Writer"
+msgstr "Éditeur service traitant"
 
 msgid "Treating groups"
 msgstr "Service traitant"

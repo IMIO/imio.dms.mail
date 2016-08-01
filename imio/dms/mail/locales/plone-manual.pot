@@ -26,11 +26,15 @@ msgid "DmsMainFile"
 msgstr ""
 
 #: profiles/default/rolemap.xml
-msgid "IM Field Writer"
+msgid "Base Field Writer"
 msgstr ""
 
 #: profiles/default/rolemap.xml
-msgid "IM Treating Group Writer"
+msgid "DmsFile Contributor"
+msgstr ""
+
+#: profiles/default/rolemap.xml
+msgid "Treating Group Writer"
 msgstr ""
 
 #: profiles/default/controlpanel.xml

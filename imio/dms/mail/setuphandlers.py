@@ -550,7 +550,11 @@ def adaptDefaultPortal(context):
     site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
                            'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
 
-    #View and set userid field
+    # Default roles for own permissions
+    site.manage_permission('imio.dms.mail : Write mail base fields', ('Manager', 'Site Administrator'),
+                           acquire=0)
+    site.manage_permission('imio.dms.mail : Write treating group field', ('Manager', 'Site Administrator'),
+                           acquire=0)
     site.manage_permission('imio.dms.mail : Write userid field', ('Manager', 'Site Administrator'),
                            acquire=0)
 
@@ -589,8 +593,8 @@ def configure_rolefields(context):
         'proposed_to_manager': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
                                                 'Treating Group Writer']},
                                 'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
-        'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                                      'Treating Group Writer']},
+        'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
+                                                      'Base Field Writer', 'Treating Group Writer']},
                                       'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
         'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
                                               'Treating Group Writer']},
@@ -648,13 +652,15 @@ def configure_om_rolefields(context):
         'sent': {'expedition': {'roles': ['Reader', 'Reviewer']},
                  'encodeurs': {'roles': ['Reader']},
                  'dir_general': {'roles': ['Reader']}},
-        'scanned': {'expedition': {'roles': ['Contributor', 'Editor', 'Reader', 'Reviewer']},
+        'scanned': {'expedition': {'roles': ['Contributor', 'Editor', 'Reader', 'Reviewer', 'DmsFile Contributor',
+                                             'Treating Group Writer']},
                     'encodeurs': {'roles': ['Reader']}},
     }, 'treating_groups': {
-        'created': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
+        'created': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                          'Treating Group Writer'],
                     'validateur': {'roles': ['Reader']}}},
         'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                               'Treating Group Writer']},
+                                                     'DmsFile Contributor', 'Treating Group Writer']},
                                       'editeur': {'roles': ['Reader']}},
         'to_be_signed': {'validateur': {'roles': ['Reader']},
                          'editeur': {'roles': ['Reader']},
