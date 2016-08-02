@@ -429,7 +429,7 @@ def createOMailCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsoutgoingmail-validation'}],
-            'cond': u"python:object.restrictedTraverse('odm-utils').user_has_review_level('dmsoutgoingmail')",
+            'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsoutgoingmail')",
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
                      u'mail_type', u'assigned_user', u'CreationDate', u'actions'),

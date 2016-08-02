@@ -225,6 +225,7 @@
             current_user_groups_ids
             get_im_folder
             highest_scan_id
+            must_render_im_listing
             proposed_to_manager_col_cond
             proposed_to_serv_chief_col_cond
             user_has_review_level
@@ -238,13 +239,8 @@
         class=".utils.OdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
-            current_user_groups
-            current_user_groups_ids
             get_om_folder
-            highest_scan_id
             scanned_col_cond
-            user_has_review_level
-            user_is_admin
         "
     />
 
