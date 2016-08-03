@@ -169,6 +169,13 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboard"
+        name="assigneduser-batch-action"
+        class=".batchactions.AssignedUserBatchActionForm"
+        permission="zope2.View"
+        />
+
     <browser:viewlet
         name="taskdashboard_batch_actions_viewlet"
         for="imio.dms.mail.interfaces.ITaskDashboard"
