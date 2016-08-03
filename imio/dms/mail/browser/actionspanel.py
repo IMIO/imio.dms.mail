@@ -1,3 +1,5 @@
+from zope.component import getMultiAdapter
+
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 from imio.actionspanel.browser.views import ActionsPanelView
@@ -45,8 +47,8 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=False,
-                                                                  showAddContent=True, showActions=True)
+        view = getMultiAdapter((self.context, self.request), name='actions_panel')
+        return view(useIcons=False, showOwnDelete=False, showAddContent=True, showActions=True)
 
 
 class DmsOMActionsPanelView(ActionsPanelView):
@@ -97,5 +99,5 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        return self.context.restrictedTraverse("@@actions_panel")(useIcons=False, showOwnDelete=False,
-                                                                  showAddContent=True, showActions=True)
+        view = getMultiAdapter((self.context, self.request), name='actions_panel')
+        return view(useIcons=False, showOwnDelete=False, showAddContent=True, showActions=True)
