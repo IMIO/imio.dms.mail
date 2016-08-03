@@ -215,7 +215,7 @@
     </class>
 
     <browser:page
-        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument"
         name="plone"
         class=".views.PloneView"
         permission="zope.Public"
