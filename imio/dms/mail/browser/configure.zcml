@@ -162,6 +162,13 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboard"
+        name="recipientgroup-batch-action"
+        class=".batchactions.RecipientGroupBatchActionForm"
+        permission="zope2.View"
+        />
+
     <browser:viewlet
         name="taskdashboard_batch_actions_viewlet"
         for="imio.dms.mail.interfaces.ITaskDashboard"
