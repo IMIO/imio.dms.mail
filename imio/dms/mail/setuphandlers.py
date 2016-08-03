@@ -544,11 +544,11 @@ def adaptDefaultPortal(context):
     site.manage_permission('CMFEditions: Revert to previous versions', ('Manager', 'Site Administrator'),
                            acquire=0)
 
-    #History: add
-    site.manage_permission('CMFEditions: Access previous versions', ('Manager', 'Site Administrator', 'Contributor',
-                           'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
-    site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
-                           'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
+    #History: add history after contact merging
+    #site.manage_permission('CMFEditions: Access previous versions', ('Manager', 'Site Administrator', 'Contributor',
+    #                       'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
+    #site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
+    #                       'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
 
     # Default roles for own permissions
     site.manage_permission('imio.dms.mail: Write mail base fields', ('Manager', 'Site Administrator'),
@@ -597,16 +597,13 @@ def configure_rolefields(context):
                                 'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
         'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
                                                       'Base Field Writer', 'Treating Group Writer']},
-                                      'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
-        'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                              'Treating Group Writer']},
-                              'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
-        'in_treatment': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                         'Treating Group Writer']},
-                         'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
-        'closed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                             'Treating Group Writer']},
-                   'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
+                                      'encodeurs': {'roles': ['Reader']}},
+        'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
+                              'encodeurs': {'roles': ['Reader']}},
+        'in_treatment': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
+                         'encodeurs': {'roles': ['Reader']}},
+        'closed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
+                   'encodeurs': {'roles': ['Reader']}},
     }, 'treating_groups': {
         #'created': {},
         #'proposed_to_manager': {},
