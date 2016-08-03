@@ -192,14 +192,14 @@ class IMEdit(DmsDocumentEdit):
                 'original_mail_date',
             ])
 
+        for field in display_fields:
+            self.widgets[field].mode = 'display'
+
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
             #self.widgets['treating_groups'].__dict__['disabled'] = True
             self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
                 [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
-
-        for field in display_fields:
-            self.widgets[field].mode = 'display'
 
         # disable left column
         self.request.set('disable_plone.leftcolumn', 1)
@@ -388,6 +388,28 @@ class OMEdit(DmsDocumentEdit):
     def updateWidgets(self):
         super(OMEdit, self).updateWidgets()
         ImioDmsOutgoingMailUpdateWidgets(self)
+        sm = getSecurityManager()
+        # display_fields = []
+        # if not sm.checkPermission('imio.dms.mail: Write mail base fields', self.context):
+        #     display_fields = [
+        #         'IDublinCore.title',
+        #         'IDublinCore.description',
+        #         'sender',
+        #         'recipients',
+        #         'recipient_groups',
+        #         'reply_to',
+        #         'internal_reference_no',
+        #         'external_reference_no',
+        #     ]
+        #
+        # for field in display_fields:
+        #     self.widgets[field].mode = 'display'
+
+        if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
+            # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
+            #self.widgets['treating_groups'].__dict__['disabled'] = True
+            self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
+                [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
 
 
 class OMCustomAddForm(DefaultAddForm):
