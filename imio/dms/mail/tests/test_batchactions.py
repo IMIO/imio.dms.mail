@@ -18,6 +18,7 @@ class BatchActions(unittest.TestCase):
         self.pc = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
         self.msf = self.imf['mail-searches']
+        self.imdb = self.imf['mail-searches']['all_mails']
         self.im1 = self.imf['courrier1']
         self.im2 = self.imf['courrier2']
         self.im3 = self.imf['courrier3']
@@ -32,21 +33,21 @@ class BatchActions(unittest.TestCase):
         api.content.transition(obj=self.im3, to_state='proposed_to_manager')
         api.content.transition(obj=self.im4, to_state='proposed_to_agent')
         brains = self.pc(UID=[self.im1.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(brains)]),
+        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
                             set(['propose_to_manager', 'propose_to_service_chief']))
         brains = self.pc(UID=[self.im1.UID(), self.im2.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(brains)]),
+        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
                             set(['propose_to_manager', 'propose_to_service_chief']))
         brains = self.pc(UID=[self.im1.UID(), self.im3.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(brains)]),
+        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
                             set(['propose_to_service_chief']))
         brains = self.pc(UID=[self.im1.UID(), self.im3.UID(), self.im4.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(brains)]),
+        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
                             set([]))
         brains = self.pc(UID=[self.im1.UID(), self.ta1.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(brains)]),
+        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
                             set([]))
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc([])]),
+        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, [])]),
                             set([]))
 
     def test_TransitionBatchActionForm(self):
