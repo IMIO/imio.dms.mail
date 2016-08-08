@@ -34,7 +34,13 @@ dmsmail.init_batchactions_button = function () {
     if(document.batch_actions[form_id] === undefined) {
         document.batch_actions[form_id] = ba_form.action;
     }
-    ba_form.action = document.batch_actions[form_id] + '?uids=' + uids + '&referer=' + referer;
+    var uids_input = $(ba_form).find('input[name="uids"]');
+    if (uids_input.length === 0) {
+        uids_input = $('<input type="hidden" name="uids" value="" />');
+        $(ba_form).append(uids_input);
+    }
+    uids_input.val(uids);
+    ba_form.action = document.batch_actions[form_id] + '?referer=' + referer;
     dmsmail.initializeOverlays('#'+form_id);
   });
 };
