@@ -389,21 +389,19 @@ class OMEdit(DmsDocumentEdit):
         super(OMEdit, self).updateWidgets()
         ImioDmsOutgoingMailUpdateWidgets(self)
         sm = getSecurityManager()
-        # display_fields = []
-        # if not sm.checkPermission('imio.dms.mail: Write mail base fields', self.context):
-        #     display_fields = [
-        #         'IDublinCore.title',
-        #         'IDublinCore.description',
-        #         'sender',
-        #         'recipients',
-        #         'recipient_groups',
-        #         'reply_to',
-        #         'internal_reference_no',
-        #         'external_reference_no',
-        #     ]
-        #
-        # for field in display_fields:
-        #     self.widgets[field].mode = 'display'
+        display_fields = []
+        if not sm.checkPermission('imio.dms.mail: Write mail base fields', self.context):
+            display_fields = [
+                # 'IDublinCore.title',
+                # 'IDublinCore.description',
+                'sender',
+                'recipients',
+                'reply_to',
+                'external_reference_no',
+            ]
+
+        for field in display_fields:
+            self.widgets[field].mode = 'display'
 
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
