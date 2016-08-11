@@ -18,7 +18,7 @@ from imio.migrator.migrator import Migrator
 from ..interfaces import IOMDashboard, ITaskDashboard
 from ..setuphandlers import (_, configure_om_rolefields, createIMailCollections, add_db_col_folder,
                              createStateCollections, createOMailCollections, configure_faceted_folder,
-                             createTaskCollections)
+                             createTaskCollections, add_templates)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -114,6 +114,8 @@ class Migrate_To_2_0(Migrator):
             if 'Site Administrator' not in [dic['name'] for dic in self.portal.rolesOfPermission(perm)
                                             if dic['selected'] == 'SELECTED']:
                 self.portal.manage_permission(perm, ('Manager', 'Site Administrator'), acquire=0)
+        # add templates configuration
+        add_templates(self.portal)
 
     def configure_dashboard(self):
         """ add DashboardCollection """

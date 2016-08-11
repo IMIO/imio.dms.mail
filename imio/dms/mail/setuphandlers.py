@@ -1295,17 +1295,20 @@ def configure_faceted_folder(folder, xml=None, default_UID=None):
 
 def add_templates(site):
     """Create pod templates."""
-    from collective.documentgenerator.config import POD_TEMPLATE_TYPES
+    from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
     if not base_hasattr(site, 'templates'):
         folderid = site.invokeFactory("Folder", id='templates', title=_(u"Templates"))
         tplt_fld = getattr(site, folderid)
 
-        template_types = POD_TEMPLATE_TYPES.keys() + ['Folder']
+        template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
         tplt_fld.setLocallyAllowedTypes(template_types)
         tplt_fld.setImmediatelyAddableTypes(template_types)
         tplt_fld.setConstrainTypesMode(1)
+        api.content.transition(obj=tplt_fld, transition='show_internally')
         alsoProvides(tplt_fld, INextPrevNotNavigable)
         logger.info('Templates folder created')
+
+    if False:
         if 'modele1' not in tplt_fld:
             api.content.create(
                 type='PODTemplate',
