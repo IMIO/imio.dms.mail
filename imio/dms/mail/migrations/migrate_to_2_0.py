@@ -10,7 +10,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 
-from Products.CPUtils.Extensions.utils import mark_last_version
+from Products.CPUtils.Extensions.utils import mark_last_version, change_user_properties
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
@@ -116,6 +116,16 @@ class Migrate_To_2_0(Migrator):
                 self.portal.manage_permission(perm, ('Manager', 'Site Administrator'), acquire=0)
         # add templates configuration
         add_templates(self.portal)
+
+        # configure external edition
+        self.portal.portal_memberdata.manage_changeProperties(ext_editor=True)
+        registry = getUtility(IRegistry)
+        registry['externaleditor.ext_editor'] = True
+        if 'Image' in registry['externaleditor.externaleditor_enabled_types']:
+            registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
+                                                                       'DashboardPODTemplate', 'SubTemplate',
+                                                                       'StyleTemplate']
+        change_user_properties(self.portal, kw='ext_editor:True', dochange='1')
 
     def configure_dashboard(self):
         """ add DashboardCollection """

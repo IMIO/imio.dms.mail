@@ -566,6 +566,18 @@ def adaptDefaultPortal(context):
     msg = site['messages-config']['browser-warning']
     api.content.transition(obj=msg, to_state='activated')
 
+    #we need external edition so make sure it is activated
+    # site.portal_properties.site_properties.manage_changeProperties(ext_editor=True)  # sans effet
+    site.portal_memberdata.manage_changeProperties(ext_editor=True)  # par défaut pour les nouveaux utilisateurs
+
+    #for collective.externaleditor
+    registry = getUtility(IRegistry)
+    registry['externaleditor.ext_editor'] = True
+    if 'Image' in registry['externaleditor.externaleditor_enabled_types']:
+        registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
+                                                                   'DashboardPODTemplate', 'SubTemplate',
+                                                                   'StyleTemplate']
+
 
 def changeSearchedTypes(site):
     """
