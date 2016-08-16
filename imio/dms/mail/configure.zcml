@@ -210,10 +210,43 @@
         factory=".adapters.OMMCTV"
     />
 
+    <!-- CLASS INTERFACES -->
     <class class="plone.app.collection.collection.Collection">
         <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />
     </class>
 
+    <class class="collective.contact.core.content.organization.Organization">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.contact.core.content.person.Person">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.contact.core.content.position.Position">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.contact.core.content.held_position.HeldPosition">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.documentgenerator.content.pod_template.PODTemplate">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.documentgenerator.content.pod_template.PODTemplate">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.documentgenerator.content.pod_template.ConfigurablePODTemplate">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.documentgenerator.content.pod_template.SubTemplate">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.documentgenerator.content.style_template.StyleTemplate">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="imio.dashboard.content.dashboardcollection.DashboardCollection">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+
+    <!-- UTILS METHODS -->
     <browser:page
         for="Products.CMFCore.interfaces.IContentish"
         name="idm-utils"

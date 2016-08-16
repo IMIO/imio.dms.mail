@@ -91,6 +91,11 @@ class Migrate_To_2_0(Migrator):
             logger.info('tasks folder created')
 
     def update_site(self):
+        # set som objects as not next/prev navigable
+        for obj in (self.portal['front-page'], self.portal['contacts'], self.portal['templates']):
+            if not INextPrevNotNavigable.providedBy(obj):
+                alsoProvides(obj, INextPrevNotNavigable)
+
         # publish outgoing-mail folder
         if api.content.get_state(self.omf) != 'internally_published':
             api.content.transition(obj=self.omf, to_state="internally_published")
@@ -169,10 +174,6 @@ class Migrate_To_2_0(Migrator):
 
         # configure role fields on dmsoutgoingmail
         configure_om_rolefields(self.portal)
-
-        # set front-page folder as not next/prev navigable
-        if not INextPrevNotNavigable.providedBy(self.portal['front-page']):
-            alsoProvides(self.portal['front-page'], INextPrevNotNavigable)
 
         # refresh some indexes
         brains = self.catalog.searchResults(portal_type=['dmsincomingmail'])
