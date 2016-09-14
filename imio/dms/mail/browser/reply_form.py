@@ -6,6 +6,7 @@ from plone.dexterity.browser.add import DefaultAddForm
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import addContentToContainer
+from Products.CMFPlone.utils import safe_unicode
 
 from Products.CPUtils.Extensions.utils import safe_encode
 
@@ -22,7 +23,7 @@ class ReplyForm(DefaultAddForm):
 
     @property
     def label(self):
-        return _(u"Reply to ${ref}", mapping={'ref': self.context.Title()})
+        return _(u"Reply to ${ref}", mapping={'ref': safe_unicode(self.context.Title())})
 
     def updateFields(self):
         super(ReplyForm, self).updateFields()
