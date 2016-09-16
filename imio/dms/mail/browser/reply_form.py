@@ -30,6 +30,7 @@ class ReplyForm(DefaultAddForm):
         imail = self.context
         form = self.request.form
         form["form.widgets.IDublinCore.title"] = "Réponse: %s" % safe_encode(imail.title)
+        form["form.widgets.treating_groups"] = imail.treating_groups
         form["form.widgets.reply_to"] = ('/'.join(imail.getPhysicalPath()),)
         form["form.widgets.recipients"] = ('/'.join(imail.sender.to_object.getPhysicalPath()), )
         if imail.external_reference_no:
