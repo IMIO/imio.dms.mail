@@ -82,3 +82,16 @@ msgstr ""
 
 msgid "Treating groups"
 msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_manager_zs"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_manager_zs"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_manager_zs"
+msgstr ""
+

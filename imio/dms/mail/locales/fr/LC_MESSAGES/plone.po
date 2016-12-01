@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-08-01 10:58+0000\n"
+"POT-Creation-Date: 2016-12-01 15:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -60,6 +60,10 @@ msgstr "Remettre en création"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager"
 msgstr "Renvoyer au DG"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_manager_zs"
+msgstr "Renvoyer au CZ"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service_chief"
@@ -174,6 +178,10 @@ msgid "propose_to_manager"
 msgstr "Proposer au DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_manager_zs"
+msgstr "Proposer au CZ"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service_chief"
 msgstr "Proposer au chef de service"
 
@@ -184,6 +192,10 @@ msgstr "À traiter"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
 msgstr "À valider par le DG"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_manager_zs"
+msgstr "À valider par le CZ"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_service_chief"
