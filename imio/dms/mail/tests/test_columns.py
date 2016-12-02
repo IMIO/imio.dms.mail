@@ -46,14 +46,16 @@ class TestColumns(unittest.TestCase):
         column = TaskParentColumn(self.portal, self.portal.REQUEST, self.task_table)
         brain = self.portal.portal_catalog(UID=self.ta1.UID())[0]
         self.assertEqual(column.renderCell(brain),
-                         u"<a class='pretty_link state-created' title='' href='http://nohost/plone/incoming-mail/"
-                         "courrier1' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
+                         u"<a class='pretty_link state-created' title='E0001 - Courrier 1' "
+                         "href='http://nohost/plone/incoming-mail/courrier1' target='_blank'>"
+                         "<span class='pretty_link_icons'><img title='Incoming Mail' "
                          "src='http://nohost/plone/++resource++dmsincomingmail_icon.png' /></span><span class='"
                          "pretty_link_content'>E0001 - Courrier 1</span></a>")
         brain = self.portal.portal_catalog(UID=self.ta31.UID())[0]
         self.assertEqual(column.renderCell(brain),
-                         u"<a class='pretty_link state-created' title='' href='http://nohost/plone/incoming-mail/"
-                         "courrier1' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
+                         u"<a class='pretty_link state-created' title='E0001 - Courrier 1' "
+                         "href='http://nohost/plone/incoming-mail/courrier1' target='_blank'>"
+                         "<span class='pretty_link_icons'><img title='Incoming Mail' "
                          "src='http://nohost/plone/++resource++dmsincomingmail_icon.png' /></span><span class='"
                          "pretty_link_content'>E0001 - Courrier 1</span></a>")
 
