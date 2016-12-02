@@ -864,9 +864,12 @@ def addTestDirectory(context):
                       ]
 
     organization_types = [{'name': u'Non défini', 'token': 'non-defini'},
+                          {'name': u'SA', 'token': 'sa'},
                           {'name': u'Commune', 'token': 'commune'},
                           {'name': u'CPAS', 'token': 'cpas'},
-                          {'name': u'SA', 'token': 'sa'},
+                          {'name': u'Intercommunale', 'token': 'intercommunale'},
+                          {'name': u'Zone de police', 'token': 'zp'},
+                          {'name': u'Zone de secours', 'token': 'zs'},
                           ]
 
     organization_levels = [{'name': u'Non défini', 'token': 'non-defini'},
