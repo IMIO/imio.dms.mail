@@ -13,7 +13,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.Five import BrowserView
 
-from imio.helpers.cache import get_cachekey_volatile
+from imio.helpers.cache import get_cachekey_volatile, generate_key
 from browser.settings import IImioDmsMailConfig
 from interfaces import IIMDashboard
 
@@ -91,7 +91,7 @@ def voc_selected_org_suffix_users(org_uid, suffixes, first_member=None):
 
 
 def list_wf_states_cache_key(function, context, portal_type):
-    return get_cachekey_volatile("%s.%s" % (function.func_name, portal_type))
+    return get_cachekey_volatile("%s.%s" % (generate_key(function), portal_type))
 
 
 @ram.cache(list_wf_states_cache_key)
@@ -111,16 +111,16 @@ def list_wf_states(context, portal_type):
     ret = []
     # wf states
     for workflow in pw.getWorkflowsFor(portal_type):
-        state_ids = [value.id for value in workflow.states.values()]
+        states = dict([(value.id, value) for value in workflow.states.values()])
         break
     # keep ordered states
     for state in ordered_states[portal_type]:
-        if state in state_ids:
-            ret.append(state)
-            state_ids.remove(state)
+        if state in states:
+            ret.append(states[state])
+            del(states[state])
     # add missing
-    for missing in state_ids:
-        ret.append(missing)
+    for missing in states:
+        ret.append(states[missing])
     return ret
 
 
@@ -244,4 +244,3 @@ class OdmUtilsMethods(UtilsMethods):
     def scanned_col_cond(self):
         """ Condition for searchfor_scanned collection """
         return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False)
-

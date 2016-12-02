@@ -236,7 +236,8 @@ def createStateCollections(folder, content_type):
         'dmsincomingmail': ('created',),
         'dmsoutgoingmail': ('scanned',),
     }
-    for state in list_wf_states(folder, content_type):
+    for stateo in list_wf_states(folder, content_type):
+        state = stateo.id
         col_id = "searchfor_%s" % state
         if not base_hasattr(folder, col_id):
             folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),

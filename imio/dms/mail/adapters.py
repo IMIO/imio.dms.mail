@@ -100,8 +100,8 @@ def validation_criterion(context, portal_type):
         ret['state_group']['query'].append('proposed_to_manager')
     if orgs:
         # we get group validation states
-        states = [st for st in list_wf_states(context, portal_type)
-                  if st not in no_group_validation_states[portal_type]]
+        states = [st.id for st in list_wf_states(context, portal_type)
+                  if st.id not in no_group_validation_states[portal_type]]
         for state in states:
             for org in orgs:
                 ret['state_group']['query'].append('%s,%s' % (state, org))

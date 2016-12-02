@@ -59,16 +59,17 @@ class TestUtils(unittest.TestCase):
     def test_list_wf_states(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         self.assertEqual(list_wf_states(imail, 'unknown'), [])
-        self.assertEqual(list_wf_states(imail, 'task'), ['created', 'to_assign', 'to_do', 'in_progress', 'realized',
-                                                         'closed'])
+        self.assertEqual([s.id for s in list_wf_states(imail, 'task')],
+                         ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'])
         # We rename a state id
         states = imail.portal_workflow.task_workflow.states
         states.manage_renameObject('to_do', 'NEW')
-        self.assertEqual(list_wf_states(imail, 'task'), ['created', 'to_assign', 'to_do', 'in_progress', 'realized',
-                                                         'closed'])
-        invalidate_cachekey_volatile_for('list_wf_states.task')
-        self.assertEqual(list_wf_states(imail, 'task'), ['created', 'to_assign', 'in_progress', 'realized', 'closed',
-                                                         'NEW'])
+        # test cache (objects are cached)
+        self.assertEqual([s.id for s in list_wf_states(imail, 'task')],
+                         ['created', 'to_assign', 'NEW', 'in_progress', 'realized', 'closed'])
+        invalidate_cachekey_volatile_for('imio-dms-mail-utils-list_wf_states.task')
+        self.assertEqual([s.id for s in list_wf_states(imail, 'task')],
+                         ['created', 'to_assign', 'in_progress', 'realized', 'closed', 'NEW'])
 
     def test_create_richtextval(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
