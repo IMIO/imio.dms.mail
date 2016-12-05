@@ -9,7 +9,7 @@ from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
-from ..utils import highest_review_level, organizations_with_suffixes, voc_selected_org_suffix_users, list_wf_states
+from ..utils import highest_review_level, voc_selected_org_suffix_users, list_wf_states
 from ..utils import create_richtextval, get_scan_id, UtilsMethods, IdmUtilsMethods
 from ..browser.settings import IImioDmsMailConfig
 
@@ -29,18 +29,6 @@ class TestUtils(unittest.TestCase):
         self.assertIsNone(highest_review_level('dmsincomingmail', ""))
         self.assertEquals(highest_review_level('dmsincomingmail', "['dir_general']"), 'dir_general')
         self.assertEquals(highest_review_level('dmsincomingmail', "['111_validateur']"), '_validateur')
-
-    def test_organizations_with_suffixes(self):
-        g1 = api.group.create(groupname='111_suf1')
-        g2 = api.group.create(groupname='112_suf1')
-        g3 = api.group.create(groupname='112_suf2')
-        self.assertEqual(organizations_with_suffixes([], []), [])
-        self.assertEqual(organizations_with_suffixes([g1, g2], []), [])
-        self.assertEqual(organizations_with_suffixes([], ['suf1']), [])
-        self.assertEqual(organizations_with_suffixes([g1, g2], ['suf1']),
-                         ['111', '112'])
-        self.assertEqual(organizations_with_suffixes([g1, g3], ['suf1', 'suf2']),
-                         ['111', '112'])
 
     def test_voc_selected_org_suffix_users(self):
         self.assertEqual(voc_selected_org_suffix_users(None, []).by_token, {})

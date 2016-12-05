@@ -13,6 +13,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.Five import BrowserView
 
+from collective.contact.plonegroup.utils import organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile, generate_key
 from browser.settings import IImioDmsMailConfig
 from interfaces import IIMDashboard
@@ -38,19 +39,6 @@ def highest_review_level(portal_type, group_ids):
         elif "'%s'" % keyg in group_ids:
             return keyg
     return None
-
-
-def organizations_with_suffixes(groups, suffixes):
-    """ Return organization uid with suffixes """
-    orgs = []
-    for group in groups:
-        parts = group.id.split('_')
-        if len(parts) == 1:
-            continue
-        for suffix in suffixes:
-            if suffix == parts[1] and parts[0] not in orgs:
-                orgs.append(parts[0])
-    return orgs
 
 
 def get_selected_org_suffix_users(org_uid, suffixes):
