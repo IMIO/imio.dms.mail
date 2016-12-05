@@ -100,12 +100,12 @@ def getAvailableTransitionsVoc(brains):
     for brain in brains:
         obj = brain.getObject()
         if transitions is None:
-            transitions = set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
+            transitions = set([(tr['id'], tr['title']) for tr in wtool.getTransitionsFor(obj)])
         else:
-            transitions &= set([tr['id'] for tr in wtool.getTransitionsFor(obj)])
+            transitions &= set([(tr['id'], tr['title']) for tr in wtool.getTransitionsFor(obj)])
     if transitions:
-        for tr in transitions:
-            terms.append(SimpleTerm(tr, tr, PMF(safe_unicode(tr))))
+        for (id, tit) in transitions:
+            terms.append(SimpleTerm(id, id, PMF(safe_unicode(tit))))
     return SimpleVocabulary(terms)
 
 

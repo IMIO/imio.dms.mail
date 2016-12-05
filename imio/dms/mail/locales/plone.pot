@@ -60,6 +60,10 @@ msgid "back_to_manager"
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_manager_zs"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service_chief"
 msgstr ""
 
@@ -101,6 +105,10 @@ msgid "propose_to_manager"
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_manager_zs"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service_chief"
 msgstr ""
 
@@ -110,6 +118,10 @@ msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
+msgstr ""
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_manager_zs"
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
@@ -125,4 +137,3 @@ msgstr ""
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "treat"
 msgstr ""
-

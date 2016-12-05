@@ -28,7 +28,7 @@ class IMReviewStatesVocabulary(object):
         terms = []
         for state in list_wf_states(context, 'dmsincomingmail'):
             terms.append(SimpleVocabulary.createTerm(
-                state, state, translate(state, domain='plone', context=context.REQUEST)))
+                state.id, state.id, translate(state.title, domain='plone', context=context.REQUEST)))
         return SimpleVocabulary(terms)
 
 
@@ -40,7 +40,7 @@ class TaskReviewStatesVocabulary(object):
         terms = []
         for state in list_wf_states(context, 'task'):
             terms.append(SimpleVocabulary.createTerm(
-                state, state, translate(state, domain='plone', context=context.REQUEST)))
+                state.id, state.id, translate(state.title, domain='plone', context=context.REQUEST)))
         return SimpleVocabulary(terms)
 
 

@@ -58,6 +58,10 @@ msgid "back_to_manager"
 msgstr "Renvoyer au DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_manager_zs"
+msgstr "Renvoyer au CZ"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service_chief"
 msgstr "Renvoyer au chef de service"
 
@@ -99,6 +103,10 @@ msgid "propose_to_manager"
 msgstr "Proposer au DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_manager_zs"
+msgstr "Proposer au CZ"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service_chief"
 msgstr "Proposer au chef de service"
 
@@ -109,6 +117,10 @@ msgstr "A traiter"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
 msgstr "A valider par le DG"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "proposed_to_manager_zs"
+msgstr "À valider par le CZ"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_service_chief"
@@ -123,4 +135,3 @@ msgstr "Tâche groupe assigné"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "treat"
 msgstr "Traiter"
-

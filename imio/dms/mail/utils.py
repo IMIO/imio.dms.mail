@@ -101,16 +101,16 @@ def list_wf_states(context, portal_type):
     ret = []
     # wf states
     for workflow in pw.getWorkflowsFor(portal_type):
-        state_ids = [value.id for value in workflow.states.values()]
+        states = dict([(value.id, value) for value in workflow.states.values()])
         break
     # keep ordered states
     for state in ordered_states[portal_type]:
-        if state in state_ids:
-            ret.append(state)
-            state_ids.remove(state)
+        if state in states:
+            ret.append(states[state])
+            del(states[state])
     # add missing
-    for missing in state_ids:
-        ret.append(missing)
+    for missing in states:
+        ret.append(states[missing])
     return ret
 
 
