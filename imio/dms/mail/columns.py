@@ -191,3 +191,19 @@ class OutgoingDateColumn(DateColumn):
 class OutgoingStateColumn(I18nColumn):
 
     msgid_prefix = 'om_'
+
+
+class ReviewStateColumn(I18nColumn):
+
+    i18n_domain = 'plone'
+    weight = 30
+
+    def renderCell(self, item):
+        value = self.getValue(item)
+        if not value:
+            return u'-'
+        wtool = api.portal.get_tool('portal_workflow')
+        state_title = wtool.getTitleForStateOnType(value, item.portal_type)
+        return translate(state_title,
+                         domain=self.i18n_domain,
+                         context=self.request)
