@@ -9,6 +9,7 @@ from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
 
 from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
+from collective.eeafaceted.z3ctable.columns import I18nColumn
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.task.interfaces import ITaskMethods
 from imio.dashboard.columns import ActionsColumn, RelationPrettyLinkColumn, PrettyLinkColumn
@@ -131,3 +132,19 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     view_name = 'actions_panel'
     attrName = 'actions'
     params = {'showHistory': True, 'showActions': False}
+
+
+class ReviewStateColumn(I18nColumn):
+
+    i18n_domain = 'plone'
+    weight = 30
+
+    def renderCell(self, item):
+        value = self.getValue(item)
+        if not value:
+            return u'-'
+        wtool = api.portal.get_tool('portal_workflow')
+        state_title = wtool.getTitleForStateOnType(value, item.portal_type)
+        return translate(state_title,
+                         domain=self.i18n_domain,
+                         context=self.request)
