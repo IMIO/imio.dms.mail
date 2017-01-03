@@ -78,6 +78,10 @@
 }
 /* Display None */
 
+#formfield-oform-widgets-position {
+    display: none !important;
+}
+
 .template-view #formfield-form-widgets-ITask-task_description .formHelp,
 .template-item_view #formfield-form-widgets-ITask-task_description .formHelp {
     display: None;
