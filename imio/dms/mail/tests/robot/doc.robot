@@ -521,4 +521,5 @@ Configuration
 Suite Setup
     Open test browser
 #    Set Window Size  1024  768
-    Set Window Size  1280  800
+    Set Window Size  1280  1200
+    Set Suite Variable  ${CROP_MARGIN}  5
