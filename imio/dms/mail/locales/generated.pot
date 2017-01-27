@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2016-08-01 10:58+0000\n"
+"POT-Creation-Date: 2017-01-26 16:06+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -189,12 +189,12 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:118
+#: ./migrations/migrate_to_2_0.py:140
 #: ./setuphandlers.py:133
 msgid "Outgoing mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:119
+#: ./migrations/migrate_to_2_0.py:141
 #: ./setuphandlers.py:134
 msgid "Outgoing mails"
 msgstr ""
@@ -227,7 +227,7 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
-#: ./browser/reply_form.py:25
+#: ./browser/reply_form.py:26
 msgid "Reply to ${ref}"
 msgstr ""
 
@@ -240,18 +240,18 @@ msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:76
-#: ./migrations/migrate_to_2_0.py:66
+#: ./migrations/migrate_to_2_0.py:71
 #: ./setuphandlers.py:153
 msgid "Tasks"
 msgstr ""
 
 #: ./migrations/migrate_to_1_0.py:75
-#: ./migrations/migrate_to_2_0.py:70
+#: ./migrations/migrate_to_2_0.py:75
 #: ./setuphandlers.py:156
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1299
+#: ./setuphandlers.py:1327
 msgid "Templates"
 msgstr ""
 
@@ -285,16 +285,16 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./setuphandlers.py:366
+#: ./setuphandlers.py:367
 msgid "all_im_tasks"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:293
+#: ./setuphandlers.py:294
 msgid "all_incoming_mails"
 msgstr ""
 
-#: ./setuphandlers.py:422
+#: ./setuphandlers.py:434
 msgid "all_outgoing_mails"
 msgstr ""
 
@@ -303,6 +303,7 @@ msgid "assignedgroup-batch-action-but"
 msgstr ""
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:12
+#: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:12
 #: ./browser/templates/task_dashboard_batch_actions_viewlet.pt:12
 msgid "assigneduser-batch-action-but"
 msgstr ""
@@ -320,43 +321,43 @@ msgstr ""
 msgid "create_om"
 msgstr ""
 
-#: ./setuphandlers.py:503
+#: ./setuphandlers.py:515
 msgid "front_page_descr"
 msgstr ""
 
-#: ./setuphandlers.py:504
+#: ./setuphandlers.py:516
 msgid "front_page_text"
 msgstr ""
 
-#: ./setuphandlers.py:502
+#: ./setuphandlers.py:514
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:324
+#: ./setuphandlers.py:325
 msgid "im_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:316
+#: ./setuphandlers.py:317
 msgid "im_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:349
+#: ./setuphandlers.py:350
 msgid "im_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:341
+#: ./setuphandlers.py:342
 msgid "im_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:308
+#: ./setuphandlers.py:309
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:332
+#: ./setuphandlers.py:333
 msgid "im_to_treat_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:299
+#: ./setuphandlers.py:300
 msgid "im_to_validate"
 msgstr ""
 
@@ -384,52 +385,57 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
-#: ./setuphandlers.py:454
+#: ./setuphandlers.py:466
 msgid "om_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:445
+#: ./setuphandlers.py:457
 msgid "om_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:470
+#: ./setuphandlers.py:482
 msgid "om_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:462
+#: ./setuphandlers.py:474
 msgid "om_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:437
+#: ./setuphandlers.py:449
 msgid "om_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:428
+#: ./setuphandlers.py:440
 msgid "om_to_validate"
 msgstr ""
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
+#: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:16
 msgid "recipientgroup-batch-action-but"
 msgstr ""
 
-#: ./setuphandlers.py:397
+#: ./setuphandlers.py:399
 msgid "task_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:389
+#: ./setuphandlers.py:391
 msgid "task_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:381
+#: ./setuphandlers.py:383
 msgid "task_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:405
+#: ./setuphandlers.py:407
 msgid "tasks_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:372
-msgid "tasks_to_validate"
+#: ./setuphandlers.py:373
+msgid "tasks_to_assign"
+msgstr ""
+
+#: ./setuphandlers.py:415
+msgid "tasks_to_close"
 msgstr ""
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:4

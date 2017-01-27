@@ -370,8 +370,9 @@ def createTaskCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
-        {'id': 'to_validate', 'tit': _('tasks_to_validate'), 'subj': (u'todo', ), 'query': [
+        {'id': 'to_assign', 'tit': _('tasks_to_assign'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['to_assign']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'task-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
@@ -411,6 +412,16 @@ def createTaskCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
+        {'id': 'to_close', 'tit': _('tasks_to_close'), 'subj': (u'todo', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['realized']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'task-validation'}],
+            'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
+            'bypass': ['Manager', 'Site Administrator'],
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, 'count': True},
     ]
     createDashboardCollections(folder, collections)
 
