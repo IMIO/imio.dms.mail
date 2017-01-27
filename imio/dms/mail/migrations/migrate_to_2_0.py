@@ -31,6 +31,7 @@ class Migrate_To_2_0(Migrator):
         self.catalog = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
+        self.tkf = self.portal['tasks']
 
     def delete_outgoing_examples(self):
         for brain in self.catalog(portal_type='dmsoutgoingmail', id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
@@ -80,7 +81,7 @@ class Migrate_To_2_0(Migrator):
             createStateCollections(col_folder, 'task')
             configure_faceted_folder(col_folder, xml='im-task-searches.xml',
                                      default_UID=col_folder['all_tasks'].UID())
-            # configure outgoing-mail faceted
+            # configure tasks faceted
             configure_faceted_folder(tsk_folder, xml='default_dashboard_widgets.xml',
                                      default_UID=col_folder['all_tasks'].UID())
 
@@ -89,6 +90,15 @@ class Migrate_To_2_0(Migrator):
             tsk_folder.setImmediatelyAddableTypes(['task'])
             self.portal.portal_workflow.doActionFor(tsk_folder, "show_internally")
             logger.info('tasks folder created')
+
+    def update_collections(self):
+        for folder, fid, colid in [(self.imf, 'mail-searches', 'all_mails'), (self.omf, 'mail-searches', 'all_mails'),
+                                   (self.tkf, 'task-searches', 'all_tasks')]:
+            col = folder[fid][colid]
+            fields = list(col.getCustomViewFields())
+            if u'actions' in fields:
+                fields.remove(u'actions')
+                col.setCustomViewFields(tuple(fields))
 
     def update_site(self):
         # set som objects as not next/prev navigable
@@ -171,6 +181,9 @@ class Migrate_To_2_0(Migrator):
 
         # manage task for both incoming and outgoing mails
         self.create_tasks_folder()
+
+        # remove actions on all_... collections
+        self.update_collections()
 
         # configure role fields on dmsoutgoingmail
         configure_om_rolefields(self.portal)

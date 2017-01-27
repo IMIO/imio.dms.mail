@@ -295,7 +295,7 @@ def createIMailCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'CreationDate', u'actions'),
+                     u'mail_type', u'sender', u'CreationDate'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
@@ -368,7 +368,7 @@ def createTaskCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
-                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
+                     u'assigned_user', u'due_date', u'CreationDate'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_assign', 'tit': _('tasks_to_assign'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
@@ -435,7 +435,7 @@ def createOMailCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date', u'actions'),
+                     u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('om_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
