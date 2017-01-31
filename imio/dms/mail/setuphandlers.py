@@ -42,6 +42,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
+from imio.helpers.content import create, add_file
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard
@@ -1331,32 +1332,17 @@ def add_templates(site):
         tplt_fld.setLocallyAllowedTypes(template_types)
         tplt_fld.setImmediatelyAddableTypes(template_types)
         tplt_fld.setConstrainTypesMode(1)
+        tplt_fld.setExcludeFromNav(True)
         api.content.transition(obj=tplt_fld, transition='show_internally')
         alsoProvides(tplt_fld, INextPrevNotNavigable)
         logger.info('Templates folder created')
 
-    if False:
-        if 'modele1' not in tplt_fld:
-            api.content.create(
-                type='PODTemplate',
-                id='modele1',
-                title='Modèle 1',
-                enabled=False,
-                container=tplt_fld,
-            )
-
-        template_path = pkg_resources.resource_filename('collective.documentgenerator',
-                                                        'profiles/demo/templates/modele_general.odt')
-        if 'modele2' not in tplt_fld:
-            with open(template_path) as template_file:
-                api.content.create(
-                    type='PODTemplate',
-                    id='modele2',
-                    title=u'Modèle 2',
-                    odt_file=NamedBlobFile(
-                        data=template_file.read(),
-                        contentType='applications/odt',
-                        filename=u'modele_general.odt',
-                    ),
-                    container=tplt_fld,
-                )
+    dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
+    templates = [
+        {'cid': 10, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print'), 'type': 'DashboardPODTemplate',
+         'trans': ['publish_internally'],
+         'attrs': {'pod_formats': ['odt'], 'tal_condition': "", 'dashboard_collections': []},
+         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-print.odt')})],
+         },
+    ]
+    create(templates, pos=True)

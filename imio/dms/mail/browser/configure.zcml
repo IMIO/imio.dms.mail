@@ -243,6 +243,28 @@
         permission="zope2.View"
         />
 
+    <!-- documentgeneration related -->
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboard"
+        name="document_generation_helper_view"
+        class="imio.dms.mail.browser.documentgenerator.DocumentGenerationOMDashboardHelper"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="collective.eeafaceted.collectionwidget.interfaces.ICollectionCategories"
+        name="document_generation_helper_view"
+        class="imio.dms.mail.browser.documentgenerator.DocumentGenerationCategoriesHelper"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="collective.eeafaceted.collectionwidget.interfaces.ICollectionCategories"
+        name="document-generation"
+        class="imio.dms.mail.browser.documentgenerator.CategoriesDocumentGenerationView"
+        permission="zope2.View"
+        />
+
     <!-- vocabulary for the sender autocomplete faceted widget -->
     <browser:view
         for="*"
