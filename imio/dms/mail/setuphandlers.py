@@ -1321,6 +1321,12 @@ def configure_faceted_folder(folder, xml=None, default_UID=None):
         _updateDefaultCollectionFor(folder, default_UID)
 
 
+def get_dashboard_collections(folder):
+    """ Return dashboard collections """
+    brains = folder.portal_catalog(portal_type='DashboardCollection', path='/'.join(folder.getPhysicalPath()))
+    return [b.UID for b in brains]
+
+
 def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
@@ -1339,9 +1345,10 @@ def add_templates(site):
 
     dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
     templates = [
-        {'cid': 10, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print'), 'type': 'DashboardPODTemplate',
+        {'cid': 10, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print template'), 'type': 'DashboardPODTemplate',
          'trans': ['publish_internally'],
-         'attrs': {'pod_formats': ['odt'], 'tal_condition': "", 'dashboard_collections': []},
+         'attrs': {'pod_formats': ['odt'], 'tal_condition': "",
+                   'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'])},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-print.odt')})],
          },
     ]
