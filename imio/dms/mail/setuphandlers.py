@@ -1083,6 +1083,12 @@ def addTestMails(context):
     task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group)
 
     senders_cycle = cycle(senders)
+
+    filespath = "%s/batchimport/toprocess/outgoing-mail" % imiodmsmail.__path__[0]
+    files = [unicode(name, 'utf8') for name in os.listdir(filespath)
+             if os.path.splitext(name)[1][1:] in ('odt')]
+    files.sort()
+    files_cycle = cycle(files)
     # outgoing mails
     ofld = site['outgoing-mail']
     for i in range(1, 10):
@@ -1095,6 +1101,11 @@ def addTestMails(context):
                       'recipients': [RelationValue(senders_cycle.next())],
                       }
             ofld.invokeFactory('dmsoutgoingmail', id='reponse%d' % i, **params)
+            mail = ofld['reponse%d' % i]
+            filename = files_cycle.next()
+            with open("%s/%s" % (filespath, filename), 'rb') as fo:
+                file_object = NamedBlobFile(fo.read(), filename=filename)
+                createContentInContainer(mail, 'dmsmainfile', id='1', title='', file=file_object)
 
 
 def addTestUsersAndGroups(context):
