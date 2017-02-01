@@ -95,7 +95,7 @@ def list_wf_states(context, portal_type):
     }
     if portal_type not in ordered_states:
         return []
-    pw = getToolByName(context, 'portal_workflow')
+    pw = api.portal.get_tool('portal_workflow')
     ret = []
     # wf states
     for workflow in pw.getWorkflowsFor(portal_type):

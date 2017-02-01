@@ -29,10 +29,10 @@ class TestVocabularies(unittest.TestCase):
     def test_IMReviewStatesVocabulary(self):
         voc_inst = IMReviewStatesVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertEqual(voc_list, [('created', u'Created'), ('proposed_to_manager', u'Proposed to manager'),
-                                    ('proposed_to_service_chief', u'Proposed to service chief'),
-                                    ('proposed_to_agent', u'Proposed to agent'), ('in_treatment', u'In treatment'),
-                                    ('closed', u'Closed')])
+        self.assertEqual(voc_list, [('created', u'En création'), ('proposed_to_manager', u'À valider par le DG'),
+                                    ('proposed_to_service_chief', u'À valider par le chef de service'),
+                                    ('proposed_to_agent', u'À traiter'), ('in_treatment', u'En cours de traitement'),
+                                    ('closed', u'Clôturé')])
 
     def test_TaskReviewStatesVocabulary(self):
         voc_inst = TaskReviewStatesVocabulary()

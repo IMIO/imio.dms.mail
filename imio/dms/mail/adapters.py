@@ -1,6 +1,7 @@
 # encoding: utf-8
 from zope.component import adapts, getMultiAdapter, getUtility
 from zope.interface import implements
+from zope.i18n import translate
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary
 from z3c.form.term import MissingChoiceTermsVocabulary, MissingTermsMixin
@@ -19,6 +20,7 @@ from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
 from plone.app.uuid.utils import uuidToObject
 from plone.indexer import indexer
+from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 
 from collective import dexteritytextindexer
@@ -28,6 +30,8 @@ from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
+from imio.prettylink.adapters import PrettyLinkAdapter
+
 from dmsmail import IImioDmsIncomingMail, IImioDmsOutgoingMail
 from .overrides import IDmsPerson
 
@@ -255,6 +259,24 @@ class WorkflowMenu(OrigWorkflowMenu):
         if not getSecurityManager().checkPermission('Manage portal', context):
             return []
         return super(WorkflowMenu, self).getMenuItems(context, request)
+
+
+####################
+# Various adapters #
+####################
+
+
+class IMPrettyLinkAdapter(PrettyLinkAdapter):
+
+    def _leadingIcons(self):
+        icons = []
+        if self.context.task_description and self.context.task_description.raw:
+            registry = getUtility(IRegistry)
+            if api.content.get_state(self.context) in registry.get(
+                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states') or []:
+                icons.append(("++resource++imio.dms.mail/remark.gif", translate("Remark icon", domain="imio.dms.mail",
+                                                                                context=self.request)))
+        return icons
 
 
 ####################

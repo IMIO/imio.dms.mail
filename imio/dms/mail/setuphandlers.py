@@ -17,7 +17,6 @@ import os
 import pkg_resources
 from itertools import cycle
 from zope.component import queryUtility, getMultiAdapter, getUtility
-from zope.component.hooks import getSite
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
@@ -55,7 +54,8 @@ logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
 def _(msgid, domain='imio.dms.mail'):
     translation_domain = queryUtility(ITranslationDomain, domain)
-    return translation_domain.translate(msgid, context=getSite().REQUEST, target_language='fr')
+    sp = api.portal.get().portal_properties.site_properties
+    return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'))
 
 
 def add_db_col_folder(folder, id, title, displayed=''):
@@ -798,6 +798,9 @@ def configureImioDmsMail(context):
             {'mt_value': u'retour-recommande', 'mt_title': u'Retour recommandé', 'mt_active': True},
             {'mt_value': u'facture', 'mt_title': u'Facture', 'mt_active': True},
         ]
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = [
+            'proposed_to_service_chief', 'proposed_to_agent']
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'] = [
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},

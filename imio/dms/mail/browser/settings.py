@@ -33,14 +33,6 @@ class IImioDmsMailConfig(Interface):
 
     widget('mail_types', DataGridFieldFactory, allow_reorder=True)
 
-    omail_types = schema.List(
-        title=_(u'Types of outgoing mail'),
-        description=_(u"Once created and used, value doesn't be changed anymore."),
-        value_type=DictRow(title=_("Mail type"),
-                           schema=IMailTypeSchema))
-
-    widget('omail_types', DataGridFieldFactory, allow_reorder=True)
-
     assigned_user_check = schema.Bool(
         title=_(u'Assigned user check'),
         description=_(u'Check if there is an assigned user before proposing incoming mail to an agent.'),
@@ -52,6 +44,19 @@ class IImioDmsMailConfig(Interface):
         description=_(u"Check if the incoming mail 'original mail date' field must be required."),
         default=True
     )
+
+    imail_remark_states = schema.List(
+        title=_(u"States for which to display remark icon"),
+        value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary'),
+    )
+
+    omail_types = schema.List(
+        title=_(u'Types of outgoing mail'),
+        description=_(u"Once created and used, value doesn't be changed anymore."),
+        value_type=DictRow(title=_("Mail type"),
+                           schema=IMailTypeSchema))
+
+    widget('omail_types', DataGridFieldFactory, allow_reorder=True)
 
 
 class SettingsEditForm(RegistryEditForm):

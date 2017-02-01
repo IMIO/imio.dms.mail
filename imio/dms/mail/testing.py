@@ -22,6 +22,8 @@ class DmsmailLayer(PloneWithPackageLayer):
         manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',
                                  'create_main_file')
         # install dmsmail (apply profile)
+        sp = portal.portal_properties.site_properties
+        sp.default_language = 'fr'
         super(DmsmailLayer, self).setUpPloneSite(portal)
 
     def setUpZope(self, app, configurationContext):
