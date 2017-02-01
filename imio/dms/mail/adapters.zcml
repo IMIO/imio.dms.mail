@@ -50,6 +50,10 @@
              factory=".adapters.IMPrettyLinkAdapter"
              provides="imio.prettylink.interfaces.IPrettyLink" />
 
+    <adapter for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+             factory=".adapters.OMPrettyLinkAdapter"
+             provides="imio.prettylink.interfaces.IPrettyLink" />
+
     <!-- INDEXES -->
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />

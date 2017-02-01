@@ -40,9 +40,10 @@ class OMReviewStatesVocabulary(object):
 
     def __call__(self, context):
         terms = []
+        tl = api.portal.get().portal_properties.site_properties.getProperty('default_language', 'fr')
         for state in list_wf_states(context, 'dmsoutgoingmail'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate('om_%s' % state.title, domain='plone', context=context.REQUEST)))
+                state.id, state.id, translate('om_%s' % state.title, domain='plone', target_language=tl)))
         return SimpleVocabulary(terms)
 
 

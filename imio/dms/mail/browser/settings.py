@@ -46,7 +46,7 @@ class IImioDmsMailConfig(Interface):
     )
 
     imail_remark_states = schema.List(
-        title=_(u"States for which to display remark icon"),
+        title=_(u"Incoming mail: states for which to display remark icon"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary'),
     )
 
@@ -57,6 +57,11 @@ class IImioDmsMailConfig(Interface):
                            schema=IMailTypeSchema))
 
     widget('omail_types', DataGridFieldFactory, allow_reorder=True)
+
+    omail_remark_states = schema.List(
+        title=_(u"Outgoing mail: states for which to display remark icon"),
+        value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMReviewStatesVocabulary'),
+    )
 
 
 class SettingsEditForm(RegistryEditForm):

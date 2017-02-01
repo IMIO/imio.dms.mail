@@ -806,6 +806,9 @@ def configureImioDmsMail(context):
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
             {'mt_value': u'recommande', 'mt_title': u'Recommandé', 'mt_active': True},
         ]
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states'] = [
+            'proposed_to_service_chief']
     if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == \
             u"python:'in/'+number":
         registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression'] = \
