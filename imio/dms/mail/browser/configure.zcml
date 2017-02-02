@@ -62,6 +62,14 @@
             class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="collective.contact.widget.interfaces.IContactContent"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.ContactActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
             name="actions_panel"
@@ -82,17 +90,6 @@
             class="imio.dms.mail.browser.actionspanel.DmsTaskActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
-            permission="zope2.View" />
-    </configure>
-
-    <configure package="imio.actionspanel">
-        <browser:viewlet
-            name="imio.actionspanel"
-            for="collective.contact.widget.interfaces.IContactContent"
-            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
-            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
-            class="imio.dms.mail.browser.actionspanel.ContactActionsPanelViewlet"
-            template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
         <browser:page
             for="collective.contact.widget.interfaces.IContactContent"

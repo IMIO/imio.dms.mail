@@ -94,7 +94,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
 
 class DmsActionsPanelViewlet(ActionsPanelViewlet):
     """
-        Override render method for dms incoming mail
+        Override render method for dms document
     """
 
     def renderViewlet(self):
@@ -117,6 +117,34 @@ class DmsOMActionsPanelView(ActionsPanelView):
         """ Sort transitions following transitions list order"""
         lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
 
+    @ram.cache(actionspanelview_cachekey)
+    def __call__(self,
+                 useIcons=True,
+                 #showTransitions=True,
+                 #appendTypeNameToTransitionLabel=False,
+                 #showEdit=True,
+                 showOwnDelete=True,
+                 showActions=False,
+                 showAddContent=False,
+                 #showHistory=False,
+                 #showHistoryLastEventHasComments=True,
+                 #showArrows=False,
+                 #arrowsPortalTypeAware=False,
+                 **kwargs):
+        return super(DmsOMActionsPanelView, self).__call__(
+            useIcons=useIcons,
+            #showTransitions=showTransitions,
+            #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            #showEdit=showEdit,
+            showOwnDelete=showOwnDelete,
+            showActions=showActions,
+            showAddContent=showAddContent,
+            #showHistory=showHistory,
+            #showHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            #showArrows=showArrows,
+            #arrowsPortalTypeAware=arrowsPortalTypeAware,
+            **kwargs)
+
 
 class DmsTaskActionsPanelView(ActionsPanelView):
 
@@ -132,6 +160,34 @@ class DmsTaskActionsPanelView(ActionsPanelView):
     def sortTransitions(self, lst):
         """ Sort transitions following transitions list order"""
         lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
+
+    @ram.cache(actionspanelview_cachekey)
+    def __call__(self,
+                 useIcons=True,
+                 #showTransitions=True,
+                 #appendTypeNameToTransitionLabel=False,
+                 #showEdit=True,
+                 showOwnDelete=True,
+                 showActions=False,
+                 showAddContent=False,
+                 #showHistory=False,
+                 #showHistoryLastEventHasComments=True,
+                 #showArrows=False,
+                 #arrowsPortalTypeAware=False,
+                 **kwargs):
+        return super(DmsTaskActionsPanelView, self).__call__(
+            useIcons=useIcons,
+            #showTransitions=showTransitions,
+            #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            #showEdit=showEdit,
+            showOwnDelete=showOwnDelete,
+            showActions=showActions,
+            showAddContent=showAddContent,
+            #showHistory=showHistory,
+            #showHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            #showArrows=showArrows,
+            #arrowsPortalTypeAware=arrowsPortalTypeAware,
+            **kwargs)
 
 
 class ContactActionsPanelView(ActionsPanelView):
