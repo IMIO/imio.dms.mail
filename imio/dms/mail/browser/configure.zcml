@@ -113,7 +113,7 @@
         permission="zope2.View" />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IIMDashboard"
+        for="imio.dms.mail.interfaces.IDocsDashboard"
         name="transition-batch-action"
         class=".batchactions.TransitionBatchActionForm"
         permission="zope2.View"
@@ -150,13 +150,6 @@
 
     <browser:page
         for="imio.dms.mail.interfaces.IOMDashboard"
-        name="transition-batch-action"
-        class=".batchactions.TransitionBatchActionForm"
-        permission="zope2.View"
-        />
-
-    <browser:page
-        for="imio.dms.mail.interfaces.IOMDashboard"
         name="treatinggroup-batch-action"
         class=".batchactions.TreatingGroupBatchActionForm"
         permission="zope2.View"
@@ -183,13 +176,6 @@
         layer="imio.dashboard.interfaces.IImioDashboardLayer"
         template="templates/task_dashboard_batch_actions_viewlet.pt"
         permission="zope2.View" />
-
-    <browser:page
-        for="imio.dms.mail.interfaces.ITaskDashboard"
-        name="transition-batch-action"
-        class=".batchactions.TransitionBatchActionForm"
-        permission="zope2.View"
-        />
 
     <browser:page
         for="imio.dms.mail.interfaces.ITaskDashboard"
