@@ -1,9 +1,32 @@
 from zope.component import getMultiAdapter
 
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from plone import api
+from plone.memoize import ram
 
 from imio.actionspanel.browser.views import ActionsPanelView
 from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
+
+
+def actionspanelview_cachekey(method,
+                              self,
+                              useIcons=True,
+                              showOwnDelete=True,
+                              showActions=False,
+                              showAddContent=False,
+                              **kwargs):
+    """ cachekey method using only modified params. Must be adapted if changes !!
+        We will add the following informations:
+        * context
+        * modification date
+        * review state
+        * current user
+        * user groups
+    """
+    user = self.request['AUTHENTICATED_USER']
+    return (useIcons, showOwnDelete, showActions, showAddContent,
+            self.context, user.getId(), self.context.modified(), api.content.get_state(self.context, default=None),
+            sorted(user.getGroups()))
 
 
 class DmsIMActionsPanelView(ActionsPanelView):
@@ -39,6 +62,34 @@ class DmsIMActionsPanelView(ActionsPanelView):
     def renderCreateFromTemplateButton(self):
         return ViewPageTemplateFile(
             "templates/actions_panel_create_from_template.pt")(self)
+
+    @ram.cache(actionspanelview_cachekey)
+    def __call__(self,
+                 useIcons=True,
+                 #showTransitions=True,
+                 #appendTypeNameToTransitionLabel=False,
+                 #showEdit=True,
+                 showOwnDelete=True,
+                 showActions=False,
+                 showAddContent=False,
+                 #showHistory=False,
+                 #showHistoryLastEventHasComments=True,
+                 #showArrows=False,
+                 #arrowsPortalTypeAware=False,
+                 **kwargs):
+        return super(DmsIMActionsPanelView, self).__call__(
+            useIcons=useIcons,
+            #showTransitions=showTransitions,
+            #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            #showEdit=showEdit,
+            showOwnDelete=showOwnDelete,
+            showActions=showActions,
+            showAddContent=showAddContent,
+            #showHistory=showHistory,
+            #showHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            #showArrows=showArrows,
+            #arrowsPortalTypeAware=arrowsPortalTypeAware,
+            **kwargs)
 
 
 class DmsActionsPanelViewlet(ActionsPanelViewlet):
