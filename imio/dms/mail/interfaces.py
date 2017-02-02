@@ -22,21 +22,26 @@ class IInternalContact(Interface):
     i.e. organizations in plonegroup-organization."""
 
 
-class IIMDashboard(Interface):
+class IDocsDashboard(Interface):
+
+    """Marker interface for all ia.docs dashboards."""
+
+
+class IIMDashboard(IDocsDashboard):
 
     """Marker interface for incoming mail dashboard."""
 
 
-class IOMDashboard(Interface):
+class IOMDashboard(IDocsDashboard):
 
     """Marker interface for outgoing mail dashboard."""
 
 
 class IIMTaskDashboard(Interface):
 
-    """Marker interface for incoming mail task dashboard."""
+    """TO BE REMOVED RELEASE > 2.0"""
 
 
-class ITaskDashboard(Interface):
+class ITaskDashboard(IDocsDashboard):
 
     """Marker interface for task dashboard."""

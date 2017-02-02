@@ -25,7 +25,6 @@ from collective.task import _ as TMF
 
 from .. import _
 from ..dmsmail import IImioDmsIncomingMail
-from ..interfaces import IOMDashboard
 from ..utils import get_selected_org_suffix_users
 
 
@@ -106,7 +105,7 @@ def getAvailableTransitionsVoc(db, brains):
             transitions &= set([(tr['id'], tr['title']) for tr in wtool.getTransitionsFor(obj)])
     if transitions:
         for (id, tit) in transitions:
-            terms.append(SimpleTerm(id, id, PMF(safe_unicode(IOMDashboard.providedBy(db) and "om_%s" % tit or tit))))
+            terms.append(SimpleTerm(id, id, PMF(safe_unicode(tit))))
     return SimpleVocabulary(terms)
 
 

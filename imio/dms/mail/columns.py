@@ -188,11 +188,6 @@ class OutgoingDateColumn(DateColumn):
     attrName = u'in_out_date'
 
 
-class OutgoingStateColumn(I18nColumn):
-
-    msgid_prefix = 'om_'
-
-
 class ReviewStateColumn(I18nColumn):
 
     i18n_domain = 'plone'
