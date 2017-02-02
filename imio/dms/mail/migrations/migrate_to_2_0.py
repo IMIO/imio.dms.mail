@@ -92,6 +92,7 @@ class Migrate_To_2_0(Migrator):
             logger.info('tasks folder created')
 
     def update_collections(self):
+        """ No more applied """
         for folder, fid, colid in [(self.imf, 'mail-searches', 'all_mails'), (self.omf, 'mail-searches', 'all_mails'),
                                    (self.tkf, 'task-searches', 'all_tasks')]:
             col = folder[fid][colid]
@@ -183,7 +184,7 @@ class Migrate_To_2_0(Migrator):
         self.create_tasks_folder()
 
         # remove actions on all_... collections
-        self.update_collections()
+        #self.update_collections()
 
         # configure role fields on dmsoutgoingmail
         configure_om_rolefields(self.portal)
