@@ -16,4 +16,8 @@
   <input id="recipientgroup-batch-action-but" class="button batch-action-but" type="submit" value="recipientgroup-batch-action-but"
          i18n:attributes="value"/>
 </form>
+<form method="POST" action="outgoingdate-batch-action" id="outgoingdate-batch-action" class="batch-action-form">
+  <input id="outgoingdate-batch-action-but" class="button batch-action-but" type="submit" value="outgoingdate-batch-action-but"
+         i18n:attributes="value"/>
+</form>
 </div>

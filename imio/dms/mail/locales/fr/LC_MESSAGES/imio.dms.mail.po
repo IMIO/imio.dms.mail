@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-02-01 15:44+0000\n"
+"POT-Creation-Date: 2017-02-03 20:28+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -57,7 +57,7 @@ msgstr "Choix de l'action à effectuer"
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
-#: ./browser/batchactions.py:342
+#: ./browser/batchactions.py:373
 msgid "Batch assigned group change"
 msgstr "Changement de groupe assigné par lot"
 
@@ -72,6 +72,10 @@ msgstr "Importation depuis dossier"
 #: ./profiles/default/actions.xml
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
+
+#: ./browser/batchactions.py:340
+msgid "Batch outgoing date change"
+msgstr "Changement de date d'expédition par lot"
 
 #: ./browser/batchactions.py:202
 msgid "Batch recipient groups change"
@@ -93,7 +97,7 @@ msgstr "Cocher si le champ 'Date du courrier' d'un courrier entrant doit être r
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent"
 
-#: ./vocabularies.py:93
+#: ./vocabularies.py:94
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
@@ -160,7 +164,7 @@ msgstr "Intitulé du type"
 msgid "Mail type value"
 msgstr "Valeur stockée"
 
-#: ./browser/batchactions.py:375
+#: ./browser/batchactions.py:406
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr "Aucun groupe assigné commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
@@ -188,6 +192,7 @@ msgstr "Commentaire optionnel à afficher dans l'historique"
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
+#: ./browser/batchactions.py:347
 #: ./dmsmail.py:319
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
@@ -197,7 +202,7 @@ msgstr "Date d'expédition"
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:150
+#: ./migrations/migrate_to_2_0.py:151
 #: ./setuphandlers.py:134
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
@@ -206,7 +211,7 @@ msgstr "Recherches courriers sortants"
 msgid "Outgoing mail: states for which to display remark icon"
 msgstr "Courrier sortant: états pour lesquels afficher l'icône de \"remarque\""
 
-#: ./migrations/migrate_to_2_0.py:151
+#: ./migrations/migrate_to_2_0.py:152
 #: ./setuphandlers.py:135
 msgid "Outgoing mails"
 msgstr "Courriers sortants"
@@ -219,7 +224,7 @@ msgstr "Écraser le contenu avec les éléments choisis"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1362
+#: ./setuphandlers.py:1365
 msgid "Print template"
 msgstr "Pour impression"
 
@@ -271,7 +276,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1348
+#: ./setuphandlers.py:1351
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -432,6 +437,10 @@ msgstr "Qui m'est assigné"
 #: ./setuphandlers.py:441
 msgid "om_to_validate"
 msgstr "À valider"
+
+#: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:20
+msgid "outgoingdate-batch-action-but"
+msgstr "Changer la date d'expédition"
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
 #: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:16

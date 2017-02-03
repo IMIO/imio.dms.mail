@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-02-01 15:44+0000\n"
+"POT-Creation-Date: 2017-02-03 20:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -55,7 +55,7 @@ msgstr ""
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:342
+#: ./browser/batchactions.py:373
 msgid "Batch assigned group change"
 msgstr ""
 
@@ -69,6 +69,10 @@ msgstr ""
 
 #: ./profiles/default/actions.xml
 msgid "Batch import of dms document"
+msgstr ""
+
+#: ./browser/batchactions.py:340
+msgid "Batch outgoing date change"
 msgstr ""
 
 #: ./browser/batchactions.py:202
@@ -91,7 +95,7 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./vocabularies.py:93
+#: ./vocabularies.py:94
 msgid "Choose a value !"
 msgstr ""
 
@@ -158,7 +162,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/batchactions.py:375
+#: ./browser/batchactions.py:406
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr ""
 
@@ -186,6 +190,7 @@ msgstr ""
 msgid "Original mail date requirement"
 msgstr ""
 
+#: ./browser/batchactions.py:347
 #: ./dmsmail.py:319
 msgid "Outgoing Date"
 msgstr ""
@@ -195,7 +200,7 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:150
+#: ./migrations/migrate_to_2_0.py:151
 #: ./setuphandlers.py:134
 msgid "Outgoing mail searches"
 msgstr ""
@@ -204,7 +209,7 @@ msgstr ""
 msgid "Outgoing mail: states for which to display remark icon"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:151
+#: ./migrations/migrate_to_2_0.py:152
 #: ./setuphandlers.py:135
 msgid "Outgoing mails"
 msgstr ""
@@ -217,7 +222,7 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1362
+#: ./setuphandlers.py:1365
 msgid "Print template"
 msgstr "To print"
 
@@ -269,7 +274,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1348
+#: ./setuphandlers.py:1351
 msgid "Templates"
 msgstr ""
 
@@ -430,6 +435,10 @@ msgstr "To treat"
 #: ./setuphandlers.py:441
 msgid "om_to_validate"
 msgstr "To validate"
+
+#: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:20
+msgid "outgoingdate-batch-action-but"
+msgstr "Change outgoing date"
 
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
 #: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:16

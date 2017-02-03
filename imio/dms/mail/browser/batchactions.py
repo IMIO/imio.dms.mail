@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
 
+import datetime
 from operator import methodcaller
 
 from zope import schema
@@ -330,6 +331,37 @@ class AssignedUserBatchActionForm(DashboardBatchActionForm):
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.assigned_user = data['assigned_user']
+                modified(obj)
+        self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+
+class OutgoingDateBatchActionForm(DashboardBatchActionForm):
+
+    label = _(u"Batch outgoing date change")
+
+    def update(self):
+        super(OutgoingDateBatchActionForm, self).update()
+        self.pb = canNotModify(self.brains)
+        self.fields += Fields(schema.Date(
+            __name__='outgoing_date',
+            title=_(u"Outgoing Date"),
+            description=(self.pb and cannot_modify_msg or u''),
+            required=(self.pb and False or True),
+            default=datetime.date.today(),
+        ))
+
+        super(DashboardBatchActionForm, self).update()
+
+    @button.buttonAndHandler(_(u'Apply'), name='apply', condition=lambda fi: not fi.pb)
+    def handleApply(self, action):
+        """Handle apply button."""
+        data, errors = self.extractData()
+        if errors:
+            self.status = self.formErrorsMessage
+        if data['outgoing_date']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                obj.outgoing_date = data['outgoing_date']
                 modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])
 
