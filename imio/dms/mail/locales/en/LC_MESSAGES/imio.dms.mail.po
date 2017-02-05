@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-02-03 20:28+0000\n"
+"POT-Creation-Date: 2017-02-04 08:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "${title}: create from template"
 msgstr ""
 
-#: ./browser/settings.py:20
+#: ./browser/settings.py:21
 msgid "Active"
 msgstr ""
 
@@ -43,7 +43,7 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ./browser/settings.py:37
+#: ./browser/settings.py:44
 msgid "Assigned user check"
 msgstr ""
 
@@ -87,11 +87,11 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:44
+#: ./browser/settings.py:51
 msgid "Check if the incoming mail 'original mail date' field must be required."
 msgstr ""
 
-#: ./browser/settings.py:38
+#: ./browser/settings.py:45
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
@@ -115,10 +115,15 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
+#: ./browser/settings.py:80
+msgid "Dms file must be an odt format"
+msgstr ""
+
 #: ./testing.zcml:22
 msgid "Imio Dms Mail testing profile"
 msgstr ""
 
+#: ./browser/settings.py:31
 #: ./setuphandlers.py:102
 msgid "Incoming mail"
 msgstr ""
@@ -136,10 +141,6 @@ msgstr ""
 msgid "Incoming mail searches"
 msgstr ""
 
-#: ./browser/settings.py:49
-msgid "Incoming mail: states for which to display remark icon"
-msgstr ""
-
 #: ./migrations/migrate_to_1_0.py:64
 #: ./setuphandlers.py:108
 msgid "Incoming mails"
@@ -149,16 +150,16 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./browser/settings.py:31
+#: ./browser/settings.py:38
 #: ./dmsmail.py:77
 msgid "Mail type"
 msgstr ""
 
-#: ./browser/settings.py:19
+#: ./browser/settings.py:20
 msgid "Mail type title"
 msgstr ""
 
-#: ./browser/settings.py:18
+#: ./browser/settings.py:19
 msgid "Mail type value"
 msgstr ""
 
@@ -178,7 +179,7 @@ msgstr ""
 msgid "No incoming mail !"
 msgstr ""
 
-#: ./browser/settings.py:30
+#: ./browser/settings.py:37
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
@@ -186,7 +187,7 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./browser/settings.py:43
+#: ./browser/settings.py:50
 msgid "Original mail date requirement"
 msgstr ""
 
@@ -195,6 +196,7 @@ msgstr ""
 msgid "Outgoing Date"
 msgstr ""
 
+#: ./browser/settings.py:62
 #: ./migrations/migrate_to_0_2.py:115
 #: ./setuphandlers.py:129
 msgid "Outgoing mail"
@@ -203,10 +205,6 @@ msgstr ""
 #: ./migrations/migrate_to_2_0.py:151
 #: ./setuphandlers.py:134
 msgid "Outgoing mail searches"
-msgstr ""
-
-#: ./browser/settings.py:62
-msgid "Outgoing mail: states for which to display remark icon"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:152
@@ -222,7 +220,7 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1365
+#: ./setuphandlers.py:1368
 msgid "Print template"
 msgstr "To print"
 
@@ -262,6 +260,10 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
+#: ./browser/settings.py:56
+msgid "States for which to display remark icon"
+msgstr ""
+
 #: ./migrations/migrate_to_1_0.py:76
 #: ./migrations/migrate_to_2_0.py:72
 #: ./setuphandlers.py:154
@@ -274,7 +276,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1351
+#: ./setuphandlers.py:1354
 msgid "Templates"
 msgstr ""
 
@@ -292,12 +294,16 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./browser/settings.py:29
+#: ./browser/settings.py:36
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/settings.py:54
+#: ./browser/settings.py:67
 msgid "Types of outgoing mail"
+msgstr ""
+
+#: ./dmsfile.py:28
+msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
 #: ./browser/batchactions.py:91

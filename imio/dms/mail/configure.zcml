@@ -51,6 +51,11 @@
     />
 
     <utility
+        factory=".dmsfile.ImioDmsFileSchemaPolicy"
+        name="schema_policy_imiodmsfile"
+    />
+
+    <utility
         factory=".overrides.DmsPersonSchemaPolicy"
         name="schema_policy_dmsperson"
     />

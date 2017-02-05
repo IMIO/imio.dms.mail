@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <object name="dmsmainfile" meta_type="Dexterity FTI">
+ <property name="schema_policy">schema_policy_imiodmsfile</property>
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   <element value="collective.dms.scanbehavior.behaviors.behaviors.IScanFields"/>

@@ -5,6 +5,7 @@ from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.directives import widget
 from plone.registry.interfaces import IRecordModifiedEvent
+from plone.supermodel import model
 from plone.z3cform import layout
 
 from collective.z3cform.datagridfield import DataGridFieldFactory
@@ -20,10 +21,16 @@ class IMailTypeSchema(Interface):
     mt_active = schema.Bool(title=_("Active"), required=False)
 
 
-class IImioDmsMailConfig(Interface):
+class IImioDmsMailConfig(model.Schema):
     """
     Configuration of dms mail
     """
+
+    model.fieldset(
+        'incomingmail',
+        label=_(u"Incoming mail"),
+        fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'imail_remark_states']
+    )
 
     mail_types = schema.List(
         title=_(u'Types of incoming mail'),
@@ -46,8 +53,14 @@ class IImioDmsMailConfig(Interface):
     )
 
     imail_remark_states = schema.List(
-        title=_(u"Incoming mail: states for which to display remark icon"),
+        title=_(u"States for which to display remark icon"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary'),
+    )
+
+    model.fieldset(
+        'outgoingmail',
+        label=_(u"Outgoing mail"),
+        fields=['omail_types', 'omail_remark_states', 'omail_odt_mainfile']
     )
 
     omail_types = schema.List(
@@ -59,8 +72,13 @@ class IImioDmsMailConfig(Interface):
     widget('omail_types', DataGridFieldFactory, allow_reorder=True)
 
     omail_remark_states = schema.List(
-        title=_(u"Outgoing mail: states for which to display remark icon"),
+        title=_(u"States for which to display remark icon"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMReviewStatesVocabulary'),
+    )
+
+    omail_odt_mainfile = schema.Bool(
+        title=_(u'Dms file must be an odt format'),
+        default=True
     )
 
 
