@@ -589,7 +589,7 @@ def adaptDefaultPortal(context):
     if 'Image' in registry['externaleditor.externaleditor_enabled_types']:
         registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
                                                                    'DashboardPODTemplate', 'SubTemplate',
-                                                                   'StyleTemplate']
+                                                                   'StyleTemplate', 'dmsmainfile']
 
 
 def changeSearchedTypes(site):

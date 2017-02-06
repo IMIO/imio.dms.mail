@@ -140,7 +140,7 @@ class Migrate_To_2_0(Migrator):
         if 'Image' in registry['externaleditor.externaleditor_enabled_types']:
             registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
                                                                        'DashboardPODTemplate', 'SubTemplate',
-                                                                       'StyleTemplate']
+                                                                       'StyleTemplate', 'dmsmainfile']
         change_user_properties(self.portal, kw='ext_editor:True', dochange='1')
 
     def configure_dashboard(self):
