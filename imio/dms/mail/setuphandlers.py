@@ -1366,8 +1366,9 @@ def add_templates(site):
     dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
     templates = [
         {'cid': 10, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print template'), 'type': 'DashboardPODTemplate',
-         'trans': ['publish_internally'],
-         'attrs': {'pod_formats': ['odt'], 'tal_condition': "",
+         'trans': ['show_internally'],
+         'attrs': {'pod_formats': ['odt'],
+                   'tal_condition': "python: context.restrictedTraverse('odm-utils').is_remark_activated()",
                    'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'])},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-print.odt')})],
          },
