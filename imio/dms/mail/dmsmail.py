@@ -403,6 +403,9 @@ class OMEdit(DmsDocumentEdit):
         for field in display_fields:
             self.widgets[field].mode = 'display'
 
+        # disable left column
+        self.request.set('disable_plone.leftcolumn', 1)
+
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
             #self.widgets['treating_groups'].__dict__['disabled'] = True
