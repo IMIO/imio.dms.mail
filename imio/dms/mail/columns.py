@@ -137,6 +137,7 @@ class RecipientsColumn(PrettyLinkColumn):
 
     attrName = 'recipients_index'
     i_cache = {}
+    sort_index = -1  # not sortable
 
     def _icons(self, c_brain):
         """See docstring in interfaces.py."""
