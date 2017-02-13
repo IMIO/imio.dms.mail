@@ -1160,6 +1160,7 @@ def addTestUsersAndGroups(context):
     if api.group.get('dir_general') is None:
         api.group.create('dir_general', '1 Directeur général')
         api.group.add_user(groupname='dir_general', username='dirg')
+        site['outgoing-mail'].manage_addLocalRoles('dir_general', ['Contributor'])
         site['contacts'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
     if api.group.get('expedition') is None:
         api.group.create('expedition', '1 Expédition courrier sortant')
