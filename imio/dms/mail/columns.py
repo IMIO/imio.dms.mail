@@ -98,8 +98,8 @@ class SenderColumn(PrettyLinkColumn):
 
 class TaskParentColumn(PrettyLinkColumn):
 
-    #attrName = 'sender'
     params = {'showContentIcon': True, 'target': '_blank'}
+    sort_index = -1  # not sortable
 
     def renderCell(self, item):
         """ """
