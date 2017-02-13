@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
 from itertools import cycle
+from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from collective.dms.batchimport.utils import createDocument
-from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
+from collective.dms.mailcontent.dmsmail import (internalReferenceIncomingMailDefaultValue,
+                                                internalReferenceOutgoingMailDefaultValue)
 from Products.CMFCore.utils import getToolByName
 from datetime import datetime
+from imio.dms.mail import add_path
 
 
 def import_scanned(self, number=2):
@@ -14,8 +17,6 @@ def import_scanned(self, number=2):
         Import some incoming mail for demo site
     """
     now = datetime.now()
-    exm = self.REQUEST['PUBLISHED']
-    path = os.path.dirname(exm.filepath())
     docs = {
         '59.PDF':
         {
@@ -43,7 +44,7 @@ def import_scanned(self, number=2):
     limit = int(number)
     while(count <= limit):
         doc = docs_cycle.next()
-        with open('%s/%s' % (path, doc), 'rb') as fo:
+        with open(add_path('Extensions/%s' % doc), 'rb') as fo:
             file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
 
         irn = internalReferenceIncomingMailDefaultValue(Dummy(portal, portal.REQUEST))
@@ -62,6 +63,61 @@ def import_scanned(self, number=2):
         main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
         document.reindexObject(idxs=('SearchableText'))
         count += 1
+    return portal.REQUEST.response.redirect(folder.absolute_url())
+
+
+def import_scanned2(self, number=2):
+    """
+        Import some outgoing mail for demo site
+    """
+    now = datetime.now()
+    docs = {
+        u'011500000000001.pdf':
+        {
+            'c': {'mail_type': 'courrier', 'file_title': u'011500000000001.pdf'},
+            'f': {'scan_id': '011500000000001', 'pages_number': 1, 'scan_date': now,
+                  'scan_user': 'Opérateur', 'scanner': 'Ricola'}
+        },
+        u'011500000000002.pdf':
+        {
+            'c': {'mail_type': 'courrier', 'file_title': u'011500000000002.pdf'},
+            'f': {'scan_id': '011500000000002', 'pages_number': 1, 'scan_date': now,
+                  'scan_user': 'Opérateur', 'scanner': 'Ricola'}
+        },
+    }
+    docs_cycle = cycle(docs)
+
+    class Dummy(object):
+        def __init__(self, context, request):
+            self.context = context
+            self.request = request
+
+    portal = getToolByName(self, "portal_url").getPortalObject()
+    folder = portal['outgoing-mail']
+    count = 1
+    limit = int(number)
+    while(count <= limit):
+        doc = docs_cycle.next()
+        with open(add_path('Extensions/%s' % doc), 'rb') as fo:
+            file_object = NamedBlobFile(fo.read(), filename=doc)
+        count += 1
+        irn = internalReferenceOutgoingMailDefaultValue(Dummy(portal, portal.REQUEST))
+        doc_metadata = docs[doc]['c']
+        doc_metadata['internal_reference_no'] = irn
+        (document, main_file) = createDocument(
+            Dummy(portal, portal.REQUEST),
+            folder,
+            'dmsoutgoingmail',
+            '',
+            file_object,
+            owner='scanner',
+            metadata=doc_metadata)
+        for key, value in docs[doc]['f'].items():
+            setattr(main_file, key, value)
+        main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
+        document.reindexObject(idxs=('SearchableText'))
+        api.content.transition(obj=document, transition='set_scanned')
+
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
 
