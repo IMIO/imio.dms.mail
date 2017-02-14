@@ -102,6 +102,9 @@ class Migrate_To_2_0(Migrator):
                 col.setCustomViewFields(tuple(fields))
 
     def update_site(self):
+        # add templates configuration
+        add_templates(self.portal)
+
         # set som objects as not next/prev navigable
         for obj in (self.portal['front-page'], self.portal['contacts'], self.portal['templates']):
             if not INextPrevNotNavigable.providedBy(obj):
@@ -132,8 +135,6 @@ class Migrate_To_2_0(Migrator):
             if 'Site Administrator' not in [dic['name'] for dic in self.portal.rolesOfPermission(perm)
                                             if dic['selected'] == 'SELECTED']:
                 self.portal.manage_permission(perm, ('Manager', 'Site Administrator'), acquire=0)
-        # add templates configuration
-        add_templates(self.portal)
 
         # configure external edition
         self.portal.portal_memberdata.manage_changeProperties(ext_editor=True)
