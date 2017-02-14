@@ -862,6 +862,7 @@ def configureContactPloneGroup(context):
             if org.organization_type == 'service':
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_encodeur" % uid)
+                site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
 
 
