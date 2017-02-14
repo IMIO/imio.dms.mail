@@ -42,12 +42,13 @@ class DmsIMActionsPanelView(ActionsPanelView):
             # 'renderCreateFromTemplateButton'
         )
         self.ACCEPTABLE_ACTIONS = ['delete']
+        self.ogm = api.portal.get()['outgoing-mail']
 
     def mayReply(self):
         """
           Method that check if special 'reply' action has to be displayed.
         """
-        return self.member.has_permission('Add portal content', self.context)
+        return self.member.has_permission('Add portal content', self.ogm)
 
     def renderReplyButton(self):
         if self.mayReply():
