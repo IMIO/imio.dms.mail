@@ -17,11 +17,9 @@ from plone.registry.interfaces import IRecordModifiedEvent, IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY, FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact, IPloneGroupContact
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
+from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.helpers.cache import invalidate_cachekey_volatile_for
-
-
-from dmsmail import IImioDmsIncomingMail
 
 
 def replace_scanner(mail, event):
@@ -85,9 +83,9 @@ def dmsmainfile_modified(dmf, event):
                 break
     if not reindex:
         return
-    imail = dmf.aq_parent
-    if IImioDmsIncomingMail.providedBy(imail):
-        imail.reindexObject(idxs=['SearchableText'])
+    mail = dmf.aq_parent
+    if IDmsDocument.providedBy(mail):
+        mail.reindexObject(idxs=['SearchableText'])
 
 
 def user_related_modification(event):
