@@ -361,10 +361,16 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
         Widgets update method for add, edit and reply !
     """
     # context can be the folder in add or an im in reply.
+    current_user = api.user.get_current()
+    if not current_user.has_role(['Manager', 'Site Administrator']):
+        the_form.widgets['internal_reference_no'].mode = 'hidden'
+        # we empty value to bypass validator when creating object
+        if the_form.context.portal_type != 'dmsoutgoingmail':
+            the_form.widgets['internal_reference_no'].value = ''
+
     # sender can be None if om is created by worker.
     if the_form.context.portal_type != 'dmsoutgoingmail' or not the_form.context.sender:
         # we search for a held position related to current user and take the first one !
-        current_user = api.user.get_current()
         default = None
         for term in the_form.widgets['sender'].bound_source:
             if term.token.endswith('_%s' % current_user.id):
