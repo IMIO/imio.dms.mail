@@ -185,7 +185,7 @@ def postInstall(context):
 
     configure_ckeditor(site, custom='ged')
 
-#    add_templates(site)
+    add_templates(site)
 
 
 def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
