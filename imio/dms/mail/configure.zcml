@@ -198,7 +198,7 @@
         allowed_attributes="
             get_om_folder
             scanned_col_cond
-            is_remark_activated
+            is_odt_activated
         "
     />
 

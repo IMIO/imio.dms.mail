@@ -1370,7 +1370,7 @@ def add_templates(site):
         {'cid': 10, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print template'), 'type': 'DashboardPODTemplate',
          'trans': ['show_internally'],
          'attrs': {'pod_formats': ['odt'],
-                   'tal_condition': "python: context.restrictedTraverse('odm-utils').is_remark_activated()",
+                   'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
                    'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'])},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-print.odt')})],
          },

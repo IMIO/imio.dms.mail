@@ -233,6 +233,6 @@ class OdmUtilsMethods(UtilsMethods):
         """ Condition for searchfor_scanned collection """
         return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False)
 
-    def is_remark_activated(self):
+    def is_odt_activated(self):
         registry = getUtility(IRegistry)
         return registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile']
