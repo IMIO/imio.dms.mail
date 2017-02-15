@@ -160,7 +160,8 @@ def contact_plonegroup_change(event):
     """
         Update outgoing-mail folder local roles for encodeur
     """
-    if IRecordModifiedEvent.providedBy(event) and event.record.interface == IContactPlonegroupConfig:
+    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
+            event.record.interface == IContactPlonegroupConfig):
         registry = getUtility(IRegistry)
         if not registry[FUNCTIONS_REGISTRY] or not registry[ORGANIZATIONS_REGISTRY]:
             return
