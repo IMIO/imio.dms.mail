@@ -202,6 +202,11 @@
         "
     />
 
+    <utility
+        name="imio.dms.mail.wfadaptations.EmergencyZone"
+        factory=".wfadaptations.EmergencyZoneAdaptation"
+    />
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />
