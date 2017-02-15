@@ -18,6 +18,7 @@
     <dependency>profile-collective.messagesviewlet:messages</dependency>
     <dependency>profile-collective.querynextprev:default</dependency>
     <dependency>profile-collective.task:default</dependency>
+    <dependency>profile-collective.wfadaptations:default</dependency>
     <dependency>profile-communesplone.layout:default</dependency>
     <dependency>profile-dexterity.localrolesfield:default</dependency>
     <dependency>profile-eea.jquery:23-select2</dependency>
