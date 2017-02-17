@@ -14,7 +14,7 @@ from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPlo
 from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users, organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile
 from browser.settings import IImioDmsMailConfig
-from . import _
+from . import _, EMPTY_STRING
 
 
 def voc_cache_key(method, self, context):
@@ -81,6 +81,19 @@ class AssignedUsersVocabulary(object):
         for tit in sorted(titles):
             for mb in users[tit]:
                 terms.append(SimpleTerm(mb.getUserName(), mb.getId(), tit))
+        return SimpleVocabulary(terms)
+
+
+class EmptyAssignedUsersVocabulary(object):
+    """ All possible assigned users vocabulary with empty value """
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        voc_inst = AssignedUsersVocabulary()
+        voc = voc_inst(context)
+        terms = [SimpleTerm(EMPTY_STRING, EMPTY_STRING, _('Empty value'))]
+        for term in voc:
+            terms.append(term)
         return SimpleVocabulary(terms)
 
 

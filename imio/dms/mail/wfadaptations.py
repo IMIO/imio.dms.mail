@@ -2,7 +2,6 @@
 """Example."""
 from zope import schema
 from zope.interface import Interface
-from zope.lifecycleevent import modified
 
 from plone import api
 

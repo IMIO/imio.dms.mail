@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-02-04 08:23+0000\n"
+"POT-Creation-Date: 2017-02-17 09:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,7 +97,7 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./vocabularies.py:94
+#: ./vocabularies.py:107
 msgid "Choose a value !"
 msgstr ""
 
@@ -119,6 +119,10 @@ msgstr ""
 
 #: ./browser/settings.py:80
 msgid "Dms file must be an odt format"
+msgstr ""
+
+#: ./vocabularies.py:94
+msgid "Empty value"
 msgstr ""
 
 #: ./testing.zcml:22
@@ -204,12 +208,12 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:151
+#: ./migrations/migrate_to_2_0.py:154
 #: ./setuphandlers.py:134
 msgid "Outgoing mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:152
+#: ./migrations/migrate_to_2_0.py:155
 #: ./setuphandlers.py:135
 msgid "Outgoing mails"
 msgstr ""
@@ -222,7 +226,7 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1368
+#: ./setuphandlers.py:1370
 msgid "Print template"
 msgstr ""
 
@@ -278,7 +282,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1354
+#: ./setuphandlers.py:1356
 msgid "Templates"
 msgstr ""
 

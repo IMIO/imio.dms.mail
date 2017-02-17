@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-02-04 08:23+0000\n"
+"POT-Creation-Date: 2017-02-17 09:09+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -97,7 +97,7 @@ msgstr "Cocher si le champ 'Date du courrier' d'un courrier entrant doit être r
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent"
 
-#: ./vocabularies.py:94
+#: ./vocabularies.py:107
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
@@ -120,6 +120,10 @@ msgstr "Listing journalier"
 #: ./browser/settings.py:80
 msgid "Dms file must be an odt format"
 msgstr "Le fichier ged doit être au format odt (Libre Office)"
+
+#: ./vocabularies.py:94
+msgid "Empty value"
+msgstr "Non défini"
 
 #: ./testing.zcml:22
 msgid "Imio Dms Mail testing profile"
@@ -204,12 +208,12 @@ msgstr "Date d'expédition"
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:151
+#: ./migrations/migrate_to_2_0.py:154
 #: ./setuphandlers.py:134
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
 
-#: ./migrations/migrate_to_2_0.py:152
+#: ./migrations/migrate_to_2_0.py:155
 #: ./setuphandlers.py:135
 msgid "Outgoing mails"
 msgstr "Courriers sortants"
@@ -222,7 +226,7 @@ msgstr "Écraser le contenu avec les éléments choisis"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1368
+#: ./setuphandlers.py:1370
 msgid "Print template"
 msgstr "Pour impression"
 
@@ -278,7 +282,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1354
+#: ./setuphandlers.py:1356
 msgid "Templates"
 msgstr "Modèles doc"
 

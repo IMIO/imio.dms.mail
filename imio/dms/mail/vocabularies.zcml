@@ -25,6 +25,11 @@
         />
 
     <utility
+        name="imio.dms.mail.EmptyAssignedUsersVocabulary"
+        factory="imio.dms.mail.vocabularies.EmptyAssignedUsersVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.IMMailTypesVocabulary"
         factory="imio.dms.mail.vocabularies.IMMailTypesVocabulary"
         />
