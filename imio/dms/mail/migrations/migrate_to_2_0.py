@@ -18,7 +18,7 @@ from imio.migrator.migrator import Migrator
 from ..interfaces import IOMDashboard, ITaskDashboard
 from ..setuphandlers import (_, configure_om_rolefields, createIMailCollections, add_db_col_folder,
                              createStateCollections, createOMailCollections, configure_faceted_folder,
-                             createTaskCollections, add_templates)
+                             createTaskCollections, add_templates, reimport_faceted_config)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -129,6 +129,8 @@ class Migrate_To_2_0(Migrator):
             self.portal.portal_groups.editGroup('encodeurs', title='1 Encodeurs courrier entrant')
         # add new collection to_treat_in_my_group
         createIMailCollections(self.imf['mail-searches'])
+        reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
+                                default_UID=self.imf['mail-searches']['all_mails'].UID())
         # update permissions
         for perm in ("imio.dms.mail: Write mail base fields", "imio.dms.mail: Write treating group field",
                      "imio.dms.mail: Write userid field"):

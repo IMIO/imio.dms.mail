@@ -11,7 +11,8 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary, AssignedUsersVocabulary,
                             getMailTypes, PloneGroupInterfacesVocabulary, OMSenderVocabulary, OMMailTypesVocabulary,
-                            OMActiveMailTypesVocabulary, encodeur_active_orgs)
+                            OMActiveMailTypesVocabulary, encodeur_active_orgs, EmptyAssignedUsersVocabulary)
+from .. import EMPTY_STRING
 
 
 class TestVocabularies(unittest.TestCase):
@@ -45,6 +46,11 @@ class TestVocabularies(unittest.TestCase):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
+
+    def test_EmptyAssignedUsersVocabulary(self):
+        voc_inst = EmptyAssignedUsersVocabulary()
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertSetEqual(set(voc_list), set([(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
 
     def test_getMailTypes(self):
         voc_list = [(t.value, t.title) for t in getMailTypes()]
