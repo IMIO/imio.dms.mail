@@ -123,7 +123,7 @@ msgstr "Le fichier ged doit être au format odt (Libre Office)"
 
 #: ./vocabularies.py:94
 msgid "Empty value"
-msgstr "Non défini"
+msgstr "Sans valeur"
 
 #: ./testing.zcml:22
 msgid "Imio Dms Mail testing profile"
