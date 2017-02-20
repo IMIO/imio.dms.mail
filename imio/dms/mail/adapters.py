@@ -37,6 +37,8 @@ from .overrides import IDmsPerson
 
 from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id, list_wf_states
 
+from . import EMPTY_DATE
+
 #######################
 # Compound criterions #
 #######################
@@ -326,20 +328,26 @@ def mail_date_index(obj):
     # No acquisition pb because mail_date isn't an attr but cannot store None
     if obj.original_mail_date:
         return obj.original_mail_date
+    else:
+        return EMPTY_DATE
     return common_marker
 
 
 @indexer(IImioDmsOutgoingMail)
 def om_mail_date_index(obj):
-    if base_hasattr(obj, 'mail_date') and obj.mail_date:
-        return obj.mail_date
+    if base_hasattr(obj, 'mail_date'):
+        if obj.mail_date:
+            return obj.mail_date
+        else:
+            return EMPTY_DATE
     return common_marker
 
 
 @indexer(IImioDmsIncomingMail)
 def in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
-    return obj.reception_date
+    if obj.reception_date:
+        return obj.reception_date
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -347,6 +355,8 @@ def om_in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
     if obj.outgoing_date:
         return obj.outgoing_date
+    else:
+        return EMPTY_DATE
     return common_marker
 
 
