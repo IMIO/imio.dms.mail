@@ -235,6 +235,13 @@
 
     <!-- documentgeneration related -->
     <browser:page
+        for="imio.dms.mail.interfaces.IDocsDashboard"
+        name="document_generation_helper_view"
+        class="imio.dms.mail.browser.documentgenerator.DocumentGenerationDocsDashboardHelper"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="imio.dms.mail.interfaces.IOMDashboard"
         name="document_generation_helper_view"
         class="imio.dms.mail.browser.documentgenerator.DocumentGenerationOMDashboardHelper"
@@ -249,9 +256,9 @@
         />
 
     <browser:page
-        for="collective.eeafaceted.collectionwidget.interfaces.ICollectionCategories"
+        for="imio.dms.mail.interfaces.IDocsDashboard"
         name="document-generation"
-        class="imio.dms.mail.browser.documentgenerator.CategoriesDocumentGenerationView"
+        class="imio.dms.mail.browser.documentgenerator.DashboardDocumentGenerationView"
         permission="zope2.View"
         />
 

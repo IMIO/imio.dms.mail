@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from zope.annotation.interfaces import IAnnotations
+from zope.i18n import translate
 from plone import api
+from plone.app.uuid.utils import uuidToObject
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from imio.dashboard.browser.overrides import IDDocumentGenerationView
@@ -31,7 +33,34 @@ class DocumentGenerationBaseHelper():
         return False
 
 
-class DocumentGenerationOMDashboardHelper(ATDocumentGenerationHelperView, DocumentGenerationBaseHelper):
+class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, DocumentGenerationBaseHelper):
+    """
+        Methods used for listing
+    """
+
+    def group_by_tg(self, brains):
+        results = {'1_no_group': {'mails': [], 'title': translate('listing_no_group', domain="imio.dms.mail",
+                                                                  context=self.request)}}
+        for brain in brains:
+            obj = brain.getObject()
+            tg = brain.treating_groups
+            if tg:
+                if not tg in results:
+                    results[tg] = {'mails': []}
+                    title = tg
+                    tgroup = uuidToObject(tg)
+                    if tgroup is not None:
+                        title = tgroup.get_full_title(separator=' - ', first_index=1)
+                    results[tg]['title'] = title
+                results[tg]['mails'].append(obj)
+            else:
+                results['1_no_group']['mails'].append(obj)
+        if not results['1_no_group']['mails']:
+            del results['1_no_group']
+        return results
+
+
+class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper):
     """
         Methods used in document generation view, for IOMDashboard
     """
@@ -69,6 +98,18 @@ class DocumentGenerationOMDashboardHelper(ATDocumentGenerationHelperView, Docume
         return images
 
 
+class DashboardDocumentGenerationView(IDDocumentGenerationView):
+    """
+    """
+
+    def _get_generation_context(self, helper_view, pod_template):
+        """ """
+        gen_context = super(DashboardDocumentGenerationView, self)._get_generation_context(helper_view, pod_template)
+        if pod_template.getId() == 'd-im-listing':
+            gen_context['by_tg'] = helper_view.group_by_tg(gen_context.get('brains', []))
+        return gen_context
+
+
 class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DocumentGenerationBaseHelper):
     """
         Helper for categories folder
@@ -77,6 +118,7 @@ class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, Documen
 
 class CategoriesDocumentGenerationView(IDDocumentGenerationView):
     """
+        UNUSED
         Change context for folder categories => dashboard collections context
     """
 

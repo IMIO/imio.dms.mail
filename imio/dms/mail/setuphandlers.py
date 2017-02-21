@@ -36,6 +36,7 @@ from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
+from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
@@ -68,6 +69,7 @@ def add_db_col_folder(folder, id, title, displayed=''):
     col_folder.setLocallyAllowedTypes(['DashboardCollection'])
     col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
     folder.portal_workflow.doActionFor(col_folder, "show_internally")
+    alsoProvides(col_folder, ICollectionCategories)
     return col_folder
 
 
@@ -1343,10 +1345,12 @@ def configure_faceted_folder(folder, xml=None, default_UID=None):
         _updateDefaultCollectionFor(folder, default_UID)
 
 
-def get_dashboard_collections(folder):
+def get_dashboard_collections(folder, uids=False):
     """ Return dashboard collections """
     brains = folder.portal_catalog(portal_type='DashboardCollection', path='/'.join(folder.getPhysicalPath()))
-    return [b.UID for b in brains]
+    if uids:
+        return [b.UID for b in brains]
+    return brains
 
 
 def add_templates(site):
@@ -1367,11 +1371,19 @@ def add_templates(site):
 
     dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
     templates = [
-        {'cid': 10, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print template'), 'type': 'DashboardPODTemplate',
+        {'cid': 10, 'cont': 'templates', 'id': 'd-im-listing', 'title': _(u'Daily listing'),
+         'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
+         'attrs': {'pod_formats': ['odt'],
+                   'dashboard_collections': [b.UID for b in
+                    get_dashboard_collections(site['incoming-mail']['mail-searches']) if b.id == 'all_mails']},
+         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-im-listing.odt')})],
+         },
+        {'cid': 50, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print template'), 'type': 'DashboardPODTemplate',
          'trans': ['show_internally'],
          'attrs': {'pod_formats': ['odt'],
                    'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
-                   'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'])},
+                   'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
+                                                                      uids=True)},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-print.odt')})],
          },
     ]
