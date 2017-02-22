@@ -1,4 +1,6 @@
 # encoding: utf-8
+
+from datetime import date, timedelta
 from operator import methodcaller
 from collections import OrderedDict
 
@@ -219,6 +221,15 @@ class IdmUtilsMethods(UtilsMethods):
         if IIMDashboard.providedBy(self.context):
             return True
         return False
+
+    def im_listing_url(self):
+        col_folder = self.get_im_folder()['mail-searches']
+        url = col_folder.absolute_url()
+        col_uid = col_folder['all_mails'].UID()
+        from_date = date.today()
+        to_date = from_date + timedelta(1)
+        return "{}/#c3=500&b_start=0&c1={}&c10={}&c10={}".format(url, col_uid, from_date.strftime('%Y-%m-%d'),
+                                                                 to_date.strftime('%Y-%m-%d'))
 
 
 class OdmUtilsMethods(UtilsMethods):

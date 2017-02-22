@@ -1371,11 +1371,13 @@ def add_templates(site):
 
     dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
     templates = [
-        {'cid': 10, 'cont': 'templates', 'id': 'd-im-listing', 'title': _(u'Daily listing'),
+        {'cid': 10, 'cont': 'templates', 'id': 'd-im-listing', 'title': _(u'Mail listing template'),
          'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
          'attrs': {'pod_formats': ['odt'],
                    'dashboard_collections': [b.UID for b in
-                    get_dashboard_collections(site['incoming-mail']['mail-searches']) if b.id == 'all_mails']},
+                    get_dashboard_collections(site['incoming-mail']['mail-searches']) if b.id == 'all_mails'],
+                   # cond: check c10 reception date (display link), check output_format (generation view)
+                   'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-im-listing.odt')})],
          },
         {'cid': 50, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print template'), 'type': 'DashboardPODTemplate',

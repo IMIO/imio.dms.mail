@@ -182,6 +182,7 @@
             current_user_groups_ids
             get_im_folder
             highest_scan_id
+            im_listing_url
             must_render_im_listing
             proposed_to_manager_col_cond
             proposed_to_serv_chief_col_cond
