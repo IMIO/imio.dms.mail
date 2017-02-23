@@ -3,6 +3,7 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
 
+    <!-- IDmsDocument -->
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
@@ -16,6 +17,12 @@
       />
 
     <subscriber
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
+             OFS.interfaces.IObjectWillBeRemovedEvent"
+        handler=".subscribers.referenceDocumentRemoved" />
+
+    <!-- Various -->
+    <subscriber
         for="collective.task.interfaces.ITaskContent
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"
         handler=".subscribers.task_transition"
@@ -27,6 +34,7 @@
         handler=".subscribers.dmsmainfile_modified"
         />
 
+    <!-- Configuration -->
     <subscriber
         for="plone.registry.interfaces.IRecordModifiedEvent"
         handler=".browser.settings.manageIImioDmsMailConfigChange"
@@ -47,6 +55,7 @@
         handler=".subscribers.user_related_modification"
         />
 
+    <!-- Contact -->
     <subscriber
         for="collective.contact.core.content.organization.IOrganization
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
@@ -79,11 +88,5 @@
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.contact_modified"
         />
-
-    <subscriber
-        for="collective.dms.basecontent.dmsdocument.IDmsDocument
-             OFS.interfaces.IObjectWillBeRemovedEvent"
-        handler=".subscribers.referenceDocumentRemoved" />
-
 
 </configure>

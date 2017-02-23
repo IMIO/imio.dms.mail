@@ -22,6 +22,8 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 
+# DMSDOCUMENT
+
 def replace_scanner(mail, event):
     """
         Replace the batch creator by the editor
@@ -64,6 +66,34 @@ def dmsdocument_transition(mail, event):
     mail.reindexObject(['state_group'])
 
 
+def referenceDocumentRemoved(obj, event):
+    """
+        Check if there is a relation with another Document.
+        Like collective.contact.core.subscribers.referenceRemoved.
+        Where referenceObjectRemoved is also used
+    """
+    request = aq_get(obj, 'REQUEST', None)
+    if not request:
+        return
+    storage = ILinkIntegrityInfo(request)
+
+    catalog = queryUtility(ICatalog)
+    intids = queryUtility(IIntIds)
+    if catalog is None or intids is None:
+        return
+
+    obj_id = intids.queryId(obj)
+
+    # find all relations that point to us
+    for rel in catalog.findRelations({'to_id': obj_id, 'from_attribute': 'reply_to'}):
+        storage.addBreach(rel.from_object, rel.to_object)
+    # find relations we point
+    for rel in catalog.findRelations({'from_id': obj_id, 'from_attribute': 'reply_to'}):
+        storage.addBreach(rel.to_object, rel.from_object)
+
+
+# VARIOUS
+
 def task_transition(task, event):
     """
         update indexes after a transition
@@ -88,6 +118,28 @@ def dmsmainfile_modified(dmf, event):
         mail.reindexObject(idxs=['SearchableText'])
 
 
+# CONFIGURATION
+
+def contact_plonegroup_change(event):
+    """
+        Update outgoing-mail folder local roles for encodeur
+    """
+    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
+            event.record.interface == IContactPlonegroupConfig):
+        registry = getUtility(IRegistry)
+        if not registry[FUNCTIONS_REGISTRY] or not registry[ORGANIZATIONS_REGISTRY]:
+            return
+        portal = api.portal.get()
+        omf = portal['outgoing-mail']
+        dic = omf.__ac_local_roles__
+        for principal in dic.keys():
+            if principal.endswith('_encodeur'):
+                del dic[principal]
+        for uid in registry[ORGANIZATIONS_REGISTRY]:
+            dic["%s_encodeur" % uid] = ['Contributor']
+        omf._p_changed = True
+
+
 def user_related_modification(event):
     """
         Manage user modification
@@ -103,6 +155,8 @@ def user_related_modification(event):
         return
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
 
+
+# CONTACT
 
 def organization_modified(obj, event):
     """
@@ -154,49 +208,3 @@ def contact_modified(obj, event):
 #        return
     if IPloneGroupContact.providedBy(obj):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
-
-
-def contact_plonegroup_change(event):
-    """
-        Update outgoing-mail folder local roles for encodeur
-    """
-    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
-            event.record.interface == IContactPlonegroupConfig):
-        registry = getUtility(IRegistry)
-        if not registry[FUNCTIONS_REGISTRY] or not registry[ORGANIZATIONS_REGISTRY]:
-            return
-        portal = api.portal.get()
-        omf = portal['outgoing-mail']
-        dic = omf.__ac_local_roles__
-        for principal in dic.keys():
-            if principal.endswith('_encodeur'):
-                del dic[principal]
-        for uid in registry[ORGANIZATIONS_REGISTRY]:
-            dic["%s_encodeur" % uid] = ['Contributor']
-        omf._p_changed = True
-
-
-def referenceDocumentRemoved(obj, event):
-    """
-        Check if there is a relation with another Document.
-        Like collective.contact.core.subscribers.referenceRemoved.
-        Where referenceObjectRemoved is also used
-    """
-    request = aq_get(obj, 'REQUEST', None)
-    if not request:
-        return
-    storage = ILinkIntegrityInfo(request)
-
-    catalog = queryUtility(ICatalog)
-    intids = queryUtility(IIntIds)
-    if catalog is None or intids is None:
-        return
-
-    obj_id = intids.queryId(obj)
-
-    # find all relations that point to us
-    for rel in catalog.findRelations({'to_id': obj_id, 'from_attribute': 'reply_to'}):
-        storage.addBreach(rel.from_object, rel.to_object)
-    # find relations we point
-    for rel in catalog.findRelations({'from_id': obj_id, 'from_attribute': 'reply_to'}):
-        storage.addBreach(rel.to_object, rel.from_object)
