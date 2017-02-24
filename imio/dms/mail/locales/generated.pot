@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-02-22 11:17+0000\n"
+"POT-Creation-Date: 2017-02-24 15:32+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,6 +19,10 @@ msgstr ""
 
 #: ./browser/views.py:35
 msgid "${title}: create from template"
+msgstr ""
+
+#: ./subscribers.py:186
+msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
 #: ./browser/settings.py:21
@@ -152,6 +156,10 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
+#: ./subscribers.py:200
+msgid "Linked objects: ${list}"
+msgstr ""
+
 #: ./setuphandlers.py:1374
 msgid "Mail listing template"
 msgstr ""
@@ -226,7 +234,7 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1382
+#: ./setuphandlers.py:1383
 msgid "Print template"
 msgstr ""
 
@@ -310,6 +318,18 @@ msgstr ""
 
 #: ./browser/batchactions.py:91
 msgid "You can't change this field on selected items. Modify your selection."
+msgstr ""
+
+#: ./subscribers.py:196
+msgid "You cannot delete the user name '${user}', used in '${idx}' index."
+msgstr ""
+
+#: ./subscribers.py:180
+msgid "You cannot delete the user name '${user}', used in following groups."
+msgstr ""
+
+#: ./subscribers.py:172
+msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
 #: ./dmsmail.py:211

@@ -55,6 +55,11 @@
         handler=".subscribers.user_related_modification"
         />
 
+    <subscriber
+        for="Products.PluggableAuthService.interfaces.events.IPrincipalDeletedEvent"
+        handler=".subscribers.principal_deleted"
+        />
+
     <!-- Contact -->
     <subscriber
         for="collective.contact.core.content.organization.IOrganization

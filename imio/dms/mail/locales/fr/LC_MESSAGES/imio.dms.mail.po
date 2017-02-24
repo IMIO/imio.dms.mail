@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-02-22 11:17+0000\n"
+"POT-Creation-Date: 2017-02-24 15:32+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -20,6 +20,10 @@ msgstr ""
 #: ./browser/views.py:35
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
+
+#: ./subscribers.py:186
+msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
+msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
 #: ./browser/settings.py:21
 msgid "Active"
@@ -156,6 +160,10 @@ msgstr "Courriers entrants"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
+#: ./subscribers.py:200
+msgid "Linked objects: ${list}"
+msgstr "Éléments liés: ${list}"
+
 #: ./setuphandlers.py:1374
 msgid "Mail listing template"
 msgstr "Listing courrier"
@@ -230,7 +238,7 @@ msgstr "Écraser le contenu avec les éléments choisis"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1382
+#: ./setuphandlers.py:1383
 msgid "Print template"
 msgstr "Pour impression"
 
@@ -319,6 +327,18 @@ msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)
 #: ./browser/batchactions.py:91
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas modifier ce champ sur l'ensemble des éléments sélectionnés. Recommencez en modifiant votre sélection."
+
+#: ./subscribers.py:196
+msgid "You cannot delete the user name '${user}', used in '${idx}' index."
+msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
+
+#: ./subscribers.py:180
+msgid "You cannot delete the user name '${user}', used in following groups."
+msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
+
+#: ./subscribers.py:172
+msgid "You cannot delete the user name '${user}'."
+msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
 #: ./dmsmail.py:211
 msgid "You must select an assigned user before you can propose to an agent !"

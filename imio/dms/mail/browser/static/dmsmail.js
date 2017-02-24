@@ -82,6 +82,11 @@ $(document).ready(function(){
         closeselector: '[name="form.buttons.cancel"]'
     });
 
+    $('.template-usergroup-userprefs .portalMessage.error dd').html(function(index, html){
+        // returns interpreted string with entities replaced
+        return $("<div/>").html(html).text();
+})
+
     /* remove inline validation for dmsoutgoingmail
     $('.template-dmsoutgoingmail .z3cformInlineValidation, .template-dmsdocument-edit.portaltype-dmsoutgoingmail .z3cformInlineValidation').removeClass('z3cformInlineValidation'); */
 

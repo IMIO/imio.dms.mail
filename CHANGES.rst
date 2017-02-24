@@ -22,6 +22,9 @@ Changelog
 - Manage outgoing mails batch creation
   [sgeulette]
 
+- Protect against user deletion
+  [sgeulette]
+
 1.1 (2016-04-14)
 ----------------
 

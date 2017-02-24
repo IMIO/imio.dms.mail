@@ -2,13 +2,16 @@
 """Subscribers."""
 from Acquisition import aq_get
 from zc.relation.interfaces import ICatalog
+from zExceptions import Redirect
 from zope.component import getUtility, queryUtility
+from zope.i18n import translate
 from zope.interface import alsoProvides, noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
 from plone import api
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
@@ -20,6 +23,8 @@ from collective.contact.plonegroup.browser.settings import IContactPlonegroupCon
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+
+from . import _
 
 
 # DMSDOCUMENT
@@ -154,6 +159,48 @@ def user_related_modification(event):
             event.record.interface != IContactPlonegroupConfig):
         return
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+
+
+def principal_deleted(event):
+    """
+        Raises exception if user is deleted
+    """
+    princ = event.principal
+    portal = api.portal.get()
+    request = portal.REQUEST
+    if princ in ('scanner'):
+        api.portal.show_message(message=_("You cannot delete the user name '${user}'.", mapping={'user': princ}),
+                                request=request, type='error')
+        raise Redirect(request.get('ACTUAL_URL'))
+
+    # check groups
+    pg = portal.acl_users.source_groups._principal_groups
+    groups = pg.get(princ, [])
+    if groups:
+        api.portal.show_message(message=_("You cannot delete the user name '${user}', used in following groups.",
+                                          mapping={'user': princ}), request=request, type='error')
+        titles = []
+        for groupid in groups:
+            grp = api.group.get(groupname=groupid)
+            titles.append('"%s"' % (grp and safe_unicode(grp.getProperty('title')) or groupid))
+        api.portal.show_message(message=_('<a href="${url}" target="_blank">Linked groups</a> : ${list}',
+                                          mapping={'list': ', '.join(titles), 'url': '%s/@@usergroup-usermembership?'
+                                                   'userid=%s' % (portal.absolute_url(), princ)}),
+                                request=request, type='error')
+        raise Redirect(request.get('ACTUAL_URL'))
+
+    # search in assigned_user index
+    for (idx, domain) in (('assigned_user', 'collective.eeafaceted.z3ctable'), ('Creator', 'plone')):
+        brains = portal.portal_catalog({idx: princ})
+        if brains:
+            api.portal.show_message(message=_("You cannot delete the user name '${user}', used in '${idx}' index.",
+                                              mapping={'user': princ, 'idx': translate(idx, domain=domain,
+                                                                                       context=request)}),
+                                    request=request, type='error')
+            api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
+                                    'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains])}),
+                                    request=request, type='error')
+            raise Redirect(request.get('ACTUAL_URL'))
 
 
 # CONTACT
