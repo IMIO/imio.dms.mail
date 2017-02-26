@@ -83,7 +83,7 @@ $(document).ready(function(){
     });
 
     // replace error message with interpreted html to render links
-    $('.template-usergroup-userprefs .portalMessage.error dd').html(function(index, html){
+    $('.template-usergroup-userprefs .portalMessage.error dd, .template-usergroup-groupprefs .portalMessage.error dd').html(function(index, html){
         return $("<div/>").html(html).text();
 })
 

@@ -110,6 +110,20 @@ class TestDmsmail(unittest.TestCase):
         msgs = smi.show()
         self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
 
+    def test_group_deleted(self):
+        request = self.portal.REQUEST
+        # protected group
+        self.assertRaises(Redirect, api.group.delete, groupname='expedition')
+        smi = IStatusMessage(request)
+        msgs = smi.show()
+        self.assertEqual(msgs[0].message, u"You cannot delete the group 'expedition'.")
+        # is used in content
+        registry = getUtility(IRegistry)
+        group = '%s_editeur' % registry[ORGANIZATIONS_REGISTRY][0]
+        self.assertRaises(Redirect, api.group.delete, groupname=group)
+        msgs = smi.show()
+        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
+
     def test_organization_modified(self):
         pc = self.portal.portal_catalog
         self.elec = self.portal['contacts']['electrabel']

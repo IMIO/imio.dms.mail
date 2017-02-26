@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-02-24 15:32+0000\n"
+"POT-Creation-Date: 2017-02-26 19:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,7 +19,7 @@ msgstr ""
 msgid "${title}: create from template"
 msgstr ""
 
-#: ./subscribers.py:186
+#: ./subscribers.py:188
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -158,7 +158,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./subscribers.py:200
+#: ./subscribers.py:202
 msgid "Linked objects: ${list}"
 msgstr ""
 
@@ -326,15 +326,23 @@ msgstr ""
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./subscribers.py:196
+#: ./subscribers.py:232
+msgid "You cannot delete the group '${group}', used in '${idx}' index."
+msgstr ""
+
+#: ./subscribers.py:218
+msgid "You cannot delete the group '${group}'."
+msgstr ""
+
+#: ./subscribers.py:198
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:180
+#: ./subscribers.py:182
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:172
+#: ./subscribers.py:174
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 

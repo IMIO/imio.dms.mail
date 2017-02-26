@@ -163,11 +163,13 @@ def user_related_modification(event):
 
 def user_deleted(event):
     """
-        Raises exception if user is deleted
+        Raises exception if user cannot be deleted
     """
     princ = event.principal
     portal = api.portal.get()
     request = portal.REQUEST
+
+    # is protected user
     if princ in ('scanner'):
         api.portal.show_message(message=_("You cannot delete the user name '${user}'.", mapping={'user': princ}),
                                 request=request, type='error')
@@ -196,6 +198,40 @@ def user_deleted(event):
             api.portal.show_message(message=_("You cannot delete the user name '${user}', used in '${idx}' index.",
                                               mapping={'user': princ, 'idx': translate(idx, domain=domain,
                                                                                        context=request)}),
+                                    request=request, type='error')
+            api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
+                                    'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains])}),
+                                    request=request, type='error')
+            raise Redirect(request.get('ACTUAL_URL'))
+
+
+def group_deleted(event):
+    """
+        Raises exception if group cannot be deleted
+    """
+    group = event.principal
+    portal = api.portal.get()
+    request = portal.REQUEST
+
+    # is protected group
+    if group in ('dir_general', 'encodeurs', 'expedition', 'Administrators', 'Reviewers', 'Site Administrators'):
+        api.portal.show_message(message=_("You cannot delete the group '${group}'.", mapping={'group': group}),
+                                request=request, type='error')
+        raise Redirect(request.get('ACTUAL_URL'))
+
+    parts = group.split('_')
+    if len(parts) == 1:
+        return
+
+    # search in indexes
+    for (idx, domain) in (('assigned_group', 'collective.eeafaceted.z3ctable'),
+                          ('treating_groups', 'collective.eeafaceted.z3ctable'),
+                          ('recipient_groups', 'collective.eeafaceted.z3ctable')):
+        brains = portal.portal_catalog({idx: parts[0]})
+        if brains:
+            api.portal.show_message(message=_("You cannot delete the group '${group}', used in '${idx}' index.",
+                                              mapping={'group': group, 'idx': translate(idx, domain=domain,
+                                                                                        context=request)}),
                                     request=request, type='error')
             api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
                                     'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains])}),
