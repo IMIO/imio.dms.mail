@@ -129,7 +129,8 @@ class TestDmsmail(unittest.TestCase):
         e_groups = [('%s_encodeur' % uid, ('Contributor', )) for uid in registry[ORGANIZATIONS_REGISTRY]]
         e_groups.append(('admin', ('Owner',)))
         e_groups.append(('expedition', ('Contributor',)))
+        e_groups.append(('dir_general', ('Contributor',)))
         self.assertSetEqual(set(self.omf.get_local_roles()), set(e_groups))
-        self.assertEqual(len(self.omf.get_local_roles()), 8)
+        self.assertEqual(len(self.omf.get_local_roles()), 9)
         registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][:3]
-        self.assertEqual(len(self.omf.get_local_roles()), 5)
+        self.assertEqual(len(self.omf.get_local_roles()), 6)

@@ -61,6 +61,7 @@ class TestColumns(unittest.TestCase):
 
     def test_TaskActionsColumn(self):
         column = TaskActionsColumn(self.portal, self.portal.REQUEST, None)
+        self.portal.REQUEST['AUTHENTICATED_USER'] = api.user.get(username=TEST_USER_ID)
         rendered = column.renderCell(self.ta1)
         self.assertIn('do_to_assign', rendered)
         self.assertIn('title="Edit"', rendered)

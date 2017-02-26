@@ -11,7 +11,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 
 from Products.CPUtils.Extensions.utils import mark_last_version, change_user_properties
-from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
+#from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
@@ -129,7 +129,7 @@ class Migrate_To_2_0(Migrator):
         if encodeurs.getProperty('title') != '1 Encodeurs courrier entrant':
             self.portal.portal_groups.editGroup('encodeurs', title='1 Encodeurs courrier entrant')
         # update im mail-searches
-        alsoProvides(self.imf['mail-searches'], ICollectionCategories)
+        # alsoProvides(self.imf['mail-searches'], ICollectionCategories)
         # add new collection to_treat_in_my_group
         createIMailCollections(self.imf['mail-searches'])
         reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',

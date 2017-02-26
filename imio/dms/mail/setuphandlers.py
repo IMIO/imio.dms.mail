@@ -36,7 +36,7 @@ from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
-from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
+#from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
@@ -69,7 +69,7 @@ def add_db_col_folder(folder, id, title, displayed=''):
     col_folder.setLocallyAllowedTypes(['DashboardCollection'])
     col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
     folder.portal_workflow.doActionFor(col_folder, "show_internally")
-    alsoProvides(col_folder, ICollectionCategories)
+    #alsoProvides(col_folder, ICollectionCategories)
     return col_folder
 
 
