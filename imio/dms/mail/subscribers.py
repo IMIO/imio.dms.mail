@@ -161,7 +161,7 @@ def user_related_modification(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
 
 
-def principal_deleted(event):
+def user_deleted(event):
     """
         Raises exception if user is deleted
     """

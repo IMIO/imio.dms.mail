@@ -82,8 +82,8 @@ $(document).ready(function(){
         closeselector: '[name="form.buttons.cancel"]'
     });
 
+    // replace error message with interpreted html to render links
     $('.template-usergroup-userprefs .portalMessage.error dd').html(function(index, html){
-        // returns interpreted string with entities replaced
         return $("<div/>").html(html).text();
 })
 

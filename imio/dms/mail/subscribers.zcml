@@ -57,7 +57,7 @@
 
     <subscriber
         for="Products.PluggableAuthService.interfaces.events.IPrincipalDeletedEvent"
-        handler=".subscribers.principal_deleted"
+        handler=".subscribers.user_deleted"
         />
 
     <!-- Contact -->

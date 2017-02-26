@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+from zExceptions import Redirect
 import zope.event
 from zope.component import getUtility
 from zope.lifecycleevent import ObjectModifiedEvent, Attributes
@@ -13,10 +14,13 @@ from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from plone import api
 
+from Products.statusmessages.interfaces import IStatusMessage
+
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
+from ..subscribers import user_deleted
 from ..vocabularies import AssignedUsersVocabulary
 
 
@@ -89,6 +93,22 @@ class TestDmsmail(unittest.TestCase):
         self.assertSetEqual(set(voc_list), set([('chef', 'Michel Chef 2')]))
         # wrong configuration change
         zope.event.notify(ConfigurationChangedEvent(self.portal, {}))
+
+    def test_user_deleted(self):
+        request = self.portal.REQUEST
+        # protected user
+        self.assertRaises(Redirect, api.user.delete, username='scanner')
+        smi = IStatusMessage(request)
+        msgs = smi.show()
+        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'scanner'.")
+        # having group
+        self.assertRaises(Redirect, api.user.delete, 'lecteur')
+        msgs = smi.show()
+        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'lecteur', used in following groups.")
+        # is used in content
+        self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
+        msgs = smi.show()
+        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
 
     def test_organization_modified(self):
         pc = self.portal.portal_catalog
