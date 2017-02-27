@@ -20,7 +20,6 @@ from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
-from ..subscribers import user_deleted
 from ..vocabularies import AssignedUsersVocabulary
 
 
