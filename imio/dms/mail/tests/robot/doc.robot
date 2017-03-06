@@ -203,7 +203,7 @@ Encodage depuis le scanner
     #Wait until element is visible  css=div.tooltip #person  10
     ## Le pointeur fait disparaître le tooltip
     ##${pointer}  Add pointer  css=#form-widgets-sender a.link-tooltip
-    #Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant personne.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant personne.png  id=content
     ##Remove element  ${pointer}
     ## La capture du tooltip title ne fonctionne pas!
     #Mouse over  css=a.version-link
@@ -220,6 +220,7 @@ Encodage depuis le scanner
     Remove element  id=${note20}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Wait until element is visible  css=.DV-pageImage  10
+    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-5 édition courrier.png  css=.documentEditable
     Click button  id=form-buttons-cancel
     # Next screenshot in 2.6 part to avoid dirty history
@@ -248,6 +249,7 @@ Encodage depuis le scanner
     ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-6 état chef.png  css=.documentEditable
     Remove element  id=${note32}
+    Sleep  0.5
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-5 édition limitée courrier.png  css=.documentEditable
@@ -310,9 +312,8 @@ Encodage depuis le scanner
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans courrier.png  id=content
-    Go to  ${PLONE_URL}/incoming-mail
+    Go to  ${PLONE_URL}/tasks
     Wait until element is visible  css=.faceted-table-results  10
-    Select collection  incoming-mail/task-searches/all_tasks
     Wait until element is visible  css=.th_header_assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
 
