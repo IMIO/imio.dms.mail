@@ -84,7 +84,7 @@
 }
 /* Display None */
 
-#formfield-oform-widgets-position {
+#formfield-oform-widgets-position, .template-dmsdocument-edit .overlay-contact-addnew div.field[id$="_date"] {
     display: none !important;
 }
 

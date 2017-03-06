@@ -162,21 +162,10 @@ Encodage depuis le scanner
     Input text  name=oform.widgets.organization.widgets.query  IMIO
     Wait until element is visible  css=.ac_results[style*="display: block"]  10
     Click element  css=.ac_results[style*="display: block"] li:nth-child(2)
-    Wait until element is visible  id=formfield-oform-widgets-position  10
+    Wait until element is visible  css=#formfield-oform-widgets-plone_0_held_position-label input  10
     Update element style  css=.pb-ajax  max-height  800px !important
     Update element style  id=pb_1  top  30px ! important
-    Click element  css=#formfield-oform-widgets-plone_0_held_position-end_date label
-    Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 3 création fonction.png  id=pb_1
-    Input text  name=oform.widgets.position.widgets.query  Directeur
-    Wait until element is visible  css=#oform-widgets-position-autocomplete .addnew  10
-    Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 3 création lien fonction.png  id=pb_1
-    Click element  css=#oform-widgets-position-autocomplete .addnew
-    Wait until element is visible  id=pb_7  10
-    Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 3 création nouvelle fonction.png  id=pb_7
-    Click button  css=#pb_7 #form-buttons-save
-    Sleep  1
-    Click element  css=#formfield-oform-widgets-plone_0_held_position-end_date label
+    Input text  name=oform.widgets.plone_0_held_position.label  Directeur
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 3 création fonction finie.png  id=pb_1
     Click element  css=#pb_1 .close
     #Click button  id=oform-buttons-save
