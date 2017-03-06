@@ -323,11 +323,14 @@ Tableaux de bord
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?number=16
 #    Enable autologin as  dirg
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/create_lock
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord général.png  id=content
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Unselect checkbox  select_unselect_items
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     Select checkbox  css=td.select_item_checkbox input[value='${UID}']
     Click button  id=treatinggroup-batch-action-but
@@ -516,3 +519,4 @@ Suite Setup
     Set Window Size  1280  1200
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
+    Set Selenium Speed  0.1
