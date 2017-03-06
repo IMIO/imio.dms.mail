@@ -198,16 +198,17 @@ Encodage depuis le scanner
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
-    Mouse over  css=#form-widgets-sender a.link-tooltip
-    Wait until element is visible  css=div.tooltip #person  10
-    # Le pointeur fait disparaître le tooltip
-    #${pointer}  Add pointer  css=#form-widgets-sender a.link-tooltip
-    Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant personne.png  id=content
-    #Remove element  ${pointer}
-    # La capture du tooltip title ne fonctionne pas!
-    Mouse over  css=a.version-link
-    #Sleep  1
-    #Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant ged.png  id=content
+    # DO NOT WORK ANYMORE: WAITING FOR GECKODRIVER UPDATE !!!!!
+    #Mouse over  css=#form-widgets-sender a.link-tooltip
+    #Wait until element is visible  css=div.tooltip #person  10
+    ## Le pointeur fait disparaître le tooltip
+    ##${pointer}  Add pointer  css=#form-widgets-sender a.link-tooltip
+    #Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant personne.png  id=content
+    ##Remove element  ${pointer}
+    ## La capture du tooltip title ne fonctionne pas!
+    #Mouse over  css=a.version-link
+    ##Sleep  1
+    ##Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant ged.png  id=content
 
 #Modification
 # partie 2.5 Modification des courriers
