@@ -293,7 +293,7 @@ Encodage depuis le scanner
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     Sleep  0.5
-    Select from list by index  name=Add element  3
+    Select from list by label  name=Add element  Tâche
     Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
     Input text  name=form.widgets.title  Placer le CV dans notre référentiel
@@ -381,7 +381,7 @@ Encodage manuel
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 lien ajout.png  id=viewlet-above-content-title  ${note11}
     Remove element  id=${note11}
     Click element  css=#formfield-form-widgets-sender label
-    Select from list by index  name=Add element  2
+    Select from list by label  name=Add element  Fichier ged
     Wait until element is visible  id=formfield-form-widgets-file  10
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 création.png  id=content
     Click element  id=fieldsetlegend-scan
@@ -514,3 +514,4 @@ Suite Setup
 #    Set Window Size  1024  768
     Set Window Size  1280  1200
     Set Suite Variable  ${CROP_MARGIN}  5
+    Set Selenium Implicit Wait  2
