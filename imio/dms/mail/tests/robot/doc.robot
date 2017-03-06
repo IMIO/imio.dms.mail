@@ -12,6 +12,7 @@ Suite Teardown  Close all browsers
 
 *** Variables ***
 
+#${BROWSER} =  GoogleChrome
 ${SELENIUM_RUN_ON_FAILURE} =  Debug
 
 *** Test cases ***
@@ -33,11 +34,11 @@ Encodage depuis le scanner
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-2-1 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/create_lock
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
+    Wait until element is visible  css=.DV-pageImage  10
     Select collection  incoming-mail/mail-searches/searchfor_created
     Capture and crop page screenshot  doc/utilisation/2-2-1 recherche en création.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/@@plone_lock_operations/safe_unlock
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
     Wait until element is visible  css=.DV-pageImage  10
 
     ### Edit mail

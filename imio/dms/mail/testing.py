@@ -19,8 +19,11 @@ class DmsmailLayer(PloneWithPackageLayer):
         _createObjectByType('Document', portal, id='front-page')
         portal.setDefaultPage('front-page')
         manage_addExternalMethod(portal, 'import_scanned', 'import_scanned', 'imio.dms.mail.demo', 'import_scanned')
+        manage_addExternalMethod(portal, 'import_scanned2', 'import_scanned2', 'imio.dms.mail.demo', 'import_scanned2')
         manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',
                                  'create_main_file')
+        manage_addExternalMethod(portal, 'lock-unlock', '', 'imio.dms.mail.robot', 'lock')
+
         # install dmsmail (apply profile)
         sp = portal.portal_properties.site_properties
         sp.default_language = 'fr'
