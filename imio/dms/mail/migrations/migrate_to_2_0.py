@@ -171,6 +171,12 @@ class Migrate_To_2_0(Migrator):
                                  default_UID=col_folder['all_mails'].UID())
         # add metadata in portal_catalog
         addOrUpdateColumns(self.portal, columns=('in_out_date',))
+        # update front-page
+        frontpage = self.portal['front-page']
+        if frontpage.Title() == 'Gestion du courrier 1.1':
+            frontpage.setTitle(_("front_page_title"))
+            frontpage.setDescription(_("front_page_descr"))
+            frontpage.setText(_("front_page_text"), mimetype='text/html')
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
