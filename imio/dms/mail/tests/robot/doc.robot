@@ -219,15 +219,19 @@ Encodage depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-5 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table  ${note20}
     Remove element  id=${note20}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
-    Wait until element is visible  css=.DV-pageImage  10
     Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Sleep  0.2
     Capture and crop page screenshot  doc/utilisation/2-5 édition courrier.png  css=.documentEditable
     Click button  id=form-buttons-cancel
+    #Log to console  end
     # Next screenshot in 2.6 part to avoid dirty history
 
 #Workflow
 # partie 2.6 Workflow
-    Enable autologin as  Manager
+#    Enable autologin as  Manager
+#    Set autologin username  encodeur
+    Enable autologin as  encodeur
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     #Fire transition  ${UID}  back_to_creation
     Enable autologin as  encodeur
@@ -249,8 +253,9 @@ Encodage depuis le scanner
     ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-6 état chef.png  css=.documentEditable
     Remove element  id=${note32}
-    Sleep  0.5
+    Sleep  0.1
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-5 édition limitée courrier.png  css=.documentEditable
     Select from list by value  id=form-widgets-ITask-due_date-day  6
@@ -298,6 +303,7 @@ Encodage depuis le scanner
     Select from list by label  name=Add element  Tâche
     Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
+    Sleep  0.2
     Input text  name=form.widgets.title  Placer le CV dans notre référentiel
     #Input text  css=#formfield-form-widgets-ITask-task_description #content  TEST
     #Select from list by index  name=form.widgets.ITask.assigned_user:list  1
@@ -517,6 +523,7 @@ Suite Setup
     Open test browser
 #    Set Window Size  1024  768
     Set Window Size  1280  1200
+    Set Window Size  1280  2880
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
-    Set Selenium Speed  0.1
+#    Set Selenium Speed  0.5
