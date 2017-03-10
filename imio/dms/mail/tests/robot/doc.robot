@@ -28,7 +28,7 @@ Premiers pas
     Capture and crop page screenshot  doc/utilisation/2-1 fil d'ariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home
 
 CE depuis le scanner
-# partie 2.2.1 Encodage après envoi par le scanner
+# partie 2.2.1 Envoi par le scanner
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail
@@ -326,7 +326,7 @@ CE depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
 
 CE manuel
-# partie 2.2.2 Encodage manuel du courrier
+# partie 2.2.2 Ajout manuel d'une fiche
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
@@ -354,7 +354,7 @@ CE manuel
     ${note11}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
     Click element  name=Add element
     # La capture du menu ouvert ne fonctionne pas
-    Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 lien ajout.png  id=viewlet-above-content-title  ${note11}
+    Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 lien ajout.png  id=parent-fieldname-title  ${note11}
     Remove element  id=${note11}
     Click element  css=#formfield-form-widgets-sender label
     Select from list by label  name=Add element  Fichier ged
@@ -373,6 +373,37 @@ CE manuel
     Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 2 visualisation.png  id=content
+
+CS en réponse
+# partie 2.3.1 Réponse à un courrier entrant
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    Fire transition  ${UID}  propose_to_service_chief
+    Enable autologin as  dirg
+    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    ${DF} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-financiere
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  recipient_groups  ['${DF}']  list
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  external_reference_no  2017/ESB/00123  str
+    Fire transition  ${UID}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    ${note60}  Add pointy note  css=#viewlet-above-content-title .apButtonAction_reply  Bouton de réponse  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-1 lien répondre.png  id=viewlet-above-content-body  ${note60}
+    Remove element  id=${note60}
+    Click button  css=#viewlet-above-content-title .apButtonAction_reply
+    Wait until element is visible  css=.template-reply #formfield-form-widgets-ITask-due_date  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 édition réponse.png  id=content
+    Click button  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 édition réponse finie.png  id=content
 
 
 Menu courrier

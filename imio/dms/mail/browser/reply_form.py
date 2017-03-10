@@ -35,6 +35,8 @@ class ReplyForm(DefaultAddForm):
         form["form.widgets.recipients"] = ('/'.join(imail.sender.to_object.getPhysicalPath()), )
         if imail.external_reference_no:
             form["form.widgets.external_reference_no"] = imail.external_reference_no
+        if imail.recipient_groups:
+            form["form.widgets.recipient_groups"] = imail.recipient_groups
         ImioDmsOutgoingMailUpdateFields(self)
 
     def updateWidgets(self):
