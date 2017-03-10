@@ -27,7 +27,7 @@ Premiers pas
     Capture and crop page screenshot  doc/utilisation/2-1 page d'accueil.png  css=.site-plone  id=portal-footer-wrapper
     Capture and crop page screenshot  doc/utilisation/2-1 fil d'ariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home
 
-Encodage depuis le scanner
+CE depuis le scanner
 # partie 2.2.1 Encodage après envoi par le scanner
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -67,7 +67,7 @@ Encodage depuis le scanner
 
     ### Create contact
     ${note2}  Add pointy note  css=.addnew  Lien nouveau contact  position=bottom  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur recherche leduc.png  id=fieldset-default
+    Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur recherche leduc.png  id=formfield-form-widgets-IDublinCore-description  ${note2}  id=formfield-form-widgets-original_mail_date
     Remove element  id=${note2}
     Click element  css=.addnew
     Wait until element is visible  css=.overlay-contact-addnew  10
@@ -175,7 +175,7 @@ Encodage depuis le scanner
     Input text  name=form.widgets.sender.widgets.query  ledu
     Wait until element is visible  css=.ac_results[style*="display: block"]  10
     Click element  css=.ac_results[style*="display: block"] li
-    Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 0 fini.png  id=fieldset-default
+    Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 0 fini.png  id=formfield-form-widgets-IDublinCore-description  id=formfield-form-widgets-original_mail_date
 
     ### Complete last fields
     Click element  css=.DV-documentView span.DV-trigger
@@ -282,7 +282,7 @@ Encodage depuis le scanner
     Click button  css=input.apButtonWF_back_to_treatment
     Wait until element is visible  css=form#confirmTransitionForm  10
     Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
-    Capture viewport screenshot  doc/utilisation/2-6 transition retour.png
+    Capture and crop page screenshot  doc/utilisation/2-6 transition retour.png  id=content
     Click button  name=form.buttons.save
     #Wait until element is not visible  css=form#confirmTransitionForm  10
     Wait until element is visible  css=.highlight-history-link  10
@@ -290,7 +290,7 @@ Encodage depuis le scanner
     Click element  css=#content-history .link-overlay
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
-    Capture viewport screenshot  doc/utilisation/2-6 historique.png
+    Capture and crop page screenshot  doc/utilisation/2-6 historique.png  id=content
 
 #Tâche
 # partie 2.7.1 Ajout d'une tâche
@@ -301,6 +301,7 @@ Encodage depuis le scanner
     Wait until element is visible  css=.DV-pageImage  10
     Sleep  0.5
     Select from list by label  name=Add element  Tâche
+    Sleep  0.5
     Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
     Sleep  0.2
@@ -316,13 +317,13 @@ Encodage depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout to assign.png  id=content
 # partie 2.7.2 Visualisation d'une tâche
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans courrier.png  id=content
     Go to  ${PLONE_URL}/tasks
     Wait until element is visible  css=.faceted-table-results  10
     Wait until element is visible  css=.th_header_assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
-
 
 Tableaux de bord
 # partie 2.3.2 Tableaux de bord
@@ -359,7 +360,7 @@ Tableaux de bord
     Wait until element is visible  css=.select2-results  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord filtre expéditeur.png  id=top---advanced---widgets  css=.select2-results
 
-Encodage manuel
+CE manuel
 # partie 2.2.2 Encodage manuel du courrier
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
@@ -526,4 +527,4 @@ Suite Setup
     Set Window Size  1280  2880
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
-#    Set Selenium Speed  0.5
+#    Set Selenium Speed  0.3
