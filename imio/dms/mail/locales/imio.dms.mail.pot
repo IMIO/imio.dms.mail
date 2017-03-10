@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-02-26 19:07+0000\n"
+"POT-Creation-Date: 2017-03-10 09:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -129,7 +129,7 @@ msgstr ""
 msgid "Empty value"
 msgstr ""
 
-#: ./testing.zcml:22
+#: ./testing.zcml:23
 msgid "Imio Dms Mail testing profile"
 msgstr ""
 
@@ -388,14 +388,17 @@ msgstr ""
 msgid "create_om"
 msgstr ""
 
+#: ./migrations/migrate_to_2_0.py:178
 #: ./setuphandlers.py:518
 msgid "front_page_descr"
 msgstr ""
 
+#: ./migrations/migrate_to_2_0.py:179
 #: ./setuphandlers.py:519
 msgid "front_page_text"
 msgstr ""
 
+#: ./migrations/migrate_to_2_0.py:177
 #: ./setuphandlers.py:517
 msgid "front_page_title"
 msgstr ""
