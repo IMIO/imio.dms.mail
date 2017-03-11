@@ -365,7 +365,6 @@ CE manuel
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 création scan.png  id=content
     Click button  id=form-buttons-cancel
     Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage/create_main_file?filename=60.PDF
-    Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage/1/view
     Wait until element is visible  css=.DV-pageImage  10
     ${note12}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 création finie.png  id=portal-column-content  ${note12}
@@ -396,15 +395,35 @@ CS en réponse
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     ${note60}  Add pointy note  css=#viewlet-above-content-title .apButtonAction_reply  Bouton de réponse  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-3-1 lien répondre.png  id=viewlet-above-content-body  ${note60}
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 1 lien répondre.png  id=viewlet-above-content-body  ${note60}
     Remove element  id=${note60}
     Click button  css=#viewlet-above-content-title .apButtonAction_reply
     Wait until element is visible  css=.template-reply #formfield-form-widgets-ITask-due_date  10
-    Capture and crop page screenshot  doc/utilisation/2-3-1 édition réponse.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 1 édition réponse.png  id=content
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
-    Capture and crop page screenshot  doc/utilisation/2-3-1 édition réponse finie.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 1 édition réponse finie.png  id=content
 
+    ### Create mainfile
+    #Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
+    ${note61}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
+    Click element  name=Add element
+    # La capture du menu ouvert ne fonctionne pas
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged lien ajout.png  id=parent-fieldname-title  ${note61}
+    Remove element  id=${note61}
+    Click element  css=#formfield-form-widgets-sender label
+    Select from list by label  name=Add element  Fichier ged
+    Wait until element is visible  id=formfield-form-widgets-file  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged ajout.png  id=content
+    Click button  id=form-buttons-cancel
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal
+    Wait until element is visible  css=.DV-pageImage  10
+    ${note62}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged ajout fini.png  id=portal-column-content  ${note62}
+    Remove element  id=${note62}
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 visualisation.png  id=content
 
 Menu courrier
 # partie 2.3.1 Menu de recherches prédéfinies

@@ -2,15 +2,16 @@
            xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
            i18n_domain="imio.dms.mail">
 
-   <include package="Products.CMFPlone"/>
    <include package="communesplone.layout"/>
+
+   <include package="Products.CMFPlone"/>
    <include package="imio.dms.mail"/>
    <include package="plonetheme.imioapps"/>
    <include package="collective.ckeditor"/>
    <include package="collective.messagesviewlet"/>
    <includeDependencies package="." />
 
-   <include file="configure.zcml"/>
+   <!--include file="configure.zcml"/-->
    <includeOverrides file="overrides.zcml" />
 
     <genericsetup:registerProfile

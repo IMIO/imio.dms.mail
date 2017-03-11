@@ -8,6 +8,7 @@ from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import (internalReferenceIncomingMailDefaultValue,
                                                 internalReferenceOutgoingMailDefaultValue)
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
 from datetime import datetime
 from imio.dms.mail import add_path
 
@@ -121,7 +122,7 @@ def import_scanned2(self, number=2):
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
 
-def create_main_file(self, filename='', title=''):
+def create_main_file(self, filename='', title='1'):
     """
         Create a main file on context
     """
@@ -133,5 +134,6 @@ def create_main_file(self, filename='', title=''):
     if not os.path.exists(filepath):
         return "The file path '%s' doesn't exist" % filepath
     with open(filepath, 'rb') as fo:
-        file_object = NamedBlobFile(fo.read(), filename=unicode(filename))
-        createContentInContainer(self, 'dmsmainfile', title='1', file=file_object)
+        file_object = NamedBlobFile(fo.read(), filename=safe_unicode(filename))
+        obj = createContentInContainer(self, 'dmsmainfile', title=safe_unicode(title), file=file_object)
+    return obj.REQUEST.response.redirect('%s/view' % obj.absolute_url())
