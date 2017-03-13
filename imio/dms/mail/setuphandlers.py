@@ -1094,13 +1094,18 @@ def addTestMails(context):
     task3.invokeFactory('task', id='tache3-1', title=u'Sous-tâche 1', assigned_group=task3.assigned_group)
     task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group)
 
-    senders_cycle = cycle(senders)
-
     filespath = "%s/batchimport/toprocess/outgoing-mail" % imiodmsmail.__path__[0]
     files = [unicode(name, 'utf8') for name in os.listdir(filespath)
              if os.path.splitext(name)[1][1:] in ('odt')]
     files.sort()
     files_cycle = cycle(files)
+    pf = contacts['personnel-folder']
+    orgas_cycle = cycle(registry[ORGANIZATIONS_REGISTRY])
+    recipients_cycle = cycle(senders)
+    users_cycle = cycle(['chef', 'agent', 'agent'])
+    senders_cycle = cycle([pf['chef']['responsable-grh'].UID(), pf['agent']['agent-grh'].UID(),
+                           pf['agent']['agent-secretariat'].UID()])
+
     # outgoing mails
     ofld = site['outgoing-mail']
     for i in range(1, 10):
@@ -1108,9 +1113,13 @@ def addTestMails(context):
             params = {'title': 'Réponse %d' % i,
                       'internal_reference_no': internalReferenceOutgoingMailDefaultValue(data),
                       'mail_date': mailDateDefaultValue(data),
+                      'treating_groups': orgas_cycle.next(),
+                      'mail_type': 'courrier',
+                      'sender': senders_cycle.next(),
+                      'assigned_user': users_cycle.next(),
                       #temporary in comment because it doesn't pass in test and case probably errors when deleting site
                       #'in_reply_to': [RelationValue(intids.getId(inmail))],
-                      'recipients': [RelationValue(senders_cycle.next())],
+                      'recipients': [RelationValue(recipients_cycle.next())],
                       }
             ofld.invokeFactory('dmsoutgoingmail', id='reponse%d' % i, **params)
             mail = ofld['reponse%d' % i]
