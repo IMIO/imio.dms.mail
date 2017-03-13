@@ -283,7 +283,7 @@
  <transition transition_id="back_to_scanned" title="om_back_to_scanned" new_state="scanned" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_scanned.png" i18n:translate="">om_back_to_scanned</action>
   <guard>
-   <guard-permission>Plone Site Setup: Site</guard-permission>
+   <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
  <transition transition_id="back_to_service_chief" title="om_back_to_service_chief" new_state="proposed_to_service_chief" trigger="USER" before_script="" after_script="" i18n:attributes="title">
@@ -313,7 +313,7 @@
  <transition transition_id="set_scanned" title="om_set_scanned" new_state="scanned" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_set_scanned.png" i18n:translate="">om_set_scanned</action>
   <guard>
-   <guard-permission>Plone Site Setup: Site</guard-permission>
+   <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
  <variable variable_id="action" for_catalog="False" for_status="True" update_always="True">
