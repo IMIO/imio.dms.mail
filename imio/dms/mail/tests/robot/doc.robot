@@ -452,6 +452,45 @@ CS nouveau
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 cs 2 visualisation.png  id=content
 
+CS depuis le scanner
+# partie 2.3.3 Envoi par le scanner
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned2
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs onglet courrier sortant.png  css=.site-plone  id=portal-footer-wrapper
+    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/lock-unlock
+    Wait until element is visible  css=.DV-pageImage  10
+    Select collection  outgoing-mail/mail-searches/searchfor_scanned
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs recherche scanné.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
+    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/lock-unlock?unlock=1
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+
+    ### Edit mail
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table
+    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/edit
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs édition courrier.png  css=.documentEditable
+    Click element  css=.DV-textView span.DV-trigger
+    ${note1}  Add pointy note  css=.DV-textView  Onglet texte  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs édition texte océrisé.png  id=portal-columns  ${note1}
+    Remove element  id=${note1}
+    Input text  name=form.widgets.IDublinCore.title  Accusé de réception population
+    Select from list by index  id=form-widgets-treating_groups  1
+    Click element  form_widgets_sender_select_chzn
+    Input text  css=.chzn-search input  agent
+    Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_1
+    Input text  name=form.widgets.recipients.widgets.query  Bernard
+    Wait until element is visible  css=.ac_results[style*="display: block"]  10
+    Click element  css=.ac_results[style*="display: block"] li:first-of-type
+    Sleep  0.5
+    Click element  css=input#form-widgets-external_reference_no
+    Click button  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs création finie.png  id=content  id=viewlet-below-content
+
 Menu courrier
 # partie 2.3.1 Menu de recherches prédéfinies
     Enable autologin as  Manager

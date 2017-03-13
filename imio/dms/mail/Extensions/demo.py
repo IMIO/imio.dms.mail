@@ -117,7 +117,9 @@ def import_scanned2(self, number=2):
             setattr(main_file, key, value)
         main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
         document.reindexObject(idxs=('SearchableText'))
-        api.content.transition(obj=document, transition='set_scanned')
+        # we adopt roles for robotframework
+        with api.env.adopt_roles(roles=['Reviewer']):
+            api.content.transition(obj=document, transition='set_scanned')
 
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
