@@ -425,6 +425,33 @@ CS en réponse
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 visualisation.png  id=content
 
+CS nouveau
+# partie 2.3.2 Nouveau courrier sortant
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/outgoing-mail
+    Wait until element is visible  css=.faceted-table-results  10
+
+    ### Create outgoingmail
+    ${note1}  Add pointy note  id=newOMCreation  Lien d'ajout  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-2 cs 1 lien ajout.png  id=portal-column-one  ${note1}
+    Remove element  id=${note1}
+    Click element  newOMCreation
+    Wait until element is visible  css=.template-dmsoutgoingmail #formfield-form-widgets-sender  10
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-2 cs 1 création.png  id=content
+    Input text  name=form.widgets.IDublinCore.title  Annonce de la réfection des trottoirs Rue Moyenne
+    Input text  name=form.widgets.recipients.widgets.query  Non encod
+    Wait until element is visible  css=.ac_results[style*="display: block"]  10
+    Click element  css=.ac_results[style*="display: block"] li
+    Click button  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    Capture and crop page screenshot  doc/utilisation/2-3-2 cs 1 création finie.png  id=content  id=viewlet-below-content
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/create_main_file?filename=Réfection+trottoir.odt&title=Réfection+trottoir
+    Wait until element is visible  css=.DV-pageImage  10
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-3-2 cs 2 visualisation.png  id=content
+
 Menu courrier
 # partie 2.3.1 Menu de recherches prédéfinies
     Enable autologin as  Manager
