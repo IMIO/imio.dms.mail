@@ -346,7 +346,7 @@ CE manuel
     Select from list by value  id=form-widgets-mail_type  courrier
     Select from list by index  id=form-widgets-treating_groups  2
     Click button  id=form-buttons-save
-    Sleep  1
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 1 création finie.png  id=content  id=viewlet-below-content
 
     ### Create mainfile
@@ -506,39 +506,54 @@ Menu courrier
     Capture and crop page screenshot  doc/utilisation/2-4-1 menu tâches.png  css=.portletWidgetCollection
 
 Tableaux de bord
-# partie 2.3.2 Tableaux de bord
+# partie 2.4.2 Tableaux de bord
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?number=16
-#    Enable autologin as  dirg
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  task_description  <p>Fais ceci</p>  text/html
+    Fire transition  ${UID}  propose_to_service_chief
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord général.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord général.png  id=content
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Unselect checkbox  select_unselect_items
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    Select checkbox  css=td.select_item_checkbox input[value='${UID}']
+    # treating group
+    ${UID2} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    Select checkbox  css=td.select_item_checkbox input[value='${UID2}']
     Click button  id=treatinggroup-batch-action-but
-    Wait until element is visible  id=formfield-form-widgets-treating_group  10
+    Wait until element is visible  css=.pb-ajax #formfield-form-widgets-treating_group  10
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord lot choix service.png  css=.pb-ajax
+    Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord lot choix service.png  css=.pb-ajax
     Click element  css=div.overlay-ajax .close
+    # review_state
+    Select checkbox  css=td.select_item_checkbox input[value='${UID}']
+    Click button  id=transition-batch-action-but
+    Wait until element is visible  css=.pb-ajax #formfield-form-widgets-transition  10
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord lot transition.png  css=.pb-ajax
+    Click element  css=div.overlay-ajax .close
+    Unselect checkbox  css=td.select_item_checkbox input[value='${UID}']
+    # recipients
     Click button  id=recipientgroup-batch-action-but
     Wait until element is visible  id=formfield-form-widgets-action_choice  10
     Select from list by value  id=form-widgets-action_choice  replace
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord lot services en copie.png  css=.pb-ajax
+    Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord lot services en copie.png  css=.pb-ajax
     Click element  css=div.overlay-ajax .close
     Wait until element is visible  css=.faceted-sections-buttons-more  10
     Click element  css=.faceted-sections-buttons-more
     Wait until element is visible  id=top---advanced---widgets  10
-    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord filtres avances.png  id=top---advanced---widgets
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord filtres avances.png  id=top---advanced---widgets
     click element  css=.select2-container
     Input text  css=.select2-input  elec
     Wait until element is visible  css=.select2-results  10
-    Capture and crop page screenshot  doc/utilisation/2-3-2 tableaux de bord filtre expéditeur.png  id=top---advanced---widgets  css=.select2-results
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord filtre expéditeur.png  id=top---advanced---widgets  css=.select2-results
 
 Contacts 1
 # partie 2.8.1 Recherche de contacts
