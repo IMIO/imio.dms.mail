@@ -21,7 +21,7 @@ msgstr "Utilisateur assigné"
 
 #: ../faceted_conf/im-faceted:
 msgid "Base collections"
-msgstr "Menu courrier"
+msgstr "Tableau de Bord"
 
 #: ../faceted_conf/im-faceted:
 msgid "Created"

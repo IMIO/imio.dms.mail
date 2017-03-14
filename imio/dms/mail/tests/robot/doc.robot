@@ -492,12 +492,18 @@ CS depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-3-3 cs création finie.png  id=content  id=viewlet-below-content
 
 Menu courrier
-# partie 2.3.1 Menu de recherches prédéfinies
+# partie 2.4.1 Menu de recherches prédéfinies
     Enable autologin as  Manager
-    Set autologin username  encodeur
+    Set autologin username  dirg
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-3-1 menu courrier.png  css=.portletWidgetCollection
+    Capture and crop page screenshot  doc/utilisation/2-4-1 menu ce.png  css=.portletWidgetCollection
+    Go to  ${PLONE_URL}/outgoing-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-4-1 menu cs.png  css=.portletWidgetCollection
+    Go to  ${PLONE_URL}/tasks
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-4-1 menu tâches.png  css=.portletWidgetCollection
 
 Tableaux de bord
 # partie 2.3.2 Tableaux de bord
