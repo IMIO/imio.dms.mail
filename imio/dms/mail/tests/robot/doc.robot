@@ -418,29 +418,42 @@ Tableaux de bord
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord filtre expéditeur.png  id=top---advanced---widgets  css=.select2-results
 
-#Visualisation
-# partie 2.4 Visualisation des courriers
+Visualisation
+# partie 2.5 Visualisation des courriers
     Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    #Set field value  ${UID}  reception_date  201703121515  datetime%Y%m%d%H%M
+    #Fire transition  ${UID}  propose_to_service_chief
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-4 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    Capture and crop page screenshot  doc/utilisation/2-5 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
+    Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     # DO NOT WORK ANYMORE: WAITING FOR GECKODRIVER UPDATE !!!!!
     #Mouse over  css=#form-widgets-sender a.link-tooltip
     #Wait until element is visible  css=div.tooltip #person  10
     ## Le pointeur fait disparaître le tooltip
     ##${pointer}  Add pointer  css=#form-widgets-sender a.link-tooltip
-    Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant personne.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant personne.png  id=content
     ##Remove element  ${pointer}
     ## La capture du tooltip title ne fonctionne pas!
     #Mouse over  css=a.version-link
     ##Sleep  1
-    ##Capture and crop page screenshot  doc/utilisation/2-4 courrier entrant ged.png  id=content
+    ##Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant ged.png  id=content
 
-#Modification
+Modification
 # partie 2.5 Modification des courriers
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
