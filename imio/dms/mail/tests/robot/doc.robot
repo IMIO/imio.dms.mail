@@ -19,6 +19,7 @@ ${SELENIUM_RUN_ON_FAILURE} =  Debug
 
 Premiers pas
 # partie 2.1 Premiers pas
+    #Log to console  LOG
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1 accès à l'application.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
@@ -454,23 +455,38 @@ Visualisation
     ##Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant ged.png  id=content
 
 Modification
-# partie 2.5 Modification des courriers
+# partie 2.6 Modification des courriers
     Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  original_mail_date  20170314  date
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     ${note20}  Add pointy note  id=contentview-edit  Lien d'édition  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-5 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table  ${note20}
+    Capture and crop page screenshot  doc/utilisation/2-6 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table  ${note20}
     Remove element  id=${note20}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Sleep  0.2
-    Capture and crop page screenshot  doc/utilisation/2-5 édition courrier.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-6 édition courrier.png  css=.documentEditable
     Click button  id=form-buttons-cancel
-    #Log to console  end
-    # Next screenshot in 2.6 part to avoid dirty history
+    Fire transition  ${UID}  propose_to_service_chief
+    Enable autologin as  chef
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-6 édition limitée courrier.png  css=.documentEditable
+    Click button  id=form-buttons-cancel
 
-#Workflow
+Workflow
 # partie 2.6 Workflow
 #    Enable autologin as  Manager
 #    Set autologin username  encodeur
