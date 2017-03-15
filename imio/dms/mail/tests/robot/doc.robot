@@ -532,7 +532,7 @@ Tâche
     Wait until element is visible  css=.th_header_assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
 
-Workflows
+Workflow ce
 # partie 2.8.1 Principe et utilisation
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -543,7 +543,6 @@ Workflows
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  sender  ${SENDER}  reference
     Set field value  ${UID}  treating_groups  ${GRH}  str
-    Set field value  ${UID}  assigned_user  agent  str
     Set field value  ${UID}  original_mail_date  20170314  date
     # db
     Go to  ${PLONE_URL}/incoming-mail
@@ -554,18 +553,58 @@ Workflows
     Remove elements  id=${note1}  id=${note2}
     # ce
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note30}  Add pointy note  css=input.apButtonWF_propose_to_manager  Transition  position=top  color=blue
     ${note31}  Add pointy note  css=input.apButtonWF_propose_to_service_chief  Transition  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-8-1 bouton transition.png  id=contentview-view  id=content-history  css=table.actionspanel-no-style-table  ${note30}
     Remove elements  id=${note30}  id=${note31}
-    Fire transition  ${UID}  propose_to_service_chief
+# partie 2.8.2 ce
+    Fire transition  ${UID}  propose_to_manager
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-2 transition vers dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  dirg
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-    Click button  css=input.apButtonWF_back_to_manager
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  propose_to_service_chief
+    Enable autologin as  chef
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état chef.png  css=.documentEditable
+    Remove element  id=${note32}
+    Sleep  0.1
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-2 édition limitée courrier.png  css=.documentEditable
+    Select from list by value  id=form-widgets-ITask-due_date-day  6
+    Select from list by value  id=form-widgets-ITask-due_date-month  6
+    Select from list by value  id=form-widgets-ITask-due_date-year  2015
+    Click button  id=form-buttons-save
+    Set field value  ${UID}  assigned_user  agent  field_type normal
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état chef assigné.png  css=.documentEditable
+    Fire transition  ${UID}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent à traiter.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  treat
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent traitement.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  close
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    # back & history
+    Click button  css=input.apButtonWF_back_to_treatment
     Wait until element is visible  css=form#confirmTransitionForm  10
-    Input text  name=comment  Mauvais service traitant.\nMerci d'adapter.
+    Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
     Capture and crop page screenshot  doc/utilisation/2-8-1 transition retour.png  id=content
     Click button  name=form.buttons.save
     Wait until element is visible  css=.highlight-history-link  10
@@ -574,45 +613,6 @@ Workflows
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1 historique.png  id=content
-
-    exit
-    Capture and crop page screenshot  doc/utilisation/2-6 transition vers dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
-    Enable autologin as  dirg
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Capture and crop page screenshot  doc/utilisation/2-6 état dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
-    Fire transition  ${UID}  propose_to_service_chief
-    Enable autologin as  chef
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-    ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-6 état chef.png  css=.documentEditable
-    Remove element  id=${note32}
-    Sleep  0.1
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
-    Sleep  0.5
-    Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-5 édition limitée courrier.png  css=.documentEditable
-    Select from list by value  id=form-widgets-ITask-due_date-day  6
-    Select from list by value  id=form-widgets-ITask-due_date-month  6
-    Select from list by value  id=form-widgets-ITask-due_date-year  2015
-    Click button  id=form-buttons-save
-    Set field value  ${UID}  assigned_user  agent  field_type normal
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-6 état chef assigné.png  css=.documentEditable
-    Fire transition  ${UID}  propose_to_agent
-    Enable autologin as  agent
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-6 état agent à traiter.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
-    Fire transition  ${UID}  treat
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-6 état agent traitement.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
-    Fire transition  ${UID}  close
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-6 état agent clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
 
 Contacts 1
 # partie 2.8.1 Recherche de contacts
