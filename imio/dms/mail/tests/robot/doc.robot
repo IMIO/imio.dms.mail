@@ -532,21 +532,50 @@ Tâche
     Wait until element is visible  css=.th_header_assigned_group  10
     Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
 
-Workflow
-# partie 2.8 Workflow
-#    Enable autologin as  Manager
-#    Set autologin username  encodeur
+Workflows
+# partie 2.8.1 Principe et utilisation
     Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    #Fire transition  ${UID}  back_to_creation
-    Enable autologin as  encodeur
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    # db
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    ${note1}  Add pointy note  css=.faceted-table-results tr:nth-child(2) td.td_cell_actions td:first-of-type  Transition  position=top  color=blue
+    ${note2}  Add pointy note  transition-batch-action  Transition par lot  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-8-1 transition tb.png  css=.faceted-table-results > thead  transition-batch-action  recipientgroup-batch-action  ${note2}
+    Remove elements  id=${note1}  id=${note2}
+    # ce
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
     ${note30}  Add pointy note  css=input.apButtonWF_propose_to_manager  Transition  position=top  color=blue
     ${note31}  Add pointy note  css=input.apButtonWF_propose_to_service_chief  Transition  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-6 bouton transition.png  id=contentview-view  id=content-history  css=table.actionspanel-no-style-table  ${note30}
+    Capture and crop page screenshot  doc/utilisation/2-8-1 bouton transition.png  id=contentview-view  id=content-history  css=table.actionspanel-no-style-table  ${note30}
     Remove elements  id=${note30}  id=${note31}
-    Fire transition  ${UID}  propose_to_manager
+    Fire transition  ${UID}  propose_to_service_chief
+    Enable autologin as  dirg
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Click button  css=input.apButtonWF_back_to_manager
+    Wait until element is visible  css=form#confirmTransitionForm  10
+    Input text  name=comment  Mauvais service traitant.\nMerci d'adapter.
+    Capture and crop page screenshot  doc/utilisation/2-8-1 transition retour.png  id=content
+    Click button  name=form.buttons.save
+    Wait until element is visible  css=.highlight-history-link  10
+    Capture and crop page screenshot  doc/utilisation/2-8-1 lien historique.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Click element  css=#content-history .link-overlay
+    #Wait until element is visible  css=#content-history #content  10
+    Sleep  1
+    Capture and crop page screenshot  doc/utilisation/2-8-1 historique.png  id=content
+
+    exit
     Capture and crop page screenshot  doc/utilisation/2-6 transition vers dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  dirg
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
@@ -584,18 +613,6 @@ Workflow
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-6 état agent clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
-    Click button  css=input.apButtonWF_back_to_treatment
-    Wait until element is visible  css=form#confirmTransitionForm  10
-    Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
-    Capture and crop page screenshot  doc/utilisation/2-6 transition retour.png  id=content
-    Click button  name=form.buttons.save
-    #Wait until element is not visible  css=form#confirmTransitionForm  10
-    Wait until element is visible  css=.highlight-history-link  10
-    Capture and crop page screenshot  doc/utilisation/2-6 lien historique.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
-    Click element  css=#content-history .link-overlay
-    #Wait until element is visible  css=#content-history #content  10
-    Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-6 historique.png  id=content
 
 Contacts 1
 # partie 2.8.1 Recherche de contacts
