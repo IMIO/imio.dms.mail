@@ -486,8 +486,54 @@ Modification
     Capture and crop page screenshot  doc/utilisation/2-6 édition limitée courrier.png  css=.documentEditable
     Click button  id=form-buttons-cancel
 
+Tâche
+# partie 2.7.1 Ajout d'une tâche
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    Fire transition  ${UID}  propose_to_manager
+    Enable autologin as  dirg
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    Sleep  0.5
+    Select from list by label  name=Add element  Tâche
+    Sleep  0.5
+    Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
+    Sleep  0.2
+    Input text  name=form.widgets.title  Placer le CV dans notre référentiel
+    #Input text  css=#formfield-form-widgets-ITask-task_description #content  TEST
+    #Select from list by index  name=form.widgets.ITask.assigned_user:list  1
+    Click button  id=form-buttons-save
+    Wait until element is visible  css=.template-item_view.portaltype-task #formfield-form-widgets-ITask-due_date  10
+    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout complete.png  id=content
+    ${TUID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
+    Fire transition  ${TUID}  do_to_assign
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
+    Wait until element is visible  css=#plone-contentmenu-workflow span.state-to_assign  10
+    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout to assign.png  id=content
+# partie 2.7.2 Visualisation d'une tâche
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans courrier.png  id=content
+    Go to  ${PLONE_URL}/tasks
+    Wait until element is visible  css=.faceted-table-results  10
+    Wait until element is visible  css=.th_header_assigned_group  10
+    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
+
 Workflow
-# partie 2.6 Workflow
+# partie 2.8 Workflow
 #    Enable autologin as  Manager
 #    Set autologin username  encodeur
     Enable autologin as  encodeur
@@ -550,39 +596,6 @@ Workflow
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-6 historique.png  id=content
-
-#Tâche
-# partie 2.7.1 Ajout d'une tâche
-#    Enable autologin as  encodeur
-    Enable autologin as  dirg
-#    Go to  ${PLONE_URL}/import_scanned
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-    Sleep  0.5
-    Select from list by label  name=Add element  Tâche
-    Sleep  0.5
-    Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
-    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
-    Sleep  0.2
-    Input text  name=form.widgets.title  Placer le CV dans notre référentiel
-    #Input text  css=#formfield-form-widgets-ITask-task_description #content  TEST
-    #Select from list by index  name=form.widgets.ITask.assigned_user:list  1
-    Click button  id=form-buttons-save
-    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout complete.png  id=content
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
-    Fire transition  ${UID}  do_to_assign
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
-    Wait until element is visible  css=#plone-contentmenu-workflow span.state-to_assign  10
-    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout to assign.png  id=content
-# partie 2.7.2 Visualisation d'une tâche
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Sleep  0.5
-    Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans courrier.png  id=content
-    Go to  ${PLONE_URL}/tasks
-    Wait until element is visible  css=.faceted-table-results  10
-    Wait until element is visible  css=.th_header_assigned_group  10
-    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
 
 Contacts 1
 # partie 2.8.1 Recherche de contacts
