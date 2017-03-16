@@ -163,7 +163,7 @@ msgstr "Envoyé"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_set_scanned"
-msgstr "Mettre à scanné"
+msgstr "Mettre en scanné"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"

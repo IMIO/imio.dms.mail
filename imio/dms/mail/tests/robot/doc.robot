@@ -555,6 +555,7 @@ Workflow ce
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     ${note30}  Add pointy note  css=input.apButtonWF_propose_to_manager  Transition  position=top  color=blue
     ${note31}  Add pointy note  css=input.apButtonWF_propose_to_service_chief  Transition  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-8-1 bouton transition.png  id=contentview-view  id=content-history  css=table.actionspanel-no-style-table  ${note30}
@@ -571,6 +572,7 @@ Workflow ce
     Fire transition  ${UID}  propose_to_service_chief
     Enable autologin as  chef
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-8-2 état chef.png  css=.documentEditable
@@ -586,19 +588,23 @@ Workflow ce
     Click button  id=form-buttons-save
     Set field value  ${UID}  assigned_user  agent  field_type normal
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2 état chef assigné.png  css=.documentEditable
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2 état agent à traiter.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  treat
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2 état agent traitement.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  close
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2 état agent clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     # back & history
@@ -613,6 +619,50 @@ Workflow ce
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1 historique.png  id=content
+
+Workflow cs
+# partie 2.8.3 Principe et utilisation
+    Enable autologin as  encodeur
+    ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    Enable autologin as  agent
+    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-grh
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    ${UID} =  Create content  type=dmsoutgoingmail  container=/${PLONE_SITE_ID}/outgoing-mail  title=Réponse candidature  internal_reference_number=S0020
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  sender  ${SENDER}  str
+    Set field value  ${UID}  recipients  ['${RECIPIENT}']  references
+    Set field value  ${UID}  mail_type  courrier  str
+    Sleep  1
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal
+    Wait until element is visible  css=.DV-pageImage  10
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    # transitions
+    Fire transition  ${UID}  propose_to_service_chief
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Enable autologin as  chef
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  propose_to_be_signed
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers signature.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état à la signature.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  mark_as_sent
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état envoyé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+
 
 Contacts 1
 # partie 2.8.1 Recherche de contacts
