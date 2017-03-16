@@ -683,9 +683,9 @@ def configure_om_rolefields(context):
                     'encodeurs': {'roles': ['Reader']}},
     }, 'treating_groups': {
         'created': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                          'Base Field Writer', 'Treating Group Writer'],
+                                          'Base Field Writer', 'Treating Group Writer']},
                     'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                             'Base Field Writer', 'Treating Group Writer']}}},
+                                             'Base Field Writer', 'Treating Group Writer']}},
         'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
                                                      'DmsFile Contributor', 'Base Field Writer',
                                                      'Treating Group Writer']},
