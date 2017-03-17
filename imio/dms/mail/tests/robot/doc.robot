@@ -621,7 +621,7 @@ Workflow ce
     Capture and crop page screenshot  doc/utilisation/2-8-1 historique.png  id=content
 
 Workflow cs
-# partie 2.8.3 Principe et utilisation
+# partie 2.8.3 Courrier sortant
     Enable autologin as  encodeur
     ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
     Enable autologin as  agent
@@ -663,6 +663,45 @@ Workflow cs
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3 état envoyé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
 
+Workflow tâche
+# partie 2.8.4 Tâches
+    Enable autologin as  agent
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    ${OM} =  Create content  type=dmsoutgoingmail  container=/${PLONE_SITE_ID}/outgoing-mail  title=Réponse candidature  internal_reference_number=S0020
+    Set field value  ${OM}  treating_groups  ${GRH}  str
+    ${UID} =  Create content  type=task  container=${OM}  title=Recontacter en septembre
+    Set field value  ${UID}  assigned_group  ${GRH}  str
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Wait until element is visible  css=#formfield-form-widgets-ITask-due_date label  10
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    # transitions
+    Fire transition  ${UID}  do_to_assign
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_assign
+    Capture and crop page screenshot  doc/utilisation/2-8-4 transition vers chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Enable autologin as  chef
+    Set field value  ${UID}  assigned_user  agent  str
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_assign
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état à assigner.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  do_to_do
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_do
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état à faire.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  do_in_progress
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-in_progress
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état en cours.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Fire transition  ${UID}  do_realized
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-realized
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état réalisé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Enable autologin as  chef
+    Fire transition  ${UID}  do_closed
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-closed
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
 
 Contacts 1
 # partie 2.8.1 Recherche de contacts
