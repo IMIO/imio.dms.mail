@@ -352,6 +352,7 @@ def ImioDmsOutgoingMailUpdateFields(the_form):
     """
         Fields update method for add, edit and reply !
     """
+    the_form.fields['ITask.assigned_user'].field = copy.copy(the_form.fields['ITask.assigned_user'].field)
     the_form.fields['ITask.assigned_user'].field.required = True
     move(the_form, 'assigned_user', after='treating_groups', prefix='ITask')
 
