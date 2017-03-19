@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getMultiAdapter
+from plone import api
 
 
 def lock(self, unlock=None):
@@ -13,3 +14,10 @@ def lock(self, unlock=None):
     else:
         view.create_lock()
     return self.REQUEST.response.redirect(self.absolute_url())
+
+
+def deactivate_message(self):
+    portal = api.portal.get()
+    msg = portal['messages-config']['browser-warning']
+    if api.content.get_state(obj=msg) == 'activated':
+        api.content.transition(obj=msg, transition='deactivate')

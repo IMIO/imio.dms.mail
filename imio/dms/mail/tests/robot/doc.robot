@@ -486,7 +486,7 @@ Modification
     Capture and crop page screenshot  doc/utilisation/2-6 édition limitée courrier.png  css=.documentEditable
     Click button  id=form-buttons-cancel
 
-Tâche
+Tache
 # partie 2.7.1 Ajout d'une tâche
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -819,4 +819,7 @@ Suite Setup
     Set Window Size  1280  2880
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
-#    Set Selenium Speed  0.3
+    Set Selenium Speed  0.5
+    Enable autologin as  Manager
+    Go to  ${PLONE_URL}/deactivate_message
+    Disable autologin
