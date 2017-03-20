@@ -98,6 +98,14 @@
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="imio.dms.mail.interfaces.IActionsPanelFolder"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.FolderActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
     </configure>
 
     <!-- BATCH ACTIONS -->

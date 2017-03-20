@@ -209,3 +209,13 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     def renderViewlet(self):
         view = getMultiAdapter((self.context, self.request), name='actions_panel')
         return view(useIcons=False, showOwnDelete=False, showAddContent=True, showActions=True)
+
+
+class FolderActionsPanelViewlet(ActionsPanelViewlet):
+    """
+        Override render method for IActionsPanelFolder
+    """
+
+    def renderViewlet(self):
+        view = getMultiAdapter((self.context, self.request), name='actions_panel')
+        return view(useIcons=False, showTransitions=False, showOwnDelete=False, showAddContent=True, showActions=False)

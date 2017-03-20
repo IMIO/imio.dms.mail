@@ -47,7 +47,7 @@ from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard
 
-from interfaces import IDirectoryFacetedNavigable
+from interfaces import IDirectoryFacetedNavigable, IActionsPanelFolder
 from utils import list_wf_states
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -1247,8 +1247,8 @@ def addOwnPersonnel(context):
     pf = contacts['personnel-folder']
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
+    alsoProvides(pf, IActionsPanelFolder)
     # Set restrictions
-    site.portal_types.person.global_allow = True
     pf.setConstrainTypesMode(1)
     pf.setLocallyAllowedTypes(['person'])
     pf.setImmediatelyAddableTypes(['person'])

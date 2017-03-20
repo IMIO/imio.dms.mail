@@ -45,3 +45,8 @@ class IIMTaskDashboard(Interface):
 class ITaskDashboard(IDocsDashboard):
 
     """Marker interface for task dashboard."""
+
+
+class IActionsPanelFolder(Interface):
+
+    """Marker interface for folder displaying actions panel viewlet."""
