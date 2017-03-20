@@ -4,10 +4,16 @@ from zope.annotation.interfaces import IAnnotations
 from zope.i18n import translate
 from plone import api
 from plone.app.uuid.utils import uuidToObject
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
+from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
+from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from imio.dashboard.browser.overrides import IDDocumentGenerationView
 
+
+### HELPERS ###
 
 class DocumentGenerationBaseHelper():
     """
@@ -98,6 +104,14 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         return images
 
 
+class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DocumentGenerationBaseHelper):
+    """
+        Helper for categories folder
+    """
+
+
+### GENERATION VIEW ###
+
 class DashboardDocumentGenerationView(IDDocumentGenerationView):
     """
     """
@@ -110,10 +124,29 @@ class DashboardDocumentGenerationView(IDDocumentGenerationView):
         return gen_context
 
 
-class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DocumentGenerationBaseHelper):
-    """
-        Helper for categories folder
-    """
+class OMPDGenerationView(PersistentDocumentGenerationView):
+
+    def generate_persistent_doc(self, pod_template, output_format):
+        """ Create a dmsmainfile from the generated document """
+
+        doc, doc_name = self._generate_doc(pod_template, output_format)
+        splitted_name = doc_name.split('.')
+        title = '.'.join(splitted_name[:-1])
+
+        file_object = NamedBlobFile(doc, filename=doc_name)
+        with api.env.adopt_roles(['Manager']):
+            persisted_doc = createContentInContainer(self.context, 'dmsmainfile', title=title,
+                                                     file=file_object)
+        return persisted_doc
+
+    def redirects(self, persisted_doc):
+        """
+        Redirects after creation.
+        """
+        self._set_header_response(persisted_doc.file.filename)
+        response = self.request.response
+        #return response.redirect(self.context.absolute_url())
+        return response.redirect(persisted_doc.absolute_url() + '/external_edit')
 
 
 class CategoriesDocumentGenerationView(IDDocumentGenerationView):
@@ -131,3 +164,12 @@ class CategoriesDocumentGenerationView(IDDocumentGenerationView):
                 gen_context['context'] = helper_view.objs[0].aq_parent
                 gen_context['view'] = helper_view.getDGHV(gen_context['context'])
         return gen_context
+
+### VIEWLETS ###
+
+
+class OutgoingMailLinksViewlet(DocumentGeneratorLinksViewlet):
+    """This viewlet displays available documents to generate on outgoingmail."""
+
+    def get_generation_view_name(self, template, output_format):
+        return 'persistent-document-generation'

@@ -270,6 +270,24 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="persistent-document-generation"
+        class="imio.dms.mail.browser.documentgenerator.OMPDGenerationView"
+        permission="zope2.View"
+        />
+
+    <configure package="collective.documentgenerator">
+        <browser:viewlet
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            name="document-generation-link"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+            class="imio.dms.mail.browser.documentgenerator.OutgoingMailLinksViewlet"
+            template="viewlets/generationlinks.pt"
+            permission="zope2.View"
+            />
+    </configure>
+
     <!-- vocabulary for the sender autocomplete faceted widget -->
     <browser:view
         for="*"
