@@ -3,4 +3,7 @@
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
  </property>
+ <property name="allowed_content_types">
+  <element value="organization"/>
+ </property>
 </object>

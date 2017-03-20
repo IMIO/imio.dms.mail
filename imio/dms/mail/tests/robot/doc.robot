@@ -819,7 +819,7 @@ Suite Setup
     Set Window Size  1280  2880
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
-    Set Selenium Speed  0.5
+    Set Selenium Speed  0.2
     Enable autologin as  Manager
     Go to  ${PLONE_URL}/deactivate_message
     Disable autologin
