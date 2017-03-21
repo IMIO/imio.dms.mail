@@ -2,8 +2,9 @@
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 from zope.i18n import translate
-from z3c.table.column import Column
+from z3c.table.column import Column, LinkColumn
 from Products.CMFPlone.utils import safe_unicode
+from collective.dms.basecontent.browser.column import IconColumn
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.dms.mail import _
@@ -29,6 +30,22 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         return 'title="%s"' % '\n'.join(scan_infos)
 
 
+#class GenerationColumn(IconColumn, LinkColumn):
+class GenerationColumn(LinkColumn, IconColumn):
+    header = u"Mailing"
+    weight = 25  # before author = 30
+    iconName = "++resource++imio.dms.mail/mailing.gif"
+
+    def getLinkURL(self, item):
+        """Setup link url."""
+        url = item.getURL()
+        om_url = url.rsplit('/', 1)[0]
+        return '%s/@@persistent-document-generation?template_uid=%s&output_format=odt' % (om_url, item.UID)
+
+    def getLinkContent(self, item):
+        return u"""<img title="%s" src="%s" />""" % (_(u"Mailing"), '%s/%s' % (self.table.portal_url, self.iconName))
+
+
 class AssignedGroupColumn(Column):
 
     """Column that displays assigned group."""
@@ -42,3 +59,5 @@ class AssignedGroupColumn(Column):
         factory = getUtility(IVocabularyFactory, 'collective.task.AssignedGroups')
         voc = factory(item)
         return safe_unicode(voc.getTerm(item.assigned_group).title)
+
+
