@@ -315,13 +315,13 @@
         name="dms.title"
     />
 
-    <adapter
+    <!--adapter
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
              zope.publisher.interfaces.browser.IBrowserRequest
              collective.dms.basecontent.browser.listing.VersionsTable"
         factory=".table.GenerationColumn"
         provides="z3c.table.interfaces.IColumn"
         name="dms.generation"
-    />
+    /-->
 
 </configure>

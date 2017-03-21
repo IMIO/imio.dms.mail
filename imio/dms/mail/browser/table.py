@@ -30,7 +30,6 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         return 'title="%s"' % '\n'.join(scan_infos)
 
 
-#class GenerationColumn(IconColumn, LinkColumn):
 class GenerationColumn(LinkColumn, IconColumn):
     header = u"Mailing"
     weight = 25  # before author = 30
@@ -40,6 +39,7 @@ class GenerationColumn(LinkColumn, IconColumn):
         """Setup link url."""
         url = item.getURL()
         om_url = url.rsplit('/', 1)[0]
+        # must use new view with title given and reference to mailing template
         return '%s/@@persistent-document-generation?template_uid=%s&output_format=odt' % (om_url, item.UID)
 
     def getLinkContent(self, item):
