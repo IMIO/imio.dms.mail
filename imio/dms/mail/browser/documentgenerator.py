@@ -129,7 +129,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
     def generate_persistent_doc(self, pod_template, output_format):
         """ Create a dmsmainfile from the generated document """
 
-        doc, doc_name = self._generate_doc(pod_template, output_format)
+        doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
         splitted_name = doc_name.split('.')
         title = '.'.join(splitted_name[:-1])
 
