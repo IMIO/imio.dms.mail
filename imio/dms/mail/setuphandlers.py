@@ -1367,18 +1367,22 @@ def get_dashboard_collections(folder, uids=False):
 def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
-    if not base_hasattr(site, 'templates'):
-        folderid = site.invokeFactory("Folder", id='templates', title=_(u"Templates"))
-        tplt_fld = getattr(site, folderid)
+    for path, title in [('templates', _(u"Templates")), ('templates/om', _(u"Outgoing mail"))]:
+        parts = path.split('/')
+        id = parts[-1]
+        parent = site.unrestrictedTraverse('/'.join(parts[:-1]))
+        if not base_hasattr(parent, id):
+            folderid = parent.invokeFactory("Folder", id=id, title=title)
+            tplt_fld = getattr(parent, folderid)
 
-        template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
-        tplt_fld.setLocallyAllowedTypes(template_types)
-        tplt_fld.setImmediatelyAddableTypes(template_types)
-        tplt_fld.setConstrainTypesMode(1)
-        tplt_fld.setExcludeFromNav(True)
-        api.content.transition(obj=tplt_fld, transition='show_internally')
-        alsoProvides(tplt_fld, INextPrevNotNavigable)
-        logger.info('Templates folder created')
+            template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
+            tplt_fld.setLocallyAllowedTypes(template_types)
+            tplt_fld.setImmediatelyAddableTypes(template_types)
+            tplt_fld.setConstrainTypesMode(1)
+            tplt_fld.setExcludeFromNav(True)
+            api.content.transition(obj=tplt_fld, transition='show_internally')
+            alsoProvides(tplt_fld, INextPrevNotNavigable)
+            logger.info("'%s' folder created" % path)
 
     dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
     templates = [
