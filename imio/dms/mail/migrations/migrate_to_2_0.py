@@ -12,6 +12,7 @@ from Products.CMFPlone.utils import base_hasattr
 
 from Products.CPUtils.Extensions.utils import mark_last_version, change_user_properties
 #from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
@@ -38,6 +39,18 @@ class Migrate_To_2_0(Migrator):
         for brain in self.catalog(portal_type='dmsoutgoingmail', id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
                                   'reponse5', 'reponse6', 'reponse7', 'reponse8', 'reponse9']):
             api.content.delete(obj=brain.getObject())
+
+    def folder_local_roles(self):
+        registry = getUtility(IRegistry)
+        # contributor on a contact can edit too
+        for folder in (self.portal['outgoing-mail'], self.portal['contacts']):
+            dic = folder.__ac_local_roles__
+            for principal in dic.keys():
+                if principal.endswith('_encodeur'):
+                    del dic[principal]
+            for uid in registry[ORGANIZATIONS_REGISTRY]:
+                dic["%s_encodeur" % uid] = ['Contributor']
+            folder._p_changed = True
 
     def manage_localroles(self):
         rpl = {'IM Field Writer': 'Base Field Writer', 'IM Treating Group Writer': 'Treating Group Writer'}
@@ -193,6 +206,9 @@ class Migrate_To_2_0(Migrator):
 
         # configure dashboard on omf
         self.configure_dashboard()
+
+        # configure local roles on omf
+        self.folder_local_roles()
 
         # manage task for both incoming and outgoing mails
         self.create_tasks_folder()

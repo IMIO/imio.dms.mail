@@ -135,14 +135,15 @@ def contact_plonegroup_change(event):
         if not registry[FUNCTIONS_REGISTRY] or not registry[ORGANIZATIONS_REGISTRY]:
             return
         portal = api.portal.get()
-        omf = portal['outgoing-mail']
-        dic = omf.__ac_local_roles__
-        for principal in dic.keys():
-            if principal.endswith('_encodeur'):
-                del dic[principal]
-        for uid in registry[ORGANIZATIONS_REGISTRY]:
-            dic["%s_encodeur" % uid] = ['Contributor']
-        omf._p_changed = True
+        # contributor on a contact can edit too
+        for folder in (portal['outgoing-mail'], portal['contacts']):
+            dic = folder.__ac_local_roles__
+            for principal in dic.keys():
+                if principal.endswith('_encodeur'):
+                    del dic[principal]
+            for uid in registry[ORGANIZATIONS_REGISTRY]:
+                dic["%s_encodeur" % uid] = ['Contributor']
+            folder._p_changed = True
 
 
 def user_related_modification(event):
