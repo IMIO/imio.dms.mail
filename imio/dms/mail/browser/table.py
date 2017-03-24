@@ -31,7 +31,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
 
 
 class GenerationColumn(LinkColumn, IconColumn):
-    header = u"Mailing"
+    header = ""
     weight = 25  # before author = 30
     iconName = "++resource++imio.dms.mail/mailing.gif"
 
@@ -59,5 +59,3 @@ class AssignedGroupColumn(Column):
         factory = getUtility(IVocabularyFactory, 'collective.task.AssignedGroups')
         voc = factory(item)
         return safe_unicode(voc.getTerm(item.assigned_group).title)
-
-
