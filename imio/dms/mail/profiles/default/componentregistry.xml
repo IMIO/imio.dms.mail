@@ -16,5 +16,10 @@
       factory="collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
       name="collective.task.AssignedGroups"
     />
+    <utility
+      interface="zope.schema.interfaces.IVocabularyFactory"
+      factory="collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
+      name="collective.task.Enquirer"
+    />
   </utilities>
 </componentregistry>

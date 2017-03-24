@@ -1,6 +1,6 @@
 import copy
 
-from z3c.form.interfaces import HIDDEN_MODE
+#from z3c.form.interfaces import HIDDEN_MODE
 
 from plone import api
 from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
@@ -8,8 +8,8 @@ from plone.dexterity.browser.edit import DefaultEditForm
 
 from Products.CMFPlone.utils import base_hasattr
 
-from ..utils import voc_selected_org_suffix_users
 from collective.task import _ as _t
+from ..utils import voc_selected_org_suffix_users
 
 
 def filter_task_assigned_users(group):
@@ -26,8 +26,9 @@ def TaskUpdateWidgets(self):
     self.widgets['ITask.assigned_group'].field.slave_fields[0]['initial_trigger'] = True
     # Set assigned_group as required
     self.widgets['ITask.assigned_group'].required = True
+    self.widgets['ITask.enquirer'].required = True
     # Hide enquirer
-    self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
+    # self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
 
 
 class TaskEdit(DefaultEditForm):
@@ -54,12 +55,10 @@ class CustomAddForm(DefaultAddForm):
         # Set parent assigned group as default value
         if base_hasattr(self.context, 'treating_groups') and self.context.treating_groups:
             self.widgets['ITask.assigned_group'].value = self.context.treating_groups
+            self.widgets['ITask.enquirer'].value = self.context.treating_groups
         elif base_hasattr(self.context, 'assigned_group') and self.context.assigned_group:
             self.widgets['ITask.assigned_group'].value = self.context.assigned_group
-        # Set current user as enquirer and hide it
-        userid = api.user.get_current().getId()
-        if userid != 'admin':
-            self.widgets['ITask.enquirer'].value = userid
+            self.widgets['ITask.enquirer'].value = self.context.assigned_group
 
 
 class Add(DefaultAddView):

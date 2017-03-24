@@ -4,6 +4,7 @@ import logging
 
 from zope.component import getUtility
 from zope.interface import alsoProvides
+from zope.lifecycleevent import modified
 
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -41,14 +42,13 @@ class Migrate_To_2_0(Migrator):
             api.content.delete(obj=brain.getObject())
 
     def folder_local_roles(self):
-        registry = getUtility(IRegistry)
         # contributor on a contact can edit too
         for folder in (self.portal['outgoing-mail'], self.portal['contacts']):
             dic = folder.__ac_local_roles__
             for principal in dic.keys():
                 if principal.endswith('_encodeur'):
                     del dic[principal]
-            for uid in registry[ORGANIZATIONS_REGISTRY]:
+            for uid in self.registry[ORGANIZATIONS_REGISTRY]:
                 dic["%s_encodeur" % uid] = ['Contributor']
             folder._p_changed = True
 
@@ -105,6 +105,17 @@ class Migrate_To_2_0(Migrator):
             self.portal.portal_workflow.doActionFor(tsk_folder, "show_internally")
             logger.info('tasks folder created')
 
+    def migrate_tasks(self):
+        for brain in self.catalog(portal_type='task'):
+            obj = brain.getObject()
+            # replace userid by organization
+            if not obj.enquirer or obj.enquirer not in self.registry[ORGANIZATIONS_REGISTRY]:
+                if base_hasattr(obj.aq_parent, 'treating_groups') and obj.aq_parent.treating_groups:
+                    obj.enquirer = obj.aq_parent.treating_groups
+                elif base_hasattr(obj.aq_parent, 'assigned_group') and obj.aq_parent.assigned_group:
+                    obj.enquirer = obj.aq_parent.assigned_group
+                modified(obj)
+
     def update_collections(self):
         """ No more applied """
         for folder, fid, colid in [(self.imf, 'mail-searches', 'all_mails'), (self.omf, 'mail-searches', 'all_mails'),
@@ -156,12 +167,11 @@ class Migrate_To_2_0(Migrator):
 
         # configure external edition
         self.portal.portal_memberdata.manage_changeProperties(ext_editor=True)
-        registry = getUtility(IRegistry)
-        registry['externaleditor.ext_editor'] = True
-        if 'Image' in registry['externaleditor.externaleditor_enabled_types']:
-            registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
-                                                                       'DashboardPODTemplate', 'SubTemplate',
-                                                                       'StyleTemplate', 'dmsmainfile']
+        self.registry['externaleditor.ext_editor'] = True
+        if 'Image' in self.registry['externaleditor.externaleditor_enabled_types']:
+            self.registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
+                                                                            'DashboardPODTemplate', 'SubTemplate',
+                                                                            'StyleTemplate', 'dmsmainfile']
         change_user_properties(self.portal, kw='ext_editor:True', dochange='1')
 
     def configure_dashboard(self):
@@ -195,8 +205,10 @@ class Migrate_To_2_0(Migrator):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
         self.delete_outgoing_examples()
+        self.upgradeProfile('collective.task:default')
         self.manage_localroles()
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry', 'typeinfo', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'plone.app.registry', 'typeinfo',
+                                                     'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
@@ -212,6 +224,9 @@ class Migrate_To_2_0(Migrator):
 
         # manage task for both incoming and outgoing mails
         self.create_tasks_folder()
+
+        # migrate tasks: enquirer field
+        self.migrate_tasks()
 
         # remove actions on all_... collections
         #self.update_collections()
