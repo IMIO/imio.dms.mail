@@ -56,7 +56,7 @@ class TestSetuphandlers(unittest.TestCase):
         #checking positions
         pc = self.portal.portal_catalog
         positions = pc(portal_type=('position',), path={"query": 'plone/contacts'})
-        self.assertEquals(len(positions), 2)
+        self.assertEquals(len(positions), 0)
         #checking persons
         persons = contacts.listFolderContents(contentFilter={'portal_type': 'person'})
         self.assertEquals(len(persons), 4)

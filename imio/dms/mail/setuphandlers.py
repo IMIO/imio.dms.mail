@@ -945,17 +945,6 @@ def addTestDirectory(context):
     contacts.invokeFactory('organization', 'swde', **params)
     swde = contacts['swde']
 
-    # Positions creation (in organisations)
-    params = {'title': u"Agent",
-              'position_type': u'employe',
-              }
-    electrabel.invokeFactory('position', 'agent', **params)
-
-    params = {'title': u"Agent",
-              'position_type': u'employe',
-              }
-    swde.invokeFactory('position', 'agent', **params)
-
     # Persons creation (in directory)
     params = {'lastname': u'Courant',
               'firstname': u'Jean',
@@ -1008,20 +997,19 @@ def addTestDirectory(context):
     # Held positions creation (in persons)
     intids = getUtility(IIntIds)
 
-    # link to a defined position
-    aswde = swde['agent']
+    # link to a defined organisation
     params = {'start_date': datetime.date(2001, 5, 25),
               'end_date': datetime.date(2100, 1, 1),
-              'position': RelationValue(intids.getId(aswde)),
+              'position': RelationValue(intids.getId(swde)),
+              'label': u'Agent',
               }
     sergerobinet.invokeFactory('held_position', 'agent-swde', **params)
     bernardlermitte.invokeFactory('held_position', 'agent-swde', **params)
 
-    # link to an organisation
-    aelec = electrabel['agent']
     params = {'start_date': datetime.date(2005, 5, 25),
               'end_date': datetime.date(2100, 1, 1),
-              'position': RelationValue(intids.getId(aelec)),
+              'position': RelationValue(intids.getId(electrabel)),
+              'label': u'Agent',
               }
     jeancourant.invokeFactory('held_position', 'agent-electrabel', **params)
 

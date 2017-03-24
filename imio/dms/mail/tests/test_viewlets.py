@@ -15,25 +15,34 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         self.portal = self.layer['portal']
         self.ctct = self.portal['contacts']
         self.elec = self.ctct['electrabel']
+        self.jean = self.ctct['jeancourant']
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
-        self.viewlet = ContactContentBackrefsViewlet(self.elec, self.elec.REQUEST, None)
 
     def test_backrefs(self):
-        self.assertListEqual(self.viewlet.backrefs(),
+        viewlet = ContactContentBackrefsViewlet(self.elec, self.elec.REQUEST, None)
+        self.assertListEqual(viewlet.backrefs(),
                              [self.omf['reponse7'], self.omf['reponse1'], self.imf['courrier7'], self.imf['courrier1']])
 
     def test_find_relations(self):
-        ret = self.viewlet.find_relations(from_attribute='sender')
+        viewlet = ContactContentBackrefsViewlet(self.elec, self.elec.REQUEST, None)
+        ret = viewlet.find_relations(from_attribute='sender')
         self.assertSetEqual(set(ret),
                             set([self.imf['courrier7'], self.imf['courrier1']]))
-        ret = self.viewlet.find_relations(from_attribute='sender')
+        ret = viewlet.find_relations(from_attribute='sender')
         self.assertSetEqual(set(ret),
                             set([self.imf['courrier7'], self.imf['courrier1']]))
-        ret = self.viewlet.find_relations(from_interfaces_flattened=IImioDmsIncomingMail)
+        ret = viewlet.find_relations(from_interfaces_flattened=IImioDmsIncomingMail)
         self.assertSetEqual(set(ret),
                             set([self.imf['courrier7'], self.imf['courrier1']]))
+        # call on person
+        viewlet = ContactContentBackrefsViewlet(self.jean, self.jean.REQUEST, None)
+        ret = viewlet.find_relations()
+        self.assertSetEqual(set(ret),
+                            set([self.imf['courrier3'], self.imf['courrier9'], self.omf['reponse3'],
+                                 self.omf['reponse9']]))
         # call on held position
-        agent = self.elec['agent']
+        agent = self.jean['agent-electrabel']
         viewlet = ContactContentBackrefsViewlet(agent, agent.REQUEST, None)
         ret = viewlet.find_relations()
+        self.assertSetEqual(set(ret), set([self.imf['courrier5'], self.omf['reponse5']]))
