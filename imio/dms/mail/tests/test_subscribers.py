@@ -14,6 +14,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from plone import api
 
+from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
@@ -121,7 +122,14 @@ class TestDmsmail(unittest.TestCase):
         group = '%s_editeur' % registry[ORGANIZATIONS_REGISTRY][0]
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
+        orga = api.content.find(UID=registry[ORGANIZATIONS_REGISTRY][0])[0]
+        if ' used in ' in msgs[0].message:
+            self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index."
+                             % group)
+        else:
+        # message from collective.contact.plonegroup
+            self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', linked to used organization '%s'." % (
+                             group, safe_unicode(orga.Title)))
 
     def test_organization_modified(self):
         pc = self.portal.portal_catalog
