@@ -7,7 +7,7 @@
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".subscribers.replace_scanner"
+        handler=".subscribers.dmsdocument_modified"
         />
 
     <subscriber

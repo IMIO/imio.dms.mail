@@ -19,9 +19,10 @@ from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
 from ..interfaces import IOMDashboard, ITaskDashboard
-from ..setuphandlers import (_, configure_om_rolefields, createIMailCollections, add_db_col_folder,
-                             createStateCollections, createOMailCollections, configure_faceted_folder,
-                             createTaskCollections, add_templates, reimport_faceted_config)
+from ..setuphandlers import (_, add_db_col_folder, configure_om_rolefields, configure_task_config,
+                             configure_task_rolefields, createIMailCollections, createStateCollections,
+                             createOMailCollections, configure_faceted_folder, createTaskCollections, add_templates,
+                             reimport_faceted_config)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -227,6 +228,10 @@ class Migrate_To_2_0(Migrator):
 
         # migrate tasks: enquirer field
         self.migrate_tasks()
+
+        # configure role fields on task
+        configure_task_rolefields(self.portal, force=True)
+        configure_task_config(self.portal)
 
         # remove actions on all_... collections
         #self.update_collections()

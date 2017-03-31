@@ -4,6 +4,7 @@ import unittest
 from zExceptions import Redirect
 import zope.event
 from zope.component import getUtility
+from zope.interface import Interface
 from zope.lifecycleevent import ObjectModifiedEvent, Attributes
 
 from plone.app.controlpanel.events import ConfigurationChangedEvent
@@ -34,10 +35,13 @@ class TestDmsmail(unittest.TestCase):
         self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='c1')
         self.omf = self.portal['outgoing-mail']
 
-    def test_replace_scanner(self):
+    def test_dmsdocument_modified(self):
+        # owner changing test
+        registry = getUtility(IRegistry)
+        orgs = registry[ORGANIZATIONS_REGISTRY]
         with api.env.adopt_user(username='scanner'):
             imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
-                                             **{'title': 'IMail created by scanner'})
+                                             **{'title': 'IMail created by scanner', 'treating_groups': orgs[0]})
             dfile = createContentInContainer(imail, 'dmsmainfile', **{'title': 'File created by scanner'})
         self.assertEquals(imail.Creator(), 'scanner')
         self.assertEquals(imail.owner_info()['id'], 'scanner')
@@ -56,6 +60,15 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(dfile.owner_info()['id'], 'encodeur')
         self.assertEquals(dfile.get_local_roles_for_userid('encodeur'), ('Owner',))
         self.assertEquals(dfile.get_local_roles_for_userid('scanner'), ())
+        # tasks update test
+        task1 = api.content.create(container=imail, type='task', title='task1', id='t1', assigned_group=orgs[1])
+        self.assertListEqual(task1.parents_assigned_groups, [orgs[0]])
+        task2 = api.content.create(container=task1, type='task', title='task2', id='t2', assigned_group=orgs[2])
+        self.assertListEqual(task2.parents_assigned_groups, [orgs[0], orgs[1]])
+        imail.treating_groups = orgs[4]
+        zope.event.notify(ObjectModifiedEvent(imail, Attributes(Interface, 'treating_groups')))
+        self.assertListEqual(task1.parents_assigned_groups, [orgs[4]])
+        self.assertListEqual(task2.parents_assigned_groups, [orgs[4], orgs[1]])
 
     def test_dmsmainfile_modified(self):
         pc = self.portal.portal_catalog

@@ -99,6 +99,8 @@ def postInstall(context):
     else:
         configure_task_rolefields(context, force=False)
 
+    configure_task_config(context)
+
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
@@ -721,6 +723,26 @@ def configure_task_rolefields(context, force=False):
     """
     roles_config = {
         'static_config': {
+            'to_assign': {
+                'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+                'encodeurs': {'roles': ['Reader']},
+            },
+            'to_do': {
+                'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+                'encodeurs': {'roles': ['Reader']},
+            },
+            'in_progress': {
+                'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+                'encodeurs': {'roles': ['Reader']},
+            },
+            'realized': {
+                'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+                'encodeurs': {'roles': ['Reader']},
+            },
+            'closed': {
+                'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+                'encodeurs': {'roles': ['Reader']},
+            },
         },
         'assigned_group': {
             'to_assign': {
@@ -732,27 +754,60 @@ def configure_task_rolefields(context, force=False):
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                                'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'lecteur': {'roles': ['Reader']},
             },
             'in_progress': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                                'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'lecteur': {'roles': ['Reader']},
             },
             'realized': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
                                'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'lecteur': {'roles': ['Reader']},
             },
             'closed': {
                 'editeur': {'roles': ['Reader'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'validateur': {'roles': ['Editor', 'Reviewer'],
                                'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
+                'lecteur': {'roles': ['Reader']},
             },
         },
         'assigned_user': {
+        },
+        'enquirer': {
+        },
+        'parents_assigned_groups': {
+            'to_assign': {
+                'validateur': {'roles': ['Reader']},
+            },
+            'to_do': {
+                'editeur': {'roles': ['Reader']},
+                'validateur': {'roles': ['Reader']},
+                'lecteur': {'roles': ['Reader']},
+            },
+            'in_progress': {
+                'editeur': {'roles': ['Reader']},
+                'validateur': {'roles': ['Reader']},
+                'lecteur': {'roles': ['Reader']},
+            },
+            'realized': {
+                'editeur': {'roles': ['Reader']},
+                'validateur': {'roles': ['Reader']},
+                'lecteur': {'roles': ['Reader']},
+            },
+            'closed': {
+                'editeur': {'roles': ['Reader']},
+                'validateur': {'roles': ['Reader']},
+                'lecteur': {'roles': ['Reader']},
+            },
+        },
+        'parents_enquirers': {
         },
     }
     for keyname in roles_config:
@@ -760,6 +815,23 @@ def configure_task_rolefields(context, force=False):
         msg = add_fti_configuration('task', roles_config[keyname], keyname=keyname, force=force)
         if msg:
             logger.warn(msg)
+
+
+def configure_task_config(context):
+    """
+        Configure collective task
+    """
+    PARENTS_FIELDS_CONFIG = [
+        {'fieldname': u'parents_assigned_groups', 'attribute': u'assigned_group', 'attribute_prefix': u'ITask',
+         'provided_interface': u'collective.task.interfaces.ITaskContent'},
+        {'fieldname': u'parents_enquirers', 'attribute': u'enquirer', 'attribute_prefix': u'ITask',
+         'provided_interface': u'collective.task.interfaces.ITaskContent'},
+        {'fieldname': u'parents_assigned_groups', 'attribute': u'treating_groups', 'attribute_prefix': None,
+         'provided_interface': u'collective.dms.basecontent.dmsdocument.IDmsDocument'},
+    ]
+    registry = getUtility(IRegistry)
+    logger.info("Configure registry")
+    registry['collective.task.parents_fields'] = PARENTS_FIELDS_CONFIG
 
 
 def configureBatchImport(context):

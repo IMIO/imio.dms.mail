@@ -3,7 +3,7 @@
 from Acquisition import aq_get
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
-from zope.component import getUtility, queryUtility
+from zope.component import getUtility, queryUtility, getAdapter
 from zope.i18n import translate
 from zope.interface import alsoProvides, noLongerProvides
 from zope.intid.interfaces import IIntIds
@@ -22,6 +22,7 @@ from collective.contact.plonegroup.interfaces import INotPloneGroupContact, IPlo
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.task.interfaces import ITaskContainerMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from . import _
@@ -29,10 +30,12 @@ from . import _
 
 # DMSDOCUMENT
 
-def replace_scanner(mail, event):
+def dmsdocument_modified(mail, event):
     """
-        Replace the batch creator by the editor
+        Replace the batch creator by the editor.
+        Updates contained tasks.
     """
+    # owner
     if mail.owner_info().get('id') == 'scanner':
         user = api.user.get_current()
         userid = user.getId()
@@ -62,6 +65,22 @@ def replace_scanner(mail, event):
                 obj.manage_setLocalRoles(userid, roles)
             obj.reindexObject()
         mail.reindexObjectSecurity()
+    # tasks
+    if not event.descriptions:
+        return
+    updates = []
+    adapted = getAdapter(mail, ITaskContainerMethods)
+    fields = adapted.get_parents_fields()
+    for at in event.descriptions:
+        for field in fields:
+            for dic in fields[field]:
+                fieldname = (dic['prefix'] and '%s.%s' % (dic['prefix'], dic['at'])
+                             or dic['at'])
+                if fieldname in at.attributes:
+                    updates.append(field)
+                    break
+    for field in updates:
+        adapted.set_lower_parents_value(field, fields[field])
 
 
 def dmsdocument_transition(mail, event):
