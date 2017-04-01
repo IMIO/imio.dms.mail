@@ -1,6 +1,6 @@
 import copy
 
-#from z3c.form.interfaces import HIDDEN_MODE
+from z3c.form.interfaces import HIDDEN_MODE
 
 from plone import api
 from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
@@ -28,7 +28,7 @@ def TaskUpdateWidgets(self):
     self.widgets['ITask.assigned_group'].required = True
     self.widgets['ITask.enquirer'].required = True
     # Hide enquirer
-    # self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
+    self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
 
 
 class TaskEdit(DefaultEditForm):
