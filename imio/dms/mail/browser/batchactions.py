@@ -6,7 +6,7 @@ from operator import methodcaller
 
 from zope import schema
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.lifecycleevent import modified
+from zope.lifecycleevent import modified, Attributes
 
 from AccessControl import getSecurityManager
 from plone import api
@@ -21,7 +21,9 @@ from z3c.form.interfaces import HIDDEN_MODE
 from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
 
+from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.task.behaviors import ITask
+from collective.task.interfaces import ITaskContent
 from collective.task import _ as TMF
 
 from .. import _
@@ -193,7 +195,7 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.treating_groups = data['treating_group']
-                modified(obj)
+                modified(obj, Attributes(IDmsDocument, 'treating_groups'))
         self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
@@ -396,7 +398,7 @@ class AssignedGroupBatchActionForm(DashboardBatchActionForm):
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.assigned_group = data['assigned_group']
-                modified(obj)
+                modified(obj, Attributes(ITaskContent, 'ITask.assigned_group'))
         self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
