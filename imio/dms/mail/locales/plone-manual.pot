@@ -95,3 +95,11 @@ msgstr ""
 msgid "proposed_to_manager_zs"
 msgstr ""
 
+msgid "om_back_to_print"
+msgstr ""
+
+msgid "om_set_to_print"
+msgstr ""
+
+msgid "om_to_print"
+msgstr ""

@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 """Example."""
 from zope import schema
+from zope.component import getUtility
 from zope.interface import Interface
 
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
+
+from . import _
 
 
 class IEmergencyZoneParameters(Interface):
@@ -51,4 +55,106 @@ class EmergencyZoneAdaptation(WorkflowAdaptationBase):
         if collection.Title().endswith(' DG'):
             collection.setTitle(collection.Title().replace(' DG', ' CZ'))
             collection.reindexObject(['Title', 'SearchableText'])
+        return True, ''
+
+
+class OMToPrintAdaptation(WorkflowAdaptationBase):
+
+    def patch_workflow(self, workflow_name, **parameters):
+        portal = api.portal.get()
+        wtool = portal.portal_workflow
+        # change state title.
+        wf = wtool['outgoingmail_workflow']
+        msg = self.check_state_in_workflow(wf, 'to_print')
+        if not msg:
+            return False, 'State already there'
+
+        # add state
+        wf.states.addState('to_print')
+        to_print = wf.states['to_print']
+
+        # add transitions
+        wf.transitions.addTransition('set_to_print')
+        wf.transitions['set_to_print'].setProperties(
+            title='om_set_to_print',
+            new_state_id='to_print', trigger_type=1, script_name='',
+            actbox_name='om_set_to_print', actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_set_to_print.png', actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+        wf.transitions.addTransition('back_to_print')
+        wf.transitions['back_to_print'].setProperties(
+            title='om_back_to_print',
+            new_state_id='to_print', trigger_type=1, script_name='',
+            actbox_name='om_back_to_print', actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_print.png', actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+
+        # configure states
+        to_print.setProperties(
+            title='om_to_print', description='',
+            transitions=['back_to_service_chief', 'propose_to_be_signed'])
+        transitions = list(wf.states['proposed_to_service_chief'].transitions)
+        transitions.append('set_to_print')
+        wf.states['proposed_to_service_chief'].transitions = tuple(transitions)
+        transitions = list(wf.states['to_be_signed'].transitions)
+        transitions.append('back_to_print')
+        wf.states['to_be_signed'].transitions = tuple(transitions)
+
+        # permissions
+        perms = {
+            'Access contents information': ('Editor', 'Manager', 'Owner', 'Reader', 'Reviewer', 'Site Administrator'),
+            'Add portal content': ('Contributor', 'Manager', 'Site Administrator'),
+            'Delete objects': ('Manager', 'Site Administrator'),
+            'Modify portal content': ('Editor', 'Manager', 'Site Administrator'),
+            'Review portal content': ('Manager', 'Reviewer', 'Site Administrator'),
+            'View': ('Editor', 'Manager', 'Owner', 'Reader', 'Reviewer', 'Site Administrator'),
+            'collective.dms.basecontent: Add DmsFile': ('DmsFile Contributor', 'Manager', 'Site Administrator'),
+            'imio.dms.mail: Write mail base fields': ('Manager', 'Site Administrator', 'Base Field Writer'),
+            'imio.dms.mail: Write treating group field': ('Manager', 'Site Administrator', 'Treating Group Writer'),
+        }
+        to_print.permission_roles = perms
+        # proposed.setPermission(permission, 0, roles)
+
+        # ajouter config local roles
+        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
+        lr = getattr(fti, 'localroles')
+        lrsc = lr['static_config']
+        lrsc['to_print'] = {'expedition': {'roles': ['Editor', 'Reviewer']},
+                            'encodeurs': {'roles': ['Reader']},
+                            'dir_general': {'roles': ['Reader']}}
+        lrtg = lr['treating_groups']
+        lrtg['to_print'] = {'validateur': {'roles': ['Reader']},
+                            'editeur': {'roles': ['Reader']},
+                            'encodeur': {'roles': ['Reader']},
+                            'lecteur': {'roles': ['Reader']}}
+        lrrg = lr['recipient_groups']
+        lrrg['to_print'] = {'validateur': {'roles': ['Reader']},
+                            'editeur': {'roles': ['Reader']},
+                            'encodeur': {'roles': ['Reader']},
+                            'lecteur': {'roles': ['Reader']}}
+        # We need to indicate that the object has been modified and must be "saved"
+        fti._p_changed = True
+
+        # add collection
+        folder = portal['outgoing-mail']['mail-searches']
+        col_id = 'searchfor_to_print'
+        folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
+                             query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                                     'v': ['dmsoutgoingmail']},
+                                    {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
+                                     'v': ['to_print']}],
+                             customViewFields=(u'select_row', u'pretty_link', u'treating_groups', u'sender',
+                                               u'recipients', u'mail_type', u'assigned_user', u'CreationDate',
+                                               u'actions'),
+                             tal_condition=None,
+                             showNumberOfItems=True,
+                             roles_bypassing_talcondition=['Manager', 'Site Administrator'],
+                             sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
+        col = folder[col_id]
+        col.setSubject((u'search', ))
+        col.reindexObject(['Subject'])
+        col.setLayout('tabular_view')
+        folder.portal_workflow.doActionFor(col, "show_internally")
+        folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_to_be_signed'))
+
         return True, ''

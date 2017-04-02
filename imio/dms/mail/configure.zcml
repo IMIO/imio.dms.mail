@@ -208,6 +208,11 @@
         factory=".wfadaptations.EmergencyZoneAdaptation"
     />
 
+    <utility
+        name="imio.dms.mail.wfadaptations.OMToPrint"
+        factory=".wfadaptations.OMToPrintAdaptation"
+    />
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />
