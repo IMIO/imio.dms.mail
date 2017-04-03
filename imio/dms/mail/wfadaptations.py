@@ -9,7 +9,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 
-from . import _
+from setuphandlers import _
 
 
 class IEmergencyZoneParameters(Interface):
@@ -67,7 +67,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         wf = wtool['outgoingmail_workflow']
         msg = self.check_state_in_workflow(wf, 'to_print')
         if not msg:
-            return False, 'State already there'
+            return False, 'State to_print already in workflow'
 
         # add state
         wf.states.addState('to_print')
@@ -119,42 +119,46 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
         lr = getattr(fti, 'localroles')
         lrsc = lr['static_config']
-        lrsc['to_print'] = {'expedition': {'roles': ['Editor', 'Reviewer']},
-                            'encodeurs': {'roles': ['Reader']},
-                            'dir_general': {'roles': ['Reader']}}
+        if 'to_print' not in lrsc:
+            lrsc['to_print'] = {'expedition': {'roles': ['Editor', 'Reviewer']},
+                                'encodeurs': {'roles': ['Reader']},
+                                'dir_general': {'roles': ['Reader']}}
         lrtg = lr['treating_groups']
-        lrtg['to_print'] = {'validateur': {'roles': ['Reader']},
-                            'editeur': {'roles': ['Reader']},
-                            'encodeur': {'roles': ['Reader']},
-                            'lecteur': {'roles': ['Reader']}}
+        if 'to_print' not in lrtg:
+            lrtg['to_print'] = {'validateur': {'roles': ['Reader']},
+                                'editeur': {'roles': ['Reader']},
+                                'encodeur': {'roles': ['Reader']},
+                                'lecteur': {'roles': ['Reader']}}
         lrrg = lr['recipient_groups']
-        lrrg['to_print'] = {'validateur': {'roles': ['Reader']},
-                            'editeur': {'roles': ['Reader']},
-                            'encodeur': {'roles': ['Reader']},
-                            'lecteur': {'roles': ['Reader']}}
+        if 'to_print' not in lrrg:
+            lrrg['to_print'] = {'validateur': {'roles': ['Reader']},
+                                'editeur': {'roles': ['Reader']},
+                                'encodeur': {'roles': ['Reader']},
+                                'lecteur': {'roles': ['Reader']}}
         # We need to indicate that the object has been modified and must be "saved"
         fti._p_changed = True
 
         # add collection
         folder = portal['outgoing-mail']['mail-searches']
         col_id = 'searchfor_to_print'
-        folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
-                             query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                     'v': ['dmsoutgoingmail']},
-                                    {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
-                                     'v': ['to_print']}],
-                             customViewFields=(u'select_row', u'pretty_link', u'treating_groups', u'sender',
-                                               u'recipients', u'mail_type', u'assigned_user', u'CreationDate',
-                                               u'actions'),
-                             tal_condition=None,
-                             showNumberOfItems=True,
-                             roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                             sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
-        col = folder[col_id]
-        col.setSubject((u'search', ))
-        col.reindexObject(['Subject'])
-        col.setLayout('tabular_view')
-        folder.portal_workflow.doActionFor(col, "show_internally")
-        folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_to_be_signed'))
+        if col_id not in folder:
+            folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
+                                 query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': ['dmsoutgoingmail']},
+                                        {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': ['to_print']}],
+                                 customViewFields=(u'select_row', u'pretty_link', u'treating_groups', u'sender',
+                                                   u'recipients', u'mail_type', u'assigned_user', u'CreationDate',
+                                                   u'actions'),
+                                 tal_condition=None,
+                                 showNumberOfItems=True,
+                                 roles_bypassing_talcondition=['Manager', 'Site Administrator'],
+                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
+            col = folder[col_id]
+            col.setSubject((u'search', ))
+            col.reindexObject(['Subject'])
+            col.setLayout('tabular_view')
+            folder.portal_workflow.doActionFor(col, "show_internally")
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_to_be_signed'))
 
         return True, ''
