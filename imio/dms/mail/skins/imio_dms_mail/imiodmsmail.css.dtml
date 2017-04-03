@@ -393,6 +393,18 @@ ul.select2-choices {
     border: 2px solid dimgrey;
 }
 
+.state-to_print {
+ color: cornflowerBlue !important;
+}
+
+#plone-contentmenu-workflow .state-to_print {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: cornflowerBlue;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid cornflowerBlue;
+}
+
 /* colorization for internal_application_workflow */
 
 .state-internally_published {
