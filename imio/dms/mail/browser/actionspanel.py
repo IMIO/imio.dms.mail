@@ -105,8 +105,9 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
 
 class DmsOMActionsPanelView(ActionsPanelView):
 
-    transitions = ['back_to_agent', 'back_to_creation', 'back_to_service_chief', 'back_to_be_signed', 'back_to_scanned',
-                   'propose_to_service_chief', 'propose_to_be_signed', 'mark_as_sent', 'set_scanned']
+    transitions = ['back_to_agent', 'back_to_creation', 'back_to_service_chief', 'back_to_print', 'back_to_be_signed',
+                   'back_to_scanned', 'propose_to_service_chief', 'set_to_print', 'propose_to_be_signed',
+                   'mark_as_sent', 'set_scanned']
     tr_order = dict((val, i) for (i, val) in enumerate(transitions))
 
     def __init__(self, context, request):
