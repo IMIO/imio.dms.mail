@@ -311,3 +311,12 @@ def contact_modified(obj, event):
 #        return
     if IPloneGroupContact.providedBy(obj):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+
+
+def conversion_finished(obj, event):
+    # put a flag on the File to know that its conversion is finished
+    obj.conversion_finished = True
+
+
+def file_added(obj, event):
+    obj.just_added = True

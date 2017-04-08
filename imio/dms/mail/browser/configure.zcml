@@ -33,6 +33,13 @@
         template="templates/listing.pt"
         />
 
+    <browser:page
+        for="*"
+        name="server_sent_events"
+        class=".views.ServerSentEvents"
+        permission="zope2.View"
+        />
+
     <browser:viewlet
         name="collective.contact.core.backrefs"
         for="collective.contact.widget.interfaces.IContactContent"

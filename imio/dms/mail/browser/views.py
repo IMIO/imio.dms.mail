@@ -7,6 +7,7 @@ from zope.interface import implements
 from Products.CMFPlone.browser.ploneview import Plone
 from Products.Five import BrowserView
 from plone import api
+from plone.app.contenttypes.interfaces import IFile
 
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
@@ -152,3 +153,34 @@ class SenderSuggest(BrowserView):
         result += hp
         result += org_bis
         return json.dumps(result)
+
+
+class ServerSentEvents(BrowserView):
+
+    """Send SSE for all file in this context that have just finished its
+    documentviewer conversion.
+
+    See https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+    """
+
+    def __call__(self):
+        self.request.response.setHeader('Content-Type', 'text/event-stream')
+        self.request.response.setHeader('Cache-Control', 'no-cache')
+        self.request.response.setHeader('Pragma', 'no-cache')
+        response = u''
+        for child in self.context.listFolderContents():
+            if IFile.providedBy(child):
+                if getattr(child, 'conversion_finished', False):
+                    info = {
+                        u'id': child.getId(),
+                        u'path': u'/'.join(child.getPhysicalPath())
+                    }
+                    if getattr(child, 'just_added', False):
+                        child.just_added = False
+                        info['justAdded'] = True
+
+                    line = u'data: {}\n\n'.format(json.dumps(info))
+                    response = u"{}{}".format(response, line)
+                    child.conversion_finished = False
+
+        return response

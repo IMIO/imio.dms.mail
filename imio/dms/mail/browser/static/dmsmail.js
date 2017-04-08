@@ -74,6 +74,17 @@ dmsmail.initialize_fancytree = function () {
 }
 
 $(document).ready(function(){
+
+    var url = 'server_sent_events';
+    var evtSource = new EventSource(url);
+    evtSource.onmessage = function (e) {
+      var selectedFileUrl = $('tr.selected').find('.version-link').attr('href');
+      var info = JSON.parse(e.data);
+      if (info.justAdded || selectedFileUrl.endsWith(info.path)) {
+        window.location.reload();
+      }
+    }
+
     $('#faceted-form #type_widget').click(dmsmail.manage_orgtype_filter);
     $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a></span>');
 
@@ -85,6 +96,7 @@ $(document).ready(function(){
     // replace error message with interpreted html to render links
     $('.template-usergroup-userprefs .portalMessage.error dd, .template-usergroup-groupprefs .portalMessage.error dd').html(function(index, html){
         return $("<div/>").html(html).text();
+
 })
 
     /* remove inline validation for dmsoutgoingmail
