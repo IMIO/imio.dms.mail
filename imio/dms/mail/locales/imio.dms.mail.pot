@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-04-02 17:29+0000\n"
+"POT-Creation-Date: 2017-04-19 17:43+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
 
-#: ./browser/views.py:35
+#: ./browser/views.py:36
 msgid "${title}: create from template"
 msgstr ""
 
@@ -51,6 +51,10 @@ msgstr ""
 
 #: ./browser/settings.py:44
 msgid "Assigned user check"
+msgstr ""
+
+#: ./setuphandlers.py:1500
+msgid "Base template"
 msgstr ""
 
 #: ./browser/batchactions.py:212
@@ -105,7 +109,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:40
+#: ./browser/views.py:41
 msgid "Choose this template"
 msgstr ""
 
@@ -127,6 +131,14 @@ msgstr ""
 
 #: ./vocabularies.py:94
 msgid "Empty value"
+msgstr ""
+
+#: ./setuphandlers.py:1492
+msgid "Ending template"
+msgstr ""
+
+#: ./setuphandlers.py:1480
+msgid "Header template"
 msgstr ""
 
 #: ./testing.zcml:23
@@ -160,11 +172,15 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
+#: ./setuphandlers.py:1488
+msgid "Intro template"
+msgstr ""
+
 #: ./subscribers.py:222
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1449
+#: ./setuphandlers.py:1463
 msgid "Mail listing template"
 msgstr ""
 
@@ -242,7 +258,7 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1458
+#: ./setuphandlers.py:1472
 msgid "Print template"
 msgstr ""
 
@@ -298,7 +314,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1430
+#: ./setuphandlers.py:1444
 msgid "Templates"
 msgstr ""
 

@@ -1477,5 +1477,35 @@ def add_templates(site):
                                                                       uids=True)},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-print.odt')})],
          },
+        {'cid': 100, 'cont': 'templates/om', 'id': 'header', 'title': _(u'Header template'), 'type': 'SubTemplate',
+         'trans': ['show_internally'],
+         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-header.odt')})],
+         },
+        # {'cid': 105, 'cont': 'templates/om', 'id': 'footer', 'title': _(u'Footer template'), 'type': 'SubTemplate',
+        #  'trans': ['show_internally'],
+        #  'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-footer.odt')})],
+        #  },
+        {'cid': 110, 'cont': 'templates/om', 'id': 'intro', 'title': _(u'Intro template'), 'type': 'SubTemplate',
+         'trans': ['show_internally'],
+         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-intro.odt')})],
+         },
+        {'cid': 120, 'cont': 'templates/om', 'id': 'ending', 'title': _(u'Ending template'), 'type': 'SubTemplate',
+         'trans': ['show_internally'],
+         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-ending.odt')})],
+         },
     ]
-    create(templates, pos=True)
+    cids = create(templates, pos=True)
+
+    templates = [
+        {'cid': 200, 'cont': 'templates/om', 'id': 'base', 'title': _(u'Base template'),
+         'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
+         # 'style_template': [cids[1].UID()]
+         'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
+                   [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
+                    {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
+                    {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()}],
+                   'context_variables': [{'name': u'do_mailing', 'value': u'1'}]},
+         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-base.odt')})],
+         },
+    ]
+    cids = create(templates, pos=True, cids=cids)

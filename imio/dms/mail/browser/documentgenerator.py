@@ -6,6 +6,10 @@ from plone import api
 from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from collective.contact.core.interfaces import IContactable
+from collective.contact.core.content.held_position import IHeldPosition
+from collective.contact.core.content.organization import IOrganization
+from collective.contact.core.content.person import IPerson
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
@@ -15,7 +19,69 @@ from imio.dashboard.browser.overrides import IDDocumentGenerationView
 
 ### HELPERS ###
 
-class DocumentGenerationBaseHelper():
+class OMDGHelper(DXDocumentGenerationHelperView):
+    """
+        Helper methods used for outgoing mail generation
+    """
+
+    def fmt(self, val, fmt='%s '):
+        if val:
+            return fmt % val
+        return ''
+
+    def get_ctct_det(self, obj, fallback=False):
+        try:
+            contactable = IContactable(obj)
+            return contactable.get_contact_details(fallback=fallback)
+            # {'website': '', 'fax': '', 'phone': '', 'address': {'city': u'Eghez\xe9e', 'country': '', 'region': '',
+            # 'additional_address_details': '', 'number': u'8', 'street': u'Grande Ruelle', 'zip_code': u'5310'},
+            # 'im_handle': '', 'cell_phone': '', 'email': ''}
+        except:
+            return {}
+
+    def get_sender(self):
+        om = self.real_context
+        sender = uuidToObject(om.sender)
+        if not sender:
+            return {}
+        ret = {}
+        #ret['label'] = sender.label
+        ret['hp'] = sender
+        # sender.get_full_title(), sender.get_person_title()
+        person = sender.get_person()
+        ret['person'] = person
+        #ret['person_title'] = person.person_title
+        #ret['get_title'] = person.get_title()
+        # get contactable informations
+        #ret.update(self.get_ctct_det(sender))
+        org = sender.get_organization()
+        ret['org'] = org
+        ret['org_full_title'] = org.get_full_title(separator=' - ', first_index=1)
+        return ret
+
+    def get_recipient(self):
+        # "view.context_var('do_mailing')"
+        om = self.real_context
+        if not om.recipients:
+            return None
+        relval = om.recipients[0]
+        if relval.isBroken():
+            return None
+        recipient = relval.to_object
+        return recipient
+
+    def get_full_title(self, contact, **kwargs):
+        if IPerson.providedBy(contact):
+            return contact.get_title()
+        elif IOrganization.providedBy(contact):
+            return contact.get_full_title(**kwargs)
+        elif IHeldPosition.providedBy(contact):
+            return contact.get_full_title()
+        else:
+            return ''
+
+
+class DashboardDGBaseHelper():
     """
         Common methods
     """
@@ -39,7 +105,7 @@ class DocumentGenerationBaseHelper():
         return False
 
 
-class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, DocumentGenerationBaseHelper):
+class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
         Methods used for listing
     """
@@ -104,7 +170,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         return images
 
 
-class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DocumentGenerationBaseHelper):
+class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
         Helper for categories folder
     """

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-04-02 17:29+0000\n"
+"POT-Creation-Date: 2017-04-19 17:43+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,7 +17,7 @@ msgstr ""
 "Language: fr\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: ./browser/views.py:35
+#: ./browser/views.py:36
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -52,6 +52,10 @@ msgstr "Appliquer"
 #: ./browser/settings.py:44
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
+
+#: ./setuphandlers.py:1500
+msgid "Base template"
+msgstr "Modèle de base"
 
 #: ./browser/batchactions.py:212
 msgid "Batch action choice"
@@ -105,7 +109,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:40
+#: ./browser/views.py:41
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -128,6 +132,14 @@ msgstr "Le fichier ged doit être au format odt (Libre Office)"
 #: ./vocabularies.py:94
 msgid "Empty value"
 msgstr "Sans valeur"
+
+#: ./setuphandlers.py:1492
+msgid "Ending template"
+msgstr "Sous-document de fin"
+
+#: ./setuphandlers.py:1480
+msgid "Header template"
+msgstr "Sous-document d'entête"
 
 #: ./testing.zcml:23
 msgid "Imio Dms Mail testing profile"
@@ -160,11 +172,15 @@ msgstr "Courriers entrants"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
+#: ./setuphandlers.py:1488
+msgid "Intro template"
+msgstr "Sous-document d'introduction"
+
 #: ./subscribers.py:222
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1449
+#: ./setuphandlers.py:1463
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -242,7 +258,7 @@ msgstr "Écraser le contenu avec les éléments choisis"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1458
+#: ./setuphandlers.py:1472
 msgid "Print template"
 msgstr "Pour impression"
 
@@ -298,7 +314,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1430
+#: ./setuphandlers.py:1444
 msgid "Templates"
 msgstr "Modèles doc"
 

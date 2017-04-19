@@ -249,6 +249,14 @@
         />
 
     <!-- documentgeneration related -->
+
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="document_generation_helper_view"
+        class="imio.dms.mail.browser.documentgenerator.OMDGHelper"
+        permission="zope2.View"
+        />
+
     <browser:page
         for="imio.dms.mail.interfaces.IDocsDashboard"
         name="document_generation_helper_view"
