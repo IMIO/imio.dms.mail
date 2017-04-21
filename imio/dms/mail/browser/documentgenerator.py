@@ -10,9 +10,11 @@ from collective.contact.core.interfaces import IContactable
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.content.person import IPerson
+from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
+from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from imio.dashboard.browser.overrides import IDDocumentGenerationView
 
@@ -60,7 +62,6 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         return ret
 
     def get_recipient(self):
-        # "view.context_var('do_mailing')"
         om = self.real_context
         if not om.recipients:
             return None
@@ -213,6 +214,19 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         response = self.request.response
         #return response.redirect(self.context.absolute_url())
         return response.redirect(persisted_doc.absolute_url() + '/external_edit')
+
+    def _get_generation_context(self, helper_view, pod_template):
+        """
+        Return the generation context for the current document.
+        """
+        generation_context = super(OMPDGenerationView, self)._get_generation_context(helper_view, pod_template)
+        recipient = helper_view.get_recipient()
+        if recipient:
+            update_dict_with_validation(generation_context,
+                                        {'recipient': recipient,
+                                         'recipient_infos': helper_view.get_ctct_det(recipient)},
+                                        _dg("Error when merging helper_view in generation context"))
+        return generation_context
 
 
 class CategoriesDocumentGenerationView(IDDocumentGenerationView):
