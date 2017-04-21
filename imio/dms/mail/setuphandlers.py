@@ -997,7 +997,7 @@ def addTestDirectory(context):
               'organization_type': u'sa',
               'zip_code': u'0020',
               'city': u'E-ville',
-              'street': u"Rue de la l'électron",
+              'street': u"Rue de l'électron",
               'number': u'1',
               'use_parent_address': False
               }
@@ -1027,7 +1027,7 @@ def addTestDirectory(context):
               'phone': u'012/345.678',
               'zip_code': u'0020',
               'city': u'E-ville',
-              'street': u"Rue de l'electron",
+              'street': u"Rue de l'électron",
               'number': u'1',
               'use_parent_address': False
               }
@@ -1317,7 +1317,7 @@ def addOwnPersonnel(context):
     own_orga = contacts['plonegroup-organization']
     persons = {
         'dirg': {'pers': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
-                 'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'electron",
+                 'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'électron",
                  'number': u'1', 'use_parent_address': False},
                  'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale'])),
                            'label': u'Directeur général', 'start_date': datetime.date(2016, 6, 15), 'end_date': None,
@@ -1503,8 +1503,8 @@ def add_templates(site):
          'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
                    [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
                     {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
-                    {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()}],
-                   'context_variables': [{'name': u'do_mailing', 'value': u'1'}]},
+                    {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()}]},
+         #          'context_variables': [{'name': u'do_mailing', 'value': u'1'}]},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-base.odt')})],
          },
     ]
