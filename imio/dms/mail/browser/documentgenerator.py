@@ -31,7 +31,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             return fmt % val
         return ''
 
-    def get_ctct_det(self, obj, fallback=False):
+    def get_ctct_det(self, obj, fallback=True):
         try:
             contactable = IContactable(obj)
             return contactable.get_contact_details(fallback=fallback)
