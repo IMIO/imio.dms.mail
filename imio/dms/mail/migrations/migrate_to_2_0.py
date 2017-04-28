@@ -202,6 +202,14 @@ class Migrate_To_2_0(Migrator):
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
 
+    def add_missing_transforms(self):
+        """ pdf_to_... are maybe missing (if pdftotext not installed by example) """
+        pt = self.portal.portal_transforms
+        for name in ('pdf_to_text', 'pdf_to_html'):
+            if name not in pt.objectIds():
+                pt.manage_addTransform(name, "Products.PortalTransforms.transforms.%s" % name)
+                logger.info("Added '%s' transform" % name)
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.0...')
         self.cleanRegistries()
@@ -213,6 +221,9 @@ class Migrate_To_2_0(Migrator):
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
+
+        # add missing pdf transforms
+        self.add_missing_transforms()
 
         # do various global adaptations
         self.update_site()
