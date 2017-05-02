@@ -215,8 +215,9 @@ class Migrate_To_2_0(Migrator):
         self.cleanRegistries()
         self.delete_outgoing_examples()
         self.upgradeProfile('collective.task:default')
+#        self.upgradeProfile('collective.schedulefield:default')
         self.manage_localroles()
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'plone.app.registry', 'typeinfo',
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'jsregistry', 'plone.app.registry', 'typeinfo',
                                                      'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',

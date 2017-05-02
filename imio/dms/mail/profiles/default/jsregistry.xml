@@ -14,6 +14,18 @@
     inline="False"/>
 
   <javascript
+    authenticated="False"
+    bundle=""
+    cacheable="True"
+    compression="safe"
+    conditionalcomment=""
+    cookable="True"
+    enabled="True"
+    expression="python:object.getPortalTypeName() == 'dmsoutgoingmail' and '/view' in request.URL0"
+    id="++resource++imio.dms.mail/outgoingmail.js"
+    inline="False"/>
+
+  <javascript
     authenticated="True"
     bundle=""
     cacheable="True"
@@ -177,7 +189,9 @@
 
   <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
 
-  <javascript id="++resource++quickupload_static/swfobject.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
+  <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
+
+  <javascript id="++resource++quickupload_static/swfobject.js" insert-after="++resource++imio.dms.mail/outgoingmail.js" />
 
   <javascript id="++resource++quickupload_static/jquery.uploadify.js" insert-after="++resource++quickupload_static/swfobject.js" />
 
