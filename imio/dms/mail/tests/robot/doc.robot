@@ -229,11 +229,13 @@ CE manuel
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 création scan.png  id=content
     Click button  id=form-buttons-cancel
     Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage/create_main_file?filename=60.PDF
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note12}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-2-2 ged 1 création finie.png  id=portal-column-content  ${note12}
     Remove element  id=${note12}
     Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 2 visualisation.png  id=content
 
@@ -257,6 +259,7 @@ CS en réponse
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note60}  Add pointy note  css=#viewlet-above-content-title .apButtonAction_reply  Bouton de réponse  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 1 lien répondre.png  id=viewlet-above-content-body  ${note60}
@@ -281,11 +284,13 @@ CS en réponse
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged ajout.png  id=content
     Click button  id=form-buttons-cancel
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note62}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged ajout fini.png  id=portal-column-content  ${note62}
     Remove element  id=${note62}
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 visualisation.png  id=content
 
@@ -311,8 +316,10 @@ CS nouveau
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 cs 1 création finie.png  id=content  id=viewlet-below-content
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/create_main_file?filename=Réfection+trottoir.odt&title=Réfection+trottoir
+    Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 cs 2 visualisation.png  id=content
 
@@ -323,6 +330,7 @@ CS depuis le scanner
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-3-3 cs onglet courrier sortant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/lock-unlock
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Select collection  outgoing-mail/mail-searches/searchfor_scanned
     Capture and crop page screenshot  doc/utilisation/2-3-3 cs recherche scanné.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
@@ -440,6 +448,7 @@ Visualisation
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-5 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     # DO NOT WORK ANYMORE: WAITING FOR GECKODRIVER UPDATE !!!!!
@@ -635,21 +644,26 @@ Workflow cs
     Set field value  ${UID}  mail_type  courrier  str
     Sleep  1
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     # transitions
     Fire transition  ${UID}  propose_to_service_chief
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3 état chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  propose_to_be_signed
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers signature.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  encodeur
