@@ -21,3 +21,4 @@ def deactivate_message(self):
     msg = portal['messages-config']['browser-warning']
     if api.content.get_state(obj=msg) == 'activated':
         api.content.transition(obj=msg, transition='deactivate')
+    return self.REQUEST.response.redirect(self.absolute_url())
