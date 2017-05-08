@@ -4,6 +4,25 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="imio.dms.mail">
 
+    <!-- columns -->
+    <adapter
+        name="EnquirerColumn"
+        for="zope.interface.Interface
+             zope.interface.Interface
+             collective.task.browser.table.TasksTable"
+        provides="z3c.table.interfaces.IColumn"
+        factory=".browser.table.EnquirerColumn"
+    />
+
+    <adapter
+        name="AssignedGroupColumn"
+        for="zope.interface.Interface
+             zope.interface.Interface
+             collective.task.browser.table.TasksTable"
+        provides="z3c.table.interfaces.IColumn"
+        factory=".browser.table.AssignedGroupColumn"
+    />
+
     <configure package="collective.eeafaceted.collectionwidget">
         <browser:page
             for="*"

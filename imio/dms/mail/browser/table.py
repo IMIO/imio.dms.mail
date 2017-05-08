@@ -7,6 +7,7 @@ from Products.CMFPlone.utils import safe_unicode
 from collective.dms.basecontent.browser.column import IconColumn
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.task import _ as _task
 from imio.dms.mail import _
 
 # z3c.table standard columns
@@ -44,6 +45,21 @@ class GenerationColumn(LinkColumn, IconColumn):
 
     def getLinkContent(self, item):
         return u"""<img title="%s" src="%s" />""" % (_(u"Mailing"), '%s/%s' % (self.table.portal_url, self.iconName))
+
+
+class EnquirerColumn(Column):
+
+    """Column that displays enquirer group."""
+
+    header = _task("Enquirer")
+    weight = 30
+
+    def renderCell(self, item):
+        if not item.enquirer:
+            return ''
+        factory = getUtility(IVocabularyFactory, 'collective.task.Enquirer')
+        voc = factory(item)
+        return safe_unicode(voc.getTerm(item.enquirer).title)
 
 
 class AssignedGroupColumn(Column):

@@ -7,15 +7,6 @@
     <include file="./browser/overrides.zcml" />
 
     <adapter
-        name="AssignedGroupColumn"
-        for="zope.interface.Interface
-             zope.interface.Interface
-             collective.task.browser.table.TasksTable"
-        provides="z3c.table.interfaces.IColumn"
-        factory=".browser.table.AssignedGroupColumn"
-    />
-
-    <adapter
         for="zope.interface.Interface
              zope.publisher.interfaces.browser.IBrowserRequest
              collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
