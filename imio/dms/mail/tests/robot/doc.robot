@@ -271,7 +271,23 @@ CS en réponse
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 1 édition réponse finie.png  id=content
 
-    ### Create mainfile
+    # Create mainfile from model
+    ${note51}  Add pointy note  css=#doc-generation-view li:first-child  Génération depuis un modèle à sélectionner  position=left  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged lien génération.png  id=parent-fieldname-title  id=viewlet-below-content-title  ${note51}
+    Remove element  id=${note51}
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Modèle+de+base.odt&title=Modèle+de+base
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Sleep  5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged généré.png  id=content
+    ${note52}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(3)  Édition externe  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged édition externe.png  css=#fieldset-versions table  ${note52}
+    Remove element  id=${note52}
+    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/modele-de-base
+
+    ### Add mainfile
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Sleep  0.5
     #Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
     ${note61}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
     Click element  name=Add element
