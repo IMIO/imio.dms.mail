@@ -22,7 +22,7 @@ from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 from z3c.relationfield.relation import RelationValue
 
-from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import base_hasattr, safe_unicode
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.utils import createContentInContainer
@@ -593,14 +593,14 @@ def adaptDefaultPortal(context):
     if 'Image' in registry['externaleditor.externaleditor_enabled_types']:
         registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
                                                                    'DashboardPODTemplate', 'SubTemplate',
-                                                                   'StyleTemplate', 'dmsmainfile']
+                                                                   'StyleTemplate', 'dmsommainfile']
 
 
 def changeSearchedTypes(site):
     """
         Change searched types
     """
-    to_show = ['dmsmainfile']
+    to_show = ['dmsmainfile', 'dmsommainfile']
     to_hide = ['Collection', 'Document', 'Event', 'File', 'Folder', 'Image', 'Link', 'News Item', 'Topic', 'directory',
                'dmsdocument']
     not_searched = list(site.portal_properties.site_properties.types_not_searched)
@@ -1157,7 +1157,7 @@ def addTestMails(context):
     task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group)
 
     filespath = "%s/batchimport/toprocess/outgoing-mail" % imiodmsmail.__path__[0]
-    files = [unicode(name, 'utf8') for name in os.listdir(filespath)
+    files = [safe_unicode(name) for name in os.listdir(filespath)
              if os.path.splitext(name)[1][1:] in ('odt')]
     files.sort()
     files_cycle = cycle(files)
@@ -1186,9 +1186,9 @@ def addTestMails(context):
             ofld.invokeFactory('dmsoutgoingmail', id='reponse%d' % i, **params)
             mail = ofld['reponse%d' % i]
             filename = files_cycle.next()
-            with open("%s/%s" % (filespath, filename), 'rb') as fo:
+            with open(u"%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
-                createContentInContainer(mail, 'dmsmainfile', id='1', title='', file=file_object)
+                createContentInContainer(mail, 'dmsommainfile', id='1', title='', file=file_object)
 
 
 def addTestUsersAndGroups(context):

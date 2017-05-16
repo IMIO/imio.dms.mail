@@ -275,7 +275,7 @@ CS en réponse
     ${note51}  Add pointy note  css=#doc-generation-view li:first-child  Génération depuis un modèle à sélectionner  position=left  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged lien génération.png  id=parent-fieldname-title  id=viewlet-below-content-title  ${note51}
     Remove element  id=${note51}
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Modèle+de+base.odt&title=Modèle+de+base
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Modèle+de+base.odt&title=Modèle+de+base&mainfile_type=dmsommainfile
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Sleep  5
     Wait until element is visible  css=.DV-pageImage  10
@@ -299,7 +299,7 @@ CS en réponse
     Wait until element is visible  id=formfield-form-widgets-file  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged ajout.png  id=content
     Click button  id=form-buttons-cancel
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note62}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
@@ -331,7 +331,7 @@ CS nouveau
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 cs 1 création finie.png  id=content  id=viewlet-below-content
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/create_main_file?filename=Réfection+trottoir.odt&title=Réfection+trottoir
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/create_main_file?filename=Réfection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
@@ -659,7 +659,7 @@ Workflow cs
     Set field value  ${UID}  recipients  ['${RECIPIENT}']  references
     Set field value  ${UID}  mail_type  courrier  str
     Sleep  1
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/create_main_file?filename=Réponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature

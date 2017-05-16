@@ -172,7 +172,7 @@ class Migrate_To_2_0(Migrator):
         if 'Image' in self.registry['externaleditor.externaleditor_enabled_types']:
             self.registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
                                                                             'DashboardPODTemplate', 'SubTemplate',
-                                                                            'StyleTemplate', 'dmsmainfile']
+                                                                            'StyleTemplate', 'dmsommainfile']
         change_user_properties(self.portal, kw='ext_editor:True', dochange='1')
 
     def configure_dashboard(self):
@@ -217,8 +217,8 @@ class Migrate_To_2_0(Migrator):
         self.upgradeProfile('collective.task:default')
 #        self.upgradeProfile('collective.schedulefield:default')
         self.manage_localroles()
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'jsregistry', 'plone.app.registry', 'typeinfo',
-                                                     'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'jsregistry', 'plone.app.registry',
+                                                     'typeinfo', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])

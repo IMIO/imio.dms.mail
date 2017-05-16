@@ -5,7 +5,6 @@ import unittest
 from zope.component import getUtility
 from zope.interface import Invalid
 
-from plone import api
 from plone.namedfile.file import NamedBlobFile
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -49,8 +48,4 @@ class TestDmsfile(unittest.TestCase):
         self.assertRaises(Invalid, field._validate, otherblob)
         # bad file, validation deactivated
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = False
-        field._validate(otherblob)
-        # bad file with im context
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
-        field.context = self.imf.courrier1.dmsmainfile
         field._validate(otherblob)

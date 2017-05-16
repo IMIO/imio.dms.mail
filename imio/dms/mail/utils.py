@@ -136,6 +136,7 @@ def get_scan_id(obj):
 
 class UtilsMethods(BrowserView):
     """ View containing utils methods """
+    mainfile_type = 'dmsmainfile'
 
     def user_is_admin(self):
         """ Test if current user is admin """
@@ -155,7 +156,7 @@ class UtilsMethods(BrowserView):
     def highest_scan_id(self):
         """ Return highest scan id """
         pc = getToolByName(self.context, 'portal_catalog')
-        brains = pc(portal_type='dmsmainfile', sort_on='scan_id', sort_order='descending')
+        brains = pc(portal_type=self.mainfile_type, sort_on='scan_id', sort_order='descending')
         if brains:
             return "dmsmainfiles: '%d', highest scan_id: '%s'" % (len(brains), brains[0].scan_id)
         else:  # pragma: no cover
@@ -234,6 +235,7 @@ class IdmUtilsMethods(UtilsMethods):
 
 class OdmUtilsMethods(UtilsMethods):
     """ View containing outgoing mail utils methods """
+    mainfile_type = 'dmsommainfile'
 
     def get_om_folder(self):
         """ Get the outgoing-mail folder """

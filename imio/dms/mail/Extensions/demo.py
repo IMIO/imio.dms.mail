@@ -111,6 +111,7 @@ def import_scanned2(self, number=2):
             'dmsoutgoingmail',
             '',
             file_object,
+            mainfile_type='dmsommainfile',
             owner='scanner',
             metadata=doc_metadata)
         for key, value in docs[doc]['f'].items():
@@ -124,7 +125,7 @@ def import_scanned2(self, number=2):
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
 
-def create_main_file(self, filename='', title='1'):
+def create_main_file(self, filename='', title='1', mainfile_type='dmsmainfile'):
     """
         Create a main file on context
     """
@@ -137,5 +138,5 @@ def create_main_file(self, filename='', title='1'):
         return "The file path '%s' doesn't exist" % filepath
     with open(filepath, 'rb') as fo:
         file_object = NamedBlobFile(fo.read(), filename=safe_unicode(filename))
-        obj = createContentInContainer(self, 'dmsmainfile', title=safe_unicode(title), file=file_object)
+        obj = createContentInContainer(self, mainfile_type, title=safe_unicode(title), file=file_object)
     return obj.REQUEST.response.redirect('%s/view' % obj.absolute_url())

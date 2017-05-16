@@ -112,7 +112,8 @@
     display: None;
 }
 
-.template-dmsmainfile #content-core ul.formTabs li:nth-child(2) {
+.template-dmsmainfile #content-core ul.formTabs li:nth-child(2),
+.template-dmsommainfile #content-core ul.formTabs li:nth-child(2) {
     display: None;
 }
 

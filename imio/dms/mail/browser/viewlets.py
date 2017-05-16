@@ -5,6 +5,7 @@ from zc.relation.interfaces import ICatalog
 from plone.app.layout.viewlets import ViewletBase
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.contact.widget.interfaces import IContactContent
+from collective.dms.basecontent.browser.viewlets import VersionsViewlet
 from collective.task.browser.viewlets import TaskParentViewlet
 
 
@@ -45,3 +46,8 @@ class ContactContentBackrefsViewlet(ViewletBase):
 class DMSTaskParentViewlet(TaskParentViewlet):
 
     display_above_element = False
+
+
+class OMVersionsViewlet(VersionsViewlet):
+
+    portal_type = 'dmsommainfile'

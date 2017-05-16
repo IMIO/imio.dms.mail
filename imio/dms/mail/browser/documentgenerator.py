@@ -145,7 +145,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         catalog = self.portal.portal_catalog
         #self.uids_to_objs(self.context_var('brains'))
         for brain in self.context_var('brains'):
-            for bfile in catalog(portal_type='dmsmainfile', path=brain.getPath()):
+            for bfile in catalog(portal_type='dmsommainfile', path=brain.getPath()):
                 obj = bfile.getObject()
                 files.append((obj, bool(self.get_num_pages(obj) % 2)))
         last = files.pop()
@@ -202,7 +202,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 
         file_object = NamedBlobFile(doc, filename=doc_name)
         with api.env.adopt_roles(['Manager']):
-            persisted_doc = createContentInContainer(self.context, 'dmsmainfile', title=title,
+            persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=title,
                                                      file=file_object)
         return persisted_doc
 

@@ -3,4 +3,5 @@
  <property name="title">Controls the available content types in your portal</property>
  <object name="dmsincomingmail" meta_type="Dexterity FTI"/>
  <object name="dmsoutgoingmail" meta_type="Dexterity FTI"/>
+ <object name="dmsommainfile" meta_type="Dexterity FTI"/>
 </object>

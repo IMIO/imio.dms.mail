@@ -292,6 +292,7 @@
         permission="zope2.View"
         />
 
+    <!-- Viewlets -->
     <configure package="collective.documentgenerator">
         <browser:viewlet
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
@@ -299,6 +300,17 @@
             manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
             class="imio.dms.mail.browser.documentgenerator.OutgoingMailLinksViewlet"
             template="viewlets/generationlinks.pt"
+            permission="zope2.View"
+            />
+    </configure>
+
+    <configure package="collective.dms.basecontent">
+        <browser:viewlet
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            name="dms.files"
+            manager="collective.dms.basecontent.browser.viewlets.DmsAboveContentViewletManager"
+            class="imio.dms.mail.browser.viewlets.OMVersionsViewlet"
+            template="browser/templates/versionsviewlet.pt"
             permission="zope2.View"
             />
     </configure>

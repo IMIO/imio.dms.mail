@@ -14,7 +14,7 @@
  <property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property>
  <property name="schema_policy">schema_policy_imiodmsoutgoingmail</property>
  <property name="allowed_content_types">
-  <element value="dmsmainfile"/>
+  <element value="dmsommainfile"/>
   <element value="dmsappendixfile"/>
   <element value="task"/>
  </property>

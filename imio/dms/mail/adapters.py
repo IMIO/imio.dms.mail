@@ -460,7 +460,8 @@ class IdmSearchableExtender(object):
         self.context = context
 
     def __call__(self):
-        brains = self.context.portal_catalog.unrestrictedSearchResults(portal_type='dmsmainfile',
+        brains = self.context.portal_catalog.unrestrictedSearchResults(object_provides='collective.dms.basecontent.'
+                                                                       'dmsfile.IDmsFile',
                                                                        path={'query':
                                                                        '/'.join(self.context.getPhysicalPath()),
                                                                        'depth': 1})
