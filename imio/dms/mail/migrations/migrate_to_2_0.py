@@ -19,7 +19,7 @@ from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
 
 from ..interfaces import IOMDashboard, ITaskDashboard
-from ..setuphandlers import (_, add_db_col_folder, configure_om_rolefields, configure_task_config,
+from ..setuphandlers import (_, add_db_col_folder, changeSearchedTypes, configure_om_rolefields, configure_task_config,
                              configure_task_rolefields, createIMailCollections, createStateCollections,
                              createOMailCollections, configure_faceted_folder, createTaskCollections, add_templates,
                              reimport_faceted_config)
@@ -175,6 +175,9 @@ class Migrate_To_2_0(Migrator):
                                                                             'StyleTemplate', 'dmsommainfile']
         change_user_properties(self.portal, kw='ext_editor:True', dochange='1')
 
+        # searched types
+        changeSearchedTypes(self.portal)
+
     def configure_dashboard(self):
         """ add DashboardCollection """
         alsoProvides(self.omf, INextPrevNotNavigable)
@@ -218,7 +221,7 @@ class Migrate_To_2_0(Migrator):
 #        self.upgradeProfile('collective.schedulefield:default')
         self.manage_localroles()
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'jsregistry', 'plone.app.registry',
-                                                     'typeinfo', 'workflow'])
+                                                     'propertiestool', 'typeinfo', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
