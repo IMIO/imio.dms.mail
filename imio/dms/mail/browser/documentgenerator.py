@@ -17,6 +17,8 @@ from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHe
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from imio.dashboard.browser.overrides import IDDocumentGenerationView
+from imio.helpers.barcode import generate_barcode
+from imio.zamqp.core.utils import next_scan_id
 
 
 ### HELPERS ###
@@ -195,7 +197,6 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 
     def generate_persistent_doc(self, pod_template, output_format):
         """ Create a dmsmainfile from the generated document """
-
         doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
         splitted_name = doc_name.split('.')
         title = '.'.join(splitted_name[:-1])
@@ -203,7 +204,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         file_object = NamedBlobFile(doc, filename=doc_name)
         with api.env.adopt_roles(['Manager']):
             persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=title,
-                                                     file=file_object)
+                                                     scan_id=gen_context['scan_id'], file=file_object)
         return persisted_doc
 
     def redirects(self, persisted_doc):
@@ -226,6 +227,11 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                                         {'recipient': recipient,
                                          'recipient_infos': helper_view.get_ctct_det(recipient)},
                                         _dg("Error when merging helper_view in generation context"))
+        scan_id = next_scan_id(file_portal_type='dmsommainfile', cliend_id_var='client_id2')
+        update_dict_with_validation(generation_context,
+                                    {'scan_id': scan_id,
+                                     'barcode': generate_barcode(scan_id).read()},
+                                    _dg("Error when merging helper_view in generation context"))
         return generation_context
 
 
