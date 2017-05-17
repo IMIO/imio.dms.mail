@@ -203,8 +203,9 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 
         file_object = NamedBlobFile(doc, filename=doc_name)
         with api.env.adopt_roles(['Manager']):
-            persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=title,
-                                                     scan_id=gen_context['scan_id'], file=file_object)
+            scan_id = gen_context['scan_id'][4:]
+            persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=title, id=scan_id,
+                                                     scan_id=scan_id, file=file_object)
         return persisted_doc
 
     def redirects(self, persisted_doc):
@@ -228,6 +229,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                                          'recipient_infos': helper_view.get_ctct_det(recipient)},
                                         _dg("Error when merging helper_view in generation context"))
         scan_id = next_scan_id(file_portal_type='dmsommainfile', cliend_id_var='client_id2')
+        scan_id = 'IMIO{0}'.format(scan_id)
         update_dict_with_validation(generation_context,
                                     {'scan_id': scan_id,
                                      'barcode': generate_barcode(scan_id).read()},
