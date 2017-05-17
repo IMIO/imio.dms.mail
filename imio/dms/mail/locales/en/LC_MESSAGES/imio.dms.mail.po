@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-04-19 17:43+0000\n"
+"POT-Creation-Date: 2017-05-17 07:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -135,6 +135,10 @@ msgstr ""
 msgid "Ending template"
 msgstr ""
 
+#: ./setuphandlers.py:1484
+msgid "Footer template"
+msgstr ""
+
 #: ./setuphandlers.py:1480
 msgid "Header template"
 msgstr ""
@@ -195,7 +199,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./browser/table.py:46
+#: ./browser/table.py:47
 msgid "Mailing"
 msgstr ""
 
@@ -316,7 +320,7 @@ msgstr ""
 msgid "Templates"
 msgstr ""
 
-#: ./overrides.zcml:43
+#: ./overrides.zcml:34
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
@@ -325,7 +329,7 @@ msgid "Transition"
 msgstr ""
 
 #: ./browser/batchactions.py:180
-#: ./browser/table.py:53
+#: ./browser/table.py:69
 #: ./dmsmail.py:52
 msgid "Treating groups"
 msgstr ""
@@ -338,7 +342,7 @@ msgstr ""
 msgid "Types of outgoing mail"
 msgstr ""
 
-#: ./dmsfile.py:28
+#: ./dmsfile.py:27
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
