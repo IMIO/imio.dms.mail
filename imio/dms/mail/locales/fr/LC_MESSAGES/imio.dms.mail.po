@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-05-17 07:57+0000\n"
+"POT-Creation-Date: 2017-05-18 14:23+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -244,12 +244,12 @@ msgstr "Date d'expédition"
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:183
+#: ./migrations/migrate_to_2_0.py:186
 #: ./setuphandlers.py:138
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
 
-#: ./migrations/migrate_to_2_0.py:184
+#: ./migrations/migrate_to_2_0.py:187
 #: ./setuphandlers.py:139
 msgid "Outgoing mails"
 msgstr "Courriers sortants"
@@ -265,6 +265,10 @@ msgstr "Identifiant Plone"
 #: ./setuphandlers.py:1472
 msgid "Print template"
 msgstr "Pour impression"
+
+#: ./setuphandlers.py:1511
+msgid "Receipt template"
+msgstr "Accusé de réception"
 
 #: ./dmsmail.py:71
 msgid "Recipient groups"
@@ -412,17 +416,17 @@ msgstr "Créer un courrier entrant"
 msgid "create_om"
 msgstr "Créer un courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:202
+#: ./migrations/migrate_to_2_0.py:205
 #: ./setuphandlers.py:520
 msgid "front_page_descr"
 msgstr "Bienvenue sur votre outil de gestion du courrier"
 
-#: ./migrations/migrate_to_2_0.py:203
+#: ./migrations/migrate_to_2_0.py:206
 #: ./setuphandlers.py:521
 msgid "front_page_text"
 msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p><ul><li>Création d'un courrier entrant<ul><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier</li><li>manuellement avec la possibilité d'associer ensuite un document scanné (par exemple si son format est particulier et ne passe pas dans le scanner fourni)</li></ul></li><li>Création d'un courrier sortant<ul><li>en réponse à un courrier entrant avec reprise dans la fiche courrier des données déjà encodées</li><li>manuellement avec la possibilité d'associer ensuite un document de réponse au format bureautique</li><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier (par exemple un courrier généré par une autre application, déjà imprimé et signé)</li></ul></li><li>Après scan, la fiche courrier (entrant ou sortant) est complétée en se basant sur la prévisualisation du document scanné et la possibilité de glisser/déplacer depuis le texte océrisé</li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments << à traiter >></li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Choix du service traitant, des services en copie et gestion des tâches qui peuvent être assignées à d'autres services</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires)</li><li>Workflow de validation et de traitement du courrier et des tâches</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale (facilité de visualisation sur tablette)</li><li>etc.</li></ul>"
 
-#: ./migrations/migrate_to_2_0.py:201
+#: ./migrations/migrate_to_2_0.py:204
 #: ./setuphandlers.py:519
 msgid "front_page_title"
 msgstr "Gestion du courrier 2.0"

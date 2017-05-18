@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-05-17 07:57+0000\n"
+"POT-Creation-Date: 2017-05-18 14:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -244,12 +244,12 @@ msgstr ""
 msgid "Outgoing mail"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:183
+#: ./migrations/migrate_to_2_0.py:186
 #: ./setuphandlers.py:138
 msgid "Outgoing mail searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:184
+#: ./migrations/migrate_to_2_0.py:187
 #: ./setuphandlers.py:139
 msgid "Outgoing mails"
 msgstr ""
@@ -264,6 +264,10 @@ msgstr ""
 
 #: ./setuphandlers.py:1472
 msgid "Print template"
+msgstr ""
+
+#: ./setuphandlers.py:1511
+msgid "Receipt template"
 msgstr ""
 
 #: ./dmsmail.py:71
@@ -412,17 +416,17 @@ msgstr ""
 msgid "create_om"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:202
+#: ./migrations/migrate_to_2_0.py:205
 #: ./setuphandlers.py:520
 msgid "front_page_descr"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:203
+#: ./migrations/migrate_to_2_0.py:206
 #: ./setuphandlers.py:521
 msgid "front_page_text"
 msgstr ""
 
-#: ./migrations/migrate_to_2_0.py:201
+#: ./migrations/migrate_to_2_0.py:204
 #: ./setuphandlers.py:519
 msgid "front_page_title"
 msgstr ""

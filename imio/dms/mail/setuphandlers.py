@@ -1508,5 +1508,19 @@ def add_templates(site):
          #          'context_variables': [{'name': u'do_mailing', 'value': u'1'}]},
          'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-base.odt')})],
          },
+        {'cid': 210, 'cont': 'templates/om', 'id': 'receipt', 'title': _(u'Receipt template'),
+         'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
+         # 'style_template': [cids[1].UID()]
+         'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
+                   [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
+                    {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
+                    {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
+                    {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
+         #          'context_variables': [{'name': u'do_mailing', 'value': u'1'}]},
+                   'context_variables': [{'name': u'PD', 'value': u'True'},
+                                         {'name': u'PC', 'value': u'True'},
+                                         {'name': u'PVS', 'value': u'False'}]},
+         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-receipt.odt')})],
+         },
     ]
     cids = create(templates, pos=True, cids=cids)
