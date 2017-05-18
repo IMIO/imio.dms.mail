@@ -202,10 +202,13 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         title = '.'.join(splitted_name[:-1])
 
         file_object = NamedBlobFile(doc, filename=doc_name)
+        scan_id = gen_context['scan_id'][4:]
+        scan_params = [param for param in ('PD', 'PC', 'PVS') if gen_context.get(param, False)]
+        # Could be stored in annotation
+        scan_user = (scan_params and '|'.join(scan_params) or None)
         with api.env.adopt_roles(['Manager']):
-            scan_id = gen_context['scan_id'][4:]
             persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=title, id=scan_id,
-                                                     scan_id=scan_id, file=file_object)
+                                                     scan_id=scan_id, scan_user=scan_user, file=file_object)
         return persisted_doc
 
     def redirects(self, persisted_doc):
