@@ -17,7 +17,7 @@
  </property>
  <property name="default_view_fallback">False</property>
  <property name="add_permission">collective.dms.basecontent.dmsfile.add</property>
- <property name="klass">collective.dms.basecontent.dmsfile.DmsFile</property>
+ <property name="klass">imio.dms.mail.dmsfile.ImioDmsFile</property>
  <property name="behaviors">
   <element value="plone.app.content.interfaces.INameFromTitle"/>
   <element value="plone.app.dexterity.behaviors.metadata.IOwnership"/>

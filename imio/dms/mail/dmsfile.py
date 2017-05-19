@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from zope.component import getUtility
-from zope.interface import Invalid
+from zope.interface import Invalid, implements
 
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
@@ -9,7 +9,7 @@ from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
 from plone.supermodel import model
 
-from collective.dms.basecontent.dmsfile import IDmsFile
+from collective.dms.basecontent.dmsfile import IDmsFile, DmsFile
 from collective.dms.basecontent import _ as _CDB
 
 from . import _
@@ -34,6 +34,15 @@ class IImioDmsFile(IDmsFile):
         title=_CDB(u"File"),
         required=True,
     )
+
+
+class ImioDmsFile(DmsFile):
+    """DmsFile"""
+    implements(IImioDmsFile)
+    __ac_local_roles_block__ = True
+
+    def Title(self):
+        return self.title
 
 
 class ImioDmsFileSchemaPolicy(DexteritySchemaPolicy):
