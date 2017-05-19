@@ -30,6 +30,34 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
 
         return 'title="%s"' % '\n'.join(scan_infos)
 
+    def getLinkContent(self, item):
+        iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
+        content = super(VersionsTitleColumn, self).getLinkContent(item)
+        if item.signed:
+            return u"""%s <img title="%s" src="%s" />""" % (
+                content,
+                translate(u"Signed version", domain='collective.dms.basecontent', context=item.REQUEST),
+                '%s/%s' % (self.table.portal_url, iconName))
+        else:
+            return content
+
+
+'''
+Choose to add icon at end of filename
+class OMSignedColumn(Column):
+
+    weight = 25  # before author = 30
+
+    def renderCell(self, item):
+        iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
+        if item.signed:
+            return u"""<img title="%s" src="%s" />""" % (
+                translate(u"Signed version", domain='collective.dms.basecontent', context=item.REQUEST),
+                '%s/%s' % (self.table.portal_url, iconName))
+        else:
+            return ""
+'''
+
 
 class GenerationColumn(LinkColumn, IconColumn):
     header = ""
