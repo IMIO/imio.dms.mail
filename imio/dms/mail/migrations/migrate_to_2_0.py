@@ -265,6 +265,11 @@ class Migrate_To_2_0(Migrator):
 
         self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
 
+        self.reinstall([
+            'collective.js.fancytree:default',
+            'collective.js.fancytree:theme-vista',
+        ])
+
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 

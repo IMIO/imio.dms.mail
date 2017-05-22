@@ -5,6 +5,7 @@ import json
 from zope.interface import implements
 
 from Products.CMFPlone.browser.ploneview import Plone
+from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from plone import api
 from plone.app.contenttypes.interfaces import IFile
@@ -31,26 +32,24 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
 
     """Create a document from a collective.documentgenerator template."""
 
+    root = '/templates/om'
+
     def label(self):
         return translate(
             _(u"${title}: create from template",
-              mapping={'title': self.context.Title()}),
+              mapping={'title': safe_unicode(self.context.Title())}),
             context=self.request)
 
     def get_action_name(self):
         return translate(_("Choose this template"), context=self.request)
 
     def get_query(self):
-        portal = api.portal.get()
-        path = '/'.join(portal.getPhysicalPath()) + '/models'
+        path = self.root_path
         return {
             'path': {'query': path, 'depth': -1},
             'portal_type': (
                 'Folder',
                 'ConfigurablePODTemplate',
-                'PODTemplate',
-                'StyleTemplate',
-                # 'SubTemplate',
             ),
         }
 
@@ -61,7 +60,7 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
             "template_uid={}".format(uid),
             "output_format=odt",
         ]
-        return "{}/document-generation?{}".format(url, "&".join(params))
+        return "{}/persistent-document-generation?{}".format(url, "&".join(params))
 
 
 def parse_query(text):
