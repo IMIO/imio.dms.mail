@@ -21,16 +21,6 @@
              name="dmsincomingmail-in-copy-group" />
 
     <adapter for="*"
-             factory=".adapters.TaskValidationCriterion"
-             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
-             name="task-validation" />
-
-    <adapter for="*"
-             factory=".adapters.TaskInAssignedGroupCriterion"
-             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
-             name="task-in-assigned-group" />
-
-    <adapter for="*"
              factory=".adapters.OutgoingMailValidationCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsoutgoingmail-validation" />
@@ -44,6 +34,21 @@
              factory=".adapters.OutgoingMailInCopyGroupCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsoutgoingmail-in-copy-group" />
+
+    <adapter for="*"
+             factory=".adapters.TaskValidationCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="task-validation" />
+
+    <adapter for="*"
+             factory=".adapters.TaskInAssignedGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="task-in-assigned-group" />
+
+    <adapter for="*"
+             factory=".adapters.TaskInProposingGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="task-in-proposing-group" />
 
     <!-- VARIOUS -->
     <adapter for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
@@ -62,8 +67,9 @@
              name="imio.dms.mail.adapters.IdmSearchableExtender" />
 
     <adapter name="mail_type" factory=".adapters.mail_type_index" />
-    <adapter name="mail_type" factory=".adapters.userid_person_index" />
-    <adapter name="mail_type" factory=".adapters.userid_heldposition_index" />
+    <adapter name="mail_type" factory=".adapters.person_userid_index" />
+    <adapter name="mail_type" factory=".adapters.heldposition_userid_index" />
+    <adapter name="mail_type" factory=".adapters.task_enquirer_index" />
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="mail_date" factory=".adapters.om_mail_date_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />

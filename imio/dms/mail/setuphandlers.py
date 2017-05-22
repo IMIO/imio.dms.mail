@@ -417,6 +417,21 @@ def createTaskCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
+        {'id': 'have_created', 'tit': _('tasks_have_created'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'Creator', 'o': 'plone.app.querystring.operation.string.currentUser'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, 'count': False},
+        {'id': 'in_proposing_group', 'tit': _('tasks_in_proposing_group'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'task-in-proposing-group'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_close', 'tit': _('tasks_to_close'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['realized']},
@@ -1149,12 +1164,17 @@ def addTestMails(context):
 
     # tasks
     mail = ifld['courrier1']
-    mail.invokeFactory('task', id='tache1', title=u'Tâche 1', assigned_group=mail.treating_groups)
-    mail.invokeFactory('task', id='tache2', title=u'Tâche 2', assigned_group=mail.treating_groups)
-    mail.invokeFactory('task', id='tache3', title=u'Tâche autre service', assigned_group=orgas_cycle.next())
+    mail.invokeFactory('task', id='tache1', title=u'Tâche 1', assigned_group=mail.treating_groups,
+                       enquirer=mail.treating_groups)
+    mail.invokeFactory('task', id='tache2', title=u'Tâche 2', assigned_group=mail.treating_groups,
+                       enquirer=mail.treating_groups)
+    mail.invokeFactory('task', id='tache3', title=u'Tâche autre service', assigned_group=orgas_cycle.next(),
+                       enquirer=mail.treating_groups)
     task3 = mail['tache3']
-    task3.invokeFactory('task', id='tache3-1', title=u'Sous-tâche 1', assigned_group=task3.assigned_group)
-    task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group)
+    task3.invokeFactory('task', id='tache3-1', title=u'Sous-tâche 1', assigned_group=task3.assigned_group,
+                        enquirer=task3.assigned_group)
+    task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group,
+                        enquirer=task3.assigned_group)
 
     filespath = "%s/batchimport/toprocess/outgoing-mail" % imiodmsmail.__path__[0]
     files = [safe_unicode(name) for name in os.listdir(filespath)

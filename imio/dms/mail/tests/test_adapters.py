@@ -13,7 +13,7 @@ from ..adapters import default_criterias
 from ..adapters import IncomingMailHighestValidationCriterion
 from ..adapters import IncomingMailValidationCriterion, TaskValidationCriterion, OutgoingMailValidationCriterion
 from ..adapters import IncomingMailInTreatingGroupCriterion, OutgoingMailInTreatingGroupCriterion
-from ..adapters import TaskInAssignedGroupCriterion
+from ..adapters import TaskInAssignedGroupCriterion, TaskInProposingGroupCriterion
 from ..adapters import IncomingMailInCopyGroupCriterion, OutgoingMailInCopyGroupCriterion
 from ..adapters import ScanSearchableExtender, IdmSearchableExtender, org_sortable_title_index
 from ..adapters import state_group_index, task_state_group_index
@@ -114,6 +114,13 @@ class TestAdapters(unittest.TestCase):
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'assigned_group': {'query': ['111']}})
+
+    def test_TaskInProposingGroupCriterion(self):
+        crit = TaskInProposingGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {'mail_type': {'query': []}})
+        api.group.create(groupname='111_editeur')
+        api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'mail_type': {'query': ['111']}})
 
     def test_state_group_index(self):
         dguid = self.pgof['direction-generale'].UID()

@@ -233,6 +233,22 @@ class TaskInAssignedGroupCriterion(object):
         return {'assigned_group': {'query': orgs}}
 
 
+class TaskInProposingGroupCriterion(object):
+    """
+        Return catalog criteria following enquirer group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        # if orgs is empty list, nothing is returned => ok
+        return {'mail_type': {'query': orgs}}
+
+
 ################
 # GUI cleaning #
 ################
@@ -307,7 +323,7 @@ def mail_type_index(obj):
 
 
 @indexer(IDmsPerson)
-def userid_person_index(obj):
+def person_userid_index(obj):
     """ Index method escaping acquisition. We use an existing index 'mail_type' to store person userid """
     if base_hasattr(obj, 'userid') and obj.userid:
         return obj.userid
@@ -315,11 +331,19 @@ def userid_person_index(obj):
 
 
 @indexer(IHeldPosition)
-def userid_heldposition_index(obj):
-    """ Index method escaping acquisition. We use an existing index to store heldposition userid """
+def heldposition_userid_index(obj):
+    """ Index method escaping acquisition. We use an existing index 'mail_type' to store heldposition userid """
     parent = obj.aq_parent
     if base_hasattr(parent, 'userid') and parent.userid:
         return parent.userid
+    return common_marker
+
+
+@indexer(ITaskContent)
+def task_enquirer_index(obj):
+    """ Index method escaping acquisition. We use an existing index 'mail_type' to store task enquirer """
+    if base_hasattr(obj, 'enquirer') and obj.enquirer:
+        return obj.enquirer
     return common_marker
 
 

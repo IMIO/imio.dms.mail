@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-04-02 17:29+0000\n"
+"POT-Creation-Date: 2017-05-22 12:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -213,6 +213,10 @@ msgstr "Proposed to service chief"
 #: configure.zcml
 msgid "task-in-assigned-group"
 msgstr "Task in my groups"
+
+#: configure.zcml
+msgid "task-in-proposing-group"
+msgstr ""
 
 #: configure.zcml
 msgid "task-validation"

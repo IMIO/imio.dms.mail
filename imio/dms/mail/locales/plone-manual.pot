@@ -66,6 +66,10 @@ msgid "task-in-assigned-group"
 msgstr ""
 
 #: configure.zcml
+msgid "task-in-proposing-group"
+msgstr ""
+
+#: configure.zcml
 msgid "dmsoutgoingmail-validation"
 msgstr ""
 

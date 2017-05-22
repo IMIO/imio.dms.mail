@@ -35,7 +35,6 @@ class Migrate_To_2_0(Migrator):
         self.catalog = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
-        self.tkf = self.portal['tasks']
 
     def delete_outgoing_examples(self):
         for brain in self.catalog(portal_type='dmsoutgoingmail', id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
