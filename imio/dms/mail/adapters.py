@@ -308,7 +308,7 @@ def mail_type_index(obj):
 
 @indexer(IDmsPerson)
 def userid_person_index(obj):
-    """ Index method escaping acquisition. We use an existing index to store person userid """
+    """ Index method escaping acquisition. We use an existing index 'mail_type' to store person userid """
     if base_hasattr(obj, 'userid') and obj.userid:
         return obj.userid
     return common_marker
