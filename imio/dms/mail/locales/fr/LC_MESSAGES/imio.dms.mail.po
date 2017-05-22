@@ -433,7 +433,7 @@ msgstr "Gestion du courrier 2.0"
 
 #: ./setuphandlers.py:330
 msgid "im_have_treated"
-msgstr "Que j'ai traité"
+msgstr "Que j'ai traités"
 
 #: ./setuphandlers.py:322
 msgid "im_im_treating"
@@ -489,7 +489,7 @@ msgstr "Expéditeur"
 
 #: ./setuphandlers.py:471
 msgid "om_have_treated"
-msgstr "Que j'ai traité"
+msgstr "Que j'ai traités"
 
 #: ./setuphandlers.py:462
 msgid "om_im_treating"
@@ -582,7 +582,7 @@ msgstr "État: à imprimer"
 
 #: ./setuphandlers.py:404
 msgid "task_have_treated"
-msgstr "Que j'ai traité"
+msgstr "Que j'ai traitées"
 
 #: ./setuphandlers.py:396
 msgid "task_im_treating"
