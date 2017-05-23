@@ -217,6 +217,7 @@ class Migrate_To_2_0(Migrator):
         self.cleanRegistries()
         self.delete_outgoing_examples()
         self.upgradeProfile('collective.task:default')
+        self.upgradeProfile('collective.contact.core:default')
         self.upgradeProfile('collective.dms.scanbehavior:default')
 #        self.upgradeProfile('collective.schedulefield:default')
         self.manage_localroles()
