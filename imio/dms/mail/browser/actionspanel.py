@@ -39,7 +39,6 @@ class DmsIMActionsPanelView(ActionsPanelView):
         super(DmsIMActionsPanelView, self).__init__(context, request)
         self.SECTIONS_TO_RENDER += (
             'renderReplyButton',
-            # 'renderCreateFromTemplateButton'
         )
         self.ACCEPTABLE_ACTIONS = ['delete']
         self.ogm = api.portal.get()['outgoing-mail']
@@ -59,10 +58,6 @@ class DmsIMActionsPanelView(ActionsPanelView):
     def sortTransitions(self, lst):
         """ Sort transitions following transitions list order"""
         lst.sort(lambda x, y: cmp(self.tr_order.get(x['id'], 99), self.tr_order.get(y['id'], 99)))
-
-    def renderCreateFromTemplateButton(self):
-        return ViewPageTemplateFile(
-            "templates/actions_panel_create_from_template.pt")(self)
 
     @ram.cache(actionspanelview_cachekey)
     def __call__(self,
@@ -115,10 +110,17 @@ class DmsOMActionsPanelView(ActionsPanelView):
         # portal_actions.object_buttons action ids to keep
         #self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
         self.ACCEPTABLE_ACTIONS = ['delete']
+        self.SECTIONS_TO_RENDER += (
+            'renderCreateFromTemplateButton',
+        )
 
     def sortTransitions(self, lst):
         """ Sort transitions following transitions list order"""
         lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
+
+    def renderCreateFromTemplateButton(self):
+        return ViewPageTemplateFile(
+            "templates/actions_panel_create_from_template.pt")(self)
 
     @ram.cache(actionspanelview_cachekey)
     def __call__(self,
