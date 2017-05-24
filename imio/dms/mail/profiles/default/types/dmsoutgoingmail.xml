@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <object name="dmsoutgoingmail" meta_type="Dexterity FTI" i18n:domain="plone"
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
- <property name="behaviors">
+ <property name="behaviors" purge="False">
   <element value="plone.app.content.interfaces.INameFromTitle"/>
   <element value="plone.app.dexterity.behaviors.metadata.IDublinCore"/>
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
