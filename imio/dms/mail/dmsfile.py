@@ -22,6 +22,11 @@ class RestrictedNamedBlobFile(NamedBlobFile):
         if value is not None:
             registry = getUtility(IRegistry)
             if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile']:
+                if (self.context.portal_type == 'dmsommainfile' and
+                        self.context.file.contentType != 'application/vnd.oasis.opendocument.text'):
+                    # we are editing the dmsmainfile, there was previously another type, we keep it !
+                    # It's necessary to permit edition of a pdf scanned file
+                    return
                 mimetype = get_contenttype(value)
                 if mimetype != 'application/vnd.oasis.opendocument.text':
                     raise Invalid(_('You can only upload ".odt" file (Libre Office format)'))
