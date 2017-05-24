@@ -231,7 +231,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                                         {'recipient': recipient,
                                          'recipient_infos': helper_view.get_ctct_det(recipient)},
                                         _dg("Error when merging helper_view in generation context"))
-        scan_id = next_scan_id(file_portal_type='dmsommainfile', cliend_id_var='client_id2')
+        scan_id = next_scan_id(file_portal_type='dmsommainfile', scan_type='2')
         scan_id = 'IMIO{0}'.format(scan_id)
         update_dict_with_validation(generation_context,
                                     {'scan_id': scan_id,
