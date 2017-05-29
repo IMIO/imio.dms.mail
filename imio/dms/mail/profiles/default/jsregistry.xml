@@ -205,4 +205,6 @@
 
   <javascript id="++resource++ckeditor_for_plone/ckeditor_plone.js" insert-after="++resource++ckeditor/ckeditor.js" />
 
+  <javascript id="++resource++collective.js.fancytree/jquery.fancytree.min.js" insert-after="++resource++ckeditor_for_plone/ckeditor_plone.js" />
+
 </object>
