@@ -14,6 +14,7 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CPUtils.Extensions.utils import mark_last_version, change_user_properties
 #from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.migrator.migrator import Migrator
@@ -176,6 +177,12 @@ class Migrate_To_2_0(Migrator):
 
         # searched types
         changeSearchedTypes(self.portal)
+
+        # add documentation message
+        add_message('doc2-0', 'Documentation 2.0', u'<p>Vous pouvez consulter la <a href="http://www.imio.be/'
+                    u'support/documentation/topic/cp_app_ged" target="_blank">documentation en ligne de la '
+                    u'version 2.0</a>, ainsi que d\'autres documentations liées.</p>', msg_type='significant',
+                    can_hide=True, req_roles=['Authenticated'], activate=True)
 
     def configure_dashboard(self):
         """ add DashboardCollection """

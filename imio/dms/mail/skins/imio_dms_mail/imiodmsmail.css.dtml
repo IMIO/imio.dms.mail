@@ -74,7 +74,8 @@
     width: auto !important;
 }
 
-#content #form_widgets_sender_select_chzn a:link, a:visited {
+#content #form_widgets_sender_select_chzn a:link,
+#content #form_widgets_sender_select_chzn a:visited {
     border: 1px solid #aaa;
     color: inherit;
 }
