@@ -16,9 +16,13 @@ def lock(self, unlock=None):
     return self.REQUEST.response.redirect(self.absolute_url())
 
 
-def deactivate_message(self):
+def robot_init(self):
     portal = api.portal.get()
     for msg in portal['messages-config'].objectValues():
         if api.content.get_state(obj=msg) == 'activated':
             api.content.transition(obj=msg, transition='deactivate')
+
+    # Deactivate auto refresh on outgoingmail
+    portal.portal_javascripts.updateScript('++resource++imio.dms.mail/outgoingmail.js', enabled=False)
+
     return self.REQUEST.response.redirect(self.absolute_url())

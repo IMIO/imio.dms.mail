@@ -23,7 +23,7 @@ class DmsmailLayer(PloneWithPackageLayer):
         manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',
                                  'create_main_file')
         manage_addExternalMethod(portal, 'lock-unlock', '', 'imio.dms.mail.robot', 'lock')
-        manage_addExternalMethod(portal, 'deactivate_message', '', 'imio.dms.mail.robot', 'deactivate_message')
+        manage_addExternalMethod(portal, 'robot_init', '', 'imio.dms.mail.robot', 'robot_init')
 
         # install dmsmail (apply profile)
         sp = portal.portal_properties.site_properties

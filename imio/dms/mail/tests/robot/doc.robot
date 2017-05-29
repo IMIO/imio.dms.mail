@@ -851,5 +851,5 @@ Suite Setup
     Set Selenium Implicit Wait  2
     Set Selenium Speed  0.2
     Enable autologin as  Manager
-    Go to  ${PLONE_URL}/deactivate_message
+    Go to  ${PLONE_URL}/robot_init
     Disable autologin
