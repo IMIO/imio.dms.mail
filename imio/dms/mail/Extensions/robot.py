@@ -18,7 +18,7 @@ def lock(self, unlock=None):
 
 def deactivate_message(self):
     portal = api.portal.get()
-    msg = portal['messages-config']['browser-warning']
-    if api.content.get_state(obj=msg) == 'activated':
-        api.content.transition(obj=msg, transition='deactivate')
+    for msg in portal['messages-config'].objectValues():
+        if api.content.get_state(obj=msg) == 'activated':
+            api.content.transition(obj=msg, transition='deactivate')
     return self.REQUEST.response.redirect(self.absolute_url())
