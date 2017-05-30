@@ -44,7 +44,7 @@ class IImioDmsFile(IDmsFile):
 class ImioDmsFile(DmsFile):
     """DmsFile"""
     implements(IImioDmsFile)
-    __ac_local_roles_block__ = True
+    __ac_local_roles_block__ = False
 
     def Title(self):
         return self.title
