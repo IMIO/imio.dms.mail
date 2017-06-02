@@ -184,6 +184,14 @@ class Migrate_To_2_0(Migrator):
                     u'version 2.0</a>, ainsi que d\'autres documentations liées.</p>', msg_type='significant',
                     can_hide=True, req_roles=['Authenticated'], activate=True)
 
+        val = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+        if 'dmsoutgoingmail.back_to_agent|' not in val:
+            val += ['dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|',
+                    'dmsoutgoingmail.back_to_service_chief|', 'dmsoutgoingmail.back_to_print|',
+                    'dmsoutgoingmail.back_to_be_signed|', 'dmsoutgoingmail.back_to_scanned|']
+            api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
+                                           val)
+
     def configure_dashboard(self):
         """ add DashboardCollection """
         alsoProvides(self.omf, INextPrevNotNavigable)

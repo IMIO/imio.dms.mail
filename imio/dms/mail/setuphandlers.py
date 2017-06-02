@@ -1440,7 +1440,10 @@ def configure_actions_panel(portal):
             ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
              'dmsincomingmail.back_to_service_chief|', 'dmsincomingmail.back_to_treatment|',
              'dmsincomingmail.back_to_agent|', 'task.back_in_created|', 'task.back_in_to_assign|',
-             'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|', ]
+             'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|',
+             'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|',
+             'dmsoutgoingmail.back_to_service_chief|', 'dmsoutgoingmail.back_to_print|',
+             'dmsoutgoingmail.back_to_be_signed|', 'dmsoutgoingmail.back_to_scanned|']
 
 
 def configure_faceted_folder(folder, xml=None, default_UID=None):
