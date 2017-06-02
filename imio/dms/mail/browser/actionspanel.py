@@ -110,9 +110,9 @@ class DmsOMActionsPanelView(ActionsPanelView):
         # portal_actions.object_buttons action ids to keep
         #self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
         self.ACCEPTABLE_ACTIONS = ['delete']
-        self.SECTIONS_TO_RENDER += (
-            'renderCreateFromTemplateButton',
-        )
+#        self.SECTIONS_TO_RENDER += (
+#            'renderCreateFromTemplateButton',
+#        )
 
     def sortTransitions(self, lst):
         """ Sort transitions following transitions list order"""
