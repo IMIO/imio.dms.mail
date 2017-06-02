@@ -266,9 +266,10 @@ class Migrate_To_2_0(Migrator):
         brains = self.catalog.searchResults(portal_type=['dmsincomingmail'])
         for brain in brains:
             obj = brain.getObject()
-            obj.reindexObject(idxs=['in_out_date'])
             obj.reindexObjectSecurity()
-        # self.upgradeAll()
+
+        self.upgradeAll()
+
         self.catalog.reindexIndex(['assigned_user', 'mail_date', 'in_out_date', 'due_date'], self.portal.REQUEST)
 
         self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
