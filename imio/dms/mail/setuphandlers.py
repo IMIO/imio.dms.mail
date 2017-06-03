@@ -1335,6 +1335,11 @@ def addOwnPersonnel(context):
 
     intids = getUtility(IIntIds)
     own_orga = contacts['plonegroup-organization']
+    inb = api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
+                                         'incomingmail_number')
+    # Test if we are already in production
+    if inb > 20:
+        return
     persons = {
         'dirg': {'pers': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
                  'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'électron",
