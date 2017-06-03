@@ -191,6 +191,12 @@ class Migrate_To_2_0(Migrator):
                     'dmsoutgoingmail.back_to_be_signed|', 'dmsoutgoingmail.back_to_scanned|']
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
                                            val)
+        # update front-page
+        frontpage = self.portal['front-page']
+        if frontpage.Title() == 'Gestion du courrier 1.1':
+            frontpage.setTitle(_("front_page_title"))
+            frontpage.setDescription(_("front_page_descr"))
+            frontpage.setText(_("front_page_text"), mimetype='text/html')
 
     def configure_dashboard(self):
         """ add DashboardCollection """
@@ -212,12 +218,6 @@ class Migrate_To_2_0(Migrator):
                                  default_UID=col_folder['all_mails'].UID())
         # add metadata in portal_catalog
         addOrUpdateColumns(self.portal, columns=('in_out_date',))
-        # update front-page
-        frontpage = self.portal['front-page']
-        if frontpage.Title() == 'Gestion du courrier 1.1':
-            frontpage.setTitle(_("front_page_title"))
-            frontpage.setDescription(_("front_page_descr"))
-            frontpage.setText(_("front_page_text"), mimetype='text/html')
 
     def add_missing_transforms(self):
         """ pdf_to_... are maybe missing (if pdftotext not installed by example) """
@@ -245,11 +245,11 @@ class Migrate_To_2_0(Migrator):
         # add missing pdf transforms
         self.add_missing_transforms()
 
-        # do various global adaptations
-        self.update_site()
-
         # configure dashboard on omf
         self.configure_dashboard()
+
+        # do various global adaptations
+        self.update_site()
 
         # configure local roles on omf
         self.folder_local_roles()
