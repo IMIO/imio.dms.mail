@@ -145,7 +145,6 @@ class Migrate_To_2_0(Migrator):
             self.portal['outgoing-mail'].manage_addLocalRoles('expedition', ['Contributor'])
             self.portal['contacts'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
             api.group.add_user(groupname='expedition', username='scanner')
-            api.group.add_user(groupname='expedition', username='encodeur')
         # dir_general can add outgoing mails
         self.portal['outgoing-mail'].manage_addLocalRoles('dir_general', ['Contributor'])
 
