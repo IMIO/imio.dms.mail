@@ -275,7 +275,8 @@ class Migrate_To_2_0(Migrator):
             obj = brain.getObject()
             obj.reindexObjectSecurity()
 
-        self.upgradeAll()
+        # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
+        self.upgradeAll(omit=['imio.dms.mail:default'])
 
         self.catalog.reindexIndex(['assigned_user', 'mail_date', 'in_out_date', 'due_date'], self.portal.REQUEST)
 
