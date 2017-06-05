@@ -17,6 +17,7 @@ from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
+from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
 
 from ..interfaces import IOMDashboard, ITaskDashboard
@@ -138,7 +139,7 @@ class Migrate_To_2_0(Migrator):
 
         # publish outgoing-mail folder
         if api.content.get_state(self.omf) != 'internally_published':
-            api.content.transition(obj=self.omf, to_state="internally_published")
+            transitions(self.omf, ["show_internally"])
         # add group
         if api.group.get('expedition') is None:
             api.group.create('expedition', '1 Expédition courrier sortant')
