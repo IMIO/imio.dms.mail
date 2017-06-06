@@ -78,11 +78,6 @@ $(document).ready(function(){
     $('#faceted-form #type_widget').click(dmsmail.manage_orgtype_filter);
     $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a></span>');
 
-    $('.overlay').prepOverlay({
-        subtype: 'ajax',
-        closeselector: '[name="form.buttons.cancel"]'
-    });
-
     // replace error message with interpreted html to render links
     $('.template-usergroup-userprefs .portalMessage.error dd, .template-usergroup-groupprefs .portalMessage.error dd').html(function(index, html){
         return $("<div/>").html(html).text();
@@ -92,7 +87,14 @@ $(document).ready(function(){
     /* remove inline validation for dmsoutgoingmail
     $('.template-dmsoutgoingmail .z3cformInlineValidation, .template-dmsdocument-edit.portaltype-dmsoutgoingmail .z3cformInlineValidation').removeClass('z3cformInlineValidation'); */
 
-/*    $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
+/*
+Added with first version of create form template on im r22564
+    $('.overlay').prepOverlay({
+        subtype: 'ajax',
+        closeselector: '[name="form.buttons.cancel"]'
+    });
+
+    $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
         dmsmail.initialize_fancytree();
     });*/
 

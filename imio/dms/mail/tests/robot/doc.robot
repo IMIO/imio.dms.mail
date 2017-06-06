@@ -266,6 +266,7 @@ CS en réponse
     Remove element  id=${note60}
     Click button  css=#viewlet-above-content-title .apButtonAction_reply
     Wait until element is visible  css=.template-reply #formfield-form-widgets-ITask-due_date  10
+    Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 1 édition réponse.png  id=content
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
