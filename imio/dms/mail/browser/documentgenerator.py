@@ -6,6 +6,7 @@ from plone import api
 from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from Products.CMFPlone.utils import safe_unicode
 from collective.contact.core.interfaces import IContactable
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
@@ -201,7 +202,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         splitted_name = doc_name.split('.')
         title = '.'.join(splitted_name[:-1])
 
-        file_object = NamedBlobFile(doc, filename=doc_name)
+        file_object = NamedBlobFile(doc, filename=safe_unicode(doc_name))
         scan_id = gen_context['scan_id'][4:]
         scan_params = [param for param in ('PD', 'PC', 'PVS') if gen_context.get(param, False)]
         # Could be stored in annotation
