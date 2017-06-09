@@ -199,17 +199,14 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
     def generate_persistent_doc(self, pod_template, output_format):
         """ Create a dmsmainfile from the generated document """
         doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
-        splitted_name = doc_name.split('.')
-        title = '.'.join(splitted_name[:-1])
-
         file_object = NamedBlobFile(doc, filename=safe_unicode(doc_name))
         scan_id = gen_context['scan_id'][4:]
         scan_params = [param for param in ('PD', 'PC', 'PVS') if gen_context.get(param, False)]
         # Could be stored in annotation
         scan_user = (scan_params and '|'.join(scan_params) or None)
         with api.env.adopt_roles(['Manager']):
-            persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=title, id=scan_id,
-                                                     scan_id=scan_id, scan_user=scan_user, file=file_object)
+            persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=pod_template.title,
+                                                     id=scan_id, scan_id=scan_id, scan_user=scan_user, file=file_object)
         return persisted_doc
 
     def redirects(self, persisted_doc):
