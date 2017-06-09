@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get
+from DateTime import DateTime
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 from zope.component import getUtility, queryUtility, getAdapter
@@ -140,6 +141,13 @@ def dmsmainfile_modified(dmf, event):
     mail = dmf.aq_parent
     if IDmsDocument.providedBy(mail):
         mail.reindexObject(idxs=['SearchableText'])
+
+
+def dexterity_transition(obj, event):
+    """
+        Dexterity content transition
+    """
+    obj.setModificationDate(DateTime())
 
 
 # CONFIGURATION

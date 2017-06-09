@@ -34,6 +34,12 @@
         handler=".subscribers.dmsmainfile_modified"
         />
 
+    <subscriber
+        for="plone.dexterity.interfaces.IDexterityContent
+             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+        handler=".subscribers.dexterity_transition"
+      />
+
     <!-- Configuration -->
     <subscriber
         for="plone.registry.interfaces.IRecordModifiedEvent"
