@@ -14,6 +14,7 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CPUtils.Extensions.utils import mark_last_version, change_user_properties
 #from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.documentgenerator.config import set_oo_port, set_uno_path
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
@@ -197,6 +198,10 @@ class Migrate_To_2_0(Migrator):
             frontpage.setTitle(_("front_page_title"))
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
+
+        # documentgenerator config
+        set_oo_port()
+        set_uno_path()
 
     def configure_dashboard(self):
         """ add DashboardCollection """
