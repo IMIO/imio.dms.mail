@@ -36,6 +36,7 @@ from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
+from collective.documentgenerator.utils import update_templates
 #from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
@@ -1565,7 +1566,23 @@ def add_templates(site):
 
 # Singles steps
 
-def create_template_step(context):
+def create_templates_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
     add_templates(context.getSite())
+
+
+def update_templates_step(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    templates_list = [(tup[1], tup[2]) for tup in list_templates()]
+    ret = update_templates(templates_list)
+    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret])
+
+
+def override_templates_step(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    templates_list = [(tup[1], tup[2]) for tup in list_templates()]
+    ret = update_templates(templates_list, force=True)
+    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret])

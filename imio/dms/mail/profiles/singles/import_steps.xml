@@ -3,10 +3,26 @@
 
  <import-step
     id="imiodmsmail-create-templates"
-    handler="imio.dms.mail.setuphandlers.create_template_step"
+    handler="imio.dms.mail.setuphandlers.create_templates_step"
     title="Templates creation step for imio.dms.mail"
     version="2017-06-22">
-    Templates creation step for imio.dms.mail
+    Create templates. If it already exists, just apply the transition and set at right place.
+ </import-step>
+
+ <import-step
+    id="imiodmsmail-update-templates"
+    handler="imio.dms.mail.setuphandlers.update_templates_step"
+    title="Templates update step for imio.dms.mail"
+    version="2017-06-22">
+    Update template files from the os. Don't replace a modified template !
+ </import-step>
+
+ <import-step
+    id="imiodmsmail-override-templates"
+    handler="imio.dms.mail.setuphandlers.override_templates_step"
+    title="Templates override step for imio.dms.mail"
+    version="2017-06-22">
+    Update and override template files from the os. Replace a modified template !
  </import-step>
 
 </import-steps>
