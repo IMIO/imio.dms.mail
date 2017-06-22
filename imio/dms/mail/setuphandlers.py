@@ -1466,6 +1466,22 @@ def get_dashboard_collections(folder, uids=False):
     return brains
 
 
+def list_templates():
+    """ Templates list used in add_templates method but also in update method """
+    dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
+    # (cid, plone_path, os_path)
+    return [
+        (10, 'templates/d-im-listing', os.path.join(dpath, 'd-im-listing.odt')),
+        (50, 'templates/d-print', os.path.join(dpath, 'd-print.odt')),
+        (100, 'templates/om/header', os.path.join(dpath, 'om-header.odt')),
+        (105, 'templates/om/footer', os.path.join(dpath, 'om-footer.odt')),
+        (110, 'templates/om/intro', os.path.join(dpath, 'om-intro.odt')),
+        (120, 'templates/om/ending', os.path.join(dpath, 'om-ending.odt')),
+        (200, 'templates/om/base', os.path.join(dpath, 'om-base.odt')),
+        (210, 'templates/om/receipt', os.path.join(dpath, 'om-receipt.odt')),
+    ]
+
+
 def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
@@ -1486,69 +1502,62 @@ def add_templates(site):
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             logger.info("'%s' folder created" % path)
 
-    dpath = pkg_resources.resource_filename('imio.dms.mail', 'profiles/default/templates')
-    templates = [
-        {'cid': 10, 'cont': 'templates', 'id': 'd-im-listing', 'title': _(u'Mail listing template'),
-         'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
-         'attrs': {'pod_formats': ['odt'],
-                   'dashboard_collections': [b.UID for b in
-                    get_dashboard_collections(site['incoming-mail']['mail-searches']) if b.id == 'all_mails'],
-                   # cond: check c10 reception date (display link), check output_format (generation view)
-                   'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"},
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-im-listing.odt')})],
-         },
-        {'cid': 50, 'cont': 'templates', 'id': 'd-print', 'title': _(u'Print template'), 'type': 'DashboardPODTemplate',
-         'trans': ['show_internally'],
-         'attrs': {'pod_formats': ['odt'],
-                   'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
-                   'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
-                                                                      uids=True)},
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'd-print.odt')})],
-         },
-        {'cid': 100, 'cont': 'templates/om', 'id': 'header', 'title': _(u'Header template'), 'type': 'SubTemplate',
-         'trans': ['show_internally'],
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-header.odt')})],
-         },
-        {'cid': 105, 'cont': 'templates/om', 'id': 'footer', 'title': _(u'Footer template'), 'type': 'SubTemplate',
-         'trans': ['show_internally'],
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-footer.odt')})],
-         },
-        {'cid': 110, 'cont': 'templates/om', 'id': 'intro', 'title': _(u'Intro template'), 'type': 'SubTemplate',
-         'trans': ['show_internally'],
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-intro.odt')})],
-         },
-        {'cid': 120, 'cont': 'templates/om', 'id': 'ending', 'title': _(u'Ending template'), 'type': 'SubTemplate',
-         'trans': ['show_internally'],
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-ending.odt')})],
-         },
-    ]
+    def combine_data(data, test=None):
+        templates_list = list_templates()
+        ret = []
+        for cid, ppath, ospath in templates_list:
+            if not test or test(cid):
+                dic = data[cid]
+                dic['cid'] = cid
+                parts = ppath.split('/')
+                dic['id'] = parts[-1]
+                dic['cont'] = '/'.join(parts[0:-1])
+                dic['functions'] = [(add_file, [], {'attr': 'odt_file', 'filepath': ospath})]
+                ret.append(dic)
+        return ret
+
+    data = {
+        10: {'title': _(u'Mail listing template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
+             'attrs': {'pod_formats': ['odt'],
+                       'dashboard_collections': [b.UID for b in
+                                                 get_dashboard_collections(site['incoming-mail']['mail-searches'])
+                                                 if b.id == 'all_mails'],
+                       # cond: check c10 reception date (display link), check output_format (generation view)
+                       'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"}},
+        50: {'title': _(u'Print template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
+             'attrs': {'pod_formats': ['odt'],
+                       'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
+                       'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
+                                                                          uids=True)}},
+        100: {'title': _(u'Header template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
+        105: {'title': _(u'Footer template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
+        110: {'title': _(u'Intro template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
+        120: {'title': _(u'Ending template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
+    }
+
+    templates = combine_data(data, test=lambda x: x < 200)
     cids = create(templates, pos=True)
 
-    templates = [
-        {'cid': 200, 'cont': 'templates/om', 'id': 'base', 'title': _(u'Base template'),
-         'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
-         # 'style_template': [cids[1].UID()]
-         'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
-                   [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
-                    {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
-                    {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
-                    {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}]},
-         #          'context_variables': [{'name': u'do_mailing', 'value': u'1'}]},
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-base.odt')})],
-         },
-        {'cid': 210, 'cont': 'templates/om', 'id': 'receipt', 'title': _(u'Receipt template'),
-         'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
-         # 'style_template': [cids[1].UID()]
-         'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
-                   [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
-                    {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
-                    {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
-                    {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
-         #          'context_variables': [{'name': u'do_mailing', 'value': u'1'}]},
-                   'context_variables': [{'name': u'PD', 'value': u'True'},
-                                         {'name': u'PC', 'value': u'True'},
-                                         {'name': u'PVS', 'value': u'False'}]},
-         'functions': [(add_file, [], {'attr': 'odt_file', 'filepath': os.path.join(dpath, 'om-receipt.odt')})],
-         },
-    ]
+    data = {
+        200: {'title': _(u'Base template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
+              # 'style_template': [cids[1].UID()]
+              'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
+                        [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
+                         {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
+                         {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
+                         {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}]}},
+#                       'context_variables': [{'name': u'do_mailing', 'value': u'1'}]}},
+        210: {'title': _(u'Receipt template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
+              # 'style_template': [cids[1].UID()]
+              'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
+                        [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
+                         {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
+                         {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
+                         {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
+                        'context_variables': [{'name': u'PD', 'value': u'True'},
+                                              {'name': u'PC', 'value': u'True'},
+                                              {'name': u'PVS', 'value': u'False'}]}},
+    }
+
+    templates = combine_data(data, test=lambda x: x >= 200)
     cids = create(templates, pos=True, cids=cids)
