@@ -1561,3 +1561,11 @@ def add_templates(site):
 
     templates = combine_data(data, test=lambda x: x >= 200)
     cids = create(templates, pos=True, cids=cids)
+
+
+# Singles steps
+
+def create_template_step(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    add_templates(context.getSite())

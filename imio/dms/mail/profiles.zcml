@@ -21,6 +21,14 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+    <genericsetup:registerProfile
+        name="singles"
+        title="imio.dms.mail single steps profile"
+        directory="profiles/singles"
+        description="Single steps profile for imio.dms.mail"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
     <genericsetup:upgradeStep
         title="Go to imio.dms.mail 0.2"
         description=""
