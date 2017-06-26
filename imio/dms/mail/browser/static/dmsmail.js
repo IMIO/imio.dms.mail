@@ -87,8 +87,8 @@ $(document).ready(function(){
     /* remove inline validation for dmsoutgoingmail
     $('.template-dmsoutgoingmail .z3cformInlineValidation, .template-dmsdocument-edit.portaltype-dmsoutgoingmail .z3cformInlineValidation').removeClass('z3cformInlineValidation'); */
 
-/*
-Added with first version of create form template on im r22564
+
+/* Added with first version of create form template on im r22564 */
     $('.overlay').prepOverlay({
         subtype: 'ajax',
         closeselector: '[name="form.buttons.cancel"]'
@@ -96,6 +96,6 @@ Added with first version of create form template on im r22564
 
     $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
         dmsmail.initialize_fancytree();
-    });*/
+    });
 
 });
