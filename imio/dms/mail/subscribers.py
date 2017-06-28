@@ -26,6 +26,7 @@ from collective.contact.plonegroup.browser.settings import (invalidate_soev_cach
                                                             invalidate_sov_cache)
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 
@@ -184,6 +185,7 @@ def contact_plonegroup_change(event):
                 if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
                     roles += ['Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
+                alsoProvides(folder, INextPrevNotNavigable)
 
 
 def user_related_modification(event):
