@@ -1,6 +1,7 @@
 from zope import schema
 from zope.interface import Interface
 from z3c.form import form
+#from z3c.form.browser.radio import RadioFieldWidget
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.autoform.directives import widget
@@ -60,7 +61,7 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'outgoingmail',
         label=_(u"Outgoing mail"),
-        fields=['omail_types', 'omail_remark_states', 'omail_odt_mainfile']
+        fields=['omail_types', 'omail_remark_states', 'omail_odt_mainfile', 'org_templates_encoder_can_edit']
     )
 
     omail_types = schema.List(
@@ -78,6 +79,12 @@ class IImioDmsMailConfig(model.Schema):
 
     omail_odt_mainfile = schema.Bool(
         title=_(u'Dms file must be an odt format'),
+        default=True
+    )
+
+    org_templates_encoder_can_edit = schema.Bool(
+        title=_(u'Enable edition of service templates for encoder'),
+        description=_(u"Check if a service encoder can edit his service templates."),
         default=True
     )
 

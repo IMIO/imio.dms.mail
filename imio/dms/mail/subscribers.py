@@ -181,7 +181,7 @@ def contact_plonegroup_change(event):
                 obj = uuidToObject(uid)
                 folder = api.content.create(container=base_folder, type='Folder', id=uid, title=obj.title)
                 roles = ['Reader']
-                if True:
+                if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
                     roles += ['Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
 
