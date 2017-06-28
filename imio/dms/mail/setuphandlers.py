@@ -1498,7 +1498,7 @@ def add_templates(site):
             tplt_fld.setLocallyAllowedTypes(template_types)
             tplt_fld.setImmediatelyAddableTypes(template_types)
             tplt_fld.setConstrainTypesMode(1)
-            tplt_fld.setExcludeFromNav(True)
+            tplt_fld.setExcludeFromNav(False)
             api.content.transition(obj=tplt_fld, transition='show_internally')
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             logger.info("'%s' folder created" % path)
