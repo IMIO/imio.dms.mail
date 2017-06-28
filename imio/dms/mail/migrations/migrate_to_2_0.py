@@ -2,12 +2,14 @@
 
 import logging
 
+from zope import event
 from zope.component import getUtility
 from zope.interface import alsoProvides
 from zope.lifecycleevent import modified
 
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 
@@ -43,17 +45,6 @@ class Migrate_To_2_0(Migrator):
         for brain in self.catalog(portal_type='dmsoutgoingmail', id=['reponse1', 'reponse2', 'reponse3', 'reponse4',
                                   'reponse5', 'reponse6', 'reponse7', 'reponse8', 'reponse9']):
             api.content.delete(obj=brain.getObject())
-
-    def folder_local_roles(self):
-        # contributor on a contact can edit too
-        for folder in (self.portal['outgoing-mail'], self.portal['contacts']):
-            dic = folder.__ac_local_roles__
-            for principal in dic.keys():
-                if principal.endswith('_encodeur'):
-                    del dic[principal]
-            for uid in self.registry[ORGANIZATIONS_REGISTRY]:
-                dic["%s_encodeur" % uid] = ['Contributor']
-            folder._p_changed = True
 
     def manage_localroles(self):
         rpl = {'IM Field Writer': 'Base Field Writer', 'IM Treating Group Writer': 'Treating Group Writer'}
@@ -256,8 +247,11 @@ class Migrate_To_2_0(Migrator):
         # do various global adaptations
         self.update_site()
 
-        # configure local roles on omf
-        self.folder_local_roles()
+        # configure local roles on omf and add folders in templates
+        # call event to do it at modification
+        record = self.registry.records.get('collective.contact.plonegroup.browser.settings.IContactPlonegroupConfig.'
+                                           'organizations')
+        event.notify(RecordModifiedEvent(record, [], []))
 
         # manage task for both incoming and outgoing mails
         self.create_tasks_folder()

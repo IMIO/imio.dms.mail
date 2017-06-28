@@ -16,11 +16,14 @@ from Products.CMFPlone.utils import safe_unicode
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from plone.app.uuid.utils import uuidToObject
 from plone.registry.interfaces import IRecordModifiedEvent, IRegistry
 
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY, FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact, IPloneGroupContact
-from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
+from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig, addOrModifyGroup
+from collective.contact.plonegroup.browser.settings import (invalidate_soev_cache, invalidate_sopgv_cache,
+                                                            invalidate_sov_cache)
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContainerMethods
@@ -171,6 +174,16 @@ def contact_plonegroup_change(event):
             for uid in registry[ORGANIZATIONS_REGISTRY]:
                 dic["%s_encodeur" % uid] = ['Contributor']
             folder._p_changed = True
+        # we add a directory by organization in templates/om
+        base_folder = portal.templates.om
+        for uid in registry[ORGANIZATIONS_REGISTRY]:
+            if uid not in base_folder:
+                obj = uuidToObject(uid)
+                folder = api.content.create(container=base_folder, type='Folder', id=uid, title=obj.title)
+                roles = ['Reader']
+                if True:
+                    roles += ['Contributor', 'Editor']
+                api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
 
 
 def user_related_modification(event):
