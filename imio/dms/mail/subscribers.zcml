@@ -73,17 +73,17 @@
         handler=".subscribers.group_deleted"
         />
 
-    <!--subscriber
-        for=".interfaces.IPloneGroupContact
+    <subscriber
+        for="collective.contact.plonegroup.interfaces.IPloneGroupContact
              zope.app.container.interfaces.IObjectMovedEvent"
-        handler=".subscribers.adaptPloneGroupDefinition"
+        handler=".subscribers.ploneGroupContactChanged"
         />
 
     <subscriber
-        for=".interfaces.IPloneGroupContact
+        for="collective.contact.plonegroup.interfaces.IPloneGroupContact
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".subscribers.adaptPloneGroupDefinition"
-        /-->
+        handler=".subscribers.ploneGroupContactChanged"
+        />
 
     <!-- Contact -->
     <subscriber

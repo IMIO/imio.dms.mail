@@ -5,9 +5,11 @@ from DateTime import DateTime
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 from zope.component import getUtility, queryUtility, getAdapter
+from zope.container.interfaces import IContainerModifiedEvent
 from zope.i18n import translate
 from zope.interface import alsoProvides, noLongerProvides
 from zope.intid.interfaces import IIntIds
+from zope.lifecycleevent import modified
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
 from plone import api
@@ -21,9 +23,7 @@ from plone.registry.interfaces import IRecordModifiedEvent, IRegistry
 
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY, FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact, IPloneGroupContact
-from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig, addOrModifyGroup
-from collective.contact.plonegroup.browser.settings import (invalidate_soev_cache, invalidate_sopgv_cache,
-                                                            invalidate_sov_cache)
+from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig, getOwnOrganizationPath
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -180,12 +180,42 @@ def contact_plonegroup_change(event):
         for uid in registry[ORGANIZATIONS_REGISTRY]:
             if uid not in base_folder:
                 obj = uuidToObject(uid)
-                folder = api.content.create(container=base_folder, type='Folder', id=uid, title=obj.title)
+                full_title = obj.get_full_title(separator=' - ', first_index=1)
+                folder = api.content.create(container=base_folder, type='Folder', id=uid, title=full_title)
                 roles = ['Reader']
                 if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
                     roles += ['Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 alsoProvides(folder, INextPrevNotNavigable)
+
+
+def ploneGroupContactChanged(organization, event):
+    """
+        Manage an organization change
+    """
+    # zope.lifecycleevent.ObjectRemovedEvent : delete
+    # zope.lifecycleevent.ObjectModifiedEvent : edit, rename
+    # is the container who's modified at creation ?
+    # bypass if we are removing the Plone Site
+    if IContainerModifiedEvent.providedBy(event) or \
+       event.object.portal_type == 'Plone Site':
+        return
+    # is the current organization a part of own organization
+    organization_path = '/'.join(organization.getPhysicalPath())
+    if not organization_path.startswith(getOwnOrganizationPath()):  # can be unfound too
+        return
+    portal = api.portal.getSite()
+    pcat = portal.portal_catalog
+    brains = pcat(portal_type='organization', path=organization_path)
+    om_folder = portal['templates']['om']
+    for brain in brains:
+        obj = brain.getObject()
+        full_title = obj.get_full_title(separator=' - ', first_index=1)
+        folder = om_folder.get(brain.UID)
+        if folder and folder.title != full_title:
+            folder.title = full_title
+            folder.reindexObject(idxs=['Title', 'SearchableText'])
+            modified(folder)
 
 
 def user_related_modification(event):
