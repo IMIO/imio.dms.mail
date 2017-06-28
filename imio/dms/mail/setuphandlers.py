@@ -998,6 +998,8 @@ def addTestDirectory(context):
               'organization_levels': organization_levels,
               }
     site.invokeFactory('directory', 'contacts', **params)
+    pos = site.getObjectPosition('templates')
+    site.moveObjectToPosition('contacts', pos)
     contacts = site['contacts']
     site.portal_workflow.doActionFor(contacts, "show_internally")
     blacklistPortletCategory(context, contacts)
