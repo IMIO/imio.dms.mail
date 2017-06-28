@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-06-28 11:05+0000\n"
+"POT-Creation-Date: 2017-06-28 11:56+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
-#: ./subscribers.py:229
+#: ./subscribers.py:231
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
@@ -53,7 +53,7 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./setuphandlers.py:1543
+#: ./setuphandlers.py:1546
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -121,6 +121,10 @@ msgstr "Choisir ce modèle"
 msgid "Comment"
 msgstr "Commentaire"
 
+#: ./setuphandlers.py:1492
+msgid "Common templates"
+msgstr "Modèles communs"
+
 #: ./browser/templates/actions_panel_create_from_template.pt:5
 msgid "Create from template"
 msgstr "Créer à partir d'un modèle"
@@ -141,15 +145,15 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1536
+#: ./setuphandlers.py:1539
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
-#: ./setuphandlers.py:1534
+#: ./setuphandlers.py:1537
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1533
+#: ./setuphandlers.py:1536
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -184,15 +188,15 @@ msgstr "Courriers entrants"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1535
+#: ./setuphandlers.py:1538
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
-#: ./subscribers.py:243
+#: ./subscribers.py:245
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1521
+#: ./setuphandlers.py:1524
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -270,11 +274,11 @@ msgstr "Écraser le contenu avec les éléments choisis"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1528
+#: ./setuphandlers.py:1531
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:1551
+#: ./setuphandlers.py:1554
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -334,7 +338,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1489
+#: ./setuphandlers.py:1491
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -368,23 +372,23 @@ msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas modifier ce champ sur l'ensemble des éléments sélectionnés. Recommencez en modifiant votre sélection."
 
-#: ./subscribers.py:273
+#: ./subscribers.py:275
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:259
+#: ./subscribers.py:261
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:239
+#: ./subscribers.py:241
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:223
+#: ./subscribers.py:225
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:215
+#: ./subscribers.py:217
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
