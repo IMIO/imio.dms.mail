@@ -55,6 +55,9 @@ dmsmail.initializeOverlays = function (form_id) {
 
 /* we have to copy this from imio.helpers to make it work in overlays */
 dmsmail.initialize_fancytree = function () {
+  if ($("form#tree-form").length == 0) {
+    return
+  }
   var submitButton = $("#tree-form input[type='submit'");
   var uidInput = $('#tree-form input[name="uid"]');
   var nodes = JSON.parse(document.getElementById('tree').dataset.nodes);
