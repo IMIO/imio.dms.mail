@@ -260,5 +260,8 @@ class CategoriesDocumentGenerationView(IDDocumentGenerationView):
 class OutgoingMailLinksViewlet(DocumentGeneratorLinksViewlet):
     """This viewlet displays available documents to generate on outgoingmail."""
 
+    def available(self):
+        return False
+
     def get_generation_view_name(self, template, output_format):
         return 'persistent-document-generation'

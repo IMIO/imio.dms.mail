@@ -3,6 +3,8 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
 
+    <include package="z3c.unconfigure" file="meta.zcml" />
+
     <!-- IDmsDocument -->
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
@@ -71,6 +73,18 @@
         handler=".subscribers.group_deleted"
         />
 
+    <subscriber
+        for="collective.contact.plonegroup.interfaces.IPloneGroupContact
+             zope.app.container.interfaces.IObjectMovedEvent"
+        handler=".subscribers.ploneGroupContactChanged"
+        />
+
+    <subscriber
+        for="collective.contact.plonegroup.interfaces.IPloneGroupContact
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.ploneGroupContactChanged"
+        />
+
     <!-- Contact -->
     <subscriber
         for="collective.contact.core.content.organization.IOrganization
@@ -84,7 +98,6 @@
         handler=".subscribers.organization_modified"
         />
 
-    <include package="z3c.unconfigure" file="meta.zcml" />
     <unconfigure>
         <subscriber
             for="collective.contact.widget.interfaces.IContactContent

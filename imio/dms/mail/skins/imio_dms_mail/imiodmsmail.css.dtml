@@ -190,6 +190,10 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/reply_icon.png');
 }
 
+.apButtonAction_create-from-template {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/models_icon.png');
+}
+
 /* Configure autocomplete widget */
 ul.select2-choices {
     max-width: 18em !important;

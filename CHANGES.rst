@@ -4,6 +4,9 @@ Changelog
 2.0 (2017-06-02)
 ----------------
 
+- Added outgoing mails models
+  [sgeulette]
+
 - Reviewed dmsoutgoingmail schema.
   [sgeulette]
 

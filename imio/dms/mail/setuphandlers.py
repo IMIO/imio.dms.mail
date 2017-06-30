@@ -998,6 +998,8 @@ def addTestDirectory(context):
               'organization_levels': organization_levels,
               }
     site.invokeFactory('directory', 'contacts', **params)
+    pos = site.getObjectPosition('templates')
+    site.moveObjectToPosition('contacts', pos)
     contacts = site['contacts']
     site.portal_workflow.doActionFor(contacts, "show_internally")
     blacklistPortletCategory(context, contacts)
@@ -1479,14 +1481,15 @@ def list_templates():
         (110, 'templates/om/intro', os.path.join(dpath, 'om-intro.odt')),
         (120, 'templates/om/ending', os.path.join(dpath, 'om-ending.odt')),
         (200, 'templates/om/base', os.path.join(dpath, 'om-base.odt')),
-        (210, 'templates/om/receipt', os.path.join(dpath, 'om-receipt.odt')),
+        (210, 'templates/om/common/receipt', os.path.join(dpath, 'om-receipt.odt')),
     ]
 
 
 def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
-    for path, title in [('templates', _(u"Templates")), ('templates/om', _(u"Outgoing mail"))]:
+    for path, title in [('templates', _(u"Templates")), ('templates/om', _(u"Outgoing mail")),
+                        ('templates/om/common', _(u"Common templates"))]:
         parts = path.split('/')
         id = parts[-1]
         parent = site.unrestrictedTraverse('/'.join(parts[:-1]))
@@ -1498,7 +1501,7 @@ def add_templates(site):
             tplt_fld.setLocallyAllowedTypes(template_types)
             tplt_fld.setImmediatelyAddableTypes(template_types)
             tplt_fld.setConstrainTypesMode(1)
-            tplt_fld.setExcludeFromNav(True)
+            tplt_fld.setExcludeFromNav(False)
             api.content.transition(obj=tplt_fld, transition='show_internally')
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             logger.info("'%s' folder created" % path)
@@ -1562,6 +1565,9 @@ def add_templates(site):
 
     templates = combine_data(data, test=lambda x: x >= 200)
     cids = create(templates, pos=True, cids=cids)
+
+    site['templates']['om'].moveObjectToPosition('base', 10)
+    site['templates']['om'].moveObjectToPosition('common', 11)
 
 
 # Singles steps
