@@ -118,9 +118,19 @@ class DmsOMActionsPanelView(ActionsPanelView):
         """ Sort transitions following transitions list order"""
         lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
 
+    def mayCreateFromTemplate(self):
+        """
+          Method that check if special 'create from template' action has to be displayed.
+        """
+        if not self.isInFacetedNavigation() and self.member.has_permission('Add portal content', self.context):
+            return True
+        return False
+
     def renderCreateFromTemplateButton(self):
-        return ViewPageTemplateFile(
-            "templates/actions_panel_create_from_template.pt")(self)
+        if self.mayCreateFromTemplate():
+            return ViewPageTemplateFile(
+                "templates/actions_panel_create_from_template.pt")(self)
+        return ''
 
     @ram.cache(actionspanelview_cachekey)
     def __call__(self,
