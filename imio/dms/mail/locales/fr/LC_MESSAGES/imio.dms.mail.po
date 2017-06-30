@@ -127,7 +127,7 @@ msgstr "Modèles communs"
 
 #: ./browser/templates/actions_panel_create_from_template.pt:5
 msgid "Create from template"
-msgstr "Créer à partir d'un modèle"
+msgstr "Créer depuis modèle"
 
 #: ./profiles/default/actions.xml
 msgid "Daily listing"
