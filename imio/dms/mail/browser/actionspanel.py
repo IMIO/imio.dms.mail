@@ -205,14 +205,14 @@ class DmsTaskActionsPanelView(ActionsPanelView):
             **kwargs)
 
 
-class ContactActionsPanelView(ActionsPanelView):
+class BasicActionsPanelView(ActionsPanelView):
     """
       This manage the view displaying actions on contact
     """
     def __init__(self, context, request):
-        super(ContactActionsPanelView, self).__init__(context, request)
+        super(BasicActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
-        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete']
+        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete', 'rename']
 
 
 class ContactActionsPanelViewlet(ActionsPanelViewlet):
@@ -225,11 +225,21 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
         return view(useIcons=False, showOwnDelete=False, showAddContent=True, showActions=True)
 
 
-class FolderActionsPanelViewlet(ActionsPanelViewlet):
+class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
     """
         Override render method for IActionsPanelFolder
     """
 
     def renderViewlet(self):
         view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showTransitions=False, showOwnDelete=False, showAddContent=True, showActions=False)
+        return view(useIcons=False, showTransitions=False, showOwnDelete=False, showAddContent=True, showActions=True)
+
+
+class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
+    """
+        Override render method for IActionsPanelFolder
+    """
+
+    def renderViewlet(self):
+        view = getMultiAdapter((self.context, self.request), name='actions_panel')
+        return view(useIcons=False, showTransitions=True, showOwnDelete=False, showAddContent=True, showActions=True)

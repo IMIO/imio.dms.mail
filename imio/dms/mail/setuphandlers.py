@@ -48,7 +48,7 @@ from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard
 
-from interfaces import IDirectoryFacetedNavigable, IActionsPanelFolder
+from interfaces import IDirectoryFacetedNavigable, IActionsPanelFolder, IActionsPanelFolderAll
 from utils import list_wf_states
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -1503,6 +1503,7 @@ def add_templates(site):
             tplt_fld.setConstrainTypesMode(1)
             tplt_fld.setExcludeFromNav(False)
             api.content.transition(obj=tplt_fld, transition='show_internally')
+            alsoProvides(tplt_fld, IActionsPanelFolderAll)
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             logger.info("'%s' folder created" % path)
 
