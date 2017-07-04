@@ -50,3 +50,8 @@ class ITaskDashboard(IDocsDashboard):
 class IActionsPanelFolder(Interface):
 
     """Marker interface for folder displaying actions panel viewlet."""
+
+
+class IActionsPanelFolderAll(Interface):
+
+    """Marker interface for folder displaying actions panel viewlet."""

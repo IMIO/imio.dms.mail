@@ -187,7 +187,9 @@
 
   <javascript id="++resource++imio.dashboard/imio.dashboard.js" insert-after="++resource++collective.eeafaceted.z3ctable/collective.eeafaceted.z3ctable.js" />
 
-  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
+  <javascript id="imiodashboard_js_variables.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
+
+  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="imiodashboard_js_variables.js" />
 
   <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
 
@@ -205,6 +207,12 @@
 
   <javascript id="++resource++ckeditor_for_plone/ckeditor_plone.js" insert-after="++resource++ckeditor/ckeditor.js" />
 
-  <javascript id="++resource++collective.js.fancytree/jquery.fancytree.min.js" insert-after="++resource++ckeditor_for_plone/ckeditor_plone.js" />
+  <javascript id="++resource++plonefinder_static/init_imagewidget.js" insert-after="++resource++ckeditor_for_plone/ckeditor_plone.js" />
+
+  <javascript id="++resource++plonefinder_static/imagewidget.js" insert-after="++resource++plonefinder_static/init_imagewidget.js" />
+
+  <javascript id="++resource++collective.js.fancytree/jquery.fancytree.min.js" insert-after="++resource++plonefinder_static/imagewidget.js" />
+
+  <!--<javascript id="" insert-after="" />-->
 
 </object>

@@ -43,12 +43,12 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
-from imio.helpers.content import create, add_file
+from imio.helpers.content import create, create_NamedBlob
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard
 
-from interfaces import IDirectoryFacetedNavigable, IActionsPanelFolder
+from interfaces import IDirectoryFacetedNavigable, IActionsPanelFolder, IActionsPanelFolderAll
 from utils import list_wf_states
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -1476,6 +1476,7 @@ def list_templates():
     return [
         (10, 'templates/d-im-listing', os.path.join(dpath, 'd-im-listing.odt')),
         (50, 'templates/d-print', os.path.join(dpath, 'd-print.odt')),
+        (90, 'templates/om/style', os.path.join(dpath, 'om-styles.odt')),
         (100, 'templates/om/header', os.path.join(dpath, 'om-header.odt')),
         (105, 'templates/om/footer', os.path.join(dpath, 'om-footer.odt')),
         (110, 'templates/om/intro', os.path.join(dpath, 'om-intro.odt')),
@@ -1503,6 +1504,7 @@ def add_templates(site):
             tplt_fld.setConstrainTypesMode(1)
             tplt_fld.setExcludeFromNav(False)
             api.content.transition(obj=tplt_fld, transition='show_internally')
+            alsoProvides(tplt_fld, IActionsPanelFolderAll)
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             logger.info("'%s' folder created" % path)
 
@@ -1516,7 +1518,9 @@ def add_templates(site):
                 parts = ppath.split('/')
                 dic['id'] = parts[-1]
                 dic['cont'] = '/'.join(parts[0:-1])
-                dic['functions'] = [(add_file, [], {'attr': 'odt_file', 'filepath': ospath})]
+                if not 'attrs' in dic:
+                    dic['attrs'] = {}
+                dic['attrs']['odt_file'] = create_NamedBlob(ospath)
                 ret.append(dic)
         return ret
 
@@ -1533,6 +1537,7 @@ def add_templates(site):
                        'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
                        'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
                                                                           uids=True)}},
+        90: {'title': _(u'Style template'), 'type': 'StyleTemplate', 'trans': ['show_internally']},
         100: {'title': _(u'Header template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
         105: {'title': _(u'Footer template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
         110: {'title': _(u'Intro template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
@@ -1540,34 +1545,36 @@ def add_templates(site):
     }
 
     templates = combine_data(data, test=lambda x: x < 200)
-    cids = create(templates, pos=True)
+    cids = create(templates, pos=False)
+    exists = 'base' in site['templates']['om']
 
     data = {
         200: {'title': _(u'Base template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
-              # 'style_template': [cids[1].UID()]
-              'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
-                        [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
-                         {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
-                         {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
-                         {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}]}},
-#                       'context_variables': [{'name': u'do_mailing', 'value': u'1'}]}},
-        210: {'title': _(u'Receipt template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
-              # 'style_template': [cids[1].UID()]
               'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
                         [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
                          {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
                          {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
                          {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
+                        'style_template': [cids[90].UID()]}},
+#                       'context_variables': [{'name': u'do_mailing', 'value': u'1'}]}},
+        210: {'title': _(u'Receipt template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
+              'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
+                        [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
+                         {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
+                         {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
+                         {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
+                        'style_template': [cids[90].UID()],
                         'context_variables': [{'name': u'PD', 'value': u'True'},
                                               {'name': u'PC', 'value': u'True'},
                                               {'name': u'PVS', 'value': u'False'}]}},
     }
 
     templates = combine_data(data, test=lambda x: x >= 200)
-    cids = create(templates, pos=True, cids=cids)
+    cids = create(templates, pos=False, cids=cids)
 
-    site['templates']['om'].moveObjectToPosition('base', 10)
-    site['templates']['om'].moveObjectToPosition('common', 11)
+    if not exists:
+        site['templates']['om'].moveObjectToPosition('base', 10)
+        site['templates']['om'].moveObjectToPosition('common', 11)
 
 
 # Singles steps

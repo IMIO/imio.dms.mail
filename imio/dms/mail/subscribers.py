@@ -31,6 +31,7 @@ from collective.task.interfaces import ITaskContainerMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from . import _
+from interfaces import IActionsPanelFolder
 
 
 # DMSDOCUMENT
@@ -182,6 +183,7 @@ def contact_plonegroup_change(event):
                 obj = uuidToObject(uid)
                 full_title = obj.get_full_title(separator=' - ', first_index=1)
                 folder = api.content.create(container=base_folder, type='Folder', id=uid, title=full_title)
+                alsoProvides(folder, IActionsPanelFolder)
                 roles = ['Reader']
                 if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
                     roles += ['Contributor', 'Editor']
