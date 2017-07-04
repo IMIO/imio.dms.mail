@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-06-28 11:56+0000\n"
+"POT-Creation-Date: 2017-07-03 14:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "${title}: create from template"
 msgstr ""
 
-#: ./subscribers.py:231
+#: ./subscribers.py:264
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -49,7 +49,7 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
-#: ./setuphandlers.py:1546
+#: ./setuphandlers.py:1549
 msgid "Base template"
 msgstr ""
 
@@ -117,11 +117,11 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1492
+#: ./setuphandlers.py:1493
 msgid "Common templates"
 msgstr ""
 
-#: ./browser/templates/actions_panel_create_from_template.pt:5
+#: ./browser/templates/actions_panel_create_from_template.pt:6
 msgid "Create from template"
 msgstr ""
 
@@ -141,15 +141,15 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1539
+#: ./setuphandlers.py:1542
 msgid "Ending template"
 msgstr ""
 
-#: ./setuphandlers.py:1537
+#: ./setuphandlers.py:1540
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1536
+#: ./setuphandlers.py:1539
 msgid "Header template"
 msgstr ""
 
@@ -184,15 +184,15 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1538
+#: ./setuphandlers.py:1541
 msgid "Intro template"
 msgstr ""
 
-#: ./subscribers.py:245
+#: ./subscribers.py:278
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1524
+#: ./setuphandlers.py:1526
 msgid "Mail listing template"
 msgstr ""
 
@@ -270,11 +270,11 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1531
+#: ./setuphandlers.py:1533
 msgid "Print template"
 msgstr ""
 
-#: ./setuphandlers.py:1554
+#: ./setuphandlers.py:1557
 msgid "Receipt template"
 msgstr ""
 
@@ -294,6 +294,7 @@ msgstr ""
 msgid "Replace some items by others"
 msgstr ""
 
+#: ./browser/templates/actions_panel_create_from_template.pt:7
 #: ./browser/templates/actions_panel_reply.pt:4
 msgid "Reply"
 msgstr ""
@@ -318,6 +319,10 @@ msgstr ""
 msgid "States for which to display remark icon"
 msgstr ""
 
+#: ./setuphandlers.py:1538
+msgid "Style template"
+msgstr ""
+
 #: ./migrations/migrate_to_1_0.py:76
 #: ./migrations/migrate_to_2_0.py:80
 #: ./setuphandlers.py:159
@@ -330,7 +335,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1491
+#: ./setuphandlers.py:1492
 msgid "Templates"
 msgstr ""
 
@@ -364,23 +369,23 @@ msgstr ""
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./subscribers.py:275
+#: ./subscribers.py:308
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:261
+#: ./subscribers.py:294
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
-#: ./subscribers.py:241
+#: ./subscribers.py:274
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:225
+#: ./subscribers.py:258
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:217
+#: ./subscribers.py:250
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
