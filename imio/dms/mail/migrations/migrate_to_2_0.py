@@ -121,6 +121,10 @@ class Migrate_To_2_0(Migrator):
                 col.setCustomViewFields(tuple(fields))
 
     def update_site(self):
+        # documentgenerator config
+        set_oo_port()
+        set_uno_path()
+
         # add templates configuration
         add_templates(self.portal)
 
@@ -189,10 +193,6 @@ class Migrate_To_2_0(Migrator):
             frontpage.setTitle(_("front_page_title"))
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
-
-        # documentgenerator config
-        set_oo_port()
-        set_uno_path()
 
     def configure_dashboard(self):
         """ add DashboardCollection """
