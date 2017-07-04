@@ -43,7 +43,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
-from imio.helpers.content import create, add_file
+from imio.helpers.content import create, create_NamedBlob
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard
@@ -1518,7 +1518,9 @@ def add_templates(site):
                 parts = ppath.split('/')
                 dic['id'] = parts[-1]
                 dic['cont'] = '/'.join(parts[0:-1])
-                dic['functions'] = [(add_file, [], {'attr': 'odt_file', 'filepath': ospath})]
+                if not 'attrs' in dic:
+                    dic['attrs'] = {}
+                dic['attrs']['odt_file'] = create_NamedBlob(ospath)
                 ret.append(dic)
         return ret
 
