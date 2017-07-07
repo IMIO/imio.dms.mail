@@ -29,7 +29,7 @@ from ..interfaces import IOMDashboard, ITaskDashboard
 from ..setuphandlers import (_, add_db_col_folder, changeSearchedTypes, configure_om_rolefields, configure_task_config,
                              configure_task_rolefields, createIMailCollections, createStateCollections,
                              createOMailCollections, configure_faceted_folder, createTaskCollections, add_templates,
-                             reimport_faceted_config)
+                             reimport_faceted_config, create_persons_from_users)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -244,6 +244,9 @@ class Migrate_To_2_0(Migrator):
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',
                              steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
+
+        # create persons from users
+        create_persons_from_users(self.portal)
 
         # add missing pdf transforms
         self.add_missing_transforms()

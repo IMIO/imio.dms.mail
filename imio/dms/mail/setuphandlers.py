@@ -25,6 +25,7 @@ from z3c.relationfield.relation import RelationValue
 from Products.CMFPlone.utils import base_hasattr, safe_unicode
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
+from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
@@ -1390,6 +1391,66 @@ def addOwnPersonnel(context):
                                **fct_dic)
 
 
+def create_persons_from_users(portal, start='firstname'):
+    """
+        create own personnel from plone users
+    """
+    pf = portal['contacts']['personnel-folder']
+    users = {}
+    groups = api.group.get_groups()
+    for group in groups:
+        if '_' not in group.id and group.id not in ['dir_general', 'encodeurs', 'expedition']:
+            continue
+        parts = group.id.split('_')
+        org_uid = None
+        if len(parts) > 1:
+            org_uid = parts[0]
+        for user in api.user.get_users(group=group):
+            if user.id not in users and user.id not in ['scanner']:
+                users[user.id] = {'pers': {}, 'orgs': []}
+                fullname = safe_unicode(user.getProperty('fullname'))
+                lastname = firstname = u''
+                if fullname:
+                    parts = fullname.split()
+                    if len(parts) == 1:
+                        lastname = parts[0]
+                    elif len(parts) > 1:
+                        if start == 'firstname':
+                            firstname = parts[0]
+                            lastname = ' '.join(parts[1:])
+                        else:
+                            lastname = parts[0]
+                            firstname = ' '.join(parts[1:])
+                else:
+                    lastname = safe_unicode(user.id)
+                users[user.id]['pers'] = {'lastname': lastname, 'firstname': firstname, 'email':
+                                          safe_unicode(user.getProperty('email'))}
+            if org_uid and org_uid not in users[user.id]['orgs']:
+                users[user.id]['orgs'].append(org_uid)
+
+    intids = getUtility(IIntIds)
+    out = []
+    logger.info(users)
+    for userid in users:
+        email = users[userid]['pers'].pop('email')
+        out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, users[userid]['pers']['firstname'],
+                                                                      users[userid]['pers']['lastname']))
+        logger.info(out[-1])
+        if userid not in pf:
+            api.content.create(container=pf, type='person', id=userid, userid=userid, **users[userid]['pers'])
+        pers = pf[userid]
+        for uid in users[userid]['orgs']:
+            org = uuidToObject(uid)
+            if not org:
+                continue
+            out.append(u" -> hp created with org '%s'" % org.get_full_title())
+            logger.info(out[-1])
+            if uid not in pers:
+                api.content.create(container=pers, id=uid, type='held_position', **{'email': email,
+                                   'position': RelationValue(intids.getId(org)), 'use_parent_address': True})
+    return out
+
+
 def configureDocumentViewer(context):
     """
         Set the settings of document viewer product
@@ -1599,3 +1660,9 @@ def override_templates_step(context):
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list, force=True)
     return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret])
+
+
+def create_persons_from_users_step(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    return '\n'.join(create_persons_from_users(context.getSite()))
