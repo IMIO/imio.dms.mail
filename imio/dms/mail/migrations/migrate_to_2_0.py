@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import copy
 import logging
 
 from zope import event
@@ -52,6 +53,7 @@ class Migrate_To_2_0(Migrator):
         self.runProfileSteps('imio.dms.mail', steps=['rolemap', 'sharing'])
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
+        changes = False
         if 'IM Field Writer' in self.portal.__ac_roles__:
             # delete old roles
             roles = list(self.portal.__ac_roles__)
@@ -63,14 +65,18 @@ class Migrate_To_2_0(Migrator):
                 for state in lr[k]:
                     for princ in lr[k][state]:
                         lr[k][state][princ]['roles'] = [r in rpl and rpl[r] or r for r in lr[k][state][princ]['roles']]
-            fti._p_changed = True
+            fti._p_changed = True  # doesn't work !!
+            changes = True
         # add DmsFile Contributor role
         if 'static_config' in lr:
             lrsc = lr['static_config']
             if 'created' in lrsc and 'encodeurs' in lrsc['created'] and \
                     'DmsFile Contributor' not in lrsc['created']['encodeurs']['roles']:
                 lrsc['created']['encodeurs']['roles'].append('DmsFile Contributor')
-                fti._p_changed = True
+                fti._p_changed = True  # doesn't work !!
+                changes = True
+        if changes:
+            setattr(fti, 'localroles', copy.copy(lr))
         # obj.reindexObjectSecurity() is done later
 
     def create_tasks_folder(self):
