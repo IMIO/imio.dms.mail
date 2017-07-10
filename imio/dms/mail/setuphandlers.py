@@ -1430,7 +1430,7 @@ def create_persons_from_users(portal, start='firstname'):
 
     intids = getUtility(IIntIds)
     out = []
-    logger.info(users)
+    #logger.info(users)
     for userid in users:
         email = users[userid]['pers'].pop('email')
         out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, users[userid]['pers']['firstname'],
