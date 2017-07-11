@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2017-07-03 14:46+0000\n"
+"POT-Creation-Date: 2017-07-11 13:50+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -53,7 +53,7 @@ msgstr "Appliquer"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./setuphandlers.py:1549
+#: ./setuphandlers.py:1616
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -121,9 +121,13 @@ msgstr "Choisir ce modèle"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:1493
+#: ./setuphandlers.py:1555
 msgid "Common templates"
 msgstr "Modèles communs"
+
+#: ./setuphandlers.py:1597
+msgid "Contacts export"
+msgstr "Export des contacts"
 
 #: ./browser/templates/actions_panel_create_from_template.pt:6
 msgid "Create from template"
@@ -145,15 +149,15 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1542
+#: ./setuphandlers.py:1608
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
-#: ./setuphandlers.py:1540
+#: ./setuphandlers.py:1606
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1539
+#: ./setuphandlers.py:1605
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -162,7 +166,7 @@ msgid "Imio Dms Mail testing profile"
 msgstr "Profil de testing pour imio.dms.mail"
 
 #: ./browser/settings.py:32
-#: ./setuphandlers.py:107
+#: ./setuphandlers.py:108
 msgid "Incoming mail"
 msgstr "Courrier entrant"
 
@@ -175,12 +179,12 @@ msgid "Incoming mail listing"
 msgstr "Listing des courriers entrants"
 
 #: ./migrations/migrate_to_1_0.py:63
-#: ./setuphandlers.py:112
+#: ./setuphandlers.py:113
 msgid "Incoming mail searches"
 msgstr "Recherches courriers entrants"
 
 #: ./migrations/migrate_to_1_0.py:64
-#: ./setuphandlers.py:113
+#: ./setuphandlers.py:114
 msgid "Incoming mails"
 msgstr "Courriers entrants"
 
@@ -188,7 +192,7 @@ msgstr "Courriers entrants"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1541
+#: ./setuphandlers.py:1607
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -196,7 +200,7 @@ msgstr "Sous-document d'introduction"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1526
+#: ./setuphandlers.py:1590
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -252,17 +256,17 @@ msgstr "Date d'expédition"
 
 #: ./browser/settings.py:63
 #: ./migrations/migrate_to_0_2.py:115
-#: ./setuphandlers.py:134
+#: ./setuphandlers.py:135
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:202
-#: ./setuphandlers.py:139
+#: ./migrations/migrate_to_2_0.py:209
+#: ./setuphandlers.py:140
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
 
-#: ./migrations/migrate_to_2_0.py:203
-#: ./setuphandlers.py:140
+#: ./migrations/migrate_to_2_0.py:210
+#: ./setuphandlers.py:141
 msgid "Outgoing mails"
 msgstr "Courriers sortants"
 
@@ -274,11 +278,11 @@ msgstr "Écraser le contenu avec les éléments choisis"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1533
+#: ./setuphandlers.py:1599
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:1557
+#: ./setuphandlers.py:1624
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -327,23 +331,23 @@ msgstr "Single steps profile for imio.dms.mail"
 msgid "States for which to display remark icon"
 msgstr "États pour lesquels afficher l'icône de \"remarque\""
 
-#: ./setuphandlers.py:1538
+#: ./setuphandlers.py:1604
 msgid "Style template"
 msgstr "Styles de base"
 
 #: ./migrations/migrate_to_1_0.py:76
-#: ./migrations/migrate_to_2_0.py:80
-#: ./setuphandlers.py:159
+#: ./migrations/migrate_to_2_0.py:87
+#: ./setuphandlers.py:160
 msgid "Tasks"
 msgstr "Tâches"
 
 #: ./migrations/migrate_to_1_0.py:75
-#: ./migrations/migrate_to_2_0.py:84
-#: ./setuphandlers.py:162
+#: ./migrations/migrate_to_2_0.py:91
+#: ./setuphandlers.py:163
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1492
+#: ./setuphandlers.py:1554
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -401,16 +405,16 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./setuphandlers.py:373
+#: ./setuphandlers.py:374
 msgid "all_im_tasks"
 msgstr "Toutes les tâches"
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:300
+#: ./setuphandlers.py:301
 msgid "all_incoming_mails"
 msgstr "Tous les courriers"
 
-#: ./setuphandlers.py:455
+#: ./setuphandlers.py:456
 msgid "all_outgoing_mails"
 msgstr "Tous les courriers"
 
@@ -437,51 +441,51 @@ msgstr "Créer un courrier entrant"
 msgid "create_om"
 msgstr "Créer un courrier sortant"
 
-#: ./migrations/migrate_to_2_0.py:190
-#: ./setuphandlers.py:536
+#: ./migrations/migrate_to_2_0.py:201
+#: ./setuphandlers.py:537
 msgid "front_page_descr"
 msgstr "Bienvenue sur votre outil de gestion du courrier"
 
-#: ./migrations/migrate_to_2_0.py:191
-#: ./setuphandlers.py:537
+#: ./migrations/migrate_to_2_0.py:202
+#: ./setuphandlers.py:538
 msgid "front_page_text"
 msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p><ul><li>Création d'un courrier entrant<ul><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier</li><li>manuellement avec la possibilité d'associer ensuite un document scanné (par exemple si son format est particulier et ne passe pas dans le scanner fourni)</li></ul></li><li>Création d'un courrier sortant<ul><li>en réponse à un courrier entrant avec reprise dans la fiche courrier des données déjà encodées</li><li>manuellement avec la possibilité d'associer ensuite un document de réponse au format bureautique ou de le générer à partir d'un modèle</li><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier (par exemple un courrier généré par une autre application, déjà imprimé et signé)</li></ul></li><li>Pour les documents injectés depuis le scanner, la fiche courrier (entrant ou sortant) est complétée en se basant sur la prévisualisation du document scanné et la possibilité de glisser/déplacer depuis le texte océrisé</li><li>L'utilisation d'un modèle de courrier sortant a comme avantage de gérer automatiquement<ul><li>la fusion de données,</li><li>l'impression en lot,</li><li>l'intégration d'un code-barre</li><li>prochainement le publipostage et l'intégration de signatures</li></ul></li><li>Le code barre intégré dans le courrier sortant permet d’effectuer un scan des documents après signature, avec les avantages suivants&nbsp;:<ul><li>la sauvegarde du scan de la version signée dans la fiche courrier sortant</li><li>l'enregistrement automatique de la date d'expédition</li><li>la clôture de la fiche courrier</li></ul></li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments &lt;&lt; à traiter &gt;&gt;</li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Assignation d'un service traitant, des services en copie et gestion de tâches (qui peuvent aussi être assignées à d'autres services)</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires)</li><li>Workflow de validation et de traitement du courrier et des tâches</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale (facilité de visualisation sur tablette)</li><li>etc.</li></ul>"
 
-#: ./migrations/migrate_to_2_0.py:189
-#: ./setuphandlers.py:535
+#: ./migrations/migrate_to_2_0.py:200
+#: ./setuphandlers.py:536
 msgid "front_page_title"
 msgstr "Gestion du courrier 2.0"
 
-#: ./setuphandlers.py:331
+#: ./setuphandlers.py:332
 msgid "im_have_treated"
 msgstr "Que j'ai traités"
 
-#: ./setuphandlers.py:323
+#: ./setuphandlers.py:324
 msgid "im_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:356
+#: ./setuphandlers.py:357
 msgid "im_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:348
+#: ./setuphandlers.py:349
 msgid "im_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:315
+#: ./setuphandlers.py:316
 msgid "im_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:339
+#: ./setuphandlers.py:340
 msgid "im_to_treat_in_my_group"
 msgstr "À traiter dans mon service"
 
-#: ./setuphandlers.py:306
+#: ./setuphandlers.py:307
 msgid "im_to_validate"
 msgstr "À valider"
 
 #: ./profiles.zcml:14
-#: ./setuphandlers.py:57
+#: ./setuphandlers.py:58
 msgid "imio.dms.mail"
 msgstr "Gestion du courrier"
 
@@ -512,27 +516,27 @@ msgstr "Objet"
 msgid "listing_sender_title"
 msgstr "Expéditeur"
 
-#: ./setuphandlers.py:487
+#: ./setuphandlers.py:488
 msgid "om_have_treated"
 msgstr "Que j'ai traités"
 
-#: ./setuphandlers.py:478
+#: ./setuphandlers.py:479
 msgid "om_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:503
+#: ./setuphandlers.py:504
 msgid "om_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:495
+#: ./setuphandlers.py:496
 msgid "om_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:470
+#: ./setuphandlers.py:471
 msgid "om_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:461
+#: ./setuphandlers.py:462
 msgid "om_to_validate"
 msgstr "À valider"
 
@@ -605,35 +609,35 @@ msgstr "État: à faire"
 msgid "searchfor_to_print"
 msgstr "État: à imprimer"
 
-#: ./setuphandlers.py:405
+#: ./setuphandlers.py:406
 msgid "task_have_treated"
 msgstr "Que j'ai traitées"
 
-#: ./setuphandlers.py:397
+#: ./setuphandlers.py:398
 msgid "task_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:389
+#: ./setuphandlers.py:390
 msgid "task_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:421
+#: ./setuphandlers.py:422
 msgid "tasks_have_created"
 msgstr "Que j'ai créées"
 
-#: ./setuphandlers.py:413
+#: ./setuphandlers.py:414
 msgid "tasks_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:428
+#: ./setuphandlers.py:429
 msgid "tasks_in_proposing_group"
 msgstr "Créées par mon service"
 
-#: ./setuphandlers.py:379
+#: ./setuphandlers.py:380
 msgid "tasks_to_assign"
 msgstr "À assigner"
 
-#: ./setuphandlers.py:436
+#: ./setuphandlers.py:437
 msgid "tasks_to_close"
 msgstr "À clôturer"
 
