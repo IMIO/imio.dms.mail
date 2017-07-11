@@ -198,16 +198,28 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
         dp_len = len(directory_path)
         for brain in self.portal.portal_catalog(portal_type='organization', path=directory_path, sort_on='path'):
             id += 1
+            self.uids[brain.UID] = id
             obj = brain.getObject()
             path = brain.getPath()[dp_len:]
             parts = path.split('/')
             p_path = '/'.join(parts[:-1])
             paths[path] = id
-            self.uids[brain.UID] = id
             p_id = ''
             if p_path:
                 p_id = paths.get(p_path)
             lst.append((id, p_id, obj))
+        return lst
+
+    def get_persons(self):
+        """ Return a list of persons """
+        lst = []
+        id = 0
+        directory_path = '/'.join(self.context.getPhysicalPath())
+        for brain in self.portal.portal_catalog(portal_type='person', path=directory_path, sort_on='sortable_title'):
+            id += 1
+            self.uids[brain.UID] = id
+            obj = brain.getObject()
+            lst.append((id, obj))
         return lst
 
 ### GENERATION VIEW ###
