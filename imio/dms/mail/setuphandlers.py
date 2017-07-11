@@ -1669,3 +1669,9 @@ def create_persons_from_users_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
     return '\n'.join(create_persons_from_users(context.getSite()))
+
+
+def create_persons_from_users_step_inverted(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    return '\n'.join(create_persons_from_users(context.getSite(), start='lastname'))

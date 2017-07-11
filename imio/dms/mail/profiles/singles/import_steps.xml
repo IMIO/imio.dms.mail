@@ -33,4 +33,12 @@
     For internal people. Create persons and held positions in own personal folder.
  </import-step>
 
+ <import-step
+    id="imiodmsmail-create-persons-from-users-inverted"
+    handler="imio.dms.mail.setuphandlers.create_persons_from_users_step_inverted"
+    title="Create persons from users, fullname starting with lastname"
+    version="2017-06-22">
+    For internal people. Create persons and held positions in own personal folder.
+ </import-step>
+
 </import-steps>
