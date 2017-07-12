@@ -1023,7 +1023,7 @@ def addTestDirectory(context):
     contacts.invokeFactory('organization', 'electrabel', **params)
     electrabel = contacts['electrabel']
 
-    electrabel.invokeFactory('organization', 'travaux', title=u'Travaux 1', organization_type=u'sa')
+    electrabel.invokeFactory('organization', 'travaux', title=u'Travaux 1', organization_type=u'service')
 
     params = {'title': u"SWDE",
               'organization_type': u'sa',
@@ -1536,6 +1536,7 @@ def list_templates():
     # (cid, plone_path, os_path)
     return [
         (10, 'templates/d-im-listing', os.path.join(dpath, 'd-im-listing.odt')),
+        (30, 'templates/contacts-export', os.path.join(dpath, 'contacts-export.ods')),
         (50, 'templates/d-print', os.path.join(dpath, 'd-print.odt')),
         (90, 'templates/om/style', os.path.join(dpath, 'om-styles.odt')),
         (100, 'templates/om/header', os.path.join(dpath, 'om-header.odt')),
@@ -1593,6 +1594,8 @@ def add_templates(site):
                                                  if b.id == 'all_mails'],
                        # cond: check c10 reception date (display link), check output_format (generation view)
                        'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"}},
+        30: {'title': _(u'Contacts export'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
+             'attrs': {'pod_formats': ['ods'], 'pod_portal_types': ['directory']}},
         50: {'title': _(u'Print template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
              'attrs': {'pod_formats': ['odt'],
                        'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",

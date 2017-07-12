@@ -337,6 +337,13 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="collective.contact.core.content.directory.IDirectory"
+        name="document_generation_helper_view"
+        class="imio.dms.mail.browser.documentgenerator.DocumentGenerationDirectoryHelper"
+        permission="zope2.View"
+        />
+
     <!-- Viewlets -->
     <configure package="collective.documentgenerator">
         <browser:viewlet
