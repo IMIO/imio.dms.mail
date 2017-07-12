@@ -188,25 +188,26 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
     def __init__(self, context, request):
         super(DocumentGenerationDirectoryHelper, self).__init__(context, request)
         self.uids = {}
+        self.pers = {}
+        self.directory_path = '/'.join(self.context.getPhysicalPath())
+        self.dp_len = len(self.directory_path)
 
     def get_organizations(self):
         """ Return a list of organizations, ordered by path, with parent id """
         lst = []
         id = 0
         paths = {}
-        directory_path = '/'.join(self.context.getPhysicalPath())
-        dp_len = len(directory_path)
-        for brain in self.portal.portal_catalog(portal_type='organization', path=directory_path, sort_on='path'):
+        for brain in self.portal.portal_catalog(portal_type='organization', path=self.directory_path, sort_on='path'):
             id += 1
             self.uids[brain.UID] = id
             obj = brain.getObject()
-            path = brain.getPath()[dp_len:]
+            path = brain.getPath()[self.dp_len:]
             parts = path.split('/')
             p_path = '/'.join(parts[:-1])
             paths[path] = id
             p_id = ''
             if p_path:
-                p_id = paths.get(p_path)
+                p_id = paths[p_path]
             lst.append((id, p_id, obj))
         return lst
 
@@ -214,13 +215,36 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
         """ Return a list of persons """
         lst = []
         id = 0
-        directory_path = '/'.join(self.context.getPhysicalPath())
-        for brain in self.portal.portal_catalog(portal_type='person', path=directory_path, sort_on='sortable_title'):
+        for brain in self.portal.portal_catalog(portal_type='person', path=self.directory_path,
+                                                sort_on='sortable_title'):
             id += 1
             self.uids[brain.UID] = id
+            self.pers[brain.getPath()[self.dp_len:]] = id
             obj = brain.getObject()
             lst.append((id, obj))
         return lst
+
+    def get_held_positions(self):
+        """ Return a list of held positions """
+        lst = []
+        id = 0
+        for brain in self.portal.portal_catalog(portal_type='held_position', path=self.directory_path, sort_on='path'):
+            id += 1
+            self.uids[brain.UID] = id
+            obj = brain.getObject()
+            # pers id
+            path = brain.getPath()[self.dp_len:]
+            parts = path.split('/')
+            p_path = '/'.join(parts[:-1])
+            p_id = self.pers[p_path]
+            # org id
+            org = obj.get_organization()
+            org_id = ''
+            if org:
+                org_id = self.uids[org.UID()]
+            lst.append((id, p_id, org_id, obj))
+        return lst
+
 
 ### GENERATION VIEW ###
 
