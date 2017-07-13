@@ -229,7 +229,7 @@ class IdmUtilsMethods(UtilsMethods):
         col_uid = col_folder['all_mails'].UID()
         from_date = date.today()
         to_date = from_date + timedelta(1)
-        return "{}/#c3=500&b_start=0&c1={}&c10={}&c10={}".format(url, col_uid, from_date.strftime('%Y-%m-%d'),
+        return "{}/#c3=20&b_start=0&c1={}&c10={}&c10={}".format(url, col_uid, from_date.strftime('%Y-%m-%d'),
                                                                  to_date.strftime('%Y-%m-%d'))
 
 
