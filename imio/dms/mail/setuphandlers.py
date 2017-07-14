@@ -618,8 +618,10 @@ def changeSearchedTypes(site):
         Change searched types
     """
     to_show = ['dmsmainfile', 'dmsommainfile']
-    to_hide = ['Collection', 'Document', 'Event', 'File', 'Folder', 'Image', 'Link', 'News Item', 'Topic', 'directory',
-               'dmsdocument']
+    to_hide = ['Collection', 'ConfigurablePODTemplate', 'DashboardCollection', 'DashboardPODTemplate',
+               'Discussion Item', 'Document', 'Event', 'File', 'Folder', 'Image', 'Link', 'MessagesConfig',
+               'News Item', 'PodTemplate', 'StyleTemplate', 'SubTemplate', 'Topic', 'directory',
+               'dmsdocument', 'held_position', 'organization', 'person', 'position', 'task']
     not_searched = list(site.portal_properties.site_properties.types_not_searched)
     for typ in to_show:
         if typ in not_searched:
