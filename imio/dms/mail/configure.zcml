@@ -173,7 +173,7 @@
 
     <!-- UTILS METHODS -->
     <browser:page
-        for="Products.CMFCore.interfaces.IContentish"
+        for="*"
         name="idm-utils"
         class=".utils.IdmUtilsMethods"
         permission="zope2.View"
@@ -194,7 +194,7 @@
     />
 
     <browser:page
-        for="Products.CMFCore.interfaces.IContentish"
+        for="*"
         name="odm-utils"
         class=".utils.OdmUtilsMethods"
         permission="zope2.View"
