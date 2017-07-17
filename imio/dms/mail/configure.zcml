@@ -173,7 +173,7 @@
 
     <!-- UTILS METHODS -->
     <browser:page
-        for="Products.CMFCore.interfaces.IContentish"
+        for="*"
         name="idm-utils"
         class=".utils.IdmUtilsMethods"
         permission="zope2.View"
@@ -185,6 +185,7 @@
             highest_scan_id
             im_listing_url
             must_render_im_listing
+            pg_organizations
             proposed_to_manager_col_cond
             proposed_to_serv_chief_col_cond
             user_has_review_level
@@ -193,12 +194,14 @@
     />
 
     <browser:page
-        for="Products.CMFCore.interfaces.IContentish"
+        for="*"
         name="odm-utils"
         class=".utils.OdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
             get_om_folder
+            highest_scan_id
+            pg_organizations
             scanned_col_cond
             is_odt_activated
         "

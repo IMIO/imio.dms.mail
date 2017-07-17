@@ -1,10 +1,11 @@
 # encoding: utf-8
 
 from datetime import date, timedelta
-from operator import methodcaller
+from operator import methodcaller, itemgetter
 from collections import OrderedDict
 
 from zope.component.hooks import getSite
+from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.component import getUtility
 
@@ -15,6 +16,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.Five import BrowserView
 
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile, generate_key
 from browser.settings import IImioDmsMailConfig
@@ -182,6 +184,26 @@ class UtilsMethods(BrowserView):
             return True
         else:
             return False
+
+    def pg_organizations(self, only_activated='', output='csv'):
+        """ Return a list of tuples with plonegroup organizations """
+        factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
+        lst = []
+        registry = getUtility(IRegistry)
+        activated = registry[ORGANIZATIONS_REGISTRY]
+        for term in factory(self.context):
+            uid, title = term.value, term.title
+            status = uid in activated and 'a' or 'na'
+            if only_activated and status == 'na':
+                continue
+            lst.append((uid, title.encode('utf8'), status))
+        #sorted(lst, key=itemgetter(1))
+        if output != 'csv':
+            return lst
+        ret = []
+        for uid, tit, stat in lst:
+            ret.append('"%s","%s","%s"' % (uid, tit, stat))
+        return '\n'.join(ret)
 
 
 class IdmUtilsMethods(UtilsMethods):
