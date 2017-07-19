@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from datetime import date, timedelta
-from operator import methodcaller, itemgetter
+from operator import methodcaller
 from collections import OrderedDict
 
 from zope.component.hooks import getSite
