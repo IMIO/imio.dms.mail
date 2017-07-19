@@ -314,7 +314,7 @@ class Migrate_To_2_0(Migrator):
                      "imio.history", "plone.app.collection", "plonetheme.imioapps"]:
             mark_last_version(self.portal, product=prod)
 
-        self.runProfileSteps('collective.documentgenerator', steps=['typeinfo'])
+        self.runProfileSteps('collective.documentgenerator', steps=['typeinfo'], profile='install-base')
         for brain in self.catalog(portal_types=POD_TEMPLATE_TYPES.values()):
             brain.getObject().reindexObject(idxs=['getIcon'])
         #self.refreshDatabase()
