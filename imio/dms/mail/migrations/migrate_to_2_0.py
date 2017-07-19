@@ -18,7 +18,6 @@ from Products.CPUtils.Extensions.utils import mark_last_version, change_user_pro
 #from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.documentgenerator.config import set_oo_port, set_uno_path
-from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.helpers.catalog import addOrUpdateColumns
@@ -314,9 +313,6 @@ class Migrate_To_2_0(Migrator):
                      "imio.history", "plone.app.collection", "plonetheme.imioapps"]:
             mark_last_version(self.portal, product=prod)
 
-        self.runProfileSteps('collective.documentgenerator', steps=['typeinfo'], profile='install-base')
-        for brain in self.catalog(portal_types=POD_TEMPLATE_TYPES.values()):
-            brain.getObject().reindexObject(idxs=['getIcon'])
         #self.refreshDatabase()
         self.finish()
 
