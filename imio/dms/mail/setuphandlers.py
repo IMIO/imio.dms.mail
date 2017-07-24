@@ -1011,7 +1011,7 @@ def addTestDirectory(context):
     addOwnOrganization(context)
 
     # Add not encoded person (in directory)
-    contacts.invokeFactory('person', 'notencoded', lastname=u'Non encodé')
+    contacts.invokeFactory('person', 'notencoded', lastname=u'Non encodé', use_parent_address=False)
 
     # Organisations creation (in directory)
     params = {'title': u"Electrabel",
@@ -1426,7 +1426,7 @@ def create_persons_from_users(portal, start='firstname'):
                 else:
                     lastname = safe_unicode(user.id)
                 users[user.id]['pers'] = {'lastname': lastname, 'firstname': firstname, 'email':
-                                          safe_unicode(user.getProperty('email'))}
+                                          safe_unicode(user.getProperty('email')), 'use_parent_address': False}
             if org_uid and org_uid not in users[user.id]['orgs']:
                 users[user.id]['orgs'].append(org_uid)
 
