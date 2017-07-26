@@ -1656,7 +1656,7 @@ def update_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list)
-    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret])
+    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode('utf8')
 
 
 def override_templates_step(context):
@@ -1664,16 +1664,16 @@ def override_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list, force=True)
-    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret])
+    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode('utf8')
 
 
 def create_persons_from_users_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    return '\n'.join(create_persons_from_users(context.getSite()))
+    return '\n'.join(create_persons_from_users(context.getSite())).encode('utf8')
 
 
 def create_persons_from_users_step_inverted(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    return '\n'.join(create_persons_from_users(context.getSite(), start='lastname'))
+    return '\n'.join(create_persons_from_users(context.getSite(), start='lastname')).encode('utf8')
