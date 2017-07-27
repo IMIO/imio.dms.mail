@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from Products.CMFPlone.utils import _createObjectByType
+from Products.CMFPlone.utils import _createObjectByType, base_hasattr
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from plone.testing import z2
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
@@ -33,6 +33,11 @@ class DmsmailLayer(PloneWithPackageLayer):
     def setUpZope(self, app, configurationContext):
         ztc.utils.setupCoreSessions(app)
         super(DmsmailLayer, self).setUpZope(app, configurationContext)
+        from App.config import _config
+        if not base_hasattr(_config, 'product_config'):
+            _config.product_config = {'imio.zamqp.core': {'ws_url': 'http://localhost:6543', 'ws_password': 'test',
+                                                          'ws_login': 'testuser', 'routing_key': '019999',
+                                                          'client_id': '019999'}}
 
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",

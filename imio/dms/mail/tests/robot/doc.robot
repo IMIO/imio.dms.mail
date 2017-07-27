@@ -21,6 +21,7 @@ Premiers pas
 # partie 2.1 Premiers pas
     #Log to console  LOG
     Go to  ${PLONE_URL}
+    Set Window Size  1280  2880
     Capture and crop page screenshot  doc/utilisation/2-1 accès à l'application.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
     #Log in  encodeur  Dmsmail69!
@@ -273,18 +274,30 @@ CS en réponse
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 1 édition réponse finie.png  id=content
 
     # Create mainfile from model
-    ${note51}  Add pointy note  css=#doc-generation-view li:first-child  Génération depuis un modèle à sélectionner  position=left  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged lien génération.png  id=parent-fieldname-title  id=viewlet-below-content-title  ${note51}
+    ${note51}  Add pointy note  css=#viewlet-above-content-title a.overlay-template-selection  Génération depuis un modèle à sélectionner  position=right  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged bouton sélection.png  id=parent-fieldname-title  id=viewlet-above-content-title  ${note51}
     Remove element  id=${note51}
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Modèle+de+base.odt&title=Modèle+de+base&mainfile_type=dmsommainfile
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Click element  css=#viewlet-above-content-title a.overlay-template-selection
+    Wait until element is visible  css=div.pb-ajax
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged affichage liste.png  css=div.pb-ajax
+    Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib span.fancytree-expander
+    Wait until element is visible  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged affichage liste sous-niveau.png  css=div.pb-ajax
+    Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged sélection modèle.png  css=div.pb-ajax
+    Click element  xpath=//input[@value='Choisir ce modèle']
     Sleep  5
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged généré.png  id=content
     ${note52}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(3)  Édition externe  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged édition externe.png  css=#fieldset-versions table  ${note52}
     Remove element  id=${note52}
-    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/modele-de-base
+    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001
 
     ### Add mainfile
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
