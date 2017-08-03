@@ -193,6 +193,8 @@ def postInstall(context):
 
     add_templates(site)
 
+    add_transforms(site)
+
 
 def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
     """
@@ -1641,6 +1643,19 @@ def add_templates(site):
     if not exists:
         site['templates']['om'].moveObjectToPosition('base', 10)
         site['templates']['om'].moveObjectToPosition('common', 11)
+
+
+def add_transforms(site):
+    """
+        Add some transforms
+    """
+    pt = site.portal_transforms
+    for name, module in (('pdf_to_text', 'Products.PortalTransforms.transforms.pdf_to_text'),
+                         ('pdf_to_html', 'Products.PortalTransforms.transforms.pdf_to_html'),
+                         ('odt_to_text', 'imio.dms.mail.transforms')):
+        if name not in pt.objectIds():
+            pt.manage_addTransform(name, module)
+            logger.info("Added '%s' transform" % name)
 
 
 # Singles steps
