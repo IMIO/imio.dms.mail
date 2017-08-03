@@ -14,7 +14,7 @@ from collective.messagesviewlet.utils import add_message
 #from collective.querynextprev.interfaces import INextPrevNotNavigable
 from imio.migrator.migrator import Migrator
 
-from ..setuphandlers import (_, add_templates)
+from ..setuphandlers import (_, add_templates, add_transforms)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -61,6 +61,8 @@ class Migrate_To_2_1(Migrator):
 #        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'jsregistry', 'plone.app.registry',
 #                                                     'propertiestool', 'typeinfo', 'workflow'])
 #        self.portal.portal_workflow.updateRoleMappings()
+
+        add_transforms(self.portal)
 
         # update templates
         self.update_templates()
