@@ -1553,6 +1553,7 @@ def list_templates():
 def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
+    template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
     for path, title in [('templates', _(u"Templates")), ('templates/om', _(u"Outgoing mail")),
                         ('templates/om/common', _(u"Common templates"))]:
         parts = path.split('/')
@@ -1561,8 +1562,6 @@ def add_templates(site):
         if not base_hasattr(parent, id):
             folderid = parent.invokeFactory("Folder", id=id, title=title)
             tplt_fld = getattr(parent, folderid)
-
-            template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
             tplt_fld.setLocallyAllowedTypes(template_types)
             tplt_fld.setImmediatelyAddableTypes(template_types)
             tplt_fld.setConstrainTypesMode(1)
