@@ -64,15 +64,16 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         ret['org_full_title'] = org.get_full_title(separator=' - ', first_index=1)
         return ret
 
-    def get_recipient(self):
+    def mailing_list(self):
         om = self.real_context
         if not om.recipients:
-            return None
-        relval = om.recipients[0]
-        if relval.isBroken():
-            return None
-        recipient = relval.to_object
-        return recipient
+            return []
+        ml = []
+        for relval in om.recipients:
+            if relval.isBroken():
+                continue
+            ml.append(relval.to_object)
+        return ml
 
     def get_full_title(self, contact, **kwargs):
         if IPerson.providedBy(contact):
@@ -273,6 +274,9 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         with api.env.adopt_roles(['Manager']):
             persisted_doc = createContentInContainer(self.context, 'dmsommainfile', title=pod_template.title,
                                                      id=scan_id, scan_id=scan_id, scan_user=scan_user, file=file_object)
+        # store informations on persisted doc
+        self.add_mailing_infos(persisted_doc, gen_context)
+
         return persisted_doc
 
     def redirects(self, persisted_doc):
@@ -289,18 +293,12 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         Return the generation context for the current document.
         """
         generation_context = super(OMPDGenerationView, self)._get_generation_context(helper_view, pod_template)
-        recipient = helper_view.get_recipient()
-        if recipient:
-            update_dict_with_validation(generation_context,
-                                        {'recipient': recipient,
-                                         'recipient_infos': helper_view.get_ctct_det(recipient)},
-                                        _dg("Error when merging helper_view in generation context"))
         scan_id = next_scan_id(file_portal_types=['dmsommainfile'], scan_type='2')
         scan_id = 'IMIO{0}'.format(scan_id)
         update_dict_with_validation(generation_context,
                                     {'scan_id': scan_id,
                                      'barcode': generate_barcode(scan_id).read()},
-                                    _dg("Error when merging helper_view in generation context"))
+                                    _dg("Error when merging 'scan_id' in generation context"))
         return generation_context
 
 
