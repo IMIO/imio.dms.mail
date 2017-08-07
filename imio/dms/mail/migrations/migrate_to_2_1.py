@@ -36,10 +36,15 @@ class Migrate_To_2_1(Migrator):
             obj.setLocallyAllowedTypes(template_types)
             obj.setImmediatelyAddableTypes(template_types)
 
-    def update_site(self):
         # add templates configuration
         add_templates(self.portal)
 
+        ml_uid = self.portal.restrictedTraverse('templates/om/mailing').UID()
+        for path in ('templates/om/base', 'templates/om/common/receipt'):
+            obj = self.portal.restrictedTraverse(path)
+            obj.mailing_loop_template = ml_uid
+
+    def update_site(self):
         # add documentation message
         if False:
             add_message('doc2-1', 'Documentation 2.1', u'<p>Vous pouvez consulter la <a href="http://www.imio.be/'
@@ -53,6 +58,13 @@ class Migrate_To_2_1(Migrator):
             frontpage.setTitle(_("front_page_title"))
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
+
+        #for collective.externaleditor
+        if 'MailingLoopTemplate' not in self.registry['externaleditor.externaleditor_enabled_types']:
+            self.registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
+                                                                            'DashboardPODTemplate', 'SubTemplate',
+                                                                            'StyleTemplate', 'dmsommainfile',
+                                                                            'MailingLoopTemplate']
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')

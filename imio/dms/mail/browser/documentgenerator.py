@@ -12,6 +12,7 @@ from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.content.person import IPerson
 from collective.documentgenerator import _ as _dg
+from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
@@ -300,6 +301,10 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                                      'barcode': generate_barcode(scan_id).read()},
                                     _dg("Error when merging 'scan_id' in generation context"))
         return generation_context
+
+
+class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGenerationView):
+    """ Inherits from 2 classes """
 
 
 class CategoriesDocumentGenerationView(IDDocumentGenerationView):

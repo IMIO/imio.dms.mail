@@ -49,6 +49,10 @@ class ImioDmsFile(DmsFile):
     def Title(self):
         return self.title
 
+    def getFile(self):
+        # documentgenerator compliancy before plone 5
+        return self.file
+
 
 class ImioDmsFileSchemaPolicy(DexteritySchemaPolicy):
     """Schema Policy for DmsFile"""

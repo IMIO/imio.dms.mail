@@ -338,6 +338,13 @@
         />
 
     <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="mailing-loop-persistent-document-generation"
+        class="imio.dms.mail.browser.documentgenerator.OMMLPDGenerationView"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="collective.contact.core.content.directory.IDirectory"
         name="document_generation_helper_view"
         class="imio.dms.mail.browser.documentgenerator.DocumentGenerationDirectoryHelper"
