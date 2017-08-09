@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-08-07 11:07+0000\n"
+"POT-Creation-Date: 2017-08-09 13:30+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -364,7 +364,7 @@ msgid "Transition"
 msgstr ""
 
 #: ./browser/batchactions.py:180
-#: ./browser/table.py:97
+#: ./browser/table.py:111
 #: ./dmsmail.py:52
 msgid "Treating groups"
 msgstr ""
@@ -446,19 +446,19 @@ msgid "create_om"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:200
-#: ./migrations/migrate_to_2_1.py:54
+#: ./migrations/migrate_to_2_1.py:59
 #: ./setuphandlers.py:539
 msgid "front_page_descr"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:201
-#: ./migrations/migrate_to_2_1.py:55
+#: ./migrations/migrate_to_2_1.py:60
 #: ./setuphandlers.py:540
 msgid "front_page_text"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:199
-#: ./migrations/migrate_to_2_1.py:53
+#: ./migrations/migrate_to_2_1.py:58
 #: ./setuphandlers.py:538
 msgid "front_page_title"
 msgstr ""

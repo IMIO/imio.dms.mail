@@ -7,6 +7,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
 from collective.task.browser.viewlets import TaskParentViewlet
+from imio.dms.mail.browser.table import OMVersionsTable
 
 
 class ContactContentBackrefsViewlet(ViewletBase):
@@ -51,3 +52,4 @@ class DMSTaskParentViewlet(TaskParentViewlet):
 class OMVersionsViewlet(VersionsViewlet):
 
     portal_type = 'dmsommainfile'
+    __table__ = OMVersionsTable
