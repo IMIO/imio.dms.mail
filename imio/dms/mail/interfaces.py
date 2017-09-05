@@ -37,11 +37,6 @@ class IOMDashboard(IDocsDashboard):
     """Marker interface for outgoing mail dashboard."""
 
 
-class IIMTaskDashboard(Interface):
-
-    """TO BE REMOVED RELEASE > 2.0"""
-
-
 class ITaskDashboard(IDocsDashboard):
 
     """Marker interface for task dashboard."""
