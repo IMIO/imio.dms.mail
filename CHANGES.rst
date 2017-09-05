@@ -4,8 +4,8 @@ Changelog
 2.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
+- Added mailing features.
+  [sgeulette]
 
 2.0 (2017-06-02)
 ----------------
