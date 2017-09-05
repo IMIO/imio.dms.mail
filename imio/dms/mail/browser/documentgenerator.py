@@ -84,6 +84,9 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         else:
             return ''
 
+    def do_mailing(self):
+        return True
+
 
 class DashboardDGBaseHelper():
     """
@@ -292,9 +295,8 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         recipient = helper_view.get_recipient()
         if recipient:
             update_dict_with_validation(generation_context,
-                                        {'recipient': recipient,
-                                         'recipient_infos': helper_view.get_ctct_det(recipient)},
-                                        _dg("Error when merging helper_view in generation context"))
+                                        {'mailed_data': recipient},
+                                        _dg("Error when merging mailed_data in generation context"))
         scan_id = next_scan_id(file_portal_type='dmsommainfile', scan_type='2')
         scan_id = 'IMIO{0}'.format(scan_id)
         update_dict_with_validation(generation_context,
