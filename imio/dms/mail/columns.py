@@ -62,11 +62,12 @@ class Sender3Column(RelationPrettyLinkColumn):  # pragma: no cover
         return PrettyLinkColumn.getPrettyLink(self, obj)
 
 
-class SenderColumn(PrettyLinkColumn):
+class ContactListColumn(PrettyLinkColumn):
 
-    attrName = 'sender_index'
+    attrName = ''
     i_cache = {}
     sort_index = -1  # not sortable
+    ul_class = 'contact_list_col'
 
     def _icons(self, c_brain):
         """See docstring in interfaces.py."""
@@ -87,13 +88,33 @@ class SenderColumn(PrettyLinkColumn):
         value = self.getValue(item)
         if not value:
             return '-'
-        c_brain = uuidToCatalogBrain(value[0])
-        if not c_brain:
+        ret = []
+        if not isinstance(value, list):
+            value = [value]
+        for val in value:
+            if val.startswith('l:'):
+                continue
+            c_brain = uuidToCatalogBrain(val)
+            if not c_brain:
+                ret.append('-')
+            else:
+                ret.append(u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
+                           u"<span class='pretty_link_icons'>%s</span>"
+                           u"<span class='pretty_link_content'>%s</span></a>"
+                           % (c_brain.getURL(), self._icons(c_brain), safe_unicode(c_brain.get_full_title))
+                           )
+        l_ret = len(ret)
+        if l_ret == 1:
+            return ret[0]
+        elif l_ret > 1:
+            return '<ul class="%s"><li>%s</li></ul>' % (self.ul_class, '</li>\n<li>'.join(ret))
+        else:
             return '-'
-        return u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>" \
-               u"<span class='pretty_link_icons'>%s</span>" \
-               u"<span class='pretty_link_content'>%s</span></a>" \
-               % (c_brain.getURL(), self._icons(c_brain), safe_unicode(c_brain.get_full_title))
+
+
+class SenderColumn(ContactListColumn):
+
+    attrName = 'sender_index'
 
 
 class TaskParentColumn(PrettyLinkColumn):
@@ -133,50 +154,9 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     params = {'showHistory': True, 'showActions': False}
 
 
-class RecipientsColumn(PrettyLinkColumn):
+class RecipientsColumn(ContactListColumn):
 
     attrName = 'recipients_index'
-    i_cache = {}
-    sort_index = -1  # not sortable
-
-    def _icons(self, c_brain):
-        """See docstring in interfaces.py."""
-        if c_brain.portal_type not in self.i_cache:
-            icon_link = ''
-            purl = api.portal.get_tool('portal_url')()
-            typeInfo = api.portal.get_tool('portal_types')[c_brain.portal_type]
-            if typeInfo.icon_expr:
-                # we assume that stored icon_expr is like string:${portal_url}/myContentIcon.png
-                contentIcon = typeInfo.icon_expr.split('/')[-1]
-                title = translate(typeInfo.title, domain=typeInfo.i18n_domain, context=self.request)
-                icon_link = u"<img title='%s' src='%s/%s' />" % (safe_unicode(title), purl, contentIcon)
-            self.i_cache[c_brain.portal_type] = icon_link
-        return self.i_cache[c_brain.portal_type]
-
-    def renderCell(self, item):
-        """ """
-        value = self.getValue(item)
-        if not value:
-            return '-'
-        ret = []
-        for val in value:
-            if val.startswith('l:'):
-                continue
-            c_brain = uuidToCatalogBrain(val)
-            if not c_brain:
-                ret.append('-')
-            ret.append(u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
-                       u"<span class='pretty_link_icons'>%s</span>"
-                       u"<span class='pretty_link_content'>%s</span></a>"
-                       % (c_brain.getURL(), self._icons(c_brain), safe_unicode(c_brain.get_full_title))
-                       )
-        l_ret = len(ret)
-        if l_ret == 1:
-            return ret[0]
-        elif l_ret > 1:
-            return '<ul class="recipients_col"><li>%s</li></ul>' % '</li>\n<li>'.join(ret)
-        else:
-            return '-'
 
 
 class OutgoingDateColumn(DateColumn):

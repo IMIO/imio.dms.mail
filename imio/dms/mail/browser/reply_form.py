@@ -30,7 +30,7 @@ class ReplyForm(DefaultAddForm):
         form = self.request.form
         # Completing form values wasn't working anymore, but relations must be set here too !
         form["form.widgets.reply_to"] = ('/'.join(imail.getPhysicalPath()),)
-        form["form.widgets.recipients"] = (imail.sender.to_path, )
+        form["form.widgets.recipients"] = tuple([sd.to_path for sd in imail.sender])
         # form["form.widgets.IDublinCore.title"] = "Réponse: %s" % safe_encode(imail.title)
         # form["form.widgets.treating_groups"] = imail.treating_groups
         # if imail.external_reference_no:
@@ -45,7 +45,7 @@ class ReplyForm(DefaultAddForm):
         self.widgets["IDublinCore.title"].value = u"Réponse: %s" % safe_unicode(imail.title)
         self.widgets["treating_groups"].value = imail.treating_groups
         self.widgets["reply_to"].value = ('/'.join(imail.getPhysicalPath()),)
-        self.widgets["recipients"].value = (imail.sender.to_path, )
+        self.widgets["recipients"].value = tuple([sd.to_path for sd in imail.sender])
         if imail.external_reference_no:
             self.widgets["external_reference_no"].value = imail.external_reference_no
         if imail.recipient_groups:

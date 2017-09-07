@@ -69,6 +69,7 @@ class Migrate_To_2_1(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')
         self.cleanRegistries()
+        self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.documentgenerator:default')
 #        self.runProfileSteps('imio.dms.mail', steps=['actions', 'componentregistry', 'jsregistry', 'plone.app.registry',
 #                                                     'propertiestool', 'typeinfo', 'workflow'])

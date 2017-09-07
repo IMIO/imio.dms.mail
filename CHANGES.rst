@@ -6,6 +6,8 @@ Changelog
 
 - Added mailing features.
   [sgeulette]
+- Incoming sender field can contain multiple values
+  [sgeulette]
 
 2.0 (2017-06-02)
 ----------------

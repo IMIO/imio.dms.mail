@@ -1158,7 +1158,7 @@ def addTestMails(context):
                       'mail_type': 'courrier',
                       'internal_reference_no': internalReferenceIncomingMailDefaultValue(data),
                       'reception_date': receptionDateDefaultValue(data),
-                      'sender': RelationValue(senders_cycle.next()),
+                      'sender': [RelationValue(senders_cycle.next())],
                       'treating_groups': orgas_cycle.next(),
                       'recipient_groups': [],
                       'description': 'Ceci est la description du courrier %d' % i,

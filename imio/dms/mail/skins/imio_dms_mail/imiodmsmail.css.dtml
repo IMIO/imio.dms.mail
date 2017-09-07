@@ -217,7 +217,7 @@ ul.select2-choices {
 
 /* columns */
 
-#content .recipients_col {
+#content .contact_list_col {
     list-style-type: none;
     margin-left: 0;
 }
