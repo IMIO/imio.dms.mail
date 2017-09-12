@@ -1396,7 +1396,7 @@ def addOwnPersonnel(context):
                                **fct_dic)
 
 
-def create_persons_from_users(portal, start='firstname'):
+def create_persons_from_users(portal, start='firstname', functions=['encodeur']):
     """
         create own personnel from plone users
     """
@@ -1404,12 +1404,16 @@ def create_persons_from_users(portal, start='firstname'):
     users = {}
     groups = api.group.get_groups()
     for group in groups:
-        if '_' not in group.id and group.id not in ['dir_general', 'encodeurs', 'expedition']:
+#        if '_' not in group.id and group.id not in ['dir_general', 'encodeurs', 'expedition']:
+        if '_' not in group.id or group.id in ['dir_general']:
             continue
         parts = group.id.split('_')
-        org_uid = None
+        org_uid = function = None
         if len(parts) > 1:
             org_uid = parts[0]
+            function = '_'.join(parts[1:])
+        if function and function not in functions:
+            continue
         for user in api.user.get_users(group=group):
             if user.id not in users and user.id not in ['scanner']:
                 users[user.id] = {'pers': {}, 'orgs': []}
