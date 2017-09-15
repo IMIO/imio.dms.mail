@@ -143,19 +143,38 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         Methods used in document generation view, for IOMDashboard
     """
 
-    def get_dms_files(self):
+    def get_dms_files(self, limit=None):
+        """
+            Return a list of tuples containing the file obj, a pageBreakBefore boolean, a pageBreakAfter boolean
+        """
         files = []
         if not self.is_dashboard():
             return files
         catalog = self.portal.portal_catalog
         #self.uids_to_objs(self.context_var('brains'))
         for brain in self.context_var('brains'):
-            for bfile in catalog(portal_type='dmsommainfile', path=brain.getPath()):
+            brains = catalog(portal_type='dmsommainfile', path=brain.getPath(), sort_on='getObjPositionInParent',
+                             sort_order='descending')
+            if limit:
+                brains = brains[0:limit]
+            for bfile in brains:
                 obj = bfile.getObject()
-                files.append((obj, bool(self.get_num_pages(obj) % 2)))
-        last = files.pop()
-        files.append((last[0], False))
-        return files
+                files.append([obj, self.get_num_pages(obj)])
+        result = []
+        last_i = len(files) - 1
+        for i, (afile, pages) in enumerate(files):
+            odd = bool(pages % 2)
+            if i == 0:
+                result.append((afile, False, odd))
+            else:
+                pbb = False
+                if files[i-1][1] == 1:
+                    pbb = True
+                pba = odd
+                if i == last_i:
+                    pba = False
+                result.append((afile, pbb, pba))
+        return result
 
     def get_num_pages(self, obj):
         annot = IAnnotations(obj).get('collective.documentviewer', '')
