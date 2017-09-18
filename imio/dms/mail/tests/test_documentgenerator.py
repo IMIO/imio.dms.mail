@@ -5,7 +5,6 @@ import unittest
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.browser.documentgenerator import DocumentGenerationCategoriesHelper
 
 
 class TestDocumentGenerator(unittest.TestCase):
@@ -29,7 +28,8 @@ class TestDocumentGenerator(unittest.TestCase):
         objs = [b.getObject() for b in brains]
         # test getting files
         files = view.get_dms_files()
-        self.assertListEqual(files, [(objs[0]['1'], True), (objs[1]['1'], False), (objs[2]['1'], False)])
+        self.assertListEqual(files, [(objs[0]['1'], False, True), (objs[1]['1'], True, False),
+                                     (objs[2]['1'], False, False)])
         # test getting num pages
         self.assertEquals(view.get_num_pages(objs[0]['1']), 1)
         self.assertEquals(view.get_num_pages(objs[1]['1']), 2)
