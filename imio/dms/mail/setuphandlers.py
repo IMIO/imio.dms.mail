@@ -944,13 +944,18 @@ def configureContactPloneGroup(context):
         (u'Direction technique', (u'Bâtiments', u'Voiries', u'Urbanisme')),
         (u'Département population', (u'Population', u'État-civil')),
         (u'Département culturel', (u'Enseignement', u'Culture-loisirs')),
-        (u'Collège communal', [])
+        (u'Événements', []),
+        (u'Collège communal', []),
+        (u'Conseil communal', []),
         departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
         dep0 = departments[0]
         dep1 = departments[1]
+        dep2 = departments[2]
         services0 = dep0.listFolderContents(contentFilter={'portal_type': 'organization'})
         services1 = dep1.listFolderContents(contentFilter={'portal_type': 'organization'})
-        orgas = [dep0, services0[0], services0[1], dep1, services1[0], services1[1]]
+        services2 = dep2.listFolderContents(contentFilter={'portal_type': 'organization'})
+        orgas = [dep0, services0[0], services0[1], services0[3], dep1, services1[0], services1[1],
+                 dep2, services2[0], services2[1], departments[5]]
         registry[ORGANIZATIONS_REGISTRY] = [org.UID() for org in orgas]
 
         # Add users to created groups
@@ -962,6 +967,8 @@ def configureContactPloneGroup(context):
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_encodeur" % uid)
                 site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
+        site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
+        site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
 
 
 def addTestDirectory(context):
@@ -1147,7 +1154,8 @@ def addTestMails(context):
     senders_cycle = cycle(senders)
 
     registry = getUtility(IRegistry)
-    orgas_cycle = cycle(registry[ORGANIZATIONS_REGISTRY])
+    selected_orgs = [org for i, org in enumerate(registry[ORGANIZATIONS_REGISTRY]) if i in (0, 1, 2, 4, 5, 6)]
+    orgas_cycle = cycle(selected_orgs)
 
     # incoming mails
     ifld = site['incoming-mail']
@@ -1191,7 +1199,7 @@ def addTestMails(context):
     files.sort()
     files_cycle = cycle(files)
     pf = contacts['personnel-folder']
-    orgas_cycle = cycle(registry[ORGANIZATIONS_REGISTRY])
+    orgas_cycle = cycle(selected_orgs)
     recipients_cycle = cycle(senders)
     users_cycle = cycle(['chef', 'agent', 'agent'])
     senders_cycle = cycle([pf['chef']['responsable-grh'].UID(), pf['agent']['agent-grh'].UID(),
@@ -1235,6 +1243,7 @@ def addTestUsersAndGroups(context):
         ('dirg', u'Maxime DG'): [],
         ('chef', u'Michel Chef'): [],
         ('agent', u'Fred Agent'): [],
+        ('agent1', u'Stef Agent'): [],
         ('lecteur', u'Jef Lecteur'): [],
     }
     password = 'Dmsmail69!'
@@ -1304,12 +1313,15 @@ def addOwnOrganization(context):
         (u'Direction technique', (u'Bâtiments', u'Voiries', u'Urbanisme')),
         (u'Département population', (u'Population', u'État-civil')),
         (u'Département culturel', (u'Enseignement', u'Culture-loisirs')),
-        (u'Collège communal', [])
+        (u'Événements', []),
+        (u'Collège communal', []),
+        (u'Conseil communal', []),
     ]
     idnormalizer = queryUtility(IIDNormalizer)
     for (department, services) in sublevels:
         id = own_orga.invokeFactory('organization', idnormalizer.normalize(department),
-                                    **{'title': department, 'organization_type': u'department'})
+                                    **{'title': department,
+                                       'organization_type': (len(services) and u'department' or u'service')})
         dep = own_orga[id]
         for service in services:
             dep.invokeFactory('organization', idnormalizer.normalize(service),

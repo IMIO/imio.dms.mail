@@ -165,6 +165,6 @@ class TestDmsmail(unittest.TestCase):
         e_groups.append(('expedition', ('Contributor',)))
         e_groups.append(('dir_general', ('Contributor',)))
         self.assertSetEqual(set(self.omf.get_local_roles()), set(e_groups))
-        self.assertEqual(len(self.omf.get_local_roles()), 9)
+        self.assertEqual(len(self.omf.get_local_roles()), 14)
         registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][:3]
         self.assertEqual(len(self.omf.get_local_roles()), 6)
