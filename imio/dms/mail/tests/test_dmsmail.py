@@ -25,15 +25,15 @@ class TestDmsmail(unittest.TestCase):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary
         voc_inst = TreatingGroupsVocabulary()
         voc = voc_inst(self.portal)
-        self.assertEquals(len([t for t in voc]), 6)
-        self.assertNotEqual(len(voc), 6)  # len = full vocabulary with hidden terms
+        self.assertEquals(len([t for t in voc]), 11)
+        self.assertNotEqual(len(voc), 11)  # len = full vocabulary with hidden terms
 
     def test_RecipientGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import RecipientGroupsVocabulary
         voc_inst = RecipientGroupsVocabulary()
         voc = voc_inst(self.portal)
-        self.assertEquals(len([t for t in voc]), 6)
-        self.assertNotEqual(len(voc), 6)  # len = full vocabulary with hidden terms
+        self.assertEquals(len([t for t in voc]), 11)
+        self.assertNotEqual(len(voc), 11)  # len = full vocabulary with hidden terms
 
     def test_Title(self):
         imail1 = self.portal['incoming-mail']['courrier1']
