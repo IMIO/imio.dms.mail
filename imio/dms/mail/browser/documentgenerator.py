@@ -162,7 +162,6 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                 obj = bfile.getObject()
                 files.append([obj, self.get_num_pages(obj)])
         result = []
-        last_i = len(files) - 1
         for i, (afile, pages) in enumerate(files):
             odd = bool(pages % 2)
             if i == 0:
@@ -171,10 +170,10 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                 pbb = False
                 if files[i-1][1] == 1:
                     pbb = True
-                pba = odd
-                if i == last_i:
-                    pba = False
-                result.append((afile, pbb, pba))
+                result.append((afile, pbb, odd))
+        if result:
+            last = result[-1]
+            result[-1] = (last[0], last[1], False)
         return result
 
     def get_num_pages(self, obj):
