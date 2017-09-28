@@ -87,6 +87,23 @@ class OMDGHelper(DXDocumentGenerationHelperView):
     def do_mailing(self):
         return True
 
+    def person_title(self, contact, pers_dft=u'Monsieur', org_dft=u'Madame, Monsieur'):
+
+        def pers_title(pers):
+            title = contact.person_title
+            if not title:
+                title = pers_dft
+            return title
+
+        if IPerson.providedBy(contact):
+            return pers_title(contact)
+        elif IOrganization.providedBy(contact):
+            return org_dft
+        elif IHeldPosition.providedBy(contact):
+            return pers_title(contact.get_person())
+        else:
+            return u''
+
 
 class DashboardDGBaseHelper():
     """
