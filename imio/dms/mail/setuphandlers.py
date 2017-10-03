@@ -1641,7 +1641,7 @@ def add_templates(site):
                          {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
                          {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
                          {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
-                        'style_template': [cids[90].UID()], 'mailing_loop_template': cids[130]}},
+                        'style_template': [cids[90].UID()], 'mailing_loop_template': cids[130].UID()}},
 #                       'context_variables': [{'name': u'do_mailing', 'value': u'1'}]}},
         210: {'title': _(u'Receipt template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
               'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
@@ -1649,7 +1649,7 @@ def add_templates(site):
                          {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
                          {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
                          {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
-                        'style_template': [cids[90].UID()], 'mailing_loop_template': cids[130],
+                        'style_template': [cids[90].UID()], 'mailing_loop_template': cids[130].UID(),
                         'context_variables': [{'name': u'PD', 'value': u'True'},
                                               {'name': u'PC', 'value': u'True'},
                                               {'name': u'PVS', 'value': u'False'}]}},
