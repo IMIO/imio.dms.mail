@@ -909,6 +909,8 @@ def configureImioDmsMail(context):
             'proposed_to_service_chief']
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'] = _(u'Response: ')
 
     if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == \
             u"python:'in/'+number":

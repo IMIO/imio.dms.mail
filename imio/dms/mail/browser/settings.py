@@ -61,7 +61,8 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'outgoingmail',
         label=_(u"Outgoing mail"),
-        fields=['omail_types', 'omail_remark_states', 'omail_odt_mainfile', 'org_templates_encoder_can_edit']
+        fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
+                'org_templates_encoder_can_edit']
     )
 
     omail_types = schema.List(
@@ -75,6 +76,11 @@ class IImioDmsMailConfig(model.Schema):
     omail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMReviewStatesVocabulary'),
+    )
+
+    omail_response_prefix = schema.TextLine(
+        title=_("Response prefix"),
+        required=False
     )
 
     omail_odt_mainfile = schema.Bool(

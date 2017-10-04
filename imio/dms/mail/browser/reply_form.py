@@ -42,7 +42,9 @@ class ReplyForm(DefaultAddForm):
     def updateWidgets(self):
         super(ReplyForm, self).updateWidgets()
         imail = self.context
-        self.widgets["IDublinCore.title"].value = u"Réponse: %s" % safe_unicode(imail.title)
+        prefix = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                'omail_response_prefix', default='') or ''
+        self.widgets["IDublinCore.title"].value = u"%s%s" % (prefix, safe_unicode(imail.title))
         self.widgets["treating_groups"].value = imail.treating_groups
         self.widgets["reply_to"].value = ('/'.join(imail.getPhysicalPath()),)
         self.widgets["recipients"].value = tuple([sd.to_path for sd in imail.sender])

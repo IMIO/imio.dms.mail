@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2017-08-09 13:30+0000\n"
+"POT-Creation-Date: 2017-10-03 12:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
-#: ./browser/settings.py:22
+#: ./browser/settings.py:23
 msgid "Active"
 msgstr ""
 
@@ -47,11 +47,11 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ./browser/settings.py:45
+#: ./browser/settings.py:46
 msgid "Assigned user check"
 msgstr ""
 
-#: ./setuphandlers.py:1622
+#: ./setuphandlers.py:1638
 msgid "Base template"
 msgstr ""
 
@@ -95,15 +95,15 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:87
+#: ./browser/settings.py:96
 msgid "Check if a service encoder can edit his service templates."
 msgstr ""
 
-#: ./browser/settings.py:52
+#: ./browser/settings.py:53
 msgid "Check if the incoming mail 'original mail date' field must be required."
 msgstr ""
 
-#: ./browser/settings.py:46
+#: ./browser/settings.py:47
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
@@ -119,11 +119,11 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1562
+#: ./setuphandlers.py:1578
 msgid "Common templates"
 msgstr ""
 
-#: ./setuphandlers.py:1602
+#: ./setuphandlers.py:1618
 msgid "Contacts export"
 msgstr ""
 
@@ -135,7 +135,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./browser/settings.py:81
+#: ./browser/settings.py:90
 msgid "Dms file must be an odt format"
 msgstr ""
 
@@ -143,19 +143,19 @@ msgstr ""
 msgid "Empty value"
 msgstr ""
 
-#: ./browser/settings.py:86
+#: ./browser/settings.py:95
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1613
+#: ./setuphandlers.py:1629
 msgid "Ending template"
 msgstr ""
 
-#: ./setuphandlers.py:1611
+#: ./setuphandlers.py:1627
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1610
+#: ./setuphandlers.py:1626
 msgid "Header template"
 msgstr ""
 
@@ -163,7 +163,7 @@ msgstr ""
 msgid "Imio Dms Mail testing profile"
 msgstr ""
 
-#: ./browser/settings.py:32
+#: ./browser/settings.py:33
 #: ./setuphandlers.py:108
 msgid "Incoming mail"
 msgstr ""
@@ -190,7 +190,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1612
+#: ./setuphandlers.py:1628
 msgid "Intro template"
 msgstr ""
 
@@ -198,20 +198,20 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1595
+#: ./setuphandlers.py:1611
 msgid "Mail listing template"
 msgstr ""
 
-#: ./browser/settings.py:39
+#: ./browser/settings.py:40
 #: ./dmsmail.py:77
 msgid "Mail type"
 msgstr ""
 
-#: ./browser/settings.py:21
+#: ./browser/settings.py:22
 msgid "Mail type title"
 msgstr ""
 
-#: ./browser/settings.py:20
+#: ./browser/settings.py:21
 msgid "Mail type value"
 msgstr ""
 
@@ -219,7 +219,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:1614
+#: ./setuphandlers.py:1630
 msgid "Mailing template"
 msgstr ""
 
@@ -239,7 +239,7 @@ msgstr ""
 msgid "No incoming mail !"
 msgstr ""
 
-#: ./browser/settings.py:38
+#: ./browser/settings.py:39
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
@@ -247,7 +247,7 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./browser/settings.py:51
+#: ./browser/settings.py:52
 msgid "Original mail date requirement"
 msgstr ""
 
@@ -256,7 +256,7 @@ msgstr ""
 msgid "Outgoing Date"
 msgstr ""
 
-#: ./browser/settings.py:63
+#: ./browser/settings.py:64
 #: ./migrations/migrate_to_0_2.py:115
 #: ./setuphandlers.py:135
 msgid "Outgoing mail"
@@ -280,11 +280,11 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1604
+#: ./setuphandlers.py:1620
 msgid "Print template"
 msgstr "To print"
 
-#: ./setuphandlers.py:1630
+#: ./setuphandlers.py:1646
 msgid "Receipt template"
 msgstr ""
 
@@ -317,6 +317,14 @@ msgstr ""
 msgid "Reply to ${ref}"
 msgstr ""
 
+#: ./browser/settings.py:83
+msgid "Response prefix"
+msgstr ""
+
+#: ./browser/settings.py:85
+msgid "Response: "
+msgstr ""
+
 #: ./browser/batchactions.py:246
 msgid "Select the values to add (CTRL+click)"
 msgstr ""
@@ -329,11 +337,11 @@ msgstr ""
 msgid "Single steps profile for imio.dms.mail"
 msgstr ""
 
-#: ./browser/settings.py:57
+#: ./browser/settings.py:58
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1609
+#: ./setuphandlers.py:1625
 msgid "Style template"
 msgstr ""
 
@@ -349,7 +357,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1561
+#: ./setuphandlers.py:1577
 msgid "Templates"
 msgstr ""
 
@@ -367,11 +375,11 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./browser/settings.py:37
+#: ./browser/settings.py:38
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/settings.py:68
+#: ./browser/settings.py:70
 msgid "Types of outgoing mail"
 msgstr ""
 
