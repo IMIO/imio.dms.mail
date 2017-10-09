@@ -1369,23 +1369,23 @@ def addOwnPersonnel(context):
                  'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale'])),
                            'label': u'Directeur général', 'start_date': datetime.date(2016, 6, 15), 'end_date': None,
                            'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                           'email': u'maxime.dirg@macommune.be', 'phone': u'012/345.678', 'use_parent_address': False},
+                           'email': u'maxime.dirg@macommune.be', 'phone': u'012345678', 'use_parent_address': False},
                           {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
                            'label': u'Directeur du personnel', 'start_date': datetime.date(2012, 9, 1),
                            'end_date': datetime.date(2016, 6, 14), 'use_parent_address': False,
                            'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                           'email': u'maxime.dirg@macommune.be', 'phone': u'012/345.678'}]},
+                           'email': u'maxime.dirg@macommune.be', 'phone': u'012345678'}]},
         'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
                  'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
                  'number': u'2', 'use_parent_address': False},
                  'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale']['secretariat'])),
                            'label': u'Responsable secrétariat', 'start_date': None, 'end_date': None,
                            'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                           'email': u'michel.chef@macommune.be', 'phone': u'012/345.679', 'use_parent_address': False},
+                           'email': u'michel.chef@macommune.be', 'phone': u'012345679', 'use_parent_address': False},
                           {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
                            'label': u'Responsable GRH', 'start_date': None, 'end_date': None,
                            'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                           'email': u'michel.chef@macommune.be', 'phone': u'012/345.679',
+                           'email': u'michel.chef@macommune.be', 'phone': u'012345679',
                            'use_parent_address': False}]},
         'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
                   'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
@@ -1393,11 +1393,11 @@ def addOwnPersonnel(context):
                   'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale']['secretariat'])),
                             'label': u'Agent secrétariat', 'start_date': None, 'end_date': None,
                             'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                            'email': u'fred.agent@macommune.be', 'phone': u'012/345.670', 'use_parent_address': False},
+                            'email': u'fred.agent@macommune.be', 'phone': u'012345670', 'use_parent_address': False},
                            {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
                             'label': u'Agent GRH', 'start_date': None, 'end_date': None,
                             'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                            'email': u'fred.agent@macommune.be', 'phone': u'012/345.670',
+                            'email': u'fred.agent@macommune.be', 'phone': u'012345670',
                             'use_parent_address': False}]},
     }
 
@@ -1559,13 +1559,13 @@ def list_templates():
     return [
         (10, 'templates/d-im-listing', os.path.join(dpath, 'd-im-listing.odt')),
         (30, 'templates/contacts-export', os.path.join(dpath, 'contacts-export.ods')),
-        (50, 'templates/d-print', os.path.join(dpath, 'd-print.odt')),
         (90, 'templates/om/style', os.path.join(dpath, 'om-styles.odt')),
         (100, 'templates/om/header', os.path.join(dpath, 'om-header.odt')),
         (105, 'templates/om/footer', os.path.join(dpath, 'om-footer.odt')),
         (110, 'templates/om/intro', os.path.join(dpath, 'om-intro.odt')),
         (120, 'templates/om/ending', os.path.join(dpath, 'om-ending.odt')),
-        (200, 'templates/om/base', os.path.join(dpath, 'om-base.odt')),
+        (200, 'templates/om/d-print', os.path.join(dpath, 'd-print.odt')),
+        (205, 'templates/om/base', os.path.join(dpath, 'om-base.odt')),
         (210, 'templates/om/common/receipt', os.path.join(dpath, 'om-receipt.odt')),
     ]
 
@@ -1618,11 +1618,6 @@ def add_templates(site):
                        'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"}},
         30: {'title': _(u'Contacts export'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
              'attrs': {'pod_formats': ['ods'], 'pod_portal_types': ['directory']}},
-        50: {'title': _(u'Print template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
-             'attrs': {'pod_formats': ['odt'],
-                       'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
-                       'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
-                                                                          uids=True)}},
         90: {'title': _(u'Style template'), 'type': 'StyleTemplate', 'trans': ['show_internally']},
         100: {'title': _(u'Header template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
         105: {'title': _(u'Footer template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
@@ -1635,7 +1630,13 @@ def add_templates(site):
     exists = 'base' in site['templates']['om']
 
     data = {
-        200: {'title': _(u'Base template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
+        200: {'title': _(u'Print template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
+              'attrs': {'pod_formats': ['odt'],
+                       'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
+                       'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
+                                                                          uids=True),
+                       'style_template': [cids[90].UID()]}},
+        205: {'title': _(u'Base template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
               'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
                         [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
                          {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
@@ -1659,6 +1660,7 @@ def add_templates(site):
     cids = create(templates, pos=False, cids=cids)
 
     if not exists:
+        site['templates']['om'].moveObjectToPosition('d-print', 1)
         site['templates']['om'].moveObjectToPosition('base', 10)
         site['templates']['om'].moveObjectToPosition('common', 11)
 
