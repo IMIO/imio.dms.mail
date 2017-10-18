@@ -59,12 +59,15 @@ class Migrate_To_2_1(Migrator):
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
 
-        #for collective.externaleditor
+        # for collective.externaleditor
         if 'MailingLoopTemplate' not in self.registry['externaleditor.externaleditor_enabled_types']:
             self.registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
                                                                             'DashboardPODTemplate', 'SubTemplate',
                                                                             'StyleTemplate', 'dmsommainfile',
                                                                             'MailingLoopTemplate']
+        # documentgenerator
+        api.portal.set_registry_record('collective.documentgenerator.browser.controlpanel.'
+                                       'IDocumentGeneratorControlPanelSchema.raiseOnError_for_non_managers', True)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')
