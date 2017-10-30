@@ -65,6 +65,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
                  #showTransitions=True,
                  #appendTypeNameToTransitionLabel=False,
                  #showEdit=True,
+                 #showExtEdit=False,
                  showOwnDelete=True,
                  showActions=False,
                  showAddContent=False,
@@ -78,6 +79,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
             #showTransitions=showTransitions,
             #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
             #showEdit=showEdit,
+            #showExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
             showAddContent=showAddContent,
@@ -95,7 +97,7 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
 
     def renderViewlet(self):
         view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showOwnDelete=False, showAddContent=True, showActions=True)
+        return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
 
 
 class DmsOMActionsPanelView(ActionsPanelView):
@@ -138,6 +140,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
                  #showTransitions=True,
                  #appendTypeNameToTransitionLabel=False,
                  #showEdit=True,
+                 #showExtEdit=False,
                  showOwnDelete=True,
                  showActions=False,
                  showAddContent=False,
@@ -151,6 +154,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
             #showTransitions=showTransitions,
             #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
             #showEdit=showEdit,
+            #showExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
             showAddContent=showAddContent,
@@ -182,6 +186,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
                  #showTransitions=True,
                  #appendTypeNameToTransitionLabel=False,
                  #showEdit=True,
+                 #showExtEdit=False,
                  showOwnDelete=True,
                  showActions=False,
                  showAddContent=False,
@@ -195,6 +200,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
             #showTransitions=showTransitions,
             #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
             #showEdit=showEdit,
+            #showExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
             showAddContent=showAddContent,
@@ -222,7 +228,7 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
 
     def renderViewlet(self):
         view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showOwnDelete=False, showAddContent=True, showActions=True)
+        return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
 
 
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
@@ -232,7 +238,8 @@ class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
 
     def renderViewlet(self):
         view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showTransitions=False, showOwnDelete=False, showAddContent=True, showActions=True)
+        return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
+                    showActions=True)
 
 
 class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
@@ -242,4 +249,5 @@ class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
 
     def renderViewlet(self):
         view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showTransitions=True, showOwnDelete=False, showAddContent=True, showActions=True)
+        return view(useIcons=False, showExtEdit=False, showTransitions=True, showOwnDelete=False, showAddContent=True,
+                    showActions=True)
