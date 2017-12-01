@@ -150,22 +150,24 @@ def clean_examples(self):
         return "You must be a zope manager to run this script"
     out = []
     portal = api.portal.getSite()
+    portal.portal_properties.site_properties.enable_link_integrity_checks = False
+
     # Delete om
     brains = api.content.find(portal_type='dmsoutgoingmail')
     for brain in brains:
         log_list(out, "Deleting om '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=True)
+        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     # Delete im
     brains = api.content.find(portal_type='dmsincomingmail')
     for brain in brains:
         log_list(out, "Deleting im '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=True)
+        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     # Delete own personnel
     pf = portal['contacts']['personnel-folder']
     brains = api.content.find(context=pf, portal_type='person')
     for brain in brains:
         log_list(out, "Deleting person '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=True)
+        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     # Deactivate own organizations
     ownorg = portal['contacts']['plonegroup-organization']
     brains = api.content.find(context=ownorg, portal_type='organization',
@@ -181,13 +183,26 @@ def clean_examples(self):
         if uid in kept_orgs:
             continue
         log_list(out, "Deleting organization '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=True)
+        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
         if uid in tmpl_folder:
             log_list(out, "Deleting template folder '%s'" % '/'.join(tmpl_folder[uid].getPhysicalPath()))
             api.content.delete(obj=tmpl_folder[uid])
+    # Delete contacts
+    brains = api.content.find(context=portal['contacts'], portal_type='person',
+                              id=['jeancourant', 'sergerobinet', 'bernardlermitte'])
+    for brain in brains:
+        log_list(out, "Deleting person '%s'" % brain.getPath())
+        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+    brains = api.content.find(context=portal['contacts'], portal_type='organization', id=['electrabel', 'swde'])
+    for brain in brains:
+        log_list(out, "Deleting organization '%s'" % brain.getPath())
+        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     # Delete users
     for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
         user = api.user.get(userid=userid)
+        for brain in api.content.find(Creator=userid):
+            log_list(out, "Deleting object '%s' created by '%s'" % (brain.getPath(), userid))
+            api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
         for group in api.group.get_groups(user=user):
             if group.id == 'AuthenticatedUsers':
                 continue
@@ -210,14 +225,5 @@ def clean_examples(self):
             continue
         log_list(out, "Deleting group '%s'" % group.getProperty('title'))
         api.group.delete(group=group)
-    # Delete contacts
-    brains = api.content.find(context=portal['contacts'], portal_type='person',
-                              id=['jeancourant', 'sergerobinet', 'bernardlermitte'])
-    for brain in brains:
-        log_list(out, "Deleting person '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=True)
-    brains = api.content.find(context=portal['contacts'], portal_type='organization', id=['electrabel', 'swde'])
-    for brain in brains:
-        log_list(out, "Deleting organization '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=True)
+    portal.portal_properties.site_properties.enable_link_integrity_checks = True
     return '\n'.join(out)
