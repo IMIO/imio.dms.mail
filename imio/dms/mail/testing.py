@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 from Products.CMFPlone.utils import _createObjectByType, base_hasattr
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from plone.testing import z2
@@ -8,6 +9,8 @@ from plone.app.testing import IntegrationTesting
 from plone.app.testing import FunctionalTesting
 
 from Testing import ZopeTestCase as ztc
+
+from imio.pyutils.system import runCommand
 
 import imio.dms.mail
 
@@ -38,6 +41,12 @@ class DmsmailLayer(PloneWithPackageLayer):
             _config.product_config = {'imio.zamqp.core': {'ws_url': 'http://localhost:6543', 'ws_password': 'test',
                                                           'ws_login': 'testuser', 'routing_key': '019999',
                                                           'client_id': '019999'}}
+        (stdout, stderr, st) = runCommand('%s/bin/soffice.sh restart' % os.getenv('PWD'))
+
+    def tearDownZope(self, app):
+        """Tear down Zope."""
+        (stdout, stderr, st) = runCommand('%s/bin/soffice.sh stop' % os.getenv('PWD'))
+
 
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",
