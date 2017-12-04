@@ -83,7 +83,7 @@ class TestSetuphandlers(unittest.TestCase):
         mt = getToolByName(self.portal, 'portal_membership')
         users = [member for member in mt.listMembers()
                  if member.getProperty('fullname').find(' ') >= 1]
-        self.assertEquals(len(users), 5)
+        self.assertEquals(len(users), 6)
 
     def ttest_addTemplates(self):
         self.assertIn('templates', self.portal)

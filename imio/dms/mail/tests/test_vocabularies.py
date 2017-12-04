@@ -45,12 +45,14 @@ class TestVocabularies(unittest.TestCase):
     def test_AssignedUsersVocabulary(self):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
+        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef'),
+                                                ('agent1', 'Stef Agent')]))
 
     def test_EmptyAssignedUsersVocabulary(self):
         voc_inst = EmptyAssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
+        self.assertSetEqual(set(voc_list), set([(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'),
+                                                ('chef', 'Michel Chef'), ('agent1', 'Stef Agent')]))
 
     def test_getMailTypes(self):
         voc_list = [(t.value, t.title) for t in getMailTypes()]
