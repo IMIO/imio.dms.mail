@@ -55,7 +55,8 @@ def dmsdocument_modified(mail, event):
             obj = brain.getObject()
             creators = list(obj.creators)
             # change creator metadata
-            creators.remove('scanner')
+            if 'scanner' in creators:
+                creators.remove('scanner')
             if userid not in creators:
                 creators.insert(0, userid)
             obj.setCreators(creators)

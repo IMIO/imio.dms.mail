@@ -91,14 +91,16 @@ class TestDmsmail(unittest.TestCase):
     def test_user_related_modification(self):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef')]))
+        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef'),
+                                                ('agent1', 'Stef Agent')]))
         # we change a user property
         member = api.user.get(userid='chef')
         member.setMemberProperties({'fullname': 'Michel Chef 2'})
         # we simulate the user form change event
         zope.event.notify(ConfigurationChangedEvent(UserDataConfiglet(self.portal, self.portal.REQUEST), {}))
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef 2')]))
+        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef 2'),
+                                                ('agent1', 'Stef Agent')]))
         # we change the activated services
         registry = getUtility(IRegistry)
         registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][0:1]

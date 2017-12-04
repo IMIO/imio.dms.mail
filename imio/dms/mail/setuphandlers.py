@@ -196,9 +196,12 @@ def postInstall(context):
     add_transforms(site)
 
     # add usefull methods
-    from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
-    manage_addExternalMethod(site, 'sge_import_contacts', '', 'imports', 'import_contacts')
-    manage_addExternalMethod(site, 'sge_clean_examples', '', 'imio.dms.mail.demo', 'clean_examples')
+    try:
+        from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+        manage_addExternalMethod(site, 'sge_import_contacts', '', 'imports', 'import_contacts')
+        manage_addExternalMethod(site, 'sge_clean_examples', '', 'imio.dms.mail.demo', 'clean_examples')
+    except:
+        pass
 
 
 def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
