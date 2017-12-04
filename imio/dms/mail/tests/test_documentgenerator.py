@@ -28,8 +28,9 @@ class TestDocumentGenerator(unittest.TestCase):
         objs = [b.getObject() for b in brains]
         # test getting files
         files = view.get_dms_files()
-        self.assertListEqual(files, [(objs[0]['1'], False, True), (objs[1]['1'], True, False),
-                                     (objs[2]['1'], False, False)])
+        self.assertListEqual(files, [objs[0]['1'], objs[1]['1'], objs[2]['1']])
+        # self.assertListEqual(files, [(objs[0]['1'], False, True), (objs[1]['1'], True, False),
+        #                              (objs[2]['1'], False, False)])
         # test getting num pages
         self.assertEquals(view.get_num_pages(objs[0]['1']), 1)
         self.assertEquals(view.get_num_pages(objs[1]['1']), 2)

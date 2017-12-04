@@ -171,12 +171,15 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         #self.uids_to_objs(self.context_var('brains'))
         for brain in self.context_var('brains'):
             brains = catalog(portal_type='dmsommainfile', path=brain.getPath(), sort_on='getObjPositionInParent',
-                             sort_order='descending')
+                             sort_order='descending', sort_limit=limit)
             if limit:
                 brains = brains[0:limit]
             for bfile in brains:
-                obj = bfile.getObject()
-                files.append([obj, self.get_num_pages(obj)])
+                files.append(bfile.getObject())
+        return files
+        # SKIP pages number calculation, now well managed by appy
+                # obj = bfile.getObject()
+                # files.append([obj, self.get_num_pages(obj)])
         result = []
         for i, (afile, pages) in enumerate(files):
             odd = bool(pages % 2)
