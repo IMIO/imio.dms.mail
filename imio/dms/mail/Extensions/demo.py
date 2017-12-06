@@ -200,7 +200,7 @@ def clean_examples(self):
     # Delete users
     for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
         user = api.user.get(userid=userid)
-        for brain in api.content.find(Creator=userid):
+        for brain in api.content.find(Creator=userid, sort_on='path', sort_order='descending'):
             log_list(out, "Deleting object '%s' created by '%s'" % (brain.getPath(), userid))
             api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
         for group in api.group.get_groups(user=user):
