@@ -103,6 +103,13 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         else:
             return u''
 
+    def is_first_doc(self):
+        """ in mailing context """
+        ctx = self.appy_renderer.contentParser.env.context
+        if 'loop' in ctx and hasattr(ctx['loop'], 'mailed_data') and not ctx['loop'].mailed_data.first:
+                return False
+        return True
+
 
 class DashboardDGBaseHelper():
     """
