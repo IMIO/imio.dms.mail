@@ -1627,23 +1627,33 @@ def add_templates(site):
         30: {'title': _(u'Contacts export'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
              'attrs': {'pod_formats': ['ods'], 'pod_portal_types': ['directory']}},
         90: {'title': _(u'Style template'), 'type': 'StyleTemplate', 'trans': ['show_internally']},
-        100: {'title': _(u'Header template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
-        105: {'title': _(u'Footer template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
-        110: {'title': _(u'Intro template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
-        120: {'title': _(u'Ending template'), 'type': 'SubTemplate', 'trans': ['show_internally']},
     }
 
-    templates = combine_data(data, test=lambda x: x < 200)
+    templates = combine_data(data, test=lambda x: x < 100)
     cids = create(templates, pos=False)
     exists = 'base' in site['templates']['om']
 
     data = {
+        100: {'title': _(u'Header template'), 'type': 'SubTemplate', 'trans': ['show_internally'],
+              'attrs': {'style_template': [cids[90].UID()]}},
+        105: {'title': _(u'Footer template'), 'type': 'SubTemplate', 'trans': ['show_internally'],
+              'attrs': {'style_template': [cids[90].UID()]}},
+        110: {'title': _(u'Intro template'), 'type': 'SubTemplate', 'trans': ['show_internally'],
+              'attrs': {'style_template': [cids[90].UID()]}},
+        120: {'title': _(u'Ending template'), 'type': 'SubTemplate', 'trans': ['show_internally'],
+              'attrs': {'style_template': [cids[90].UID()]}},
+    }
+
+    templates = combine_data(data, test=lambda x: x >= 100 and x < 200)
+    cids = create(templates, pos=False, cids=cids)
+
+    data = {
         200: {'title': _(u'Print template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
               'attrs': {'pod_formats': ['odt'],
-                       'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
-                       'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
-                                                                          uids=True),
-                       'style_template': [cids[90].UID()]}},
+                        'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
+                        'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
+                                                                           uids=True),
+                        'style_template': [cids[90].UID()]}},
         205: {'title': _(u'Base template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
               'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
                         [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
