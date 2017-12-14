@@ -1576,7 +1576,7 @@ def list_templates():
         (150, 'templates/om/mailing', os.path.join(dpath, 'om-mailing.odt')),
         (200, 'templates/om/d-print', os.path.join(dpath, 'd-print.odt')),
         (205, 'templates/om/base', os.path.join(dpath, 'om-base.odt')),
-        (210, 'templates/om/common/receipt', os.path.join(dpath, 'om-receipt.odt')),
+#        (210, 'templates/om/common/receipt', os.path.join(dpath, 'om-receipt.odt')),
     ]
 
 
