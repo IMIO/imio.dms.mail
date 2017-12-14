@@ -2,6 +2,7 @@
 """Subscribers."""
 from Acquisition import aq_get
 from DateTime import DateTime
+import logging
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 from zope.component import getUtility, queryUtility, getAdapter
@@ -32,6 +33,8 @@ from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from . import _
 from interfaces import IActionsPanelFolder
+
+logger = logging.getLogger('imio.dms.mail: events')
 
 
 # DMSDOCUMENT
@@ -179,6 +182,7 @@ def contact_plonegroup_change(event):
             folder._p_changed = True
         # we add a directory by organization in templates/om
         base_folder = portal.templates.om
+        base_model = base_folder.get('base', None)
         for uid in registry[ORGANIZATIONS_REGISTRY]:
             if uid not in base_folder:
                 obj = uuidToObject(uid)
@@ -191,6 +195,9 @@ def contact_plonegroup_change(event):
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
                 alsoProvides(folder, INextPrevNotNavigable)
+                if base_model and base_model.has_been_modified():
+                    logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
+                    api.content.copy(source=base_model, target=folder)
 
 
 def ploneGroupContactChanged(organization, event):
