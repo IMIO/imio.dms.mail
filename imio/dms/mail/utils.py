@@ -2,7 +2,9 @@
 
 from datetime import date, timedelta
 from operator import methodcaller
+#from operator import itemgetter
 from collections import OrderedDict
+import logging
 
 from zope.component.hooks import getSite
 from zope.schema.interfaces import IVocabularyFactory
@@ -14,6 +16,7 @@ from plone.app.textfield.value import RichTextValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
+from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five import BrowserView
 
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
@@ -31,6 +34,8 @@ review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': ['propos
                                                        'org': 'assigned_group'})]),
                  'dmsoutgoingmail': OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'],
                                                   'org': 'treating_groups'})])}
+
+logger = logging.getLogger('imio.dms.mail: utils')
 
 
 def highest_review_level(portal_type, group_ids):
@@ -116,7 +121,7 @@ def list_wf_states(context, portal_type):
     return ret
 
 
-# May be moved to imio.helpers ?
+# Moved to imio.helpers
 def create_richtextval(text):
     """ Return a RichTextValue """
     if not isinstance(text, unicode):
@@ -204,6 +209,29 @@ class UtilsMethods(BrowserView):
         for uid, tit, stat in lst:
             ret.append('"%s","%s","%s"' % (uid, tit, stat))
         return '\n'.join(ret)
+
+
+class VariousUtilsMethods(UtilsMethods):
+    """ View containing various utils methods """
+
+    def initialize_service_folder(self):
+        """ """
+        if not self.user_is_admin() and not check_zope_admin():
+            return
+        portal = api.portal.get()
+        om_folder = portal['templates']['om']
+        base_model = om_folder.get('base', None)
+        if not base_model:
+            return
+        brains = portal.portal_catalog(portal_type='Folder', path={'query': '/'.join(om_folder.getPhysicalPath()),
+                                                                   'depth': 1})
+        for brain in brains:
+            folder = brain.getObject()
+            contents = api.content.find(context=folder, depth=1)
+            if not contents:
+                logger.info("Copying %s in %s" % (base_model, brain.getPath()))
+                api.content.copy(source=base_model, target=folder)
+        return self.context.REQUEST['RESPONSE'].redirect(self.context.absolute_url())
 
 
 class IdmUtilsMethods(UtilsMethods):

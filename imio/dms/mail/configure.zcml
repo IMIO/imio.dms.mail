@@ -172,6 +172,17 @@
     </class>
 
     <!-- UTILS METHODS -->
+
+    <browser:page
+        for="*"
+        name="various-utils"
+        class=".utils.VariousUtilsMethods"
+        permission="zope2.View"
+        allowed_attributes="
+            initialize_service_folder
+        "
+    />
+
     <browser:page
         for="*"
         name="idm-utils"
