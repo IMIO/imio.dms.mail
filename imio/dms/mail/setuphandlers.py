@@ -1627,7 +1627,7 @@ def add_templates(site):
 
     data = {
         10: {'title': _(u'Mail listing template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
-             'attrs': {'pod_formats': ['odt'],
+             'attrs': {'pod_formats': ['odt'], 'rename_page_styles': False,
                        'dashboard_collections': [b.UID for b in
                                                  get_dashboard_collections(site['incoming-mail']['mail-searches'])
                                                  if b.id == 'all_mails'],
@@ -1652,7 +1652,7 @@ def add_templates(site):
         120: {'title': _(u'Ending template'), 'type': 'SubTemplate', 'trans': ['show_internally'],
               'attrs': {'style_template': [cids[90].UID()]}},
         150: {'title': _(u'Mailing template'), 'type': 'MailingLoopTemplate', 'trans': ['show_internally'],
-              'attrs': {'style_template': [cids[90].UID()]}},
+              'attrs': {'style_template': [cids[90].UID()], 'rename_page_styles': True}},
     }
 
     templates = combine_data(data, test=lambda x: x >= 100 and x < 200)
@@ -1664,14 +1664,15 @@ def add_templates(site):
                         'tal_condition': "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
                         'dashboard_collections': get_dashboard_collections(site['outgoing-mail']['mail-searches'],
                                                                            uids=True),
-                        'style_template': [cids[90].UID()]}},
+                        'style_template': [cids[90].UID()], 'rename_page_styles': True}},
         205: {'title': _(u'Base template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
               'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
                         [{'pod_context_name': u'doc_entete', 'do_rendering': False, 'template': cids[100].UID()},
                          {'pod_context_name': u'doc_intro', 'do_rendering': False, 'template': cids[110].UID()},
                          {'pod_context_name': u'doc_fin', 'do_rendering': False, 'template': cids[120].UID()},
                          {'pod_context_name': u'doc_pied_page', 'do_rendering': False, 'template': cids[105].UID()}],
-                        'style_template': [cids[90].UID()], 'mailing_loop_template': cids[150].UID()}},
+                        'style_template': [cids[90].UID()], 'mailing_loop_template': cids[150].UID(),
+                        'rename_page_styles': False}},
 #                       'context_variables': [{'name': u'do_mailing', 'value': u'1'}]}},
         210: {'title': _(u'Receipt template'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
               'attrs': {'pod_formats': ['odt'], 'pod_portal_types': ['dmsoutgoingmail'], 'merge_templates':
@@ -1682,7 +1683,8 @@ def add_templates(site):
                         'style_template': [cids[90].UID()], 'mailing_loop_template': cids[150].UID(),
                         'context_variables': [{'name': u'PD', 'value': u'True'},
                                               {'name': u'PC', 'value': u'True'},
-                                              {'name': u'PVS', 'value': u'False'}]}},
+                                              {'name': u'PVS', 'value': u'False'}],
+                        'rename_page_styles': False}},
     }
 
     templates = combine_data(data, test=lambda x: x >= 200)
