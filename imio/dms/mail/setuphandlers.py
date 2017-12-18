@@ -1601,6 +1601,14 @@ def add_templates(site):
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             logger.info("'%s' folder created" % path)
 
+    # adding view for Folder type
+    # ptype = site.portal_types.Folder
+    # if 'dg-templates-listing' not in ptype.view_methods:
+    #     views = list(ptype.view_methods)
+    #     views.append('dg-templates-listing')
+    #     ptype.view_methods = tuple(views)
+    site.templates.om.layout = 'dg-templates-listing'
+
     def combine_data(data, test=None):
         templates_list = list_templates()
         ret = []
