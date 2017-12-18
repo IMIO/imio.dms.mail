@@ -104,6 +104,10 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         else:
             return u''
 
+    def is_first_doc(self):
+        """ in mailing context """
+        return True
+
 
 class DashboardDGBaseHelper():
     """
