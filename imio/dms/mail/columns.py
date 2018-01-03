@@ -77,7 +77,8 @@ class ContactListColumn(PrettyLinkColumn):
             typeInfo = api.portal.get_tool('portal_types')[c_brain.portal_type]
             if typeInfo.icon_expr:
                 # we assume that stored icon_expr is like string:${portal_url}/myContentIcon.png
-                contentIcon = typeInfo.icon_expr.split('/')[-1]
+                # or like string:${portal_url}/++resource++imio.dashboard/dashboardpodtemplate.png
+                contentIcon = '/'.join(typeInfo.icon_expr.split('/')[1:])
                 title = translate(typeInfo.title, domain=typeInfo.i18n_domain, context=self.request)
                 icon_link = u"<img title='%s' src='%s/%s' />" % (safe_unicode(title), purl, contentIcon)
             self.i_cache[c_brain.portal_type] = icon_link
