@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-from zope.interface import Interface
 
-from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from collective.eeafaceted.batchactions.interfaces import IBatchActionsMarker
 from collective.contact.core.content.directory import IDirectory
+from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from zope.interface import Interface
 
 
 class IDirectoryFacetedNavigable(IFacetedNavigable, IDirectory):
@@ -55,3 +56,8 @@ class IActionsPanelFolder(Interface):
 class IActionsPanelFolderAll(Interface):
 
     """Marker interface for folder displaying actions panel viewlet."""
+
+
+class IOMTemplatesFolder(IBatchActionsMarker):
+
+    """Marker interface for folder displaying dg-templates-listing"""

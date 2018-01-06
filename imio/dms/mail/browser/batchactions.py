@@ -22,6 +22,7 @@ from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
 
 from collective.dms.basecontent.dmsdocument import IDmsDocument
+from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
 from collective.task.behaviors import ITask
 from collective.task.interfaces import ITaskContent
 from collective.task import _ as TMF
@@ -91,6 +92,17 @@ def canNotModify(brains, perm='Modify portal content'):
     return pb
 
 cannot_modify_msg = _(u"You can't change this field on selected items. Modify your selection.")
+
+
+def filter_on_permission(brains, perm='Modify portal content'):
+    """ Return only objects where current user has the permission """
+    ret = []
+    sm = getSecurityManager()
+    for brain in brains:
+        obj = brain.getObject()
+        if sm.checkPermission(perm, obj):
+            ret.append(obj)
+    return ret
 
 # IM batch actions
 
@@ -407,3 +419,47 @@ class TaskAssignedUserBatchActionForm(AssignedUserBatchActionForm):
     master = 'assigned_group'
     err_msg = _(u'No common or available assigned group, or no available assigned user. '
                 'Modify your selection.')
+
+# OM Templates Folder batch actions
+
+
+class CopyToBatchActionForm(BaseBatchActionForm):
+    """ Button to move selection to a folder """
+
+    label = _(u"Batch copy to")
+
+    def getAvailableFoldersVoc(self):
+        """ Returns available transitions common for all brains """
+        terms = []
+        brains = api.content.find(context=self.context, depth=1, portal_type='Folder')
+        objs = filter_on_permission(brains, 'Add portal content')
+        for obj in objs:
+            terms.append(SimpleTerm(obj.UID(), title=obj.title))
+        return SimpleVocabulary(terms)
+
+    def _update(self):
+        self.voc = self.getAvailableFoldersVoc()
+        self.do_apply = len(self.voc) > 0
+        self.fields += Fields(schema.List(
+            __name__='folders',
+            title=_(u'Folders'),
+            value_type=schema.Choice(vocabulary=self.voc),
+            description=(self.do_apply and
+                         _(u'Select multiple values (CTRL+click)') or
+                         _(u'No folder available where you can add templates.')),
+            required=self.do_apply))
+        self.fields["folders"].widgetFactory = SelectFieldWidget
+
+    def _update_widgets(self):
+        if self.do_apply:
+            self.widgets['folders'].multiple = 'multiple'
+            self.widgets['folders'].size = 5
+
+    def _apply(self, **data):
+        """ """
+        if data['folders']:
+            targets = [b.getObject() for b in api.content.find(UID=data['folders'])]
+            for brain in self.brains:
+                obj = brain.getObject()
+                for target in targets:
+                    api.content.copy(source=obj, target=target, safe_id=True)

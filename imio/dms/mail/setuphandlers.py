@@ -47,7 +47,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from imio.helpers.content import create, create_NamedBlob
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
-from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard
+from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard, IOMTemplatesFolder
 
 from interfaces import IDirectoryFacetedNavigable, IActionsPanelFolder, IActionsPanelFolderAll
 from utils import list_wf_states
@@ -1581,8 +1581,9 @@ def list_templates():
 def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
-    for path, title in [('templates', _(u"Templates")), ('templates/om', _(u"Outgoing mail")),
-                        ('templates/om/common', _(u"Common templates"))]:
+    for path, title, interfaces in [('templates', _(u"Templates"), []),
+                                    ('templates/om', _(u"Outgoing mail"), [IOMTemplatesFolder]),
+                                    ('templates/om/common', _(u"Common templates"), [])]:
         parts = path.split('/')
         id = parts[-1]
         parent = site.unrestrictedTraverse('/'.join(parts[:-1]))
@@ -1598,6 +1599,8 @@ def add_templates(site):
             api.content.transition(obj=tplt_fld, transition='show_internally')
             alsoProvides(tplt_fld, IActionsPanelFolderAll)
             alsoProvides(tplt_fld, INextPrevNotNavigable)
+            for itf in interfaces:
+                alsoProvides(tplt_fld, IOMTemplatesFolder)
             logger.info("'%s' folder created" % path)
 
     # adding view for Folder type

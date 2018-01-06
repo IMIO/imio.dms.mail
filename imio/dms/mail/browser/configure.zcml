@@ -161,6 +161,13 @@
     </configure>
 
     <!-- BATCH ACTIONS -->
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMTemplatesFolder"
+        name="copy-to-batch-action"
+        class=".batchactions.CopyToBatchActionForm"
+        permission="zope2.View" />
+
+    <!-- BATCH ACTIONS -->
     <browser:viewlet
         name="dashboard_batch_actions_viewlet"
         for="imio.dms.mail.interfaces.IIMDashboard"
