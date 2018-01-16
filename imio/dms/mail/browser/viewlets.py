@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from plone import api
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 from zc.relation.interfaces import ICatalog
@@ -16,7 +17,7 @@ class ContactContentBackrefsViewlet(ViewletBase):
 
     def backrefs(self):
         # indirection method added to be easier overrided
-        return sorted(self.find_relations(), key=lambda obj: obj.created(), reverse=True)
+        return sorted(self.find_relations(), key=lambda brain: brain.created, reverse=True)
 
     def find_relations(self, from_attribute=None, from_interfaces_flattened=None):
         """
@@ -38,8 +39,12 @@ class ContactContentBackrefsViewlet(ViewletBase):
             if IContactContent.providedBy(relation.from_object):
                 continue
             # PERFORMANCE TEST TO DO: use directly objects or use the path as request in the portal_catalog to find brain
-            ret.append(relation.from_object)
-        return ret
+            ret.append(relation.from_path)
+        all_obj = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.all_backrefs_view',
+                                                 default=False)
+        pc = api.portal.get_tool('portal_catalog')
+        method = all_obj and pc.unrestrictedSearchResults or pc.searchResults
+        return method(path={'query': ret, 'depth': 0})
 
     index = ViewPageTemplateFile("templates/contactcontent_backrefs.pt")
 

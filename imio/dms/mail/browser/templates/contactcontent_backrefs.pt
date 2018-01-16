@@ -3,19 +3,20 @@
      class="contactcontent_backrefs"
      tal:condition="backrefs"
      tal:define="backrefs view/backrefs;
-                 toLocalizedTime nocall:context/@@plone/toLocalizedTime;">
+                 toLocalizedTime nocall:context/@@plone/toLocalizedTime;
+                 purl context/portal_url;">
 
     <h3 i18n:translate="backrefs_viewlet_title">Backrefs</h3>
     <ul>
-    <tal:refs tal:repeat="obj backrefs">
+    <tal:refs tal:repeat="brain backrefs">
         <li>
-            <img tal:attributes="src obj/getIconURL;"/>
-            <a href="" 
-               tal:attributes="href obj/absolute_url_path; class python:'contenttype-'+obj.portal_type;"
-               tal:define="title obj/Title;"
+            <img tal:attributes="src python:'%s/%s' % (purl, brain.getIcon);"/>
+            <a href=""
+               tal:attributes="href brain/getURL; class python:'contenttype-%s' % brain.portal_type;"
+               tal:define="title brain/Title;"
                tal:content="title">
             </a>
-            , <span tal:content="python: toLocalizedTime(obj.created())" />
+            , <span tal:content="python: toLocalizedTime(brain.created)" />
         </li>
     </tal:refs>
     </ul>

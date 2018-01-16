@@ -94,6 +94,17 @@ class IImioDmsMailConfig(model.Schema):
         default=True
     )
 
+    model.fieldset(
+        'contact',
+        label=_(u"Contacts"),
+        fields=['all_backrefs_view']
+    )
+
+    all_backrefs_view = schema.Bool(
+        title=_(u'A user can see all mail titles linked to a contact.'),
+        default=False
+    )
+
 
 class SettingsEditForm(RegistryEditForm):
     """
