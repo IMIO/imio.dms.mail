@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-01-05 13:40+0000\n"
+"POT-Creation-Date: 2018-01-15 13:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,6 +21,10 @@ msgstr ""
 
 #: ./subscribers.py:272
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
+msgstr ""
+
+#: ./browser/settings.py:104
+msgid "A user can see all mail titles linked to a contact."
 msgstr ""
 
 #: ./browser/settings.py:22
@@ -127,6 +131,10 @@ msgstr ""
 msgid "Common templates"
 msgstr ""
 
+#: ./browser/settings.py:99
+msgid "Contacts"
+msgstr ""
+
 #: ./setuphandlers.py:1639
 msgid "Contacts export"
 msgstr ""
@@ -155,7 +163,7 @@ msgstr ""
 msgid "Ending template"
 msgstr ""
 
-#: ./browser/batchactions.py:444
+#: ./browser/batchactions.py:445
 msgid "Folders"
 msgstr ""
 
@@ -243,7 +251,7 @@ msgstr ""
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:447
+#: ./browser/batchactions.py:449
 msgid "No folder available where you can add templates."
 msgstr ""
 
@@ -455,7 +463,7 @@ msgid "assigneduser-batch-action-but"
 msgstr "Change assigned user"
 
 #. Default: "Backrefs"
-#: ./browser/templates/contactcontent_backrefs.pt:8
+#: ./browser/templates/contactcontent_backrefs.pt:9
 msgid "backrefs_viewlet_title"
 msgstr "Contact used by"
 

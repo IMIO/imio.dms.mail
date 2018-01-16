@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-01-05 13:40+0000\n"
+"POT-Creation-Date: 2018-01-15 13:39+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -24,6 +24,10 @@ msgstr "${title}: créer à partir d'un modèle"
 #: ./subscribers.py:272
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
+
+#: ./browser/settings.py:104
+msgid "A user can see all mail titles linked to a contact."
+msgstr "Un utilisateur peut voir tous les intitulés de courrier liés à un contact."
 
 #: ./browser/settings.py:22
 msgid "Active"
@@ -129,6 +133,10 @@ msgstr "Commentaire"
 msgid "Common templates"
 msgstr "Modèles communs"
 
+#: ./browser/settings.py:99
+msgid "Contacts"
+msgstr "Contacts"
+
 #: ./setuphandlers.py:1639
 msgid "Contacts export"
 msgstr "Export des contacts"
@@ -157,7 +165,7 @@ msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son servi
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
-#: ./browser/batchactions.py:444
+#: ./browser/batchactions.py:445
 msgid "Folders"
 msgstr "Dossiers"
 
@@ -245,7 +253,7 @@ msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sél
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./browser/batchactions.py:447
+#: ./browser/batchactions.py:449
 msgid "No folder available where you can add templates."
 msgstr "Il n'y a aucun dossier où vous pouvez ajouter des modèles."
 
@@ -457,7 +465,7 @@ msgid "assigneduser-batch-action-but"
 msgstr "Changer l'utilisateur assigné"
 
 #. Default: "Backrefs"
-#: ./browser/templates/contactcontent_backrefs.pt:8
+#: ./browser/templates/contactcontent_backrefs.pt:9
 msgid "backrefs_viewlet_title"
 msgstr "Contact utilisé par"
 
