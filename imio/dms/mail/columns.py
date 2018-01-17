@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
+import os
+
 from z3c.table import column
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
+from AccessControl import getSecurityManager
 from plone import api
 from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
 
+from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
 from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
 from collective.eeafaceted.z3ctable.columns import I18nColumn
 from collective.eeafaceted.z3ctable import _ as _cez
@@ -130,31 +134,6 @@ class TaskParentColumn(PrettyLinkColumn):
         return PrettyLinkColumn.getPrettyLink(self, parent)
 
 
-# Columns for collective.task.browser.table.TasksTable
-
-
-class ObjectBrowserViewCallColumn(column.Column):
-    """A column that display the result of a given browser view name call."""
-    # column not sortable
-    sort_index = -1
-    params = {}
-    view_name = None
-
-    def renderCell(self, item):
-        if not self.view_name:
-            raise KeyError('A "view_name" must be defined for column "{0}" !'.format(self.attrName))
-        return getMultiAdapter((item, self.request), name=self.view_name)(**self.params)
-
-
-class TaskActionsColumn(ObjectBrowserViewCallColumn):
-
-    header = _cez("header_actions")
-    weight = 70
-    view_name = 'actions_panel'
-    attrName = 'actions'
-    params = {'showHistory': True, 'showActions': False}
-
-
 class RecipientsColumn(ContactListColumn):
 
     attrName = 'recipients_index'
@@ -179,3 +158,91 @@ class ReviewStateColumn(I18nColumn):
         return translate(state_title,
                          domain=self.i18n_domain,
                          context=self.request)
+
+# Columns for collective.task.browser.table.TasksTable
+
+
+class ObjectBrowserViewCallColumn(column.Column):
+    """A column that display the result of a given browser view name call."""
+    # column not sortable
+    sort_index = -1
+    params = {}
+    view_name = None
+
+    def renderCell(self, item):
+        if not self.view_name:
+            raise KeyError('A "view_name" must be defined for column "{0}" !'.format(self.attrName))
+        return getMultiAdapter((item, self.request), name=self.view_name)(**self.params)
+
+
+class TaskActionsColumn(ObjectBrowserViewCallColumn):
+
+    header = _cez("header_actions")
+    weight = 70
+    view_name = 'actions_panel'
+    attrName = 'actions'
+    params = {'showHistory': True, 'showActions': False}
+
+# Columns for collective.task.browser.table.TasksTable
+
+
+class ExternalEditColumn(eec_base):
+
+    lockedLinkName = 'view'
+    lockedIconName = 'lock_icon.png'
+    lockedLinkContent = ""
+
+    def actionAvailable(self, obj):
+        sm = getSecurityManager()
+        if not sm.checkPermission('Modify portal content', obj):
+            return False, False
+
+        if obj.file is None:
+            return False, False
+
+        ext = os.path.splitext(obj.file.filename)[-1].lower()
+        if ext in (u'.pdf', u'.jpg', '.jpeg'):
+            return False, False
+
+        view = getMultiAdapter((obj, self.request), name='externalEditorEnabled')
+        # check locking separately
+        available = (view.isEnabledOnThisContentType() and
+                     view.isActivatedInMemberProperty() and
+                     view.isActivatedInSiteProperty() and
+                     view.isWebdavEnabled() and
+                     not view.isObjectTemporary() and
+                     not view.isStructuralFolder() and
+                     view.isExternalEditLink_())
+        return available, view.isObjectLocked()
+
+    def renderCell(self, item):
+        #import ipdb; ipdb.set_trace()
+        obj = item.getObject()
+        available, locked = self.actionAvailable(obj)
+        # don't display icon if not available and object not locked
+        if not available and not locked:
+            return u''
+        if locked:
+            link_url = '%s/view' % item.getURL()
+            icon_name = 'lock_icon.png'
+            lock_info = getMultiAdapter((obj, self.request), name="plone_lock_info")
+            lock_details = lock_info.lock_info()
+            link_title = translate('description_webdav_locked_by_author_on_time', domain='plone', context=self.request,
+                                   mapping={'author': lock_details['fullname'],
+                                            'time': lock_details['time_difference']})
+        else:
+            link_url = '%s/@@external_edit' % item.getURL()
+            icon_name = 'extedit_icon.png'
+            link_title = translate(self.linkContent, context=self.request)
+
+        link_content = u"""<img title="%s" src="%s" />""" % (
+            link_title, '%s/%s' % (self.table.portal_url, icon_name))
+
+        return '<a href="%s"%s%s%s>%s</a>' % (link_url, self.getLinkTarget(item), self.getLinkCSS(item),
+                                              self.getLinkTitle(item), link_content)
+
+
+class NoExternalEditColumn(eec_base):
+
+    def renderCell(self, item):
+        return u''
