@@ -62,4 +62,21 @@
         permission="zope2.View"
         />
 
+    <!-- Override lock info viewlet to unlock external edit -->
+    <browser:viewlet
+        name="plone.lockinfo"
+        manager="plone.app.layout.viewlets.interfaces.IAboveContent"
+        class=".browser.overrides.LockInfoViewlet"
+        permission="cmf.ModifyPortalContent"
+        for="plone.locking.interfaces.ITTWLockable"
+        />
+
+    <browser:page
+        for="plone.locking.interfaces.ITTWLockable"
+        name="plone_lock_operations"
+        class=".browser.overrides.LockingOperations"
+        permission="cmf.ModifyPortalContent"
+        allowed_attributes="create_lock safe_unlock force_unlock refresh_lock"
+        />
+
 </configure>
