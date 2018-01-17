@@ -4,6 +4,7 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="collective.eeafaceted.z3ctable">
 
+  <!-- collective.eeafaceted.z3ctable.interfaces.IFacetedTable -->
   <adapter
     for="zope.interface.Interface
          zope.publisher.interfaces.browser.IBrowserRequest
@@ -94,6 +95,7 @@
      name="review_state"
   />
 
+  <!-- collective.task.browser.table.TasksTable -->
   <adapter
     for="zope.interface.Interface
          zope.publisher.interfaces.browser.IBrowserRequest
@@ -101,6 +103,25 @@
     factory=".columns.TaskActionsColumn"
     provides="z3c.table.interfaces.IColumn"
     name="actions"
+    />
+
+  <!-- collective.dms.basecontent.browser.listing.VersionsTable -->
+  <adapter
+    for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    factory=".columns.ExternalEditColumn"
+    provides="z3c.table.interfaces.IColumn"
+    name="dms.extedit"
+    />
+
+  <adapter
+    for="imio.dms.mail.dmsmail.IImioDmsIncomingMail
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    factory=".columns.NoExternalEditColumn"
+    provides="z3c.table.interfaces.IColumn"
+    name="dms.extedit"
     />
 
 </configure>
