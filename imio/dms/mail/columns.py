@@ -159,8 +159,8 @@ class ReviewStateColumn(I18nColumn):
                          domain=self.i18n_domain,
                          context=self.request)
 
-# Columns for collective.task.browser.table.TasksTable
 
+# Columns for collective.task.browser.table.TasksTable
 
 class ObjectBrowserViewCallColumn(column.Column):
     """A column that display the result of a given browser view name call."""
@@ -183,8 +183,8 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     attrName = 'actions'
     params = {'showHistory': True, 'showActions': False}
 
-# Columns for collective.task.browser.table.TasksTable
 
+# Columns for collective.task.browser.table.TasksTable
 
 class ExternalEditColumn(eec_base):
 
@@ -216,7 +216,6 @@ class ExternalEditColumn(eec_base):
         return available, view.isObjectLocked()
 
     def renderCell(self, item):
-        #import ipdb; ipdb.set_trace()
         obj = item.getObject()
         available, locked = self.actionAvailable(obj)
         # don't display icon if not available and object not locked
