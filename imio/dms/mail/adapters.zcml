@@ -78,6 +78,8 @@
     <adapter name="state_group" factory=".adapters.state_group_index" />
     <adapter name="state_group" factory=".adapters.task_state_group_index" />
     <adapter name="sender_index" factory=".adapters.sender_index" />
+    <adapter name="organization_type" factory=".adapters.im_organization_type_index" />
+    <adapter name="organization_type" factory=".adapters.om_organization_type_index" />
 
     <!-- MISSING VOCABULARIES -->
     <!-- type, layer, view, field, vocabulary, widget -->

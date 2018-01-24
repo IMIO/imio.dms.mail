@@ -16,7 +16,7 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.registry.interfaces import IRegistry
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.app.dexterity.behaviors.metadata import IBasic
-from plone.formwidget.datetime.z3cform.widget import DateFieldWidget
+from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.z3cform.fieldsets.utils import move
 from AccessControl import getSecurityManager
 
@@ -316,8 +316,8 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         title=_cdmsm(u"External Reference Number"),
         required=False,)
 
-    outgoing_date = schema.Date(title=_(u'Outgoing Date'), required=False)
-    directives.widget('outgoing_date', DateFieldWidget, show_today_link=True)
+    outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
+    directives.widget('outgoing_date', DatetimeFieldWidget, show_today_link=True, show_time=True)
 
     directives.order_before(treating_groups='outgoing_date')
     directives.order_before(sender='outgoing_date')

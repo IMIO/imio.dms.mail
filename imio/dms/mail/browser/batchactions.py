@@ -356,12 +356,12 @@ class OutgoingDateBatchActionForm(DashboardBatchActionForm):
     def update(self):
         super(OutgoingDateBatchActionForm, self).update()
         self.pb = canNotModify(self.brains)
-        self.fields += Fields(schema.Date(
+        self.fields += Fields(schema.Datetime(
             __name__='outgoing_date',
             title=_(u"Outgoing Date"),
             description=(self.pb and cannot_modify_msg or u''),
             required=(self.pb and False or True),
-            default=datetime.date.today(),
+            default=datetime.datetime.now(),
         ))
 
         super(DashboardBatchActionForm, self).update()

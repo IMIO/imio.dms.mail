@@ -1,4 +1,5 @@
 # encoding: utf-8
+import datetime, time
 from zope.component import adapts, getMultiAdapter, getUtility
 from zope.interface import implements
 from zope.i18n import translate
@@ -372,6 +373,7 @@ def in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
     if obj.reception_date:
         return obj.reception_date
+    return EMPTY_DATE
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -381,7 +383,24 @@ def om_in_out_date_index(obj):
         return obj.outgoing_date
     else:
         return EMPTY_DATE
-    return common_marker
+
+
+@indexer(IImioDmsIncomingMail)
+def im_organization_type_index(obj):
+    # No acquisition pb because organization_type isn't an attr
+    if obj.reception_date:
+        return int(time.mktime(obj.reception_date.timetuple()))
+    # there is by default a reception_date, but a user can empty it
+    return 0
+
+
+@indexer(IImioDmsOutgoingMail)
+def om_organization_type_index(obj):
+    # No acquisition pb because organization_type isn't an attr
+    if obj.outgoing_date:
+        return int(time.mktime(obj.outgoing_date.timetuple()))
+    else:
+        return 0
 
 
 @indexer(IDmsDocument)

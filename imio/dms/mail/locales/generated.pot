@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-01-15 13:39+0000\n"
+"POT-Creation-Date: 2018-01-24 13:46+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,7 +53,7 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
-#: ./setuphandlers.py:1671
+#: ./setuphandlers.py:1682
 msgid "Base template"
 msgstr ""
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1589
+#: ./setuphandlers.py:1600
 msgid "Common templates"
 msgstr ""
 
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
-#: ./setuphandlers.py:1639
+#: ./setuphandlers.py:1650
 msgid "Contacts export"
 msgstr ""
 
@@ -157,7 +157,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1655
+#: ./setuphandlers.py:1666
 msgid "Ending template"
 msgstr ""
 
@@ -165,11 +165,11 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1651
+#: ./setuphandlers.py:1662
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1649
+#: ./setuphandlers.py:1660
 msgid "Header template"
 msgstr ""
 
@@ -204,7 +204,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1653
+#: ./setuphandlers.py:1664
 msgid "Intro template"
 msgstr ""
 
@@ -212,7 +212,7 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1632
+#: ./setuphandlers.py:1643
 msgid "Mail listing template"
 msgstr ""
 
@@ -229,7 +229,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./setuphandlers.py:1657
+#: ./setuphandlers.py:1668
 msgid "Mailing template"
 msgstr ""
 
@@ -294,11 +294,11 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1665
+#: ./setuphandlers.py:1676
 msgid "Print template"
 msgstr ""
 
-#: ./setuphandlers.py:1680
+#: ./setuphandlers.py:1691
 msgid "Receipt template"
 msgstr ""
 
@@ -331,7 +331,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./setuphandlers.py:921
+#: ./setuphandlers.py:932
 msgid "Response: "
 msgstr ""
 
@@ -355,7 +355,7 @@ msgstr ""
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1641
+#: ./setuphandlers.py:1652
 msgid "Style template"
 msgstr ""
 
@@ -371,7 +371,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1587
+#: ./setuphandlers.py:1598
 msgid "Templates"
 msgstr ""
 
@@ -429,16 +429,16 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./setuphandlers.py:384
+#: ./setuphandlers.py:395
 msgid "all_im_tasks"
 msgstr ""
 
 #: ./migrations/migrate_to_0_2.py:106
-#: ./setuphandlers.py:311
+#: ./setuphandlers.py:322
 msgid "all_incoming_mails"
 msgstr ""
 
-#: ./setuphandlers.py:466
+#: ./setuphandlers.py:477
 msgid "all_outgoing_mails"
 msgstr ""
 
@@ -467,47 +467,47 @@ msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:200
 #: ./migrations/migrate_to_2_1.py:59
-#: ./setuphandlers.py:547
+#: ./setuphandlers.py:558
 msgid "front_page_descr"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:201
 #: ./migrations/migrate_to_2_1.py:60
-#: ./setuphandlers.py:548
+#: ./setuphandlers.py:559
 msgid "front_page_text"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:199
 #: ./migrations/migrate_to_2_1.py:58
-#: ./setuphandlers.py:546
+#: ./setuphandlers.py:557
 msgid "front_page_title"
 msgstr ""
 
-#: ./setuphandlers.py:342
+#: ./setuphandlers.py:353
 msgid "im_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:334
+#: ./setuphandlers.py:345
 msgid "im_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:367
+#: ./setuphandlers.py:378
 msgid "im_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:359
+#: ./setuphandlers.py:370
 msgid "im_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:326
+#: ./setuphandlers.py:337
 msgid "im_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:350
+#: ./setuphandlers.py:361
 msgid "im_to_treat_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:317
+#: ./setuphandlers.py:328
 msgid "im_to_validate"
 msgstr ""
 
@@ -539,68 +539,74 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
-#: ./setuphandlers.py:498
+#: ./setuphandlers.py:509
 msgid "om_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:489
+#: ./setuphandlers.py:500
 msgid "om_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:514
+#: ./setuphandlers.py:525
 msgid "om_in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:506
+#: ./setuphandlers.py:517
 msgid "om_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:481
+#: ./setuphandlers.py:492
 msgid "om_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:472
+#: ./setuphandlers.py:483
 msgid "om_to_validate"
+msgstr ""
+
+#: ./profiles/default/registry.xml
+msgid "organization_type_query_field"
 msgstr ""
 
 #: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:20
 msgid "outgoingdate-batch-action-but"
 msgstr ""
 
+#: ./browser/tabular_view.py:58
+
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
 #: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:16
 msgid "recipientgroup-batch-action-but"
 msgstr ""
 
-#: ./setuphandlers.py:416
+#: ./setuphandlers.py:427
 msgid "task_have_treated"
 msgstr ""
 
-#: ./setuphandlers.py:408
+#: ./setuphandlers.py:419
 msgid "task_im_treating"
 msgstr ""
 
-#: ./setuphandlers.py:400
+#: ./setuphandlers.py:411
 msgid "task_to_treat"
 msgstr ""
 
-#: ./setuphandlers.py:432
+#: ./setuphandlers.py:443
 msgid "tasks_have_created"
 msgstr ""
 
-#: ./setuphandlers.py:424
+#: ./setuphandlers.py:435
 msgid "tasks_in_my_group"
 msgstr ""
 
-#: ./setuphandlers.py:439
+#: ./setuphandlers.py:450
 msgid "tasks_in_proposing_group"
 msgstr ""
 
-#: ./setuphandlers.py:390
+#: ./setuphandlers.py:401
 msgid "tasks_to_assign"
 msgstr ""
 
-#: ./setuphandlers.py:447
+#: ./setuphandlers.py:458
 msgid "tasks_to_close"
 msgstr ""
 
