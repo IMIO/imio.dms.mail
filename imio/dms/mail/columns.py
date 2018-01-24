@@ -142,6 +142,7 @@ class RecipientsColumn(ContactListColumn):
 class OutgoingDateColumn(DateColumn):
 
     attrName = u'in_out_date'
+    # long_format = True
 
 
 class ReviewStateColumn(I18nColumn):

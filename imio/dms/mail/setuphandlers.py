@@ -253,6 +253,16 @@ def createStateCollections(folder, content_type):
         'dmsincomingmail': ('created',),
         'dmsoutgoingmail': ('scanned',),
     }
+    sort_on = {
+        'dmsincomingmail': {
+            'created': u"organization_type",
+        },
+        'task': {},
+        'dmsoutgoingmail': {
+            'scanned': u"organization_type",
+        }
+    }
+
     for stateo in list_wf_states(folder, content_type):
         state = stateo.id
         col_id = "searchfor_%s" % state
@@ -267,7 +277,8 @@ def createStateCollections(folder, content_type):
                                  tal_condition=conditions[content_type].get(state),
                                  showNumberOfItems=(state in showNumberOfItems.get(content_type, [])),
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
+                                 sort_on=sort_on[content_type].get(state, u'created'), sort_reversed=True, b_size=30,
+                                 limit=0)
             col = folder[col_id]
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
