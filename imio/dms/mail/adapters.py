@@ -373,6 +373,7 @@ def in_out_date_index(obj):
     # No acquisition pb because in_out_date isn't an attr
     if obj.reception_date:
         return obj.reception_date
+    return EMPTY_DATE
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -382,7 +383,6 @@ def om_in_out_date_index(obj):
         return obj.outgoing_date
     else:
         return EMPTY_DATE
-    return common_marker
 
 
 @indexer(IImioDmsIncomingMail)
