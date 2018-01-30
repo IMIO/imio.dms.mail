@@ -228,7 +228,7 @@ class ExternalEditColumn(eec_base):
             lock_info = getMultiAdapter((obj, self.request), name="plone_lock_info")
             lock_details = lock_info.lock_info()
             link_title = translate('description_webdav_locked_by_author_on_time', domain='plone', context=self.request,
-                                   mapping={'author': lock_details['fullname'],
+                                   mapping={'author': safe_unicode(lock_details['fullname']),
                                             'time': lock_details['time_difference']})
         else:
             link_url = '%s/@@external_edit' % item.getURL()
