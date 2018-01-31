@@ -92,10 +92,16 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         # configure states
         to_print.setProperties(
             title='om_to_print', description='',
-            transitions=['back_to_service_chief', 'propose_to_be_signed'])
+            transitions=['back_to_service_chief', 'propose_to_be_signed', 'back_to_creation'])
+        # proposed_to_service_chief transitions
         transitions = list(wf.states['proposed_to_service_chief'].transitions)
         transitions.append('set_to_print')
         wf.states['proposed_to_service_chief'].transitions = tuple(transitions)
+        # created transitions
+        transitions = list(wf.states['created'].transitions)
+        transitions.append('set_to_print')
+        wf.states['created'].transitions = tuple(transitions)
+        # to_be_signed transitions
         transitions = list(wf.states['to_be_signed'].transitions)
         transitions.append('back_to_print')
         wf.states['to_be_signed'].transitions = tuple(transitions)
@@ -160,5 +166,11 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             col.setLayout('tabular_view')
             folder.portal_workflow.doActionFor(col, "show_internally")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_to_be_signed'))
+            # Add template to folder
+            tmpl = portal['templates']['om']['d-print']
+            cols = tmpl.dashboard_collections
+            if col.UID() not in cols:
+                cols.append(col.UID())
+                tmpl.dashboard_collections = cols
 
         return True, ''
