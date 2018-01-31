@@ -178,9 +178,10 @@ def postInstall(context):
         site.portal_workflow.doActionFor(tsk_folder, "show_internally")
         logger.info('tasks folder created')
 
-    # enable portal diff on incoming mail
-    api.portal.get_tool('portal_diff').setDiffForPortalType(
-        'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
+    # enable portal diff on mails
+    pdiff = api.portal.get_tool('portal_diff')
+    pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
+    pdiff.setDiffForPortalType('dmsoutgoingmail', {'any': "Compound Diff for Dexterity types"})
 
     # reimport collective.contact.widget's registry step (disable jQueryUI's autocomplete)
     site.portal_setup.runImportStepFromProfile(
