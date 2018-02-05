@@ -23,6 +23,13 @@
              OFS.interfaces.IObjectWillBeRemovedEvent"
         handler=".subscribers.referenceDocumentRemoved" />
 
+    <!-- IImioDmsIncomingMail -->
+    <subscriber
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail
+             plone.dexterity.interfaces.IEditFinishedEvent"
+        handler=".subscribers.im_edit_finished"
+        />
+
     <!-- Various -->
     <subscriber
         for="collective.task.interfaces.ITaskContent

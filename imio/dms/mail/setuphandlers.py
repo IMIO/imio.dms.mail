@@ -178,9 +178,10 @@ def postInstall(context):
         site.portal_workflow.doActionFor(tsk_folder, "show_internally")
         logger.info('tasks folder created')
 
-    # enable portal diff on incoming mail
-    api.portal.get_tool('portal_diff').setDiffForPortalType(
-        'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
+    # enable portal diff on mails
+    pdiff = api.portal.get_tool('portal_diff')
+    pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
+    pdiff.setDiffForPortalType('dmsoutgoingmail', {'any': "Compound Diff for Dexterity types"})
 
     # reimport collective.contact.widget's registry step (disable jQueryUI's autocomplete)
     site.portal_setup.runImportStepFromProfile(
@@ -599,11 +600,12 @@ def adaptDefaultPortal(context):
     site.manage_permission('CMFEditions: Revert to previous versions', ('Manager', 'Site Administrator'),
                            acquire=0)
 
-    #History: add history after contact merging
-    #site.manage_permission('CMFEditions: Access previous versions', ('Manager', 'Site Administrator', 'Contributor',
-    #                       'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
-    #site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
-    #                       'Editor', 'Base Field Writer', 'Owner', 'Reviewer'), acquire=0)
+    #History: add history after contact merging.
+    # Member needed if the treating_group is changed to another where current user doesn't have rights
+    site.manage_permission('CMFEditions: Access previous versions', ('Manager', 'Site Administrator', 'Contributor',
+                           'Editor', 'Member', 'Owner', 'Reviewer'), acquire=0)
+    site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
+                           'Editor', 'Member', 'Owner', 'Reviewer'), acquire=0)
 
     # Default roles for own permissions
     site.manage_permission('imio.dms.mail: Write mail base fields', ('Manager', 'Site Administrator'),
