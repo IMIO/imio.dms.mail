@@ -93,6 +93,26 @@ def dmsdocument_modified(mail, event):
         adapted.set_lower_parents_value(field, fields[field])
 
 
+def im_edit_finished(mail, event):
+    """
+    """
+    user = api.user.get_current()
+    if not user.has_permission('View', mail):
+        portal = api.portal.get()
+        redirectToUrl = api.portal.get().absolute_url()
+        col_path = '%s/incoming-mail/mail-searches/all_mails' % portal.absolute_url_path()
+        brains = portal.portal_catalog(path={'query': col_path, 'depth': 0})
+        if brains:
+            redirectToUrl = '%s/incoming-mail/mail-searches#c1=%s' % (redirectToUrl, brains[0].UID)
+        # add a specific portal_message before redirecting the user
+        msg = _('redirected_after_edition',
+                default="You have been redirected here because you do not have "
+                        "access anymore to the element you just edited.")
+        portal['plone_utils'].addPortalMessage(msg, 'warning')
+        response = mail.REQUEST.response
+        response.redirect(redirectToUrl)
+
+
 def dmsdocument_transition(mail, event):
     """
         update indexes after a transition
