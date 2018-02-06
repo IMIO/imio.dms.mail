@@ -142,7 +142,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                                 'encodeur': {'roles': ['Reader']},
                                 'lecteur': {'roles': ['Reader']}}
         # We need to indicate that the object has been modified and must be "saved"
-        fti._p_changed = True
+        lr._p_changed = True
 
         # add collection
         folder = portal['outgoing-mail']['mail-searches']
