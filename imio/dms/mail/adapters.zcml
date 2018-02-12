@@ -116,4 +116,10 @@
         factory="collective.documentgenerator.content.file_representation.WriteFile"
     />
 
+
+    <!-- VALIDATORS -->
+
+    <adapter
+        factory=".adapters.ContactAutocompleteValidator" />
+
 </configure>
