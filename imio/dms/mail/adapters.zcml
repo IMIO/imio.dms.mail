@@ -104,4 +104,10 @@
     />
 
 
+
+    <!-- VALIDATORS -->
+
+    <adapter
+        factory=".adapters.ContactAutocompleteValidator" />
+
 </configure>

@@ -1,12 +1,13 @@
 # encoding: utf-8
 import datetime, time
 from zope.component import adapts, getMultiAdapter, getUtility
-from zope.interface import implements
+from zope.interface import implements, Interface
 from zope.i18n import translate
-from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.interfaces import IVocabularyFactory, IField
 from zope.schema.vocabulary import SimpleVocabulary
 from z3c.form.term import MissingChoiceTermsVocabulary, MissingTermsMixin
 from z3c.form.interfaces import IContextAware, IDataManager
+from z3c.form.validator import SimpleFieldValidator
 
 from AccessControl import getSecurityManager
 from Products.CMFCore.interfaces import IContentish
@@ -27,6 +28,7 @@ from plone.rfc822.interfaces import IPrimaryFieldInfo
 from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
+from collective.contact.widget.interfaces import IContactAutocompleteWidget
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
@@ -573,3 +575,25 @@ class OMMCTV(MissingChoiceTermsVocabulary, MissingTerms):
             return getUtility(IVocabularyFactory, 'imio.dms.mail.OMMailTypesVocabulary')(self.context)
         else:
             return SimpleVocabulary([])
+
+
+#########################
+# validation adapters #
+#########################
+
+class ContactAutocompleteValidator(SimpleFieldValidator):
+
+    adapts(
+        Interface,
+        Interface,
+        Interface,
+        IField,
+        IContactAutocompleteWidget)
+
+    def validate(self, value, force=False):
+        """
+            Force validation when value is empty to force required validation.
+            Because field is considered as not changed.
+        """
+        force = not value and True
+        return super(ContactAutocompleteValidator, self).validate(value, force)
