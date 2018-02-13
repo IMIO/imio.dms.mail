@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import os
 from itertools import cycle
 from plone import api
@@ -51,7 +52,7 @@ def import_scanned(self, number=2):
             file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
 
         irn = internalReferenceIncomingMailDefaultValue(Dummy(portal, portal.REQUEST))
-        doc_metadata = docs[doc]['c']
+        doc_metadata = copy.copy(docs[doc]['c'])
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
             Dummy(portal, portal.REQUEST),
@@ -105,7 +106,7 @@ def import_scanned2(self, number=2):
             file_object = NamedBlobFile(fo.read(), filename=doc)
         count += 1
         irn = internalReferenceOutgoingMailDefaultValue(Dummy(portal, portal.REQUEST))
-        doc_metadata = docs[doc]['c']
+        doc_metadata = copy.copy(docs[doc]['c'])
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
             Dummy(portal, portal.REQUEST),
