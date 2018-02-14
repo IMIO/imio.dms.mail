@@ -20,6 +20,7 @@ from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from imio.dashboard.browser.overrides import IDDocumentGenerationView
 from imio.helpers.barcode import generate_barcode
+from imio.zamqp.core import base
 from imio.zamqp.core.utils import next_scan_id
 
 
@@ -343,7 +344,13 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         Return the generation context for the current document.
         """
         generation_context = super(OMPDGenerationView, self)._get_generation_context(helper_view, pod_template)
-        scan_id = next_scan_id(file_portal_types=['dmsommainfile'], scan_type='2')
+
+        if helper_view.real_context.id == 'test_creation_modele':
+            client_id = base.get_config('client_id')
+            scan_id = '%s2%s00000000' % (client_id[0:2], client_id[2:6])
+        else:
+            scan_id = next_scan_id(file_portal_types=['dmsommainfile'], scan_type='2')
+
         scan_id = 'IMIO{0}'.format(scan_id)
         update_dict_with_validation(generation_context,
                                     {'scan_id': scan_id,
