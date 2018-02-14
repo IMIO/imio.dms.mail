@@ -122,4 +122,9 @@
     <adapter
         factory=".adapters.ContactAutocompleteValidator" />
 
+    <!-- DATAMANAGERS -->
+
+    <adapter
+        factory=".adapters.DateDataManager" />
+
 </configure>
