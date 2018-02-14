@@ -4,7 +4,6 @@ import time
 from zope.component import adapts, getMultiAdapter, getUtility
 from zope.interface import implements, Interface
 from zope.i18n import translate
-from zope.schema.interfaces import IDatetime
 from zope.schema.interfaces import IVocabularyFactory, IField
 from zope.schema.vocabulary import SimpleVocabulary
 from z3c.form.datamanager import AttributeField
@@ -608,8 +607,6 @@ class ContactAutocompleteValidator(SimpleFieldValidator):
 
 class DateDataManager(AttributeField):
     """ DataManager for datetime widget """
-
-    adapts(IDmsDocument, IDatetime)
 
     def set(self, value):
         value_s = value.strftime("%Y%m%d%H%M")
