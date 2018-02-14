@@ -110,4 +110,16 @@
     <adapter
         factory=".adapters.ContactAutocompleteValidator" />
 
+    <!-- DATAMANAGERS -->
+
+    <adapter
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
+             zope.schema.interfaces.IDatetime"
+        factory=".adapters.DateDataManager" />
+
+    <adapter
+        for="collective.dms.basecontent.dmsfile.IDmsFile
+             zope.schema.interfaces.IDatetime"
+        factory=".adapters.DateDataManager" />
+
 </configure>

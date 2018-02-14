@@ -1,10 +1,12 @@
 # encoding: utf-8
-import datetime, time
+import datetime
+import time
 from zope.component import adapts, getMultiAdapter, getUtility
 from zope.interface import implements, Interface
 from zope.i18n import translate
 from zope.schema.interfaces import IVocabularyFactory, IField
 from zope.schema.vocabulary import SimpleVocabulary
+from z3c.form.datamanager import AttributeField
 from z3c.form.term import MissingChoiceTermsVocabulary, MissingTermsMixin
 from z3c.form.interfaces import IContextAware, IDataManager
 from z3c.form.validator import SimpleFieldValidator
@@ -597,3 +599,22 @@ class ContactAutocompleteValidator(SimpleFieldValidator):
         """
         force = not value and True
         return super(ContactAutocompleteValidator, self).validate(value, force)
+
+
+#########################
+# DataManager adapters #
+#########################
+
+class DateDataManager(AttributeField):
+    """ DataManager for datetime widget """
+
+    def set(self, value):
+        value_s = value.strftime("%Y%m%d%H%M")
+        stored = self.query(default=None)
+        stored_s = stored is not None and stored.strftime("%Y%m%d%H%M") or ''
+        # store value if value is really changed
+        if value_s != stored_s:
+            # adding seconds
+            if stored_s:
+                value = value + datetime.timedelta(seconds=stored.second)
+            super(DateDataManager, self).set(value)
