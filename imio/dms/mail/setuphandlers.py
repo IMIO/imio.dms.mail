@@ -1185,10 +1185,11 @@ def addTestMails(context):
     data = dummy(site, site.REQUEST)
     for i in range(1, 10):
         if not 'courrier%d' % i in ifld:
+            scan_date = receptionDateDefaultValue(data)
             params = {'title': 'Courrier %d' % i,
                       'mail_type': 'courrier',
                       'internal_reference_no': internalReferenceIncomingMailDefaultValue(data),
-                      'reception_date': receptionDateDefaultValue(data),
+                      'reception_date': scan_date,
                       'sender': [RelationValue(senders_cycle.next())],
                       'treating_groups': orgas_cycle.next(),
                       'recipient_groups': [],
@@ -1200,7 +1201,7 @@ def addTestMails(context):
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
                 createContentInContainer(mail, 'dmsmainfile', title='', file=file_object,
-                                         scan_id='0509999000000%02d' % i)
+                                         scan_id='0509999000000%02d' % i, scan_date=scan_date)
 
     # tasks
     mail = ifld['courrier1']
