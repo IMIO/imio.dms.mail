@@ -87,6 +87,20 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         else:
             return ''
 
+    def get_separate_titles(self, contact, **kwargs):
+        """ Return a list with separate title for organization and person """
+        ret = [u'', u'']  # org, pers
+        if IPerson.providedBy(contact):
+            ret[1] = contact.get_title()
+        elif IOrganization.providedBy(contact):
+            ret[0] = contact.get_full_title(**kwargs)  # separator=u' / ', first_index=0
+        elif IHeldPosition.providedBy(contact):
+            ret[1] = contact.get_person_title()
+            org = contact.get_organization()
+            if org:
+                ret[0] = org.get_full_title(**kwargs)
+        return ret
+
     def person_title(self, contact, pers_dft=u'Monsieur', org_dft=u'Madame, Monsieur'):
 
         def pers_title(pers):
@@ -185,23 +199,6 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
             for bfile in brains:
                 files.append(bfile.getObject())
         return files
-        # SKIP pages number calculation, now well managed by appy
-                # obj = bfile.getObject()
-                # files.append([obj, self.get_num_pages(obj)])
-        result = []
-        for i, (afile, pages) in enumerate(files):
-            odd = bool(pages % 2)
-            if i == 0:
-                result.append((afile, False, odd))
-            else:
-                pbb = False
-                if files[i-1][1] == 1:
-                    pbb = True
-                result.append((afile, pbb, odd))
-        if result:
-            last = result[-1]
-            result[-1] = (last[0], last[1], False)
-        return result
 
     def get_num_pages(self, obj):
         annot = IAnnotations(obj).get('collective.documentviewer', '')
@@ -241,7 +238,10 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
         self.dp_len = len(self.directory_path)
 
     def get_organizations(self):
-        """ Return a list of organizations, ordered by path, with parent id """
+        """
+            Return a list of organizations, ordered by path, with parent id.
+            [(id, parent_id, obj)]
+        """
         lst = []
         id = 0
         paths = {}
@@ -260,7 +260,10 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
         return lst
 
     def get_persons(self):
-        """ Return a list of persons """
+        """
+            Return a list of persons.
+            [(id, obj)]
+        """
         lst = []
         id = 0
         for brain in self.portal.portal_catalog(portal_type='person', path=self.directory_path,
@@ -273,7 +276,10 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
         return lst
 
     def get_held_positions(self):
-        """ Return a list of held positions """
+        """
+            Return a list of held positions tuples.
+            [(id, person_id, org_id, obj)]
+        """
         lst = []
         id = 0
         for brain in self.portal.portal_catalog(portal_type='held_position', path=self.directory_path, sort_on='path'):
