@@ -3,6 +3,7 @@
 import mocker
 import unittest
 
+from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -31,6 +32,9 @@ class TestDocumentGenerator(unittest.TestCase):
         self.resp_grh = self.chef['responsable-grh']
 
     def test_OMDGHelper(self):
+        """
+            Test all methods of OMDGHelper view
+        """
         view1 = self.omf.reponse1.unrestrictedTraverse('@@document_generation_helper_view')
 
         # Test fmt method
@@ -107,6 +111,9 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertFalse(view1.is_first_doc())
 
     def test_DocumentGenerationOMDashboardHelper(self):
+        """
+            Test all methods of DocumentGenerationOMDashboardHelper view
+        """
         view = self.omf['mail-searches'].unrestrictedTraverse('@@document_generation_helper_view')
 
         # Test is_dashboard
@@ -152,6 +159,9 @@ class TestDocumentGenerator(unittest.TestCase):
         images[0].close()
 
     def test_DocumentGenerationDirectoryHelper(self):
+        """
+            Test all methods of DocumentGenerationDirectoryHelper view
+        """
         view = self.ctct.unrestrictedTraverse('@@document_generation_helper_view')
         # Test get_organisations
         res = [
@@ -176,10 +186,63 @@ class TestDocumentGenerator(unittest.TestCase):
             (3, 1, 19, self.ctct['personnel-folder']['agent']['agent-grh'])]
         self.assertListEqual(view.get_held_positions()[:3], res)
 
+    def test_DashboardDocumentGenerationView(self):
+        """
+            Test all methods of DashboardDocumentGenerationView view
+        """
+        view = self.portal['incoming-mail']['mail-searches'].restrictedTraverse('document-generation')
+        template = self.portal['templates']['d-im-listing']
+        # make template conditions are right
+        #view.request.form['output_format'] = 'odt'
+        #view.request.form['c1[]'] = self.portal['incoming-mail']['mail-searches']['all_mails'].UID()
+        #template.can_be_generated(view.context)
+        #doc = view(template_uid=template.UID(), output_format='odt')
+        hview = self.portal['incoming-mail']['mail-searches'].restrictedTraverse('document_generation_helper_view')
+        self.assertIn('by_tg', view._get_generation_context(hview, template))
 
+    def test_OMPDGenerationView(self):
+        """
+            Test all methods of OMPDGenerationView view
+        """
+        view = self.omf['reponse1'].restrictedTraverse('persistent-document-generation')
+        hview = self.omf['reponse1'].restrictedTraverse('document_generation_helper_view')
+        view.pod_template = self.portal['templates']['om']['base']
+        #view(template_uid=template.UID(), output_format='odt')
 
+        # Test title
+        self.assertEqual(view._get_title('', ''), u'Modèle de base')
 
+        # Test generate_persistent_doc
+        doc = view.generate_persistent_doc(view.pod_template, 'odt')
+        self.assertEqual(doc.portal_type, 'dmsommainfile')
+        self.assertIsNone(doc.scan_user)
 
+        # Test redirects
+        self.assertEqual(view.redirects(doc),
+                         'http://nohost/plone/outgoing-mail/reponse1/012999900000001/external_edit')
 
+        # Test generation context
+        gen_con = view._get_generation_context(hview, view.pod_template)
+        self.assertEqual(gen_con['scan_id'], 'IMIO012999900000002')
+        self.omf['reponse1'].id = 'test_creation_modele'
+        gen_con = view._get_generation_context(hview, view.pod_template)
+        self.assertEqual(gen_con['scan_id'], 'IMIO012999900000000')
 
+    def test_OMMLPDGenerationView(self):
+        """
+            Test all methods of OMMLPDGenerationView view
+        """
+        view = self.omf['reponse1'].restrictedTraverse('mailing-loop-persistent-document-generation')
+        view.pod_template = self.portal['templates']['om']['mailing']
+        view.document = self.omf['reponse1']['1']
+        view.document.title = u'Modèle de base'
+        # Test title
+        self.assertEqual(view._get_title('', ''), u'Publipostage, Modèle de base')
 
+    def test_OutgoingMailLinksViewlet(self):
+        """
+            Test viewlet
+        """
+        viewlet = OutgoingMailLinksViewlet(self.omf['reponse1'], self.omf['reponse1'].REQUEST, None)
+        self.assertFalse(viewlet.available())
+        self.assertEqual(viewlet.get_generation_view_name('', ''), 'persistent-document-generation')

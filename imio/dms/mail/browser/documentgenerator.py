@@ -372,7 +372,7 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
         return u"%s, %s" % (self.pod_template.title, self.document.title)
 
 
-class CategoriesDocumentGenerationView(IDDocumentGenerationView):
+class CategoriesDocumentGenerationView(IDDocumentGenerationView):  # pragma: no cover
     """
         UNUSED
         Change context for folder categories => dashboard collections context
