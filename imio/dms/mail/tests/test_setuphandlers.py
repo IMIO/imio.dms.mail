@@ -1,8 +1,11 @@
 import unittest
-from zope.component import getUtility
-from plone.app.testing import setRoles, TEST_USER_ID
 from Products.CMFCore.utils import getToolByName
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from plone import api
+from plone.app.testing import setRoles, TEST_USER_ID
+from plone.registry.interfaces import IRegistry
+from zope.component import getUtility
 
 
 class TestSetuphandlers(unittest.TestCase):
@@ -34,7 +37,6 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertTrue('Collection (old-style)' in [pt.title for pt in self.portal.allowedContentTypes()])
 
     def test_configureBatchImport(self):
-        from plone.registry.interfaces import IRegistry
         registry = getUtility(IRegistry)
         fs_root_directory = registry['collective.dms.batchimport.batchimport.ISettings.fs_root_directory']
         self.assertTrue(fs_root_directory.endswith('batchimport/toprocess'))
@@ -88,3 +90,39 @@ class TestSetuphandlers(unittest.TestCase):
     def ttest_addTemplates(self):
         self.assertIn('templates', self.portal)
         self.assertEqual(len(self.portal['templates'].listFolderContents()), 2)
+
+    def test_create_persons_from_users(self):
+        pf = self.portal['contacts']['personnel-folder']
+        self.assertListEqual(pf.objectIds(), ['chef', 'dirg', 'agent'])
+        member = self.portal.portal_registration.addMember(id='newuser', password='TestUser=6')
+        member.setMemberProperties({'fullname': 'Leloup Pierre', 'email': 'test@macommune.be'})
+        registry = getUtility(IRegistry)
+        orgs = registry.get(ORGANIZATIONS_REGISTRY)
+        api.group.add_user(groupname='%s_encodeur' % orgs[0], username='newuser')
+        self.portal.portal_setup.runImportStepFromProfile('imio.dms.mail:singles',
+                                                          'imiodmsmail-create-persons-from-users-inverted',
+                                                          run_dependencies=False)
+        # person
+        self.assertListEqual(pf.objectIds(), ['chef', 'dirg', 'agent', 'newuser', 'agent1'])
+        nu_p = pf['newuser']
+        self.assertEqual(nu_p.firstname, 'Pierre')
+        self.assertEqual(nu_p.lastname, 'Leloup')
+        self.assertEqual(nu_p.portal_type, 'person')
+        # held position
+        self.assertIn(orgs[0], nu_p)
+        nu_hp = nu_p[orgs[0]]
+        self.assertEqual(nu_hp.portal_type, 'held_position')
+        self.assertEqual(nu_hp.position.to_path, '/plone/contacts/plonegroup-organization/direction-generale')
+
+
+
+
+
+
+
+
+
+
+
+
+
