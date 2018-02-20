@@ -10,10 +10,14 @@
    <include package="collective.ckeditor"/>
    <include package="collective.iconifieddocumentactions"/>
    <include package="collective.messagesviewlet"/>
+   <include package="collective.documentgenerator"/>
+   <include package="imio.dashboard"/>
+
    <includeDependencies package="." />
 
    <!--include file="configure.zcml"/-->
    <includeOverrides file="overrides.zcml" />
+   <includeOverrides package="imio.dashboard" file="overrides.zcml" />
 
     <genericsetup:registerProfile
       name="testing"

@@ -361,7 +361,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         return generation_context
 
 
-class CategoriesDocumentGenerationView(IDDocumentGenerationView):
+class CategoriesDocumentGenerationView(IDDocumentGenerationView):  # pragma: no cover
     """
         UNUSED
         Change context for folder categories => dashboard collections context
