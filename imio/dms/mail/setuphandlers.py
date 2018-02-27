@@ -985,10 +985,10 @@ def configureContactPloneGroup(context):
         for org in orgas:
             uid = org.UID()
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % uid)
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
             if org.organization_type == 'service':
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_encodeur" % uid)
-                site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
