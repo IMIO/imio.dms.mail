@@ -86,7 +86,9 @@ class TestVocabularies(unittest.TestCase):
         self.assertListEqual(voc_list, [('collective.contact.plonegroup.interfaces.IPloneGroupContact',
                                          'IPloneGroupContact'),
                                         ('collective.contact.plonegroup.interfaces.INotPloneGroupContact',
-                                         'INotPloneGroupContact')])
+                                         'INotPloneGroupContact'),
+                                        ('imio.dms.mail.interfaces.IPersonnelContact',
+                                         'IPersonnelContact')])
 
     def test_OMSenderVocabulary(self):
         voc_inst = OMSenderVocabulary()

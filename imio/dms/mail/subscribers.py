@@ -32,7 +32,7 @@ from collective.task.interfaces import ITaskContainerMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from . import _
-from interfaces import IActionsPanelFolder
+from interfaces import IActionsPanelFolder, IPersonnelContact
 
 logger = logging.getLogger('imio.dms.mail: events')
 
@@ -371,17 +371,27 @@ def mark_contact(contact, event):
             return
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
         return
-    if '/personnel-folder/' in contact.absolute_url_path() or '/plonegroup-organization' in contact.absolute_url_path():
+    if '/plonegroup-organization' in contact.absolute_url_path():
         if not IPloneGroupContact.providedBy(contact):
             alsoProvides(contact, IPloneGroupContact)
         if INotPloneGroupContact.providedBy(contact):
             noLongerProvides(contact, INotPloneGroupContact)
+        # don't check for IPersonnelContact because we can only add organization in this folder
+    elif '/personnel-folder/' in contact.absolute_url_path():
+        if not IPersonnelContact.providedBy(contact):
+            alsoProvides(contact, IPersonnelContact)
+        if INotPloneGroupContact.providedBy(contact):
+            noLongerProvides(contact, INotPloneGroupContact)
+        # don't check for IPloneGroupContact because we can't add organization in this folder
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
     else:
         if not INotPloneGroupContact.providedBy(contact):
             alsoProvides(contact, INotPloneGroupContact)
         if IPloneGroupContact.providedBy(contact):
             noLongerProvides(contact, IPloneGroupContact)
+        if IPersonnelContact.providedBy(contact):
+            noLongerProvides(contact, IPersonnelContact)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
     contact.reindexObject(idxs='object_provides')
 
@@ -393,7 +403,7 @@ def contact_modified(obj, event):
     # at site removal
 #    if IObjectRemovedEvent.providedBy(event):
 #        return
-    if IPloneGroupContact.providedBy(obj):
+    if IPersonnelContact.providedBy(obj):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
