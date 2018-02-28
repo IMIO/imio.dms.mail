@@ -11,6 +11,7 @@ from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPloneGroupContact
+from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users, organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile
 from browser.settings import IImioDmsMailConfig
@@ -140,6 +141,7 @@ class PloneGroupInterfacesVocabulary(object):
         interfaces = [
             IPloneGroupContact,
             INotPloneGroupContact,
+            IPersonnelContact
         ]
 
         terms = [SimpleVocabulary.createTerm(
@@ -160,7 +162,7 @@ class OMSenderVocabulary(object):
         catalog = api.portal.get_tool('portal_catalog')
         brains = catalog.unrestrictedSearchResults(
             portal_type=['held_position'],
-            object_provides='collective.contact.plonegroup.interfaces.IPloneGroupContact',
+            object_provides='imio.dms.mail.interfaces.IPersonnelContact',
             review_state='active',
             sort_on='sortable_title')
         terms = []

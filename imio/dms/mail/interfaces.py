@@ -61,3 +61,9 @@ class IActionsPanelFolderAll(Interface):
 class IOMTemplatesFolder(IBatchActionsMarker):
 
     """Marker interface for folder displaying dg-templates-listing"""
+
+
+class IPersonnelContact(Interface):
+    """
+        Marker interface for personnel contacts.
+    """
