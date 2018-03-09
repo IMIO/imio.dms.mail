@@ -102,6 +102,24 @@ class OMDGHelper(DXDocumentGenerationHelperView):
                 ret[0] = org.get_full_title(**kwargs)
         return ret
 
+    def get_separate_contacts(self, contact, **kwargs):
+        """ Return a list with separate organization and person """
+        ret = {'pers': None, 'org': None, 'root': None, 'chain': None, 'levels': False}
+        if IPerson.providedBy(contact):
+            ret['pers'] = contact
+        elif IOrganization.providedBy(contact):
+            ret['org'] = contact
+        elif IHeldPosition.providedBy(contact):
+            ret['pers'] = contact.get_person()
+            org = contact.get_organization()
+            if org:
+                ret['org'] = org
+        if ret['org']:
+            ret['chain'] = ret['org'].get_organizations_chain()
+            ret['root'] = ret['chain'][0]
+            ret['levels'] = len(ret['chain']) > 1 and True
+        return ret
+
     def person_title(self, contact, pers_dft=u'Monsieur', org_dft=u'Madame, Monsieur'):
 
         def pers_title(pers):
