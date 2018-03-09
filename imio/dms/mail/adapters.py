@@ -54,7 +54,7 @@ default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to
 no_group_validation_states = {
     'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_agent', 'in_treatment', 'closed'],
     'task': ['created', 'to_do', 'in_progress', 'closed'],
-    'dmsoutgoingmail': ['created', 'to_be_signed', 'scanned', 'sent']}
+    'dmsoutgoingmail': ['created', 'to_print', 'to_be_signed', 'scanned', 'sent']}
 
 
 def highest_validation_criterion(portal_type):
