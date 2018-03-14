@@ -37,6 +37,7 @@ from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
+from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
 from collective.documentgenerator.utils import update_templates
 #from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -1625,6 +1626,7 @@ def add_templates(site):
     #     views.append('dg-templates-listing')
     #     ptype.view_methods = tuple(views)
     site.templates.om.layout = 'dg-templates-listing'
+    alsoProvides(site.templates.om, IBelowContentBodyBatchActionsMarker)
 
     def combine_data(data, test=None):
         templates_list = list_templates()
