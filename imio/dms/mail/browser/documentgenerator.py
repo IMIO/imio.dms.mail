@@ -143,6 +143,12 @@ class OMDGHelper(DXDocumentGenerationHelperView):
                 return False
         return True
 
+    def get_treating_groups(self, ):
+        om = self.real_context
+        if not om.treating_groups:
+            return None
+        return uuidToObject(om.treating_groups)
+
 
 class DashboardDGBaseHelper():
     """
