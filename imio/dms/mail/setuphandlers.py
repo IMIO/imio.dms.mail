@@ -45,6 +45,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
 from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
+from ftw.labels.interfaces import ILabelRoot, ILabelJar
 from imio.helpers.content import create, create_NamedBlob
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
@@ -109,6 +110,9 @@ def postInstall(context):
         folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
         im_folder = getattr(site, folderid)
         alsoProvides(im_folder, INextPrevNotNavigable)
+        alsoProvides(im_folder, ILabelRoot)
+        adapted = ILabelJar(im_folder)
+        adapted.add('Lu', 'green', True)
 
         # add mail-searches
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
@@ -136,6 +140,7 @@ def postInstall(context):
         folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
         om_folder = getattr(site, folderid)
         alsoProvides(om_folder, INextPrevNotNavigable)
+        alsoProvides(om_folder, ILabelRoot)
 
         # add mail-searches
         col_folder = add_db_col_folder(om_folder, 'mail-searches', _("Outgoing mail searches"),
@@ -164,6 +169,7 @@ def postInstall(context):
         col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
                                        _("Tasks"))
         alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, ILabelRoot)
         alsoProvides(col_folder, ITaskDashboard)
         createTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
@@ -293,6 +299,8 @@ def createDashboardCollections(folder, collections):
         create some dashboard collections in searches folder
     """
     for i, dic in enumerate(collections):
+        if not dic.get('id'):
+            continue
         if not base_hasattr(folder, dic['id']):
             folder.invokeFactory("DashboardCollection",
                                  dic['id'],
@@ -373,6 +381,14 @@ def createIMailCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-treating-group'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
+                     u'mail_type', u'sender', u'CreationDate', u'actions'),
+            'sort': u'organization_type', 'rev': True, 'count': False},
+        {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'dmsincomingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'CreationDate', u'actions'),
@@ -636,6 +652,14 @@ def adaptDefaultPortal(context):
                                                                    'DashboardPODTemplate', 'SubTemplate',
                                                                    'StyleTemplate', 'dmsommainfile',
                                                                    'MailingLoopTemplate']
+
+    # Default roles for ftw labels
+    site.manage_permission('ftw.labels: Manage Labels Jar', ('Manager', 'Site Administrator'),
+                           acquire=0)
+    site.manage_permission('ftw.labels: Change Labels', ('Manager', 'Site Administrator'),
+                           acquire=0)
+    site.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator', 'Member'),
+                           acquire=0)
 
 
 def changeSearchedTypes(site):

@@ -213,6 +213,14 @@
 
   <javascript id="++resource++collective.js.fancytree/jquery.fancytree.min.js" insert-after="++resource++plonefinder_static/imagewidget.js" />
 
+  <javascript id="collective_eeafaceted_batchactions_js_variables.js" insert-after="++resource++collective.js.fancytree/jquery.fancytree.min.js" />
+
+  <javascript id="++resource++collective.eeafaceted.batchactions/batch_actions.js" insert-after="collective_eeafaceted_batchactions_js_variables.js" />
+
+  <javascript id="++resource++ftw.labels/select2.min.js" insert-after="++resource++collective.eeafaceted.batchactions/batch_actions.js" />
+
+  <javascript id="++resource++ftw.labels/ftw-labels.js" insert-after="++resource++ftw.labels/select2.min.js" />
+
   <!--<javascript id="" insert-after="" />-->
 
 </object>

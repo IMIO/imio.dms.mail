@@ -105,7 +105,21 @@
 
  <stylesheet id="imioapps_IEFixes.css" insert-after="dmsmailskin.css" />
 
- <stylesheet id="imiodmsmail.css" insert-after="imioapps_IEFixes.css" />
+ <stylesheet id="imioapps_ckeditor_moonolisa.css" insert-after="imioapps_IEFixes.css" />
+
+ <stylesheet id="++resource++collective.eeafaceted.batchactions/batch_actions.css" insert-after="imioapps_ckeditor_moonolisa.css" />
+
+ <stylesheet id="++resource++collective.iconifieddocumentactions.static/iconified_document_actions.css" insert-after="++resource++collective.eeafaceted.batchactions/batch_actions.css" />
+
+ <stylesheet id="++resource++collective.js.fancytree.theme-vista/ui.fancytree.css" insert-after="++resource++collective.iconifieddocumentactions.static/iconified_document_actions.css" />
+
+ <stylesheet id="++resource++ftw.labels/select2.css" insert-after="++resource++collective.js.fancytree.theme-vista/ui.fancytree.css" />
+
+ <stylesheet id="++resource++ftw.labels/ftw-labels.css" insert-after="++resource++ftw.labels/select2.css" />
+
+ <stylesheet id="imiodmsmail.css" insert-after="++resource++ftw.labels/ftw-labels.css" />
+
+ <!--stylesheet id="" insert-after="" /-->
 
  <stylesheet id="ploneCustom.css" insert-after="imiodmsmail.css" />
 

@@ -21,6 +21,7 @@ from Products.Five import BrowserView
 
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.utils import organizations_with_suffixes
+from imio.dashboard.utils import getCurrentCollection
 from imio.helpers.cache import get_cachekey_volatile, generate_key
 from browser.settings import IImioDmsMailConfig
 from interfaces import IIMDashboard
@@ -233,6 +234,14 @@ class VariousUtilsMethods(UtilsMethods):
                 logger.info("Copying %s in %s" % (base_model, brain.getPath()))
                 api.content.copy(source=base_model, target=folder)
         return self.context.REQUEST['RESPONSE'].redirect(self.context.absolute_url())
+
+    def unread_criteria(self):
+        """ """
+        cc = getCurrentCollection(self.context)
+        if not cc or cc.id != 'in_copy_unread':
+            return 'FACET-EMPTY'
+        user = api.user.get_current()
+        return {'not': '%s:lu' % user.id}
 
 
 class IdmUtilsMethods(UtilsMethods):

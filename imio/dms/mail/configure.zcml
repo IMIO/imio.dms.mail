@@ -171,6 +171,10 @@
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
 
+    <class class="imio.dms.mail.dmsmail.ImioDmsIncomingMail">
+        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+    </class>
+
     <!-- UTILS METHODS -->
 
     <browser:page
@@ -180,6 +184,7 @@
         permission="zope2.View"
         allowed_attributes="
             initialize_service_folder
+            unread_criteria
         "
     />
 

@@ -59,4 +59,9 @@
         factory="imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.LabelsVocabulary"
+        factory="imio.dms.mail.vocabularies.LabelsVocabulary"
+        />
+
 </configure>

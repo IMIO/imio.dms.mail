@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
+from Products.CMFPlone.utils import safe_unicode
 from zope.component import getUtility, queryUtility
 from zope.i18n import translate
 from zope.interface import implements, alsoProvides
@@ -11,6 +12,7 @@ from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPloneGroupContact
+from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users, organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile
@@ -212,3 +214,25 @@ def encodeur_active_orgs(context):
     return voc
 
 alsoProvides(encodeur_active_orgs, IContextSourceBinder)
+
+
+class LabelsVocabulary(object):
+    """ Labels vocabulary """
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        terms = []
+        try:
+            adapted = ILabelJar(context)
+        except:
+            return SimpleVocabulary(terms)
+        user = api.user.get_current()
+        for label in adapted.list():
+            if label['by_user']:
+                terms.append(SimpleVocabulary.createTerm('%s:%s' % (user.id, label['label_id']),
+                                                         '%s_%s' % (user.id, label['label_id']),
+                                                         safe_unicode(label['title'])))
+            else:
+                terms.append(SimpleVocabulary.createTerm(label['label_id'], label['label_id'],
+                                                         safe_unicode(label['title'])))
+        return SimpleVocabulary(terms)

@@ -78,3 +78,7 @@ msgstr "Titre uniquement"
 #: ../faceted_conf/im-faceted:
 msgid "Treating groups"
 msgstr "Service traitant"
+
+#: ../faceted_conf/om-faceted:
+msgid "Unread"
+msgstr "Non lu"

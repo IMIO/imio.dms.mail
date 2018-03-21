@@ -21,6 +21,11 @@
              name="dmsincomingmail-in-copy-group" />
 
     <adapter for="*"
+             factory=".adapters.IncomingMailInCopyGroupUnreadCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="dmsincomingmail-in-copy-group-unread" />
+
+    <adapter for="*"
              factory=".adapters.OutgoingMailValidationCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="dmsoutgoingmail-validation" />

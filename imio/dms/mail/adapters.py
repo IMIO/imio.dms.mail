@@ -206,6 +206,23 @@ class IncomingMailInCopyGroupCriterion(object):
         return {'recipient_groups': {'query': orgs}}
 
 
+class IncomingMailInCopyGroupUnreadCriterion(object):
+    """
+        Return catalog criteria following recipient group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        user = api.user.get_current()
+        groups = api.group.get_groups(user=user)
+        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        # if orgs is empty list, nothing is returned => ok
+        return {'recipient_groups': {'query': orgs}, 'labels': {'query': {'not': ['%s:lu' % user.id]}}}
+
+
 class OutgoingMailInCopyGroupCriterion(object):
     """
         Return catalog criteria following recipient group member
