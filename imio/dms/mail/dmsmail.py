@@ -154,6 +154,9 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
         if not base_hasattr(the_form.context, 'original_mail_date') or the_form.context.original_mail_date is None:
             the_form.widgets['original_mail_date'].value = ('', '', '')
 
+    # disable left column
+    the_form.request.set('disable_plone.leftcolumn', 1)
+
 
 class IMEdit(DmsDocumentEdit):
     """
@@ -200,9 +203,6 @@ class IMEdit(DmsDocumentEdit):
             #self.widgets['treating_groups'].__dict__['disabled'] = True
             self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
                 [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
-
-        # disable left column
-        self.request.set('disable_plone.leftcolumn', 1)
 
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         if settings.assigned_user_check and not self.context.assigned_user \
@@ -382,6 +382,9 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
     for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
         the_form.widgets[field].mode = HIDDEN_MODE
 
+    # disable left column
+    the_form.request.set('disable_plone.leftcolumn', 1)
+
 
 class OMEdit(DmsDocumentEdit):
     """
@@ -409,9 +412,6 @@ class OMEdit(DmsDocumentEdit):
 
         for field in display_fields:
             self.widgets[field].mode = 'display'
-
-        # disable left column
-        self.request.set('disable_plone.leftcolumn', 1)
 
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
