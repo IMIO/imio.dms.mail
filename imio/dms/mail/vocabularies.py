@@ -171,7 +171,7 @@ class OMSenderVocabulary(object):
         for brain in brains:
             # the userid is stored in mail_type index !!
             terms.append(SimpleVocabulary.createTerm(brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
-                                                     brain.get_full_title))
+                                                     brain.getObject().get_full_title(first_index=1)))
         return SimpleVocabulary(terms)
 
 

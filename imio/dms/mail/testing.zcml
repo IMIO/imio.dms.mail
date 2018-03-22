@@ -11,6 +11,7 @@
    <include package="collective.iconifieddocumentactions"/>
    <include package="collective.messagesviewlet"/>
    <include package="collective.documentgenerator"/>
+   <include package="ftw.labels"/>
    <include package="imio.dashboard"/>
 
    <includeDependencies package="." />

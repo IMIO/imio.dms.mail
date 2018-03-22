@@ -75,7 +75,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(view1.get_full_title(self.grh), u'Mon organisation / Direction générale / GRH')
         self.assertEqual(view1.get_full_title(self.grh, separator=' - ', first_index=1), u'Direction générale - GRH')
         self.assertEqual(view1.get_full_title(self.jc), u'Monsieur Jean Courant')
-        self.assertEqual(view1.get_full_title(self.agent), u'Monsieur Jean Courant (Electrabel - Agent)')
+        self.assertEqual(view1.get_full_title(self.agent), u'Monsieur Jean Courant (Electrabel, Agent)')
 
         # Test get_separate_titles method
         self.assertListEqual(view1.get_separate_titles(None), [u'', u''])

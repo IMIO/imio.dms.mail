@@ -35,7 +35,7 @@ class TestColumns(unittest.TestCase):
                          u"<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank' "
                          "class='pretty_link link-tooltip'><span class='pretty_link_icons'><img title='Held position' "
                          "src='http://nohost/plone/held_position_icon.png' /></span><span class='pretty_link_content'"
-                         ">Monsieur Jean Courant (Electrabel - Agent)</span></a>")
+                         ">Monsieur Jean Courant (Electrabel, Agent)</span></a>")
         # multiple senders
         self.im5.sender.append(RelationValue(self.intids.getId(self.portal['contacts']['sergerobinet'])))
         self.im5.reindexObject(idxs=['sender_index'])
