@@ -109,6 +109,8 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         elif IOrganization.providedBy(contact):
             ret['org'] = contact
         elif IHeldPosition.providedBy(contact):
+            if contact.label:
+                ret['label'] = contact.label
             ret['pers'] = contact.get_person()
             org = contact.get_organization()
             if org:
