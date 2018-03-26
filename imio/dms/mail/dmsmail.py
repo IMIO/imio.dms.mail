@@ -347,6 +347,17 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u'recipient_groups'])
 
+    def wf_condition_may_set_scanned(self, state_change):  # pragma: no cover
+        """ method used in wf condition """
+        # python: here.wf_condition_may_set_scanned(state_change)
+        user = api.user.get_current()
+        if 'expedition' in [g.id for g in api.group.get_groups(user=user)]:
+            return True
+        roles = api.user.get_roles(user=user)
+        if 'Manager' in roles or 'Site Administrator' in roles:
+            return True
+        return False
+
 
 def ImioDmsOutgoingMailUpdateFields(the_form):
     """

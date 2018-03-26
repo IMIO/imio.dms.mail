@@ -292,7 +292,7 @@
  <transition transition_id="back_to_agent" title="om_back_to_agent" new_state="created" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_creation.png" i18n:translate="">om_back_to_agent</action>
   <guard>
-   <guard-permission>Review portal content</guard-permission>
+   <guard-role>Batch importer</guard-role>
   </guard>
  </transition>
  <transition transition_id="back_to_be_signed" title="om_back_to_be_signed" new_state="to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
@@ -340,7 +340,7 @@
  <transition transition_id="set_scanned" title="om_set_scanned" new_state="scanned" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_set_scanned.png" i18n:translate="">om_set_scanned</action>
   <guard>
-   <guard-permission>Review portal content</guard-permission>
+   <guard-role>Batch importer</guard-role>
   </guard>
  </transition>
  <variable variable_id="action" for_catalog="False" for_status="True" update_always="True">
