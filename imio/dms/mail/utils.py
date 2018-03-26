@@ -3,6 +3,7 @@
 from datetime import date, timedelta
 from operator import methodcaller
 #from operator import itemgetter
+from operator import attrgetter
 from collections import OrderedDict
 import logging
 
@@ -85,6 +86,10 @@ def voc_selected_org_suffix_users(org_uid, suffixes, first_member=None):
                 value=member.getUserName(),  # login
                 token=member.getId(),  # id
                 title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
+    if first_member is None:
+        terms.sort(key=attrgetter('title'))
+    else:
+        terms[1:] = sorted(terms[1:], key=attrgetter('title'))
     return SimpleVocabulary(terms)
 
 
