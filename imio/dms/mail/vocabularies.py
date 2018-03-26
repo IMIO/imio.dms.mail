@@ -162,17 +162,29 @@ class OMSenderVocabulary(object):
     @ram.cache(voc_cache_key)
     def __call__(self, context):
         catalog = api.portal.get_tool('portal_catalog')
+        sfs = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                             'omail_sender_firstname_sorting')
+        sort_on = ['firstname', 'lastname']
+        sfs or sort_on.reverse()
+
         brains = catalog.unrestrictedSearchResults(
             portal_type=['held_position'],
             object_provides='imio.dms.mail.interfaces.IPersonnelContact',
-            review_state='active',
-            sort_on='sortable_title')
+            review_state='active')
+
         terms = []
         for brain in brains:
             # the userid is stored in mail_type index !!
-            terms.append(SimpleVocabulary.createTerm(brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
-                                                     brain.getObject().get_full_title(first_index=1)))
-        return SimpleVocabulary(terms)
+            hp = brain.getObject()
+            person = hp.get_person()
+            terms.append((person, hp,
+                          SimpleVocabulary.createTerm(brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
+                                                      brain.getObject().get_full_title(first_index=1))))
+
+        def sort_terms(t):
+            return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title(first_index=1)
+
+        return SimpleVocabulary([term for pers, hp, term in sorted(terms, key=sort_terms)])
 
 
 class OMMailTypesVocabulary(object):

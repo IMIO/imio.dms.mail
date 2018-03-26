@@ -7,6 +7,7 @@ from plone.app.testing import setRoles, TEST_USER_ID, login, logout
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from ..testing import DMSMAIL_INTEGRATION_TESTING
 from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary, AssignedUsersVocabulary,
@@ -63,9 +64,9 @@ class TestVocabularies(unittest.TestCase):
     def test_IMMailTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommand\xe9'),
+        self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'),
                                         (u'email', u'E-mail'), (u'fax', u'Fax'),
-                                        (u'retour-recommande', u'Retour recommand\xe9'), (u'facture', u'Facture')])
+                                        (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
 
     def test_IMActiveMailTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMActiveMailTypesVocabulary')
@@ -93,6 +94,23 @@ class TestVocabularies(unittest.TestCase):
     def test_OMSenderVocabulary(self):
         voc_inst = OMSenderVocabulary()
         self.assertEqual(len(voc_inst(self.omail)), 6)
+        self.assertEqual([s.title for s in voc_inst(self.omail)],
+                         [u'Monsieur Fred Agent (Direction générale / GRH, Agent GRH)',
+                          u'Monsieur Fred Agent (Direction générale / Secrétariat, Agent secrétariat)',
+                          u'Monsieur Maxime DG (Direction générale / GRH, Directeur du personnel)',
+                          u'Monsieur Maxime DG (Direction générale, Directeur général)',
+                          u'Monsieur Michel Chef (Direction générale / GRH, Responsable GRH)',
+                          u'Monsieur Michel Chef (Direction générale / Secrétariat, Responsable secrétariat)'])
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                       'omail_sender_firstname_sorting', False)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+        self.assertEqual([s.title for s in voc_inst(self.omail)],
+                         [u'Monsieur Fred Agent (Direction générale / GRH, Agent GRH)',
+                          u'Monsieur Fred Agent (Direction générale / Secrétariat, Agent secrétariat)',
+                          u'Monsieur Michel Chef (Direction générale / GRH, Responsable GRH)',
+                          u'Monsieur Michel Chef (Direction générale / Secrétariat, Responsable secrétariat)',
+                          u'Monsieur Maxime DG (Direction générale / GRH, Directeur du personnel)',
+                          u'Monsieur Maxime DG (Direction générale, Directeur général)'])
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
