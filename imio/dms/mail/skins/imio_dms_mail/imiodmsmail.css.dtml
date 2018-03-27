@@ -32,11 +32,26 @@
 }
 
 #all-fields, .template-dmsdocument-edit #content-core #fieldset-default {
-/* width: 32% !important;
- float: left;*/
-    float: none !important;
-    width: auto !important;
+    width: 35% !important;
+    float: left;
+    box-sizing: border-box;
+    padding: 0 0 1em;
 }
+
+.template-dmsdocument-edit #content-core #fieldset-default .field,
+.template-dmsdocument-edit #form-widgets-treating_groups,
+.template-dmsdocument-edit #form_widgets_recipient_groups_select_chzn,
+.template-dmsdocument-edit #form_widgets_sender_select_chzn {
+    width: 100% !important;
+}
+
+#form_widgets_sender_select_chzn.chzn-container-single .chzn-single span {
+    white-space: normal;
+}
+
+/*#form_widgets_sender_select_chzn.chzn-container-single .chzn-single {
+    height: auto;  only for this field: doesn't work on select tag
+}*/
 
 .overlay.overlay-ajax.overlay-contact-addnew {
     left: 5px !important;
@@ -56,6 +71,7 @@
     display: None;
 }
 
+
 /* Title 100% */
 
 .template-dmsdocument-edit #formfield-form-widgets-IDublinCore-title {
@@ -69,10 +85,6 @@
 }
 
 /* edit mode of OMdmsmail */
-
-#form_widgets_sender_select_chzn {
-    width: auto !important;
-}
 
 #content #form_widgets_sender_select_chzn a:link,
 #content #form_widgets_sender_select_chzn a:visited {
