@@ -15,7 +15,7 @@
            <element>plone.app.querystring.operation.int.lessThan</element>
            <element>plone.app.querystring.operation.int.largerThan</element>
        </value>
-       <value key="group" i18n:translate="plone">Dates</value>
+       <value key="group" i18n:domain="plone" i18n:translate="">Dates</value>
     </records>
 
 </registry>
