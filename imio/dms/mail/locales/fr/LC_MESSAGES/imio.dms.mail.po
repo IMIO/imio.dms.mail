@@ -25,7 +25,7 @@ msgstr "${title}: créer à partir d'un modèle"
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
-#: ./browser/settings.py:104
+#: ./browser/settings.py:109
 msgid "A user can see all mail titles linked to a contact."
 msgstr "Un utilisateur peut voir tous les intitulés de courrier liés à un contact."
 
@@ -105,7 +105,7 @@ msgstr "Changement d'état par lot"
 msgid "Batch treating group change"
 msgstr "Changement de service traitant par lot"
 
-#: ./browser/settings.py:93
+#: ./browser/settings.py:98
 msgid "Check if a service encoder can edit his service templates."
 msgstr "Cocher si les encodeurs d'un service peuvent modifier les modèles de courrier."
 
@@ -133,7 +133,7 @@ msgstr "Commentaire"
 msgid "Common templates"
 msgstr "Modèles communs"
 
-#: ./browser/settings.py:99
+#: ./browser/settings.py:104
 msgid "Contacts"
 msgstr "Contacts"
 
@@ -157,7 +157,7 @@ msgstr "Le fichier ged doit être au format odt (Libre Office)"
 msgid "Empty value"
 msgstr "Sans valeur"
 
-#: ./browser/settings.py:92
+#: ./browser/settings.py:97
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
@@ -358,6 +358,10 @@ msgstr "Sélectionner les éléments à ajouter (CTRL+clic)"
 #: ./browser/batchactions.py:251
 msgid "Select the values to remove (CTRL+click)"
 msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
+
+#: ./browser/settings.py:92
+msgid "Sender list is sorted on firstname"
+msgstr "La liste des expéditeurs est triée selon le prénom"
 
 #: ./profiles.zcml:30
 msgid "Single steps profile for imio.dms.mail"
@@ -587,7 +591,6 @@ msgstr "Tri sur l'ordre de scan"
 msgid "outgoingdate-batch-action-but"
 msgstr "Changer la date d'expédition"
 
-#: ./browser/tabular_view.py:58
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
 #: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:16
 msgid "recipientgroup-batch-action-but"

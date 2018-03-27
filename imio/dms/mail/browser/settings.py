@@ -62,7 +62,7 @@ class IImioDmsMailConfig(model.Schema):
         'outgoingmail',
         label=_(u"Outgoing mail"),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
-                'org_templates_encoder_can_edit']
+                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit']
     )
 
     omail_types = schema.List(
@@ -85,6 +85,11 @@ class IImioDmsMailConfig(model.Schema):
 
     omail_odt_mainfile = schema.Bool(
         title=_(u'Dms file must be an odt format'),
+        default=True
+    )
+
+    omail_sender_firstname_sorting = schema.Bool(
+        title=_(u'Sender list is sorted on firstname'),
         default=True
     )
 

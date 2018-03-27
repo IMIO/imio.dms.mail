@@ -40,9 +40,11 @@ class TestUtils(unittest.TestCase):
         api.group.add_user(groupname='%s_editeur' % org1, username=TEST_USER_ID)
         self.assertListEqual([t.value for t in voc_selected_org_suffix_users(org1, ['editeur'])],
                              ['agent', TEST_USER_NAME])
-        self.assertListEqual([t.value for t in voc_selected_org_suffix_users(org1, ['editeur'],
-                                                                             first_member=api.user.get_current())],
-                             [TEST_USER_NAME, 'agent'])
+        self.assertEqual([t.title for t in voc_selected_org_suffix_users(org1, ['editeur', 'validateur', 'lecteur'])],
+                         ['Fred Agent', 'Jef Lecteur', 'Michel Chef', 'test-user'])
+        self.assertEqual([t.title for t in voc_selected_org_suffix_users(org1, ['editeur', 'validateur', 'lecteur'],
+                                                                         first_member=api.user.get_current())],
+                         ['test-user', 'Fred Agent', 'Jef Lecteur', 'Michel Chef'])
 
     def test_list_wf_states(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
