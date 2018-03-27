@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-03-21 10:56+0000\n"
+"POT-Creation-Date: 2018-03-27 06:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
-#: ./browser/settings.py:104
+#: ./browser/settings.py:109
 msgid "A user can see all mail titles linked to a contact."
 msgstr ""
 
@@ -105,7 +105,7 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:93
+#: ./browser/settings.py:98
 msgid "Check if a service encoder can edit his service templates."
 msgstr ""
 
@@ -133,7 +133,7 @@ msgstr ""
 msgid "Common templates"
 msgstr ""
 
-#: ./browser/settings.py:99
+#: ./browser/settings.py:104
 msgid "Contacts"
 msgstr ""
 
@@ -157,7 +157,7 @@ msgstr ""
 msgid "Empty value"
 msgstr ""
 
-#: ./browser/settings.py:92
+#: ./browser/settings.py:97
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
@@ -177,7 +177,7 @@ msgstr ""
 msgid "Header template"
 msgstr ""
 
-#: ./testing.zcml:28
+#: ./testing.zcml:29
 msgid "Imio Dms Mail testing profile"
 msgstr ""
 
@@ -357,6 +357,10 @@ msgstr ""
 
 #: ./browser/batchactions.py:251
 msgid "Select the values to remove (CTRL+click)"
+msgstr ""
+
+#: ./browser/settings.py:92
+msgid "Sender list is sorted on firstname"
 msgstr ""
 
 #: ./profiles.zcml:30
@@ -592,7 +596,6 @@ msgstr ""
 msgid "outgoingdate-batch-action-but"
 msgstr ""
 
-#: ./browser/tabular_view.py:58
 #: ./browser/templates/dashboard_batch_actions_viewlet.pt:16
 #: ./browser/templates/om_dashboard_batch_actions_viewlet.pt:16
 msgid "recipientgroup-batch-action-but"
