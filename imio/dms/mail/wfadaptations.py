@@ -8,6 +8,7 @@ from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from setuphandlers import _
 
@@ -131,9 +132,9 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                                 'dir_general': {'roles': ['Reader']}}
         lrtg = lr['treating_groups']
         if 'to_print' not in lrtg:
-            lrtg['to_print'] = {'validateur': {'roles': ['Reader']},
+            lrtg['to_print'] = {'validateur': {'roles': ['Reader', 'Reviewer']},
                                 'editeur': {'roles': ['Reader']},
-                                'encodeur': {'roles': ['Reader']},
+                                'encodeur': {'roles': ['Reader', 'Reviewer']},
                                 'lecteur': {'roles': ['Reader']}}
         lrrg = lr['recipient_groups']
         if 'to_print' not in lrrg:
@@ -172,5 +173,14 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             if col.UID() not in cols:
                 cols.append(col.UID())
                 tmpl.dashboard_collections = cols
+
+        col = folder['om_treating']
+        col.query = [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsoutgoingmail']},
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v':
+                ['proposed_to_service_chief', 'to_print', 'to_be_signed']}]
+
+        invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
 
         return True, ''
