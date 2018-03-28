@@ -49,4 +49,12 @@
   </object>
 
  </object>
+
+ <object name="object_buttons" meta_type="CMF Action Category">
+
+  <object name="delete" meta_type="CMF Action" i18n:domain="plone">
+   <property name="available_expr">python: not globals_view.isPortalOrPortalDefaultPage()</property>
+  </object>
+
+ </object>
 </object>
