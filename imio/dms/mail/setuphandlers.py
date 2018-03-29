@@ -1503,21 +1503,27 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'])
     #logger.info(users)
     for userid in users:
         email = users[userid]['pers'].pop('email')
-        out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, users[userid]['pers']['firstname'],
-                                                                      users[userid]['pers']['lastname']))
-        logger.info(out[-1])
-        if userid not in pf:
-            api.content.create(container=pf, type='person', id=userid, userid=userid, **users[userid]['pers'])
-        pers = pf[userid]
+        exist = portal.portal_catalog(mail_type=userid, portal_type='person')
+        if userid in pf:
+            pers = pf[userid]
+        elif exist:
+            pers = exist[0].getObject()
+        else:
+            out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, users[userid]['pers']['firstname'],
+                                                                          users[userid]['pers']['lastname']))
+            logger.info(out[-1])
+            pers = api.content.create(container=pf, type='person', id=userid, userid=userid, **users[userid]['pers'])
+
+        hps = api.content.find(context=pers, portal_type='held_position')
+        hps = [b.getObject().get_organization() for b in hps]
         for uid in users[userid]['orgs']:
             org = uuidToObject(uid)
-            if not org:
+            if not org or uid in pers or org in hps:
                 continue
             out.append(u" -> hp created with org '%s'" % org.get_full_title())
             logger.info(out[-1])
-            if uid not in pers:
-                api.content.create(container=pers, id=uid, type='held_position', **{'email': email,
-                                   'position': RelationValue(intids.getId(org)), 'use_parent_address': True})
+            api.content.create(container=pers, id=uid, type='held_position', **{'email': email,
+                               'position': RelationValue(intids.getId(org)), 'use_parent_address': True})
     return out
 
 
