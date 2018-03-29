@@ -113,16 +113,12 @@ class TestSetuphandlers(unittest.TestCase):
         nu_hp = nu_p[orgs[0]]
         self.assertEqual(nu_hp.portal_type, 'held_position')
         self.assertEqual(nu_hp.position.to_path, '/plone/contacts/plonegroup-organization/direction-generale')
-
-
-
-
-
-
-
-
-
-
-
-
-
+        # mixed with manual content
+        api.content.rename(obj=nu_p, new_id='newuser_renamed')
+        api.content.rename(obj=nu_hp, new_id='%s_renamed' % orgs[0])
+        api.group.add_user(groupname='%s_encodeur' % orgs[1], username='newuser')
+        self.portal.portal_setup.runImportStepFromProfile('imio.dms.mail:singles',
+                                                          'imiodmsmail-create-persons-from-users-inverted',
+                                                          run_dependencies=False)
+        self.assertListEqual(pf.objectIds(), ['chef', 'dirg', 'agent', 'newuser_renamed', 'agent1'])
+        self.assertListEqual(nu_p.objectIds(), ['%s_renamed' % orgs[0], orgs[1]])
