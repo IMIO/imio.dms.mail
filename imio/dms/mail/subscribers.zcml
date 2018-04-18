@@ -137,4 +137,10 @@
         handler=".subscribers.file_added"
         />
 
+    <subscriber
+        for="imio.dms.mail.interfaces.IMemberAreaFolder
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.member_area_added"
+        />
+
 </configure>

@@ -251,3 +251,14 @@ class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
         view = getMultiAdapter((self.context, self.request), name='actions_panel')
         return view(useIcons=False, showExtEdit=False, showTransitions=True, showOwnDelete=False, showAddContent=True,
                     showActions=True)
+
+
+class ActionsPanelViewletAdd(ActionsPanelViewlet):
+    """
+        Override render method
+    """
+
+    def renderViewlet(self):
+        view = getMultiAdapter((self.context, self.request), name='actions_panel')
+        return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
+                    showActions=False)

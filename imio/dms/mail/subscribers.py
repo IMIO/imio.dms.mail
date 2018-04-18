@@ -414,3 +414,15 @@ def conversion_finished(obj, event):
 
 def file_added(obj, event):
     obj.just_added = True
+
+
+def member_area_added(obj, event):
+    obj.setConstrainTypesMode(1)
+    obj.setLocallyAllowedTypes([])
+    obj.setImmediatelyAddableTypes([])
+    if 'contact-lists' not in obj:
+        folder = api.content.create(container=obj, type='Folder', id='contact-lists',
+                                    title=translate('Contact lists', domain='imio.dms.mail', context=obj.REQUEST))
+        folder.setConstrainTypesMode(1)
+        folder.setLocallyAllowedTypes(['contact_list'])
+        folder.setImmediatelyAddableTypes(['contact_list'])

@@ -563,12 +563,18 @@ def adaptDefaultPortal(context):
     #deactivate tabs auto generation in navtree_properties
     #site.portal_properties.site_properties.disable_folder_sections = True
     #remove default created objects like events, news, ...
-    for id in ('events', 'news', 'Members'):
+    for id in ('events', 'news'):
         try:
             site.manage_delObjects(ids=[id, ])
             logger.info('%s folder deleted' % id)
         except AttributeError:
             continue
+
+    #set member area type
+    site.portal_membership.setMemberAreaType('member_area')
+    site.Members.setConstrainTypesMode(1)
+    site.Members.setLocallyAllowedTypes([])
+    site.Members.setImmediatelyAddableTypes([])
 
     #change the content of the front-page
     try:

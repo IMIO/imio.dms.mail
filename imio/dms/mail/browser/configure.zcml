@@ -105,6 +105,16 @@
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
+
+        <!-- Folder -->
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="Products.ATContentTypes.interfaces.folder.IATBTreeFolder"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButTransitions"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
         <browser:viewlet
             name="imio.actionspanel"
             for="imio.dms.mail.interfaces.IActionsPanelFolder"
@@ -157,6 +167,14 @@
             class="imio.dms.mail.browser.actionspanel.BasicActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="imio.dms.mail.interfaces.IMemberAreaFolder"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAdd"
+            template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
     </configure>
 

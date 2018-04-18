@@ -2,18 +2,25 @@
 
 import logging
 
+from zope.i18n.interfaces import ITranslationDomain
 from zope.component import getUtility
+from zope.component import queryMultiAdapter
 from zope.interface import alsoProvides
 
 from plone import api
+from plone.portlets.interfaces import ILocalPortletAssignmentManager
+from plone.portlets.interfaces import IPortletManager
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone.Portal import member_indexhtml
 from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import _createObjectByType
 
 from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.messagesviewlet.utils import add_message
 #from collective.querynextprev.interfaces import INextPrevNotNavigable
 from ftw.labels.interfaces import ILabelRoot, ILabelJar
+from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
 
 from ..setuphandlers import (_, add_templates, add_transforms, createDashboardCollections, reimport_faceted_config)
@@ -29,6 +36,40 @@ class Migrate_To_2_1(Migrator):
         self.catalog = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
+
+    def set_Members(self):
+        if 'Members' in self.portal:
+            return
+        _createObjectByType('Folder', self.portal, id='Members', title='Users', description="Site Users")
+        util = getUtility(ITranslationDomain, 'plonefrontpage')
+        members = getattr(self.portal, 'Members')
+        members.setTitle(util.translate(u'members-title', target_language='fr', default='Users'))
+        members.setDescription(util.translate(u'members-description', target_language='fr', default="Site Users"))
+        members.unmarkCreationFlag()
+        members.setLanguage('fr')
+        members.setExcludeFromNav(True)
+        members.setConstrainTypesMode(1)
+        members.setLocallyAllowedTypes([])
+        members.setImmediatelyAddableTypes([])
+        members.reindexObject()
+
+        transitions(members, 'show_internally')
+
+        # add index_html to Members area
+        if 'index_html' not in members.objectIds():
+            addPy = members.manage_addProduct['PythonScripts'].manage_addPythonScript
+            addPy('index_html')
+            index_html = getattr(members, 'index_html')
+            index_html.write(member_indexhtml)
+            index_html.ZPythonScript_setTitle('User Search')
+
+        # Block all right column portlets by default
+        manager = getUtility(IPortletManager, name='plone.rightcolumn')
+        if manager is not None:
+            assignable = queryMultiAdapter((members, manager), ILocalPortletAssignmentManager)
+            assignable.setBlacklistStatus('context', True)
+            assignable.setBlacklistStatus('group', True)
+            assignable.setBlacklistStatus('content_type', True)
 
     def update_templates(self):
         # Change addable types
@@ -104,10 +145,19 @@ class Migrate_To_2_1(Migrator):
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')
         self.cleanRegistries()
+
+        self.set_Members()
+
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.documentgenerator:default')
-        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+
+        self.reinstall(['collective.contact.contactlist:default', ])
+
+        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry', 'typeinfo'])
 #        self.portal.portal_workflow.updateRoleMappings()
+
+        #set member area type
+        self.portal.portal_membership.setMemberAreaType('member_area')
 
         add_transforms(self.portal)
 
@@ -119,8 +169,6 @@ class Migrate_To_2_1(Migrator):
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         #self.upgradeAll(omit=['imio.dms.mail:default'])
-
-        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False

@@ -3,6 +3,7 @@
 from collective.eeafaceted.batchactions.interfaces import IBatchActionsMarker
 from collective.contact.core.content.directory import IDirectory
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from plone.dexterity.interfaces import IDexterityContainer
 from zope.interface import Interface
 
 
@@ -61,4 +62,16 @@ class IOMTemplatesFolder(IBatchActionsMarker):
 class IPersonnelContact(Interface):
     """
         Marker interface for personnel contacts.
+    """
+
+
+class IMemberAreaFolder(IDexterityContainer):
+    """
+        Marker interface for member area folder.
+    """
+
+
+class IContactListFolder(Interface):
+    """
+        Marker interface for contact_list folder.
     """
