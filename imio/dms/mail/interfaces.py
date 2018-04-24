@@ -69,9 +69,3 @@ class IMemberAreaFolder(IDexterityContainer):
     """
         Marker interface for member area folder.
     """
-
-
-class IContactListFolder(Interface):
-    """
-        Marker interface for contact_list folder.
-    """

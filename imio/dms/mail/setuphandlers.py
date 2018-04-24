@@ -563,15 +563,17 @@ def adaptDefaultPortal(context):
     #deactivate tabs auto generation in navtree_properties
     #site.portal_properties.site_properties.disable_folder_sections = True
     #remove default created objects like events, news, ...
-    for id in ('events', 'news'):
-        try:
-            site.manage_delObjects(ids=[id, ])
-            logger.info('%s folder deleted' % id)
-        except AttributeError:
-            continue
+    for obj, ids in {site: ('events', 'news'), site.portal_actions.user: ('contact-contactlist-mylists', )}.items():
+        for id in ids:
+            try:
+                obj.manage_delObjects(ids=[id])
+                logger.info("'%s' deleted in '%s'" % (id, obj))
+            except AttributeError:
+                continue
 
     #set member area type
     site.portal_membership.setMemberAreaType('member_area')
+    site.Members.setExcludeFromNav(True)
     site.Members.setConstrainTypesMode(1)
     site.Members.setLocallyAllowedTypes([])
     site.Members.setImmediatelyAddableTypes([])

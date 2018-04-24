@@ -152,14 +152,18 @@ class Migrate_To_2_1(Migrator):
         self.upgradeProfile('collective.documentgenerator:default')
 
         self.reinstall(['collective.contact.contactlist:default', ])
+        if 'contact-contactlist-mylists' in self.portal.portal_actions.user:
+            self.portal.portal_actions.user.manage_delObjects(ids=['contact-contactlist-mylists'])
 
-        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry', 'typeinfo'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'typeinfo'])
 #        self.portal.portal_workflow.updateRoleMappings()
 
         #set member area type
         self.portal.portal_membership.setMemberAreaType('member_area')
 
         add_transforms(self.portal)
+
+        # set unicode on internal_reference_number !!
 
         # update templates
         self.update_templates()
