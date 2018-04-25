@@ -19,5 +19,8 @@
   <type type_id="dmsommainfile">
    <bound-workflow workflow_id=""/>
   </type>
+  <type type_id="contact_list">
+   <bound-workflow workflow_id="collective_contact_core_workflow"/>
+  </type>
  </bindings>
 </object>

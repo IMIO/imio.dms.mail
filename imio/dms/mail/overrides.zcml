@@ -4,6 +4,8 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="imio.dms.mail">
 
+    <include package="z3c.unconfigure" file="meta.zcml" />
+
     <include file="./browser/overrides.zcml" />
 
     <adapter
@@ -32,5 +34,17 @@
         title="The 'workflow' menu - allows the user to execute workflow transitions"
         class=".adapters.WorkflowMenu"
     />
+
+    <unconfigure>
+        <adapter factory="collective.contact.contactlist.browser.excelexport.ContactListDataSource"
+            provides="collective.excelexport.interfaces.IDataSource" />
+
+        <browser:viewlet
+            name="collective.contact.contactlist.excelexport"
+            for="collective.contact.contactlist.interfaces.IContactList"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentBody"
+            class="collective.contact.contactlist.browser.excelexport.ExportLinkViewlet"
+            permission="zope2.View" />
+    </unconfigure>
 
 </configure>

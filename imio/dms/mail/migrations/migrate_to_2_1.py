@@ -155,8 +155,8 @@ class Migrate_To_2_1(Migrator):
         if 'contact-contactlist-mylists' in self.portal.portal_actions.user:
             self.portal.portal_actions.user.manage_delObjects(ids=['contact-contactlist-mylists'])
 
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'typeinfo'])
-#        self.portal.portal_workflow.updateRoleMappings()
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'typeinfo', 'workflow'])
+        self.portal.portal_workflow.updateRoleMappings()
 
         #set member area type
         self.portal.portal_membership.setMemberAreaType('member_area')

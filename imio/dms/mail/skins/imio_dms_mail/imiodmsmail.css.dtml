@@ -146,6 +146,11 @@
     display: none !important;
 }
 
+body.portaltype-contact_list #content-core fieldset#folder-listing,
+#form-widgets-sender-input-fields div.tooltip.pb-ajax fieldset#folder-listing{
+    display: none;
+}
+
 /* Other */
 
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
