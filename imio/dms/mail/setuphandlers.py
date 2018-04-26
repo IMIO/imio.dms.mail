@@ -1630,7 +1630,7 @@ def list_templates():
         (120, 'templates/om/ending', os.path.join(dpath, 'om-ending.odt')),
         (150, 'templates/om/mailing', os.path.join(dpath, 'om-mailing.odt')),
         (200, 'templates/om/d-print', os.path.join(dpath, 'd-print.odt')),
-        (205, 'templates/om/base', os.path.join(dpath, 'om-base.odt')),
+        (205, 'templates/om/main', os.path.join(dpath, 'om-main.odt')),
 #        (210, 'templates/om/common/receipt', os.path.join(dpath, 'om-receipt.odt')),
     ]
 
@@ -1699,7 +1699,7 @@ def add_templates(site):
 
     templates = combine_data(data, test=lambda x: x < 100)
     cids = create(templates, pos=False)
-    exists = 'base' in site['templates']['om']
+    exists = 'main' in site['templates']['om']
 
     data = {
         100: {'title': _(u'Header template'), 'type': 'SubTemplate', 'trans': ['show_internally'],
@@ -1751,7 +1751,7 @@ def add_templates(site):
 
     if not exists:
         site['templates']['om'].moveObjectToPosition('d-print', 1)
-        site['templates']['om'].moveObjectToPosition('base', 10)
+        site['templates']['om'].moveObjectToPosition('main', 10)
         site['templates']['om'].moveObjectToPosition('common', 11)
 
 
