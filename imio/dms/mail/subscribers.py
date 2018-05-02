@@ -476,3 +476,4 @@ def member_area_added(obj, event):
         folder.setConstrainTypesMode(1)
         folder.setLocallyAllowedTypes(['contact_list'])
         folder.setImmediatelyAddableTypes(['contact_list'])
+        folder.manage_setLocalRoles(obj.getId(), ['Reader', 'Contributor', 'Editor'])

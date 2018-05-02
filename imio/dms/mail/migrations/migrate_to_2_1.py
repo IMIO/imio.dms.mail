@@ -19,6 +19,7 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.messagesviewlet.utils import add_message
 #from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.wfadaptations.api import apply_from_registry
 from ftw.labels.interfaces import ILabelRoot, ILabelJar
 from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
@@ -157,6 +158,8 @@ class Migrate_To_2_1(Migrator):
 
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'typeinfo', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
+        # Apply workflow adaptations
+        success, errors = apply_from_registry()
 
         #set member area type
         self.portal.portal_membership.setMemberAreaType('member_area')
