@@ -206,7 +206,7 @@ class TestDocumentGenerator(unittest.TestCase):
         """
         view = self.omf['reponse1'].restrictedTraverse('persistent-document-generation')
         hview = self.omf['reponse1'].restrictedTraverse('document_generation_helper_view')
-        view.pod_template = self.portal['templates']['om']['base']
+        view.pod_template = self.portal['templates']['om']['main']
         #view(template_uid=template.UID(), output_format='odt')
 
         # Test title

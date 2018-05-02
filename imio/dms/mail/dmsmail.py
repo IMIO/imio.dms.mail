@@ -21,6 +21,8 @@ from plone.z3cform.fieldsets.utils import move
 from AccessControl import getSecurityManager
 
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
+from collective.contact.widget.schema import ContactList, ContactChoice
+from collective.contact.widget.source import ContactSourceBinder
 from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
 from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
                                                 originalMailDateDefaultValue, DmsOutgoingMail)
@@ -47,6 +49,15 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     """
         Extended schema for mail type field
     """
+
+    sender = ContactList(
+        title=_cdmsm(u'Sender'),
+        required=True,
+        value_type=ContactChoice(
+            source=ContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
+                                       review_state=['active'])
+        )
+    )
 
     treating_groups = LocalRoleMasterSelectField(
         title=_(u"Treating groups"),
@@ -304,6 +315,15 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         vocabulary=u'imio.dms.mail.OMSenderVocabulary',
     )
     directives.widget('sender', AjaxChosenFieldWidget, populate_select=True)
+
+    recipients = ContactList(
+        title=_cdmsm(u'Recipients'),
+        required=True,
+        value_type=ContactChoice(
+            source=ContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
+                                       review_state=['active'])
+        )
+    )
 
     mail_type = schema.Choice(
         title=_("Mail type"),

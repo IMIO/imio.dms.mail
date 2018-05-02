@@ -5,6 +5,7 @@
    <include package="communesplone.layout"/>
 
    <include package="Products.CMFPlone"/>
+   <include package="plone.app.event"/>
    <include package="imio.dms.mail"/>
    <include package="plonetheme.imioapps"/>
    <include package="collective.ckeditor"/>

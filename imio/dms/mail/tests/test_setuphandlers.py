@@ -30,7 +30,6 @@ class TestSetuphandlers(unittest.TestCase):
         #ltool.setLanguageBindings()
         self.assertFalse(hasattr(self.portal, 'news'))
         self.assertFalse(hasattr(self.portal, 'events'))
-        self.assertFalse(hasattr(self.portal, 'Members'))
         #check front-page modification
         self.assertIn('Gestion du courrier', self.portal['front-page'].Title())
         #check old Topic activation

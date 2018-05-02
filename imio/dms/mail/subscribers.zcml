@@ -8,6 +8,12 @@
     <!-- IDmsDocument -->
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.dmsdocument_added"
+        />
+
+    <subscriber
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.dmsdocument_modified"
         />
@@ -32,6 +38,12 @@
 
     <!-- Various -->
     <subscriber
+        for="plone.dexterity.interfaces.IDexterityContent
+             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+        handler=".subscribers.dexterity_transition"
+      />
+
+    <subscriber
         for="collective.task.interfaces.ITaskContent
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"
         handler=".subscribers.task_transition"
@@ -44,10 +56,22 @@
         />
 
     <subscriber
-        for="plone.dexterity.interfaces.IDexterityContent
-             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
-        handler=".subscribers.dexterity_transition"
-      />
+        for="collective.dms.basecontent.dmsfile.IDmsFile
+             collective.documentviewer.interfaces.IConversionFinishedEvent"
+        handler=".subscribers.conversion_finished"
+        />
+
+    <subscriber
+        for="collective.dms.basecontent.dmsfile.IDmsFile
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.file_added"
+        />
+
+    <subscriber
+        for="imio.dms.mail.interfaces.IMemberAreaFolder
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.member_area_added"
+        />
 
     <!-- Configuration -->
     <subscriber
@@ -123,24 +147,6 @@
         for="collective.contact.widget.interfaces.IContactContent
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.contact_modified"
-        />
-
-    <subscriber
-        for="collective.dms.basecontent.dmsfile.IDmsFile
-             collective.documentviewer.interfaces.IConversionFinishedEvent"
-        handler=".subscribers.conversion_finished"
-        />
-
-    <subscriber
-        for="collective.dms.basecontent.dmsfile.IDmsFile
-             zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".subscribers.file_added"
-        />
-
-    <subscriber
-        for="imio.dms.mail.interfaces.IMemberAreaFolder
-             zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".subscribers.member_area_added"
         />
 
 </configure>

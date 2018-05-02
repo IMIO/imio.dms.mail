@@ -3,6 +3,8 @@
 from Acquisition import aq_get
 from DateTime import DateTime
 import logging
+from z3c.relationfield.event import updateRelations
+from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 from zope.component import getUtility, queryUtility, getAdapter
@@ -37,11 +39,52 @@ from interfaces import IActionsPanelFolder, IPersonnelContact
 logger = logging.getLogger('imio.dms.mail: events')
 
 
+def replace_contact_list(obj, fieldname):
+    """
+        Replace ContactList in contact field
+    """
+    value = getattr(obj, fieldname)
+    if not value:
+        return False
+    newvalue = []
+    objs = []
+    changed = False
+    for relation in value:
+        if not relation.isBroken() and relation.to_object:
+            to_obj = relation.to_object
+            if to_obj.portal_type == 'contact_list':
+                changed = True
+                intids = getUtility(IIntIds)
+                # contact_list.contacts is a ContactList field
+                for rel in to_obj.contacts:
+                    if not rel.isBroken() and rel.to_object and rel.to_object not in objs:
+                        objs.append(rel.to_object)
+                        newvalue.append(RelationValue(intids.getId(rel.to_object)))
+            elif to_obj not in objs:
+                objs.append(to_obj)
+                newvalue.append(relation)
+    if changed:
+        setattr(obj, fieldname, newvalue)
+        updateRelations(obj, None)
+    return changed
+
 # DMSDOCUMENT
+
+
+def dmsdocument_added(mail, event):
+    """
+        Replace ContactList in contact field.
+    """
+    if mail.portal_type == 'dmsincomingmail':
+        replace_contact_list(mail, 'sender')
+    elif mail.portal_type == 'dmsoutgoingmail':
+        replace_contact_list(mail, 'recipients')
+
 
 def dmsdocument_modified(mail, event):
     """
         Replace the batch creator by the editor.
+        Replace ContactList in contact field.
         Updates contained tasks.
     """
     # owner
@@ -75,6 +118,13 @@ def dmsdocument_modified(mail, event):
                 obj.manage_setLocalRoles(userid, roles)
             obj.reindexObject()
         mail.reindexObjectSecurity()
+
+    # contact list
+    if mail.portal_type == 'dmsincomingmail':
+        replace_contact_list(mail, 'sender')
+    elif mail.portal_type == 'dmsoutgoingmail':
+        replace_contact_list(mail, 'recipients')
+
     # tasks
     if not event.descriptions:
         return

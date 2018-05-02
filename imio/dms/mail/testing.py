@@ -2,11 +2,13 @@
 import os
 from Products.CMFPlone.utils import _createObjectByType, base_hasattr
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from plone import api
 from plone.testing import z2
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing.helpers import PloneWithPackageLayer
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import FunctionalTesting
+from zope.i18n import translate
 
 from Testing import ZopeTestCase as ztc
 
@@ -18,9 +20,6 @@ import imio.dms.mail
 class DmsmailLayer(PloneWithPackageLayer):
 
     def setUpPloneSite(self, portal):
-        # we create a front-page document that will be modified in setup
-        _createObjectByType('Document', portal, id='front-page')
-        portal.setDefaultPage('front-page')
         manage_addExternalMethod(portal, 'import_scanned', 'import_scanned', 'imio.dms.mail.demo', 'import_scanned')
         manage_addExternalMethod(portal, 'import_scanned2', 'import_scanned2', 'imio.dms.mail.demo', 'import_scanned2')
         manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',
@@ -31,7 +30,20 @@ class DmsmailLayer(PloneWithPackageLayer):
         # install dmsmail (apply profile)
         sp = portal.portal_properties.site_properties
         sp.default_language = 'fr'
+        # we create a front-page document that will be modified in setup
+        _createObjectByType('Document', portal, id='front-page')
+        portal.setDefaultPage('front-page')
+        _createObjectByType('Folder', portal, id='Members', title='Users', description="Site Users")
+        members = getattr(portal, 'Members')
+        members.setTitle(translate(u'members-title', target_language='fr', domain='plonefrontpage', default='Users'))
+        members.setDescription(translate(u'members-description', target_language='fr', domain='plonefrontpage',
+                                         default="Site Users"))
+        members.unmarkCreationFlag()
+        members.setLanguage('fr')
+        members.reindexObject()
+
         super(DmsmailLayer, self).setUpPloneSite(portal)
+        api.content.transition(obj=members, transition='show_internally')
 
     def setUpZope(self, app, configurationContext):
         ztc.utils.setupCoreSessions(app)

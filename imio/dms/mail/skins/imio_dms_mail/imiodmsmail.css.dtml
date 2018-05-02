@@ -147,7 +147,8 @@
 }
 
 body.portaltype-contact_list #content-core fieldset#folder-listing,
-#form-widgets-sender-input-fields div.tooltip.pb-ajax fieldset#folder-listing{
+#form-widgets-sender-input-fields div.tooltip.pb-ajax fieldset#folder-listing,
+#form-widgets-recipients-input-fields div.tooltip.pb-ajax fieldset#folder-listing{
     display: none;
 }
 
