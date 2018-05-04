@@ -62,6 +62,18 @@ class TaskReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+class ContactsReviewStatesVocabulary(object):
+    """ Contacts states vocabulary """
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        terms = []
+        for state in list_wf_states(context, 'organization'):
+            terms.append(SimpleVocabulary.createTerm(
+                state.id, state.id, translate(state.title, domain='plone', context=context.REQUEST)))
+        return SimpleVocabulary(terms)
+
+
 class AssignedUsersVocabulary(object):
     """ All possible assigned users vocabulary """
     implements(IVocabularyFactory)

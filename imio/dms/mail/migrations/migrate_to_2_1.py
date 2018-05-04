@@ -32,8 +32,9 @@ from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard,
 from imio.dms.mail.interfaces import IContactListsDashboard
 from imio.dms.mail.setuphandlers import (_, add_db_col_folder, add_templates, add_transforms, blacklistPortletCategory,
                                          configure_faceted_folder, createDashboardCollections,
+                                         createContactListsCollections, createHeldPositionsCollections,
                                          createOrganizationsCollections, createStateCollections,
-                                         reimport_faceted_config)
+                                         createPersonsCollections, reimport_faceted_config)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -168,11 +169,38 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(col_folder, IOrganizationsDashboard)
         createOrganizationsCollections(col_folder)
         createStateCollections(col_folder, 'organization')
-        configure_faceted_folder(col_folder, xml='default_dashboard_widgets.xml',
+        configure_faceted_folder(col_folder, xml='organizations-searches.xml',
                                  default_UID=col_folder['all_orgs'].UID())
         # configure outgoing-mail faceted
         configure_faceted_folder(contacts, xml='default_dashboard_widgets.xml',
                                  default_UID=col_folder['all_orgs'].UID())
+        # add held positions searches
+        col_folder = add_db_col_folder(contacts, 'hps-searches', _("Held positions searches"), _("Held positions"))
+        contacts.moveObjectToPosition('hps-searches', 1)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IHeldPositionsDashboard)
+        createHeldPositionsCollections(col_folder)
+        createStateCollections(col_folder, 'held_position')
+        configure_faceted_folder(col_folder, xml='held-positions-searches.xml',
+                                 default_UID=col_folder['all_hps'].UID())
+        # add persons searches
+        col_folder = add_db_col_folder(contacts, 'persons-searches', _("Persons searches"), _("Persons"))
+        contacts.moveObjectToPosition('persons-searches', 2)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IPersonsDashboard)
+        createPersonsCollections(col_folder)
+        createStateCollections(col_folder, 'person')
+        configure_faceted_folder(col_folder, xml='persons-searches.xml',
+                                 default_UID=col_folder['all_persons'].UID())
+        # add contact list searches
+        col_folder = add_db_col_folder(contacts, 'cl-searches', _("Contact list searches"), _("Contact lists"))
+        contacts.moveObjectToPosition('cl-searches', 3)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IContactListsDashboard)
+        createContactListsCollections(col_folder)
+        createStateCollections(col_folder, 'contact_list')
+        configure_faceted_folder(col_folder, xml='contact-lists-searches.xml',
+                                 default_UID=col_folder['all_cls'].UID())
         self.portal.portal_types.directory.filter_content_types = True
 
     def run(self):

@@ -81,3 +81,7 @@ msgstr ""
 #: ../faceted_conf/om-faceted:
 msgid "Unread"
 msgstr ""
+
+#: ../faceted_conf/organizations-searches:
+msgid "Organization types"
+msgstr ""

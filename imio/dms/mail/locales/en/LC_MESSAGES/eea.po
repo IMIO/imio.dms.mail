@@ -39,6 +39,10 @@ msgstr ""
 msgid "Modified"
 msgstr ""
 
+#: ../faceted_conf/organizations-searches:
+msgid "Organization types"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Original mail date"
 msgstr ""

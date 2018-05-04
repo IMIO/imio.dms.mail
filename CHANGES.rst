@@ -6,7 +6,14 @@ Changelog
 
 - Added mailing features.
   [sgeulette]
+
 - Incoming sender field can contain multiple values
+  [sgeulette]
+
+- Added contact lists features.
+  [sgeulette]
+
+- Replaced directory view by dashboard view
   [sgeulette]
 
 2.0 (2017-06-02)

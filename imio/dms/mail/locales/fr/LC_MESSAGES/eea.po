@@ -39,6 +39,10 @@ msgstr "Type de courrier"
 msgid "Modified"
 msgstr "Dernière modification"
 
+#: ../faceted_conf/organizations-searches:
+msgid "Organization types"
+msgstr "Types d'organisation"
+
 #: ../faceted_conf/im-faceted:
 msgid "Original mail date"
 msgstr "Date du courrier"

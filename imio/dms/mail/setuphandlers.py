@@ -218,14 +218,41 @@ def postInstall(context):
         alsoProvides(col_folder, IOrganizationsDashboard)
         createOrganizationsCollections(col_folder)
         createStateCollections(col_folder, 'organization')
-        configure_faceted_folder(col_folder, xml='default_dashboard_widgets.xml',
+        configure_faceted_folder(col_folder, xml='organizations-searches.xml',
                                  default_UID=col_folder['all_orgs'].UID())
         # configure outgoing-mail faceted
         configure_faceted_folder(contacts, xml='default_dashboard_widgets.xml',
                                  default_UID=col_folder['all_orgs'].UID())
+        # add held positions searches
+        col_folder = add_db_col_folder(contacts, 'hps-searches', _("Held positions searches"), _("Held positions"))
+        contacts.moveObjectToPosition('hps-searches', 1)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IHeldPositionsDashboard)
+        createHeldPositionsCollections(col_folder)
+        createStateCollections(col_folder, 'held_position')
+        configure_faceted_folder(col_folder, xml='held-positions-searches.xml',
+                                 default_UID=col_folder['all_hps'].UID())
+        # add persons searches
+        col_folder = add_db_col_folder(contacts, 'persons-searches', _("Persons searches"), _("Persons"))
+        contacts.moveObjectToPosition('persons-searches', 2)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IPersonsDashboard)
+        createPersonsCollections(col_folder)
+        createStateCollections(col_folder, 'person')
+        configure_faceted_folder(col_folder, xml='persons-searches.xml',
+                                 default_UID=col_folder['all_persons'].UID())
+        # add contact list searches
+        col_folder = add_db_col_folder(contacts, 'cl-searches', _("Contact list searches"), _("Contact lists"))
+        contacts.moveObjectToPosition('cl-searches', 3)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IContactListsDashboard)
+        createContactListsCollections(col_folder)
+        createStateCollections(col_folder, 'contact_list')
+        configure_faceted_folder(col_folder, xml='contact-lists-searches.xml',
+                                 default_UID=col_folder['all_cls'].UID())
+
         site.portal_types.directory.filter_content_types = True
         site.portal_workflow.doActionFor(contacts, "show_internally")
-#        blacklistPortletCategory(context, contacts)
         logger.info('contacts folder created')
 
     # enable portal diff on mails
@@ -301,6 +328,15 @@ def createStateCollections(folder, content_type):
                      u'assigned_user', u'CreationDate', u'outgoing_date', u'actions')
         },
         'organization': {
+            '*': (u'select_row', u'pretty_link', u'CreationDate', u'actions'),
+        },
+        'held_position': {
+            '*': (u'select_row', u'pretty_link', u'CreationDate', u'actions'),
+        },
+        'person': {
+            '*': (u'select_row', u'pretty_link', u'CreationDate', u'actions'),
+        },
+        'contact_list': {
             '*': (u'select_row', u'pretty_link', u'CreationDate', u'actions'),
         },
     }
@@ -601,12 +637,46 @@ def createOMailCollections(folder):
 
 
 def createOrganizationsCollections(folder):
-    """
-        create some dashboard collections
-    """
+    """ create some dashboard collections """
     collections = [
         {'id': 'all_orgs', 'tit': _('all_orgs'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['organization']}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'CreationDate', u'actions'),
+            'sort': u'sortable_title', 'rev': False, 'count': False},
+    ]
+    createDashboardCollections(folder, collections)
+
+
+def createHeldPositionsCollections(folder):
+    """ create some dashboard collections """
+    collections = [
+        {'id': 'all_hps', 'tit': _('all_hps'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['held_position']}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'CreationDate', u'actions'),
+            'sort': u'sortable_title', 'rev': False, 'count': False},
+    ]
+    createDashboardCollections(folder, collections)
+
+
+def createPersonsCollections(folder):
+    """ create some dashboard collections """
+    collections = [
+        {'id': 'all_persons', 'tit': _('all_persons'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['person']}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'CreationDate', u'actions'),
+            'sort': u'sortable_title', 'rev': False, 'count': False},
+    ]
+    createDashboardCollections(folder, collections)
+
+
+def createContactListsCollections(folder):
+    """ create some dashboard collections """
+    collections = [
+        {'id': 'all_cls', 'tit': _('all_cls'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['contact_list']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'CreationDate', u'actions'),
             'sort': u'sortable_title', 'rev': False, 'count': False},
