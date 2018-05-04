@@ -76,9 +76,11 @@ def dmsdocument_added(mail, event):
         Replace ContactList in contact field.
     """
     if mail.portal_type == 'dmsincomingmail':
-        replace_contact_list(mail, 'sender')
+        if replace_contact_list(mail, 'sender'):
+            mail.reindexObject(['sender', ])
     elif mail.portal_type == 'dmsoutgoingmail':
-        replace_contact_list(mail, 'recipients')
+        if replace_contact_list(mail, 'recipients'):
+            mail.reindexObject(['recipients', ])
 
 
 def dmsdocument_modified(mail, event):
