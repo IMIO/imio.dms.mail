@@ -420,8 +420,7 @@ def om_organization_type_index(obj):
     # No acquisition pb because organization_type isn't an attr
     if obj.outgoing_date:
         return int(time.mktime(obj.outgoing_date.timetuple()))
-    else:
-        return 0
+    return 0
 
 
 @indexer(IDmsDocument)

@@ -106,7 +106,11 @@ def list_wf_states(context, portal_type):
         'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
                             'proposed_to_agent', 'in_treatment', 'closed'],
         'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
-        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent']
+        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
+        'organization': ['active', 'deactivated'],
+        'person': ['active', 'deactivated'],
+        'held_position': ['active', 'deactivated'],
+        'contact_list': ['active', 'deactivated'],
     }
     if portal_type not in ordered_states:
         return []

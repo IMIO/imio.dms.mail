@@ -6,6 +6,7 @@ from zope.i18n.interfaces import ITranslationDomain
 from zope.component import getUtility
 from zope.component import queryMultiAdapter
 from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 
 from plone import api
 from plone.portlets.interfaces import ILocalPortletAssignmentManager
@@ -16,15 +17,23 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import _createObjectByType
 
 from Products.CPUtils.Extensions.utils import mark_last_version
+from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.messagesviewlet.utils import add_message
-#from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import apply_from_registry
+from eea.facetednavigation.settings.interfaces import IDisableSmartFacets, IHidePloneLeftColumn, IHidePloneRightColumn
 from ftw.labels.interfaces import ILabelRoot, ILabelJar
 from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
 
-from ..setuphandlers import (_, add_templates, add_transforms, createDashboardCollections, reimport_faceted_config)
+from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
+from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
+from imio.dms.mail.interfaces import IContactListsDashboard
+from imio.dms.mail.setuphandlers import (_, add_db_col_folder, add_templates, add_transforms, blacklistPortletCategory,
+                                         configure_faceted_folder, createDashboardCollections,
+                                         createOrganizationsCollections, createStateCollections,
+                                         reimport_faceted_config)
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -143,6 +152,29 @@ class Migrate_To_2_1(Migrator):
         reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
                                 default_UID=self.imf['mail-searches']['all_mails'].UID())
 
+    def update_contacts(self):
+        contacts = self.portal['contacts']
+        blacklistPortletCategory(contacts, contacts, value=False)
+        noLongerProvides(contacts, IHidePloneLeftColumn)
+        noLongerProvides(contacts, IHidePloneRightColumn)
+        noLongerProvides(contacts, IDisableSmartFacets)
+        noLongerProvides(contacts, IDirectoryFacetedNavigable)
+        noLongerProvides(contacts, IActionsEnabled)
+        self.portal.portal_types.directory.filter_content_types = False
+        # add organizations searches
+        col_folder = add_db_col_folder(contacts, 'orgs-searches', _("Organizations searches"), _("Organizations"))
+        contacts.moveObjectToPosition('orgs-searches', 0)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IOrganizationsDashboard)
+        createOrganizationsCollections(col_folder)
+        createStateCollections(col_folder, 'organization')
+        configure_faceted_folder(col_folder, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_orgs'].UID())
+        # configure outgoing-mail faceted
+        configure_faceted_folder(contacts, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_orgs'].UID())
+        self.portal.portal_types.directory.filter_content_types = True
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')
         self.cleanRegistries()
@@ -173,6 +205,9 @@ class Migrate_To_2_1(Migrator):
 
         # do various global adaptations
         self.update_site()
+
+        # replace faceted on contacts
+        self.update_contacts()
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         #self.upgradeAll(omit=['imio.dms.mail:default'])

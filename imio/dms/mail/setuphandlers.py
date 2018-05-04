@@ -33,7 +33,6 @@ from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
 
 from Products.CPUtils.Extensions.utils import configure_ckeditor
-from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
@@ -42,16 +41,15 @@ from collective.documentgenerator.utils import update_templates
 #from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
-from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
-from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
-from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from ftw.labels.interfaces import ILabelRoot, ILabelJar
 from imio.helpers.content import create, create_NamedBlob
 from imio.helpers.security import get_environment, generate_password
 from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
 from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard, IOMTemplatesFolder
+from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
+from imio.dms.mail.interfaces import IContactListsDashboard
 
-from interfaces import IDirectoryFacetedNavigable, IActionsPanelFolder, IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IActionsPanelFolder, IActionsPanelFolderAll
 from utils import list_wf_states
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -185,6 +183,51 @@ def postInstall(context):
         site.portal_workflow.doActionFor(tsk_folder, "show_internally")
         logger.info('tasks folder created')
 
+    # Directory creation
+    if not base_hasattr(site, 'contacts'):
+        position_types = [{'name': u'Président', 'token': 'president'},
+                          {'name': u'Directeur général', 'token': 'directeur-gen'},
+                          {'name': u'Directeur financier', 'token': 'directeur-fin'},
+                          {'name': u'Secrétaire', 'token': 'secretaire'},
+                          {'name': u'Employé', 'token': 'employe'},
+                          ]
+        organization_types = [{'name': u'Non défini', 'token': 'non-defini'},
+                              {'name': u'SA', 'token': 'sa'},
+                              {'name': u'Commune', 'token': 'commune'},
+                              {'name': u'CPAS', 'token': 'cpas'},
+                              {'name': u'Intercommunale', 'token': 'intercommunale'},
+                              {'name': u'Zone de police', 'token': 'zp'},
+                              {'name': u'Zone de secours', 'token': 'zs'},
+                              ]
+        organization_levels = [{'name': u'Non défini', 'token': 'non-defini'},
+                               {'name': u'Département', 'token': 'department'},
+                               {'name': u'Service', 'token': 'service'},
+                               ]
+        params = {'title': "Contacts",
+                  'position_types': position_types,
+                  'organization_types': organization_types,
+                  'organization_levels': organization_levels,
+                  }
+        site.invokeFactory('directory', 'contacts', **params)
+        contacts = site['contacts']
+        site.portal_types.directory.filter_content_types = False
+        # add organizations searches
+        col_folder = add_db_col_folder(contacts, 'orgs-searches', _("Organizations searches"), _("Organizations"))
+        contacts.moveObjectToPosition('orgs-searches', 0)
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IOrganizationsDashboard)
+        createOrganizationsCollections(col_folder)
+        createStateCollections(col_folder, 'organization')
+        configure_faceted_folder(col_folder, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_orgs'].UID())
+        # configure outgoing-mail faceted
+        configure_faceted_folder(contacts, xml='default_dashboard_widgets.xml',
+                                 default_UID=col_folder['all_orgs'].UID())
+        site.portal_types.directory.filter_content_types = True
+        site.portal_workflow.doActionFor(contacts, "show_internally")
+#        blacklistPortletCategory(context, contacts)
+        logger.info('contacts folder created')
+
     # enable portal diff on mails
     pdiff = api.portal.get_tool('portal_diff')
     pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
@@ -238,10 +281,9 @@ def createStateCollections(folder, content_type):
             'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils')."
                                          "proposed_to_serv_chief_col_cond()",
         },
-        'task': {},
         'dmsoutgoingmail': {
             'scanned': "python: object.restrictedTraverse('odm-utils').scanned_col_cond()",
-        }
+        },
     }
     view_fields = {
         'dmsincomingmail': {
@@ -257,7 +299,10 @@ def createStateCollections(folder, content_type):
                   u'assigned_user', u'CreationDate', u'actions'),
             'sent': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'recipients', u'mail_type',
                      u'assigned_user', u'CreationDate', u'outgoing_date', u'actions')
-        }
+        },
+        'organization': {
+            '*': (u'select_row', u'pretty_link', u'CreationDate', u'actions'),
+        },
     }
     showNumberOfItems = {
         'dmsincomingmail': ('created',),
@@ -267,10 +312,10 @@ def createStateCollections(folder, content_type):
         'dmsincomingmail': {
             '*': u"organization_type",
         },
-        'task': {},
+        'task': {'*': u"created"},
         'dmsoutgoingmail': {
             'scanned': u"organization_type",
-        }
+        },
     }
 
     for stateo in list_wf_states(folder, content_type):
@@ -284,10 +329,11 @@ def createStateCollections(folder, content_type):
                                          'v': [state]}],
                                  customViewFields=(state in view_fields[content_type] and
                                                    view_fields[content_type][state] or view_fields[content_type]['*']),
-                                 tal_condition=conditions[content_type].get(state),
+                                 tal_condition=conditions.get(content_type, {}).get(state),
                                  showNumberOfItems=(state in showNumberOfItems.get(content_type, [])),
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                                 sort_on=sort_on[content_type].get(state, sort_on[content_type].get('*', u'created')),
+                                 sort_on=sort_on.get(content_type, {}).get(state, sort_on.get(
+                                     content_type, {}).get('*', u'sortable_title')),
                                  sort_reversed=True, b_size=30, limit=0)
             col = folder[col_id]
             col.setSubject((u'search', ))
@@ -550,6 +596,20 @@ def createOMailCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
                      u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
+    ]
+    createDashboardCollections(folder, collections)
+
+
+def createOrganizationsCollections(folder):
+    """
+        create some dashboard collections
+    """
+    collections = [
+        {'id': 'all_orgs', 'tit': _('all_orgs'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['organization']}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'CreationDate', u'actions'),
+            'sort': u'sortable_title', 'rev': False, 'count': False},
     ]
     createDashboardCollections(folder, collections)
 
@@ -1037,43 +1097,10 @@ def addTestDirectory(context):
         return
     site = context.getSite()
     logger.info('Adding test directory')
-    if base_hasattr(site, 'contacts'):
+    contacts = site['contacts']
+    if base_hasattr(contacts, 'plonegroup-organization'):
         logger.warn('Nothing done: directory contacts already exists. You must first delete it to reimport!')
         return
-
-    # Directory creation
-    position_types = [{'name': u'Président', 'token': 'president'},
-                      {'name': u'Directeur général', 'token': 'directeur-gen'},
-                      {'name': u'Directeur financier', 'token': 'directeur-fin'},
-                      {'name': u'Secrétaire', 'token': 'secretaire'},
-                      {'name': u'Employé', 'token': 'employe'},
-                      ]
-
-    organization_types = [{'name': u'Non défini', 'token': 'non-defini'},
-                          {'name': u'SA', 'token': 'sa'},
-                          {'name': u'Commune', 'token': 'commune'},
-                          {'name': u'CPAS', 'token': 'cpas'},
-                          {'name': u'Intercommunale', 'token': 'intercommunale'},
-                          {'name': u'Zone de police', 'token': 'zp'},
-                          {'name': u'Zone de secours', 'token': 'zs'},
-                          ]
-
-    organization_levels = [{'name': u'Non défini', 'token': 'non-defini'},
-                           {'name': u'Département', 'token': 'department'},
-                           {'name': u'Service', 'token': 'service'},
-                           ]
-
-    params = {'title': "Contacts",
-              'position_types': position_types,
-              'organization_types': organization_types,
-              'organization_levels': organization_levels,
-              }
-    site.invokeFactory('directory', 'contacts', **params)
-    pos = site.getObjectPosition('templates')
-    site.moveObjectToPosition('contacts', pos)
-    contacts = site['contacts']
-    site.portal_workflow.doActionFor(contacts, "show_internally")
-    blacklistPortletCategory(context, contacts)
 
     # create plonegroup-organization
     addOwnOrganization(context)
@@ -1173,10 +1200,6 @@ def addTestDirectory(context):
               'label': u'Agent',
               }
     jeancourant.invokeFactory('held_position', 'agent-electrabel', **params)
-
-    # we configure faceted navigations for contacts
-    alsoProvides(contacts, IDirectoryFacetedNavigable)
-    setupFacetedContacts(site)
 
 
 def addTestMails(context):
@@ -1573,14 +1596,7 @@ def reimport_faceted_config(folder, xml, default_UID=None):
 
 
 def setupFacetedContacts(portal):
-    """Setup facetednav for contacts."""
-    alsoProvides(portal.contacts, IDirectoryFacetedNavigable)
-    alsoProvides(portal.contacts, IActionsEnabled)
-    alsoProvides(portal.contacts, IDisableSmartFacets)
-    # hide portlets columns in contacts
-    alsoProvides(portal.contacts, IHidePloneLeftColumn)
-    alsoProvides(portal.contacts, IHidePloneRightColumn)
-    reimport_faceted_config(portal['contacts'], 'contacts-faceted.xml')
+    """Setup facetednav for contacts. Was used in old migration"""
 
 
 def configure_actions_panel(portal):
@@ -1602,7 +1618,7 @@ def configure_actions_panel(portal):
 
 
 def configure_faceted_folder(folder, xml=None, default_UID=None):
-    """Configure faceted navigation for incoming-mail folder."""
+    """Configure faceted navigation on folder."""
     enableFacetedDashboardFor(folder, xml and os.path.dirname(__file__) + '/faceted_conf/%s' % xml or None)
     if default_UID:
         _updateDefaultCollectionFor(folder, default_UID)

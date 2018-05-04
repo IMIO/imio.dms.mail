@@ -9,7 +9,7 @@ from zope.interface import Interface
 
 class IDirectoryFacetedNavigable(IFacetedNavigable, IDirectory):
 
-    """Marker interface for contacts directory."""
+    """Marker interface for contacts directory. MUST BE REMOVED in next version"""
 
 
 class IExternalContact(Interface):
@@ -42,6 +42,31 @@ class IOMDashboard(IDocsDashboard):
 class ITaskDashboard(IDocsDashboard):
 
     """Marker interface for task dashboard."""
+
+
+class IContactsDashboard(IDocsDashboard):
+
+    """Marker interface for contacts dashboard."""
+
+
+class IOrganizationsDashboard(IContactsDashboard):
+
+    """Marker interface for organisations dashboard."""
+
+
+class IPersonsDashboard(IContactsDashboard):
+
+    """Marker interface for persons dashboard."""
+
+
+class IHeldPositionsDashboard(IContactsDashboard):
+
+    """Marker interface for held positions dashboard."""
+
+
+class IContactListsDashboard(IContactsDashboard):
+
+    """Marker interface for contact lists dashboard."""
 
 
 class IActionsPanelFolder(Interface):
