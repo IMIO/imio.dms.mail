@@ -48,6 +48,7 @@ setup(
         'Products.PasswordStrength',
         'collective.ckeditor',
         'collective.contact.core',
+        'collective.contact.contactlist',
         'collective.contact.duplicated',
         'collective.contact.facetednav',
         'collective.contact.plonegroup',
