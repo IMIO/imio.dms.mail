@@ -34,9 +34,9 @@ from imio.dms.mail.interfaces import IContactListsDashboard
 from imio.dms.mail.setuphandlers import (_, add_db_col_folder, add_templates, add_transforms, blacklistPortletCategory,
                                          configure_faceted_folder, createDashboardCollections,
                                          createContactListsCollections, createHeldPositionsCollections,
-                                         createOrganizationsCollections, createStateCollections,
+                                         createOrganizationsCollections,
                                          createPersonsCollections, reimport_faceted_config)
-
+# createStateCollections
 logger = logging.getLogger('imio.dms.mail')
 
 
@@ -95,7 +95,8 @@ class Migrate_To_2_1(Migrator):
         add_templates(self.portal)
 
         ml_uid = self.portal.restrictedTraverse('templates/om/mailing').UID()
-        for path in ('templates/om/base',):
+        import ipdb; ipdb.set_trace()
+        for path in ('templates/om/main',):
             obj = self.portal.restrictedTraverse(path)
             obj.mailing_loop_template = ml_uid
 
