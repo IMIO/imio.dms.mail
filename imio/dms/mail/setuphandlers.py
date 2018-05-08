@@ -163,11 +163,12 @@ def postInstall(context):
     if not base_hasattr(site, 'tasks'):
         folderid = site.invokeFactory("Folder", id='tasks', title=_(u"Tasks"))
         tsk_folder = getattr(site, folderid)
+        alsoProvides(tsk_folder, INextPrevNotNavigable)
+        alsoProvides(tsk_folder, ILabelRoot)
         # add task-searches
         col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
                                        _("Tasks"))
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, ILabelRoot)
         alsoProvides(col_folder, ITaskDashboard)
         createTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
@@ -217,7 +218,7 @@ def postInstall(context):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IOrganizationsDashboard)
         createOrganizationsCollections(col_folder)
-        createStateCollections(col_folder, 'organization')
+        # createStateCollections(col_folder, 'organization')
         configure_faceted_folder(col_folder, xml='organizations-searches.xml',
                                  default_UID=col_folder['all_orgs'].UID())
         # configure outgoing-mail faceted
@@ -229,7 +230,7 @@ def postInstall(context):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IHeldPositionsDashboard)
         createHeldPositionsCollections(col_folder)
-        createStateCollections(col_folder, 'held_position')
+        # createStateCollections(col_folder, 'held_position')
         configure_faceted_folder(col_folder, xml='held-positions-searches.xml',
                                  default_UID=col_folder['all_hps'].UID())
         # add persons searches
@@ -238,7 +239,7 @@ def postInstall(context):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IPersonsDashboard)
         createPersonsCollections(col_folder)
-        createStateCollections(col_folder, 'person')
+        # createStateCollections(col_folder, 'person')
         configure_faceted_folder(col_folder, xml='persons-searches.xml',
                                  default_UID=col_folder['all_persons'].UID())
         # add contact list searches
@@ -247,7 +248,7 @@ def postInstall(context):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IContactListsDashboard)
         createContactListsCollections(col_folder)
-        createStateCollections(col_folder, 'contact_list')
+        # createStateCollections(col_folder, 'contact_list')
         configure_faceted_folder(col_folder, xml='contact-lists-searches.xml',
                                  default_UID=col_folder['all_cls'].UID())
 
@@ -1456,6 +1457,8 @@ def addOwnOrganization(context):
               'number': u'1',
               }
     contacts.invokeFactory('organization', 'plonegroup-organization', **params)
+    contacts.moveObjectToPosition('plonegroup-organization', 5)
+
     own_orga = contacts['plonegroup-organization']
 
     # Departments and services creation
@@ -1497,6 +1500,7 @@ def addOwnPersonnel(context):
 
     site.portal_types.directory.filter_content_types = False
     contacts.invokeFactory('Folder', 'personnel-folder', title=u'Mon personnel')
+    contacts.moveObjectToPosition('personnel-folder', 4)
     pf = contacts['personnel-folder']
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')

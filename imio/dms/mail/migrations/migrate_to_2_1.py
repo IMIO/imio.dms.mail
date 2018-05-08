@@ -157,6 +157,7 @@ class Migrate_To_2_1(Migrator):
         # ICollectionCategories
         alsoProvides(self.imf['mail-searches'], ICollectionCategories)
         alsoProvides(self.omf['mail-searches'], ICollectionCategories)
+        alsoProvides(self.portal['tasks'], INextPrevNotNavigable)
         alsoProvides(self.portal['tasks']['task-searches'], ICollectionCategories)
 
     def update_contacts(self):
@@ -174,7 +175,7 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IOrganizationsDashboard)
         createOrganizationsCollections(col_folder)
-        createStateCollections(col_folder, 'organization')
+        # createStateCollections(col_folder, 'organization')
         configure_faceted_folder(col_folder, xml='organizations-searches.xml',
                                  default_UID=col_folder['all_orgs'].UID())
         # configure outgoing-mail faceted
@@ -186,7 +187,7 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IHeldPositionsDashboard)
         createHeldPositionsCollections(col_folder)
-        createStateCollections(col_folder, 'held_position')
+        # createStateCollections(col_folder, 'held_position')
         configure_faceted_folder(col_folder, xml='held-positions-searches.xml',
                                  default_UID=col_folder['all_hps'].UID())
         # add persons searches
@@ -195,7 +196,7 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IPersonsDashboard)
         createPersonsCollections(col_folder)
-        createStateCollections(col_folder, 'person')
+        # createStateCollections(col_folder, 'person')
         configure_faceted_folder(col_folder, xml='persons-searches.xml',
                                  default_UID=col_folder['all_persons'].UID())
         # add contact list searches
@@ -204,10 +205,13 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IContactListsDashboard)
         createContactListsCollections(col_folder)
-        createStateCollections(col_folder, 'contact_list')
+        # createStateCollections(col_folder, 'contact_list')
         configure_faceted_folder(col_folder, xml='contact-lists-searches.xml',
                                  default_UID=col_folder['all_cls'].UID())
         self.portal.portal_types.directory.filter_content_types = True
+        # order
+        contacts.moveObjectToPosition('personnel-folder', 4)
+        contacts.moveObjectToPosition('plonegroup-organization', 5)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')
