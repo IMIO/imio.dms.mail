@@ -350,13 +350,6 @@
         />
 
     <browser:page
-        for="collective.eeafaceted.collectionwidget.interfaces.ICollectionCategories"
-        name="document_generation_helper_view"
-        class="imio.dms.mail.browser.documentgenerator.DocumentGenerationCategoriesHelper"
-        permission="zope2.View"
-        />
-
-    <browser:page
         for="imio.dms.mail.interfaces.IDocsDashboard"
         name="document-generation"
         class="imio.dms.mail.browser.documentgenerator.DashboardDocumentGenerationView"

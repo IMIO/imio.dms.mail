@@ -397,23 +397,6 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
     def _get_title(self, doc_name, gen_context):
         return u"%s, %s" % (self.pod_template.title, self.document.title)
 
-
-class CategoriesDocumentGenerationView(IDDocumentGenerationView):  # pragma: no cover
-    """
-        UNUSED
-        Change context for folder categories => dashboard collections context
-    """
-
-    def _get_generation_context(self, helper_view, pod_template):
-        """ """
-        gen_context = super(CategoriesDocumentGenerationView, self)._get_generation_context(helper_view, pod_template)
-        if hasattr(helper_view, 'uids_to_objs'):
-            helper_view.uids_to_objs(gen_context.get('brains', []))
-            if helper_view.sel_type:
-                gen_context['context'] = helper_view.objs[0].aq_parent
-                gen_context['view'] = helper_view.getDGHV(gen_context['context'])
-        return gen_context
-
 ### VIEWLETS ###
 
 
