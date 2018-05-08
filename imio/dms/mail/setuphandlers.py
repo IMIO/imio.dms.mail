@@ -38,7 +38,7 @@ from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefa
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
 from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
 from collective.documentgenerator.utils import update_templates
-#from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
+from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabelRoot, ILabelJar
@@ -71,7 +71,7 @@ def add_db_col_folder(folder, id, title, displayed=''):
     col_folder.setLocallyAllowedTypes(['DashboardCollection'])
     col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
     folder.portal_workflow.doActionFor(col_folder, "show_internally")
-    #alsoProvides(col_folder, ICollectionCategories)
+    alsoProvides(col_folder, ICollectionCategories)
     return col_folder
 
 

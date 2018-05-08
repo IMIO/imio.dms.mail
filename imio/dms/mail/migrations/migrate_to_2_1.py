@@ -19,6 +19,7 @@ from Products.CMFPlone.utils import _createObjectByType
 from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
+from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import apply_from_registry
@@ -152,6 +153,11 @@ class Migrate_To_2_1(Migrator):
         createDashboardCollections(self.imf['mail-searches'], collections)
         reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
                                 default_UID=self.imf['mail-searches']['all_mails'].UID())
+
+        # ICollectionCategories
+        alsoProvides(self.imf['mail-searches'], ICollectionCategories)
+        alsoProvides(self.omf['mail-searches'], ICollectionCategories)
+        alsoProvides(self.portal['tasks']['task-searches'], ICollectionCategories)
 
     def update_contacts(self):
         contacts = self.portal['contacts']
