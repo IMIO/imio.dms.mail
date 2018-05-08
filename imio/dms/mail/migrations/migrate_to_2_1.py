@@ -18,6 +18,7 @@ from Products.CMFPlone.utils import _createObjectByType
 
 from Products.CPUtils.Extensions.utils import mark_last_version
 from collective.contact.facetednav.interfaces import IActionsEnabled
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.messagesviewlet.utils import add_message
@@ -212,6 +213,15 @@ class Migrate_To_2_1(Migrator):
         # order
         contacts.moveObjectToPosition('personnel-folder', 4)
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-addContactListsFolder'])
+        contacts['contact-lists-folder'].manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
+        contacts['contact-lists-folder'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
+        contacts['contact-lists-folder'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
+        folder = contacts['contact-lists-folder']['common']
+        dic = folder.__ac_local_roles__
+        for uid in self.registry[ORGANIZATIONS_REGISTRY]:
+            dic["%s_encodeur" % uid] = ['Contributor']
+        folder._p_changed = True
+
         contacts.moveObjectToPosition('plonegroup-organization', 6)
 
     def run(self):

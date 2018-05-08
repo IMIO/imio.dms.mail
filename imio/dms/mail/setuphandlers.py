@@ -48,8 +48,8 @@ from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollec
 from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard, IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
 from imio.dms.mail.interfaces import IContactListsDashboard
-
 from imio.dms.mail.interfaces import IActionsPanelFolder, IActionsPanelFolderAll
+from imio.helpers.content import transitions
 from utils import list_wf_states
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
@@ -1419,6 +1419,7 @@ def addTestUsersAndGroups(context):
         api.group.create('encodeurs', '1 Encodeurs courrier entrant')
         site['incoming-mail'].manage_addLocalRoles('encodeurs', ['Contributor', 'Reader'])
         site['contacts'].manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
+        site['contacts']['contact-lists-folder'].manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
 #        site['incoming-mail'].reindexObjectSecurity()
         api.group.add_user(groupname='encodeurs', username='scanner')
         api.group.add_user(groupname='encodeurs', username='encodeur')
@@ -1427,10 +1428,13 @@ def addTestUsersAndGroups(context):
         api.group.add_user(groupname='dir_general', username='dirg')
         site['outgoing-mail'].manage_addLocalRoles('dir_general', ['Contributor'])
         site['contacts'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
+        site['contacts']['contact-lists-folder'].manage_addLocalRoles('dir_general',
+                                                                      ['Contributor', 'Editor', 'Reader'])
     if api.group.get('expedition') is None:
         api.group.create('expedition', '1 Expédition courrier sortant')
         site['outgoing-mail'].manage_addLocalRoles('expedition', ['Contributor'])
         site['contacts'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
+        site['contacts']['contact-lists-folder'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
         api.group.add_user(groupname='expedition', username='scanner')
         api.group.add_user(groupname='expedition', username='encodeur')
 
@@ -1590,6 +1594,10 @@ def addContactListsFolder(context):
     clf.setConstrainTypesMode(1)
     clf.setLocallyAllowedTypes(['Folder', 'contact_list'])
     clf.setImmediatelyAddableTypes(['Folder', 'contact_list'])
+    clf.__ac_local_roles_block__ = True
+    # set common
+    clf.invokeFactory("Folder", id='common', title=u"Listes communes")
+    transitions(clf['common'], transitions=['show_internally'])
 
 
 def create_persons_from_users(portal, start='firstname', functions=['encodeur']):

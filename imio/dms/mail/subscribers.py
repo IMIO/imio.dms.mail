@@ -236,7 +236,7 @@ def dexterity_transition(obj, event):
 def contact_plonegroup_change(event):
     """
         Update outgoing-mail folder local roles for encodeur.
-
+        Adding directory by organization in templates/om and contacts/contact-lists-folder
     """
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface == IContactPlonegroupConfig):
@@ -245,7 +245,8 @@ def contact_plonegroup_change(event):
             return
         portal = api.portal.get()
         # contributor on a contact can edit too
-        for folder in (portal['outgoing-mail'], portal['contacts']):
+        for folder in (portal['outgoing-mail'], portal['contacts'],
+                       portal['contacts']['contact-lists-folder']['common']):
             dic = folder.__ac_local_roles__
             for principal in dic.keys():
                 if principal.endswith('_encodeur'):
@@ -256,10 +257,11 @@ def contact_plonegroup_change(event):
         # we add a directory by organization in templates/om
         base_folder = portal.templates.om
         base_model = base_folder.get('main', None)
+        cl_folder = portal.contacts['contact-lists-folder']
         for uid in registry[ORGANIZATIONS_REGISTRY]:
+            obj = uuidToObject(uid)
+            full_title = obj.get_full_title(separator=' - ', first_index=1)
             if uid not in base_folder:
-                obj = uuidToObject(uid)
-                full_title = obj.get_full_title(separator=' - ', first_index=1)
                 folder = api.content.create(container=base_folder, type='Folder', id=uid, title=full_title)
                 alsoProvides(folder, IActionsPanelFolder)
                 roles = ['Reader']
@@ -271,6 +273,13 @@ def contact_plonegroup_change(event):
                 if base_model and base_model.has_been_modified():
                     logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
                     api.content.copy(source=base_model, target=folder)
+            if uid not in cl_folder:
+                folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
+                alsoProvides(folder, IActionsPanelFolder)
+                roles = ['Reader', 'Contributor', 'Editor']
+                api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
+                folder.reindexObjectSecurity()
+                alsoProvides(folder, INextPrevNotNavigable)
 
 
 def ploneGroupContactChanged(organization, event):
