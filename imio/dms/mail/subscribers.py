@@ -183,7 +183,8 @@ def dexterity_transition(obj, event):
 
 def contact_plonegroup_change(event):
     """
-        Update outgoing-mail folder local roles for encodeur
+        Update outgoing-mail folder local roles for encodeur.
+
     """
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface == IContactPlonegroupConfig):
@@ -202,7 +203,7 @@ def contact_plonegroup_change(event):
             folder._p_changed = True
         # we add a directory by organization in templates/om
         base_folder = portal.templates.om
-        base_model = base_folder.get('base', None)
+        base_model = base_folder.get('main', None)
         for uid in registry[ORGANIZATIONS_REGISTRY]:
             if uid not in base_folder:
                 obj = uuidToObject(uid)

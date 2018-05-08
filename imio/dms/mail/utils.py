@@ -226,7 +226,7 @@ class VariousUtilsMethods(UtilsMethods):
             return
         portal = api.portal.get()
         om_folder = portal['templates']['om']
-        base_model = om_folder.get('base', None)
+        base_model = om_folder.get('main', None)
         if not base_model:
             return
         brains = portal.portal_catalog(portal_type='Folder', path={'query': '/'.join(om_folder.getPhysicalPath()),
