@@ -141,7 +141,7 @@ msgstr "Recherches listes de contact"
 #: ./migrations/migrate_to_2_1.py:196
 #: ./setuphandlers.py:245
 msgid "Contact lists"
-msgstr "Listes de contacts"
+msgstr "Listes de contact"
 
 #: ./browser/settings.py:104
 msgid "Contacts"

@@ -1564,6 +1564,34 @@ def addOwnPersonnel(context):
                                **fct_dic)
 
 
+def addContactListsFolder(context):
+    """
+        Add contacts list folder in directory
+    """
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    site = context.getSite()
+    contacts = site['contacts']
+
+    if base_hasattr(contacts, 'contact-lists-folder'):
+        if contacts['contact-lists-folder'].portal_type != 'Folder':
+            raise Exception('Object contact-lists-folder already exists')
+        logger.warn('Nothing done: contact-lists-folder already exists. You must first delete it to reimport!')
+        return
+
+    site.portal_types.directory.filter_content_types = False
+    contacts.invokeFactory('Folder', 'contact-lists-folder', title=u'Listes de contact')
+    contacts.moveObjectToPosition('contact-lists-folder', 5)
+    clf = contacts['contact-lists-folder']
+    site.portal_types.directory.filter_content_types = True
+    api.content.transition(obj=clf, transition='show_internally')
+    alsoProvides(clf, IActionsPanelFolder)
+    # Set restrictions
+    clf.setConstrainTypesMode(1)
+    clf.setLocallyAllowedTypes(['Folder', 'contact_list'])
+    clf.setImmediatelyAddableTypes(['Folder', 'contact_list'])
+
+
 def create_persons_from_users(portal, start='firstname', functions=['encodeur']):
     """
         create own personnel from plone users

@@ -95,7 +95,6 @@ class Migrate_To_2_1(Migrator):
         add_templates(self.portal)
 
         ml_uid = self.portal.restrictedTraverse('templates/om/mailing').UID()
-        import ipdb; ipdb.set_trace()
         for path in ('templates/om/main',):
             obj = self.portal.restrictedTraverse(path)
             obj.mailing_loop_template = ml_uid
@@ -212,7 +211,8 @@ class Migrate_To_2_1(Migrator):
         self.portal.portal_types.directory.filter_content_types = True
         # order
         contacts.moveObjectToPosition('personnel-folder', 4)
-        contacts.moveObjectToPosition('plonegroup-organization', 5)
+        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-addContactListsFolder'])
+        contacts.moveObjectToPosition('plonegroup-organization', 6)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')

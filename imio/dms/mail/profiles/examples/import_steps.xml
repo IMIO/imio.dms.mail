@@ -50,11 +50,19 @@ Add french configuration for imio.dms.mail
 Add french configuration for collective.contact.plonegroup
 </import-step>
 <import-step
+            id="imiodmsmail-addContactListsFolder"
+            handler="imio.dms.mail.setuphandlers.addContactListsFolder"
+            title="Add contacts list folder in directory"
+            version="2018-05-08T15:00:00.00000">
+           <dependency step="imiodmsmail-addOwnPersonnel"/>
+Add contacts list folder in directory
+</import-step>
+<import-step
             id="imiodmsmail-addOwnOrganization"
             handler="imio.dms.mail.setuphandlers.addOwnOrganization"
             title="Add test own organization for imio.dms.mail"
             version="2013-03-14T15:00:00.00000">
-           <dependency step="imiodmsmail-addTestDirectory"/>
+           <dependency step="imiodmsmail-addContactListsFolder"/>
 Add test own organization for imio.dms.mail
 </import-step>
 <import-step
