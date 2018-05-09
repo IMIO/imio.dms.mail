@@ -9,6 +9,7 @@ from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
 
 from plone import api
+from plone.app.uuid.utils import uuidToObject
 from plone.portlets.interfaces import ILocalPortletAssignmentManager
 from plone.portlets.interfaces import IPortletManager
 from plone.registry.interfaces import IRegistry
@@ -31,7 +32,7 @@ from imio.migrator.migrator import Migrator
 
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
-from imio.dms.mail.interfaces import IContactListsDashboard
+from imio.dms.mail.interfaces import IContactListsDashboard, IActionsPanelFolderAll
 from imio.dms.mail.setuphandlers import (_, add_db_col_folder, add_templates, add_transforms, blacklistPortletCategory,
                                          configure_faceted_folder, createDashboardCollections,
                                          createContactListsCollections, createHeldPositionsCollections,
@@ -212,16 +213,25 @@ class Migrate_To_2_1(Migrator):
         self.portal.portal_types.directory.filter_content_types = True
         # order
         contacts.moveObjectToPosition('personnel-folder', 4)
+        # contact lists folder
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-addContactListsFolder'])
-        contacts['contact-lists-folder'].manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
-        contacts['contact-lists-folder'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
-        contacts['contact-lists-folder'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
-        folder = contacts['contact-lists-folder']['common']
-        dic = folder.__ac_local_roles__
+        cl_folder = contacts['contact-lists-folder']
+        cl_folder.manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
+        cl_folder.manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
+        cl_folder.manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
+        dic = cl_folder['common'].__ac_local_roles__
         for uid in self.registry[ORGANIZATIONS_REGISTRY]:
             dic["%s_encodeur" % uid] = ['Contributor']
-        folder._p_changed = True
-
+            if uid not in cl_folder:
+                obj = uuidToObject(uid)
+                full_title = obj.get_full_title(separator=' - ', first_index=1)
+                folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
+                alsoProvides(folder, IActionsPanelFolderAll)
+                alsoProvides(folder, INextPrevNotNavigable)
+                roles = ['Contributor']
+                api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
+                folder.reindexObjectSecurity()
+        cl_folder['common']._p_changed = True
         contacts.moveObjectToPosition('plonegroup-organization', 6)
 
     def run(self):

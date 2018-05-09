@@ -1590,6 +1590,7 @@ def addContactListsFolder(context):
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=clf, transition='show_internally')
     alsoProvides(clf, IActionsPanelFolder)
+    alsoProvides(clf, INextPrevNotNavigable)
     # Set restrictions
     clf.setConstrainTypesMode(1)
     clf.setLocallyAllowedTypes(['Folder', 'contact_list'])
@@ -1598,6 +1599,8 @@ def addContactListsFolder(context):
     # set common
     clf.invokeFactory("Folder", id='common', title=u"Listes communes")
     transitions(clf['common'], transitions=['show_internally'])
+    alsoProvides(clf['common'], IActionsPanelFolder)
+    alsoProvides(clf['common'], INextPrevNotNavigable)
 
 
 def create_persons_from_users(portal, start='firstname', functions=['encodeur']):

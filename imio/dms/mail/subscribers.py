@@ -34,7 +34,7 @@ from collective.task.interfaces import ITaskContainerMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 
 from . import _
-from interfaces import IActionsPanelFolder, IPersonnelContact
+from interfaces import IActionsPanelFolder, IPersonnelContact, IActionsPanelFolderAll
 
 logger = logging.getLogger('imio.dms.mail: events')
 
@@ -264,22 +264,22 @@ def contact_plonegroup_change(event):
             if uid not in base_folder:
                 folder = api.content.create(container=base_folder, type='Folder', id=uid, title=full_title)
                 alsoProvides(folder, IActionsPanelFolder)
+                alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader']
                 if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
                     roles += ['Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
-                alsoProvides(folder, INextPrevNotNavigable)
                 if base_model and base_model.has_been_modified():
                     logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
                     api.content.copy(source=base_model, target=folder)
             if uid not in cl_folder:
                 folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
-                alsoProvides(folder, IActionsPanelFolder)
+                alsoProvides(folder, IActionsPanelFolderAll)
+                alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader', 'Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
-                alsoProvides(folder, INextPrevNotNavigable)
 
 
 def ploneGroupContactChanged(organization, event):
