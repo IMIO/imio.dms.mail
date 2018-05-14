@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<object name="contact_list">
+ <property name="behaviors" purge="False">
+  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+ </property>
+</object>
