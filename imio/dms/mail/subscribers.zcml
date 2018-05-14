@@ -144,6 +144,12 @@
         />
 
     <subscriber
+        for="collective.contact.contactlist.interfaces.IContactList
+             zope.lifecycleevent.interfaces.IObjectMovedEvent"
+        handler=".subscribers.mark_contact"
+        />
+
+    <subscriber
         for="collective.contact.widget.interfaces.IContactContent
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.contact_modified"
