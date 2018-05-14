@@ -300,15 +300,15 @@ def ploneGroupContactChanged(organization, event):
     portal = api.portal.getSite()
     pcat = portal.portal_catalog
     brains = pcat(portal_type='organization', path=organization_path)
-    om_folder = portal['templates']['om']
     for brain in brains:
         obj = brain.getObject()
         full_title = obj.get_full_title(separator=' - ', first_index=1)
-        folder = om_folder.get(brain.UID)
-        if folder and folder.title != full_title:
-            folder.title = full_title
-            folder.reindexObject(idxs=['Title', 'SearchableText'])
-            modified(folder)
+        for base_folder in (portal['templates']['om'], portal.contacts['contact-lists-folder']):
+            folder = base_folder.get(brain.UID)
+            if folder and folder.title != full_title:
+                folder.title = full_title
+                folder.reindexObject(idxs=['Title', 'SearchableText', 'sortable_title'])
+                modified(folder)
 
 
 def user_related_modification(event):

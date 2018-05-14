@@ -55,7 +55,7 @@ class EmergencyZoneAdaptation(WorkflowAdaptationBase):
             return False, "'incoming-mail/mail-searches/searchfor_proposed_to_manager' not found"
         if collection.Title().endswith(' DG'):
             collection.setTitle(collection.Title().replace(' DG', ' CZ'))
-            collection.reindexObject(['Title', 'SearchableText'])
+            collection.reindexObject(['Title', 'SearchableText', 'sortable_title'])
         return True, ''
 
 
