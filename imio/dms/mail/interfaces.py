@@ -44,22 +44,23 @@ class ITaskDashboard(IDocsDashboard):
     """Marker interface for task dashboard."""
 
 
-class IContactsDashboard(IDocsDashboard):
+#class IContactsDashboard(IDocsDashboard):  #interference with current bacth actions
+class IContactsDashboard(Interface):
 
     """Marker interface for contacts dashboard."""
 
 
-class IOrganizationsDashboard(IContactsDashboard):
+class IOrganizationsDashboard(IContactsDashboard, IBatchActionsMarker):
 
     """Marker interface for organisations dashboard."""
 
 
-class IPersonsDashboard(IContactsDashboard):
+class IPersonsDashboard(IContactsDashboard, IBatchActionsMarker):
 
     """Marker interface for persons dashboard."""
 
 
-class IHeldPositionsDashboard(IContactsDashboard):
+class IHeldPositionsDashboard(IContactsDashboard, IBatchActionsMarker):
 
     """Marker interface for held positions dashboard."""
 

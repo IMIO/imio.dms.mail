@@ -18,3 +18,7 @@ msgstr ""
 #. Default: "Change state"
 msgid "copy-to-batch-action-but"
 msgstr ""
+
+#. Default: "Merge contacts"
+msgid "duplicated-batch-action-but"
+msgstr ""

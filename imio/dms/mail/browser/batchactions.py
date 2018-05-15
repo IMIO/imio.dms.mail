@@ -5,6 +5,7 @@ import datetime
 from operator import methodcaller
 
 from zope import schema
+from zope.component import getMultiAdapter
 from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
 from zope.lifecycleevent import modified, Attributes
 
@@ -463,3 +464,16 @@ class CopyToBatchActionForm(BaseBatchActionForm):
                 obj = brain.getObject()
                 for target in targets:
                     api.content.copy(source=obj, target=target, safe_id=True)
+
+
+class DuplicatedBatchActionForm(BaseBatchActionForm):
+    """ Button to manage duplicated contacts """
+
+    overlay = False
+
+    def __call__(self):
+        self.request['uids'] = self.request['uids'].split(',')
+        self.request['no_redirect'] = 1
+        view = getMultiAdapter((self.context.getParentNode(), self.request), name='merge-contacts')
+        with api.env.adopt_roles(['Manager']):
+            return view()

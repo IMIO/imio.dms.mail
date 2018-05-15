@@ -201,11 +201,29 @@
             permission="zope2.View" />
     </configure>
 
-    <!-- BATCH ACTIONS -->
+    <!-- BATCH ACTIONS NG -->
     <browser:page
         for="imio.dms.mail.interfaces.IOMTemplatesFolder"
         name="copy-to-batch-action"
         class=".batchactions.CopyToBatchActionForm"
+        permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOrganizationsDashboard"
+        name="duplicated-batch-action"
+        class=".batchactions.DuplicatedBatchActionForm"
+        permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IPersonsDashboard"
+        name="duplicated-batch-action"
+        class=".batchactions.DuplicatedBatchActionForm"
+        permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IHeldPositionsDashboard"
+        name="duplicated-batch-action"
+        class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
 
     <!-- BATCH ACTIONS -->
