@@ -1,13 +1,12 @@
 <tal:defines define="member context/plone_portal_state/member;
-                     idm_utils context/@@idm-utils;
-                     folder idm_utils/get_im_folder;
+                     folder python:view.portal['incoming-mail'];
                      portal_url view/portal_url"
              i18n:domain="imio.dms.mail">
     <div class="portlet_add_icons">
         <a id="newIMCreation" href="#"
            style="display: inline;"
            tal:condition="python: member.has_permission('collective.dms.mailcontent: Add Incoming Mail', folder)"
-           tal:attributes="href string:${folder/absolute_url}/++add++dmsincomingmail?no_redirect=1">
+           tal:attributes="href string:$portal_url/incoming-mail/++add++dmsincomingmail?no_redirect=1">
             <img tal:attributes="src string:$portal_url/++resource++dmsincomingmail_icon.png"
               title="create_im" i18n:attributes="title" />
         </a>

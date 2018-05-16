@@ -1,13 +1,12 @@
 <tal:defines define="member context/plone_portal_state/member;
-                     odm_utils context/@@odm-utils;
-                     folder odm_utils/get_om_folder;
+                     folder python:view.portal['outgoing-mail'];
                      portal_url view/portal_url"
              i18n:domain="imio.dms.mail">
     <div class="portlet_add_icons">
         <a id="newOMCreation" href="#"
            style="display: inline;"
            tal:condition="python: member.has_permission('collective.dms.mailcontent: Add Outgoing Mail', folder)"
-           tal:attributes="href string:${folder/absolute_url}/++add++dmsoutgoingmail?no_redirect=1">
+           tal:attributes="href string:$portal_url/outgoing-mail/++add++dmsoutgoingmail?no_redirect=1">
             <img tal:attributes="src string:$portal_url/++resource++dmsoutgoingmail_icon.png"
               title="create_om" i18n:attributes="title" />
         </a>
