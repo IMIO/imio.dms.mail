@@ -531,6 +531,14 @@ msgstr "Change assigned user"
 msgid "backrefs_viewlet_title"
 msgstr "Contact used by"
 
+#: ./browser/templates/category_contact.pt:11
+msgid "create_contact"
+msgstr "Create a contact"
+
+#: ./browser/templates/category_contact.pt:11
+msgid "create_contact_list"
+msgstr "Create a contact list"
+
 #: ./browser/templates/category_im.pt:11
 msgid "create_im"
 msgstr "Create an incoming mail"
@@ -538,6 +546,14 @@ msgstr "Create an incoming mail"
 #: ./browser/templates/category_om.pt:11
 msgid "create_om"
 msgstr "Create an outgoing mail"
+
+#: ./browser/templates/category_contact.pt:11
+msgid "create_organization"
+msgstr "Create an organization"
+
+#: ./browser/templates/category_contact.pt:11
+msgid "create_person"
+msgstr Create a person"
 
 #: ./migrations/migrate_to_2_0.py:200
 #: ./migrations/migrate_to_2_1.py:116

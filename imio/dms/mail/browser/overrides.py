@@ -15,7 +15,7 @@ from plone import api
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
 
-from ..interfaces import IIMDashboard, IOMDashboard
+from imio.dms.mail.interfaces import IIMDashboard, IOMDashboard, IContactsDashboard
 
 
 class IMRenderCategoryView(RenderCategoryView):
@@ -25,12 +25,21 @@ class IMRenderCategoryView(RenderCategoryView):
       are displayed to add items or meetings.
     '''
 
+    def contact_infos(self):
+        return {'orgs-searches': {'typ': 'organization', 'add': '++add++organization', 'img': 'organization_icon.png'},
+                'hps-searches': {'typ': 'contact', 'add': '@@add-contact', 'img': 'create_contact.png'},
+                'persons-searches': {'typ': 'person', 'add': '++add++person', 'img': 'person_icon.png'},
+                'cl-searches': {'typ': 'contact_list', 'add': '++add++contact_list', 'img': 'directory_icon.png'}
+                }
+
     def __call__(self, widget):
         self.widget = widget
         if IIMDashboard.providedBy(self.context):
             return ViewPageTemplateFile("templates/category_im.pt")(self)
-        if IOMDashboard.providedBy(self.context):
+        elif IOMDashboard.providedBy(self.context):
             return ViewPageTemplateFile("templates/category_om.pt")(self)
+        elif IContactsDashboard.providedBy(self.context):
+            return ViewPageTemplateFile("templates/category_contact.pt")(self)
         return ViewPageTemplateFile("templates/category.pt")(self)
 
 

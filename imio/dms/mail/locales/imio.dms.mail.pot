@@ -533,12 +533,28 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
+#: ./browser/templates/category_contact.pt:11
+msgid "create_contact"
+msgstr ""
+
+#: ./browser/templates/category_contact.pt:11
+msgid "create_contact_list"
+msgstr ""
+
 #: ./browser/templates/category_im.pt:11
 msgid "create_im"
 msgstr ""
 
 #: ./browser/templates/category_om.pt:11
 msgid "create_om"
+msgstr ""
+
+#: ./browser/templates/category_contact.pt:11
+msgid "create_organization"
+msgstr ""
+
+#: ./browser/templates/category_contact.pt:11
+msgid "create_person"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:200
