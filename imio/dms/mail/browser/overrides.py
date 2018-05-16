@@ -29,7 +29,8 @@ class IMRenderCategoryView(RenderCategoryView):
         return {'orgs-searches': {'typ': 'organization', 'add': '++add++organization', 'img': 'organization_icon.png'},
                 'hps-searches': {'typ': 'contact', 'add': '@@add-contact', 'img': 'create_contact.png'},
                 'persons-searches': {'typ': 'person', 'add': '++add++person', 'img': 'person_icon.png'},
-                'cl-searches': {'typ': 'contact_list', 'add': '++add++contact_list', 'img': 'directory_icon.png'}
+                'cl-searches': {'typ': 'contact_list', 'add': 'contact-lists-folder/common/++add++contact_list',
+                                'img': 'directory_icon.png'}
                 }
 
     def __call__(self, widget):
