@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-05-15 12:35+0000\n"
+"POT-Creation-Date: 2018-05-16 13:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -539,11 +539,11 @@ msgstr "Create a contact"
 msgid "create_contact_list"
 msgstr "Create a contact list"
 
-#: ./browser/templates/category_im.pt:11
+#: ./browser/templates/category_im.pt:10
 msgid "create_im"
 msgstr "Create an incoming mail"
 
-#: ./browser/templates/category_om.pt:11
+#: ./browser/templates/category_om.pt:10
 msgid "create_om"
 msgstr "Create an outgoing mail"
 
@@ -553,7 +553,7 @@ msgstr "Create an organization"
 
 #: ./browser/templates/category_contact.pt:11
 msgid "create_person"
-msgstr Create a person"
+msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:200
 #: ./migrations/migrate_to_2_1.py:116

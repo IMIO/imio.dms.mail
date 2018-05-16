@@ -17,6 +17,30 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: plone\n"
 
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Activate"
+msgstr ""
+
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Activate the object"
+msgstr ""
+
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Active"
+msgstr ""
+
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Deactivate"
+msgstr ""
+
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Deactivate the object"
+msgstr ""
+
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Deactivated"
+msgstr ""
+
 #: profiles/default/types/dmsmainfile.xml
 msgid "Dms main file of a Dms document"
 msgstr ""

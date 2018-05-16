@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-05-15 12:35+0000\n"
+"POT-Creation-Date: 2018-05-16 13:27+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -541,11 +541,11 @@ msgstr "Créer un contact"
 msgid "create_contact_list"
 msgstr "Créer une liste de contact"
 
-#: ./browser/templates/category_im.pt:11
+#: ./browser/templates/category_im.pt:10
 msgid "create_im"
 msgstr "Créer un courrier entrant"
 
-#: ./browser/templates/category_om.pt:11
+#: ./browser/templates/category_om.pt:10
 msgid "create_om"
 msgstr "Créer un courrier sortant"
 
