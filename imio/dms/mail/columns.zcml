@@ -60,7 +60,7 @@
     />
 
   <adapter
-    for="zope.interface.Interface
+    for="imio.dms.mail.interfaces.ITaskDashboard
          zope.publisher.interfaces.browser.IBrowserRequest
          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
     factory=".columns.TaskParentColumn"
