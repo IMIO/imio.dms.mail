@@ -1931,3 +1931,13 @@ def create_persons_from_users_step_inverted(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
     return '\n'.join(create_persons_from_users(context.getSite(), start='lastname')).encode('utf8')
+
+
+def add_icons_to_contact_workflow(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    site = context.getSite()
+    wfl = site.portal_workflow.collective_contact_core_workflow
+    for name, icon in (('activate', 'im_treat'), ('deactivate', 'im_back_to_creation')):
+        tr = wfl.transitions.get(name)
+        tr.actbox_icon = '%%(portal_url)s/++resource++imio.dms.mail/%s.png' % icon

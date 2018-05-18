@@ -252,6 +252,8 @@ class Migrate_To_2_1(Migrator):
         # Apply workflow adaptations
         success, errors = apply_from_registry()
 
+        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-icons-to-contact-workflow'], profile='singles')
+
         #set member area type
         self.portal.portal_membership.setMemberAreaType('member_area')
 
