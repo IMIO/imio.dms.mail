@@ -47,4 +47,15 @@
             permission="zope2.View" />
     </unconfigure>
 
+    <unconfigure package="collective.contact.facetednav">
+        <browser:page
+            for="eea.facetednavigation.interfaces.IFacetedNavigable"
+            name="faceted_query"
+            class=".browser.view.ContactsFacetedQueryHandler"
+            template="browser/query.pt"
+            permission="zope2.View"
+            layer=".interfaces.ICollectiveContactFacetednavLayer"
+        />
+    </unconfigure>
+
 </configure>
