@@ -1,6 +1,6 @@
 To create a new colored image:
-* Add transparent layer
-* If no selection, select with fuzzy select tool
-* Change foreground color
-* Bucket fill tool
+* Add transparent layer - Ajouter un calque transparent
+* If no selection, select with fuzzy select tool - Sélectionner avec la baguette magique
+* Change foreground color - Changer la couleur d'avant plan
+* Bucket fill tool - Outil de remplissage
 * Export as png
