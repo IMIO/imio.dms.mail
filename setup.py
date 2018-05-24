@@ -68,6 +68,7 @@ setup(
         'collective.wfadaptations',
         'communesplone.layout',
         'dexterity.localrolesfield',
+        'ftw.labels',
         'imio.dashboard',
         'imio.helpers',
         'imio.migrator',
