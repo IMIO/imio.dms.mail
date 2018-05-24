@@ -41,7 +41,7 @@ class TestColumns(unittest.TestCase):
         self.im5.reindexObject(idxs=['sender_index'])
         brain = self.portal.portal_catalog(UID=self.im5.UID())[0]
         rendered = column.renderCell(brain)
-        self.assertIn('<ul class="contact_list_col"><li>', rendered)
+        self.assertIn('<ul class="contacts_col"><li>', rendered)
         self.assertEqual(rendered.count('<a href'), 2)
         # no sender
         imail = createContentInContainer(self.imf, 'dmsincomingmail', id='my-id', title='My title',

@@ -66,12 +66,12 @@ class Sender3Column(RelationPrettyLinkColumn):  # pragma: no cover
         return PrettyLinkColumn.getPrettyLink(self, obj)
 
 
-class ContactListColumn(PrettyLinkColumn):
+class ContactsColumn(PrettyLinkColumn):
 
     attrName = ''
     i_cache = {}
     sort_index = -1  # not sortable
-    ul_class = 'contact_list_col'
+    ul_class = 'contacts_col'
 
     def _icons(self, c_brain):
         """See docstring in interfaces.py."""
@@ -117,7 +117,7 @@ class ContactListColumn(PrettyLinkColumn):
             return '-'
 
 
-class SenderColumn(ContactListColumn):
+class SenderColumn(ContactsColumn):
 
     attrName = 'sender_index'
 
@@ -134,7 +134,7 @@ class TaskParentColumn(PrettyLinkColumn):
         return PrettyLinkColumn.getPrettyLink(self, parent)
 
 
-class RecipientsColumn(ContactListColumn):
+class RecipientsColumn(ContactsColumn):
 
     attrName = 'recipients_index'
 

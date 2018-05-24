@@ -154,6 +154,10 @@ body.portaltype-contact_list #content-core fieldset#folder-listing,
 
 /* Other */
 
+#faceted-results td.pretty_link a.link-tooltip .pretty_link_content{
+    border-bottom: 1px dotted;
+}
+
 #parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls {
     clear: both;
 }
@@ -235,7 +239,7 @@ ul.select2-choices {
 
 /* columns */
 
-#content .contact_list_col {
+#content .contacts_col {
     list-style-type: none;
     margin-left: 0;
 }
