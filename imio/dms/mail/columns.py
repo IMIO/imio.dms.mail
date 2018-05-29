@@ -246,3 +246,17 @@ class NoExternalEditColumn(eec_base):
 
     def renderCell(self, item):
         return u''
+
+
+# Columns for contacts dashboard
+
+class ContactTitleColumn(PrettyLinkColumn):
+
+    attrName = 'get_full_title'
+    params = {'target': '_blank', 'additionalCSSClasses': ['link-tooltip']}
+
+    def renderCell(self, item):
+        """ """
+        obj = self._getObject(item)
+        self.params['contentValue'] = getattr(obj, self.attrName)()
+        return PrettyLinkColumn.getPrettyLink(self, obj)

@@ -133,4 +133,14 @@
     name="dms.extedit"
     />
 
+  <!-- imio.dms.mail.interfaces.IContactsDashboard -->
+  <adapter
+     for="imio.dms.mail.interfaces.IContactsDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.ContactTitleColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="pretty_link"
+  />
+
 </configure>
