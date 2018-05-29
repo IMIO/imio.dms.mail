@@ -3,6 +3,7 @@
 import os
 
 from z3c.table import column
+from z3c.table.column import LinkColumn
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
@@ -13,10 +14,12 @@ from Products.CMFPlone.utils import safe_unicode
 
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
 from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
-from collective.eeafaceted.z3ctable.columns import I18nColumn
+from collective.eeafaceted.z3ctable.columns import I18nColumn, BaseColumn
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.task.interfaces import ITaskMethods
 from imio.dashboard.columns import ActionsColumn, RelationPrettyLinkColumn, PrettyLinkColumn
+
+from imio.dms.mail import _
 
 
 class TreatingGroupsColumn(VocabularyColumn):
@@ -260,3 +263,60 @@ class ContactTitleColumn(PrettyLinkColumn):
         obj = self._getObject(item)
         self.params['contentValue'] = getattr(obj, self.attrName)()
         return PrettyLinkColumn.getPrettyLink(self, obj)
+
+
+class PathColumn(LinkColumn, BaseColumn):
+    """Column that displays path."""
+
+    header = 'header_relative_path'
+    attrName = 'title'
+    linkTarget = '_blank'
+    subPath = 'contact-lists-folder'
+    sort_index = 'path'
+
+    def init_paths(self, item):
+        self.root_obj = self.get_root_obj(item)
+        self.root_path = self.root_obj.absolute_url_path()
+        self.root_path_level = len(self.root_path.split('/'))
+        self.paths = {'.': '-'}
+
+    def get_root_obj(self, item):
+        base_obj = self.context.__parent__
+        if self.subPath:
+            return base_obj[self.subPath]
+        return base_obj
+
+    def get_root_path(self, item):
+        if self.subPath:
+            return os.path.join(self.get_context_path(item), self.subPath)
+        return self.get_context_path(item)
+
+    def getLinkURL(self, item):
+        """Setup link url."""
+        return os.path.dirname(item.getURL())
+
+    def rel_path_title(self, rel_path):
+        parts = rel_path.split('/')
+        context = self.root_obj
+        for i, part in enumerate(parts):
+            current_path = '/'.join(parts[:i + 1])
+            parent_path = '/'.join(parts[:i])
+            if part == '..':
+                current_title = u'..'
+                context = context.__parent__
+            else:
+                context = context[part]
+                current_title = context.title
+            self.paths[current_path] = (parent_path and u'%s/%s' % (self.paths[parent_path],
+                                        current_title) or current_title)
+
+    def getLinkContent(self, item):
+        if not hasattr(self, 'paths'):
+            self.init_paths(item)
+        dir_path = os.path.dirname(item.getPath())
+        rel_path = os.path.relpath(dir_path, self.root_path)
+        if rel_path not in self.paths:
+            self.rel_path_title(rel_path)
+        return self.paths[rel_path]
+
+

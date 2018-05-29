@@ -152,4 +152,13 @@
      name="pretty_link"
   />
 
+  <adapter
+     for="imio.dms.mail.interfaces.IContactListsDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.PathColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="relative_path"
+  />
+
 </configure>

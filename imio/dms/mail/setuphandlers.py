@@ -679,7 +679,7 @@ def createContactListsCollections(folder):
         {'id': 'all_cls', 'tit': _('all_cls'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['contact_list']}],
             'cond': u"", 'bypass': [],
-            'flds': (u'select_row', u'pretty_link', u'review_state', u'CreationDate', u'actions'),
+            'flds': (u'select_row', u'pretty_link', u'relative_path', u'review_state', u'CreationDate', u'actions'),
             'sort': u'sortable_title', 'rev': False, 'count': False},
     ]
     createDashboardCollections(folder, collections)

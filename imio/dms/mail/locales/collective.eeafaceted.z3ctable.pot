@@ -70,3 +70,9 @@ msgstr ""
 
 msgid "outgoing_date"
 msgstr ""
+
+msgid "header_relative_path"
+msgstr ""
+
+msgid "relative_path"
+msgstr ""
