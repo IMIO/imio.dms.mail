@@ -447,6 +447,32 @@ ul.select2-choices {
     border: 2px solid #436976;
 }
 
+/* colorization for active_inactive_workflow */
+
+.state-deactivated {
+ color: red !important;
+}
+
+#plone-contentmenu-workflow .state-deactivated {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: red;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid red;
+}
+
+.state-active {
+ color: #436976 !important;
+}
+
+#plone-contentmenu-workflow .state-active {
+    border-radius: 0.5em 0.5em 0.5em 0.5em;
+    background-color: #436976;
+    padding: 0 0.5em;
+    color: white !important;
+    border: 2px solid #436976;
+}
+
 .state-color {
  color: brown !important;
 /* color: darkgrey !important;
