@@ -1587,6 +1587,7 @@ def addContactListsFolder(context):
     contacts.invokeFactory('Folder', 'contact-lists-folder', title=u'Listes de contact')
     contacts.moveObjectToPosition('contact-lists-folder', 5)
     clf = contacts['contact-lists-folder']
+    clf.setLayout('folder_tabular_view')
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=clf, transition='show_internally')
     alsoProvides(clf, IActionsPanelFolder)
@@ -1598,6 +1599,7 @@ def addContactListsFolder(context):
     clf.__ac_local_roles_block__ = True
     # set common
     clf.invokeFactory("Folder", id='common', title=u"Listes communes")
+    clf['common'].setLayout('folder_tabular_view')
     transitions(clf['common'], transitions=['show_internally'])
     alsoProvides(clf['common'], IActionsPanelFolder)
     alsoProvides(clf['common'], INextPrevNotNavigable)

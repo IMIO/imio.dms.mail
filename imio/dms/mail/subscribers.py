@@ -275,6 +275,7 @@ def contact_plonegroup_change(event):
                     api.content.copy(source=base_model, target=folder)
             if uid not in cl_folder:
                 folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
+                folder.setLayout('folder_tabular_view')
                 alsoProvides(folder, IActionsPanelFolderAll)
                 alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader', 'Contributor', 'Editor']

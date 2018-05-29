@@ -226,6 +226,7 @@ class Migrate_To_2_1(Migrator):
                 obj = uuidToObject(uid)
                 full_title = obj.get_full_title(separator=' - ', first_index=1)
                 folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
+                folder.setLayout('folder_tabular_view')
                 alsoProvides(folder, IActionsPanelFolderAll)
                 alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Contributor']
