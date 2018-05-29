@@ -65,7 +65,7 @@ class IHeldPositionsDashboard(IContactsDashboard, IBatchActionsMarker):
     """Marker interface for held positions dashboard."""
 
 
-class IContactListsDashboard(IContactsDashboard):
+class IContactListsDashboard(IContactsDashboard, IBatchActionsMarker):
 
     """Marker interface for contact lists dashboard."""
 
