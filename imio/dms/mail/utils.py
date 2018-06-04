@@ -252,6 +252,27 @@ class VariousUtilsMethods(UtilsMethods):
         user = api.user.get_current()
         return {'not': '%s:lu' % user.id}
 
+    def check_scan_id(self, by='1000'):
+        """ Return a list of scan ids, one by 1000 items and by flow types """
+        import os
+        res = {'0': {}, '1': {}, '2': {}}
+        flow_titles = {'0': 'Courrier entrant', '1': 'Courrier sortant', '2': 'Courrier sortant généré'}
+        pc = getToolByName(self.context, 'portal_catalog')
+        brains = pc.unrestrictedSearchResults(portal_type=['dmsmainfile', 'dmsommainfile'])
+        divisor = int(by)
+        out = []
+        for brain in brains:
+            if not brain.scan_id:
+                continue
+            nb = int(brain.scan_id[7:])
+            if (nb % divisor) == 0:
+                res[brain.scan_id[2:3]][nb] = os.path.dirname(brain.getURL())
+        for flow in sorted(res):
+            out.append("<h1>%s</h1>" % flow_titles[flow])
+            for nb in sorted(res[flow], reverse=True):
+                out.append('<a href="%s" target="_blank">%s</a>' % (res[flow][nb], nb))
+        return '<br/>\n'.join(out)
+
 
 class IdmUtilsMethods(UtilsMethods):
     """ View containing incoming mail utils methods """

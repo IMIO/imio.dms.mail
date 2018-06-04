@@ -186,6 +186,7 @@
         allowed_attributes="
             initialize_service_folder
             unread_criteria
+            check_scan_id
         "
     />
 
