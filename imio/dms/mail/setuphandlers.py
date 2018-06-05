@@ -1464,6 +1464,7 @@ def addOwnOrganization(context):
     contacts.moveObjectToPosition('plonegroup-organization', 5)
 
     own_orga = contacts['plonegroup-organization']
+    blacklistPortletCategory(context, own_orga)
 
     # Departments and services creation
     sublevels = [
@@ -1506,6 +1507,7 @@ def addOwnPersonnel(context):
     contacts.invokeFactory('Folder', 'personnel-folder', title=u'Mon personnel')
     contacts.moveObjectToPosition('personnel-folder', 4)
     pf = contacts['personnel-folder']
+    blacklistPortletCategory(context, pf)
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
     alsoProvides(pf, IActionsPanelFolder)

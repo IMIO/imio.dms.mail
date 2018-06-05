@@ -233,7 +233,10 @@ class Migrate_To_2_1(Migrator):
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
         cl_folder['common']._p_changed = True
+        # various
         contacts.moveObjectToPosition('plonegroup-organization', 6)
+        blacklistPortletCategory(self, contacts['plonegroup-organization'])
+        blacklistPortletCategory(self, contacts['personnel-folder'])
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')
