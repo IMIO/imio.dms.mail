@@ -8,8 +8,9 @@
         <a id="newContactCreation" href="#"
            style="display: inline;"
            tal:condition="python: member.has_permission('Add portal content', directory)"
-           tal:attributes="href python:'%s/contacts/%s' % (portal_url, ct_type[cat_id]['add'])"
-           class="overlay">
+           tal:attributes="href python:'%s/contacts/%s' % (portal_url, ct_type[cat_id]['add']);
+                           class python: ct_type[cat_id].get('class', 'overlay')"
+           class="">
             <img tal:attributes="src python:'%s/%s' % (portal_url, ct_type[cat_id]['img']);
                                  title python: 'create_%s' % ct_type[cat_id]['typ']"
               title="#" i18n:attributes="title" />
