@@ -50,24 +50,44 @@ class IContactsDashboard(Interface):
     """Marker interface for contacts dashboard."""
 
 
-class IOrganizationsDashboard(IContactsDashboard, IBatchActionsMarker):
+class IOrganizationsDashboard(IContactsDashboard):
 
     """Marker interface for organisations dashboard."""
 
 
-class IPersonsDashboard(IContactsDashboard, IBatchActionsMarker):
+class IOrganizationsDashboardBatchActions(IOrganizationsDashboard, IBatchActionsMarker):
+
+    """Marker interface for organisations dashboard with batch actions."""
+
+
+class IPersonsDashboard(IContactsDashboard):
 
     """Marker interface for persons dashboard."""
 
 
-class IHeldPositionsDashboard(IContactsDashboard, IBatchActionsMarker):
+class IPersonsDashboardBatchActions(IPersonsDashboard, IBatchActionsMarker):
+
+    """Marker interface for persons dashboard with batch actions."""
+
+
+class IHeldPositionsDashboard(IContactsDashboard):
 
     """Marker interface for held positions dashboard."""
 
 
-class IContactListsDashboard(IContactsDashboard, IBatchActionsMarker):
+class IHeldPositionsDashboardBatchActions(IHeldPositionsDashboard, IBatchActionsMarker):
+
+    """Marker interface for held positions dashboard with batch actions."""
+
+
+class IContactListsDashboard(IContactsDashboard):
 
     """Marker interface for contact lists dashboard."""
+
+
+class IContactListsDashboardBatchActions(IContactListsDashboard, IBatchActionsMarker):
+
+    """Marker interface for contact lists dashboard with batch actions."""
 
 
 class IActionsPanelFolder(Interface):

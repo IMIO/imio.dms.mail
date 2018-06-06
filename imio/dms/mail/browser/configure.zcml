@@ -209,19 +209,19 @@
         permission="zope2.View" />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IOrganizationsDashboard"
+        for="imio.dms.mail.interfaces.IOrganizationsDashboardBatchActions"
         name="duplicated-batch-action"
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IPersonsDashboard"
+        for="imio.dms.mail.interfaces.IPersonsDashboardBatchActions"
         name="duplicated-batch-action"
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IHeldPositionsDashboard"
+        for="imio.dms.mail.interfaces.IHeldPositionsDashboardBatchActions"
         name="duplicated-batch-action"
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />

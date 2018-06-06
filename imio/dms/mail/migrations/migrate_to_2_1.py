@@ -33,6 +33,8 @@ from imio.migrator.migrator import Migrator
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
 from imio.dms.mail.interfaces import IContactListsDashboard, IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions, IPersonsDashboardBatchActions
+from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions, IContactListsDashboardBatchActions
 from imio.dms.mail.setuphandlers import (_, add_db_col_folder, add_templates, add_transforms, blacklistPortletCategory,
                                          configure_faceted_folder, createDashboardCollections,
                                          createContactListsCollections, createHeldPositionsCollections,
@@ -178,6 +180,7 @@ class Migrate_To_2_1(Migrator):
         contacts.moveObjectToPosition('orgs-searches', 0)
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IOrganizationsDashboard)
+        alsoProvides(col_folder, IHeldPositionsDashboardBatchActions)
         createOrganizationsCollections(col_folder)
         # createStateCollections(col_folder, 'organization')
         configure_faceted_folder(col_folder, xml='organizations-searches.xml',
@@ -190,6 +193,7 @@ class Migrate_To_2_1(Migrator):
         contacts.moveObjectToPosition('hps-searches', 1)
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IHeldPositionsDashboard)
+        alsoProvides(col_folder, IHeldPositionsDashboardBatchActions)
         createHeldPositionsCollections(col_folder)
         # createStateCollections(col_folder, 'held_position')
         configure_faceted_folder(col_folder, xml='held-positions-searches.xml',
@@ -199,15 +203,17 @@ class Migrate_To_2_1(Migrator):
         contacts.moveObjectToPosition('persons-searches', 2)
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IPersonsDashboard)
+        alsoProvides(col_folder, IPersonsDashboardBatchActions)
         createPersonsCollections(col_folder)
         # createStateCollections(col_folder, 'person')
         configure_faceted_folder(col_folder, xml='persons-searches.xml',
                                  default_UID=col_folder['all_persons'].UID())
         # add contact list searches
-        col_folder = add_db_col_folder(contacts, 'cl-searches', _("Contact list searches"), _("Contact lists"))
-        contacts.moveObjectToPosition('cl-searches', 3)
+        col_folder = add_db_col_folder(contacts, 'cls-searches', _("Contact list searches"), _("Contact lists"))
+        contacts.moveObjectToPosition('cls-searches', 3)
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IContactListsDashboard)
+        alsoProvides(col_folder, IContactListsDashboardBatchActions)
         createContactListsCollections(col_folder)
         # createStateCollections(col_folder, 'contact_list')
         configure_faceted_folder(col_folder, xml='contact-lists-searches.xml',
