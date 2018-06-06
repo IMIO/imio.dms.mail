@@ -404,7 +404,7 @@
         />
 
     <browser:page
-        for="collective.contact.core.content.directory.IDirectory"
+        for="imio.dms.mail.interfaces.IOrganizationsDashboard"
         name="document_generation_helper_view"
         class="imio.dms.mail.browser.documentgenerator.DocumentGenerationDirectoryHelper"
         permission="zope2.View"

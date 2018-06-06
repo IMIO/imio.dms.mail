@@ -86,6 +86,8 @@ class Migrate_To_2_1(Migrator):
             assignable.setBlacklistStatus('content_type', True)
 
     def update_templates(self):
+        # Removed useless template
+        api.content.delete(self.portal['templates']['contacts-export'])
         # Change addable types
         template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
         for path in ['templates', 'templates/om', 'templates/om/common']:

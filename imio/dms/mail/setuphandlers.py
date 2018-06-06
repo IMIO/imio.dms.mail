@@ -1755,7 +1755,7 @@ def list_templates():
     # (cid, plone_path, os_path)
     return [
         (10, 'templates/d-im-listing', os.path.join(dpath, 'd-im-listing.odt')),
-        (30, 'templates/contacts-export', os.path.join(dpath, 'contacts-export.ods')),
+        (20, 'templates/all-contacts-export', os.path.join(dpath, 'contacts-export.ods')),
         (90, 'templates/om/style', os.path.join(dpath, 'om-styles.odt')),
         (100, 'templates/om/header', os.path.join(dpath, 'om-header.odt')),
         (105, 'templates/om/footer', os.path.join(dpath, 'om-footer.odt')),
@@ -1825,8 +1825,13 @@ def add_templates(site):
                                                  if b.id == 'all_mails'],
                        # cond: check c10 reception date (display link), check output_format (generation view)
                        'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"}},
-        30: {'title': _(u'Contacts export'), 'type': 'ConfigurablePODTemplate', 'trans': ['show_internally'],
-             'attrs': {'pod_formats': ['ods'], 'pod_portal_types': ['directory']}},
+        20: {'title': _(u'All contacts export'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
+             'attrs': {'pod_formats': ['ods'], 'rename_page_styles': False,
+                       'dashboard_collections': [b.UID for b in
+                                                 get_dashboard_collections(site['contacts']['orgs-searches'])
+                                                 if b.id == 'all_orgs'],
+                       'tal_condition': "python: False",
+                       'roles_bypassing_talcondition': ['Manager', 'Site Administrator']}},
         90: {'title': _(u'Style template'), 'type': 'StyleTemplate', 'trans': ['show_internally']},
     }
 

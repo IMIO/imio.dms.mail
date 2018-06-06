@@ -251,7 +251,7 @@ class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, Dashboa
     """
 
 
-class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
+class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
         Helper for collective.contact.core directory
     """
@@ -260,7 +260,7 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView):
         super(DocumentGenerationDirectoryHelper, self).__init__(context, request)
         self.uids = {}
         self.pers = {}
-        self.directory_path = '/'.join(self.context.getPhysicalPath())
+        self.directory_path = '/'.join(self.real_context.aq_parent.getPhysicalPath())
         self.dp_len = len(self.directory_path)
 
     def get_organizations(self):
