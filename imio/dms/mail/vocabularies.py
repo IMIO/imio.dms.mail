@@ -177,10 +177,10 @@ class OMSenderVocabulary(object):
             person = hp.get_person()
             terms.append((person, hp,
                           SimpleVocabulary.createTerm(brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
-                                                      brain.getObject().get_full_title())))
+                                                      brain.getObject().get_full_title(first_index=1))))
 
         def sort_terms(t):
-            return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title()
+            return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title(first_index=1)
 
         return SimpleVocabulary([term for pers, hp, term in sorted(terms, key=sort_terms)])
 
