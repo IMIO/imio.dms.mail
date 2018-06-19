@@ -187,11 +187,12 @@ class OMSenderVocabulary(object):
         terms = []
         for brain in brains:
             # the userid is stored in mail_type index !!
-            hp = brain.getObject()
+            hp = brain._unrestrictedGetObject()
             person = hp.get_person()
             terms.append((person, hp,
-                          SimpleVocabulary.createTerm(brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
-                                                      brain.getObject().get_full_title(first_index=1))))
+                          SimpleVocabulary.createTerm(
+                              brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
+                              brain._unrestrictedGetObject().get_full_title(first_index=1))))
 
         def sort_terms(t):
             return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title(first_index=1)
