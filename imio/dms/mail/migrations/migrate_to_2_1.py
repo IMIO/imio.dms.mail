@@ -89,7 +89,8 @@ class Migrate_To_2_1(Migrator):
 
     def update_templates(self):
         # Removed useless template
-        api.content.delete(self.portal['templates']['contacts-export'])
+        if 'contacts-export' in self.portal['templates']:
+            api.content.delete(self.portal['templates']['contacts-export'])
         # Change addable types
         template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
         for path in ['templates', 'templates/om', 'templates/om/common']:
