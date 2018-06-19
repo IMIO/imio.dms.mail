@@ -97,7 +97,10 @@
 }
 /* Display None */
 
-#formfield-oform-widgets-position, .template-dmsdocument-edit .overlay-contact-addnew div.field[id$="_date"] {
+#formfield-oform-widgets-position,
+.template-dmsdocument-edit .overlay-contact-addnew div.field[id$="_date"],
+.template-dmsoutgoingmail .overlay-contact-addnew div.field[id$="_date"],
+.portaltype-folder .overlay-contact-addnew div.field[id$="_date"]{
     display: none !important;
 }
 
