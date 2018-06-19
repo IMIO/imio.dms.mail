@@ -256,7 +256,7 @@ class NoExternalEditColumn(eec_base):
 class ContactTitleColumn(PrettyLinkColumn):
 
     attrName = 'get_full_title'
-    params = {'target': '_blank', 'additionalCSSClasses': ['link-tooltip']}
+    params = {'target': '_blank', 'additionalCSSClasses': ['link-tooltip'], 'display_tag_title': False}
 
     def renderCell(self, item):
         """ """
@@ -318,5 +318,3 @@ class PathColumn(LinkColumn, BaseColumn):
         if rel_path not in self.paths:
             self.rel_path_title(rel_path)
         return self.paths[rel_path]
-
-
