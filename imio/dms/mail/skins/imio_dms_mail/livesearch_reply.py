@@ -62,6 +62,8 @@ def quote_bad_chars(s):
 # not interpret them as metachars
 # See http://dev.plone.org/plone/ticket/9422 for an explanation of '\u3000'
 multispace = u'\u3000'.encode('utf-8')
+# IMIO CHANGE
+# * has been removed from the list
 for char in ('?', '-', '+', multispace):
     q = q.replace(char, ' ')
 r = q.split()

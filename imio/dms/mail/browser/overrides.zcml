@@ -79,4 +79,14 @@
         allowed_attributes="create_lock safe_unlock force_unlock refresh_lock"
         />
 
+    <configure package="plone.app.search">
+        <browser:page
+            name="search"
+            class="imio.dms.mail.browser.overrides.PloneSearch"
+            permission="zope2.View"
+            for="*"
+            template="search.pt"
+            />
+    </configure>
+
 </configure>

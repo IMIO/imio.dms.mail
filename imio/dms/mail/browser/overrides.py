@@ -12,6 +12,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
 from imio.history.browser.views import IHDocumentBylineViewlet
 from plone import api
+from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
 
@@ -80,3 +81,12 @@ class LockingOperations(PLLockingOperations):
             self.request.RESPONSE.redirect('%s/view' % self.context.absolute_url())
         else:
             super(LockingOperations, self).force_unlock(redirect=redirect)
+
+
+class PloneSearch(Search):
+
+    def filter_query(self, query):
+        qr = super(PloneSearch, self).filter_query(query)
+        if 'SearchableText' in qr and not qr['SearchableText'].endswith('*'):
+            qr['SearchableText'] += '*'
+        return qr
