@@ -187,9 +187,7 @@
 
   <javascript id="++resource++imio.dashboard/imio.dashboard.js" insert-after="++resource++collective.eeafaceted.z3ctable/collective.eeafaceted.z3ctable.js" />
 
-  <javascript id="imiodashboard_js_variables.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
-
-  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="imiodashboard_js_variables.js" />
+  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
 
   <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
 
@@ -220,6 +218,8 @@
   <javascript id="++resource++ftw.labels/select2.min.js" insert-after="++resource++collective.eeafaceted.batchactions/batch_actions.js" />
 
   <javascript id="++resource++ftw.labels/ftw-labels.js" insert-after="++resource++ftw.labels/select2.min.js" />
+
+  <javascript id="++resource++collective.contact.contactlist/javascript.js" insert-after="++resource++ftw.labels/ftw-labels.js"  enabled="False"/>
 
   <!--<javascript id="" insert-after="" />-->
 
