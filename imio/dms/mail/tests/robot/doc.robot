@@ -92,16 +92,16 @@ CE depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 1 création organisation.png  id=pb_2
     Click element  id=fieldsetlegend-contact_details
     Wait until element is visible  id=formfield-form-widgets-IContactDetails-phone  10
-    Input text  name=form.widgets.IContactDetails.phone  +3265329670
+    Input text  name=form.widgets.IContactDetails.phone  081586100
     Input text  name=form.widgets.IContactDetails.email  contact@imio.be
     Input text  name=form.widgets.IContactDetails.website  www.imio.be
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 1 création organisation details.png  id=pb_2
     Click element  id=fieldsetlegend-address
     Wait until element is visible  id=formfield-form-widgets-IContactDetails-city  10
-    Input text  name=form.widgets.IContactDetails.number  2
-    Input text  name=form.widgets.IContactDetails.street  Avenue Thomas Edison
-    Input text  name=form.widgets.IContactDetails.zip_code  7000
-    Input text  name=form.widgets.IContactDetails.city  Mons
+    Input text  name=form.widgets.IContactDetails.number  1
+    Input text  name=form.widgets.IContactDetails.street  Rue Léon Morel
+    Input text  name=form.widgets.IContactDetails.zip_code  5032
+    Input text  name=form.widgets.IContactDetails.city  Isnes
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 1 création organisation adresse.png  id=pb_2
     Click button  css=#pb_2 #form-buttons-save
     Sleep  1
@@ -118,16 +118,16 @@ CE depuis le scanner
     Input text  css=#pb_2 #form-widgets-IBasic-title  Département logiciels libres
     Click element  id=fieldsetlegend-contact_details
     Wait until element is visible  id=formfield-form-widgets-IContactDetails-phone  10
-    Input text  name=form.widgets.IContactDetails.phone  +3265329677
+    Input text  name=form.widgets.IContactDetails.phone  081586114
     Input text  name=form.widgets.IContactDetails.email  dll@imio.be
     Input text  name=form.widgets.IContactDetails.website  www.imio.be
     Click element  id=fieldsetlegend-address
     Wait until element is visible  id=form-widgets-IContactDetails-use_parent_address-0  10
     Unselect checkbox  id=form-widgets-IContactDetails-use_parent_address-0
-    Input text  name=form.widgets.IContactDetails.number  34
-    Input text  name=form.widgets.IContactDetails.street  Zoning Industriel
-    Input text  name=form.widgets.IContactDetails.zip_code  5190
-    Input text  name=form.widgets.IContactDetails.city  Mornimont
+    Input text  name=form.widgets.IContactDetails.number  2
+    Input text  name=form.widgets.IContactDetails.street  Rue Léon Morel
+    Input text  name=form.widgets.IContactDetails.zip_code  5032
+    Input text  name=form.widgets.IContactDetails.city  Isnes
     Click button  css=#pb_2 #form-buttons-save
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 1 création sous orga finie.png  id=pb_1
@@ -144,10 +144,12 @@ CE depuis le scanner
     Click element  css=#oform-widgets-person-autocomplete .addnew
     Wait until element is visible  id=pb_6  10
     #Input text  name=form.widgets.firstname  Marc
+    Click element  id=form-widgets-gender-0
+    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 2 création personne.png  id=pb_6
     Click element  id=fieldsetlegend-contact_details
     Wait until element is visible  id=formfield-form-widgets-IContactDetails-cell_phone  10
-    Input text  name=form.widgets.IContactDetails.cell_phone  +32472452345
+    Input text  name=form.widgets.IContactDetails.cell_phone  0472452345
     Input text  name=form.widgets.IContactDetails.email  marcleduc@hotmail.com
     Click element  id=fieldsetlegend-address
     Wait until element is visible  id=form-widgets-IContactDetails-number  10
@@ -252,7 +254,7 @@ CS en réponse
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     ${DF} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-financiere
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
-    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  recipient_groups  ['${DF}']  list
     Set field value  ${UID}  assigned_user  agent  str
@@ -299,6 +301,35 @@ CS en réponse
     Remove element  id=${note52}
     Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001
 
+    # Mailing
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/edit
+    Sleep  0.5
+    Input text  name=form.widgets.recipients.widgets.query  Robinet
+    Wait until element is visible  css=.ac_results[style*="display: block"]  10
+    Click element  css=.ac_results[style*="display: block"] li
+    Click button  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 création finie multi dest.png  id=content  id=viewlet-below-content
+    Click element  css=#viewlet-above-content-title a.overlay-template-selection
+    Wait until element is visible  css=div.pb-ajax
+    Sleep  0.5
+    Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib span.fancytree-expander
+    Wait until element is visible  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
+    Sleep  0.5
+    Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
+    Sleep  0.5
+    Click element  xpath=//input[@value='Choisir ce modèle']
+    Sleep  5
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Sleep  1
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 ged généré.png  id=content
+    debug
+    ${note55}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(6)  Publipostage  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 ged publipostage.png  css=#fieldset-versions table  ${note55}
+    Remove element  id=${note55}
+    Click element
+
     ### Add mainfile
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Sleep  0.5
@@ -320,9 +351,10 @@ CS en réponse
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged ajout fini.png  id=portal-column-content  ${note62}
     Remove element  id=${note62}
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
-    Sleep  0.5
+    Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 visualisation.png  id=content
+    # Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/reponse-candidature-ouvrier-communal
 
 CS nouveau
 # partie 2.3.2 Nouveau courrier sortant
@@ -463,11 +495,11 @@ Visualisation
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
-    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  assigned_user  agent  str
     Set field value  ${UID}  original_mail_date  20170314  date
@@ -499,11 +531,11 @@ Modification
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
-    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  original_mail_date  20170314  date
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
@@ -531,11 +563,11 @@ Tache
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
-    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  assigned_user  agent  str
     Set field value  ${UID}  original_mail_date  20170314  date
@@ -577,10 +609,10 @@ Workflow ce
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
-    Set field value  ${UID}  sender  ${SENDER}  reference
+    Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  original_mail_date  20170314  date
     # db
@@ -662,7 +694,7 @@ Workflow ce
 Workflow cs
 # partie 2.8.3 Courrier sortant
     Enable autologin as  encodeur
-    ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=+324724523453
+    ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     Enable autologin as  agent
     ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-grh
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
