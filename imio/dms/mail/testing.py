@@ -53,7 +53,7 @@ class DmsmailLayer(PloneWithPackageLayer):
         newobj.title = u'Modèle type'
         newobj.reindexObject()
 
-        # avoid redirects after document generation
+        # avoid redirection after document generation
         from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
         OMPDGenerationView.redirects = lambda a, b: None
 
