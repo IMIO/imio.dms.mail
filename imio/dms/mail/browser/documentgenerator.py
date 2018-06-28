@@ -6,7 +6,7 @@ from plone import api
 from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
-from Products.CMFPlone.utils import safe_unicode
+from Products.CMFPlone.utils import safe_unicode, base_hasattr
 from collective.contact.core.interfaces import IContactable
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
@@ -374,10 +374,14 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
     def _get_generation_context(self, helper_view, pod_template):
         """
         Return the generation context for the current document.
+        This method is common for OMPDGenerationView and OMMLPDGenerationView
         """
         generation_context = super(OMPDGenerationView, self)._get_generation_context(helper_view, pod_template)
 
-        if helper_view.real_context.id == 'test_creation_modele':
+        if base_hasattr(self, 'document'):
+            # Mailing ! We use the same scan_id
+            scan_id = self.document.scan_id
+        elif helper_view.real_context.id == 'test_creation_modele':
             client_id = base.get_config('client_id')
             scan_id = '%s2%s00000000' % (client_id[0:2], client_id[2:6])
         else:
