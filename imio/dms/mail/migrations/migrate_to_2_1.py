@@ -108,15 +108,17 @@ class Migrate_To_2_1(Migrator):
 
     def update_site(self):
         # add documentation message
-        if False:
-            add_message('doc2-1', 'Documentation 2.1', u'<p>Vous pouvez consulter la <a href="http://www.imio.be/'
+        if 'doc' not in self.portal['messages-config']:
+            add_message('doc', 'Documentation', u'<p>Vous pouvez consulter la <a href="http://www.imio.be/'
                         u'support/documentation/topic/cp_app_ged" target="_blank">documentation en ligne de la '
-                        u'version 2.1</a>, ainsi que d\'autres documentations liées.</p>', msg_type='significant',
+                        u'dernière version</a>, ainsi que d\'autres documentations liées.</p>', msg_type='significant',
                         can_hide=True, req_roles=['Authenticated'], activate=True)
+        if 'doc2-0' in self.portal['messages-config']:
+            api.content.delete(obj=self.portal['messages-config']['doc2-0'])
 
         # update front-page
         frontpage = self.portal['front-page']
-        if False and frontpage.Title() == 'Gestion du courrier 2.0':
+        if frontpage.Title() == 'Gestion du courrier 2.0':
             frontpage.setTitle(_("front_page_title"))
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
