@@ -302,12 +302,11 @@ CS en réponse
     Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001
 
     # Mailing
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/edit
-    Sleep  0.5
-    Input text  name=form.widgets.recipients.widgets.query  Robinet
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li
-    Click button  id=form-buttons-save
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    ${REC1} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
+    ${REC2} =  Path to uid  /${PLONE_SITE_ID}/contacts/sergerobinet
+    Set field value  ${UID}  recipients  ['${REC1}', '${REC2}']  references
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 création finie multi dest.png  id=content  id=viewlet-below-content
     Click element  css=#viewlet-above-content-title a.overlay-template-selection
@@ -323,12 +322,21 @@ CS en réponse
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 ged généré.png  id=content
-    debug
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 ged généré non pub.png  id=content
     ${note55}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(6)  Publipostage  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 ged publipostage.png  css=#fieldset-versions table  ${note55}
     Remove element  id=${note55}
-    Click element
+    Click element  css=#fieldset-versions tr.selected td:nth-child(6)
+    Sleep  5
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Sleep  1
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 ged généré pub page 1.png  id=content
+    Click element  css=#DV-container .DV-navControls .DV-next
+    Click element  css=#DV-container .DV-navControls .DV-next
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 4 ged généré pub page 3.png  id=content
+    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001-1
+    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001
 
     ### Add mainfile
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
