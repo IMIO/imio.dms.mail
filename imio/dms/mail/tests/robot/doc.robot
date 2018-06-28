@@ -395,10 +395,12 @@ CS nouveau
 
 CS depuis le scanner
 # partie 2.3.3 Envoi par le scanner
-    Enable autologin as  encodeur
+    Enable autologin as  scanner
     Go to  ${PLONE_URL}/import_scanned2
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-3-3 cs onglet courrier sortant.png  css=.site-plone  id=portal-footer-wrapper
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail
     Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/lock-unlock
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
