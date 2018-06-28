@@ -8,6 +8,7 @@ from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing.helpers import PloneWithPackageLayer
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import FunctionalTesting
+from plone.app.testing import setRoles, TEST_USER_ID
 from zope.i18n import translate
 
 from Testing import ZopeTestCase as ztc
@@ -27,7 +28,6 @@ class DmsmailLayer(PloneWithPackageLayer):
         manage_addExternalMethod(portal, 'lock-unlock', '', 'imio.dms.mail.robot', 'lock')
         manage_addExternalMethod(portal, 'robot_init', '', 'imio.dms.mail.robot', 'robot_init')
 
-        # install dmsmail (apply profile)
         sp = portal.portal_properties.site_properties
         sp.default_language = 'fr'
         # we create a front-page document that will be modified in setup
@@ -42,8 +42,20 @@ class DmsmailLayer(PloneWithPackageLayer):
         members.setLanguage('fr')
         members.reindexObject()
 
+        # install dmsmail (apply profile)
         super(DmsmailLayer, self).setUpPloneSite(portal)
         api.content.transition(obj=members, transition='show_internally')
+
+        # copy template
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+        folder_uid = portal['contacts']['plonegroup-organization']['direction-generale']['secretariat'].UID()
+        newobj = api.content.copy(portal['templates']['om']['main'], portal['templates']['om'][folder_uid])
+        newobj.title = u'Modèle type'
+        newobj.reindexObject()
+
+        # avoid redirects after document generation
+        from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
+        OMPDGenerationView.redirects = lambda a, b: None
 
     def setUpZope(self, app, configurationContext):
         ztc.utils.setupCoreSessions(app)
