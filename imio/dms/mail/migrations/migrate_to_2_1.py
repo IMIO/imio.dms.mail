@@ -168,6 +168,8 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(self.omf['mail-searches'], ICollectionCategories)
         alsoProvides(self.portal['tasks'], INextPrevNotNavigable)
         alsoProvides(self.portal['tasks']['task-searches'], ICollectionCategories)
+        self.imf['mail-searches'].setRights('Courrier entrant')
+        self.omf['mail-searches'].setRights('Courrier sortant')
 
     def update_contacts(self):
         contacts = self.portal['contacts']

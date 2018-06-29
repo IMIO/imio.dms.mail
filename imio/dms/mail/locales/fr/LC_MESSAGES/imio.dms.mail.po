@@ -226,7 +226,7 @@ msgstr "Recherches courriers entrants"
 #: ./migrations/migrate_to_1_0.py:64
 #: ./setuphandlers.py:117
 msgid "Incoming mails"
-msgstr "Courriers entrants"
+msgstr "Courrier entrant"
 
 #: ./profiles.zcml:14
 msgid "Installs the imio.dms.mail package"
@@ -330,7 +330,7 @@ msgstr "Recherches courriers sortants"
 #: ./migrations/migrate_to_2_0.py:209
 #: ./setuphandlers.py:145
 msgid "Outgoing mails"
-msgstr "Courriers sortants"
+msgstr "Courrier sortant"
 
 #: ./browser/batchactions.py:230
 msgid "Overwrite"
@@ -581,7 +581,7 @@ msgstr "Gestion du courrier 2.1"
 
 #: ./setuphandlers.py:448
 msgid "im_have_treated"
-msgstr "Que j'ai traités"
+msgstr "Que j'ai traité"
 
 #: ./setuphandlers.py:440
 msgid "im_im_treating"
@@ -646,7 +646,7 @@ msgstr "Expéditeur"
 
 #: ./setuphandlers.py:612
 msgid "om_have_treated"
-msgstr "Que j'ai traités"
+msgstr "Que j'ai traité"
 
 #: ./setuphandlers.py:603
 msgid "om_im_treating"
@@ -764,7 +764,7 @@ msgstr "Que je traite"
 
 #: ./setuphandlers.py:514
 msgid "task_to_treat"
-msgstr "Qui m'est assigné"
+msgstr "Qui me sont assignées"
 
 #: ./setuphandlers.py:546
 msgid "tasks_have_created"
