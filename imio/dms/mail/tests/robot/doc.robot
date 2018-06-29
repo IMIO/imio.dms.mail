@@ -499,6 +499,19 @@ Tableaux de bord
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord filtre expéditeur.png  id=top---advanced---widgets  css=.select2-results
 
+Recherche générale
+# partie 2.4.3 Recherche dans les fichiers scannés
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-4-3 barre recherche générale.png  id=portal-globalnav
+    Input text  searchGadget  Gest* Délib
+    Wait until element is visible  LSResult  10
+    Capture and crop page screenshot  doc/utilisation/2-4-3 recherche livesearch.png  id=portal-searchbox  id=LSResult
+    Click button  css=#portal-searchbox .searchButton
+    Wait until element is visible  css=.template-search #search-results  10
+    Capture and crop page screenshot  doc/utilisation/2-4-3 recherche avancée.png  css=.template-search #content
+
 Visualisation
 # partie 2.5 Visualisation des courriers
     Enable autologin as  encodeur

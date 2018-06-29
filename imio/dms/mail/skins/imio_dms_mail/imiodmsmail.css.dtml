@@ -155,6 +155,10 @@ body.portaltype-contact_list #content-core fieldset#folder-listing,
     display: none;
 }
 
+.template-search #rss-subscription {
+    display: none;
+}
+
 /* Other */
 
 #faceted-results td.pretty_link a.link-tooltip .pretty_link_content{
