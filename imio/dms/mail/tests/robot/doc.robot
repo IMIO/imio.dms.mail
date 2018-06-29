@@ -536,17 +536,22 @@ Visualisation
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
-    # DO NOT WORK ANYMORE: WAITING FOR GECKODRIVER UPDATE !!!!!
-    #Mouse over  css=#form-widgets-sender a.link-tooltip
-    #Wait until element is visible  css=div.tooltip #person  10
+    # MOUSE MUST BE OUTSIDE BROWSER WINDOW !!!
+    Mouse over  css=#form-widgets-sender a.link-tooltip
+    Wait until element is visible  css=div.tooltip #person  10
     ## Le pointeur fait disparaître le tooltip
     ##${pointer}  Add pointer  css=#form-widgets-sender a.link-tooltip
-    Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant personne.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant personne.png  id=parent-fieldname-title  css=div.tooltip #person
+    Click element  css=#labeling-viewlet .pers-edit-1
+    Sleep  0.5
+    ${note1}  Add pointy note  css=#labeling-viewlet .pers-edit-1  Après clic, pour indiquer la lecture  position=right  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant lu.png  parent-fieldname-title  parent-fieldname-description
+    Remove element  id=${note1}
     ##Remove element  ${pointer}
     ## La capture du tooltip title ne fonctionne pas!
     #Mouse over  css=a.version-link
-    ##Sleep  1
-    ##Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant ged.png  id=content
+    #Sleep  1
+    #Capture and crop page screenshot  doc/utilisation/2-5 courrier entrant ged.png  id=content
 
 Modification
 # partie 2.6 Modification des courriers
