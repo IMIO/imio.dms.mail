@@ -51,7 +51,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     """
 
     sender = ContactList(
-        title=_cdmsm(u'Sender'),
+        title=_(u'Sender'),
         required=True,
         value_type=ContactChoice(
             source=ContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
