@@ -710,9 +710,11 @@ Workflow ce
     Click button  css=input.apButtonWF_back_to_treatment
     Wait until element is visible  css=form#confirmTransitionForm  10
     Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
+    # CHANGE locator when overlay bug is resolved
     Capture and crop page screenshot  doc/utilisation/2-8-1 transition retour.png  id=content
     Click button  name=form.buttons.save
     Wait until element is visible  css=.highlight-history-link  10
+    # CHANGE locator when overlay bug is resolved
     Capture and crop page screenshot  doc/utilisation/2-8-1 lien historique.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Click element  css=#content-history .link-overlay
     #Wait until element is visible  css=#content-history #content  10
@@ -811,30 +813,15 @@ Contacts 1
 # partie 2.9.1 Recherche de contacts
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/contacts
-    Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
+    Wait until element is visible  css=.faceted-table-results  10
     Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 base.png  id=content
-    Select radio button  type  held_position
-    Wait until element is visible  css=.contact-entry a[title*="Courant (Electrabel"]  10
-    Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 type fonction.png  id=content
-    Select radio button  type  person
-    Wait until element is visible  css=.contact-entry a[title*="Non encodé"]  10
-    Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 type personne.png  id=content
-    ### Recherche mot complet
-    Input text  css=.section-rechercher-dans-lintitule #texte  Cour
-    Click button  css=.section-rechercher-dans-lintitule #texte_button
-    Sleep  0.5
-    Wait until element is not visible  css=.contact-entry a[title*="Non encodé"]  10
-    Wait until element is visible  css=.contact-entry a[title~="Courant"]  10
-    Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 texte.png  id=content
-    Select radio button  type  organization
-    Wait until element is visible  css=#faceted-results #msg-no-results  10
-    Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 texte aucun résultat.png  id=content
-
+    Capture and crop page screenshot  doc/utilisation/2-9-1 base.png  id=portal-columns
+    Select collection  contacts/hps-searches/all_hps
+    Capture and crop page screenshot  doc/utilisation/2-9-1 type fonction.png  id=portal-columns
+    Select collection  contacts/persons-searches/all_persons
+    Capture and crop page screenshot  doc/utilisation/2-9-1 type personne.png  id=portal-columns
+    Select collection  contacts/cls-searches/all_cls
+    Capture and crop page screenshot  doc/utilisation/2-9-1 type liste contacts.png  id=portal-columns
 
 Contacts 2
 # partie 2.9.2 Modification de contacts
