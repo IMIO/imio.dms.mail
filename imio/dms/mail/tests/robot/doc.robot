@@ -816,12 +816,23 @@ Contacts 1
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-9-1 base.png  id=portal-columns
+    # MOUSE MUST BE OUTSIDE BROWSER WINDOW !!!
+    Mouse over  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip
+    Sleep  1
+    Capture and crop page screenshot  doc/utilisation/2-9-1 orga tooltip.png  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip  css=div.tooltip
     Select collection  contacts/hps-searches/all_hps
     Capture and crop page screenshot  doc/utilisation/2-9-1 type fonction.png  id=portal-columns
     Select collection  contacts/persons-searches/all_persons
     Capture and crop page screenshot  doc/utilisation/2-9-1 type personne.png  id=portal-columns
     Select collection  contacts/cls-searches/all_cls
     Capture and crop page screenshot  doc/utilisation/2-9-1 type liste contacts.png  id=portal-columns
+    Enable autologin as  Contributor  Site Administrator
+    Go to  ${PLONE_URL}/contacts
+    Wait until element is visible  css=.faceted-table-results  10
+    ${note35}  Add pointy note  css=#doc-generation-view ul.pod-template a  Lien d'exportation  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-9-1 export.png  id=content  ${note35}
+    Remove element  id=${note35}
+
 
 Contacts 2
 # partie 2.9.2 Modification de contacts
