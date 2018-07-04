@@ -810,7 +810,7 @@ Workflow tâche
     Capture and crop page screenshot  doc/utilisation/2-8-4 état clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
 
 Contacts 1
-# partie 2.9.1 Recherche de contacts
+# partie 2.9.1 Listing des contacts
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/contacts
     Wait until element is visible  css=.faceted-table-results  10
@@ -835,43 +835,37 @@ Contacts 1
 
 
 Contacts 2
-# partie 2.9.2 Modification de contacts
+# partie 2.9.2 Gestion de contacts
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/contacts
-    Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
-    Sleep  0.5
     ### icones de gestion
-    ${note40}  Add pointy note  css=.contacts-facetednav-action:first-child  Icônes  position=bottom  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-9-2 icone edition.png  id=content  ${note40}
-    Remove element  id=${note40}
-    Click element  css=.contact-entry:first-child .contacts-facetednav-action:first-child a
+    Go to  ${PLONE_URL}/contacts/electrabel/edit
     Wait until element is visible  id=formfield-form-widgets-organization_type  10
-    Update element style  id=formfield-form-widgets-activity  display  none
-    Capture and crop page screenshot  doc/utilisation/2-9-2 edition organisation.png  id=pb_5
+    # Update element style  id=formfield-form-widgets-activity  display  none
+    Capture and crop page screenshot  doc/utilisation/2-9-2 edition organisation.png  content-core
     Click button  id=form-buttons-cancel
     Sleep  0.5
-    Wait until element is not visible  css=.overlay[style*="display: block"]
-    Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
+    Go to  ${PLONE_URL}/contacts/electrabel/delete_confirmation
+    Wait until element is visible  css=input.destructive  10
     Sleep  0.5
-    Click element  css=.contact-entry:first-child .contacts-facetednav-action:nth-child(2) a
-    Wait until element is visible  css=.overlay[style*="display: block"]  10
-    Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-9-2 suppression organisation.png  css=.overlay[style*="display: block"]
-    Click button  css=.overlay[style*="display: block"] input[name=cancel]
+    Capture and crop page screenshot  doc/utilisation/2-9-2 suppression organisation.png  content
+    Click button  css=input[name=cancel]
     ### boutons de gestion
     Go to  ${PLONE_URL}/contacts
-    Wait until element is visible  css=.contact-entry a[title~=Electrabel]  10
-    Sleep  0.5
-    Click element  css=.eea-preview-items .contact-entry:first-child .contact-selection input
-    Click element  css=.eea-preview-items .contact-entry:nth-child(2) .contact-selection input
-    ${note41}  Add pointy note  id=contact-facetednav-action-delete  Suppression sélection  position=top  color=blue
-    ${note42}  Add pointy note  id=contact-facetednav-action-merge  Fusion sélection  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-9-2 boutons.png  id=content  ${note41}  ${note42}
-    Remove elements  ${note41}  ${note42}
-    Click button  id=contact-facetednav-action-merge
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/contacts/electrabel
+    ${UID2} =  Path to uid  /${PLONE_SITE_ID}/contacts/electrabel/travaux
+    Unselect checkbox  select_unselect_items
+    Select checkbox  css=td.select_item_checkbox input[value='${UID}']
+    Select checkbox  css=td.select_item_checkbox input[value='${UID2}']
+    Click button  id=duplicated-batch-action-but
     Wait until element is visible  css=form[action*="merge-contacts-apply"]  10
     Capture and crop page screenshot  doc/utilisation/2-9-2 fusion organisation.png  id=content
-
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/contacts/contact-lists-folder
+    ${link}=  Get element attribute  css=table.listing tbody tr:nth-child(2) a.state-private  href
+    # Click element  css=table.listing tbody tr:nth-child(2) a.state-private
+    Go to  ${PLONE_URL}/contacts/contact-lists-folder/${link}
+    debug
 
 Configuration
     Enable autologin as  Manager
