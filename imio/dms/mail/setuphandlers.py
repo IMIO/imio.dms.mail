@@ -290,6 +290,9 @@ def postInstall(context):
     except:
         pass
 
+    site.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                               'imiodmsmail-add-icons-to-contact-workflow', run_dependencies=False)
+
 
 def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
     """
