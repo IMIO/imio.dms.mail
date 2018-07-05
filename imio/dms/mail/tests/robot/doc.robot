@@ -860,12 +860,53 @@ Contacts 2
     Click button  id=duplicated-batch-action-but
     Wait until element is visible  css=form[action*="merge-contacts-apply"]  10
     Capture and crop page screenshot  doc/utilisation/2-9-2 fusion organisation.png  id=content
+
+Contacts 3
+# partie 2.9.3 Liste de contacts
+    ### création liste contact
     Enable autologin as  agent
+    Go to  ${PLONE_URL}/contacts
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  contacts/cls-searches/all_cls
+    ${note36}  Add pointy note  css=#c1_widget ul div.category:nth-child(4) div.title  Icône de création  position=right  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list icone.png  css=#portal-column-one div.portletWrapper  ${note36}
+    Remove element  id=${note36}
     Go to  ${PLONE_URL}/contacts/contact-lists-folder
+    Wait until element is visible  css=table.listing tbody tr:nth-child(2) a.state-private  10
     ${link}=  Get element attribute  css=table.listing tbody tr:nth-child(2) a.state-private  href
+    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list listing.png  id=content-core
     # Click element  css=table.listing tbody tr:nth-child(2) a.state-private
     Go to  ${PLONE_URL}/contacts/contact-lists-folder/${link}
-    debug
+    Wait until element is visible  css=#content-core p.discreet  10
+    ${note37}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
+    Click element  name=Add element
+    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list folder.png  id=content  ${note37}
+    Remove element  id=${note37}
+    Select from list by label  name=Add element  Liste de contacts
+    Wait until element is visible  id=formfield-form-widgets-contacts  10
+    Input text  name=form.widgets.IBasic.title  Liste des candidats poste DF
+    Input text  name=form.widgets.contacts.widgets.query  courant
+    Wait until element is visible  css=.ac_results[style*="display: block"]  10
+    Click element  css=.ac_results[style*="display: block"] li:first-child
+    Input text  name=form.widgets.contacts.widgets.query  lermitte
+    Wait until element is visible  css=.ac_results[style*="display: block"]  10
+    Click element  css=.ac_results[style*="display: block"] li:first-child
+    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list création.png  id=content
+    Click button  form-buttons-save
+    Sleep  1
+    Select collection  contacts/cls-searches/all_cls
+    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list dashboard.png  id=content
+    ### utilisation liste contact
+    Go to  ${PLONE_URL}/outgoing-mail/reponse2/edit
+    Wait until element is visible  formfield-form-widgets-recipients  10
+    Input text  name=form.widgets.recipients.widgets.query  liste candidats
+    Wait until element is visible  css=.ac_results[style*="display: block"]  10
+    Click element  css=.ac_results[style*="display: block"] li:first-child
+    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list utilisation.png  formfield-form-widgets-recipients  formfield-form-widgets-IDublinCore-description
+    Click element  css=#formfield-form-widgets-mail_date label
+    Click button  form-buttons-save
+    Wait until element is visible  css=#form-widgets-recipients li:nth-child(3)  10
+    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list remplacement.png  formfield-form-widgets-recipients
 
 Configuration
     Enable autologin as  Manager
