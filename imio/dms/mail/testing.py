@@ -57,6 +57,8 @@ class DmsmailLayer(PloneWithPackageLayer):
         from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
         OMPDGenerationView.redirects = lambda a, b: None
 
+        setRoles(portal, TEST_USER_ID, ['Member'])
+
     def setUpZope(self, app, configurationContext):
         ztc.utils.setupCoreSessions(app)
         super(DmsmailLayer, self).setUpZope(app, configurationContext)

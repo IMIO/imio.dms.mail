@@ -27,6 +27,7 @@ class TestColumns(unittest.TestCase):
         self.im5 = self.imf['courrier5']
         self.ta1 = self.im1['tache1']
         self.ta31 = self.im1['tache3']['tache3-1']
+        self.maxDiff = None
 
     def test_SenderColumn(self):
         column = SenderColumn(self.portal, self.portal.REQUEST, self.mail_table)
@@ -35,7 +36,7 @@ class TestColumns(unittest.TestCase):
                          u"<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank' "
                          "class='pretty_link link-tooltip'><span class='pretty_link_icons'><img title='Held position' "
                          "src='http://nohost/plone/held_position_icon.png' /></span><span class='pretty_link_content'"
-                         ">Monsieur Jean Courant (Electrabel, Agent)</span></a>")
+                         ">Monsieur Jean Courant, Agent (Electrabel)</span></a>")
         # multiple senders
         self.im5.sender.append(RelationValue(self.intids.getId(self.portal['contacts']['sergerobinet'])))
         self.im5.reindexObject(idxs=['sender_index'])

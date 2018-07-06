@@ -80,7 +80,7 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(ret.pop(0),
                          {"text": "Electrabel / Travaux 1", "id": self.elec['travaux'].UID()})
         self.assertEqual(ret.pop(0),
-                         {"text": "Monsieur Jean Courant (Electrabel, Agent)",
+                         {"text": "Monsieur Jean Courant, Agent (Electrabel)",
                           "id": self.ctct['jeancourant']['agent-electrabel'].UID()})
         self.assertEqual(ret.pop(0),
                          {"text": "Monsieur Jean Courant", "id": self.ctct['jeancourant'].UID()})
@@ -98,11 +98,11 @@ class TestContactSuggest(unittest.TestCase):
         view.request['term'] = 'directeur'
         ret = json.loads(view())
         self.assertEqual(ret.pop(0),
-                         {'text': u'Monsieur Maxime DG (Mon organisation / Direction générale, Directeur général)',
+                         {'text': u'Monsieur Maxime DG, Directeur général (Mon organisation / Direction générale)',
                           'id': self.pf['dirg']['directeur-general'].UID()})
         self.assertEqual(ret.pop(0),
-                         {'text': u'Monsieur Maxime DG (Mon organisation / Direction générale / GRH, '
-                                  u'Directeur du personnel)',
+                         {'text': u'Monsieur Maxime DG, Directeur du personnel (Mon organisation / Direction générale '
+                                  u'/ GRH)',
                           'id': self.pf['dirg']['directeur-du-personnel'].UID()})
         # search organization
         view.request['term'] = 'direction générale grh'
@@ -111,16 +111,15 @@ class TestContactSuggest(unittest.TestCase):
                          {'text': u'Mon organisation / Direction générale / GRH',
                           u'id': self.pgo['direction-generale']['grh'].UID()})
         self.assertEqual(ret.pop(0),
-                         {"text": u"Monsieur Fred Agent (Mon organisation / Direction générale / GRH, Agent GRH)",
+                         {"text": u"Monsieur Fred Agent, Agent GRH (Mon organisation / Direction générale / GRH)",
                           "id": self.pf['agent']['agent-grh'].UID()})
-        u'Monsieur Fred Agent (Mon organisation / Direction g\xe9n\xe9rale / GRH, Agent GRH)'
         self.assertEqual(ret.pop(0),
-                         {"text": u"Monsieur Michel Chef (Mon organisation / Direction générale / GRH, "
-                                  u"Responsable GRH)",
+                         {"text": u"Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale "
+                                  u"/ GRH)",
                           "id": self.pf['chef']['responsable-grh'].UID()})
         self.assertEqual(ret.pop(0),
-                         {'text': u'Monsieur Maxime DG (Mon organisation / Direction générale / GRH, '
-                                  u'Directeur du personnel)',
+                         {'text': u'Monsieur Maxime DG, Directeur du personnel (Mon organisation / Direction générale '
+                                  u'/ GRH)',
                           'id': self.pf['dirg']['directeur-du-personnel'].UID()})
         self.assertEqual(ret.pop(0),
                          {'text': u'Mon organisation / Direction générale / GRH [TOUT]',

@@ -75,7 +75,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(view1.get_full_title(self.grh), u'Mon organisation / Direction générale / GRH')
         self.assertEqual(view1.get_full_title(self.grh, separator=' - ', first_index=1), u'Direction générale - GRH')
         self.assertEqual(view1.get_full_title(self.jc), u'Monsieur Jean Courant')
-        self.assertEqual(view1.get_full_title(self.agent), u'Monsieur Jean Courant (Electrabel, Agent)')
+        self.assertEqual(view1.get_full_title(self.agent), u'Monsieur Jean Courant, Agent (Electrabel)')
 
         # Test get_separate_titles method
         self.assertListEqual(view1.get_separate_titles(None), [u'', u''])
@@ -162,7 +162,7 @@ class TestDocumentGenerator(unittest.TestCase):
         """
             Test all methods of DocumentGenerationDirectoryHelper view
         """
-        view = self.ctct.unrestrictedTraverse('@@document_generation_helper_view')
+        view = self.ctct['orgs-searches'].unrestrictedTraverse('@@document_generation_helper_view')
         # Test get_organisations
         res = [
             (1, '', self.ctct['electrabel']),
@@ -218,8 +218,9 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertIsNone(doc.scan_user)
 
         # Test redirects
-        self.assertEqual(view.redirects(doc),
-                         'http://nohost/plone/outgoing-mail/reponse1/012999900000001/external_edit')
+        # redirects has be monkey patched in tests !!
+        #self.assertEqual(view.redirects(doc),
+        #                 'http://nohost/plone/outgoing-mail/reponse1/012999900000001/external_edit')
 
         # Test generation context
         gen_con = view._get_generation_context(hview, view.pod_template)

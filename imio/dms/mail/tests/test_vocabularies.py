@@ -27,6 +27,7 @@ class TestVocabularies(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        self.maxDiff = None
 
     def test_IMReviewStatesVocabulary(self):
         voc_inst = IMReviewStatesVocabulary()
@@ -95,22 +96,22 @@ class TestVocabularies(unittest.TestCase):
         voc_inst = OMSenderVocabulary()
         self.assertEqual(len(voc_inst(self.omail)), 6)
         self.assertEqual([s.title for s in voc_inst(self.omail)],
-                         [u'Monsieur Fred Agent (Direction générale / GRH, Agent GRH)',
-                          u'Monsieur Fred Agent (Direction générale / Secrétariat, Agent secrétariat)',
-                          u'Monsieur Maxime DG (Direction générale / GRH, Directeur du personnel)',
-                          u'Monsieur Maxime DG (Direction générale, Directeur général)',
-                          u'Monsieur Michel Chef (Direction générale / GRH, Responsable GRH)',
-                          u'Monsieur Michel Chef (Direction générale / Secrétariat, Responsable secrétariat)'])
+                         [u'Monsieur Fred Agent, Agent GRH (Direction générale / GRH)',
+                          u'Monsieur Fred Agent, Agent secrétariat (Direction générale / Secrétariat)',
+                          u'Monsieur Maxime DG, Directeur du personnel (Direction générale / GRH)',
+                          u'Monsieur Maxime DG, Directeur général (Direction générale)',
+                          u'Monsieur Michel Chef, Responsable GRH (Direction générale / GRH)',
+                          u'Monsieur Michel Chef, Responsable secrétariat (Direction générale / Secrétariat)'])
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                        'omail_sender_firstname_sorting', False)
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
         self.assertEqual([s.title for s in voc_inst(self.omail)],
-                         [u'Monsieur Fred Agent (Direction générale / GRH, Agent GRH)',
-                          u'Monsieur Fred Agent (Direction générale / Secrétariat, Agent secrétariat)',
-                          u'Monsieur Michel Chef (Direction générale / GRH, Responsable GRH)',
-                          u'Monsieur Michel Chef (Direction générale / Secrétariat, Responsable secrétariat)',
-                          u'Monsieur Maxime DG (Direction générale / GRH, Directeur du personnel)',
-                          u'Monsieur Maxime DG (Direction générale, Directeur général)'])
+                         [u'Monsieur Fred Agent, Agent GRH (Direction générale / GRH)',
+                          u'Monsieur Fred Agent, Agent secrétariat (Direction générale / Secrétariat)',
+                          u'Monsieur Michel Chef, Responsable GRH (Direction générale / GRH)',
+                          u'Monsieur Michel Chef, Responsable secrétariat (Direction générale / Secrétariat)',
+                          u'Monsieur Maxime DG, Directeur du personnel (Direction générale / GRH)',
+                          u'Monsieur Maxime DG, Directeur général (Direction générale)'])
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
