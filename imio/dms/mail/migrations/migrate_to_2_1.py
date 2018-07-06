@@ -68,6 +68,8 @@ class Migrate_To_2_1(Migrator):
         members.setLocallyAllowedTypes([])
         members.setImmediatelyAddableTypes([])
         members.reindexObject()
+        self.portal.portal_membership.memberareaCreationFlag = 0
+        self.portal.portal_membership.setMemberAreaType('member_area')
 
         transitions(members, 'show_internally')
 
@@ -274,9 +276,6 @@ class Migrate_To_2_1(Migrator):
         success, errors = apply_from_registry()
 
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-icons-to-contact-workflow'], profile='singles')
-
-        #set member area type
-        self.portal.portal_membership.setMemberAreaType('member_area')
 
         add_transforms(self.portal)
 

@@ -713,6 +713,7 @@ def adaptDefaultPortal(context):
 
     #set member area type
     site.portal_membership.setMemberAreaType('member_area')
+    site.portal_membership.memberareaCreationFlag = 0
     site.Members.setExcludeFromNav(True)
     site.Members.setConstrainTypesMode(1)
     site.Members.setLocallyAllowedTypes([])
