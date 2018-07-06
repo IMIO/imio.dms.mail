@@ -923,7 +923,7 @@ Configuration
     Go to  ${PLONE_URL}/@@dmsmailcontent-settings
     Wait until element is visible  id=formfield-form-widgets-incomingmail_number  10
     Capture and crop page screenshot  doc/configuration/3-1 config courrier.png  id=content
-    # Erreur chargement page
+    # Erreur chargement page, voir http://trac.imio.be/trac/ticket/21954
     #Go to  ${PLONE_URL}/@@imiodmsmail-settings
     #Wait until element is visible  id=formfield-form-widgets-mail_types  10
     #Capture and crop page screenshot  doc/configuration/3-1 config courrier 2.png  id=content
