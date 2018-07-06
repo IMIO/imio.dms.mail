@@ -27,7 +27,7 @@ msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
 #: ./browser/settings.py:109
 msgid "A user can see all mail titles linked to a contact."
-msgstr "Un utilisateur peut voir tous les intitulés de courrier liés à un contact."
+msgstr "Un utilisateur peut voir les intitulés de tous les courriers liés à un contact, même ceux d'autres services."
 
 #: ./browser/settings.py:22
 msgid "Active"
