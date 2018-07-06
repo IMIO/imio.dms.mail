@@ -14,7 +14,6 @@ from plone.portlets.interfaces import ILocalPortletAssignmentManager
 from plone.portlets.interfaces import IPortletManager
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.Portal import member_indexhtml
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import _createObjectByType
 
 from Products.CPUtils.Extensions.utils import mark_last_version
@@ -33,7 +32,7 @@ from imio.migrator.migrator import Migrator
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
 from imio.dms.mail.interfaces import IContactListsDashboard, IActionsPanelFolderAll
-from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions, IPersonsDashboardBatchActions
+from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions, IContactListsDashboardBatchActions
 from imio.dms.mail.setuphandlers import (_, add_db_col_folder, add_templates, add_transforms, blacklistPortletCategory,
                                          configure_faceted_folder, createDashboardCollections,

@@ -359,8 +359,12 @@ def user_deleted(event):
         raise Redirect(request.get('ACTUAL_URL'))
 
     # search in assigned_user index
-    for (idx, domain) in (('assigned_user', 'collective.eeafaceted.z3ctable'), ('Creator', 'plone')):
-        brains = portal.portal_catalog({idx: princ})
+    for (idx, domain, criterias) in (('assigned_user', 'collective.eeafaceted.z3ctable', {}),
+                                     ('Creator', 'plone', {}),
+                                     ('mail_type', 'collective.eeafaceted.z3ctable',
+                                      {'object_provides': IPersonnelContact.__identifier__})):
+        criterias.update({idx: princ})
+        brains = portal.portal_catalog(**criterias)
         if brains:
             api.portal.show_message(message=_("You cannot delete the user name '${user}', used in '${idx}' index.",
                                               mapping={'user': princ, 'idx': translate(idx, domain=domain,

@@ -124,6 +124,14 @@ class TestDmsmail(unittest.TestCase):
         self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
         msgs = smi.show()
         self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
+        # is used as person user_id
+        api.user.create('test@test.be', 'testuser', 'Password#1')
+        agent = self.portal.contacts['personnel-folder']['agent']
+        agent.userid = 'testuser'
+        agent.reindexObject()
+        self.assertRaises(Redirect, api.user.delete, username='testuser')
+        msgs = smi.show()
+        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'Mail type' index.")
 
     def test_group_deleted(self):
         request = self.portal.REQUEST
