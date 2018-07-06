@@ -171,6 +171,10 @@ class Migrate_To_2_1(Migrator):
         self.imf['mail-searches'].setRights('Courrier entrant')
         self.omf['mail-searches'].setRights('Courrier sortant')
 
+        # registry
+        api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
+                                            'search_rss_enabled', value=False)
+
     def update_contacts(self):
         contacts = self.portal['contacts']
         blacklistPortletCategory(contacts, contacts, value=False)

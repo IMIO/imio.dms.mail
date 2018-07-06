@@ -811,6 +811,10 @@ def adaptDefaultPortal(context):
     site.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator', 'Member'),
                            acquire=0)
 
+    # registry
+    api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
+                                        'search_rss_enabled', value=False)
+
 
 def changeSearchedTypes(site):
     """
