@@ -107,6 +107,37 @@ class Migrate_To_2_1(Migrator):
             obj = self.portal.restrictedTraverse(path)
             obj.mailing_loop_template = ml_uid
 
+    def update_collections(self):
+        # update incomingmail collections
+        for brain in api.content.find(context=self.imf['mail-searches'], portal_type='DashboardCollection'):
+            obj = brain.getObject()
+            if 'CreationDate' in obj.customViewFields:
+                buf = list(obj.customViewFields)
+                buf[buf.index('CreationDate')] = u'reception_date'
+                obj.customViewFields = tuple(buf)
+
+        collections = [
+            {}, {}, {}, {}, {}, {}, {},
+            {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
+                {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+                {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+                 'v': 'dmsincomingmail-in-copy-group'}],
+                'cond': u"", 'bypass': [],
+                'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                         u'due_date', u'mail_type', u'sender', u'reception_date', u'actions'),
+                'sort': u'organization_type', 'rev': True, 'count': False}, ]
+        createDashboardCollections(self.imf['mail-searches'], collections)
+        reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
+                                default_UID=self.imf['mail-searches']['all_mails'].UID())
+
+        # ICollectionCategories
+        alsoProvides(self.imf['mail-searches'], ICollectionCategories)
+        alsoProvides(self.omf['mail-searches'], ICollectionCategories)
+        alsoProvides(self.portal['tasks']['task-searches'], ICollectionCategories)
+        # Rename category label
+        self.imf['mail-searches'].setRights('Courrier entrant')
+        self.omf['mail-searches'].setRights('Courrier sortant')
+
     def update_site(self):
         # add documentation message
         if 'doc' not in self.portal['messages-config']:
@@ -123,6 +154,9 @@ class Migrate_To_2_1(Migrator):
             frontpage.setTitle(_("front_page_title"))
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
+
+        # update portal title
+        self.portal.title = 'Gestion du courrier'
 
         # for collective.externaleditor
         if 'MailingLoopTemplate' not in self.registry['externaleditor.externaleditor_enabled_types']:
@@ -150,27 +184,9 @@ class Migrate_To_2_1(Migrator):
                                       acquire=0)
         self.portal.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator', 'Member'),
                                       acquire=0)
-        collections = [
-            {}, {}, {}, {}, {}, {}, {},
-            {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
-                {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
-                {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-                 'v': 'dmsincomingmail-in-copy-group'}],
-                'cond': u"", 'bypass': [],
-                'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
-                         u'due_date', u'mail_type', u'sender', u'CreationDate', u'actions'),
-                'sort': u'organization_type', 'rev': True, 'count': False}, ]
-        createDashboardCollections(self.imf['mail-searches'], collections)
-        reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
-                                default_UID=self.imf['mail-searches']['all_mails'].UID())
 
-        # ICollectionCategories
-        alsoProvides(self.imf['mail-searches'], ICollectionCategories)
-        alsoProvides(self.omf['mail-searches'], ICollectionCategories)
+        # INextPrevNotNavigable
         alsoProvides(self.portal['tasks'], INextPrevNotNavigable)
-        alsoProvides(self.portal['tasks']['task-searches'], ICollectionCategories)
-        self.imf['mail-searches'].setRights('Courrier entrant')
-        self.omf['mail-searches'].setRights('Courrier sortant')
 
         # registry
         api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
@@ -282,6 +298,9 @@ class Migrate_To_2_1(Migrator):
 
         # update templates
         self.update_templates()
+
+        # update collections
+        self.update_collections()
 
         # do various global adaptations
         self.update_site()

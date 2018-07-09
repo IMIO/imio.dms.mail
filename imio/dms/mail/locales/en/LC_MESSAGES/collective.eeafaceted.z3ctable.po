@@ -33,6 +33,9 @@ msgstr "Assigned user"
 msgid "header_due_date"
 msgstr "Due date"
 
+msgid "header_reception_date"
+msgstr "Reception date"
+
 msgid "header_mail_type"
 msgstr "Mail type"
 
@@ -53,6 +56,9 @@ msgstr "Linked mail"
 
 msgid "header_treating_groups"
 msgstr "Treating group"
+
+msgid "reception_date"
+msgstr "Reception date"
 
 msgid "mail_type"
 msgstr "Mail type"
