@@ -283,11 +283,7 @@ CS en réponse
     Wait until element is visible  css=div.pb-ajax
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged affichage liste.png  css=div.pb-ajax
-    Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib span.fancytree-expander
-    Wait until element is visible  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
-    Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged affichage liste sous-niveau.png  css=div.pb-ajax
-    Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
+    Click element  css=div.pb-ajax #tree-form span.fancytree-title
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged sélection modèle.png  css=div.pb-ajax
     Click element  xpath=//input[@value='Choisir ce modèle']
@@ -359,7 +355,7 @@ CS en réponse
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 ged ajout fini.png  id=portal-column-content  ${note62}
     Remove element  id=${note62}
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
-    Sleep  1
+    Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 2 visualisation.png  id=content
     # Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/reponse-candidature-ouvrier-communal
@@ -739,7 +735,7 @@ Workflow cs
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
-    Sleep  0.5
+    Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     # transitions
@@ -907,6 +903,53 @@ Contacts 3
     Click button  form-buttons-save
     Wait until element is visible  css=#form-widgets-recipients li:nth-child(3)  10
     Capture and crop page screenshot  doc/utilisation/2-9-3 contact list remplacement.png  formfield-form-widgets-recipients
+    
+Gestion modèles
+# partie 2.10 Gestion des modèles
+	## 2.10.1 Tableau
+    Enable autologin as  Manager
+    Go to  ${PLONE_URL}/templates
+    Wait until element is visible  css=#content-core  10
+    Capture and crop page screenshot  doc/utilisation/2-10-1 modèles docs.png  css=#content
+    Click element  css=.contenttype-folder.state-internally_published.url
+    Wait until element is visible  css=.listing.nosort.templates-listing.icons-on  10
+    Capture and crop page screenshot  doc/utilisation/2-10-1 tableau courrier sortant.png  css=#content
+    ## 2.10.2 Modification
+    ${note40}  Add pointy note  css=.listing.nosort.templates-listing.icons-on thead tr th:nth-last-child(2)  Actions sur un modèle  position=top  color=blue
+    ${note41}  Add pointy note  css=#copy-to-batch-action-but  Actions par lot  position=right  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-10-2 actions sur un courrier.png  css=#content
+    Remove element  id=${note40}
+    Remove element  id=${note41}
+    Click element  css=#select_unselect_items
+    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:first-child td:first-child input
+    Click element  css=#transition-batch-action-but
+    Wait until element is visible  css=.pb-ajax  10
+    Capture and crop page screenshot  doc/utilisation/2-10-2 changer état par lot.png  css=.pb-ajax
+    Click element  css=#form-buttons-cancel
+    Wait until element is visible  css=#content-core  10
+    Click element  css=#copy-to-batch-action-but
+    Wait until element is visible  css=.pb-ajax  10
+    Capture and crop page screenshot  doc/utilisation/2-10-2 copie par lot.png  css=.pb-ajax
+    Click element  css=#form-buttons-cancel
+    Wait until element is visible  css=#content-core  10
+    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:nth-child(3) td:nth-last-child(2) table tbody tr td:first-child a
+    Select window  url=http://localhost:55001/plone/templates/om/header/edit
+    ${note42}  Add pointy note  css=#form-widgets-style_template  Modifier le style utilisé  position=right  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-10-2 editer sous document.png  css=#content
+    Remove element  id=${note42}
+    Close window
+    Select window  url=http://localhost:55001/plone/templates/om
+    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:nth-child(8) td:nth-last-child(2) table tbody tr td:first-child a
+    Select window  url=http://localhost:55001/plone/templates/om/main/edit
+    Set Window Size  1280  2880
+    ${note43}  Add pointy note  css=#form-widgets-merge_templates tbody tr:first-child td:nth-last-child(2)  Ajouter ou supprimer des sous-modèles  position=left  color=blue
+    ${note44}  Add pointy note  css=#form-widgets-merge_templates-4-widgets-template  Choisir le sous-modèle à fusionner  position=bottom  color=blue
+	Capture and crop page screenshot  doc/utilisation/2-10-2 fusion sous modèles.png  css=#form-widgets-merge_templates  id=${note44}
+	Remove element  id=${note43}
+	Remove element  id=${note44}
+    Close window
+    Select Window  url=http://localhost:55001/plone/templates/om
+    Capture and crop page screenshot  doc/utilisation/2-10-2 barre d'actions.png  css=.actionspanel-no-style-table.nosort
 
 Configuration
     Enable autologin as  Manager
