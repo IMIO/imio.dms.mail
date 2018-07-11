@@ -484,6 +484,24 @@ Tableaux de bord
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord lot services en copie.png  css=.pb-ajax
     Click element  css=div.overlay-ajax .close
+    # multiple reply
+    Unselect checkbox  css=td.select_item_checkbox input[value='${UID2}']
+    ${UID7} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/courrier7
+    ${UID8} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/courrier8
+    ${UID9} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/courrier9
+    Select checkbox  css=td.select_item_checkbox input[value='${UID7}']
+    Select checkbox  css=td.select_item_checkbox input[value='${UID8}']
+    Select checkbox  css=td.select_item_checkbox input[value='${UID9}']
+    Click button  id=reply-batch-action-but
+    Wait until element is visible  css=.template-multiple-reply div#formfield-form-widgets-ITask-due_date
+    Select from list by index  id=form-widgets-treating_groups  1
+    Click element  form_widgets_sender_select_chzn
+    Input text  css=.chzn-search input  agent
+    Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_2
+    Capture and crop page screenshot  doc/utilisation/2-4-2 tableaux de bord lot reponse.png  content
+    Click button  id=form-buttons-cancel
+    Wait until element is visible  css=.faceted-table-results  10
+    # widgets
     Wait until element is visible  css=.faceted-sections-buttons-more  10
     Click element  css=.faceted-sections-buttons-more
     Wait until element is visible  id=top---advanced---widgets  10
@@ -903,7 +921,7 @@ Contacts 3
     Click button  form-buttons-save
     Wait until element is visible  css=#form-widgets-recipients li:nth-child(3)  10
     Capture and crop page screenshot  doc/utilisation/2-9-3 contact list remplacement.png  formfield-form-widgets-recipients
-    
+
 Gestion modèles
 # partie 2.10 Gestion des modèles
 	## 2.10.1 Tableau
