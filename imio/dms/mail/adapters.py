@@ -464,6 +464,14 @@ def sender_index(obj):
     return index
 
 
+@indexer(IImioDmsIncomingMail)
+def get_full_title_index(obj):
+    # No acquisition pb because get_full_title isn't an attr
+    if obj.title:
+        return obj.title.encode('utf8')
+    return common_marker
+
+
 class ScanSearchableExtender(object):
     adapts(IScanFields)
     implements(dexteritytextindexer.IDynamicTextIndexExtender)

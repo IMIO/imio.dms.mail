@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-09 10:11+0000\n"
+"POT-Creation-Date: 2018-07-11 07:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,7 +33,7 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: ./browser/batchactions.py:227
+#: ./browser/batchactions.py:230
 msgid "Add items"
 msgstr ""
 
@@ -41,7 +41,7 @@ msgstr ""
 msgid "Add test examples for imio.dms.mail"
 msgstr ""
 
-#: ./browser/batchactions.py:258
+#: ./browser/batchactions.py:261
 msgid "Added values"
 msgstr ""
 
@@ -49,7 +49,7 @@ msgstr ""
 msgid "All contacts export"
 msgstr ""
 
-#: ./browser/batchactions.py:151
+#: ./browser/batchactions.py:154
 msgid "Apply"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgstr ""
 msgid "Base template"
 msgstr ""
 
-#: ./browser/batchactions.py:225
+#: ./browser/batchactions.py:228
 msgid "Batch action choice"
 msgstr ""
 
@@ -69,15 +69,15 @@ msgstr ""
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:388
+#: ./browser/batchactions.py:399
 msgid "Batch assigned group change"
 msgstr ""
 
-#: ./browser/batchactions.py:321
+#: ./browser/batchactions.py:324
 msgid "Batch assigned user change"
 msgstr ""
 
-#: ./browser/batchactions.py:430
+#: ./browser/batchactions.py:441
 msgid "Batch copy to"
 msgstr ""
 
@@ -89,19 +89,19 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./browser/batchactions.py:355
+#: ./browser/batchactions.py:366
 msgid "Batch outgoing date change"
 msgstr ""
 
-#: ./browser/batchactions.py:217
+#: ./browser/batchactions.py:220
 msgid "Batch recipient groups change"
 msgstr ""
 
-#: ./browser/batchactions.py:131
+#: ./browser/batchactions.py:134
 msgid "Batch state change"
 msgstr ""
 
-#: ./browser/batchactions.py:186
+#: ./browser/batchactions.py:189
 msgid "Batch treating group change"
 msgstr ""
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Choose this template"
 msgstr ""
 
-#: ./browser/batchactions.py:145
+#: ./browser/batchactions.py:148
 msgid "Comment"
 msgstr ""
 
@@ -133,12 +133,12 @@ msgstr ""
 msgid "Common templates"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:222
+#: ./migrations/migrate_to_2_1.py:238
 #: ./setuphandlers.py:251
 msgid "Contact list searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:222
+#: ./migrations/migrate_to_2_1.py:238
 #: ./setuphandlers.py:251
 msgid "Contact lists"
 msgstr ""
@@ -171,7 +171,7 @@ msgstr ""
 msgid "Ending template"
 msgstr ""
 
-#: ./browser/batchactions.py:446
+#: ./browser/batchactions.py:457
 msgid "Folders"
 msgstr ""
 
@@ -183,12 +183,12 @@ msgstr ""
 msgid "Header template"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:202
+#: ./migrations/migrate_to_2_1.py:218
 #: ./setuphandlers.py:231
 msgid "Held positions"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:202
+#: ./migrations/migrate_to_2_1.py:218
 #: ./setuphandlers.py:231
 msgid "Held positions searches"
 msgstr ""
@@ -257,19 +257,19 @@ msgstr ""
 msgid "Member Area"
 msgstr ""
 
-#: ./browser/batchactions.py:421
+#: ./browser/batchactions.py:432
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:141
+#: ./browser/batchactions.py:144
 msgid "No common or available transition. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:323
+#: ./browser/batchactions.py:326
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:450
+#: ./browser/batchactions.py:461
 msgid "No folder available where you can add templates."
 msgstr ""
 
@@ -281,16 +281,16 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./browser/batchactions.py:146
+#: ./browser/batchactions.py:149
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:189
+#: ./migrations/migrate_to_2_1.py:205
 #: ./setuphandlers.py:218
 msgid "Organizations"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:189
+#: ./migrations/migrate_to_2_1.py:205
 #: ./setuphandlers.py:218
 msgid "Organizations searches"
 msgstr ""
@@ -299,7 +299,7 @@ msgstr ""
 msgid "Original mail date requirement"
 msgstr ""
 
-#: ./browser/batchactions.py:362
+#: ./browser/batchactions.py:373
 #: ./dmsmail.py:339
 msgid "Outgoing Date"
 msgstr ""
@@ -320,16 +320,16 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/batchactions.py:230
+#: ./browser/batchactions.py:233
 msgid "Overwrite"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:212
+#: ./migrations/migrate_to_2_1.py:228
 #: ./setuphandlers.py:241
 msgid "Persons"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:212
+#: ./migrations/migrate_to_2_1.py:228
 #: ./setuphandlers.py:241
 msgid "Persons searches"
 msgstr ""
@@ -350,15 +350,15 @@ msgstr ""
 msgid "Recipient groups"
 msgstr ""
 
-#: ./browser/batchactions.py:228
+#: ./browser/batchactions.py:231
 msgid "Remove items"
 msgstr ""
 
-#: ./browser/batchactions.py:251
+#: ./browser/batchactions.py:254
 msgid "Removed values"
 msgstr ""
 
-#: ./browser/batchactions.py:229
+#: ./browser/batchactions.py:232
 msgid "Replace some items by others"
 msgstr ""
 
@@ -367,7 +367,7 @@ msgstr ""
 msgid "Reply"
 msgstr ""
 
-#: ./browser/reply_form.py:24
+#: ./browser/reply_form.py:26
 msgid "Reply to ${ref}"
 msgstr ""
 
@@ -379,15 +379,15 @@ msgstr ""
 msgid "Response: "
 msgstr ""
 
-#: ./browser/batchactions.py:449
+#: ./browser/batchactions.py:460
 msgid "Select multiple values (CTRL+click)"
 msgstr ""
 
-#: ./browser/batchactions.py:259
+#: ./browser/batchactions.py:262
 msgid "Select the values to add (CTRL+click)"
 msgstr ""
 
-#: ./browser/batchactions.py:252
+#: ./browser/batchactions.py:255
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
@@ -431,11 +431,11 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./browser/batchactions.py:138
+#: ./browser/batchactions.py:141
 msgid "Transition"
 msgstr ""
 
-#: ./browser/batchactions.py:193
+#: ./browser/batchactions.py:196
 #: ./browser/table.py:111
 #: ./dmsmail.py:63
 msgid "Treating groups"
@@ -453,7 +453,7 @@ msgstr ""
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
-#: ./browser/batchactions.py:95
+#: ./browser/batchactions.py:98
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
@@ -534,19 +534,19 @@ msgid "create_om"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:200
-#: ./migrations/migrate_to_2_1.py:124
+#: ./migrations/migrate_to_2_1.py:155
 #: ./setuphandlers.py:727
 msgid "front_page_descr"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:201
-#: ./migrations/migrate_to_2_1.py:125
+#: ./migrations/migrate_to_2_1.py:156
 #: ./setuphandlers.py:728
 msgid "front_page_text"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:199
-#: ./migrations/migrate_to_2_1.py:123
+#: ./migrations/migrate_to_2_1.py:154
 #: ./setuphandlers.py:726
 msgid "front_page_title"
 msgstr ""
@@ -563,7 +563,7 @@ msgstr ""
 msgid "im_in_copy"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:155
+#: ./migrations/migrate_to_2_1.py:121
 #: ./setuphandlers.py:482
 msgid "im_in_copy_unread"
 msgstr ""
@@ -652,6 +652,10 @@ msgstr ""
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
 #: ./subscribers.py:160
 msgid "redirected_after_edition"
+msgstr ""
+
+#: ./browser/templates/dashboard_batch_actions_viewlet.pt:20
+msgid "reply-batch-action-but"
 msgstr ""
 
 #: ./setuphandlers.py:539

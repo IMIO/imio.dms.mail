@@ -308,6 +308,10 @@ class Migrate_To_2_1(Migrator):
         # replace faceted on contacts
         self.update_contacts()
 
+        # recatalog
+        for brain in self.catalog(portal_type='dmsincomingmail'):
+            brain.getObject().reindexObject(['get_full_title'])
+
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         #self.upgradeAll(omit=['imio.dms.mail:default'])
 

@@ -75,7 +75,10 @@ class DashboardBatchActionForm(Form):
 
 def brains_from_uids(uids):
     """ Returns a list of brains from a string containing uids separated by comma """
-    uids = uids.split(',')
+    if isinstance(uids, basestring):
+        uids = uids.split(',')
+    if not uids:
+        return []
     catalog = api.portal.get_tool('portal_catalog')
     brains = catalog(UID=uids)
     return brains
@@ -348,6 +351,14 @@ class AssignedUserBatchActionForm(DashboardBatchActionForm):
                 obj.assigned_user = data['assigned_user']
                 modified(obj)
         self.request.response.redirect(self.request.form['form.widgets.referer'])
+
+
+class ReplyBatchActionForm(DashboardBatchActionForm):
+
+    def __call__(self):
+        self.request['URL'] = self.request['URL'].replace('/reply-batch-action', '/multiple-reply')
+        view = getMultiAdapter((self.context, self.request), name='multiple-reply')
+        return view()
 
 
 class OutgoingDateBatchActionForm(DashboardBatchActionForm):

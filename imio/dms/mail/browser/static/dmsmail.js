@@ -41,7 +41,13 @@ dmsmail.init_batchactions_button = function () {
     }
     uids_input.val(uids);
     ba_form.action = document.batch_actions[form_id] + '?referer=' + referer;
-    dmsmail.initializeOverlays('#'+form_id);
+
+    if (form_id != 'reply-batch-action') {
+        dmsmail.initializeOverlays('#'+form_id);
+    }
+    else {
+        ba_form.submit();
+    }
   });
 };
 

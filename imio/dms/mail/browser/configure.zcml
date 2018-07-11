@@ -263,6 +263,13 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboard"
+        name="reply-batch-action"
+        class=".batchactions.ReplyBatchActionForm"
+        permission="zope2.View"
+        />
+
     <browser:viewlet
         name="omdashboard_batch_actions_viewlet"
         for="imio.dms.mail.interfaces.IOMDashboard"
@@ -356,6 +363,13 @@
         name="reply"
         for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
         class=".reply_form.ReplyForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        name="multiple-reply"
+        for="imio.dms.mail.interfaces.IIMDashboard"
+        class=".reply_form.MultipleReplyForm"
         permission="zope2.View"
         />
 

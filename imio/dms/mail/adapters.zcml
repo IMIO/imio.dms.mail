@@ -85,6 +85,7 @@
     <adapter name="sender_index" factory=".adapters.sender_index" />
     <adapter name="organization_type" factory=".adapters.im_organization_type_index" />
     <adapter name="organization_type" factory=".adapters.om_organization_type_index" />
+    <adapter name="get_full_title" factory=".adapters.get_full_title_index" />
 
     <!-- MISSING VOCABULARIES -->
     <!-- type, layer, view, field, vocabulary, widget -->

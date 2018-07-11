@@ -16,6 +16,9 @@ Changelog
 - Replaced directory view by dashboard view
   [sgeulette]
 
+- Added multiple reply
+  [sgeulette]
+
 2.0 (2017-06-02)
 ----------------
 

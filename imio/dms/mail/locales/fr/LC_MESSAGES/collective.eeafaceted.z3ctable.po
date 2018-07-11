@@ -33,14 +33,14 @@ msgstr "Utilisateur assigné"
 msgid "header_due_date"
 msgstr "Échéance"
 
-msgid "header_reception_date"
-msgstr "Date de réception"
-
 msgid "header_mail_type"
 msgstr "Type de courrier"
 
 msgid "header_outgoing_date"
 msgstr "Date d'expédition"
+
+msgid "header_reception_date"
+msgstr "Date de réception"
 
 msgid "header_recipients"
 msgstr "Destinataires"
@@ -57,14 +57,14 @@ msgstr "Courrier associé"
 msgid "header_treating_groups"
 msgstr "Service traitant"
 
-msgid "reception_date"
-msgstr "Date de réception"
-
 msgid "mail_type"
 msgstr "Type de courrier"
 
 msgid "outgoing_date"
 msgstr "Date d'expédition"
+
+msgid "reception_date"
+msgstr "Date de réception"
 
 msgid "recipients"
 msgstr "Destinataires"
