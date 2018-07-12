@@ -1700,14 +1700,14 @@ def configureDocumentViewer(context):
     """
         Set the settings of document viewer product
     """
-    from collective.documentviewer.settings import GlobalSettings
     if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
+    from collective.documentviewer.settings import GlobalSettings
     site = context.getSite()
     gsettings = GlobalSettings(site)
     gsettings.storage_location = os.path.join(os.getcwd(), 'var', 'dv_files')
     gsettings.storage_type = 'Blob'
-    gsettings.pdf_image_format = 'png'
+    gsettings.pdf_image_format = 'jpg'
     if 'excel' not in gsettings.auto_layout_file_types:
         gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ['excel', 'image']
     gsettings.show_search = True
