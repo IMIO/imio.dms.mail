@@ -4,9 +4,11 @@ import copy
 from zope import schema
 from zope.component import getUtility
 from zope.interface import implements
+from zope.interface import Invalid
 from zope.schema.fieldproperty import FieldProperty
 #from plone.autoform.interfaces import IFormFieldProvider
 from zope.schema.vocabulary import SimpleVocabulary
+from z3c.form import validator
 from z3c.form.interfaces import HIDDEN_MODE
 from Products.CMFPlone.utils import base_hasattr
 from plone import api
@@ -27,12 +29,14 @@ from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumen
 from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
                                                 originalMailDateDefaultValue, DmsOutgoingMail)
 from collective.dms.mailcontent import _ as _cdmsm
+from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from dexterity.localrolesfield.field import LocalRolesField
 
 from browser.settings import IImioDmsMailConfig
-from utils import voc_selected_org_suffix_users
+from imio.dms.mail.utils import get_selected_org_suffix_users
+from imio.dms.mail.utils import voc_selected_org_suffix_users
 from vocabularies import encodeur_active_orgs
 
 from . import _
@@ -487,3 +491,22 @@ class OMView(DmsDocumentView):
 
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
+
+# Validators
+
+
+class AssignedUserValidator(validator.SimpleFieldValidator):
+
+    def validate(self, value):
+        # check if we are editing dmsincomingmail
+        if isinstance(self.view, IMEdit):
+            # check if treating_groups is changed and assigned_user is no more in
+            if (self.context.treating_groups is not None and
+                self.request.form['form.widgets.treating_groups'] and
+                self.request.form['form.widgets.treating_groups'][0] != self.context.treating_groups and
+                value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
+                              self.request.form['form.widgets.treating_groups'][0],
+                              ['editeur', 'validateur'])]):
+                    raise Invalid(_(u"The assigned user is not in the selected treating group !"))
+
+validator.WidgetValidatorDiscriminators(AssignedUserValidator, field=ITask['assigned_user'])

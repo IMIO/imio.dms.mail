@@ -127,20 +127,21 @@ def dmsdocument_modified(mail, event):
     elif mail.portal_type == 'dmsoutgoingmail':
         replace_contact_list(mail, 'recipients')
 
-    # tasks
     if not event.descriptions:
         return
+    mod_attr = [name for at in event.descriptions for name in at.attributes]
+
+    # tasks: update parents_assigned_groups field on children tasks following treating_groups value
     updates = []
     adapted = getAdapter(mail, ITaskContainerMethods)
     fields = adapted.get_parents_fields()
-    for at in event.descriptions:
-        for field in fields:
-            for dic in fields[field]:
-                fieldname = (dic['prefix'] and '%s.%s' % (dic['prefix'], dic['at'])
-                             or dic['at'])
-                if fieldname in at.attributes:
-                    updates.append(field)
-                    break
+    for field in fields:
+        for dic in fields[field]:
+            fieldname = (dic['prefix'] and '%s.%s' % (dic['prefix'], dic['at'])
+                         or dic['at'])
+            if fieldname in mod_attr:
+                updates.append(field)
+                break
     for field in updates:
         adapted.set_lower_parents_value(field, fields[field])
 
