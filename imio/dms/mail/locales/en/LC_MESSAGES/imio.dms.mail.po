@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-19 07:58+0000\n"
+"POT-Creation-Date: 2018-07-19 08:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
-#: ./browser/batchactions.py:230
+#: ./browser/batchactions.py:231
 msgid "Add items"
 msgstr ""
 
@@ -39,7 +39,7 @@ msgstr ""
 msgid "Add test examples for imio.dms.mail"
 msgstr ""
 
-#: ./browser/batchactions.py:261
+#: ./browser/batchactions.py:262
 msgid "Added values"
 msgstr ""
 
@@ -51,7 +51,7 @@ msgstr ""
 msgid "All under"
 msgstr ""
 
-#: ./browser/batchactions.py:154
+#: ./browser/batchactions.py:155
 msgid "Apply"
 msgstr ""
 
@@ -63,23 +63,23 @@ msgstr ""
 msgid "Base template"
 msgstr ""
 
-#: ./browser/batchactions.py:228
+#: ./browser/batchactions.py:229
 msgid "Batch action choice"
 msgstr ""
 
-#: ./browser/batchactions.py:51
+#: ./browser/batchactions.py:52
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:399
+#: ./browser/batchactions.py:402
 msgid "Batch assigned group change"
 msgstr ""
 
-#: ./browser/batchactions.py:324
+#: ./browser/batchactions.py:325
 msgid "Batch assigned user change"
 msgstr ""
 
-#: ./browser/batchactions.py:441
+#: ./browser/batchactions.py:444
 msgid "Batch copy to"
 msgstr ""
 
@@ -91,19 +91,19 @@ msgstr ""
 msgid "Batch import of dms document"
 msgstr ""
 
-#: ./browser/batchactions.py:366
+#: ./browser/batchactions.py:369
 msgid "Batch outgoing date change"
 msgstr ""
 
-#: ./browser/batchactions.py:220
+#: ./browser/batchactions.py:221
 msgid "Batch recipient groups change"
 msgstr ""
 
-#: ./browser/batchactions.py:134
+#: ./browser/batchactions.py:135
 msgid "Batch state change"
 msgstr ""
 
-#: ./browser/batchactions.py:189
+#: ./browser/batchactions.py:190
 msgid "Batch treating group change"
 msgstr ""
 
@@ -127,7 +127,7 @@ msgstr ""
 msgid "Choose this template"
 msgstr ""
 
-#: ./browser/batchactions.py:148
+#: ./browser/batchactions.py:149
 msgid "Comment"
 msgstr ""
 
@@ -177,7 +177,7 @@ msgstr ""
 msgid "Ending template"
 msgstr ""
 
-#: ./browser/batchactions.py:457
+#: ./browser/batchactions.py:460
 msgid "Folders"
 msgstr ""
 
@@ -267,19 +267,19 @@ msgstr ""
 msgid "Member Area"
 msgstr ""
 
-#: ./browser/batchactions.py:432
+#: ./browser/batchactions.py:435
 msgid "No common or available assigned group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:144
+#: ./browser/batchactions.py:145
 msgid "No common or available transition. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:326
+#: ./browser/batchactions.py:327
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:461
+#: ./browser/batchactions.py:464
 msgid "No folder available where you can add templates."
 msgstr ""
 
@@ -291,7 +291,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./browser/batchactions.py:149
+#: ./browser/batchactions.py:150
 msgid "Optional comment to display in history"
 msgstr ""
 
@@ -309,7 +309,7 @@ msgstr ""
 msgid "Original mail date requirement"
 msgstr ""
 
-#: ./browser/batchactions.py:373
+#: ./browser/batchactions.py:376
 #: ./dmsmail.py:345
 msgid "Outgoing Date"
 msgstr ""
@@ -330,7 +330,7 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/batchactions.py:233
+#: ./browser/batchactions.py:234
 msgid "Overwrite"
 msgstr ""
 
@@ -364,15 +364,15 @@ msgstr ""
 msgid "Remark icon"
 msgstr ""
 
-#: ./browser/batchactions.py:231
+#: ./browser/batchactions.py:232
 msgid "Remove items"
 msgstr ""
 
-#: ./browser/batchactions.py:254
+#: ./browser/batchactions.py:255
 msgid "Removed values"
 msgstr ""
 
-#: ./browser/batchactions.py:232
+#: ./browser/batchactions.py:233
 msgid "Replace some items by others"
 msgstr ""
 
@@ -393,15 +393,15 @@ msgstr ""
 msgid "Response: "
 msgstr ""
 
-#: ./browser/batchactions.py:460
+#: ./browser/batchactions.py:463
 msgid "Select multiple values (CTRL+click)"
 msgstr ""
 
-#: ./browser/batchactions.py:262
+#: ./browser/batchactions.py:263
 msgid "Select the values to add (CTRL+click)"
 msgstr ""
 
-#: ./browser/batchactions.py:255
+#: ./browser/batchactions.py:256
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
@@ -411,6 +411,10 @@ msgstr ""
 
 #: ./browser/settings.py:92
 msgid "Sender list is sorted on firstname"
+msgstr ""
+
+#: ./browser/batchactions.py:304
+msgid "Set to no value"
 msgstr ""
 
 #: ./profiles.zcml:30
@@ -445,19 +449,19 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:526
+#: ./dmsmail.py:525
 msgid "The assigned user is not in the selected assigned group !"
 msgstr ""
 
-#: ./dmsmail.py:516
+#: ./dmsmail.py:515
 msgid "The assigned user is not in the selected treating group !"
 msgstr ""
 
-#: ./browser/batchactions.py:141
+#: ./browser/batchactions.py:142
 msgid "Transition"
 msgstr ""
 
-#: ./browser/batchactions.py:196
+#: ./browser/batchactions.py:197
 #: ./browser/table.py:111
 #: ./dmsmail.py:69
 msgid "Treating groups"
@@ -475,7 +479,7 @@ msgstr ""
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
-#: ./browser/batchactions.py:98
+#: ./browser/batchactions.py:99
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 

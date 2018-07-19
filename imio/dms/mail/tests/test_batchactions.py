@@ -4,8 +4,9 @@ import unittest
 from plone import api
 from plone.app.testing import setRoles, TEST_USER_ID
 
-from ..browser.batchactions import (getAvailableTransitionsVoc, canNotModify, getAvailableAssignedUserVoc)
-from ..testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail.browser.batchactions import (getAvailableTransitionsVoc, canNotModify, getAvailableAssignedUserVoc)
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 
 
 class BatchActions(unittest.TestCase):
@@ -126,16 +127,24 @@ class BatchActions(unittest.TestCase):
     def test_getAvailableAssignedUserVoc(self):
         brains = self.pc(UID=[self.im1.UID()])
         self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set(['chef']))
+                            set(['__none__', 'chef']))
         brains = self.pc(UID=[self.im2.UID()])
         self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set(['chef', 'agent']))
+                            set(['__none__', 'chef', 'agent']))
+        # intersection
         brains = self.pc(UID=[self.im1.UID(), self.im2.UID()])
         self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set(['chef']))
+                            set(['__none__', 'chef']))
+        # no treating_groups attribute in self.imf
         brains = self.pc(UID=[self.im1.UID(), self.imf.UID()])
         self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
                             set([]))
+        # no users
+        brains = self.pc(UID=[self.im1.UID()])
+        for fct in DOC_ASSIGNED_USER_FUNCTIONS:
+            api.group.remove_user(groupname='%s_%s' % (self.im1.treating_groups, fct), username='chef')
+        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
+                            set(['__none__']))
 
     def test_AssignedUserBatchActionForm(self):
         self.assertIsNone(self.im1.assigned_user)
@@ -147,6 +156,13 @@ class BatchActions(unittest.TestCase):
         view.handleApply(view, 'apply')
         self.assertEqual(self.im1.assigned_user, 'agent')
         self.assertEqual(self.im2.assigned_user, 'agent')
+        view = self.msf.unrestrictedTraverse('@@assigneduser-batch-action')
+        view.request['uids'] = ','.join([self.im1.UID(), self.im2.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'assigned_user': '__none__'}, [1])
+        view.handleApply(view, 'apply')
+        self.assertIsNone(self.im1.assigned_user)
+        self.assertIsNone(self.im2.assigned_user)
 
     def test_TransitionBatchActionFormOnTasks(self):
         self.assertEqual('created', api.content.get_state(self.ta1))

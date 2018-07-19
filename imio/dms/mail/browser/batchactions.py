@@ -28,9 +28,10 @@ from collective.task.behaviors import ITask
 from collective.task.interfaces import ITaskContent
 from collective.task import _ as TMF
 
-from .. import _
-from ..dmsmail import IImioDmsIncomingMail
-from ..utils import get_selected_org_suffix_users
+from imio.dms.mail import _
+from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail.dmsmail import IImioDmsIncomingMail
+from imio.dms.mail.utils import get_selected_org_suffix_users
 
 
 class IDashboardBatchActionsFormSchema(model.Schema):
@@ -300,16 +301,16 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
 
 def getAvailableAssignedUserVoc(brains, attribute):
     """ Returns available assigned users common for all brains. """
-    terms = []
+    terms = [SimpleTerm(value='__none__', token='no_value', title=_('Set to no value'))]
     users = None
     for brain in brains:
         #obj = brain.getObject()
         if not getattr(brain, attribute):
             return SimpleVocabulary([])
         if users is None:
-            users = set(get_selected_org_suffix_users(getattr(brain, attribute), ['editeur', 'validateur']))
+            users = set(get_selected_org_suffix_users(getattr(brain, attribute), DOC_ASSIGNED_USER_FUNCTIONS))
         else:
-            users &= set(get_selected_org_suffix_users(getattr(brain, attribute), ['editeur', 'validateur']))
+            users &= set(get_selected_org_suffix_users(getattr(brain, attribute), DOC_ASSIGNED_USER_FUNCTIONS))
     if users:
         for member in sorted(users, key=methodcaller('getUserName')):
             terms.append(SimpleTerm(
@@ -346,6 +347,8 @@ class AssignedUserBatchActionForm(DashboardBatchActionForm):
         if errors:
             self.status = self.formErrorsMessage
         if data['assigned_user']:
+            if data['assigned_user'] == '__none__':
+                data['assigned_user'] = None
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.assigned_user = data['assigned_user']

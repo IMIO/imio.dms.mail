@@ -1,47 +1,51 @@
 # -*- coding: utf-8 -*-
-import copy
 
-from zope import schema
-from zope.component import getUtility
-from zope.interface import implements
-from zope.interface import Invalid
-from zope.schema.fieldproperty import FieldProperty
-#from plone.autoform.interfaces import IFormFieldProvider
-from zope.schema.vocabulary import SimpleVocabulary
-from z3c.form import validator
-from z3c.form.interfaces import HIDDEN_MODE
-from Products.CMFPlone.utils import base_hasattr
-from plone import api
-from plone.autoform import directives
-from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
-from plone.dexterity.schema import DexteritySchemaPolicy
-from plone.registry.interfaces import IRegistry
-from plone.app.dexterity.behaviors.metadata import IDublinCore
-from plone.app.dexterity.behaviors.metadata import IBasic
-from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
-from plone.z3cform.fieldsets.utils import move
 from AccessControl import getSecurityManager
-
+from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
-from collective.contact.widget.schema import ContactList, ContactChoice
+from collective.contact.widget.schema import ContactChoice
+from collective.contact.widget.schema import ContactList
 from collective.contact.widget.source import ContactSourceBinder
-from collective.dms.basecontent.browser.views import DmsDocumentEdit, DmsDocumentView
-from collective.dms.mailcontent.dmsmail import (IDmsIncomingMail, DmsIncomingMail, IDmsOutgoingMail,
-                                                originalMailDateDefaultValue, DmsOutgoingMail)
+from collective.dms.basecontent.browser.views import DmsDocumentEdit
+from collective.dms.basecontent.browser.views import DmsDocumentView
+from collective.dms.mailcontent.dmsmail import DmsIncomingMail
+from collective.dms.mailcontent.dmsmail import DmsOutgoingMail
+from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
+from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
+from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
 from collective.dms.mailcontent import _ as _cdmsm
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from dexterity.localrolesfield.field import LocalRolesField
-
-from browser.settings import IImioDmsMailConfig
-from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
+from imio.dms.mail import _
+from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.utils import get_selected_org_suffix_users
 from imio.dms.mail.utils import voc_selected_org_suffix_users
+from plone.app.dexterity.behaviors.metadata import IBasic
+from plone.app.dexterity.behaviors.metadata import IDublinCore
+from plone.autoform import directives
+#from plone.autoform.interfaces import IFormFieldProvider
+from plone.dexterity.browser.add import DefaultAddForm
+from plone.dexterity.browser.add import DefaultAddView
+from plone.dexterity.schema import DexteritySchemaPolicy
+from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
+from plone import api
+from plone.registry.interfaces import IRegistry
+from plone.z3cform.fieldsets.utils import move
+from Products.CMFPlone.utils import base_hasattr
 from vocabularies import encodeur_active_orgs
+from z3c.form import validator
+from z3c.form.interfaces import HIDDEN_MODE
+from zope.component import getUtility
+from zope import schema
+from zope.interface import implements
+from zope.interface import Invalid
+from zope.schema.fieldproperty import FieldProperty
+from zope.schema.vocabulary import SimpleVocabulary
 
-from . import _
+import copy
 
 
 def filter_dmsincomingmail_assigned_users(org_uid):
