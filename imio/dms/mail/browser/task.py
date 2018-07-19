@@ -1,6 +1,6 @@
 import copy
 
-from z3c.form.interfaces import HIDDEN_MODE
+# from z3c.form.interfaces import HIDDEN_MODE
 
 from plone import api
 from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
@@ -9,14 +9,15 @@ from plone.dexterity.browser.edit import DefaultEditForm
 from Products.CMFPlone.utils import base_hasattr
 
 from collective.task import _ as _t
-from ..utils import voc_selected_org_suffix_users
+from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail.utils import voc_selected_org_suffix_users
 
 
 def filter_task_assigned_users(group):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(group, ['editeur', 'validateur'])
+    return voc_selected_org_suffix_users(group, DOC_ASSIGNED_USER_FUNCTIONS)
 
 
 def TaskUpdateWidgets(self):

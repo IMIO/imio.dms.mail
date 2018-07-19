@@ -35,6 +35,8 @@ from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from dexterity.localrolesfield.field import LocalRolesField
 
 from browser.settings import IImioDmsMailConfig
+from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import get_selected_org_suffix_users
 from imio.dms.mail.utils import voc_selected_org_suffix_users
 from vocabularies import encodeur_active_orgs
@@ -46,7 +48,7 @@ def filter_dmsincomingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(org_uid, ['editeur', 'validateur'])
+    return voc_selected_org_suffix_users(org_uid, DOC_ASSIGNED_USER_FUNCTIONS)
 
 
 class IImioDmsIncomingMail(IDmsIncomingMail):
@@ -281,7 +283,7 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms outgoing mail
     """
-    return voc_selected_org_suffix_users(org_uid, ['encodeur', 'validateur'], api.user.get_current())
+    return voc_selected_org_suffix_users(org_uid, DOC_ASSIGNED_USER_FUNCTIONS, api.user.get_current())
 
 
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
@@ -498,15 +500,28 @@ class OMView(DmsDocumentView):
 class AssignedUserValidator(validator.SimpleFieldValidator):
 
     def validate(self, value):
-        # check if we are editing dmsincomingmail
-        if isinstance(self.view, IMEdit):
+        # we go out if assigned user is empty
+        if value is None:
+            return
+        # check if we are editing dmsincomingmail or dmsoutgoingmail
+        if isinstance(self.view, IMEdit) or isinstance(self.view, IMEdit):
             # check if treating_groups is changed and assigned_user is no more in
-            if (self.context.treating_groups is not None and
+            if (self.context.treating_groups is not None and self.context.assigned_user is not None and
                 self.request.form['form.widgets.treating_groups'] and
                 self.request.form['form.widgets.treating_groups'][0] != self.context.treating_groups and
                 value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
                               self.request.form['form.widgets.treating_groups'][0],
-                              ['editeur', 'validateur'])]):
+                              DOC_ASSIGNED_USER_FUNCTIONS)]):
                     raise Invalid(_(u"The assigned user is not in the selected treating group !"))
+        # check if we are editing a task
+        elif isinstance(self.view, TaskEdit):
+            # check if assigned_group is changed and assigned_user is no more in
+            if (self.context.assigned_group is not None and self.context.assigned_user is not None and
+                self.request.form['form.widgets.ITask.assigned_group'] and
+                self.request.form['form.widgets.ITask.assigned_group'][0] != self.context.assigned_group and
+                value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
+                              self.request.form['form.widgets.ITask.assigned_group'][0],
+                              DOC_ASSIGNED_USER_FUNCTIONS)]):
+                    raise Invalid(_(u"The assigned user is not in the selected assigned group !"))
 
 validator.WidgetValidatorDiscriminators(AssignedUserValidator, field=ITask['assigned_user'])

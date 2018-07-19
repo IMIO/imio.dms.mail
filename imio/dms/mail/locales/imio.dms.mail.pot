@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-07-11 07:37+0000\n"
+"POT-Creation-Date: 2018-07-19 07:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "${title}: create from template"
 msgstr ""
 
-#: ./subscribers.py:355
+#: ./subscribers.py:356
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -137,12 +137,12 @@ msgstr ""
 msgid "Common templates"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:238
+#: ./migrations/migrate_to_2_1.py:276
 #: ./setuphandlers.py:251
 msgid "Contact list searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:238
+#: ./migrations/migrate_to_2_1.py:276
 #: ./setuphandlers.py:251
 msgid "Contact lists"
 msgstr ""
@@ -191,12 +191,12 @@ msgstr ""
 msgid "Header template"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:218
+#: ./migrations/migrate_to_2_1.py:256
 #: ./setuphandlers.py:231
 msgid "Held positions"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:218
+#: ./migrations/migrate_to_2_1.py:256
 #: ./setuphandlers.py:231
 msgid "Held positions searches"
 msgstr ""
@@ -236,7 +236,7 @@ msgstr ""
 msgid "Intro template"
 msgstr ""
 
-#: ./subscribers.py:373
+#: ./subscribers.py:374
 msgid "Linked objects: ${list}"
 msgstr ""
 
@@ -245,7 +245,7 @@ msgid "Mail listing template"
 msgstr ""
 
 #: ./browser/settings.py:39
-#: ./dmsmail.py:88
+#: ./dmsmail.py:94
 msgid "Mail type"
 msgstr ""
 
@@ -297,12 +297,12 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:205
+#: ./migrations/migrate_to_2_1.py:243
 #: ./setuphandlers.py:218
 msgid "Organizations"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:205
+#: ./migrations/migrate_to_2_1.py:243
 #: ./setuphandlers.py:218
 msgid "Organizations searches"
 msgstr ""
@@ -312,7 +312,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:373
-#: ./dmsmail.py:339
+#: ./dmsmail.py:345
 msgid "Outgoing Date"
 msgstr ""
 
@@ -336,12 +336,12 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:228
+#: ./migrations/migrate_to_2_1.py:266
 #: ./setuphandlers.py:241
 msgid "Persons"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:228
+#: ./migrations/migrate_to_2_1.py:266
 #: ./setuphandlers.py:241
 msgid "Persons searches"
 msgstr ""
@@ -358,7 +358,7 @@ msgstr ""
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:82
+#: ./dmsmail.py:88
 msgid "Recipient groups"
 msgstr ""
 
@@ -407,7 +407,7 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
-#: ./dmsmail.py:54
+#: ./dmsmail.py:60
 msgid "Sender"
 msgstr ""
 
@@ -447,13 +447,21 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
+#: ./dmsmail.py:526
+msgid "The assigned user is not in the selected assigned group !"
+msgstr ""
+
+#: ./dmsmail.py:516
+msgid "The assigned user is not in the selected treating group !"
+msgstr ""
+
 #: ./browser/batchactions.py:141
 msgid "Transition"
 msgstr ""
 
 #: ./browser/batchactions.py:196
 #: ./browser/table.py:111
-#: ./dmsmail.py:63
+#: ./dmsmail.py:69
 msgid "Treating groups"
 msgstr ""
 
@@ -473,27 +481,27 @@ msgstr ""
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr ""
 
-#: ./subscribers.py:403
+#: ./subscribers.py:404
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:389
+#: ./subscribers.py:390
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
-#: ./subscribers.py:369
+#: ./subscribers.py:370
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:349
+#: ./subscribers.py:350
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:341
+#: ./subscribers.py:342
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:222
+#: ./dmsmail.py:228
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
@@ -566,19 +574,19 @@ msgid "create_person"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:200
-#: ./migrations/migrate_to_2_1.py:155
+#: ./migrations/migrate_to_2_1.py:193
 #: ./setuphandlers.py:727
 msgid "front_page_descr"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:201
-#: ./migrations/migrate_to_2_1.py:156
+#: ./migrations/migrate_to_2_1.py:194
 #: ./setuphandlers.py:728
 msgid "front_page_text"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:199
-#: ./migrations/migrate_to_2_1.py:154
+#: ./migrations/migrate_to_2_1.py:192
 #: ./setuphandlers.py:726
 msgid "front_page_title"
 msgstr ""
@@ -595,7 +603,7 @@ msgstr ""
 msgid "im_in_copy"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:121
+#: ./migrations/migrate_to_2_1.py:159
 #: ./setuphandlers.py:482
 msgid "im_in_copy_unread"
 msgstr ""
@@ -690,7 +698,7 @@ msgid "recipientgroup-batch-action-but"
 msgstr ""
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./subscribers.py:160
+#: ./subscribers.py:161
 msgid "redirected_after_edition"
 msgstr ""
 

@@ -15,6 +15,8 @@ dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
 EMPTY_STRING = '__empty_string__'
 EMPTY_DATE = date(1950, 1, 1)
 
+DOC_ASSIGNED_USER_FUNCTIONS = ['editeur', 'validateur']
+
 PRODUCT_DIR = os.path.dirname(__file__)
 
 

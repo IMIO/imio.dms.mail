@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-07-11 07:37+0000\n"
+"POT-Creation-Date: 2018-07-19 07:58+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
-#: ./subscribers.py:355
+#: ./subscribers.py:356
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
@@ -137,12 +137,12 @@ msgstr "Commentaire"
 msgid "Common templates"
 msgstr "Modèles communs"
 
-#: ./migrations/migrate_to_2_1.py:238
+#: ./migrations/migrate_to_2_1.py:276
 #: ./setuphandlers.py:251
 msgid "Contact list searches"
 msgstr "Recherches listes de contact"
 
-#: ./migrations/migrate_to_2_1.py:238
+#: ./migrations/migrate_to_2_1.py:276
 #: ./setuphandlers.py:251
 msgid "Contact lists"
 msgstr "Listes de contact"
@@ -191,12 +191,12 @@ msgstr "Sous-document de pied de page"
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
-#: ./migrations/migrate_to_2_1.py:218
+#: ./migrations/migrate_to_2_1.py:256
 #: ./setuphandlers.py:231
 msgid "Held positions"
 msgstr "Fonctions occupées"
 
-#: ./migrations/migrate_to_2_1.py:218
+#: ./migrations/migrate_to_2_1.py:256
 #: ./setuphandlers.py:231
 msgid "Held positions searches"
 msgstr "Recherches fonctions occupées"
@@ -236,7 +236,7 @@ msgstr "Profil de base pour mio.dms.mail"
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
-#: ./subscribers.py:373
+#: ./subscribers.py:374
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
@@ -245,7 +245,7 @@ msgid "Mail listing template"
 msgstr "Listing courrier"
 
 #: ./browser/settings.py:39
-#: ./dmsmail.py:88
+#: ./dmsmail.py:94
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -297,12 +297,12 @@ msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifi�
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
-#: ./migrations/migrate_to_2_1.py:205
+#: ./migrations/migrate_to_2_1.py:243
 #: ./setuphandlers.py:218
 msgid "Organizations"
 msgstr "Organisations"
 
-#: ./migrations/migrate_to_2_1.py:205
+#: ./migrations/migrate_to_2_1.py:243
 #: ./setuphandlers.py:218
 msgid "Organizations searches"
 msgstr "Recherches organisations"
@@ -312,7 +312,7 @@ msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
 #: ./browser/batchactions.py:373
-#: ./dmsmail.py:339
+#: ./dmsmail.py:345
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -336,12 +336,12 @@ msgstr "Courrier sortant"
 msgid "Overwrite"
 msgstr "Écraser le contenu avec les éléments choisis"
 
-#: ./migrations/migrate_to_2_1.py:228
+#: ./migrations/migrate_to_2_1.py:266
 #: ./setuphandlers.py:241
 msgid "Persons"
 msgstr "Personnes"
 
-#: ./migrations/migrate_to_2_1.py:228
+#: ./migrations/migrate_to_2_1.py:266
 #: ./setuphandlers.py:241
 msgid "Persons searches"
 msgstr "Recherches personnes"
@@ -358,7 +358,7 @@ msgstr "Pour impression"
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
-#: ./dmsmail.py:82
+#: ./dmsmail.py:88
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -407,7 +407,7 @@ msgstr "Sélectionner les éléments à ajouter (CTRL+clic)"
 msgid "Select the values to remove (CTRL+click)"
 msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
 
-#: ./dmsmail.py:54
+#: ./dmsmail.py:60
 msgid "Sender"
 msgstr "Expéditeurs"
 
@@ -447,13 +447,21 @@ msgstr "Modèles doc"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
+#: ./dmsmail.py:526
+msgid "The assigned user is not in the selected assigned group !"
+msgstr "L'utilisateur assigné n'est pas dans le groupe assigné !"
+
+#: ./dmsmail.py:516
+msgid "The assigned user is not in the selected treating group !"
+msgstr "L'utilisateur assigné n'est pas dans le service traitant !"
+
 #: ./browser/batchactions.py:141
 msgid "Transition"
 msgstr "Transition"
 
 #: ./browser/batchactions.py:196
 #: ./browser/table.py:111
-#: ./dmsmail.py:63
+#: ./dmsmail.py:69
 msgid "Treating groups"
 msgstr "Service traitant"
 
@@ -473,27 +481,27 @@ msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)
 msgid "You can't change this field on selected items. Modify your selection."
 msgstr "Vous ne pouvez pas modifier ce champ sur l'ensemble des éléments sélectionnés. Recommencez en modifiant votre sélection."
 
-#: ./subscribers.py:403
+#: ./subscribers.py:404
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:389
+#: ./subscribers.py:390
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:369
+#: ./subscribers.py:370
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:349
+#: ./subscribers.py:350
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:341
+#: ./subscribers.py:342
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./dmsmail.py:222
+#: ./dmsmail.py:228
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
@@ -566,19 +574,19 @@ msgid "create_person"
 msgstr "Créer une personne"
 
 #: ./migrations/migrate_to_2_0.py:200
-#: ./migrations/migrate_to_2_1.py:155
+#: ./migrations/migrate_to_2_1.py:193
 #: ./setuphandlers.py:727
 msgid "front_page_descr"
 msgstr "Bienvenue sur votre outil de gestion du courrier"
 
 #: ./migrations/migrate_to_2_0.py:201
-#: ./migrations/migrate_to_2_1.py:156
+#: ./migrations/migrate_to_2_1.py:194
 #: ./setuphandlers.py:728
 msgid "front_page_text"
 msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p><ul><li>Création d'un courrier entrant<ul><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier</li><li>manuellement avec la possibilité d'associer ensuite un document scanné (par exemple si son format est particulier et ne passe pas dans le scanner fourni)</li></ul></li><li>Création d'un courrier sortant<ul><li>en réponse à un courrier entrant avec reprise dans la fiche courrier des données déjà encodées</li><li>manuellement avec la possibilité d'associer ensuite un document de réponse au format bureautique ou de le générer à partir d'un modèle</li><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier (par exemple un courrier généré par une autre application, déjà imprimé et signé)</li></ul></li><li>Pour les documents injectés depuis le scanner, la fiche courrier (entrant ou sortant) est complétée en se basant sur la prévisualisation du document scanné et la possibilité de glisser/déplacer depuis le texte océrisé</li><li>L'utilisation d'un modèle de courrier sortant a comme avantage de gérer automatiquement<ul><li>la fusion de données,</li><li>l'impression en lot,</li><li>l'intégration d'un code-barre</li><li>le publipostage</li></ul></li><li>Le code barre intégré dans le courrier sortant permet d’effectuer un scan des documents après signature, avec les avantages suivants&nbsp;:<ul><li>la sauvegarde de la version signée du document dans la fiche courrier sortant</li><li>l'enregistrement automatique de la date d'expédition</li><li>la clôture de la fiche courrier</li></ul></li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments &lt;&lt; à traiter &gt;&gt;</li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Assignation d'un service traitant, des services en copie et gestion de tâches (qui peuvent aussi être assignées à d'autres services)</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires, liste de contacts)</li><li>Workflow de validation et de traitement du courrier et des tâches</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale (facilité de visualisation sur tablette)</li><li>etc.</li></ul>"
 
 #: ./migrations/migrate_to_2_0.py:199
-#: ./migrations/migrate_to_2_1.py:154
+#: ./migrations/migrate_to_2_1.py:192
 #: ./setuphandlers.py:726
 msgid "front_page_title"
 msgstr "Gestion du courrier 2.1"
@@ -595,7 +603,7 @@ msgstr "Que je traite"
 msgid "im_in_copy"
 msgstr "En copie"
 
-#: ./migrations/migrate_to_2_1.py:121
+#: ./migrations/migrate_to_2_1.py:159
 #: ./setuphandlers.py:482
 msgid "im_in_copy_unread"
 msgstr "En copie, non lu"
@@ -690,7 +698,7 @@ msgid "recipientgroup-batch-action-but"
 msgstr "Changer les services en copie"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./subscribers.py:160
+#: ./subscribers.py:161
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
