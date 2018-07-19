@@ -1,37 +1,36 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
 
-import datetime
-from operator import methodcaller
-
-from zope import schema
-from zope.component import getMultiAdapter
-from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.lifecycleevent import modified, Attributes
-
 from AccessControl import getSecurityManager
-from plone import api
-from plone.supermodel import model
-from plone.formwidget.masterselect import MasterSelectField
-from z3c.form.form import Form
-from z3c.form import button
-from z3c.form.browser.select import SelectFieldWidget
-from z3c.form.field import Fields
-from z3c.form.interfaces import HIDDEN_MODE
-
-from Products.CMFPlone import PloneMessageFactory as PMF
-from Products.CMFPlone.utils import safe_unicode
-
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
 from collective.task.behaviors import ITask
-from collective.task.interfaces import ITaskContent
 from collective.task import _ as TMF
-
+from collective.task.interfaces import ITaskContent
+from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail import _
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
-from imio.dms.mail.dmsmail import IImioDmsIncomingMail
+from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.utils import get_selected_org_suffix_users
+from operator import methodcaller
+from plone.formwidget.masterselect import MasterSelectField
+from plone import api
+from plone.supermodel import model
+from Products.CMFPlone import PloneMessageFactory as PMF
+from Products.CMFPlone.utils import safe_unicode
+from z3c.form.browser.select import SelectFieldWidget
+from z3c.form.field import Fields
+from z3c.form.form import Form
+from z3c.form import button
+from z3c.form.interfaces import HIDDEN_MODE
+from zope.component import getMultiAdapter
+from zope import schema
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import modified
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
+
+import datetime
 
 
 class IDashboardBatchActionsFormSchema(model.Schema):
@@ -158,12 +157,12 @@ class TransitionBatchActionForm(DashboardBatchActionForm):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        if data['transition']:
+        elif data['transition']:
             for brain in self.brains:
                 obj = brain.getObject()
                 api.content.transition(obj=obj, transition=data['transition'],
                                        comment=self.request.form.get('form.widgets.comment', ''))
-        self.request.response.redirect(self.request.form['form.widgets.referer'])
+            self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
 class OldTreatingGroupBatchActionForm(DashboardBatchActionForm):
@@ -208,12 +207,21 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        if data['treating_group']:
+        elif data['treating_group']:
             for brain in self.brains:
-                obj = brain.getObject()
-                obj.treating_groups = data['treating_group']
-                modified(obj, Attributes(IDmsDocument, 'treating_groups'))
-        self.request.response.redirect(self.request.form['form.widgets.referer'])
+                # check if treating_groups is changed and assigned_user is no more in
+                if (brain.treating_groups is not None and brain.assigned_user != EMPTY_STRING and
+                    data['treating_group'] != brain.treating_groups and
+                    brain.assigned_user not in [mb.getUserName() for mb in get_selected_org_suffix_users(
+                        data['treating_group'], DOC_ASSIGNED_USER_FUNCTIONS)]):
+                        self.status = _(u"The assigned user is not in the selected treating group !")
+                        break
+            else:  # here if no break !
+                for brain in self.brains:
+                    obj = brain.getObject()
+                    obj.treating_groups = data['treating_group']
+                    modified(obj, Attributes(IDmsDocument, 'treating_groups'))
+                self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
 class RecipientGroupBatchActionForm(DashboardBatchActionForm):
@@ -282,7 +290,7 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        if ((data.get('removed_values', None) and data['action_choice'] in ('remove', 'replace')) or
+        elif ((data.get('removed_values', None) and data['action_choice'] in ('remove', 'replace')) or
                 (data.get('added_values', None)) and data['action_choice'] in ('add', 'replace', 'overwrite')):
             for brain in self.brains:
                 obj = brain.getObject()
@@ -296,7 +304,7 @@ class RecipientGroupBatchActionForm(DashboardBatchActionForm):
                         items = items.union(data['added_values'])
                 obj.recipient_groups = list(items)
                 modified(obj)
-        self.request.response.redirect(self.request.form['form.widgets.referer'])
+            self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
 def getAvailableAssignedUserVoc(brains, attribute):
@@ -346,14 +354,14 @@ class AssignedUserBatchActionForm(DashboardBatchActionForm):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        if data['assigned_user']:
+        elif data['assigned_user']:
             if data['assigned_user'] == '__none__':
                 data['assigned_user'] = None
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.assigned_user = data['assigned_user']
                 modified(obj)
-        self.request.response.redirect(self.request.form['form.widgets.referer'])
+            self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
 class ReplyBatchActionForm(DashboardBatchActionForm):
@@ -387,12 +395,12 @@ class OutgoingDateBatchActionForm(DashboardBatchActionForm):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        if data['outgoing_date']:
+        elif data['outgoing_date']:
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.outgoing_date = data['outgoing_date']
                 modified(obj)
-        self.request.response.redirect(self.request.form['form.widgets.referer'])
+            self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 # Task batch actions
 
@@ -421,12 +429,12 @@ class AssignedGroupBatchActionForm(DashboardBatchActionForm):
         data, errors = self.extractData()
         if errors:
             self.status = self.formErrorsMessage
-        if data['assigned_group']:
+        elif data['assigned_group']:
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.assigned_group = data['assigned_group']
                 modified(obj, Attributes(ITaskContent, 'ITask.assigned_group'))
-        self.request.response.redirect(self.request.form['form.widgets.referer'])
+            self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
 class TaskAssignedUserBatchActionForm(AssignedUserBatchActionForm):

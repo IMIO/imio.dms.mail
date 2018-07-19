@@ -1,48 +1,57 @@
 # encoding: utf-8
-import datetime
-import time
-from zope.component import adapts, getMultiAdapter, getUtility
-from zope.interface import implements, Interface
-from zope.i18n import translate
-from zope.schema.interfaces import IVocabularyFactory, IField
-from zope.schema.vocabulary import SimpleVocabulary
-from z3c.form.datamanager import AttributeField
-from z3c.form.term import MissingChoiceTermsVocabulary, MissingTermsMixin
-from z3c.form.interfaces import IContextAware, IDataManager
-from z3c.form.validator import SimpleFieldValidator
 
 from AccessControl import getSecurityManager
-from Products.CMFCore.interfaces import IContentish
-from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.CatalogTool import sortable_title
-from Products.CMFPlone.utils import base_hasattr
-from Products.PluginIndexes.common.UnIndex import _marker as common_marker
-from plone import api
-from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
-from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
-from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
-from plone.app.contenttypes.indexers import _unicode_save_string_concat
-from plone.app.uuid.utils import uuidToObject
-from plone.indexer import indexer
-from plone.registry.interfaces import IRegistry
-from plone.rfc822.interfaces import IPrimaryFieldInfo
-
-from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective import dexteritytextindexer
 from collective.task.interfaces import ITaskContent
+from imio.dms.mail.dmsmail import IImioDmsIncomingMail
+from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail import EMPTY_DATE
+from imio.dms.mail.overrides import IDmsPerson
+from imio.dms.mail.utils import get_scan_id
+from imio.dms.mail.utils import highest_review_level
+from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import organizations_with_suffixes
+from imio.dms.mail.utils import review_levels
 from imio.prettylink.adapters import PrettyLinkAdapter
+from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
+from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
+from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
+from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.app.uuid.utils import uuidToObject
+from plone import api
+from plone.indexer import indexer
+from plone.registry.interfaces import IRegistry
+from plone.rfc822.interfaces import IPrimaryFieldInfo
+from Products.CMFCore.interfaces import IContentish
+from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.CatalogTool import sortable_title
+from Products.CMFPlone.utils import base_hasattr
+from Products.PluginIndexes.common.UnIndex import _marker as common_marker
+from z3c.form.datamanager import AttributeField
+from z3c.form.interfaces import IContextAware
+from z3c.form.interfaces import IDataManager
+from z3c.form.term import MissingChoiceTermsVocabulary
+from z3c.form.term import MissingTermsMixin
+from z3c.form.validator import SimpleFieldValidator
+from zope.component import adapts
+from zope.component import getMultiAdapter
+from zope.component import getUtility
+from zope.i18n import translate
+from zope.interface import implements
+from zope.interface import Interface
+from zope.schema.interfaces import IField
+from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.vocabulary import SimpleVocabulary
 
-from dmsmail import IImioDmsIncomingMail, IImioDmsOutgoingMail
-from .overrides import IDmsPerson
+import datetime
+import time
 
-from utils import review_levels, highest_review_level, organizations_with_suffixes, get_scan_id, list_wf_states
-
-from . import EMPTY_DATE
 
 #######################
 # Compound criterions #
