@@ -214,7 +214,11 @@ class TreatingGroupBatchActionForm(DashboardBatchActionForm):
                     data['treating_group'] != brain.treating_groups and
                     brain.assigned_user not in [mb.getUserName() for mb in get_selected_org_suffix_users(
                         data['treating_group'], DOC_ASSIGNED_USER_FUNCTIONS)]):
-                        self.status = _(u"The assigned user is not in the selected treating group !")
+                        # self.status not good here because it needs to stay on the same form
+                        api.portal.show_message(_(u'An assigned user is not in this new treating group. '
+                                                  u'Mail "${mail}" !', mapping={'mail': brain.Title.decode('utf8')}),
+                                                self.request, 'error')
+                        self.request.response.redirect(self.request.form['form.widgets.referer'])
                         break
             else:  # here if no break !
                 for brain in self.brains:
@@ -431,10 +435,22 @@ class AssignedGroupBatchActionForm(DashboardBatchActionForm):
             self.status = self.formErrorsMessage
         elif data['assigned_group']:
             for brain in self.brains:
-                obj = brain.getObject()
-                obj.assigned_group = data['assigned_group']
-                modified(obj, Attributes(ITaskContent, 'ITask.assigned_group'))
-            self.request.response.redirect(self.request.form['form.widgets.referer'])
+                # check if assigned_group is changed and assigned_user is no more in
+                if (brain.assigned_group is not None and brain.assigned_user != EMPTY_STRING and
+                    data['assigned_group'] != brain.assigned_group and
+                    brain.assigned_user not in [mb.getUserName() for mb in get_selected_org_suffix_users(
+                        data['assigned_group'], DOC_ASSIGNED_USER_FUNCTIONS)]):
+                        api.portal.show_message(_(u'An assigned user is not in this new assigned group. '
+                                                  u'Task "${task}" !', mapping={'task': brain.getURL().decode('utf8')}),
+                                                self.request, 'error')
+                        self.request.response.redirect(self.request.form['form.widgets.referer'])
+                        break
+            else:  # here if no break !
+                for brain in self.brains:
+                    obj = brain.getObject()
+                    obj.assigned_group = data['assigned_group']
+                    modified(obj, Attributes(ITaskContent, 'ITask.assigned_group'))
+                self.request.response.redirect(self.request.form['form.widgets.referer'])
 
 
 class TaskAssignedUserBatchActionForm(AssignedUserBatchActionForm):
