@@ -202,6 +202,18 @@ class BatchActions(unittest.TestCase):
         view.handleApply(view, 'apply')
         self.assertEqual(self.ta1.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
         self.assertEqual(self.ta3.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
+        # assigned user blocking
+        self.ta1.assigned_user = 'agent'
+        self.ta1.reindexObject()
+        view = self.tsf.unrestrictedTraverse('@@assignedgroup-batch-action')
+        view.request['uids'] = ','.join([self.ta1.UID(), self.ta3.UID()])
+        view.update()
+        view.widgets.extract = lambda *a, **kw: ({'assigned_group':
+                                                  self.pgof['direction-generale'].UID()}, [])
+        view.handleApply(view, 'apply')
+        # Not changed !
+        self.assertEqual(self.ta1.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
+        self.assertEqual(self.ta3.assigned_group, self.pgof['direction-financiere']['budgets'].UID())
 
     def test_TaskAssignedUserBatchActionForm(self):
         self.assertIsNone(self.ta1.assigned_user)
