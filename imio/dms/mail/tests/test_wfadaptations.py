@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """ wfadaptations.py tests for this package."""
-import unittest
-
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.wfadaptations import EmergencyZoneAdaptation, OMToPrintAdaptation
+from imio.dms.mail.wfadaptations import EmergencyZoneAdaptation
+from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from zope.component import getUtility
+
+import unittest
 
 
 class TestWFAdaptations(unittest.TestCase):

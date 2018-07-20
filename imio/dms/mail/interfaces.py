@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from collective.eeafaceted.batchactions.interfaces import IBatchActionsMarker
 from collective.contact.core.content.directory import IDirectory
+from collective.eeafaceted.batchactions.interfaces import IBatchActionsMarker
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from plone.dexterity.interfaces import IDexterityContainer
 from zope.interface import Interface

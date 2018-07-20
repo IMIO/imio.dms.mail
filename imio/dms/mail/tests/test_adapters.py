@@ -1,22 +1,32 @@
 # -*- coding: utf-8 -*-
-import unittest
-from zope.component import getUtility
-from zope.schema.interfaces import IVocabularyFactory
+from imio.dms.mail.adapters import default_criterias
+from imio.dms.mail.adapters import IdmSearchableExtender
+from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
+from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
+from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
+from imio.dms.mail.adapters import IncomingMailValidationCriterion
+from imio.dms.mail.adapters import org_sortable_title_index
+from imio.dms.mail.adapters import OutgoingMailInCopyGroupCriterion
+from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
+from imio.dms.mail.adapters import OutgoingMailValidationCriterion
+from imio.dms.mail.adapters import ScanSearchableExtender
+from imio.dms.mail.adapters import state_group_index
+from imio.dms.mail.adapters import task_state_group_index
+from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
+from imio.dms.mail.adapters import TaskInProposingGroupCriterion
+from imio.dms.mail.adapters import TaskValidationCriterion
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
-from ..browser.settings import IImioDmsMailConfig
-from ..testing import DMSMAIL_INTEGRATION_TESTING
-from ..adapters import default_criterias
-from ..adapters import IncomingMailHighestValidationCriterion
-from ..adapters import IncomingMailValidationCriterion, TaskValidationCriterion, OutgoingMailValidationCriterion
-from ..adapters import IncomingMailInTreatingGroupCriterion, OutgoingMailInTreatingGroupCriterion
-from ..adapters import TaskInAssignedGroupCriterion, TaskInProposingGroupCriterion
-from ..adapters import IncomingMailInCopyGroupCriterion, OutgoingMailInCopyGroupCriterion
-from ..adapters import ScanSearchableExtender, IdmSearchableExtender, org_sortable_title_index
-from ..adapters import state_group_index, task_state_group_index
+from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
+
+import unittest
 
 
 class TestAdapters(unittest.TestCase):

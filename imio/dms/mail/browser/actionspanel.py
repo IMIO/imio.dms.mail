@@ -1,11 +1,9 @@
-from zope.component import getMultiAdapter
-
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
+from imio.actionspanel.browser.views import ActionsPanelView
 from plone import api
 from plone.memoize import ram
-
-from imio.actionspanel.browser.views import ActionsPanelView
-from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from zope.component import getMultiAdapter
 
 
 def actionspanelview_cachekey(method,

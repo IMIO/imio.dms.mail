@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from zope.annotation.interfaces import IAnnotations
-from zope.i18n import translate
-from plone import api
-from plone.app.uuid.utils import uuidToObject
-from plone.dexterity.utils import createContentInContainer
-from plone.namedfile.file import NamedBlobFile
-from Products.CMFPlone.utils import safe_unicode, base_hasattr
-from collective.contact.core.interfaces import IContactable
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.content.person import IPerson
+from collective.contact.core.interfaces import IContactable
 from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
@@ -22,6 +15,14 @@ from imio.dashboard.browser.overrides import IDDocumentGenerationView
 from imio.helpers.barcode import generate_barcode
 from imio.zamqp.core import base
 from imio.zamqp.core.utils import next_scan_id
+from plone import api
+from plone.app.uuid.utils import uuidToObject
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
+from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
+from zope.annotation.interfaces import IAnnotations
+from zope.i18n import translate
 
 
 ### HELPERS ###

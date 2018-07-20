@@ -1,33 +1,41 @@
 # -*- coding: utf-8 -*-
 
-from zope.annotation.interfaces import IAnnotations
-from zope.component import getUtility
-from zope.container import contained
-from zope.event import notify
-from zope.interface import alsoProvides, noLongerProvides
-
-from Products.CMFPlone.utils import base_hasattr
+#from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.dms.mail.interfaces import IExternalContact
+from imio.dms.mail.interfaces import IIMDashboard
+from imio.dms.mail.interfaces import IInternalContact
+from imio.dms.mail.setuphandlers import _
+from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import configure_faceted_folder
+from imio.dms.mail.setuphandlers import configure_task_rolefields
+from imio.dms.mail.setuphandlers import createIMailCollections
+from imio.dms.mail.setuphandlers import createStateCollections
+from imio.dms.mail.setuphandlers import createTaskCollections
+from imio.dms.mail.setuphandlers import reimport_faceted_config
+from imio.dms.mail.utils import create_richtextval
+from imio.helpers.catalog import addOrUpdateIndexes
+from imio.migrator.migrator import Migrator
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity import utils as dxutils
 from plone.dexterity.interfaces import IDexterityFTI
-import plone.dexterity.schema
 from plone.registry.interfaces import IRegistry
 from plone.supermodel.utils import syncSchema
-
-from Products.CPUtils.Extensions.utils import configure_ckeditor, mark_last_version
-#from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from collective.querynextprev.interfaces import INextPrevNotNavigable
-from imio.helpers.catalog import addOrUpdateIndexes
-from imio.migrator.migrator import Migrator
-
-from ..interfaces import IExternalContact, IInternalContact, IIMDashboard
-from ..setuphandlers import _, configure_faceted_folder, reimport_faceted_config
-from ..setuphandlers import add_db_col_folder, configure_task_rolefields
-from ..setuphandlers import createIMailCollections, createTaskCollections, createStateCollections
-from ..utils import create_richtextval
+from Products.CMFPlone.utils import base_hasattr
+from Products.CPUtils.Extensions.utils import configure_ckeditor
+from Products.CPUtils.Extensions.utils import mark_last_version
+from zope.annotation.interfaces import IAnnotations
+from zope.component import getUtility
+from zope.container import contained
+from zope.event import notify
+from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 
 import logging
+import plone.dexterity.schema
+
+
 logger = logging.getLogger('imio.dms.mail')
 
 

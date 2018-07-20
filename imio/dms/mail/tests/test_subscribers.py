@@ -1,28 +1,26 @@
 # -*- coding: utf-8 -*-
-import unittest
-
-from zExceptions import Redirect
-import zope.event
-from zope.component import getUtility
-from zope.interface import Interface
-from zope.lifecycleevent import ObjectModifiedEvent, Attributes
-
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.vocabularies import AssignedUsersVocabulary
+from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
-from plone.app.testing import setRoles, TEST_USER_ID
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
-from plone import api
-
 from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
+from zExceptions import Redirect
+from zope.component import getUtility
+from zope.interface import Interface
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import ObjectModifiedEvent
 
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
-
-from ..testing import DMSMAIL_INTEGRATION_TESTING
-from ..vocabularies import AssignedUsersVocabulary
+import unittest
+import zope.event
 
 
 class TestDmsmail(unittest.TestCase):

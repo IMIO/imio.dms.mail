@@ -1,17 +1,25 @@
 # -*- coding: utf-8 -*-
-import unittest
-from zope.component import getUtility
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import create_richtextval
+from imio.dms.mail.utils import get_scan_id
+from imio.dms.mail.utils import highest_review_level
+from imio.dms.mail.utils import IdmUtilsMethods
+from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import UtilsMethods
+from imio.dms.mail.utils import voc_selected_org_suffix_users
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID, login, TEST_USER_NAME
+from plone.app.testing import login
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+from plone.app.testing import TEST_USER_NAME
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from imio.helpers.cache import invalidate_cachekey_volatile_for
+from zope.component import getUtility
 
-from ..testing import DMSMAIL_INTEGRATION_TESTING
-from ..utils import highest_review_level, voc_selected_org_suffix_users, list_wf_states
-from ..utils import create_richtextval, get_scan_id, UtilsMethods, IdmUtilsMethods
-from ..browser.settings import IImioDmsMailConfig
+import unittest
 
 
 class TestUtils(unittest.TestCase):

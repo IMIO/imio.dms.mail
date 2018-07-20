@@ -1,16 +1,19 @@
-import copy
-
-# from z3c.form.interfaces import HIDDEN_MODE
-
-from plone import api
-from plone.dexterity.browser.add import DefaultAddView, DefaultAddForm
-from plone.dexterity.browser.edit import DefaultEditForm
-
-from Products.CMFPlone.utils import base_hasattr
-
 from collective.task import _ as _t
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.utils import voc_selected_org_suffix_users
+from plone import api
+from plone.dexterity.browser.add import DefaultAddForm
+from plone.dexterity.browser.add import DefaultAddView
+from plone.dexterity.browser.edit import DefaultEditForm
+from Products.CMFPlone.utils import base_hasattr
+
+import copy
+
+
+# from z3c.form.interfaces import HIDDEN_MODE
+
+
+
 
 
 def filter_task_assigned_users(group):

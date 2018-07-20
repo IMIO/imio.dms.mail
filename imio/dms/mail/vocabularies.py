@@ -1,23 +1,31 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
-from Products.CMFPlone.utils import safe_unicode
-from zope.component import getUtility, queryUtility
-from zope.i18n import translate
-from zope.interface import implements, alsoProvides
-from zope.schema.interfaces import IVocabularyFactory, IContextSourceBinder
-from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
+from browser.settings import IImioDmsMailConfig
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.interfaces import INotPloneGroupContact
+from collective.contact.plonegroup.interfaces import IPloneGroupContact
+from ftw.labels.interfaces import ILabelJar
+from imio.dms.mail import _
+from imio.dms.mail import EMPTY_STRING
+from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import get_selected_org_suffix_users
+from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import organizations_with_suffixes
+from imio.helpers.cache import get_cachekey_volatile
 from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from collective.contact.plonegroup.interfaces import IPloneGroupContact, INotPloneGroupContact
-from ftw.labels.interfaces import ILabelJar
-from imio.dms.mail.interfaces import IPersonnelContact
-from imio.dms.mail.utils import list_wf_states, get_selected_org_suffix_users, organizations_with_suffixes
-from imio.helpers.cache import get_cachekey_volatile
-from browser.settings import IImioDmsMailConfig
-from . import _, EMPTY_STRING
+from Products.CMFPlone.utils import safe_unicode
+from zope.component import getUtility
+from zope.component import queryUtility
+from zope.i18n import translate
+from zope.interface import alsoProvides
+from zope.interface import implements
+from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 
 def voc_cache_key(method, self, context):

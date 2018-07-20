@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
-from plone import api
-from zope.component import getUtility
-from zope.intid.interfaces import IIntIds
-from zc.relation.interfaces import ICatalog
-from plone.app.layout.viewlets import ViewletBase
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
 from collective.task.browser.viewlets import TaskParentViewlet
 from imio.dms.mail.browser.table import OMVersionsTable
+from plone import api
+from plone.app.layout.viewlets import ViewletBase
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from zc.relation.interfaces import ICatalog
+from zope.component import getUtility
+from zope.intid.interfaces import IIntIds
 
 
 class ContactContentBackrefsViewlet(ViewletBase):

@@ -1,11 +1,13 @@
-import unittest
-from Products.CMFCore.utils import getToolByName
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.utils import getToolByName
 from zope.component import getUtility
+
+import unittest
 
 
 class TestSetuphandlers(unittest.TestCase):

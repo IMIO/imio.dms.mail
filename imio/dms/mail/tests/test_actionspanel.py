@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """Test views."""
-import unittest
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 
-from ..testing import DMSMAIL_INTEGRATION_TESTING
+import unittest
 
 
 class TestDmsIMActionsPanelView(unittest.TestCase):

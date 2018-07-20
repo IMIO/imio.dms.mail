@@ -1,6 +1,9 @@
-import os
-from zope.i18nmessageid import MessageFactory
+from collective.dms.basecontent import dmsfile
 from datetime import date
+from zope.i18nmessageid import MessageFactory
+
+import os
+
 
 _ = MessageFactory("imio.dms.mail")
 
@@ -8,7 +11,6 @@ _ = MessageFactory("imio.dms.mail")
 def initialize(context):
     """Initializer called when used as a Zope 2 product."""
 
-from collective.dms.basecontent import dmsfile
 dmsfile.DmsFile.__ac_local_roles_block__ = False
 dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
 

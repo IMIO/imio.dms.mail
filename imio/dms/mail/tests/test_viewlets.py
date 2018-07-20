@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """Test views."""
-import unittest
+from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
+from imio.dms.mail.dmsmail import IImioDmsIncomingMail
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
 from plone.app.testing import login
 
-from ..browser.viewlets import ContactContentBackrefsViewlet
-from ..dmsmail import IImioDmsIncomingMail
-from ..testing import DMSMAIL_INTEGRATION_TESTING
+import unittest
 
 
 class TestContactContentBackrefsViewlet(unittest.TestCase):

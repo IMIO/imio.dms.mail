@@ -1,19 +1,29 @@
 # -*- coding: utf-8 -*-
-import unittest
-from zope.component import getUtility
-from zope.schema.interfaces import IVocabularyFactory
+from imio.dms.mail import EMPTY_STRING
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.vocabularies import AssignedUsersVocabulary
+from imio.dms.mail.vocabularies import EmptyAssignedUsersVocabulary
+from imio.dms.mail.vocabularies import encodeur_active_orgs
+from imio.dms.mail.vocabularies import getMailTypes
+from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
+from imio.dms.mail.vocabularies import OMActiveMailTypesVocabulary
+from imio.dms.mail.vocabularies import OMMailTypesVocabulary
+from imio.dms.mail.vocabularies import OMSenderVocabulary
+from imio.dms.mail.vocabularies import PloneGroupInterfacesVocabulary
+from imio.dms.mail.vocabularies import TaskReviewStatesVocabulary
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID, login, logout
+from plone.app.testing import login
+from plone.app.testing import logout
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
-from imio.dms.mail.browser.settings import IImioDmsMailConfig
-from imio.helpers.cache import invalidate_cachekey_volatile_for
+from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 
-from ..testing import DMSMAIL_INTEGRATION_TESTING
-from ..vocabularies import (IMReviewStatesVocabulary, TaskReviewStatesVocabulary, AssignedUsersVocabulary,
-                            getMailTypes, PloneGroupInterfacesVocabulary, OMSenderVocabulary, OMMailTypesVocabulary,
-                            OMActiveMailTypesVocabulary, encodeur_active_orgs, EmptyAssignedUsersVocabulary)
-from .. import EMPTY_STRING
+import unittest
 
 
 class TestVocabularies(unittest.TestCase):

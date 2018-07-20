@@ -1,8 +1,7 @@
+from imio.dms.mail.testing import DMSMAIL_ROBOT_TESTING
 from plone.testing import layered
 
 import robotsuite
-
-from imio.dms.mail.testing import DMSMAIL_ROBOT_TESTING
 
 
 def test_suite():

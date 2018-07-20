@@ -1,7 +1,7 @@
+from DateTime import DateTime
 from plone.app.uuid.utils import uuidToObject
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
-from DateTime import DateTime
 
 
 class ListingView(BrowserView):

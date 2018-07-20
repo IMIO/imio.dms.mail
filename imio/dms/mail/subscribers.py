@@ -1,40 +1,48 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get
-from DateTime import DateTime
-import logging
-from z3c.relationfield.event import updateRelations
-from z3c.relationfield.relation import RelationValue
-from zc.relation.interfaces import ICatalog
-from zExceptions import Redirect
-from zope.component import getUtility, queryUtility, getAdapter
-from zope.container.interfaces import IContainerModifiedEvent
-from zope.i18n import translate
-from zope.interface import alsoProvides, noLongerProvides
-from zope.intid.interfaces import IIntIds
-from zope.lifecycleevent import modified
-from zope.lifecycleevent.interfaces import IObjectRemovedEvent
-
-from plone import api
-from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import safe_unicode
-from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
-from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
-from plone.app.users.browser.personalpreferences import UserDataConfiglet
-from plone.app.uuid.utils import uuidToObject
-from plone.registry.interfaces import IRecordModifiedEvent, IRegistry
-
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY, FUNCTIONS_REGISTRY
-from collective.contact.plonegroup.interfaces import INotPloneGroupContact, IPloneGroupContact
-from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig, getOwnOrganizationPath
+from collective.contact.plonegroup.browser.settings import getOwnOrganizationPath
+from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
+from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.interfaces import INotPloneGroupContact
+from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
+from DateTime import DateTime
+from imio.dms.mail import _
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from interfaces import IActionsPanelFolder
+from interfaces import IActionsPanelFolderAll
+from interfaces import IPersonnelContact
+from plone import api
+from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
+from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
+from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from plone.app.uuid.utils import uuidToObject
+from plone.registry.interfaces import IRecordModifiedEvent
+from plone.registry.interfaces import IRegistry
+from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
+from z3c.relationfield.event import updateRelations
+from z3c.relationfield.relation import RelationValue
+from zc.relation.interfaces import ICatalog
+from zExceptions import Redirect
+from zope.component import getAdapter
+from zope.component import getUtility
+from zope.component import queryUtility
+from zope.container.interfaces import IContainerModifiedEvent
+from zope.i18n import translate
+from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
+from zope.intid.interfaces import IIntIds
+from zope.lifecycleevent import modified
+from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
-from . import _
-from interfaces import IActionsPanelFolder, IPersonnelContact, IActionsPanelFolderAll
+import logging
+
 
 logger = logging.getLogger('imio.dms.mail: events')
 

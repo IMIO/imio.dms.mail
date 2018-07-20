@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
-from zope.annotation.interfaces import IAnnotations
-from zope.component import getUtility
-from zope.schema.interfaces import IVocabularyFactory
-from zope.i18n import translate
-from z3c.table.column import Column, LinkColumn
-from Products.CMFPlone.utils import safe_unicode
 from collective.dms.basecontent.browser.column import IconColumn
-from collective.dms.basecontent.browser.listing import VersionsTitleColumn, VersionsTable
+from collective.dms.basecontent.browser.listing import VersionsTable
+from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task import _ as _task
 from imio.dms.mail import _
 from imio.dms.mail.setuphandlers import _ as _t
+from Products.CMFPlone.utils import safe_unicode
+from z3c.table.column import Column
+from z3c.table.column import LinkColumn
+from zope.annotation.interfaces import IAnnotations
+from zope.component import getUtility
+from zope.i18n import translate
+from zope.schema.interfaces import IVocabularyFactory
+
 
 # z3c.table standard columns
 

@@ -1,19 +1,17 @@
-from zope import schema
-from zope.interface import Interface
-from z3c.form import form
+from collective.z3cform.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.registry import DictRow
+from imio.dms.mail import _
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 #from z3c.form.browser.radio import RadioFieldWidget
-from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
+from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.autoform.directives import widget
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.supermodel import model
 from plone.z3cform import layout
-
-from collective.z3cform.datagridfield import DataGridFieldFactory
-from collective.z3cform.datagridfield.registry import DictRow
-from imio.helpers.cache import invalidate_cachekey_volatile_for
-
-from .. import _
+from z3c.form import form
+from zope import schema
+from zope.interface import Interface
 
 
 class IMailTypeSchema(Interface):

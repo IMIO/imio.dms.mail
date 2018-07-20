@@ -1,25 +1,28 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
-import os
-
+from AccessControl import getSecurityManager
+from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
+from collective.eeafaceted.z3ctable import _ as _cez
+from collective.eeafaceted.z3ctable.columns import BaseColumn
+from collective.eeafaceted.z3ctable.columns import DateColumn
+from collective.eeafaceted.z3ctable.columns import DxWidgetRenderColumn
+from collective.eeafaceted.z3ctable.columns import I18nColumn
+from collective.eeafaceted.z3ctable.columns import MemberIdColumn
+from collective.eeafaceted.z3ctable.columns import VocabularyColumn
+from collective.task.interfaces import ITaskMethods
+from imio.dashboard.columns import ActionsColumn
+from imio.dashboard.columns import PrettyLinkColumn
+from imio.dashboard.columns import RelationPrettyLinkColumn
+from imio.dms.mail import _
+from plone import api
+from plone.app.uuid.utils import uuidToCatalogBrain
+from Products.CMFPlone.utils import safe_unicode
 from z3c.table import column
 from z3c.table.column import LinkColumn
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
-from AccessControl import getSecurityManager
-from plone import api
-from plone.app.uuid.utils import uuidToCatalogBrain
-from Products.CMFPlone.utils import safe_unicode
-
-from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
-from collective.eeafaceted.z3ctable.columns import DateColumn, MemberIdColumn, VocabularyColumn, DxWidgetRenderColumn
-from collective.eeafaceted.z3ctable.columns import I18nColumn, BaseColumn
-from collective.eeafaceted.z3ctable import _ as _cez
-from collective.task.interfaces import ITaskMethods
-from imio.dashboard.columns import ActionsColumn, RelationPrettyLinkColumn, PrettyLinkColumn
-
-from imio.dms.mail import _
+import os
 
 
 class TreatingGroupsColumn(VocabularyColumn):

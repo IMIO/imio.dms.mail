@@ -1,9 +1,9 @@
+from imio.dms.mail.setuphandlers import _
+from plone import api
+from Products.Five import BrowserView
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
-from plone import api
-from Products.Five import BrowserView
-from imio.dms.mail.setuphandlers import _
 
 
 class TabularView(BrowserView):

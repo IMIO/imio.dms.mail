@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from zope.component import getUtility
-from zope.schema.interfaces import IVocabularyFactory
+from imio.dms.mail.setuphandlers import changeSearchedTypes
+from imio.dms.mail.setuphandlers import configure_actions_panel
+from imio.dms.mail.setuphandlers import createIMailCollections
+from imio.dms.mail.setuphandlers import createStateCollections
+from imio.dms.mail.setuphandlers import setupFacetedContacts
+from imio.helpers.catalog import addOrUpdateColumns
+from imio.helpers.catalog import addOrUpdateIndexes
+from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from Products.CMFPlone.utils import base_hasattr
-
-from imio.helpers.catalog import addOrUpdateIndexes, addOrUpdateColumns
-from imio.migrator.migrator import Migrator
-
-from ..setuphandlers import createStateCollections, createIMailCollections, setupFacetedContacts
-from ..setuphandlers import changeSearchedTypes, configure_actions_panel
+from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 
 import logging
+
+
 logger = logging.getLogger('imio.dms.mail')
 
 

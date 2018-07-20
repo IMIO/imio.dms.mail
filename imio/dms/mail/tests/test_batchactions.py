@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 """Test views."""
-import unittest
-from plone import api
-from plone.app.testing import setRoles, TEST_USER_ID
-
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
-from imio.dms.mail.browser.batchactions import (getAvailableTransitionsVoc, canNotModify, getAvailableAssignedUserVoc)
+from imio.dms.mail.browser.batchactions import canNotModify
+from imio.dms.mail.browser.batchactions import getAvailableAssignedUserVoc
+from imio.dms.mail.browser.batchactions import getAvailableTransitionsVoc
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from plone import api
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+
+import unittest
 
 
 class BatchActions(unittest.TestCase):

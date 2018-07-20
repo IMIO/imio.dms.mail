@@ -1,17 +1,17 @@
 # encoding: utf-8
 
 from AccessControl import getSecurityManager
+from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
-from collective import dexteritytextindexer
 from collective.task.interfaces import ITaskContent
+from imio.dms.mail import EMPTY_DATE
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
-from imio.dms.mail import EMPTY_DATE
 from imio.dms.mail.overrides import IDmsPerson
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
@@ -19,12 +19,12 @@ from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import organizations_with_suffixes
 from imio.dms.mail.utils import review_levels
 from imio.prettylink.adapters import PrettyLinkAdapter
+from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
 from plone.app.uuid.utils import uuidToObject
-from plone import api
 from plone.indexer import indexer
 from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo

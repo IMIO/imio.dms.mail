@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from zope.component import getUtility
+from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from imio.migrator.migrator import Migrator
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
-from imio.migrator.migrator import Migrator
+from zope.component import getUtility
 
 import logging
+
+
 logger = logging.getLogger('imio.dms.mail')
 
 

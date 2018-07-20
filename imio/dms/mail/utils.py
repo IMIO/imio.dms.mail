@@ -1,17 +1,18 @@
 # encoding: utf-8
 
-from datetime import date, timedelta
-from operator import methodcaller
+from browser.settings import IImioDmsMailConfig
+from collections import OrderedDict
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.utils import organizations_with_suffixes
+from datetime import date
+from datetime import timedelta
+from imio.dashboard.utils import getCurrentCollection
+from imio.helpers.cache import generate_key
+from imio.helpers.cache import get_cachekey_volatile
+from interfaces import IIMDashboard
 #from operator import itemgetter
 from operator import attrgetter
-from collections import OrderedDict
-import logging
-
-from zope.component.hooks import getSite
-from zope.schema.interfaces import IVocabularyFactory
-from zope.schema.vocabulary import SimpleVocabulary, SimpleTerm
-from zope.component import getUtility
-
+from operator import methodcaller
 from plone import api
 from plone.app.textfield.value import RichTextValue
 from plone.memoize import ram
@@ -19,13 +20,14 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five import BrowserView
+from zope.component import getUtility
+from zope.component.hooks import getSite
+from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from collective.contact.plonegroup.utils import organizations_with_suffixes
-from imio.dashboard.utils import getCurrentCollection
-from imio.helpers.cache import get_cachekey_volatile, generate_key
-from browser.settings import IImioDmsMailConfig
-from interfaces import IIMDashboard
+import logging
+
 
 # methods
 

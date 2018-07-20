@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 """Reply form."""
-# from collections import Counter
-# from z3c.form.interfaces import DISPLAY_MODE
-from zope.component import getUtility
-from plone.dexterity.browser.add import DefaultAddForm
+from imio.dms.mail import _
+from imio.dms.mail.browser.batchactions import brains_from_uids
+from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateFields
+from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateWidgets
 from plone import api
+from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import addContentToContainer
 from Products.CMFPlone.utils import safe_unicode
-
-from imio.dms.mail import _
-from ..dmsmail import ImioDmsOutgoingMailUpdateFields, ImioDmsOutgoingMailUpdateWidgets
-from imio.dms.mail.browser.batchactions import brains_from_uids
+# from collections import Counter
+# from z3c.form.interfaces import DISPLAY_MODE
+from zope.component import getUtility
 
 
 class ReplyForm(DefaultAddForm):

@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 """Test views."""
-import json
-import unittest
-from zope.i18n import translate
+from imio.dms.mail.browser.views import parse_query
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
+from zope.i18n import translate
 
-from ..browser.views import parse_query
-from ..testing import DMSMAIL_INTEGRATION_TESTING
+import json
+import unittest
 
 
 class TestReplyForm(unittest.TestCase):

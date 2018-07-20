@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-import unittest
-from zope.component import getUtility
-from plone.app.testing import setRoles, TEST_USER_ID
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from imio.dms.mail.browser.table import AssignedGroupColumn
+from imio.dms.mail.browser.table import IMVersionsTitleColumn
+from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.browser.table import IMVersionsTitleColumn, AssignedGroupColumn
+from zope.component import getUtility
+
+import unittest
 
 
 class TestTable(unittest.TestCase):

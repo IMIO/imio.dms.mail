@@ -7,14 +7,12 @@
 # GNU General Public License (GPL)
 #
 
-from zope import schema
-from plone.autoform import directives
-from plone.dexterity.schema import DexteritySchemaPolicy
-
 from collective.contact.core.content.person import IPerson
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
-
-from . import _
+from imio.dms.mail import _
+from plone.autoform import directives
+from plone.dexterity.schema import DexteritySchemaPolicy
+from zope import schema
 
 
 class IDmsPerson(IPerson):

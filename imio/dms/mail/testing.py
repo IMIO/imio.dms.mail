@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-import os
-from Products.CMFPlone.utils import _createObjectByType, base_hasattr
-from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from imio.pyutils.system import runCommand
 from plone import api
-from plone.testing import z2
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
-from plone.app.testing.helpers import PloneWithPackageLayer
-from plone.app.testing import IntegrationTesting
 from plone.app.testing import FunctionalTesting
-from plone.app.testing import setRoles, TEST_USER_ID
+from plone.app.testing import IntegrationTesting
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+from plone.app.testing.helpers import PloneWithPackageLayer
+from plone.testing import z2
+from Products.CMFPlone.utils import _createObjectByType
+from Products.CMFPlone.utils import base_hasattr
+from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from Testing import ZopeTestCase as ztc
 from zope.i18n import translate
 
-from Testing import ZopeTestCase as ztc
-
-from imio.pyutils.system import runCommand
-
 import imio.dms.mail
+import os
 
 
 class DmsmailLayer(PloneWithPackageLayer):

@@ -1,34 +1,45 @@
 # -*- coding: utf-8 -*-
 
-import copy
-import logging
-
-from zope import event
-from zope.component import getUtility
-from zope.interface import alsoProvides
-from zope.lifecycleevent import modified
-
+#from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.documentgenerator.config import set_oo_port
+from collective.documentgenerator.config import set_uno_path
+from collective.messagesviewlet.utils import add_message
+from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.dms.mail.interfaces import IOMDashboard
+from imio.dms.mail.interfaces import ITaskDashboard
+from imio.dms.mail.setuphandlers import _
+from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import add_templates
+from imio.dms.mail.setuphandlers import changeSearchedTypes
+from imio.dms.mail.setuphandlers import configure_faceted_folder
+from imio.dms.mail.setuphandlers import configure_om_rolefields
+from imio.dms.mail.setuphandlers import configure_task_config
+from imio.dms.mail.setuphandlers import configure_task_rolefields
+from imio.dms.mail.setuphandlers import create_persons_from_users
+from imio.dms.mail.setuphandlers import createIMailCollections
+from imio.dms.mail.setuphandlers import createOMailCollections
+from imio.dms.mail.setuphandlers import createStateCollections
+from imio.dms.mail.setuphandlers import createTaskCollections
+from imio.dms.mail.setuphandlers import reimport_faceted_config
+from imio.helpers.catalog import addOrUpdateColumns
+from imio.helpers.content import transitions
+from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
+from Products.CPUtils.Extensions.utils import change_user_properties
+from Products.CPUtils.Extensions.utils import mark_last_version
+from zope import event
+from zope.component import getUtility
+from zope.interface import alsoProvides
+from zope.lifecycleevent import modified
 
-from Products.CPUtils.Extensions.utils import mark_last_version, change_user_properties
-#from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from collective.documentgenerator.config import set_oo_port, set_uno_path
-from collective.messagesviewlet.utils import add_message
-from collective.querynextprev.interfaces import INextPrevNotNavigable
-from imio.helpers.catalog import addOrUpdateColumns
-from imio.helpers.content import transitions
-from imio.migrator.migrator import Migrator
+import copy
+import logging
 
-from ..interfaces import IOMDashboard, ITaskDashboard
-from ..setuphandlers import (_, add_db_col_folder, changeSearchedTypes, configure_om_rolefields, configure_task_config,
-                             configure_task_rolefields, createIMailCollections, createStateCollections,
-                             createOMailCollections, configure_faceted_folder, createTaskCollections, add_templates,
-                             reimport_faceted_config, create_persons_from_users)
 
 logger = logging.getLogger('imio.dms.mail')
 

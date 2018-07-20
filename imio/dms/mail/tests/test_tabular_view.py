@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-import unittest
-from plone.app.testing import setRoles, TEST_USER_ID
 #from plone.dexterity.utils import createContentInContainer
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+
+import unittest
 
 
 class TestTabularView(unittest.TestCase):

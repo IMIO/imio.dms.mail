@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from zope.component import getUtility
-from zope.interface import Invalid, implements
-
+from collective.dms.basecontent import _ as _CDB
+from collective.dms.basecontent.dmsfile import DmsFile
+from collective.dms.basecontent.dmsfile import IDmsFile
+from imio.dms.mail import _
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
 from plone.supermodel import model
-
-from collective.dms.basecontent.dmsfile import IDmsFile, DmsFile
-from collective.dms.basecontent import _ as _CDB
-
-from . import _
+from zope.component import getUtility
+from zope.interface import implements
+from zope.interface import Invalid
 
 
 class RestrictedNamedBlobFile(NamedBlobFile):

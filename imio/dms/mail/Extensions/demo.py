@@ -1,19 +1,22 @@
 # -*- coding: utf-8 -*-
-import copy
-import os
+from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.dms.batchimport.utils import createDocument
+from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
+from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from datetime import datetime
+from imio.dms.mail import add_path
 from itertools import cycle
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
-from collective.dms.batchimport.utils import createDocument
-from collective.dms.mailcontent.dmsmail import (internalReferenceIncomingMailDefaultValue,
-                                                internalReferenceOutgoingMailDefaultValue)
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from Products.CPUtils.Extensions.utils import check_zope_admin, log_list
-from datetime import datetime
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY, FUNCTIONS_REGISTRY
-from imio.dms.mail import add_path
+from Products.CPUtils.Extensions.utils import check_zope_admin
+from Products.CPUtils.Extensions.utils import log_list
+
+import copy
+import os
 
 
 def import_scanned(self, number=2):

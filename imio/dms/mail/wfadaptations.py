@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 """Example."""
+from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
+from imio.helpers.cache import invalidate_cachekey_volatile_for
+from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
+from setuphandlers import _
 from zope import schema
 from zope.component import getUtility
 from zope.interface import Interface
-
-from plone import api
-from plone.dexterity.interfaces import IDexterityFTI
-
-from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
-from imio.helpers.cache import invalidate_cachekey_volatile_for
-
-from setuphandlers import _
 
 
 class IEmergencyZoneParameters(Interface):

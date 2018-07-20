@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from imio.dms.mail.Extensions.imports import change_levels
+from imio.dms.mail.Extensions.imports import sort_by_level
+
 import unittest
-from ..imports import change_levels, sort_by_level
 
 
 class TestImport(unittest.TestCase):

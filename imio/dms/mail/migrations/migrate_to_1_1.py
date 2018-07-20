@@ -1,20 +1,21 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
+from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.dms.mail.interfaces import ITaskDashboard
+from imio.dms.mail.setuphandlers import blacklistPortletCategory
+from imio.dms.mail.setuphandlers import reimport_faceted_config
+from imio.helpers.catalog import addOrUpdateColumns
+from imio.helpers.catalog import addOrUpdateIndexes
+from imio.migrator.migrator import Migrator
+from plone import api
+from plone.registry.interfaces import IRegistry
+from Products.CPUtils.Extensions.utils import configure_ckeditor
+from Products.CPUtils.Extensions.utils import mark_last_version
 from zope.component import getUtility
 from zope.interface import alsoProvides
 
-from plone import api
-from plone.registry.interfaces import IRegistry
+import logging
 
-from Products.CPUtils.Extensions.utils import mark_last_version, configure_ckeditor
-from collective.querynextprev.interfaces import INextPrevNotNavigable
-from imio.helpers.catalog import addOrUpdateColumns, addOrUpdateIndexes
-from imio.migrator.migrator import Migrator
-
-from ..interfaces import ITaskDashboard
-from ..setuphandlers import blacklistPortletCategory, reimport_faceted_config
 
 logger = logging.getLogger('imio.dms.mail')
 

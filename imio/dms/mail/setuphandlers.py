@@ -11,18 +11,41 @@ __author__ = """Gauthier BASTIEN <gbastien@imio.be>, Stephan GEULETTE
 <stephan.geulette@imio.be>"""
 __docformat__ = 'plaintext'
 
-import datetime
-import logging
-import os
-import pkg_resources
+from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
+from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
+from collective.dms.mailcontent.dmsmail import receptionDateDefaultValue
+from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
+from collective.documentgenerator.utils import update_templates
+from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
+from collective.querynextprev.interfaces import INextPrevNotNavigable
+from dexterity.localroles.utils import add_fti_configuration
+from ftw.labels.interfaces import ILabelJar
+from ftw.labels.interfaces import ILabelRoot
+from imio.dashboard.utils import _updateDefaultCollectionFor
+from imio.dashboard.utils import enableFacetedDashboardFor
+from imio.dms.mail.interfaces import IActionsPanelFolder
+from imio.dms.mail.interfaces import IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IContactListsDashboard
+from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
+from imio.dms.mail.interfaces import IHeldPositionsDashboard
+from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
+from imio.dms.mail.interfaces import IIMDashboard
+from imio.dms.mail.interfaces import IOMDashboard
+from imio.dms.mail.interfaces import IOMTemplatesFolder
+from imio.dms.mail.interfaces import IOrganizationsDashboard
+from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
+from imio.dms.mail.interfaces import IPersonsDashboard
+from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
+from imio.dms.mail.interfaces import ITaskDashboard
+from imio.helpers.content import create
+from imio.helpers.content import create_NamedBlob
+from imio.helpers.content import transitions
+from imio.helpers.security import generate_password
+from imio.helpers.security import get_environment
 from itertools import cycle
-from zope.component import queryUtility, getMultiAdapter, getUtility
-from zope.i18n.interfaces import ITranslationDomain
-from zope.interface import alsoProvides
-from zope.intid.interfaces import IIntIds
-from z3c.relationfield.relation import RelationValue
-
-from Products.CMFPlone.utils import base_hasattr, safe_unicode
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.app.uuid.utils import uuidToObject
@@ -31,28 +54,23 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
-
+from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY, ORGANIZATIONS_REGISTRY
-from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue, receptionDateDefaultValue
-from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue, mailDateDefaultValue
-from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
-from collective.documentgenerator.utils import update_templates
-from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
-from collective.querynextprev.interfaces import INextPrevNotNavigable
-from dexterity.localroles.utils import add_fti_configuration
-from ftw.labels.interfaces import ILabelRoot, ILabelJar
-from imio.helpers.content import create, create_NamedBlob
-from imio.helpers.security import get_environment, generate_password
-from imio.dashboard.utils import enableFacetedDashboardFor, _updateDefaultCollectionFor
-from imio.dms.mail.interfaces import IIMDashboard, ITaskDashboard, IOMDashboard, IOMTemplatesFolder
-from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
-from imio.dms.mail.interfaces import IContactListsDashboard
-from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions, IPersonsDashboardBatchActions
-from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions, IContactListsDashboardBatchActions
-from imio.dms.mail.interfaces import IActionsPanelFolder, IActionsPanelFolderAll
-from imio.helpers.content import transitions
 from utils import list_wf_states
+from z3c.relationfield.relation import RelationValue
+from zope.component import getMultiAdapter
+from zope.component import getUtility
+from zope.component import queryUtility
+from zope.i18n.interfaces import ITranslationDomain
+from zope.interface import alsoProvides
+from zope.intid.interfaces import IIntIds
+
+import datetime
+import logging
+import os
+import pkg_resources
+
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 

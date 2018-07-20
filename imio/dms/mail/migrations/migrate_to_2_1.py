@@ -1,22 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import logging
-
-from zope.i18n.interfaces import ITranslationDomain
-from zope.component import getUtility
-from zope.component import queryMultiAdapter
-from zope.interface import alsoProvides
-from zope.interface import noLongerProvides
-
-from plone import api
-from plone.app.uuid.utils import uuidToObject
-from plone.portlets.interfaces import ILocalPortletAssignmentManager
-from plone.portlets.interfaces import IPortletManager
-from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.Portal import member_indexhtml
-from Products.CMFPlone.utils import _createObjectByType
-
-from Products.CPUtils.Extensions.utils import mark_last_version, dv_images_size, tobytes, fileSize
 from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
@@ -26,21 +9,54 @@ from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategor
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import apply_from_registry
-from eea.facetednavigation.settings.interfaces import IDisableSmartFacets, IHidePloneLeftColumn, IHidePloneRightColumn
-from ftw.labels.interfaces import ILabelRoot, ILabelJar
+from eea.facetednavigation.settings.interfaces import IDisableSmartFacets
+from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
+from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
+from ftw.labels.interfaces import ILabelJar
+from ftw.labels.interfaces import ILabelRoot
+from imio.dms.mail.interfaces import IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IContactListsDashboard
+from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
+from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
+from imio.dms.mail.interfaces import IHeldPositionsDashboard
+from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
+from imio.dms.mail.interfaces import IOrganizationsDashboard
+from imio.dms.mail.interfaces import IPersonsDashboard
+from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
+from imio.dms.mail.setuphandlers import _
+from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import add_templates
+from imio.dms.mail.setuphandlers import add_transforms
+from imio.dms.mail.setuphandlers import blacklistPortletCategory
+from imio.dms.mail.setuphandlers import configure_faceted_folder
+from imio.dms.mail.setuphandlers import createContactListsCollections
+from imio.dms.mail.setuphandlers import createDashboardCollections
+from imio.dms.mail.setuphandlers import createHeldPositionsCollections
+from imio.dms.mail.setuphandlers import createOrganizationsCollections
+from imio.dms.mail.setuphandlers import createPersonsCollections
+from imio.dms.mail.setuphandlers import reimport_faceted_config
 from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
+from plone import api
+from plone.app.uuid.utils import uuidToObject
+from plone.portlets.interfaces import ILocalPortletAssignmentManager
+from plone.portlets.interfaces import IPortletManager
+from plone.registry.interfaces import IRegistry
+from Products.CMFPlone.Portal import member_indexhtml
+from Products.CMFPlone.utils import _createObjectByType
+from Products.CPUtils.Extensions.utils import dv_images_size
+from Products.CPUtils.Extensions.utils import fileSize
+from Products.CPUtils.Extensions.utils import mark_last_version
+from Products.CPUtils.Extensions.utils import tobytes
+from zope.component import getUtility
+from zope.component import queryMultiAdapter
+from zope.i18n.interfaces import ITranslationDomain
+from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 
-from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
-from imio.dms.mail.interfaces import IOrganizationsDashboard, IPersonsDashboard, IHeldPositionsDashboard
-from imio.dms.mail.interfaces import IContactListsDashboard, IActionsPanelFolderAll
-from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
-from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions, IContactListsDashboardBatchActions
-from imio.dms.mail.setuphandlers import (_, add_db_col_folder, add_templates, add_transforms, blacklistPortletCategory,
-                                         configure_faceted_folder, createDashboardCollections,
-                                         createContactListsCollections, createHeldPositionsCollections,
-                                         createOrganizationsCollections,
-                                         createPersonsCollections, reimport_faceted_config)
+import logging
+
+
 # createStateCollections
 logger = logging.getLogger('imio.dms.mail')
 

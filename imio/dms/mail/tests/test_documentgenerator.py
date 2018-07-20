@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """ documentgenerator.py tests for this package."""
-import mocker
-import unittest
-
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone.app.testing import setRoles
@@ -10,6 +7,9 @@ from plone.app.testing import TEST_USER_ID
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
+
+import mocker
+import unittest
 
 
 class TestDocumentGenerator(unittest.TestCase):

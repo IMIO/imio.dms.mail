@@ -7,16 +7,16 @@
 # GNU General Public License (GPL)
 #
 
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
+from imio.dms.mail.interfaces import IContactsDashboard
+from imio.dms.mail.interfaces import IIMDashboard
+from imio.dms.mail.interfaces import IOMDashboard
 from imio.history.browser.views import IHDocumentBylineViewlet
 from plone import api
 from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
-
-from imio.dms.mail.interfaces import IIMDashboard, IOMDashboard, IContactsDashboard
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 
 class IMRenderCategoryView(RenderCategoryView):

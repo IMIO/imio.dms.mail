@@ -1,20 +1,17 @@
 # -*- coding: utf-8 -*-
-from zope.i18n import translate
-
-import json
-from zope.interface import implements
-
+from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
+from imio.dms.mail import _
+from imio.dms.mail.setuphandlers import _ as _fr
+from imio.helpers.fancytree.views import BaseRenderFancyTree
+from plone import api
+from plone.app.contenttypes.interfaces import IFile
 from Products.CMFPlone.browser.ploneview import Plone
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
-from plone import api
-from plone.app.contenttypes.interfaces import IFile
+from zope.i18n import translate
+from zope.interface import implements
 
-from imio.helpers.fancytree.views import BaseRenderFancyTree
-from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
-
-from imio.dms.mail import _
-from ..setuphandlers import _ as _fr
+import json
 
 
 class PloneView(Plone):
