@@ -35,6 +35,7 @@ CE depuis le scanner
     Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
+    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
     Wait until element is visible  css=.DV-pageImage  10
@@ -725,7 +726,7 @@ Workflow ce
     Wait until element is visible  css=form#confirmTransitionForm  10
     Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
     # CHANGE locator when overlay bug is resolved
-    Capture and crop page screenshot  doc/utilisation/2-8-1 transition retour.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-8-1 transition retour.png  id=content  css=form#confirmTransitionForm
     Click button  name=form.buttons.save
     Wait until element is visible  css=.highlight-history-link  10
     # CHANGE locator when overlay bug is resolved
@@ -733,7 +734,7 @@ Workflow ce
     Click element  css=#content-history .link-overlay
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-8-1 historique.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-8-1 historique.png  id=content  css=.overlay-history
 
 Workflow cs
 # partie 2.8.3 Courrier sortant
