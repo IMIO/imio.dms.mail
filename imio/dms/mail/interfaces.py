@@ -9,7 +9,7 @@ from zope.interface import Interface
 
 class IDirectoryFacetedNavigable(IFacetedNavigable, IDirectory):
 
-    """Marker interface for contacts directory. MUST BE REMOVED in next version"""
+    """Marker interface for contacts directory. MUST BE REMOVED in version > 2.1"""
 
 
 class IExternalContact(Interface):
