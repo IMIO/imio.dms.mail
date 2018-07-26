@@ -42,6 +42,7 @@ CE depuis le scanner
     Select collection  incoming-mail/mail-searches/searchfor_created
     Capture and crop page screenshot  doc/utilisation/2-2-1 recherche en création.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
+    Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
 
     ### Edit mail
@@ -284,6 +285,11 @@ CS en réponse
     Wait until element is visible  css=div.pb-ajax
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged affichage liste.png  css=div.pb-ajax
+    Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib span.fancytree-expander
+    Wait until element is visible  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
+    Sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged affichage liste sous-niveau.png  css=div.pb-ajax
+    # Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
     Click element  css=div.pb-ajax #tree-form span.fancytree-title
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-1 cs 3 ged sélection modèle.png  css=div.pb-ajax
@@ -582,6 +588,7 @@ Modification
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  original_mail_date  20170314  date
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note20}  Add pointy note  id=contentview-edit  Lien d'édition  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-6 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table  ${note20}
@@ -681,6 +688,7 @@ Workflow ce
     Capture and crop page screenshot  doc/utilisation/2-8-2 transition vers dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  dirg
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2 état dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  propose_to_service_chief
