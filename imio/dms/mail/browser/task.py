@@ -6,14 +6,9 @@ from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
 from Products.CMFPlone.utils import base_hasattr
-
-import copy
-
-
 # from z3c.form.interfaces import HIDDEN_MODE
 
-
-
+import copy
 
 
 def filter_task_assigned_users(group):
