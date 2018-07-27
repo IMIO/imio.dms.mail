@@ -4,6 +4,8 @@
     xmlns:i18n="http://namespaces.zope.org/i18n"
     i18n_domain="imio.dms.mail">
 
+    <include package="z3c.unconfigure" file="meta.zcml" />
+
     <!-- CRITERIONS -->
     <adapter for="*"
              factory=".adapters.IncomingMailValidationCriterion"
@@ -127,6 +129,10 @@
 
     <adapter
         factory=".adapters.ContactAutocompleteValidator" />
+
+    <unconfigure package="collective.task">
+        <adapter factory="collective.task.behaviors.AssignedUserValidator" />
+    </unconfigure>
 
     <adapter
         factory=".dmsmail.AssignedUserValidator" />
