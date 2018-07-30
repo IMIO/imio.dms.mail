@@ -203,26 +203,6 @@ class UtilsMethods(BrowserView):
         else:
             return False
 
-    def pg_organizations(self, only_activated='', output='csv'):
-        """ Return a list of tuples with plonegroup organizations """
-        factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
-        lst = []
-        registry = getUtility(IRegistry)
-        activated = registry[ORGANIZATIONS_REGISTRY]
-        for term in factory(self.context):
-            uid, title = term.value, term.title
-            status = uid in activated and 'a' or 'na'
-            if only_activated and status == 'na':
-                continue
-            lst.append((uid, title.encode('utf8'), status))
-        #sorted(lst, key=itemgetter(1))
-        if output != 'csv':
-            return lst
-        ret = []
-        for uid, tit, stat in lst:
-            ret.append('"%s","%s","%s"' % (uid, tit, stat))
-        return '\n'.join(ret)
-
 
 class VariousUtilsMethods(UtilsMethods):
     """ View containing various utils methods """
@@ -274,6 +254,29 @@ class VariousUtilsMethods(UtilsMethods):
             for nb in sorted(res[flow], reverse=True):
                 out.append('<a href="%s" target="_blank">%s</a>' % (res[flow][nb], nb))
         return '<br/>\n'.join(out)
+
+    def pg_organizations(self, only_activated='1', output='csv', with_status=''):
+        """ Return a list of tuples with plonegroup organizations """
+        factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
+        lst = []
+        registry = getUtility(IRegistry)
+        activated = registry[ORGANIZATIONS_REGISTRY]
+        for term in factory(self.context):
+            uid, title = term.value, term.title
+            status = uid in activated and 'a' or 'na'
+            if only_activated and status == 'na':
+                continue
+            lst.append((uid, title.encode('utf8'), status))
+        #sorted(lst, key=itemgetter(1))
+        if output != 'csv':
+            return lst
+        ret = []
+        for uid, tit, stat in lst:
+            if with_status:
+                ret.append('%s;%s;%s' % (uid, tit, stat))
+            else:
+                ret.append('%s;%s' % (uid, tit))
+        return '\n'.join(ret)
 
 
 class IdmUtilsMethods(UtilsMethods):

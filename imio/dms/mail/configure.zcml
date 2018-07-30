@@ -184,9 +184,10 @@
         class=".utils.VariousUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
-            initialize_service_folder
-            unread_criteria
             check_scan_id
+            initialize_service_folder
+            pg_organizations
+            unread_criteria
         "
     />
 
@@ -203,7 +204,6 @@
             highest_scan_id
             im_listing_url
             must_render_im_listing
-            pg_organizations
             proposed_to_manager_col_cond
             proposed_to_serv_chief_col_cond
             user_has_review_level
@@ -219,7 +219,6 @@
         allowed_attributes="
             get_om_folder
             highest_scan_id
-            pg_organizations
             scanned_col_cond
             is_odt_activated
         "
