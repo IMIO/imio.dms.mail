@@ -279,7 +279,7 @@ class PathColumn(LinkColumn, BaseColumn):
 
     def init_paths(self, item):
         self.root_obj = self.get_root_obj(item)
-        self.root_path = self.root_obj.absolute_url_path()
+        self.root_path = '/'.join(self.root_obj.getPhysicalPath())
         self.root_path_level = len(self.root_path.split('/'))
         self.paths = {'.': '-'}
 
