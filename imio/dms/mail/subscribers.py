@@ -13,10 +13,10 @@ from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from DateTime import DateTime
 from imio.dms.mail import _
+from imio.dms.mail.interfaces import IActionsPanelFolder
+from imio.dms.mail.interfaces import IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IPersonnelContact
 from imio.helpers.cache import invalidate_cachekey_volatile_for
-from interfaces import IActionsPanelFolder
-from interfaces import IActionsPanelFolderAll
-from interfaces import IPersonnelContact
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo

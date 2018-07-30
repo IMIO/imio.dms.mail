@@ -4,6 +4,7 @@ from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.content.person import IPerson
 from collective.contact.core.interfaces import IContactable
+from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
@@ -325,6 +326,12 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
                 org_id = self.uids[org.UID()]
             lst.append((id, p_id, org_id, obj))
         return lst
+
+    def is_internal(self, contact):
+        """
+            Check if contact is internal (not INotPloneGroupContact => IPloneGroupContact or IPers)
+        """
+        return not INotPloneGroupContact.providedBy(contact)
 
 
 ### GENERATION VIEW ###
