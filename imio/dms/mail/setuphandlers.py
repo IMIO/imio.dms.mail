@@ -284,6 +284,8 @@ def postInstall(context):
     pdiff = api.portal.get_tool('portal_diff')
     pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('dmsoutgoingmail', {'any': "Compound Diff for Dexterity types"})
+    pdiff.setDiffForPortalType('task', {'any': "Compound Diff for Dexterity types"})
+    pdiff.setDiffForPortalType('dmsommainfile', {'any': "Compound Diff for Dexterity types"})
 
     # reimport collective.contact.widget's registry step (disable jQueryUI's autocomplete)
     site.portal_setup.runImportStepFromProfile(

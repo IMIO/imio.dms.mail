@@ -246,6 +246,10 @@ class Migrate_To_2_1(Migrator):
         api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
                                             'search_rss_enabled', value=False)
 
+        # activing versioning
+        self.portal.portal_diff.setDiffForPortalType('task', {'any': "Compound Diff for Dexterity types"})
+        self.portal.portal_diff.setDiffForPortalType('dmsommainfile', {'any': "Compound Diff for Dexterity types"})
+
     def update_contacts(self):
         contacts = self.portal['contacts']
         blacklistPortletCategory(contacts, contacts, value=False)
@@ -339,7 +343,8 @@ class Migrate_To_2_1(Migrator):
         if 'contact-contactlist-mylists' in self.portal.portal_actions.user:
             self.portal.portal_actions.user.manage_delObjects(ids=['contact-contactlist-mylists'])
 
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'typeinfo', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'repositorytool',
+                                                     'typeinfo', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         # Apply workflow adaptations
         success, errors = apply_from_registry()
