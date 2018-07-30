@@ -11,8 +11,6 @@ from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from interfaces import IIMDashboard
 #from operator import itemgetter
-from operator import attrgetter
-from operator import methodcaller
 from plone import api
 from plone.app.textfield.value import RichTextValue
 from plone.memoize import ram
@@ -23,8 +21,6 @@ from Products.Five import BrowserView
 from zope.component import getUtility
 from zope.component.hooks import getSite
 from zope.schema.interfaces import IVocabularyFactory
-from zope.schema.vocabulary import SimpleTerm
-from zope.schema.vocabulary import SimpleVocabulary
 
 import logging
 
@@ -52,47 +48,6 @@ def highest_review_level(portal_type, group_ids):
         elif "'%s'" % keyg in group_ids:
             return keyg
     return None
-
-
-def get_selected_org_suffix_users(org_uid, suffixes):
-    """
-        Get users that belongs to suffixed groups related to selected organization.
-    """
-    org_members = []
-    # only add to vocabulary users with these functions in the organization
-    for function_id in suffixes:
-        groupname = "{}_{}".format(org_uid, function_id)
-        members = api.user.get_users(groupname=groupname)
-        for member in members:
-            if member not in org_members:
-                org_members.append(member)
-    return org_members
-
-
-def voc_selected_org_suffix_users(org_uid, suffixes, first_member=None):
-    """
-        Return users vocabulary that belongs to suffixed groups related to selected organization.
-    """
-    if not org_uid or org_uid == u'--NOVALUE--':
-        return SimpleVocabulary([])
-    terms = []
-    # only add to vocabulary users with these functions in the organization
-    for member in sorted(get_selected_org_suffix_users(org_uid, suffixes), key=methodcaller('getUserName')):
-        if member == first_member:
-            terms.insert(0, SimpleTerm(
-                value=member.getUserName(),  # login
-                token=member.getId(),  # id
-                title=member.getUser().getProperty('fullname') or member.getUserName()))
-        else:
-            terms.append(SimpleTerm(
-                value=member.getUserName(),  # login
-                token=member.getId(),  # id
-                title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
-    if first_member is None:
-        terms.sort(key=attrgetter('title'))
-    else:
-        terms[1:] = sorted(terms[1:], key=attrgetter('title'))
-    return SimpleVocabulary(terms)
 
 
 def list_wf_states_cache_key(function, context, portal_type):

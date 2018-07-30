@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import create_richtextval
@@ -8,13 +7,11 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import UtilsMethods
-from imio.dms.mail.utils import voc_selected_org_suffix_users
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
-from plone.app.testing import TEST_USER_NAME
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
@@ -37,22 +34,6 @@ class TestUtils(unittest.TestCase):
         self.assertIsNone(highest_review_level('dmsincomingmail', ""))
         self.assertEquals(highest_review_level('dmsincomingmail', "['dir_general']"), 'dir_general')
         self.assertEquals(highest_review_level('dmsincomingmail', "['111_validateur']"), '_validateur')
-
-    def test_voc_selected_org_suffix_users(self):
-        self.assertEqual(voc_selected_org_suffix_users(None, []).by_token, {})
-        self.assertEqual(voc_selected_org_suffix_users(u'--NOVALUE--', []).by_token, {})
-        registry = getUtility(IRegistry)
-        org1 = registry[ORGANIZATIONS_REGISTRY][1]
-        self.assertEqual(voc_selected_org_suffix_users(org1, []).by_token, {})
-        self.assertListEqual([t.value for t in voc_selected_org_suffix_users(org1, ['editeur'])], ['agent'])
-        api.group.add_user(groupname='%s_editeur' % org1, username=TEST_USER_ID)
-        self.assertListEqual([t.value for t in voc_selected_org_suffix_users(org1, ['editeur'])],
-                             ['agent', TEST_USER_NAME])
-        self.assertEqual([t.title for t in voc_selected_org_suffix_users(org1, ['editeur', 'validateur', 'lecteur'])],
-                         ['Fred Agent', 'Jef Lecteur', 'Michel Chef', 'test-user'])
-        self.assertEqual([t.title for t in voc_selected_org_suffix_users(org1, ['editeur', 'validateur', 'lecteur'],
-                                                                         first_member=api.user.get_current())],
-                         ['test-user', 'Fred Agent', 'Jef Lecteur', 'Michel Chef'])
 
     def test_list_wf_states(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

@@ -1,6 +1,6 @@
+from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from collective.task import _ as _t
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
-from imio.dms.mail.utils import voc_selected_org_suffix_users
 from plone import api
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView

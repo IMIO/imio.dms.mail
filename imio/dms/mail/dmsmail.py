@@ -3,6 +3,8 @@
 from AccessControl import getSecurityManager
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
+from collective.contact.plonegroup.utils import get_selected_org_suffix_users
+from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from collective.contact.widget.schema import ContactChoice
 from collective.contact.widget.schema import ContactList
 from collective.contact.widget.source import ContactSourceBinder
@@ -21,8 +23,6 @@ from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
-from imio.dms.mail.utils import get_selected_org_suffix_users
-from imio.dms.mail.utils import voc_selected_org_suffix_users
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore

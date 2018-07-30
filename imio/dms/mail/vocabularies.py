@@ -4,11 +4,11 @@ from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
+from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.interfaces import IPersonnelContact
-from imio.dms.mail.utils import get_selected_org_suffix_users
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile

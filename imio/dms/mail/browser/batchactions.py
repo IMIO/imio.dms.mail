@@ -2,6 +2,7 @@
 """Batch actions views."""
 
 from AccessControl import getSecurityManager
+from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
 from collective.task import _ as TMF
@@ -11,7 +12,6 @@ from imio.dms.mail import _
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
-from imio.dms.mail.utils import get_selected_org_suffix_users
 from operator import methodcaller
 from plone import api
 from plone.formwidget.masterselect import MasterSelectField
