@@ -325,6 +325,10 @@ class IMPrettyLinkAdapter(PrettyLinkAdapter):
                     'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states') or []:
                 icons.append(("++resource++imio.dms.mail/remark.gif", translate("Remark icon", domain="imio.dms.mail",
                                                                                 context=self.request)))
+        back_or_again_icon = self.context.get_back_or_again_icon()
+        if back_or_again_icon:
+            icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
+                                                        context=self.request)))
         return icons
 
 
@@ -338,6 +342,10 @@ class OMPrettyLinkAdapter(PrettyLinkAdapter):
                     'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states') or []:
                 icons.append(("++resource++imio.dms.mail/remark.gif", translate("Remark icon", domain="imio.dms.mail",
                                                                                 context=self.request)))
+        back_or_again_icon = self.context.get_back_or_again_icon()
+        if back_or_again_icon:
+            icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
+                                                        context=self.request)))
         return icons
 
 

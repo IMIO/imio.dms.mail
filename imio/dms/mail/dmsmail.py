@@ -21,8 +21,11 @@ from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
+from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
+from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import object_modified_cachekey
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
@@ -32,6 +35,7 @@ from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
+from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import move
 from Products.CMFPlone.utils import base_hasattr
@@ -40,6 +44,7 @@ from z3c.form import validator
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.interface import implements
 from zope.interface import Invalid
 from zope.schema.fieldproperty import FieldProperty
@@ -138,6 +143,10 @@ class ImioDmsIncomingMail(DmsIncomingMail):
 
     treating_groups = FieldProperty(IImioDmsIncomingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsIncomingMail[u'recipient_groups'])
+
+    @ram.cache(object_modified_cachekey)
+    def get_back_or_again_icon(self):
+        return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
 
 def ImioDmsIncomingMailUpdateFields(the_form):
@@ -387,6 +396,10 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         if 'Manager' in roles or 'Site Administrator' in roles:
             return True
         return False
+
+    @ram.cache(object_modified_cachekey)
+    def get_back_or_again_icon(self):
+        return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
 
 def ImioDmsOutgoingMailUpdateFields(the_form):

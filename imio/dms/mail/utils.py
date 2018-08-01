@@ -111,6 +111,11 @@ def back_or_again_state(obj, transitions=[]):
     return 'again'
 
 
+def object_modified_cachekey(method, self, brain=False):
+    ''' cachekey method for an object and his modification date. '''
+    return (self, self.modified())
+
+
 # Moved to imio.helpers
 def create_richtextval(text):
     """ Return a RichTextValue """

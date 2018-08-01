@@ -21,6 +21,10 @@ DOC_ASSIGNED_USER_FUNCTIONS = ['editeur', 'validateur']
 
 PRODUCT_DIR = os.path.dirname(__file__)
 
+BACK_OR_AGAIN_ICONS = {'': False,
+                       'back': '++resource++imio.dms.mail/wf_back.png',
+                       'again': '++resource++imio.dms.mail/wf_again.png'}
+
 
 def add_path(path):
     path = path.strip('/ ')

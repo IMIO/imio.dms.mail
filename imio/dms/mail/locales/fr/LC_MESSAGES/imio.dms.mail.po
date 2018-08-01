@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2018-08-01 16:06+0000\n"
+"POT-Creation-Date: 2018-08-01 16:09+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -20,6 +20,14 @@ msgstr ""
 #: ./browser/views.py:36
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
+
+#: ./__init__.py:26
+msgid "++resource++imio.dms.mail/wf_again.png"
+msgstr "Cet élément passe à nouveau par cet état dans le workflow."
+
+#: ./__init__.py:25
+msgid "++resource++imio.dms.mail/wf_back.png"
+msgstr "Cet élément est revenu en arrière dans le workflow."
 
 #: ./subscribers.py:364
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"

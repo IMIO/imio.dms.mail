@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-08-01 16:06+0000\n"
+"POT-Creation-Date: 2018-08-01 16:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,14 @@ msgstr ""
 
 #: ./browser/views.py:36
 msgid "${title}: create from template"
+msgstr ""
+
+#: ./__init__.py:26
+msgid "++resource++imio.dms.mail/wf_again.png"
+msgstr ""
+
+#: ./__init__.py:25
+msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr ""
 
 #: ./subscribers.py:364
