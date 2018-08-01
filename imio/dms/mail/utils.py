@@ -88,6 +88,29 @@ def list_wf_states(context, portal_type):
     return ret
 
 
+def back_or_again_state(obj, transitions=[]):
+    """
+        p_transitions : list of back transitions
+    """
+    history = obj.portal_workflow.getInfoFor(obj, 'review_history')
+    # action can be None if initial state or automatic transition
+# [{'action': None, 'review_state': 'created', 'comments': '', 'actor': 'admin', 'time': DateTime()}, ...]
+    if transitions and history[-1]['action'] in transitions:
+        return 'back'
+    if history[-1]['action'] and history[-1]['action'].startswith('back_'):
+        return 'back'
+    i = 0
+    last_state = history[-1]['review_state']
+    for event in history:
+        if event['review_state'] == last_state:
+            i = i + 1
+            if i > 1:
+                break
+    else:
+        return ''  # no break
+    return 'again'
+
+
 # Moved to imio.helpers
 def create_richtextval(text):
     """ Return a RichTextValue """

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_richtextval
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
@@ -49,6 +50,22 @@ class TestUtils(unittest.TestCase):
         invalidate_cachekey_volatile_for('imio-dms-mail-utils-list_wf_states.task')
         self.assertEqual([s.id for s in list_wf_states(imail, 'task')],
                          ['created', 'to_assign', 'in_progress', 'realized', 'closed', 'NEW'])
+
+    def test_back_or_again_state(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.assertEqual(back_or_again_state(imail), '')  # initial state: no action
+        api.content.transition(obj=imail, transition='propose_to_manager')
+        self.assertEqual(back_or_again_state(imail), '')  # second state: empty
+        api.content.transition(obj=imail, transition='propose_to_service_chief')
+        self.assertEqual(back_or_again_state(imail), '')  # third state: empty
+        api.content.transition(obj=imail, transition='back_to_manager')
+        self.assertEqual(back_or_again_state(imail), 'back')  # we have a back action starting with back_
+        api.content.transition(obj=imail, transition='back_to_creation')
+        self.assertEqual(back_or_again_state(imail), 'back')  # we have a back action starting with back_
+        self.assertEqual(back_or_again_state(imail, transitions=['back_to_creation']),
+                         'back')  # we have a back action found in transitions parameter
+        api.content.transition(obj=imail, transition='propose_to_service_chief')
+        self.assertEqual(back_or_again_state(imail), 'again')  # third state again
 
     def test_create_richtextval(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
