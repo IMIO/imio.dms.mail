@@ -21,11 +21,11 @@ msgstr ""
 
 #: ./__init__.py:26
 msgid "++resource++imio.dms.mail/wf_again.png"
-msgstr ""
+msgstr "This item has the same state again."
 
 #: ./__init__.py:25
 msgid "++resource++imio.dms.mail/wf_back.png"
-msgstr ""
+msgstr "This item has a transition back."
 
 #: ./subscribers.py:364
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
