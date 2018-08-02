@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   aria-hidden="true"
+   data-prefix="fas"
+   data-icon="arrow-circle-left"
+   class="svg-inline--fa fa-arrow-circle-left fa-w-16"
+   role="img"
+   viewBox="0 0 512 512"
+   id="svg3365"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="arrow-circle-right-solid.svg">
+  <metadata
+     id="metadata3373">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs3371" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1855"
+     inkscape:window-height="1056"
+     id="namedview3369"
+     showgrid="false"
+     inkscape:zoom="1.7636719"
+     inkscape:cx="123.32226"
+     inkscape:cy="256"
+     inkscape:window-x="65"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg3365" />
+  <path
+     d="M 256,8 C 393,8 504,119 504,256 504,393 393,504 256,504 119,504 8,393 8,256 8,119 119,8 256,8 Z M 227.1,151.6 302.6,224 120,224 c -13.3,0 -24,10.7 -24,24 l 0,16 c 0,13.3 10.7,24 24,24 l 182.6,0 -75.5,72.4 c -9.7,9.3 -9.9,24.8 -0.4,34.3 l 11,10.9 c 9.4,9.4 24.6,9.4 33.9,0 L 404.3,273 c 9.4,-9.4 9.4,-24.6 0,-33.9 L 271.6,106.4 C 262.2,97 247,97 237.7,106.4 l -11,10.9 c -9.5,9.5 -9.3,25 0.4,34.3 z"
+     id="path3367"
+     style="fill:#00d800;fill-opacity:1"
+     inkscape:export-filename="/srv/instances/dmsmail/src/imio.dms.mail/imio/dms/mail/browser/static/wf_again.png"
+     inkscape:export-xdpi="2.9032259"
+     inkscape:export-ydpi="2.9032259"
+     inkscape:connector-curvature="0" />
+</svg>
