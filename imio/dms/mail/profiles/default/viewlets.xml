@@ -6,6 +6,9 @@
   <viewlet name="collective.task.list_tasks"/>
   <viewlet name="plone.abovecontenttitle.documentactions"/>
  </order>
+ <order manager="plone.belowcontenttitle" skinname="*">
+  <viewlet name="pretty-link-title" insertbefore="*"/>
+ </order>
  <!-- force hidden because plone.app.layout reshow it -->
  <hidden manager="plone.belowcontenttitle" skinname="*">
   <viewlet name="plone.belowcontenttitle.documentbyline" />

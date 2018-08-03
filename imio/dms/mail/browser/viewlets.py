@@ -3,6 +3,7 @@ from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
 from collective.task.browser.viewlets import TaskParentViewlet
 from imio.dms.mail.browser.table import OMVersionsTable
+from imio.prettylink.interfaces import IPrettyLink
 from plone import api
 from plone.app.layout.viewlets import ViewletBase
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
@@ -58,3 +59,17 @@ class OMVersionsViewlet(VersionsViewlet):
 
     portal_type = 'dmsommainfile'
     __table__ = OMVersionsTable
+
+
+class PrettyLinkTitleViewlet(ViewletBase):
+    """
+        Viewlet displaying a pretty link title
+    """
+
+    def adapted(self, showColors=False, display_tag_title=False, isViewable=False):
+        plo = IPrettyLink(self.context)
+        plo.showColors = showColors
+        plo.display_tag_title = display_tag_title
+        plo.isViewable = isViewable
+        plo.notViewableHelpMessage = ''
+        return plo

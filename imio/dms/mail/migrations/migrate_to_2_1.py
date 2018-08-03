@@ -344,7 +344,7 @@ class Migrate_To_2_1(Migrator):
             self.portal.portal_actions.user.manage_delObjects(ids=['contact-contactlist-mylists'])
 
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'repositorytool',
-                                                     'typeinfo', 'workflow'])
+                                                     'typeinfo', 'viewlets', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         # Apply workflow adaptations
         success, errors = apply_from_registry()

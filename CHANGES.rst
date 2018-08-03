@@ -19,6 +19,9 @@ Changelog
 - Added multiple reply
   [sgeulette]
 
+- Added workflow leading icons for back and again states, in dashboard and item view
+  [sgeulette]
+
 2.0 (2017-06-02)
 ----------------
 

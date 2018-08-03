@@ -160,6 +160,15 @@ body.portaltype-contact_list #content-core fieldset#folder-listing,
     display: none;
 }
 
+body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.keep-it),
+body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it) {
+    display: none;
+}  /* Hide original title */
+
+body.template-view h1 .pretty_link_icons img {
+    vertical-align: baseline;
+}  /* Center icons in h1 viewlet */
+
 /* Other */
 
 #faceted-results td.pretty_link a.link-tooltip .pretty_link_content{

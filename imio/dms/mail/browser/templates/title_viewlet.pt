@@ -1,0 +1,3 @@
+<h1 id="parent-fieldname-title" class="documentFirstHeading keep-it" tal:define="plo python:view.adapted();">
+  <span tal:replace="structure plo/getLink">title</span>
+</h1>

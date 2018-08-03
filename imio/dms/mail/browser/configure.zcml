@@ -447,6 +447,15 @@
             />
     </configure>
 
+    <browser:viewlet
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument"
+        name="pretty-link-title"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="imio.dms.mail.browser.viewlets.PrettyLinkTitleViewlet"
+        template="templates/title_viewlet.pt"
+        permission="zope2.View"
+        />
+
     <!-- vocabulary for the sender autocomplete faceted widget -->
     <browser:view
         for="*"
