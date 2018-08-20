@@ -44,7 +44,6 @@ from z3c.form import validator
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
 from zope.component import getUtility
-from zope.i18n import translate
 from zope.interface import implements
 from zope.interface import Invalid
 from zope.schema.fieldproperty import FieldProperty

@@ -66,6 +66,10 @@
              factory=".adapters.OMPrettyLinkAdapter"
              provides="imio.prettylink.interfaces.IPrettyLink" />
 
+    <adapter for="collective.task.interfaces.ITaskContent"
+             factory=".adapters.TaskPrettyLinkAdapter"
+             provides="imio.prettylink.interfaces.IPrettyLink" />
+
     <!-- INDEXES -->
     <adapter factory=".adapters.ScanSearchableExtender"
              name="collective.dms.scanbehavior.behaviors.IScanFieldsSearch" />

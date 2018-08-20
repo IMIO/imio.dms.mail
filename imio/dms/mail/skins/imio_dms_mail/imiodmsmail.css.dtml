@@ -161,7 +161,8 @@ body.portaltype-contact_list #content-core fieldset#folder-listing,
 }
 
 body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.keep-it),
-body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it) {
+body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it),
+body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it) {
     display: none;
 }  /* Hide original title */
 

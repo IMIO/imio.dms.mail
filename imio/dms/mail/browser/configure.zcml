@@ -456,6 +456,15 @@
         permission="zope2.View"
         />
 
+    <browser:viewlet
+        for="collective.task.interfaces.ITaskContent"
+        name="pretty-link-title"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="imio.dms.mail.browser.viewlets.PrettyLinkTitleViewlet"
+        template="templates/title_viewlet.pt"
+        permission="zope2.View"
+        />
+
     <!-- vocabulary for the sender autocomplete faceted widget -->
     <browser:view
         for="*"

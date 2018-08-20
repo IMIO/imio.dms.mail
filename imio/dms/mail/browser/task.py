@@ -1,10 +1,15 @@
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from collective.task import _ as _t
+from collective.task.content.task import Task as BaseTask
+from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import object_modified_cachekey
 from plone import api
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
+from plone.memoize import ram
 from Products.CMFPlone.utils import base_hasattr
 # from z3c.form.interfaces import HIDDEN_MODE
 
@@ -69,3 +74,11 @@ class Add(DefaultAddView):
 #    def update(self):
 #        self.form_instance.updateFields()
 #        super(Add, self).update()
+
+
+class Task(BaseTask):
+    """ Task class """
+
+    @ram.cache(object_modified_cachekey)
+    def get_back_or_again_icon(self):
+        return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]

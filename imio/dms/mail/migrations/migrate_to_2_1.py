@@ -38,6 +38,7 @@ from imio.dms.mail.setuphandlers import reimport_faceted_config
 from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
 from plone import api
+from plone.app.contenttypes.migration.dxmigration import migrate_base_class_to_new_class
 from plone.app.uuid.utils import uuidToObject
 from plone.portlets.interfaces import ILocalPortletAssignmentManager
 from plone.portlets.interfaces import IPortletManager
@@ -160,6 +161,13 @@ class Migrate_To_2_1(Migrator):
         for path in ('templates/om/main',):
             obj = self.portal.restrictedTraverse(path)
             obj.mailing_loop_template = ml_uid
+
+    def update_tasks(self):
+        # change klass on task
+        'collective.task.content.task.Task'
+        for brain in self.catalog(portal_type='task'):
+            migrate_base_class_to_new_class(brain.getObject(), old_class_name='collective.task.content.task.Task',
+                                            new_class_name='imio.dms.mail.browser.task.Task')
 
     def update_collections(self):
         # update incomingmail collections
@@ -366,6 +374,9 @@ class Migrate_To_2_1(Migrator):
 
         # replace faceted on contacts
         self.update_contacts()
+
+        # replace task class
+        self.update_tasks()
 
         # recatalog
         for brain in self.catalog(portal_type='dmsincomingmail'):

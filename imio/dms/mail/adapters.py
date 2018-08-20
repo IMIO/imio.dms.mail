@@ -349,6 +349,17 @@ class OMPrettyLinkAdapter(PrettyLinkAdapter):
         return icons
 
 
+class TaskPrettyLinkAdapter(PrettyLinkAdapter):
+
+    def _leadingIcons(self):
+        icons = []
+        back_or_again_icon = self.context.get_back_or_again_icon()
+        if back_or_again_icon:
+            icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
+                                                        context=self.request)))
+        return icons
+
+
 ####################
 # Indexes adapters #
 ####################
