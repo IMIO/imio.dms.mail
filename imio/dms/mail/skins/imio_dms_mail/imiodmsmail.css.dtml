@@ -166,7 +166,8 @@ body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it) 
     display: none;
 }  /* Hide original title */
 
-body.template-view h1 .pretty_link_icons img {
+body.template-view h1 .pretty_link_icons img,
+body.template-item_view h1 .pretty_link_icons img{
     vertical-align: baseline;
 }  /* Center icons in h1 viewlet */
 
