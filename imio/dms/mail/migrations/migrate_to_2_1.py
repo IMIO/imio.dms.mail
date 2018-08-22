@@ -364,6 +364,9 @@ class Migrate_To_2_1(Migrator):
 
         # set unicode on internal_reference_number !!
 
+        # replace faceted on contacts
+        self.update_contacts()
+
         # update templates
         self.update_templates()
 
@@ -372,9 +375,6 @@ class Migrate_To_2_1(Migrator):
 
         # do various global adaptations
         self.update_site()
-
-        # replace faceted on contacts
-        self.update_contacts()
 
         # recatalog
         for brain in self.catalog(portal_type='dmsincomingmail'):
