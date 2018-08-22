@@ -364,6 +364,9 @@ class Migrate_To_2_1(Migrator):
 
         # set unicode on internal_reference_number !!
 
+        # replace faceted on contacts
+        self.update_contacts()
+
         # update templates
         self.update_templates()
 
@@ -373,9 +376,6 @@ class Migrate_To_2_1(Migrator):
         # do various global adaptations
         self.update_site()
 
-        # replace faceted on contacts
-        self.update_contacts()
-
         # recatalog
         for brain in self.catalog(portal_type='dmsincomingmail'):
             brain.getObject().reindexObject(['get_full_title'])
@@ -384,12 +384,21 @@ class Migrate_To_2_1(Migrator):
         self.update_dv_images()
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
-        #self.upgradeAll(omit=['imio.dms.mail:default'])
+        self.upgradeAll(omit=['imio.dms.mail:default'])
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
-        for prod in []:
+        for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.contact.core',
+                     'collective.contact.duplicated', 'collective.contact.plonegroup', 'collective.contact.widget',
+                     'collective.dms.basecontent', 'collective.dms.scanbehavior', 'collective.eeafaceted.batchactions',
+                     'collective.eeafaceted.collectionwidget', 'collective.eeafaceted.z3ctable',
+                     'collective.js.underscore', 'collective.messagesviewlet', 'collective.plonefinder',
+                     'collective.querynextprev', 'collective.task', 'collective.z3cform.datagridfield',
+                     'collective.z3cform.datetimewidget', 'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail',
+                     'imio.history', 'plone.app.dexterity', 'plone.formwidget.autocomplete',
+                     'plone.formwidget.contenttree', 'plone.formwidget.datetime', 'plonetheme.classic',
+                     'plonetheme.imioapps']:
             mark_last_version(self.portal, product=prod)
 
         #self.refreshDatabase()

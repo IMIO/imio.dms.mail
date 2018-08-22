@@ -1640,10 +1640,11 @@ def addContactListsFolder(context):
     alsoProvides(clf['common'], IActionsPanelFolder)
     alsoProvides(clf['common'], INextPrevNotNavigable)
     intids = getUtility(IIntIds)
-    api.content.create(container=clf['common'], type='contact_list', id='list-agents-swde',
-                       title=u'Liste des agents SWDE',
-                       contacts=[intids.getId(contacts['sergerobinet']['agent-swde']),
-                                 intids.getId(contacts['bernardlermitte']['agent-swde'])])
+    if 'sergerobinet' in contacts and 'bernardlermitte' in contacts:
+        api.content.create(container=clf['common'], type='contact_list', id='list-agents-swde',
+                           title=u'Liste des agents SWDE',
+                           contacts=[intids.getId(contacts['sergerobinet']['agent-swde']),
+                                     intids.getId(contacts['bernardlermitte']['agent-swde'])])
 
 
 def create_persons_from_users(portal, start='firstname', functions=['encodeur']):
