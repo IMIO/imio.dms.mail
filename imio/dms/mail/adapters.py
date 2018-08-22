@@ -9,10 +9,12 @@ from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
+from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import EMPTY_DATE
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.overrides import IDmsPerson
+from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import list_wf_states
@@ -353,7 +355,7 @@ class TaskPrettyLinkAdapter(PrettyLinkAdapter):
 
     def _leadingIcons(self):
         icons = []
-        back_or_again_icon = self.context.get_back_or_again_icon()
+        back_or_again_icon = BACK_OR_AGAIN_ICONS[back_or_again_state(self.context)]
         if back_or_again_icon:
             icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
                                                         context=self.request)))

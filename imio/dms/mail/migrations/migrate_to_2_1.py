@@ -163,6 +163,7 @@ class Migrate_To_2_1(Migrator):
             obj.mailing_loop_template = ml_uid
 
     def update_tasks(self):
+        # NOT USED !
         # change klass on task
         'collective.task.content.task.Task'
         for brain in self.catalog(portal_type='task'):
@@ -374,9 +375,6 @@ class Migrate_To_2_1(Migrator):
 
         # replace faceted on contacts
         self.update_contacts()
-
-        # replace task class
-        self.update_tasks()
 
         # recatalog
         for brain in self.catalog(portal_type='dmsincomingmail'):
