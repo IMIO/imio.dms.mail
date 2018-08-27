@@ -259,6 +259,13 @@ class Migrate_To_2_1(Migrator):
         self.portal.portal_diff.setDiffForPortalType('task', {'any': "Compound Diff for Dexterity types"})
         self.portal.portal_diff.setDiffForPortalType('dmsommainfile', {'any': "Compound Diff for Dexterity types"})
 
+        # change permission
+        self.portal.manage_permission('imio.dms.mail: Write userid field', (),
+                                      acquire=0)
+        pf = self.portal.contacts['personnel-folder']
+        pf.manage_permission('imio.dms.mail: Write userid field', ('Manager', 'Site Administrator'),
+                             acquire=0)
+
     def update_contacts(self):
         contacts = self.portal['contacts']
         blacklistPortletCategory(contacts, contacts, value=False)

@@ -800,8 +800,6 @@ def adaptDefaultPortal(context):
                            acquire=0)
     site.manage_permission('imio.dms.mail: Write treating group field', ('Manager', 'Site Administrator'),
                            acquire=0)
-    site.manage_permission('imio.dms.mail: Write userid field', ('Manager', 'Site Administrator'),
-                           acquire=0)
 
     # Set markup allowed types: for RichText field, don't display anymore types listbox
     adapter = MarkupControlPanelAdapter(site)
@@ -1545,6 +1543,8 @@ def addOwnPersonnel(context):
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
     alsoProvides(pf, IActionsPanelFolder)
+    pf.manage_permission('imio.dms.mail: Write userid field', ('Manager', 'Site Administrator'),
+                         acquire=0)
     # Set restrictions
     pf.setConstrainTypesMode(1)
     pf.setLocallyAllowedTypes(['person'])
