@@ -75,6 +75,7 @@ setup(
         'imio.helpers',
         'imio.migrator',
         'imio.zamqp.core',
+        'natsort',
         'plone.app.dexterity[grok]',
         'plone.app.lockingbehavior',
         'plonetheme.imioapps',

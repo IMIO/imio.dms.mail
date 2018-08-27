@@ -10,6 +10,7 @@ from imio.dashboard.utils import getCurrentCollection
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from interfaces import IIMDashboard
+from natsort import natsorted
 #from operator import itemgetter
 from plone import api
 from plone.app.textfield.value import RichTextValue
@@ -217,11 +218,11 @@ class VariousUtilsMethods(UtilsMethods):
         user = api.user.get_current()
         return {'not': '%s:lu' % user.id}
 
-    def check_scan_id(self, by='1000'):
+    def check_scan_id(self, by='1000', sort='scan'):
         """ Return a list of scan ids, one by 1000 items and by flow types """
         import os
         res = {'0': {}, '1': {}, '2': {}}
-        flow_titles = {'0': 'Courrier entrant', '1': 'Courrier sortant', '2': 'Courrier sortant généré'}
+        flow_titles = {'0': u'Courrier entrant', '1': u'Courrier sortant', '2': u'Courrier sortant généré'}
         pc = getToolByName(self.context, 'portal_catalog')
         brains = pc.unrestrictedSearchResults(portal_type=['dmsmainfile', 'dmsommainfile'])
         divisor = int(by)
@@ -231,11 +232,15 @@ class VariousUtilsMethods(UtilsMethods):
                 continue
             nb = int(brain.scan_id[7:])
             if (nb % divisor) == 0:
-                res[brain.scan_id[2:3]][nb] = os.path.dirname(brain.getURL())
+                ref = brain.getObject().__parent__.internal_reference_no
+                if sort == 'scan':
+                    res[brain.scan_id[2:3]][nb] = (os.path.dirname(brain.getURL()), ref)
+                else:
+                    res[brain.scan_id[2:3]][ref] = (os.path.dirname(brain.getURL()), nb)
         for flow in sorted(res):
             out.append("<h1>%s</h1>" % flow_titles[flow])
-            for nb in sorted(res[flow], reverse=True):
-                out.append('<a href="%s" target="_blank">%s</a>' % (res[flow][nb], nb))
+            for nb in natsorted(res[flow], reverse=True):
+                out.append('<a href="%s" target="_blank">%s</a>, %s' % (res[flow][nb][0], nb, res[flow][nb][1]))
         return '<br/>\n'.join(out)
 
     def pg_organizations(self, only_activated='1', output='csv', with_status=''):
