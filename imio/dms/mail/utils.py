@@ -93,7 +93,8 @@ def back_or_again_state(obj, transitions=[]):
     """
         p_transitions : list of back transitions
     """
-    history = obj.portal_workflow.getInfoFor(obj, 'review_history')
+    with api.env.adopt_roles(['Manager']):
+        history = obj.portal_workflow.getInfoFor(obj, 'review_history')
     # action can be None if initial state or automatic transition
 # [{'action': None, 'review_state': 'created', 'comments': '', 'actor': 'admin', 'time': DateTime()}, ...]
     if transitions and history[-1]['action'] in transitions:
