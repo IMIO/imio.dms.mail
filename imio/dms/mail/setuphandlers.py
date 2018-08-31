@@ -1990,3 +1990,13 @@ def add_icons_to_contact_workflow(context):
     for name, icon in (('activate', 'im_treat'), ('deactivate', 'im_back_to_creation')):
         tr = wfl.transitions.get(name)
         tr.actbox_icon = '%%(portal_url)s/++resource++imio.dms.mail/%s.png' % icon
+
+
+def mark_copy_im_as_read(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    site = context.getSite()
+    for brain in site.portal_catalog(portal_type=['dmsincomingmail', 'dmsoutgoingmail']):
+        if not brain.recipient_groups:
+            continue
+        import ipdb; ipdb.set_trace()
