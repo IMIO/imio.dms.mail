@@ -231,7 +231,7 @@ class IncomingMailInCopyGroupUnreadCriterion(object):
         groups = api.group.get_groups(user=user)
         orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
         # if orgs is empty list, nothing is returned => ok
-        return {'recipient_groups': {'query': orgs}, 'labels': {'query': {'not': ['%s:lu' % user.id]}}}
+        return {'recipient_groups': {'query': orgs}, 'labels': {'not': ['%s:lu' % user.id]}}
 
 
 class OutgoingMailInCopyGroupCriterion(object):
