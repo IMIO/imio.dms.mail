@@ -188,7 +188,15 @@ class Migrate_To_2_1(Migrator):
                 'cond': u"", 'bypass': [],
                 'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
                          u'due_date', u'mail_type', u'sender', u'reception_date', u'actions'),
-                'sort': u'organization_type', 'rev': True, 'count': True}, ]
+                'sort': u'organization_type', 'rev': True, 'count': True}, {},
+            {'id': 'followed', 'tit': _('im_followed'), 'subj': (u'search', ), 'query': [
+                {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+                {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+                 'v': 'dmsincomingmail-followed'}],
+                'cond': u"", 'bypass': [],
+                'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
+                         u'due_date', u'mail_type', u'sender', u'reception_date', u'actions'),
+                'sort': u'organization_type', 'rev': True, 'count': False}]
         createDashboardCollections(self.imf['mail-searches'], collections)
         reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
                                 default_UID=self.imf['mail-searches']['all_mails'].UID())
@@ -232,15 +240,17 @@ class Migrate_To_2_1(Migrator):
                                        'IDocumentGeneratorControlPanelSchema.raiseOnError_for_non_managers', True)
 
         # ftw.labels
-        labels = {self.imf: [('Lu', 'green', True)],
+        labels = {self.imf: [('Lu', 'green', True), ('Suivi', 'yellow', True)],
                   self.omf: [],
                   self.portal['tasks']: []}
         for folder in labels:
             if not ILabelRoot.providedBy(folder):
                 alsoProvides(folder, ILabelRoot)
                 adapted = ILabelJar(folder)
+                existing = [dic['title'] for dic in adapted.list()]
                 for title, color, by_user in labels[folder]:
-                    adapted.add(title, color, by_user)
+                    if title not in existing:
+                        adapted.add(title, color, by_user)
         self.portal.manage_permission('ftw.labels: Manage Labels Jar', ('Manager', 'Site Administrator'),
                                       acquire=0)
         self.portal.manage_permission('ftw.labels: Change Labels', ('Manager', 'Site Administrator'),
