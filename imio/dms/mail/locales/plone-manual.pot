@@ -82,6 +82,10 @@ msgid "dmsincomingmail-in-copy-group"
 msgstr ""
 
 #: configure.zcml
+msgid "dmsincomingmail-in-copy-group-unread"
+msgstr ""
+
+#: configure.zcml
 msgid "task-validation"
 msgstr ""
 

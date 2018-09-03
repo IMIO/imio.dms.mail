@@ -49,4 +49,12 @@
     Add transition icons to collective_contact_core_workflow.
  </import-step>
 
+ <import-step
+    id="imiodmsmail-mark-copy-im-as-read"
+    handler="imio.dms.mail.setuphandlers.mark_copy_im_as_read"
+    title="Mark old mails in copy as read."
+    version="2018-05-17">
+    Mark old mails in copy as read.
+ </import-step>
+
 </import-steps>

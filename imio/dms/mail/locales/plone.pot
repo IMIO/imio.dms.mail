@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-05-16 13:27+0000\n"
+"POT-Creation-Date: 2018-08-30 13:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: plone\n"
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate"
 msgstr ""
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate the object"
 msgstr ""
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Active"
 msgstr ""
 
@@ -33,15 +33,15 @@ msgstr ""
 msgid "Base Field Writer"
 msgstr ""
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivate"
 msgstr ""
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivate the object"
 msgstr ""
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivated"
 msgstr ""
 
@@ -113,6 +113,10 @@ msgstr ""
 
 #: configure.zcml
 msgid "dmsincomingmail-in-copy-group"
+msgstr ""
+
+#: configure.zcml
+msgid "dmsincomingmail-in-copy-group-unread"
 msgstr ""
 
 #: configure.zcml

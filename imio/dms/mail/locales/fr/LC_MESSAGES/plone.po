@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-05-16 13:27+0000\n"
+"POT-Creation-Date: 2018-08-30 13:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,15 +15,15 @@ msgstr ""
 "Domain: plone\n"
 "X-is-fallback-for: fr-fr fr-be fr-ca\n"
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate"
 msgstr "Activer"
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate the object"
 msgstr "Activer l'élément"
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Active"
 msgstr "Activé"
 
@@ -31,15 +31,15 @@ msgstr "Activé"
 msgid "Base Field Writer"
 msgstr "Éditeur champs base"
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivate the object"
 msgstr "Désactiver l'élément"
 
-#: ../profiles/default/workflows/collective_contact_core_workflow/definition.xml
+#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivated"
 msgstr "Désactivé"
 
@@ -112,6 +112,10 @@ msgstr "En création"
 #: configure.zcml
 msgid "dmsincomingmail-in-copy-group"
 msgstr "Courrier entrant mes services en copie"
+
+#: configure.zcml
+msgid "dmsincomingmail-in-copy-group-unread"
+msgstr "Courrier entrant mes services en copie, non lus"
 
 #: configure.zcml
 msgid "dmsincomingmail-in-treating-group"

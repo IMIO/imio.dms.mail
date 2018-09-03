@@ -13,6 +13,7 @@ __docformat__ = 'plaintext'
 
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
@@ -22,6 +23,7 @@ from collective.documentgenerator.utils import update_templates
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
+from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dashboard.utils import _updateDefaultCollectionFor
@@ -46,6 +48,7 @@ from imio.helpers.content import transitions
 from imio.helpers.security import generate_password
 from imio.helpers.security import get_environment
 from itertools import cycle
+from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.app.uuid.utils import uuidToObject
@@ -130,7 +133,7 @@ def postInstall(context):
         alsoProvides(im_folder, INextPrevNotNavigable)
         alsoProvides(im_folder, ILabelRoot)
         adapted = ILabelJar(im_folder)
-        adapted.add('Lu', 'green', True)
+        adapted.add('Lu', 'green', True)  # label_id = lu
 
         # add mail-searches
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
@@ -502,11 +505,11 @@ def createIMailCollections(folder):
         {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-             'v': 'dmsincomingmail-in-copy-group'}],
+             'v': 'dmsincomingmail-in-copy-group-unread'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'reception_date', u'actions'),
-            'sort': u'organization_type', 'rev': True, 'count': False},
+            'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'in_copy', 'tit': _('im_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
@@ -1990,3 +1993,45 @@ def add_icons_to_contact_workflow(context):
     for name, icon in (('activate', 'im_treat'), ('deactivate', 'im_back_to_creation')):
         tr = wfl.transitions.get(name)
         tr.actbox_icon = '%%(portal_url)s/++resource++imio.dms.mail/%s.png' % icon
+
+
+def mark_copy_im_as_read(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    site = context.getSite()
+    # adapted = ILabelJar(site['incoming-mail']); adapted.list()
+    DAYS_BACK = 5
+    start = datetime.datetime(1973, 02, 12)
+    end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
+    users = {}
+    functions = {'i': ['validateur', 'editeur', 'lecteur'], 'o': ['encodeur', 'validateur', 'editeur', 'lecteur']}
+    brains = site.portal_catalog(portal_type=['dmsincomingmail'],
+                                 created={'query': (start, end), 'range': 'min:max'},
+                                 sort_on='created')
+    out = []
+    out.append("%d mails" % len(brains))
+    changed_mails = 0
+    related_users = set()
+    for brain in brains:
+        if not brain.recipient_groups:
+            continue
+        typ = brain.portal_type[3:4]
+        user_ids = set()
+        for org_uid in brain.recipient_groups:
+            if org_uid not in users:
+                users[org_uid] = {}
+            if typ not in users[org_uid]:
+                users[org_uid][typ] = [u.id for u in get_selected_org_suffix_users(org_uid, functions[typ])]
+            for userid in users[org_uid][typ]:
+                user_ids.add(userid)
+        if len(user_ids):
+            related_users.update(user_ids)
+            obj = brain.getObject()
+            labeling = ILabeling(obj)
+            labeling.storage['lu'] = PersistentList(user_ids)
+            obj.reindexObject(idxs=['labels'])
+            changed_mails += 1
+    out.append('%d mails labelled with "lu"' % changed_mails)
+    out.append('%d users are concerned' % len(related_users))
+    return '\n'.join(out)
+

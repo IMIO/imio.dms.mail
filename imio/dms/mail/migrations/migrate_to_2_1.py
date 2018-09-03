@@ -184,11 +184,11 @@ class Migrate_To_2_1(Migrator):
             {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
                 {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
                 {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
-                 'v': 'dmsincomingmail-in-copy-group'}],
+                 'v': 'dmsincomingmail-in-copy-group-unread'}],
                 'cond': u"", 'bypass': [],
                 'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
                          u'due_date', u'mail_type', u'sender', u'reception_date', u'actions'),
-                'sort': u'organization_type', 'rev': True, 'count': False}, ]
+                'sort': u'organization_type', 'rev': True, 'count': True}, ]
         createDashboardCollections(self.imf['mail-searches'], collections)
         reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
                                 default_UID=self.imf['mail-searches']['all_mails'].UID())
