@@ -208,6 +208,17 @@ class Migrate_To_2_1(Migrator):
         # Rename category label
         self.imf['mail-searches'].setRights('Courrier entrant')
         self.omf['mail-searches'].setRights('Courrier sortant')
+        # Rename collection title
+        self.imf['mail-searches']['all_mails'].setTitle(u'Tout')
+        self.imf['mail-searches']['all_mails'].reindexObject()
+        self.imf['mail-searches']['have_treated'].setTitle(u"Que j'ai traité")
+        self.imf['mail-searches']['have_treated'].reindexObject()
+        self.omf['mail-searches']['all_mails'].setTitle(u'Tout')
+        self.omf['mail-searches']['all_mails'].reindexObject()
+        self.omf['mail-searches']['have_treated'].setTitle(u"Que j'ai traité")
+        self.omf['mail-searches']['have_treated'].reindexObject()
+        self.portal['tasks']['task-searches']['to_treat'].setTitle(u'Qui me sont assignées')
+        self.portal['tasks']['task-searches']['to_treat'].reindexObject()
 
     def update_site(self):
         # add documentation message
