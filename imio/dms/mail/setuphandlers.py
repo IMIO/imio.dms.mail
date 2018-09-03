@@ -134,6 +134,7 @@ def postInstall(context):
         alsoProvides(im_folder, ILabelRoot)
         adapted = ILabelJar(im_folder)
         adapted.add('Lu', 'green', True)  # label_id = lu
+        adapted.add('Suivi', 'yellow', True)  # label_id = suivi
 
         # add mail-searches
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
@@ -514,6 +515,14 @@ def createIMailCollections(folder):
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-copy-group'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
+                     u'mail_type', u'sender', u'reception_date', u'actions'),
+            'sort': u'organization_type', 'rev': True, 'count': False},
+        {'id': 'followed', 'tit': _('im_followed'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'dmsincomingmail-followed'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'reception_date', u'actions'),

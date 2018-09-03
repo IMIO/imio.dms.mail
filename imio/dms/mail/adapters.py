@@ -234,6 +234,19 @@ class IncomingMailInCopyGroupUnreadCriterion(object):
         return {'recipient_groups': {'query': orgs}, 'labels': {'not': ['%s:lu' % user.id]}}
 
 
+class IncomingMailFollowedCriterion(object):
+    """
+        Return catalog criteria for 'suivi' label
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        return {'labels': {'query': '%s:suivi' % api.user.get_current().id}}
+
+
 class OutgoingMailInCopyGroupCriterion(object):
     """
         Return catalog criteria following recipient group member
