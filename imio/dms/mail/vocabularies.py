@@ -17,6 +17,8 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import safe_unicode
+from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
+from z3c.formwidget.query.interfaces import IQuerySource
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n import translate
@@ -26,6 +28,8 @@ from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
+
+import re
 
 
 def voc_cache_key(method, self, context):
@@ -269,3 +273,50 @@ class LabelsVocabulary(object):
                 terms.append(SimpleVocabulary.createTerm(label['label_id'], label['label_id'],
                                                          safe_unicode(label['title'])))
         return SimpleVocabulary(terms)
+
+
+class SourceAbleVocabulary(object):
+    implements(IQuerySource)
+
+    vocabulary_name = ''
+    vocabulary = None
+
+    def __init__(self, context):
+        self.context = context
+        if self.vocabulary_name:
+            voc_inst = getUtility(IVocabularyFactory, self.vocabulary_name)
+            self.vocabulary = voc_inst(self.context)
+        self.__contains__ = self.vocabulary.__contains__
+        self.getTerm = self.vocabulary.getTerm
+        self.getTermByToken = self.vocabulary.getTermByToken
+        self.decoded_titles()
+
+    def __iter__(self):
+        for term in self.vocabulary._terms:
+            yield term
+
+    def decoded_titles(self):
+        self.titles = {}
+        for term in self.vocabulary._terms:
+            self.titles[term.value] = ''.join(['|%s' % p for p in re.findall(r"\w+",
+                                              unidecode(safe_unicode(term.title)).lower()) if len(p) > 1])
+
+    def search(self, query_string):
+        searched = ['|%s' % unidecode(safe_unicode(p)).lower() for p in query_string.split(' ')]
+        return [t for t in self.vocabulary._terms if all([s in self.titles[t.value] for s in searched])]
+
+
+class SourceAbleContextBinder(object):
+    implements(IContextSourceBinder)
+    source_class = None
+
+    def __call__(self, context):
+        return self.source_class(context)
+
+
+class ServicesSourceAbleVocabulary(SourceAbleVocabulary):
+    vocabulary_name = u'collective.dms.basecontent.recipient_groups'
+
+
+class ServicesSourceBinder(SourceAbleContextBinder):
+    source_class = ServicesSourceAbleVocabulary

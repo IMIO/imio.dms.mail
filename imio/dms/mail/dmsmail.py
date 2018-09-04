@@ -96,6 +96,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         title=_(u"Recipient groups"),
         required=False,
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
+#        value_type=schema.Choice(source=ServicesSourceBinder())
     )
 
     mail_type = schema.Choice(
