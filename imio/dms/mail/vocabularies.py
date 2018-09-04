@@ -16,7 +16,7 @@ from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.utils import safe_unicode
+from Products.CMFPlone.utils import safe_unicode, base_hasattr
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
 from z3c.formwidget.query.interfaces import IQuerySource
 from zope.component import getUtility
@@ -289,21 +289,24 @@ class SourceAbleVocabulary(object):
         self.__contains__ = self.vocabulary.__contains__
         self.getTerm = self.vocabulary.getTerm
         self.getTermByToken = self.vocabulary.getTermByToken
-        self.decoded_titles()
+        if base_hasattr(self.vocabulary, 'flattened_titles'):
+            self.flattened_titles = self.vocabulary.flattened_titles
+        else:
+            self.decoded_titles()
 
     def __iter__(self):
         for term in self.vocabulary._terms:
             yield term
 
     def decoded_titles(self):
-        self.titles = {}
+        self.flattened_titles = {}
         for term in self.vocabulary._terms:
-            self.titles[term.value] = ''.join(['|%s' % p for p in re.findall(r"\w+",
-                                              unidecode(safe_unicode(term.title)).lower()) if len(p) > 1])
+            self.flattened_titles[term.value] = ''.join(['|%s' % p for p in re.findall(r"\w+",
+                                                        unidecode(safe_unicode(term.title)).lower()) if len(p) > 1])
 
     def search(self, query_string):
         searched = ['|%s' % unidecode(safe_unicode(p)).lower() for p in query_string.split(' ')]
-        return [t for t in self.vocabulary._terms if all([s in self.titles[t.value] for s in searched])]
+        return [t for t in self.vocabulary._terms if all([s in self.flattened_titles[t.value] for s in searched])]
 
 
 class SourceAbleContextBinder(object):
