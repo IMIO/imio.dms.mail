@@ -26,6 +26,7 @@ from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import object_modified_cachekey
+#from imio.dms.mail.vocabularies import ServicesSourceBinder
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
@@ -34,6 +35,7 @@ from plone.autoform import directives
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
+#from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
@@ -98,6 +100,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
 #        value_type=schema.Choice(source=ServicesSourceBinder())
     )
+#    directives.widget(recipient_groups=AutocompleteMultiFieldWidget)  #22423
 
     mail_type = schema.Choice(
         title=_("Mail type"),
