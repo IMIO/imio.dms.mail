@@ -1655,8 +1655,8 @@ def addContactListsFolder(context):
     if 'sergerobinet' in contacts and 'bernardlermitte' in contacts:
         api.content.create(container=clf['common'], type='contact_list', id='list-agents-swde',
                            title=u'Liste des agents SWDE',
-                           contacts=[intids.getId(contacts['sergerobinet']['agent-swde']),
-                                     intids.getId(contacts['bernardlermitte']['agent-swde'])])
+                           contacts=[RelationValue(intids.getId(contacts['sergerobinet']['agent-swde'])),
+                                     RelationValue(intids.getId(contacts['bernardlermitte']['agent-swde']))])
 
 
 def create_persons_from_users(portal, start='firstname', functions=['encodeur']):
@@ -2043,4 +2043,3 @@ def mark_copy_im_as_read(context):
     out.append('%d mails labelled with "lu"' % changed_mails)
     out.append('%d users are concerned' % len(related_users))
     return '\n'.join(out)
-
