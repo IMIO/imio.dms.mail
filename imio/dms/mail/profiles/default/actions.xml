@@ -74,7 +74,7 @@
    <property name="link_target">_blank</property>
    <property name="available_expr"></property>
    <property name="permissions">
-    <element value="View"/>
+    <element value="List portal members"/>
    </property>
    <property name="visible">True</property>
   </object>
