@@ -268,6 +268,11 @@ class ContactTitleColumn(PrettyLinkColumn):
         return PrettyLinkColumn.getPrettyLink(self, obj)
 
 
+class ContactListTitleColumn(PrettyLinkColumn):
+
+    params = {'target': '_blank', 'additionalCSSClasses': ['link-tooltip', 'contact-list'], 'display_tag_title': False}
+
+
 class PathColumn(LinkColumn, BaseColumn):
     """Column that displays path."""
 

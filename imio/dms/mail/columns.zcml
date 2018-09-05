@@ -156,7 +156,7 @@
      for="imio.dms.mail.interfaces.IContactListsDashboard
           zope.publisher.interfaces.browser.IBrowserRequest
           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
-     factory="imio.dashboard.columns.PrettyLinkColumn"
+     factory=".columns.ContactListTitleColumn"
      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
      name="pretty_link"
   />

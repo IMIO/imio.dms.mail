@@ -152,8 +152,15 @@
 
 body.portaltype-contact_list #content-core fieldset#folder-listing,
 #form-widgets-sender-input-fields div.tooltip.pb-ajax fieldset#folder-listing,
-#form-widgets-recipients-input-fields div.tooltip.pb-ajax fieldset#folder-listing{
+#form-widgets-recipients-input-fields div.tooltip.pb-ajax fieldset#folder-listing,
+table.faceted-table-results a.contact-list + div.tooltip.pb-ajax fieldset#folder-listing {
     display: none;
+}
+
+#form-widgets-sender-input-fields div.tooltip.pb-ajax,
+#form-widgets-recipients-input-fields div.tooltip.pb-ajax,
+table.faceted-table-results a.contact-list + div.tooltip.pb-ajax {
+    padding: 1em 1em 0em;
 }
 
 .template-search #rss-subscription {
