@@ -483,6 +483,26 @@ def contact_modified(obj, event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
+def personnel_contact_removed(del_obj, event):
+    """
+        Check if a personnel held_position is used as sender.
+    """
+    # only interested by held_position user
+    if del_obj.portal_type == 'person':
+        return
+    try:
+        portal = api.portal.get()
+        pp = portal.portal_properties
+        catalog = portal.portal_catalog
+    except api.portal.CannotGetPortalError:
+        # When deleting site, the portal is no more found...
+        return
+    if pp.site_properties.enable_link_integrity_checks:
+        storage = ILinkIntegrityInfo(aq_get(del_obj, 'REQUEST', None))
+        for brain in catalog.unrestrictedSearchResults(portal_type=['dmsoutgoingmail'], sender=[del_obj.UID()]):
+            storage.addBreach(brain._unrestrictedGetObject(), del_obj)
+
+
 def conversion_finished(obj, event):
     # put a flag on the File to know that its conversion is finished
     obj.conversion_finished = True

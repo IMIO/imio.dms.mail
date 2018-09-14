@@ -156,9 +156,9 @@
         />
 
     <subscriber
-        for=".interfaces.IPloneGroupContact
+        for=".interfaces.IPersonnelContact
              OFS.interfaces.IObjectWillBeRemovedEvent"
-        handler=".subscribers.plonegroupOrganizationRemoved"
+        handler=".subscribers.personnel_contact_removed"
         />
 
 </configure>
