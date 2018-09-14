@@ -68,7 +68,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         ret['org_full_title'] = org.get_full_title(separator=' - ', first_index=1)
         return ret
 
-    def mailing_list(self):
+    def mailing_list(self, gen_context=None):
         om = self.real_context
         if not om.recipients:
             return []
