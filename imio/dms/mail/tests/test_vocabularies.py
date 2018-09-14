@@ -69,28 +69,29 @@ class TestVocabularies(unittest.TestCase):
     def test_getMailTypes(self):
         voc_list = [(t.value, t.title) for t in getMailTypes()]
         self.assertEquals(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'), (u'email', u'E-mail'),
-                                     (u'fax', u'Fax'), (u'retour-recommande', u'Retour recommandé'),
-                                     (u'facture', u'Facture')])
+                                     (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
+                                     (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
 
     def test_IMMailTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'),
-                                        (u'email', u'E-mail'), (u'fax', u'Fax'),
+                                        (u'email', u'E-mail'), (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
                                         (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
 
     def test_IMActiveMailTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMActiveMailTypesVocabulary')
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [None, u'courrier', u'recommande', u'email', u'fax', u'retour-recommande',
-                                        u'facture'])
+        self.assertListEqual(voc_list, [None, u'courrier', u'recommande', u'email', u'certificat', u'fax',
+                                        u'retour-recommande', u'facture'])
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
         mail_types[0]['mt_active'] = False
         settings.mail_types = mail_types
         # After a registry change, the vocabulary cache has been cleared
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [None, u'recommande', u'email', u'fax', u'retour-recommande', u'facture'])
+        self.assertListEqual(voc_list, [None, u'recommande', u'email', u'certificat', u'fax', u'retour-recommande',
+                                        u'facture'])
 
     def test_PloneGroupInterfacesVocabulary(self):
         voc_inst = PloneGroupInterfacesVocabulary()
