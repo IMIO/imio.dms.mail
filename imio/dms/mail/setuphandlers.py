@@ -1123,6 +1123,7 @@ def configureImioDmsMail(context):
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
             {'mt_value': u'recommande', 'mt_title': u'Recommandé', 'mt_active': True},
             {'mt_value': u'email', 'mt_title': u'E-mail', 'mt_active': True},
+            {'mt_value': u'certificat', 'mt_title': u'Certificat médical', 'mt_active': True},
             {'mt_value': u'fax', 'mt_title': u'Fax', 'mt_active': True},
             {'mt_value': u'retour-recommande', 'mt_title': u'Retour recommandé', 'mt_active': True},
             {'mt_value': u'facture', 'mt_title': u'Facture', 'mt_active': True},
