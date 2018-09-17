@@ -414,9 +414,6 @@ class Migrate_To_2_1(Migrator):
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
 
-        # correct collective.z3cform.datagridfield 1.3.0 version
-        self.runProfileSteps('collective.z3cform.datagridfield', steps=['browserlayer'])
-
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
