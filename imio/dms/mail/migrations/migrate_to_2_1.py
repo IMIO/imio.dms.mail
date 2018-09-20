@@ -306,7 +306,7 @@ class Migrate_To_2_1(Migrator):
         # createStateCollections(col_folder, 'organization')
         configure_faceted_folder(col_folder, xml='organizations-searches.xml',
                                  default_UID=col_folder['all_orgs'].UID())
-        # configure outgoing-mail faceted
+        # configure contacts faceted
         configure_faceted_folder(contacts, xml='default_dashboard_widgets.xml',
                                  default_UID=col_folder['all_orgs'].UID())
         # add held positions searches

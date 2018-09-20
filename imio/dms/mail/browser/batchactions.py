@@ -513,5 +513,5 @@ class DuplicatedBatchActionForm(BaseBatchActionForm):
         self.request['uids'] = self.request['uids'].split(',')
         self.request['no_redirect'] = 1
         view = getMultiAdapter((self.context.getParentNode(), self.request), name='merge-contacts')
-        with api.env.adopt_roles(['Manager']):
+        with api.env.adopt_roles(['Manager']):  # not sure it's working
             return view()

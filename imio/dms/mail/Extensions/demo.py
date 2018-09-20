@@ -103,6 +103,7 @@ def import_scanned2(self, number=2):
     folder = portal['outgoing-mail']
     count = 1
     limit = int(number)
+    user = api.user.get_current()
     while(count <= limit):
         doc = docs_cycle.next()
         with open(add_path('Extensions/%s' % doc), 'rb') as fo:
@@ -125,8 +126,11 @@ def import_scanned2(self, number=2):
         main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
         document.reindexObject(idxs=('SearchableText'))
         # we adopt roles for robotframework
-        with api.env.adopt_roles(roles=['Batch importer', 'Manager']):
-            api.content.transition(obj=document, transition='set_scanned')
+        #with api.env.adopt_roles(roles=['Batch importer', 'Manager']):
+        # previous is not working
+        api.user.grant_roles(user=user, roles=['Batch importer'], obj=document)
+        api.content.transition(obj=document, transition='set_scanned')
+        api.user.revoke_roles(user=user, roles=['Batch importer'], obj=document)
 
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
