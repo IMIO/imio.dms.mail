@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from collective.dms.basecontent.browser.column import IconColumn
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
@@ -64,7 +63,7 @@ class OMSignedColumn(Column):
 '''
 
 
-class GenerationColumn(LinkColumn, IconColumn):
+class GenerationColumn(LinkColumn):
     header = ""
     weight = 12  # before label = 15
     iconName = "++resource++imio.dms.mail/mailing.gif"

@@ -2,6 +2,7 @@
 """Custom columns."""
 from AccessControl import getSecurityManager
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
+from collective.dms.basecontent.browser.column import LinkColumn as lc_base
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.eeafaceted.z3ctable.columns import BaseColumn
 from collective.eeafaceted.z3ctable.columns import DateColumn
@@ -19,6 +20,7 @@ from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table import column
 from z3c.table.column import LinkColumn
+from zope.component import getAdapter
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
@@ -191,7 +193,7 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     params = {'showHistory': True, 'showActions': False}
 
 
-# Columns for collective.task.browser.table.TasksTable
+# Columns for collective.dms.basecontent.browser.listing.VersionsTable
 
 class ExternalEditColumn(eec_base):
 
@@ -252,6 +254,19 @@ class NoExternalEditColumn(eec_base):
 
     def renderCell(self, item):
         return u''
+
+
+class HistoryColumn(lc_base):
+    """ Not used because history view don't show old file version """
+
+    linkName = '@@historyview'
+    header = u''
+    weight = 60
+
+    def getLinkContent(self, item):
+        title = translate('history.gif_icon_title', context=self.request, domain='imio.actionspanel')
+        return u"""<img title="%s" src="%s" />""" % (
+            title, '%s/++resource++imio.actionspanel/history.gif' % self.table.portal_url)
 
 
 # Columns for contacts dashboard

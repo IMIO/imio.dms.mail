@@ -142,6 +142,15 @@
     name="dms.extedit"
     />
 
+  <!--adapter
+    for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    factory=".columns.HistoryColumn"
+    provides="z3c.table.interfaces.IColumn"
+    name="dms.history"
+    /-->
+
   <!-- imio.dms.mail.interfaces.IContactsDashboard -->
   <adapter
      for="imio.dms.mail.interfaces.IContactsDashboard
