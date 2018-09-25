@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<object name="task" meta_type="Dexterity FTI">
+ <property name="behaviors" purge="False">
+  <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
+ </property>
+</object>

@@ -167,6 +167,11 @@ table.faceted-table-results a.contact-list + div.tooltip.pb-ajax {
     display: none;
 }
 
+.portaltype-task div#formfield-form-widgets-IVersionable-changeNote,
+.portaltype-dmsommainfile div#formfield-form-widgets-IVersionable-changeNote {
+    display: none;
+}
+
 body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it),
 body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it) {
