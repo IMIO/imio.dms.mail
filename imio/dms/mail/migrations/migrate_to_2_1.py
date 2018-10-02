@@ -131,7 +131,7 @@ class Migrate_To_2_1(Migrator):
             total['old_i'] += (sizes['large'] + sizes['normal'] + sizes['small'])
             total['pages'] += sizes['pages']
             if i and not i % 1000:
-                logger.info("dv_conversion: treating %d" % i)
+                logger.warn("dv_conversion: treating %d" % i)
             ret = runConversion(obj)
             if ret == 'failure':
                 logger.error("Error during conversion of %s" % brain.getURLPath())
