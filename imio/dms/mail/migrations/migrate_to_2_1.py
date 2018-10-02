@@ -3,6 +3,7 @@
 from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
+from collective.documentgenerator.utils import update_oo_config
 from collective.documentviewer.convert import runConversion
 from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
@@ -56,6 +57,7 @@ from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
 
 import logging
+import os
 
 
 # createStateCollections
@@ -416,6 +418,9 @@ class Migrate_To_2_1(Migrator):
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+
+        # check if oo port must be changed
+        update_oo_config()
 
         for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.contact.core',
                      'collective.contact.duplicated', 'collective.contact.plonegroup', 'collective.contact.widget',
