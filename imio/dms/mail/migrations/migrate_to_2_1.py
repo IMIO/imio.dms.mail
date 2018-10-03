@@ -134,7 +134,7 @@ class Migrate_To_2_1(Migrator):
                 logger.warn("dv_conversion: treating %d" % i)
             ret = runConversion(obj)
             if ret == 'failure':
-                logger.error("Error during conversion of %s" % brain.getURLPath())
+                logger.error("Error during conversion of %s" % brain.getURL())
             sizes = dv_images_size(obj)
             total['new_i'] += (sizes['large'] + sizes['normal'] + sizes['small'])
         end = datetime(1973, 02, 12).now()
