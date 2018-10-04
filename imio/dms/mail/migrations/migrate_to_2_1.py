@@ -4,8 +4,6 @@ from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.documentgenerator.utils import update_oo_config
-from collective.documentviewer.convert import runConversion
-from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -46,10 +44,7 @@ from plone.portlets.interfaces import IPortletManager
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.Portal import member_indexhtml
 from Products.CMFPlone.utils import _createObjectByType
-from Products.CPUtils.Extensions.utils import dv_images_size
-from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import mark_last_version
-from Products.CPUtils.Extensions.utils import tobytes
 from zope.component import getUtility
 from zope.component import queryMultiAdapter
 from zope.i18n.interfaces import ITranslationDomain
@@ -57,7 +52,6 @@ from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
 
 import logging
-import os
 
 
 # createStateCollections
@@ -108,42 +102,6 @@ class Migrate_To_2_1(Migrator):
             assignable.setBlacklistStatus('context', True)
             assignable.setBlacklistStatus('group', True)
             assignable.setBlacklistStatus('content_type', True)
-
-    def update_dv_images(self):
-        # Set image_format to jpg
-        gsettings = GlobalSettings(self.portal)
-        if gsettings.pdf_image_format == 'jpg':
-            return
-        gsettings.pdf_image_format = 'jpg'
-        from datetime import datetime
-        start = datetime(1973, 02, 12).now()
-        logger.info("Starting dv_conversion at %s" % start)
-        brains = self.catalog(portal_type=['dmsmainfile', 'dmsommainfile', 'dmsappendixfile'])
-        bl = len(brains)
-        logger.info("Found %d objects" % bl)
-        total = {'orig': 0, 'pages': 0, 'old_i': 0, 'new_i': 0}
-        loggerdv = logging.getLogger('collective.documentviewer')
-        loggerdv.setLevel(30)
-        for i, brain in enumerate(brains):
-            obj = brain.getObject()
-            total['orig'] += tobytes(brain.getObjSize)
-            sizes = dv_images_size(obj)
-            total['old_i'] += (sizes['large'] + sizes['normal'] + sizes['small'])
-            total['pages'] += sizes['pages']
-            if i and not i % 1000:
-                logger.warn("dv_conversion: treating %d" % i)
-            ret = runConversion(obj)
-            if ret == 'failure':
-                logger.error("Error during conversion of %s" % brain.getURL())
-            sizes = dv_images_size(obj)
-            total['new_i'] += (sizes['large'] + sizes['normal'] + sizes['small'])
-        end = datetime(1973, 02, 12).now()
-        delta = end - start
-        loggerdv.setLevel(20)
-        logger.info("Finishing dv_conversion, duration %s" % delta)
-        logger.info("Files: '%d', PDF: '%s', Pages: '%d', old: '%s', new: '%s'" %
-                    (bl, fileSize(total['orig'], decimal=','), total['pages'], fileSize(total['old_i'], decimal=','),
-                     fileSize(total['new_i'], decimal=',')))
 
     def update_templates(self):
         # Removed useless template
@@ -378,7 +336,7 @@ class Migrate_To_2_1(Migrator):
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.documentgenerator:default')
 
-        self.reinstall(['collective.contact.contactlist:default', ])
+        self.reinstall(['collective.contact.contactlist:default', 'ftw.labels:default'])
         if 'contact-contactlist-mylists' in self.portal.portal_actions.user:
             self.portal.portal_actions.user.manage_delObjects(ids=['contact-contactlist-mylists'])
 
@@ -406,12 +364,10 @@ class Migrate_To_2_1(Migrator):
         # do various global adaptations
         self.update_site()
 
+        # self.catalog.refreshCatalog(clear=1)
         # recatalog
         for brain in self.catalog(portal_type='dmsincomingmail'):
             brain.getObject().reindexObject(['get_full_title'])
-
-        # converting dv images
-        self.update_dv_images()
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
