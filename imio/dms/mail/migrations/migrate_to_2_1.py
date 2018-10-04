@@ -336,7 +336,7 @@ class Migrate_To_2_1(Migrator):
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.documentgenerator:default')
 
-        self.reinstall(['collective.contact.contactlist:default', ])
+        self.reinstall(['collective.contact.contactlist:default', 'ftw.labels:default'])
         if 'contact-contactlist-mylists' in self.portal.portal_actions.user:
             self.portal.portal_actions.user.manage_delObjects(ids=['contact-contactlist-mylists'])
 
