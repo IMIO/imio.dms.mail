@@ -15,6 +15,14 @@ msgstr ""
 "Domain: collective.eeafaceted.batchactions\n"
 "X-is-fallback-for: fr-fr fr-be fr-ca\n"
 
+#. Default: "Change assigned user"
+msgid "assignedgroup-batch-action-but"
+msgstr "Changer le groupe assigné"
+
+#. Default: "Change assigned user"
+msgid "assigneduser-batch-action-but"
+msgstr "Changer l'utilisateur assigné"
+
 #. Default: "Change state"
 msgid "copy-to-batch-action-but"
 msgstr "Copier par lot"
@@ -22,3 +30,19 @@ msgstr "Copier par lot"
 #. Default: "Merge contacts"
 msgid "duplicated-batch-action-but"
 msgstr "Fusionner les doublons"
+
+#. Default: "Change outgoing date"
+msgid "outgoingdate-batch-action-but"
+msgstr "Changer la date d'expédition"
+
+#. Default: "Change recipient groups"
+msgid "recipientgroup-batch-action-but"
+msgstr "Changer les services en copie"
+
+#. Default: "Reply to all"
+msgid "reply-batch-action-but"
+msgstr "Répondre à tous"
+
+#. Default: "Change treating group"
+msgid "treatinggroup-batch-action-but"
+msgstr "Changer le service traitant"

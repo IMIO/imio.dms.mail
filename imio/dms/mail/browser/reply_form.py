@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Reply form."""
 from imio.dms.mail import _
-from imio.dms.mail.browser.batchactions import brains_from_uids
+from collective.eeafaceted.batchactions.browser.views import brains_from_uids
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateFields
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateWidgets
 from plone import api

@@ -165,6 +165,10 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(self.imf['mail-searches'], ICollectionCategories)
         alsoProvides(self.omf['mail-searches'], ICollectionCategories)
         alsoProvides(self.portal['tasks']['task-searches'], ICollectionCategories)
+        # I...BatchActions
+        alsoProvides(self.imf['mail-searches'], IIMDashboardBatchActions)
+        alsoProvides(self.omf['mail-searches'], IOMDashboardBatchActions)
+        alsoProvides(self.portal['tasks']['task-searches'], ITaskDashboardBatchActions)
         # Rename category label
         self.imf['mail-searches'].setRights('Courrier entrant')
         self.omf['mail-searches'].setRights('Courrier sortant')
