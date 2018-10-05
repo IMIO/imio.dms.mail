@@ -201,7 +201,7 @@
             permission="zope2.View" />
     </configure>
 
-    <!-- BATCH ACTIONS NG -->
+    <!-- BATCH ACTIONS CONTACTS -->
     <browser:page
         for="imio.dms.mail.interfaces.IOMTemplatesFolder"
         name="copy-to-batch-action"
@@ -226,103 +226,74 @@
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
 
-    <!-- BATCH ACTIONS -->
-    <browser:viewlet
-        name="dashboard_batch_actions_viewlet"
-        for="imio.dms.mail.interfaces.IIMDashboard"
-        manager="collective.eeafaceted.z3ctable.interfaces.IBottomAboveNavManager"
-        layer="imio.dashboard.interfaces.IImioDashboardLayer"
-        template="templates/dashboard_batch_actions_viewlet.pt"
-        permission="zope2.View" />
-
+    <!-- BATCH ACTIONS IM MAILS -->
     <browser:page
-        for="imio.dms.mail.interfaces.IDocsDashboard"
-        name="transition-batch-action"
-        class=".batchactions.TransitionBatchActionForm"
-        permission="zope2.View"
-        />
-
-    <browser:page
-        for="imio.dms.mail.interfaces.IIMDashboard"
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
         name="treatinggroup-batch-action"
         class=".batchactions.TreatingGroupBatchActionForm"
         permission="zope2.View"
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IIMDashboard"
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
         name="recipientgroup-batch-action"
         class=".batchactions.RecipientGroupBatchActionForm"
         permission="zope2.View"
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IIMDashboard"
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
         name="assigneduser-batch-action"
         class=".batchactions.AssignedUserBatchActionForm"
         permission="zope2.View"
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IIMDashboard"
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
         name="reply-batch-action"
         class=".batchactions.ReplyBatchActionForm"
         permission="zope2.View"
         />
 
-    <browser:viewlet
-        name="omdashboard_batch_actions_viewlet"
-        for="imio.dms.mail.interfaces.IOMDashboard"
-        manager="collective.eeafaceted.z3ctable.interfaces.IBottomAboveNavManager"
-        layer="imio.dashboard.interfaces.IImioDashboardLayer"
-        template="templates/om_dashboard_batch_actions_viewlet.pt"
-        permission="zope2.View" />
-
+    <!-- BATCH ACTIONS OM MAILS -->
     <browser:page
-        for="imio.dms.mail.interfaces.IOMDashboard"
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="treatinggroup-batch-action"
         class=".batchactions.TreatingGroupBatchActionForm"
         permission="zope2.View"
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IOMDashboard"
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="recipientgroup-batch-action"
         class=".batchactions.RecipientGroupBatchActionForm"
         permission="zope2.View"
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IOMDashboard"
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="assigneduser-batch-action"
         class=".batchactions.AssignedUserBatchActionForm"
         permission="zope2.View"
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IOMDashboard"
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="outgoingdate-batch-action"
         class=".batchactions.OutgoingDateBatchActionForm"
         permission="zope2.View"
         />
 
-    <browser:viewlet
-        name="taskdashboard_batch_actions_viewlet"
-        for="imio.dms.mail.interfaces.ITaskDashboard"
-        manager="collective.eeafaceted.z3ctable.interfaces.IBottomAboveNavManager"
-        layer="imio.dashboard.interfaces.IImioDashboardLayer"
-        template="templates/task_dashboard_batch_actions_viewlet.pt"
-        permission="zope2.View" />
-
+    <!-- BATCH ACTIONS TASKS -->
     <browser:page
-        for="imio.dms.mail.interfaces.ITaskDashboard"
+        for="imio.dms.mail.interfaces.ITaskDashboardBatchActions"
         name="assignedgroup-batch-action"
         class=".batchactions.AssignedGroupBatchActionForm"
         permission="zope2.View"
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.ITaskDashboard"
+        for="imio.dms.mail.interfaces.ITaskDashboardBatchActions"
         name="assigneduser-batch-action"
         class=".batchactions.TaskAssignedUserBatchActionForm"
         permission="zope2.View"

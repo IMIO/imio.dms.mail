@@ -30,18 +30,14 @@ from imio.dashboard.utils import _updateDefaultCollectionFor
 from imio.dashboard.utils import enableFacetedDashboardFor
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
-from imio.dms.mail.interfaces import IContactListsDashboard
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
-from imio.dms.mail.interfaces import IHeldPositionsDashboard
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
-from imio.dms.mail.interfaces import IIMDashboard
-from imio.dms.mail.interfaces import IOMDashboard
+from imio.dms.mail.interfaces import IIMDashboardBatchActions
+from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
-from imio.dms.mail.interfaces import IOrganizationsDashboard
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
-from imio.dms.mail.interfaces import IPersonsDashboard
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
-from imio.dms.mail.interfaces import ITaskDashboard
+from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import transitions
@@ -140,7 +136,7 @@ def postInstall(context):
         col_folder = add_db_col_folder(im_folder, 'mail-searches', _("Incoming mail searches"),
                                        _('Incoming mails'))
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IIMDashboard)
+        alsoProvides(col_folder, IIMDashboardBatchActions)
 
         # blacklistPortletCategory(context, im_folder)
         createIMailCollections(col_folder)
@@ -168,7 +164,7 @@ def postInstall(context):
         col_folder = add_db_col_folder(om_folder, 'mail-searches', _("Outgoing mail searches"),
                                        _('Outgoing mails'))
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IOMDashboard)
+        alsoProvides(col_folder, IOMDashboardBatchActions)
         createOMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsoutgoingmail')
         configure_faceted_folder(col_folder, xml='om-mail-searches.xml',
@@ -193,7 +189,7 @@ def postInstall(context):
         col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
                                        _("Tasks"))
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, ITaskDashboard)
+        alsoProvides(col_folder, ITaskDashboardBatchActions)
         createTaskCollections(col_folder)
         createStateCollections(col_folder, 'task')
         configure_faceted_folder(col_folder, xml='im-task-searches.xml',
@@ -240,7 +236,6 @@ def postInstall(context):
         col_folder = add_db_col_folder(contacts, 'orgs-searches', _("Organizations searches"), _("Organizations"))
         contacts.moveObjectToPosition('orgs-searches', 0)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IOrganizationsDashboard)
         alsoProvides(col_folder, IOrganizationsDashboardBatchActions)
         createOrganizationsCollections(col_folder)
         # createStateCollections(col_folder, 'organization')
@@ -253,7 +248,6 @@ def postInstall(context):
         col_folder = add_db_col_folder(contacts, 'hps-searches', _("Held positions searches"), _("Held positions"))
         contacts.moveObjectToPosition('hps-searches', 1)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IHeldPositionsDashboard)
         alsoProvides(col_folder, IHeldPositionsDashboardBatchActions)
         createHeldPositionsCollections(col_folder)
         # createStateCollections(col_folder, 'held_position')
@@ -263,7 +257,6 @@ def postInstall(context):
         col_folder = add_db_col_folder(contacts, 'persons-searches', _("Persons searches"), _("Persons"))
         contacts.moveObjectToPosition('persons-searches', 2)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IPersonsDashboard)
         alsoProvides(col_folder, IPersonsDashboardBatchActions)
         createPersonsCollections(col_folder)
         # createStateCollections(col_folder, 'person')
@@ -273,7 +266,6 @@ def postInstall(context):
         col_folder = add_db_col_folder(contacts, 'cls-searches', _("Contact list searches"), _("Contact lists"))
         contacts.moveObjectToPosition('cls-searches', 3)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IContactListsDashboard)
         alsoProvides(col_folder, IContactListsDashboardBatchActions)
         createContactListsCollections(col_folder)
         # createStateCollections(col_folder, 'contact_list')

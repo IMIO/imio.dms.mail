@@ -34,14 +34,29 @@ class IIMDashboard(IDocsDashboard):
     """Marker interface for incoming mail dashboard."""
 
 
+class IIMDashboardBatchActions(IIMDashboard, IBatchActionsMarker):
+
+    """Marker interface for incoming mail dashboard with batch actions."""
+
+
 class IOMDashboard(IDocsDashboard):
 
     """Marker interface for outgoing mail dashboard."""
 
 
+class IOMDashboardBatchActions(IOMDashboard, IBatchActionsMarker):
+
+    """Marker interface for outgoing mail dashboard with batch actions."""
+
+
 class ITaskDashboard(IDocsDashboard):
 
     """Marker interface for task dashboard."""
+
+
+class ITaskDashboardBatchActions(ITaskDashboard, IBatchActionsMarker):
+
+    """Marker interface for task dashboard with batch actions."""
 
 
 #class IContactsDashboard(IDocsDashboard):  #interference with current bacth actions
