@@ -14,14 +14,14 @@ from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
-from imio.dms.mail.interfaces import IContactListsDashboard
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
-from imio.dms.mail.interfaces import IHeldPositionsDashboard
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
-from imio.dms.mail.interfaces import IOrganizationsDashboard
-from imio.dms.mail.interfaces import IPersonsDashboard
+from imio.dms.mail.interfaces import IIMDashboardBatchActions
+from imio.dms.mail.interfaces import IOMDashboardBatchActions
+from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
+from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.setuphandlers import _
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import add_templates
@@ -260,8 +260,7 @@ class Migrate_To_2_1(Migrator):
         col_folder = add_db_col_folder(contacts, 'orgs-searches', _("Organizations searches"), _("Organizations"))
         contacts.moveObjectToPosition('orgs-searches', 0)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IOrganizationsDashboard)
-        alsoProvides(col_folder, IHeldPositionsDashboardBatchActions)
+        alsoProvides(col_folder, IOrganizationsDashboardBatchActions)
         createOrganizationsCollections(col_folder)
         # createStateCollections(col_folder, 'organization')
         configure_faceted_folder(col_folder, xml='organizations-searches.xml',
@@ -273,7 +272,6 @@ class Migrate_To_2_1(Migrator):
         col_folder = add_db_col_folder(contacts, 'hps-searches', _("Held positions searches"), _("Held positions"))
         contacts.moveObjectToPosition('hps-searches', 1)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IHeldPositionsDashboard)
         alsoProvides(col_folder, IHeldPositionsDashboardBatchActions)
         createHeldPositionsCollections(col_folder)
         # createStateCollections(col_folder, 'held_position')
@@ -283,7 +281,6 @@ class Migrate_To_2_1(Migrator):
         col_folder = add_db_col_folder(contacts, 'persons-searches', _("Persons searches"), _("Persons"))
         contacts.moveObjectToPosition('persons-searches', 2)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IPersonsDashboard)
         alsoProvides(col_folder, IPersonsDashboardBatchActions)
         createPersonsCollections(col_folder)
         # createStateCollections(col_folder, 'person')
@@ -293,7 +290,6 @@ class Migrate_To_2_1(Migrator):
         col_folder = add_db_col_folder(contacts, 'cls-searches', _("Contact list searches"), _("Contact lists"))
         contacts.moveObjectToPosition('cls-searches', 3)
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IContactListsDashboard)
         alsoProvides(col_folder, IContactListsDashboardBatchActions)
         createContactListsCollections(col_folder)
         # createStateCollections(col_folder, 'contact_list')
