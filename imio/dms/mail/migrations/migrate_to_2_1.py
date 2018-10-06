@@ -336,7 +336,12 @@ class Migrate_To_2_1(Migrator):
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.documentgenerator:default')
 
-        self.reinstall(['collective.contact.contactlist:default', 'ftw.labels:default'])
+        self.reinstall(['collective.contact.contactlist:default'])
+        try:
+            self.reinstall(['ftw.labels:default'])
+        except LookupError, e:
+            if not e.message.startswith('Could not find ILabelJar on any parents'):
+                raise e
         if 'contact-contactlist-mylists' in self.portal.portal_actions.user:
             self.portal.portal_actions.user.manage_delObjects(ids=['contact-contactlist-mylists'])
 
