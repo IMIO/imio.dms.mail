@@ -17,10 +17,13 @@ from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
+from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IIMDashboardBatchActions
+from imio.dms.mail.interfaces import IOMDashboard
 from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
+from imio.dms.mail.interfaces import ITaskDashboard
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.setuphandlers import _
 from imio.dms.mail.setuphandlers import add_db_col_folder
@@ -166,8 +169,11 @@ class Migrate_To_2_1(Migrator):
         alsoProvides(self.omf['mail-searches'], ICollectionCategories)
         alsoProvides(self.portal['tasks']['task-searches'], ICollectionCategories)
         # I...BatchActions
+        noLongerProvides(self.imf['mail-searches'], IIMDashboard)
         alsoProvides(self.imf['mail-searches'], IIMDashboardBatchActions)
+        noLongerProvides(self.omf['mail-searches'], IOMDashboard)
         alsoProvides(self.omf['mail-searches'], IOMDashboardBatchActions)
+        noLongerProvides(self.portal['tasks']['task-searches'], ITaskDashboard)
         alsoProvides(self.portal['tasks']['task-searches'], ITaskDashboardBatchActions)
         # Rename category label
         self.imf['mail-searches'].setRights('Courrier entrant')
@@ -362,6 +368,7 @@ class Migrate_To_2_1(Migrator):
 
         # update templates
         self.update_templates()
+        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
         # update collections
         self.update_collections()

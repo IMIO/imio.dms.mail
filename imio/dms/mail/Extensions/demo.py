@@ -4,16 +4,20 @@ from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from datetime import date
 from datetime import datetime
 from imio.dms.mail import add_path
+from imio.dms.mail.utils import Dummy
 from itertools import cycle
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.CPUtils.Extensions.utils import log_list
+from zope.component import getUtility
 
 import copy
 import os
@@ -39,11 +43,6 @@ def import_scanned(self, number=2):
         },
     }
     docs_cycle = cycle(docs)
-
-    class Dummy(object):
-        def __init__(self, context, request):
-            self.context = context
-            self.request = request
 
     portal = getToolByName(self, "portal_url").getPortalObject()
     folder = portal['incoming-mail']
@@ -159,17 +158,29 @@ def clean_examples(self):
     out = []
     portal = api.portal.getSite()
     portal.portal_properties.site_properties.enable_link_integrity_checks = False
+    registry = getUtility(IRegistry)
 
     # Delete om
     brains = api.content.find(portal_type='dmsoutgoingmail')
     for brain in brains:
         log_list(out, "Deleting om '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number'] = 1
+
+    # Create test om
+    params = {'title': u'Courrier test pour création de modèles (ne pas effacer)',
+              'internal_reference_no': internalReferenceOutgoingMailDefaultValue(Dummy(portal, portal.REQUEST)),
+              'mail_date': date.today(),
+              'mail_type': 'courrier',
+              }
+    portal['outgoing-mail'].invokeFactory('dmsoutgoingmail', id='test_creation_modele', **params)
+
     # Delete im
     brains = api.content.find(portal_type='dmsincomingmail')
     for brain in brains:
         log_list(out, "Deleting im '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_number'] = 1
     # Delete own personnel
     pf = portal['contacts']['personnel-folder']
     brains = api.content.find(context=pf, portal_type='person')
@@ -204,6 +215,10 @@ def clean_examples(self):
     brains = api.content.find(context=portal['contacts'], portal_type='organization', id=['electrabel', 'swde'])
     for brain in brains:
         log_list(out, "Deleting organization '%s'" % brain.getPath())
+        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+    brains = api.content.find(context=portal['contacts'], portal_type='contact_list')
+    for brain in brains:
+        log_list(out, "Deleting contact list '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     # Delete users
     for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
