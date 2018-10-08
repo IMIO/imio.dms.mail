@@ -333,3 +333,9 @@ class OdmUtilsMethods(UtilsMethods):
     def is_odt_activated(self):
         registry = getUtility(IRegistry)
         return registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile']
+
+
+class Dummy(object):
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request

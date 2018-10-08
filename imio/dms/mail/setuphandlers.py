@@ -38,6 +38,7 @@ from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
+from imio.dms.mail.utils import Dummy
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import transitions
@@ -1326,11 +1327,6 @@ def addTestMails(context):
 
     intids = getUtility(IIntIds)
 
-    class dummy(object):
-        def __init__(self, context, request):
-            self.context = context
-            self.request = request
-
     contacts = site['contacts']
     senders = [
         intids.getId(contacts['electrabel']),  # sender is the organisation
@@ -1348,7 +1344,7 @@ def addTestMails(context):
 
     # incoming mails
     ifld = site['incoming-mail']
-    data = dummy(site, site.REQUEST)
+    data = Dummy(site, site.REQUEST)
     for i in range(1, 10):
         if not 'courrier%d' % i in ifld:
             scan_date = receptionDateDefaultValue(data)
