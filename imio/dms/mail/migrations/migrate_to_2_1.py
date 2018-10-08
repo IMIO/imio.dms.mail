@@ -362,6 +362,7 @@ class Migrate_To_2_1(Migrator):
 
         # update templates
         self.update_templates()
+        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
         # update collections
         self.update_collections()
