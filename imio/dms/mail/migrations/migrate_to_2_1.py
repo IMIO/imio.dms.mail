@@ -121,9 +121,11 @@ class Migrate_To_2_1(Migrator):
         add_templates(self.portal)
 
         ml_uid = self.portal.restrictedTraverse('templates/om/mailing').UID()
-        for path in ('templates/om/main',):
-            obj = self.portal.restrictedTraverse(path)
-            obj.mailing_loop_template = ml_uid
+        brains = api.content.find(context=self.portal['templates']['om'], portal_type=['ConfigurablePODTemplate'])
+        for brain in brains:
+            ob = brain.getObject()
+            if not ob.mailing_loop_template:
+                ob.mailing_loop_template = ml_uid
 
     def update_tasks(self):
         # NOT USED !
