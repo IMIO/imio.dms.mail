@@ -357,7 +357,9 @@ class Migrate_To_2_1(Migrator):
                                                      'typeinfo', 'viewlets', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         # Apply workflow adaptations
-        success, errors = apply_from_registry()
+        RECORD_NAME = 'collective.wfadaptations.applied_adaptations'
+        if api.portal.get_registry_record(RECORD_NAME, default=False):
+            success, errors = apply_from_registry()
 
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-icons-to-contact-workflow'], profile='singles')
 
