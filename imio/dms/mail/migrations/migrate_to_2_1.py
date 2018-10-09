@@ -361,6 +361,9 @@ class Migrate_To_2_1(Migrator):
         if api.portal.get_registry_record(RECORD_NAME, default=False):
             success, errors = apply_from_registry()
 
+        # check if oo port must be changed
+        update_oo_config()
+
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-icons-to-contact-workflow'], profile='singles')
 
         add_transforms(self.portal)
@@ -390,9 +393,6 @@ class Migrate_To_2_1(Migrator):
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
-
-        # check if oo port must be changed
-        update_oo_config()
 
         for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.contact.core',
                      'collective.contact.duplicated', 'collective.contact.plonegroup', 'collective.contact.widget',
