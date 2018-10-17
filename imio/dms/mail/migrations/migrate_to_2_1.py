@@ -241,6 +241,8 @@ class Migrate_To_2_1(Migrator):
         self.portal.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator', 'Member'),
                                       acquire=0)
 
+        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-mark-copy-im-as-read'], profile='singles')
+
         # INextPrevNotNavigable
         alsoProvides(self.portal['tasks'], INextPrevNotNavigable)
 
@@ -387,7 +389,7 @@ class Migrate_To_2_1(Migrator):
         # self.catalog.refreshCatalog(clear=1)
         # recatalog
         for brain in self.catalog(portal_type='dmsincomingmail'):
-            brain.getObject().reindexObject(['get_full_title'])
+            brain.getObject().reindexObject(['get_full_title', 'organization_type'])
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
