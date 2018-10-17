@@ -261,6 +261,9 @@ class Migrate_To_2_1(Migrator):
         pf.manage_permission('imio.dms.mail: Write userid field', ('Manager', 'Site Administrator'),
                              acquire=0)
 
+        # ckeditor skin
+        self.portal.portal_properties.ckeditor_properties.skin = 'moono-lisa'
+
     def update_contacts(self):
         contacts = self.portal['contacts']
         blacklistPortletCategory(contacts, contacts, value=False)
