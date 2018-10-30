@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-08-30 13:02+0000\n"
+"POT-Creation-Date: 2018-10-30 13:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -89,6 +89,9 @@ msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager_zs"
+msgstr ""
+
+msgid "back_to_pre_manager"
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
@@ -220,6 +223,9 @@ msgstr ""
 msgid "propose_to_manager_zs"
 msgstr ""
 
+msgid "propose_to_pre_manager"
+msgstr ""
+
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service_chief"
 msgstr ""
@@ -234,6 +240,9 @@ msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager_zs"
+msgstr ""
+
+msgid "proposed_to_pre_manager"
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml

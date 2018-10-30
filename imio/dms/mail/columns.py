@@ -14,13 +14,11 @@ from collective.task.interfaces import ITaskMethods
 from imio.dashboard.columns import ActionsColumn
 from imio.dashboard.columns import PrettyLinkColumn
 from imio.dashboard.columns import RelationPrettyLinkColumn
-from imio.dms.mail import _
 from plone import api
 from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table import column
 from z3c.table.column import LinkColumn
-from zope.component import getAdapter
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 

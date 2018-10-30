@@ -61,7 +61,7 @@ def list_wf_states(context, portal_type):
         list all portal_type wf states
     """
     ordered_states = {
-        'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
+        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_service_chief',
                             'proposed_to_agent', 'in_treatment', 'closed'],
         'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
         'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
@@ -294,6 +294,10 @@ class IdmUtilsMethods(UtilsMethods):
     def proposed_to_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_manager collection """
         return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False)
+
+    def proposed_to_pre_manager_col_cond(self):
+        """ Condition for searchfor_proposed_to_pre_manager collection """
+        return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False)
 
     def proposed_to_serv_chief_col_cond(self):
         """ Condition for searchfor_proposed_to_service_chief collection """

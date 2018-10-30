@@ -234,6 +234,11 @@
         factory=".wfadaptations.OMToPrintAdaptation"
     />
 
+    <utility
+        name="imio.dms.mail.wfadaptations.IMPreManagerValidation"
+        factory=".wfadaptations.IMPreManagerValidation"
+    />
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />
