@@ -201,6 +201,11 @@ def impv_bw_tr_default(context):
     return translate(u'back_to_pre_manager', domain='plone', context=context.REQUEST)
 
 
+@provider(IContextAwareDefaultFactory)
+def impv_collection_default(context):
+    return translate(u'searchfor_proposed_to_pre_manager', domain='imio.dms.mail', context=context.REQUEST)
+
+
 class IIMPreValidationParameters(Interface):
 
     state_title = schema.TextLine(
@@ -216,6 +221,11 @@ class IIMPreValidationParameters(Interface):
     backward_transition_title = schema.TextLine(
         title=u"Backward transition title",
         defaultFactory=impv_bw_tr_default,
+        required=True)
+
+    collection_title = schema.TextLine(
+        title=u"Collection title",
+        defaultFactory=impv_collection_default,
         required=True)
 
 
@@ -307,7 +317,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         folder = portal['incoming-mail']['mail-searches']
         col_id = 'searchfor_proposed_to_pre_manager'
         if col_id not in folder:
-            folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
+            folder.invokeFactory("DashboardCollection", id=col_id, title=parameters['collection_title'],
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': ['dmsincomingmail']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',

@@ -745,7 +745,7 @@ msgstr "État: à valider par le DG"
 
 #: dmsincomingmail
 msgid "searchfor_proposed_to_pre_manager"
-msgstr "État: à valider par le pré DG"
+msgstr "État: à prévalider avant le DG"
 
 #: dmsincomingmail
 #: dmsoutgoingmail
