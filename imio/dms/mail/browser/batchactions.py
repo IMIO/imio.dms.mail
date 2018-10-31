@@ -6,23 +6,15 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
 from collective.task import _ as TMF
-from collective.task.behaviors import ITask
 from collective.task.interfaces import ITaskContent
 from imio.dms.mail import _
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
-from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from operator import methodcaller
 from plone import api
 from plone.formwidget.masterselect import MasterSelectField
-from plone.supermodel import model
-from Products.CMFPlone import PloneMessageFactory as PMF
-from Products.CMFPlone.utils import safe_unicode
-from z3c.form import button
 from z3c.form.browser.select import SelectFieldWidget
 from z3c.form.field import Fields
-from z3c.form.form import Form
-from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
 from zope.component import getMultiAdapter
 from zope.lifecycleevent import Attributes
