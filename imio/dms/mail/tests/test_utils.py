@@ -3,18 +3,23 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_richtextval
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
+from imio.dms.mail.utils import init_dms_config
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import UtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from persistent.dict import PersistentDict
+from persistent.list import PersistentList
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 
 import unittest
@@ -29,6 +34,19 @@ class TestUtils(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
+
+    def test_dms_config(self):
+        annot = IAnnotations(self.portal)
+        init_dms_config(['a'], value='dict')
+        lst = init_dms_config(['a', 'b'], value='list')
+        self.assertTrue(isinstance(annot['imio.dms.mail'], PersistentDict))
+        self.assertTrue(isinstance(annot['imio.dms.mail']['a'], PersistentDict))
+        self.assertTrue(isinstance(annot['imio.dms.mail']['a']['b'], PersistentList))
+        lst.append(1)
+        self.assertEqual(get_dms_config(['a', 'b']), [1])
+        init_dms_config(['a', 'b'], value='plone')
+        self.assertTrue(isinstance(annot['imio.dms.mail']['a']['b'], str))
+        self.assertEqual(get_dms_config(['a', 'b']), 'plone')
 
     def test_highest_review_level(self):
         self.assertIsNone(highest_review_level('a_type', ""))

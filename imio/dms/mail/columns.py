@@ -162,7 +162,7 @@ class ReviewStateColumn(I18nColumn):
             return u'-'
         wtool = api.portal.get_tool('portal_workflow')
         state_title = wtool.getTitleForStateOnType(value, item.portal_type)
-        return translate(state_title,
+        return translate(safe_unicode(state_title),
                          domain=self.i18n_domain,
                          context=self.request)
 

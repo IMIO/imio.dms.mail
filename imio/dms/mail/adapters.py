@@ -15,11 +15,11 @@ from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.overrides import IDmsPerson
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import organizations_with_suffixes
-from imio.dms.mail.utils import review_levels
 from imio.prettylink.adapters import PrettyLinkAdapter
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
@@ -59,22 +59,29 @@ import time
 # Compound criterions #
 #######################
 
-default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager',
+default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager', 'proposed_to_pre_manager',
                                                                     'proposed_to_service_chief']}},
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
+# actually, logic is made on non group validation state list to avoid modifying code if states are added in gui
+# but it could be preferable to store list of concerned states in plone !!
 no_group_validation_states = {
-    'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_agent', 'in_treatment', 'closed'],
+    'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_pre_manager', 'proposed_to_agent',
+                        'in_treatment', 'closed'],
     'task': ['created', 'to_do', 'in_progress', 'closed'],
     'dmsoutgoingmail': ['created', 'to_print', 'to_be_signed', 'scanned', 'sent']}
 
 
 def highest_validation_criterion(portal_type):
-    """ Return a query criterion corresponding to current user highest validation level """
+    """
+        Return a query criterion corresponding to current user highest validation level
+        NO MORE USED
+    """
     groups = api.group.get_groups(user=api.user.get_current())
     highest_level = highest_review_level(portal_type, str([g.id for g in groups]))
     if highest_level is None:
         return default_criterias[portal_type]
     ret = {}
+    review_levels = get_dms_config(['review_levels'])
     criterias = review_levels[portal_type][highest_level]
     if 'st' in criterias:
         ret['review_state'] = {'query': criterias['st']}
@@ -90,6 +97,7 @@ def highest_validation_criterion(portal_type):
 class IncomingMailHighestValidationCriterion(object):
     """
         Return catalog criteria following highest validation group member
+        NOT USED
     """
 
     def __init__(self, context):
@@ -103,6 +111,7 @@ class IncomingMailHighestValidationCriterion(object):
 class TaskHighestValidationCriterion(object):
     """
         Return catalog criteria following highest validation group member
+        NOT USED
     """
 
     def __init__(self, context):
@@ -468,6 +477,7 @@ def om_organization_type_index(obj):
 
 @indexer(IDmsDocument)
 def state_group_index(obj):
+    # Index contains state,org when validation is at org level, or state only otherwise
     # No acquisition pb because state_group isn't an attr
     state = api.content.get_state(obj=obj)
     if state in no_group_validation_states[obj.portal_type]:
