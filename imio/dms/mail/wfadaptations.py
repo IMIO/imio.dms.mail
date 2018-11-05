@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """Example."""
+from collections import OrderedDict
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from setuphandlers import _
+from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import set_dms_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -335,6 +338,12 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             col.setLayout('tabular_view')
             folder.portal_workflow.doActionFor(col, "show_internally")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_proposed_to_manager'))
+
+        # update configuration annotation
+        config = get_dms_config(['review_levels', 'dmsincomingmail'])
+        if 'pre_manager' not in config:
+            new_value = OrderedDict([('pre_manager', {'st': ['proposed_to_pre_manager']})] + config.items())
+            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_value)
 
         # update state list
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')

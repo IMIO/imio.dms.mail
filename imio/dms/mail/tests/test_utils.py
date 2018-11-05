@@ -7,7 +7,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
-from imio.dms.mail.utils import init_dms_config
+from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import UtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -37,14 +37,14 @@ class TestUtils(unittest.TestCase):
 
     def test_dms_config(self):
         annot = IAnnotations(self.portal)
-        init_dms_config(['a'], value='dict')
-        lst = init_dms_config(['a', 'b'], value='list')
+        set_dms_config(['a'], value='dict')
+        lst = set_dms_config(['a', 'b'], value='list')
         self.assertTrue(isinstance(annot['imio.dms.mail'], PersistentDict))
         self.assertTrue(isinstance(annot['imio.dms.mail']['a'], PersistentDict))
         self.assertTrue(isinstance(annot['imio.dms.mail']['a']['b'], PersistentList))
         lst.append(1)
         self.assertEqual(get_dms_config(['a', 'b']), [1])
-        init_dms_config(['a', 'b'], value='plone')
+        set_dms_config(['a', 'b'], value='plone')
         self.assertTrue(isinstance(annot['imio.dms.mail']['a']['b'], str))
         self.assertEqual(get_dms_config(['a', 'b']), 'plone')
 

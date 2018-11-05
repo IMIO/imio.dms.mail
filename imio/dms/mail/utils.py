@@ -33,7 +33,7 @@ import logging
 logger = logging.getLogger('imio.dms.mail: utils')
 
 
-def init_dms_config(keys=[], value='list'):
+def set_dms_config(keys=None, value='list'):
     """
         Set initial value in 'imio.dms.mail' portal annotation.
         keys is the chain of annotation keys. First key 'imio.dms.mail' is implicitly added.
@@ -42,6 +42,8 @@ def init_dms_config(keys=[], value='list'):
         'dict', 'list' or directly value
     """
     annot = IAnnotations(api.portal.get())
+    if keys is None:
+        keys = []
     keys.insert(0, 'imio.dms.mail')
     last = len(keys) - 1
     for i, key in enumerate(keys):
@@ -57,12 +59,14 @@ def init_dms_config(keys=[], value='list'):
             return annot[key]
 
 
-def get_dms_config(keys=[]):
+def get_dms_config(keys=None):
     """
         Return annotation value from keys list.
         First key 'imio.dms.mail' is implicitly added.
     """
     annot = IAnnotations(api.portal.get())
+    if keys is None:
+        keys = []
     keys.insert(0, 'imio.dms.mail')
     for key in keys:
         annot = annot[key]

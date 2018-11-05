@@ -40,7 +40,7 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import Dummy
-from imio.dms.mail.utils import init_dms_config
+from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import transitions
@@ -843,14 +843,13 @@ def adaptDefaultPortal(context):
 
     # imio.dms.mail configuration annotation
     # highest review level configuration, used in utils and adapters
-    init_dms_config(['review_levels', 'dmsincomingmail'],
-                    OrderedDict([('pre_manager', {'st': ['proposed_to_pre_manager']}),
-                                 ('dir_general', {'st': ['proposed_to_manager']}),
-                                 ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
-    init_dms_config(['review_levels', 'task'],
-                    OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
-    init_dms_config(['review_levels', 'dmsoutgoingmail'],
-                    OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+    set_dms_config(['review_levels', 'dmsincomingmail'],
+                   OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+    set_dms_config(['review_levels', 'task'],
+                   OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
+    set_dms_config(['review_levels', 'dmsoutgoingmail'],
+                   OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
 
 
 def changeSearchedTypes(site):
