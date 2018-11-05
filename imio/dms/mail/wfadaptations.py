@@ -344,6 +344,10 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         if 'pre_manager' not in config:
             new_value = OrderedDict([('pre_manager', {'st': ['proposed_to_pre_manager']})] + config.items())
             set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_value)
+        config = get_dms_config(['review_states', 'dmsincomingmail'])
+        if 'proposed_to_pre_manager' not in config:
+            new_value = OrderedDict([('proposed_to_pre_manager', {'group': 'pre_manager'})] + config.items())
+            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_value)
 
         # update state list
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')

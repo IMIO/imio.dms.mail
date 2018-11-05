@@ -842,7 +842,7 @@ def adaptDefaultPortal(context):
                                         'search_rss_enabled', value=False)
 
     # imio.dms.mail configuration annotation
-    # highest review level configuration, used in utils and adapters
+    # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
                    OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                 ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
@@ -850,6 +850,15 @@ def adaptDefaultPortal(context):
                    OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
     set_dms_config(['review_levels', 'dmsoutgoingmail'],
                    OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+    # review_states configuration, is the same as review_levels with some key, value inverted
+    set_dms_config(['review_states', 'dmsincomingmail'],
+                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
+                                ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+    set_dms_config(['review_states', 'task'],
+                   OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
+                                ('realized', {'group': '_validateur', 'org': 'assigned_group'})]))
+    set_dms_config(['review_states', 'dmsoutgoingmail'],
+                   OrderedDict([('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
 
 
 def changeSearchedTypes(site):
