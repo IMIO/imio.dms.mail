@@ -241,7 +241,7 @@ msgid "proposed_to_manager_zs"
 msgstr "À valider par le CZ"
 
 msgid "proposed_to_pre_manager"
-msgstr "Proposé pour prévalidation DG"
+msgstr "À valider avant le DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_service_chief"
