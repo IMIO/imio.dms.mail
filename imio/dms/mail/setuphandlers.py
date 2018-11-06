@@ -11,6 +11,7 @@ __author__ = """Gauthier BASTIEN <gbastien@imio.be>, Stephan GEULETTE
 <stephan.geulette@imio.be>"""
 __docformat__ = 'plaintext'
 
+from collections import OrderedDict
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
@@ -39,6 +40,7 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import Dummy
+from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import transitions
@@ -838,6 +840,25 @@ def adaptDefaultPortal(context):
     # registry
     api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
                                         'search_rss_enabled', value=False)
+
+    # imio.dms.mail configuration annotation
+    # review levels configuration, used in utils and adapters
+    set_dms_config(['review_levels', 'dmsincomingmail'],
+                   OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+    set_dms_config(['review_levels', 'task'],
+                   OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
+    set_dms_config(['review_levels', 'dmsoutgoingmail'],
+                   OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+    # review_states configuration, is the same as review_levels with some key, value inverted
+    set_dms_config(['review_states', 'dmsincomingmail'],
+                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
+                                ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+    set_dms_config(['review_states', 'task'],
+                   OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
+                                ('realized', {'group': '_validateur', 'org': 'assigned_group'})]))
+    set_dms_config(['review_states', 'dmsoutgoingmail'],
+                   OrderedDict([('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
 
 
 def changeSearchedTypes(site):

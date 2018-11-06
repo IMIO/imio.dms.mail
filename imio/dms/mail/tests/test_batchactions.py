@@ -3,7 +3,6 @@
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.browser.batchactions import canNotModify
 from imio.dms.mail.browser.batchactions import getAvailableAssignedUserVoc
-from imio.dms.mail.browser.batchactions import getAvailableTransitionsVoc
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
 from plone.app.testing import setRoles
@@ -33,34 +32,13 @@ class BatchActions(unittest.TestCase):
         self.ta3 = self.im1['tache3']
         self.pgof = self.portal['contacts']['plonegroup-organization']
 
-    def test_getAvailableTransitionsVoc(self):
-        api.content.transition(obj=self.im3, to_state='proposed_to_manager')
-        api.content.transition(obj=self.im4, to_state='proposed_to_agent')
-        brains = self.pc(UID=[self.im1.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
-                            set(['propose_to_manager', 'propose_to_service_chief']))
-        brains = self.pc(UID=[self.im1.UID(), self.im2.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
-                            set(['propose_to_manager', 'propose_to_service_chief']))
-        brains = self.pc(UID=[self.im1.UID(), self.im3.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
-                            set(['propose_to_service_chief']))
-        brains = self.pc(UID=[self.im1.UID(), self.im3.UID(), self.im4.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
-                            set([]))
-        brains = self.pc(UID=[self.im1.UID(), self.ta1.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, brains)]),
-                            set([]))
-        self.assertSetEqual(set([t.value for t in getAvailableTransitionsVoc(self.imdb, [])]),
-                            set([]))
-
     def test_TransitionBatchActionForm(self):
         self.assertEqual('created', api.content.get_state(self.im1))
         view = self.msf.unrestrictedTraverse('@@transition-batch-action')
         view.request.form['form.widgets.uids'] = ','.join([self.im1.UID(), self.im2.UID()])
         view.update()
         # override z3c.form.field.FieldWidgets.extract
-        view.widgets.extract = lambda *a, **kw: ({'transition': u'propose_to_manager'}, [])
+        view.widgets.extract = lambda *a, **kw: ({'transition': u'propose_to_manager', 'comment': u''}, [])
         view.handleApply(view, 'apply')
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im1))
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im2))
@@ -186,7 +164,7 @@ class BatchActions(unittest.TestCase):
         view = self.tsf.unrestrictedTraverse('@@transition-batch-action')
         view.request.form['form.widgets.uids'] = ','.join([self.ta1.UID(), self.ta2.UID()])
         view.update()
-        view.widgets.extract = lambda *a, **kw: ({'transition': u'do_to_assign'}, [])
+        view.widgets.extract = lambda *a, **kw: ({'transition': u'do_to_assign', 'comment': u''}, [])
         view.handleApply(view, 'apply')
         self.assertEqual('to_assign', api.content.get_state(self.ta1))
         self.assertEqual('to_assign', api.content.get_state(self.ta2))

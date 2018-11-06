@@ -41,7 +41,7 @@ class IMReviewStatesVocabulary(object):
         tl = api.portal.get().portal_properties.site_properties.getProperty('default_language', 'fr')
         for state in list_wf_states(context, 'dmsincomingmail'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(state.title, domain='plone', target_language=tl)))
+                state.id, state.id, translate(safe_unicode(state.title), domain='plone', target_language=tl)))
         return SimpleVocabulary(terms)
 
 
@@ -54,7 +54,7 @@ class OMReviewStatesVocabulary(object):
         tl = api.portal.get().portal_properties.site_properties.getProperty('default_language', 'fr')
         for state in list_wf_states(context, 'dmsoutgoingmail'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(state.title, domain='plone', target_language=tl)))
+                state.id, state.id, translate(safe_unicode(state.title), domain='plone', target_language=tl)))
         return SimpleVocabulary(terms)
 
 
@@ -66,7 +66,7 @@ class TaskReviewStatesVocabulary(object):
         terms = []
         for state in list_wf_states(context, 'task'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(state.title, domain='plone', context=context.REQUEST)))
+                state.id, state.id, translate(safe_unicode(state.title), domain='plone', context=context.REQUEST)))
         return SimpleVocabulary(terms)
 
 
@@ -78,7 +78,7 @@ class ContactsReviewStatesVocabulary(object):
         terms = []
         for state in list_wf_states(context, 'organization'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(state.title, domain='plone', context=context.REQUEST)))
+                state.id, state.id, translate(safe_unicode(state.title), domain='plone', context=context.REQUEST)))
         return SimpleVocabulary(terms)
 
 

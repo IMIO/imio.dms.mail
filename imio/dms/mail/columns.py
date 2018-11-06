@@ -13,7 +13,6 @@ from collective.task.interfaces import ITaskMethods
 from imio.dashboard.columns import ActionsColumn
 from imio.dashboard.columns import PrettyLinkColumn
 from imio.dashboard.columns import RelationPrettyLinkColumn
-from imio.dms.mail import _
 from plone import api
 from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
@@ -162,7 +161,7 @@ class ReviewStateColumn(I18nColumn):
             return u'-'
         wtool = api.portal.get_tool('portal_workflow')
         state_title = wtool.getTitleForStateOnType(value, item.portal_type)
-        return translate(state_title,
+        return translate(safe_unicode(state_title),
                          domain=self.i18n_domain,
                          context=self.request)
 

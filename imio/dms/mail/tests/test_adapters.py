@@ -11,7 +11,6 @@ from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailValidationCriterion
 from imio.dms.mail.adapters import ScanSearchableExtender
 from imio.dms.mail.adapters import state_group_index
-from imio.dms.mail.adapters import task_state_group_index
 from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
@@ -145,13 +144,9 @@ class TestAdapters(unittest.TestCase):
         api.content.transition(obj=imail, to_state='proposed_to_agent')
         self.assertEqual(indexer(), 'proposed_to_agent')
 
-    def test_task_state_group_index(self):
-        dguid = self.pgof['direction-generale'].UID()
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
-                                         treating_groups=dguid, assigned_user='chef')
         task = createContentInContainer(imail, 'task', assigned_group=dguid)
-        indexer = task_state_group_index(task)
-        self.assertEqual(indexer(), 'created,%s' % dguid)
+        indexer = state_group_index(task)
+        self.assertEqual(indexer(), 'created')
         api.content.transition(obj=task, to_state='to_assign')
         self.assertEqual(indexer(), 'to_assign,%s' % dguid)
 

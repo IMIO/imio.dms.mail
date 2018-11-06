@@ -205,6 +205,7 @@
             im_listing_url
             must_render_im_listing
             proposed_to_manager_col_cond
+            proposed_to_pre_manager_col_cond
             proposed_to_serv_chief_col_cond
             user_has_review_level
             user_is_admin
@@ -232,6 +233,11 @@
     <utility
         name="imio.dms.mail.wfadaptations.OMToPrint"
         factory=".wfadaptations.OMToPrintAdaptation"
+    />
+
+    <utility
+        name="imio.dms.mail.wfadaptations.IMPreManagerValidation"
+        factory=".wfadaptations.IMPreManagerValidation"
     />
 
     <include file="adapters.zcml" />

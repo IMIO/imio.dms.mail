@@ -366,6 +366,8 @@ class Migrate_To_2_1(Migrator):
         RECORD_NAME = 'collective.wfadaptations.applied_adaptations'
         if api.portal.get_registry_record(RECORD_NAME, default=False):
             success, errors = apply_from_registry()
+            if errors:
+                logger.error("Problem applying wf adaptations: %d errors" % errors)
 
         # check if oo port must be changed
         update_oo_config()

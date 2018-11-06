@@ -135,3 +135,12 @@ msgstr ""
 
 msgid "om_to_print"
 msgstr ""
+
+msgid "back_to_pre_manager"
+msgstr ""
+
+msgid "propose_to_pre_manager"
+msgstr ""
+
+msgid "proposed_to_pre_manager"
+msgstr ""

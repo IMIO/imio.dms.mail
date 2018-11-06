@@ -1,7 +1,6 @@
 # encoding: utf-8
 
 from browser.settings import IImioDmsMailConfig
-from collections import OrderedDict
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from datetime import date
@@ -12,6 +11,8 @@ from imio.helpers.cache import get_cachekey_volatile
 from interfaces import IIMDashboard
 from natsort import natsorted
 #from operator import itemgetter
+from persistent.list import PersistentList
+from persistent.dict import PersistentDict
 from plone import api
 from plone.app.textfield.value import RichTextValue
 from plone.memoize import ram
@@ -19,6 +20,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five import BrowserView
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.component.hooks import getSite
 from zope.schema.interfaces import IVocabularyFactory
@@ -28,19 +30,52 @@ import logging
 
 # methods
 
-review_levels = {'dmsincomingmail': OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
-                                                 ('_validateur', {'st': ['proposed_to_service_chief'],
-                                                                  'org': 'treating_groups'})]),
-                 'task': OrderedDict([('_validateur', {'st': ['to_assign', 'realized'],
-                                                       'org': 'assigned_group'})]),
-                 'dmsoutgoingmail': OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'],
-                                                  'org': 'treating_groups'})])}
-
 logger = logging.getLogger('imio.dms.mail: utils')
+
+
+def set_dms_config(keys=None, value='list'):
+    """
+        Set initial value in 'imio.dms.mail' portal annotation.
+        keys is the chain of annotation keys. First key 'imio.dms.mail' is implicitly added.
+        Intermediate keys will contain PersistentDict.
+        Last key will contain PersistentDict or PersistentList following 'value' parameter:
+        'dict', 'list' or directly value
+    """
+    annot = IAnnotations(api.portal.get())
+    if keys is None:
+        keys = []
+    keys.insert(0, 'imio.dms.mail')
+    last = len(keys) - 1
+    for i, key in enumerate(keys):
+        if i < last:
+            annot = annot.setdefault(key, PersistentDict())
+        else:
+            if value == 'list':
+                annot[key] = PersistentList()
+            elif value == 'dict':
+                annot[key] = PersistentDict()
+            else:
+                annot[key] = value
+            return annot[key]
+
+
+def get_dms_config(keys=None):
+    """
+        Return annotation value from keys list.
+        First key 'imio.dms.mail' is implicitly added.
+    """
+    annot = IAnnotations(api.portal.get())
+    if keys is None:
+        keys = []
+    keys.insert(0, 'imio.dms.mail')
+    for key in keys:
+        annot = annot[key]
+    return annot
 
 
 def highest_review_level(portal_type, group_ids):
     """ Return the first review level """
+    review_levels = get_dms_config(['review_levels'])
     if portal_type not in review_levels:
         return None
     for keyg in review_levels[portal_type].keys():
@@ -61,7 +96,7 @@ def list_wf_states(context, portal_type):
         list all portal_type wf states
     """
     ordered_states = {
-        'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_service_chief',
+        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_service_chief',
                             'proposed_to_agent', 'in_treatment', 'closed'],
         'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
         'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
@@ -294,6 +329,10 @@ class IdmUtilsMethods(UtilsMethods):
     def proposed_to_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_manager collection """
         return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False)
+
+    def proposed_to_pre_manager_col_cond(self):
+        """ Condition for searchfor_proposed_to_pre_manager collection """
+        return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False)
 
     def proposed_to_serv_chief_col_cond(self):
         """ Condition for searchfor_proposed_to_service_chief collection """

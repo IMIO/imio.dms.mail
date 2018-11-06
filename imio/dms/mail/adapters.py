@@ -15,11 +15,10 @@ from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.overrides import IDmsPerson
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
-from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import organizations_with_suffixes
-from imio.dms.mail.utils import review_levels
 from imio.prettylink.adapters import PrettyLinkAdapter
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
@@ -59,22 +58,22 @@ import time
 # Compound criterions #
 #######################
 
-default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager',
+default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager', 'proposed_to_pre_manager',
                                                                     'proposed_to_service_chief']}},
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
-no_group_validation_states = {
-    'dmsincomingmail': ['created', 'proposed_to_manager', 'proposed_to_agent', 'in_treatment', 'closed'],
-    'task': ['created', 'to_do', 'in_progress', 'closed'],
-    'dmsoutgoingmail': ['created', 'to_print', 'to_be_signed', 'scanned', 'sent']}
 
 
 def highest_validation_criterion(portal_type):
-    """ Return a query criterion corresponding to current user highest validation level """
+    """
+        Return a query criterion corresponding to current user highest validation level
+        NO MORE USED
+    """
     groups = api.group.get_groups(user=api.user.get_current())
     highest_level = highest_review_level(portal_type, str([g.id for g in groups]))
     if highest_level is None:
         return default_criterias[portal_type]
     ret = {}
+    review_levels = get_dms_config(['review_levels'])
     criterias = review_levels[portal_type][highest_level]
     if 'st' in criterias:
         ret['review_state'] = {'query': criterias['st']}
@@ -90,6 +89,7 @@ def highest_validation_criterion(portal_type):
 class IncomingMailHighestValidationCriterion(object):
     """
         Return catalog criteria following highest validation group member
+        NOT USED
     """
 
     def __init__(self, context):
@@ -103,6 +103,7 @@ class IncomingMailHighestValidationCriterion(object):
 class TaskHighestValidationCriterion(object):
     """
         Return catalog criteria following highest validation group member
+        NOT USED
     """
 
     def __init__(self, context):
@@ -116,17 +117,24 @@ class TaskHighestValidationCriterion(object):
 def validation_criterion(context, portal_type):
     """ Return a query criterion corresponding to current user validation level """
     groups = api.group.get_groups(user=api.user.get_current())
-    orgs = organizations_with_suffixes(groups, ['validateur'])
+    groups_ids = [g.id for g in groups]
+    config = get_dms_config(['review_levels', portal_type])
+    # set_dms_config(['review_levels', 'dmsincomingmail'],
+    #            OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+    #                         ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+
     ret = {'state_group': {'query': []}}
-    if portal_type == 'dmsincomingmail' and 'dir_general' in [g.id for g in groups]:
-        ret['state_group']['query'].append('proposed_to_manager')
-    if orgs:
-        # we get group validation states
-        states = [st.id for st in list_wf_states(context, portal_type)
-                  if st.id not in no_group_validation_states[portal_type]]
-        for state in states:
-            for org in orgs:
-                ret['state_group']['query'].append('%s,%s' % (state, org))
+    for group_or_suffix in config:
+        if not group_or_suffix.startswith('_'):
+            if group_or_suffix in groups_ids:
+                for state in config[group_or_suffix]['st']:
+                    ret['state_group']['query'].append(state)
+        else:
+            orgs = organizations_with_suffixes(groups, [group_or_suffix[1:]])
+            if orgs:
+                for state in config[group_or_suffix]['st']:
+                    for org in orgs:
+                        ret['state_group']['query'].append('%s,%s' % (state, org))
     return ret
 
 
@@ -468,19 +476,22 @@ def om_organization_type_index(obj):
 
 @indexer(IDmsDocument)
 def state_group_index(obj):
+    # Index contains state,org when validation is at org level, or state only otherwise
     # No acquisition pb because state_group isn't an attr
+    # set_dms_config(['review_states', 'dmsincomingmail'],
+    #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
+    #                             ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
     state = api.content.get_state(obj=obj)
-    if state in no_group_validation_states[obj.portal_type]:
+    config = get_dms_config(['review_states', obj.portal_type])
+    if state not in config or not config[state]['group'].startswith('_'):
         return state
     else:
-        return "%s,%s" % (state, obj.treating_groups)
+        return "%s,%s" % (state, getattr(obj, config[state]['org']))
 
 
 @indexer(ITaskContent)
 def task_state_group_index(obj):
-    # No acquisition pb because state_group isn't an attr
-    state = api.content.get_state(obj=obj)
-    return "%s,%s" % (state, obj.assigned_group)
+    return state_group_index(obj)
 
 
 @indexer(IOrganization)
