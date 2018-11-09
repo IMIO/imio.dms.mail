@@ -21,9 +21,10 @@ from zope.component import getUtility
 
 import copy
 import os
+import time
 
 
-def import_scanned(self, number=2):
+def import_scanned(self, number=2, only=''):
     """
         Import some incoming mail for demo site
     """
@@ -50,6 +51,9 @@ def import_scanned(self, number=2):
     limit = int(number)
     while(count <= limit):
         doc = docs_cycle.next()
+        if only and doc != only:
+            time.sleep(0.5)
+            continue
         with open(add_path('Extensions/%s' % doc), 'rb') as fo:
             file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
 

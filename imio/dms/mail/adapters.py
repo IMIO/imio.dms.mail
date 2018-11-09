@@ -6,6 +6,8 @@ from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
 from collective.dms.basecontent.dmsdocument import IDmsDocument
+from collective.dms.basecontent.dmsfile import IDmsAppendixFile
+from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
@@ -18,6 +20,7 @@ from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
+from imio.dms.mail.utils import logger
 from imio.dms.mail.utils import organizations_with_suffixes
 from imio.prettylink.adapters import PrettyLinkAdapter
 from plone import api
@@ -524,6 +527,35 @@ def get_full_title_index(obj):
     if obj.title:
         return obj.title.encode('utf8')
     return common_marker
+
+
+# See getObjSize_file method from plone/app/contenttypes/indexers.py
+# See Products/CMFPlone/skins/plone_scripts/getObjSize.py
+def get_obj_size(obj):
+    try:
+        primary_field_info = IPrimaryFieldInfo(obj)
+    except TypeError:
+        logger.warn(u'Lookup of PrimaryField failed for %s' % obj.absolute_url())
+        return
+    const = {'KB': 1024, 'MB': 1048576, 'GB': 1073741824}
+    order = ('GB', 'MB', 'KB')
+    size = primary_field_info.value.size
+    if size < 1024:
+        return '1 KB'
+    for c in order:
+        if size / const[c] > 0:
+            break
+    return '%.1f %s' % (float(size / float(const[c])), c)
+
+
+@indexer(IDmsAppendixFile)
+def get_obj_size_af_index(obj):
+    return get_obj_size(obj)
+
+
+@indexer(IDmsFile)
+def get_obj_size_df_index(obj):
+    return get_obj_size(obj)
 
 
 class ScanSearchableExtender(object):
