@@ -256,6 +256,8 @@ class VariousUtilsMethods(UtilsMethods):
 
     def check_scan_id(self, by='1000', sort='scan'):
         """ Return a list of scan ids, one by 1000 items and by flow types """
+        if not self.user_is_admin() and not check_zope_admin():
+            return
         import os
         res = {'0': {}, '1': {}, '2': {}}
         flow_titles = {'0': u'Courrier entrant', '1': u'Courrier sortant', '2': u'Courrier sortant généré'}
@@ -281,6 +283,8 @@ class VariousUtilsMethods(UtilsMethods):
 
     def pg_organizations(self, only_activated='1', output='csv', with_status=''):
         """ Return a list of tuples with plonegroup organizations """
+        if not self.user_is_admin() and not check_zope_admin():
+            return
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         lst = []
         registry = getUtility(IRegistry)
@@ -288,7 +292,7 @@ class VariousUtilsMethods(UtilsMethods):
         for term in factory(self.context):
             uid, title = term.value, term.title
             status = uid in activated and 'a' or 'na'
-            if only_activated and status == 'na':
+            if only_activated == '1' and status == 'na':
                 continue
             lst.append((uid, title.encode('utf8'), status))
         #sorted(lst, key=itemgetter(1))
