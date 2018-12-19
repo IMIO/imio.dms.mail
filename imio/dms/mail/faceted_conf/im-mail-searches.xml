@@ -3,14 +3,13 @@
  xmlns:i18n="http://xml.zope.org/namespaces/i18n"
  i18n:domain="eea">
  <criteria>
-
   <!-- default widgets -->
   <criterion name="c0">
    <property name="widget">sorting</property>
    <property name="title">Sort on</property>
    <property name="position">top</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
+   <property name="hidden">True</property>
    <property name="vocabulary"></property>
    <property name="default"></property>
   </criterion>
@@ -20,15 +19,15 @@
    <property name="title">Base collections</property>
    <property name="position">top</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">True</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property
-      name="vocabulary">imio.dashboard.conditionawarecollectionvocabulary</property>
-   <property name="hidealloption">1</property>
+      name="vocabulary">collective.eeafaceted.collectionwidget.cachedcollectionvocabulary</property>
+   <property name="hidealloption">True</property>
    <property name="maxitems">0</property>
-   <property name="sortreversed">0</property>
+   <property name="sortreversed">False</property>
    <property name="default"></property>
   </criterion>
 
@@ -37,11 +36,11 @@
    <property name="title">Search</property>
    <property name="position">center</property>
    <property name="section">default</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">SearchableText</property>
    <property name="default"/>
-   <property name="onlyallelements">1</property>
-   <property name="wildcard">1</property>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">True</property>
   </criterion>
 
   <criterion name="c3" i18n:attributes="title">
@@ -49,7 +48,7 @@
    <property name="title">Per page</property>
    <property name="position">center</property>
    <property name="section">default</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="start">20</property>
    <property name="end">1000</property>
    <property name="step">20</property>
@@ -63,19 +62,18 @@
    <property name="title">Review state</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">review_state</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property
       name="vocabulary">imio.dms.mail.IMReviewStatesVocabulary</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default"/>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
   </criterion>
 
   <criterion name="c5" i18n:attributes="title">
@@ -83,19 +81,18 @@
    <property name="title">Treating groups</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">treating_groups</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property
       name="vocabulary">collective.dms.basecontent.treating_groups</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default"/>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
   </criterion>
 
   <criterion name="c6" i18n:attributes="title">
@@ -103,19 +100,18 @@
    <property name="title">Assigned user</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">assigned_user</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property
       name="vocabulary">imio.dms.mail.EmptyAssignedUsersVocabulary</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default"/>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
   </criterion>
 
   <criterion name="c7" i18n:attributes="title">
@@ -123,19 +119,18 @@
    <property name="title">Recipient groups</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">recipient_groups</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property
       name="vocabulary">collective.dms.basecontent.recipient_groups</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default"/>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
   </criterion>
 
   <criterion name="c8" i18n:attributes="title">
@@ -143,19 +138,18 @@
    <property name="title">Mail type</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">mail_type</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property
       name="vocabulary">imio.dms.mail.IMMailTypesVocabulary</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default"/>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
   </criterion>
 
   <criterion name="c9" i18n:attributes="title">
@@ -163,7 +157,7 @@
    <property name="title">Original mail date</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">mail_date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
@@ -174,7 +168,7 @@
    <property name="title">Reception date</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">in_out_date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
@@ -185,7 +179,7 @@
    <property name="title">Due date</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">due_date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+5</property>
@@ -196,12 +190,12 @@
    <property name="title">Sender</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">sender</property>
    <property name="default"></property>
    <property name="autocomplete_view">contact-autocomplete-suggest</property>
-   <property name="onlyallelements">1</property>
-   <property name="multivalued">1</property>
+   <property name="onlyallelements">True</property>
+   <property name="multivalued">True</property>
   </criterion>
 
   <criterion name="c13" i18n:attributes="title">
@@ -209,7 +203,7 @@
    <property name="title">Modified</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">Date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
@@ -220,11 +214,11 @@
    <property name="title">Title only</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">Title</property>
    <property name="default"/>
-   <property name="onlyallelements">1</property>
-   <property name="wildcard">1</property>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">True</property>
   </criterion>
 
   <criterion name="c15" i18n:attributes="title">
@@ -232,7 +226,7 @@
    <property name="title">Unread</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">labels</property>
    <property
       name="default">python:context.restrictedTraverse('various-utils').unread_criteria()</property>
@@ -243,21 +237,22 @@
    <property name="title">Labels</property>
    <property name="position">top</property>
    <property name="section">advanced</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">labels</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property
       name="vocabulary">imio.dms.mail.LabelsVocabulary</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default"/>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
+   <property name="default">
+    <element value=""/>
+   </property>
   </criterion-->
-
 
  </criteria>
 </object>

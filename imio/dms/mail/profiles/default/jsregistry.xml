@@ -167,11 +167,103 @@
 
   <javascript id="++resource++jquery.tagcloud.js" insert-after="++resource++select2/select2_locale_fr.js" />
 
-  <javascript id="faceted_view.js" insert-after="++resource++jquery.tagcloud.js" />
+  <javascript id="++resource++eea.faceted-navigation.js" insert-after="++resource++jquery.tagcloud.js" />
 
-  <javascript id="faceted_edit.js" insert-after="faceted_view.js" />
+  <javascript id="++resource++eea.facetednavigation.widgets.text.view.js" insert-after="++resource++eea.faceted-navigation.js" />
 
-  <javascript id="++resource++collective.js.underscore/underscore.min.js" insert-after="faceted_edit.js" />
+  <javascript id="++resource++eea.facetednavigation.widgets.tal.view.js" insert-after="++resource++eea.facetednavigation.widgets.text.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.tagscloud.view.js" insert-after="++resource++eea.facetednavigation.widgets.tal.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.sorting.view.js" insert-after="++resource++eea.facetednavigation.widgets.tagscloud.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.select.view.js" insert-after="++resource++eea.facetednavigation.widgets.sorting.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.resultsperpage.view.js" insert-after="++resource++eea.facetednavigation.widgets.select.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.resultsfilter.view.js" insert-after="++resource++eea.facetednavigation.widgets.resultsperpage.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.range.view.js" insert-after="++resource++eea.facetednavigation.widgets.resultsfilter.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.radio.view.js" insert-after="++resource++eea.facetednavigation.widgets.range.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.portlet.view.js" insert-after="++resource++eea.facetednavigation.widgets.radio.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.path.view.js" insert-after="++resource++eea.facetednavigation.widgets.portlet.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.path.tree.js" insert-after="++resource++eea.facetednavigation.widgets.path.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.etag.view.js" insert-after="++resource++eea.facetednavigation.widgets.path.tree.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.debug.view.js" insert-after="++resource++eea.facetednavigation.widgets.etag.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.daterange.view.js" insert-after="++resource++eea.facetednavigation.widgets.debug.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.date.view.js" insert-after="++resource++eea.facetednavigation.widgets.daterange.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.criteria.view.js" insert-after="++resource++eea.facetednavigation.widgets.date.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.checkbox.view.js" insert-after="++resource++eea.facetednavigation.widgets.criteria.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.autocomplete.view.js" insert-after="++resource++eea.facetednavigation.widgets.checkbox.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.alphabets.view.js" insert-after="++resource++eea.facetednavigation.widgets.autocomplete.view.js" />
+
+  <javascript id="++resource++eea.faceted-navigation-independent.js" insert-after="++resource++eea.facetednavigation.widgets.alphabets.view.js" />
+
+  <javascript id="++resource++eea.faceted-navigation-expand.js" insert-after="++resource++eea.faceted-navigation-independent.js" />
+
+  <javascript id="++resource++collective.eeafaceted.collectionwidget.widgets.view.js" insert-after="++resource++eea.faceted-navigation-expand.js" />
+
+  <javascript id="++resource++eea.faceted-navigation-edit.js" insert-after="++resource++collective.eeafaceted.collectionwidget.widgets.view.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.text.edit.js" insert-after="++resource++eea.faceted-navigation-edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.tal.edit.js" insert-after="++resource++eea.facetednavigation.widgets.text.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.tagscloud.edit.js" insert-after="++resource++eea.facetednavigation.widgets.tal.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.sorting.edit.js" insert-after="++resource++eea.facetednavigation.widgets.tagscloud.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.select.edit.js" insert-after="++resource++eea.facetednavigation.widgets.sorting.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.resultsperpage.edit.js" insert-after="++resource++eea.facetednavigation.widgets.select.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.resultsfilter.edit.js" insert-after="++resource++eea.facetednavigation.widgets.resultsperpage.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.range.edit.js" insert-after="++resource++eea.facetednavigation.widgets.resultsfilter.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.radio.edit.js" insert-after="++resource++eea.facetednavigation.widgets.range.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.portlet.edit.js" insert-after="++resource++eea.facetednavigation.widgets.radio.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.path.edit.js" insert-after="++resource++eea.facetednavigation.widgets.portlet.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.etag.edit.js" insert-after="++resource++eea.facetednavigation.widgets.path.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.debug.edit.js" insert-after="++resource++eea.facetednavigation.widgets.etag.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.daterange.edit.js" insert-after="++resource++eea.facetednavigation.widgets.debug.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.date.edit.js" insert-after="++resource++eea.facetednavigation.widgets.daterange.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.criteria.edit.js" insert-after="++resource++eea.facetednavigation.widgets.date.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.checkbox.edit.js" insert-after="++resource++eea.facetednavigation.widgets.criteria.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.autocomplete.edit.js" insert-after="++resource++eea.facetednavigation.widgets.checkbox.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.alphabets.edit.js" insert-after="++resource++eea.facetednavigation.widgets.autocomplete.edit.js" />
+
+  <javascript id="++resource++collective.eeafaceted.collectionwidget.widgets.edit.js" insert-after="++resource++eea.facetednavigation.widgets.alphabets.edit.js" />
+
+  <javascript id="++resource++plone.formwidget.querystring.querywidget.js" insert-after="++resource++collective.eeafaceted.collectionwidget.widgets.edit.js" />
+
+  <javascript id="collective_eeafaceted_z3ctable_js_variables.js" insert-after="++resource++plone.formwidget.querystring.querywidget.js" />
+
+  <javascript id="++resource++collective.eeafaceted.dashboard/collective.eeafaceted.dashboard.js" insert-after="collective_eeafaceted_z3ctable_js_variables.js" />
+
+  <javascript id="++resource++collective.js.underscore/underscore.min.js" insert-after="++resource++collective.eeafaceted.dashboard/collective.eeafaceted.dashboard.js" />
 
   <javascript id="++resource++collective.js.backbone/backbone.min.js" insert-after="++resource++collective.js.underscore/underscore.min.js" />
 
@@ -211,9 +303,7 @@
 
   <javascript id="++resource++collective.js.fancytree/jquery.fancytree.min.js" insert-after="++resource++plonefinder_static/imagewidget.js" />
 
-  <javascript id="collective_eeafaceted_batchactions_js_variables.js" insert-after="++resource++collective.js.fancytree/jquery.fancytree.min.js" />
-
-  <javascript id="++resource++collective.eeafaceted.batchactions/batch_actions.js" insert-after="collective_eeafaceted_batchactions_js_variables.js" />
+  <javascript id="++resource++collective.eeafaceted.batchactions/batch_actions.js" insert-after="++resource++collective.js.fancytree/jquery.fancytree.min.js" />
 
   <javascript id="++resource++ftw.labels/select2.min.js" insert-after="++resource++collective.eeafaceted.batchactions/batch_actions.js" />
 

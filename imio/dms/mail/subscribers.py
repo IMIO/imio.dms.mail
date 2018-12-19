@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get
-from collective.contact.plonegroup.browser.settings import getOwnOrganizationPath
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
+from collective.contact.plonegroup.utils import get_own_organization_path
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -305,7 +305,7 @@ def ploneGroupContactChanged(organization, event):
         return
     # is the current organization a part of own organization
     organization_path = '/'.join(organization.getPhysicalPath())
-    if not organization_path.startswith(getOwnOrganizationPath()):  # can be unfound too
+    if not organization_path.startswith(get_own_organization_path('unfound')):
         return
     portal = api.portal.getSite()
     pcat = portal.portal_catalog

@@ -6,17 +6,17 @@
    <property name="title">Type d'élément</property>
    <property name="position">left</property>
    <property name="section">default</property>
-   <property name="hidden">0</property>
-   <property name="count"></property>
-   <property name="sortcountable"></property>
-   <property name="hidezerocount"></property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">portal_type</property>
    <property
       name="vocabulary">collective.contact.facetednav.vocabularies.ContactPortalTypes</property>
    <property name="catalog"></property>
-   <property name="hidealloption">1</property>
-   <property name="maxitems"></property>
-   <property name="sortreversed"></property>
+   <property name="hidealloption">True</property>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
    <property name="default">organization</property>
   </criterion>
   <criterion name="texte">
@@ -24,18 +24,18 @@
    <property name="title">Rechercher dans l'intitulé</property>
    <property name="position">left</property>
    <property name="section">default</property>
-   <property name="hidden">0</property>
+   <property name="hidden">False</property>
    <property name="index">SearchableText</property>
    <property name="default"></property>
-   <property name="onlyallelements">1</property>
-   <property name="wildcard">1</property>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">True</property>
   </criterion>
   <criterion name="path">
    <property name="widget">path</property>
    <property name="title">Chemin</property>
    <property name="position">right</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
+   <property name="hidden">True</property>
    <property name="index">path</property>
    <property name="root">/</property>
    <property name="default">/contacts</property>
@@ -47,7 +47,7 @@
    <property name="title">Tri</property>
    <property name="position">right</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
+   <property name="hidden">True</property>
    <property
       name="vocabulary">eea.faceted.vocabularies.CatalogIndexes</property>
    <property name="default">sortable_title</property>
@@ -57,8 +57,8 @@
    <property name="title">Résultats par page</property>
    <property name="position">right</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
-   <property name="start"></property>
+   <property name="hidden">True</property>
+   <property name="start">50</property>
    <property name="end">250</property>
    <property name="step">50</property>
    <property name="default">50</property>
@@ -68,37 +68,38 @@
    <property name="title">Type d'organisation</property>
    <property name="position">left</property>
    <property name="section">default</property>
-   <property name="hidden">0</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">organization_type</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property name="vocabulary">OrganizationTypesOrLevels</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default"/>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
   </criterion>
   <criterion name="shown-interfaces">
    <property name="widget">checkbox</property>
    <property name="title">Contact plonegroup/normal</property>
    <property name="position">left</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">True</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property name="index">object_provides</property>
    <property name="operator">or</property>
-   <property name="operator_visible">0</property>
+   <property name="operator_visible">False</property>
    <property
       name="vocabulary">imio.dms.mail.PloneGroupInterfacesVocabulary</property>
    <property name="catalog"></property>
-   <property name="maxitems"></property>
-   <property name="sortreversed">0</property>
-   <property name="default">collective.contact.plonegroup.interfaces.INotPloneGroupContact</property>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
+   <property name="default">
+    <element value="collective.contact.plonegroup.interfaces.INotPloneGroupContact"/>
+   </property>
   </criterion>
  </criteria>
 </object>

@@ -19,7 +19,7 @@
 
    <!--include file="configure.zcml"/-->
    <includeOverrides file="overrides.zcml" />
-   <includeOverrides package="imio.dashboard" file="overrides.zcml" />
+   <includeOverrides package="collective.eeafaceted.dashboard" file="overrides.zcml" />
 
     <genericsetup:registerProfile
       name="testing"
