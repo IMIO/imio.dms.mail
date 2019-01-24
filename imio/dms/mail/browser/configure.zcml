@@ -370,7 +370,7 @@
     <browser:page
         for="imio.dms.mail.interfaces.IDocsDashboard"
         name="document-generation"
-        class="imio.dms.mail.browser.documentgenerator.DashboardDocumentGenerationView"
+        class="imio.dms.mail.browser.documentgenerator.DbDocumentGenerationView"
         permission="zope2.View"
         />
 
