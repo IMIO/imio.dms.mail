@@ -12,6 +12,7 @@ from Products.CMFPlone.utils import _createObjectByType
 from Products.CMFPlone.utils import base_hasattr
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from Testing import ZopeTestCase as ztc
+from zope.globalrequest.local import setLocal
 from zope.i18n import translate
 
 import imio.dms.mail
@@ -21,6 +22,7 @@ import os
 class DmsmailLayer(PloneWithPackageLayer):
 
     def setUpPloneSite(self, portal):
+        setLocal('request', portal.REQUEST)
         manage_addExternalMethod(portal, 'import_scanned', 'import_scanned', 'imio.dms.mail.demo', 'import_scanned')
         manage_addExternalMethod(portal, 'import_scanned2', 'import_scanned2', 'imio.dms.mail.demo', 'import_scanned2')
         manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',

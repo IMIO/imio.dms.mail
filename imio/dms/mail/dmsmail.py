@@ -11,6 +11,9 @@ from collective.contact.widget.source import ContactSourceBinder
 from collective.dms.basecontent.browser.views import DmsDocumentEdit
 from collective.dms.basecontent.browser.views import DmsDocumentView
 from collective.dms.mailcontent import _ as _cdmsm
+from collective.dms.mailcontent.browser.views import AddOM as BaseAddOM
+from collective.dms.mailcontent.browser.views import OMCustomAddForm as BaseOMAddForm
+from collective.dms.mailcontent.browser.views import OMEdit as BaseOMEdit
 from collective.dms.mailcontent.dmsmail import DmsIncomingMail
 from collective.dms.mailcontent.dmsmail import DmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
@@ -354,10 +357,6 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         default=None,
     )
 
-    external_reference_no = schema.TextLine(
-        title=_cdmsm(u"External Reference Number"),
-        required=False,)
-
     outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
     directives.widget('outgoing_date', DatetimeFieldWidget, show_today_link=True, show_time=True)
 
@@ -420,11 +419,6 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
     """
     # context can be the folder in add or an im in reply.
     current_user = api.user.get_current()
-    if not current_user.has_role(['Manager', 'Site Administrator']):
-        the_form.widgets['internal_reference_no'].mode = 'hidden'
-        # we empty value to bypass validator when creating object
-        if the_form.context.portal_type != 'dmsoutgoingmail':
-            the_form.widgets['internal_reference_no'].value = ''
 
     # sender can be None if om is created by worker.
     if the_form.context.portal_type != 'dmsoutgoingmail' or not the_form.context.sender:
@@ -443,7 +437,7 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
     the_form.request.set('disable_plone.leftcolumn', 1)
 
 
-class OMEdit(DmsDocumentEdit):
+class OMEdit(BaseOMEdit):
     """
         Edit form redefinition to customize fields.
     """
@@ -477,9 +471,7 @@ class OMEdit(DmsDocumentEdit):
                 [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
 
 
-class OMCustomAddForm(DefaultAddForm):
-
-    portal_type = 'dmsoutgoingmail'
+class OMCustomAddForm(BaseOMAddForm):
 
     def updateFields(self):
         super(OMCustomAddForm, self).updateFields()
@@ -489,12 +481,10 @@ class OMCustomAddForm(DefaultAddForm):
         super(OMCustomAddForm, self).updateWidgets()
         ImioDmsOutgoingMailUpdateWidgets(self)
         # the following doesn't work
-        # userid = api.user.get_current().getId()
-        # if userid != 'admin':
-        #     self.widgets['ITask.assigned_user'].value = [userid]
+        # self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
 
 
-class AddOM(DefaultAddView):
+class AddOM(BaseAddOM):
 
     form = OMCustomAddForm
 

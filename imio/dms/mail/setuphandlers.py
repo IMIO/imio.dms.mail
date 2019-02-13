@@ -1131,6 +1131,10 @@ def configureImioDmsMail(context):
     logger.info('Configure imio dms mail')
     registry = getUtility(IRegistry)
 
+    # Hide internal reference for om. Increment number automatically
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
+
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'] = [
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},

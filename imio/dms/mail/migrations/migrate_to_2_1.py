@@ -264,6 +264,10 @@ class Migrate_To_2_1(Migrator):
         # ckeditor skin
         self.portal.portal_properties.ckeditor_properties.skin = 'moono-lisa'
 
+        # update mailcontent options
+        self.registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
+        self.registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
+
     def update_contacts(self):
         contacts = self.portal['contacts']
         blacklistPortletCategory(contacts, contacts, value=False)
