@@ -269,7 +269,9 @@
 
   <javascript id="++resource++collective.contact.facetednav/javascript.js" insert-after="++resource++collective.js.backbone/backbone.min.js" />
 
-  <javascript id="++resource++collective.contact.plonegroup/plonegroup.js" insert-after="++resource++collective.contact.facetednav/javascript.js" />
+  <javascript id="++resource++imio.helpers/helpers.js" insert-after="++resource++collective.contact.facetednav/javascript.js" />
+
+  <javascript id="++resource++collective.contact.plonegroup/plonegroup.js" insert-after="++resource++imio.helpers/helpers.js" />
 
   <javascript id="++resource++imio.actionspanel/actionspanel.js" insert-after="++resource++collective.contact.plonegroup/plonegroup.js" />
 

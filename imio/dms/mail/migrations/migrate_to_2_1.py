@@ -349,6 +349,7 @@ class Migrate_To_2_1(Migrator):
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.messagesviewlet:default')
         self.upgradeProfile('collective.documentgenerator:default')
+        self.runProfileSteps('imio.helpers', steps=['jsregistry'])
 
         self.reinstall(['collective.contact.contactlist:default'])
         try:
