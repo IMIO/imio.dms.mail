@@ -126,12 +126,14 @@ class ContactsColumn(PrettyLinkColumn):
 class SenderColumn(ContactsColumn):
 
     attrName = 'sender_index'
+    header = _cez('header_sender')
 
 
 class TaskParentColumn(PrettyLinkColumn):
 
     params = {'showContentIcon': True, 'target': '_blank'}
     sort_index = -1  # not sortable
+    header = _cez('header_task_parent')
 
     def renderCell(self, item):
         """ """
@@ -143,6 +145,7 @@ class TaskParentColumn(PrettyLinkColumn):
 class RecipientsColumn(ContactsColumn):
 
     attrName = 'recipients_index'
+    header = _cez('header_recipients')
 
 
 class OutgoingDateColumn(DateColumn):
