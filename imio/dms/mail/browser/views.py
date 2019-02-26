@@ -130,7 +130,8 @@ class SenderSuggest(BrowserView):
         portal_path = '/'.join(api.portal.get().getPhysicalPath())
         # search held_positions in personnel-folder
         crit = {'portal_type': 'held_position', 'path': '%s/contacts/personnel-folder' % portal_path,
-                'sort_on': ['end', 'sortable_title'], 'sort_order': ['descending', 'ascending']
+                'sort_on': 'sortable_title', 'sort_order': 'ascending'
+                # 'sort_on': ['end', 'sortable_title'], 'sort_order': ['descending', 'ascending']  # solr error
                 }
         crit.update(query)
         brains = self.context.portal_catalog(**crit)
