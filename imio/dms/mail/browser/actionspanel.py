@@ -95,8 +95,9 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
+        if self.show():
+            view = getMultiAdapter((self.context, self.request), name='actions_panel')
+            return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
 
 
 class DmsOMActionsPanelView(ActionsPanelView):
@@ -226,8 +227,9 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
+        if self.show():
+            view = getMultiAdapter((self.context, self.request), name='actions_panel')
+            return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
 
 
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
@@ -236,9 +238,10 @@ class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
-                    showActions=True)
+        if self.show():
+            view = getMultiAdapter((self.context, self.request), name='actions_panel')
+            return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
+                        showActions=True)
 
 
 class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
@@ -247,9 +250,10 @@ class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showExtEdit=False, showTransitions=True, showOwnDelete=False, showAddContent=True,
-                    showActions=True)
+        if self.show():
+            view = getMultiAdapter((self.context, self.request), name='actions_panel')
+            return view(useIcons=False, showExtEdit=False, showTransitions=True, showOwnDelete=False, showAddContent=True,
+                        showActions=True)
 
 
 class ActionsPanelViewletAdd(ActionsPanelViewlet):
@@ -258,6 +262,7 @@ class ActionsPanelViewletAdd(ActionsPanelViewlet):
     """
 
     def renderViewlet(self):
-        view = getMultiAdapter((self.context, self.request), name='actions_panel')
-        return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
-                    showActions=False)
+        if self.show():
+            view = getMultiAdapter((self.context, self.request), name='actions_panel')
+            return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
+                        showActions=False)
