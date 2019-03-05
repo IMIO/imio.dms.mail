@@ -98,12 +98,12 @@ class TestContactSuggest(unittest.TestCase):
         view.request['term'] = 'directeur'
         ret = json.loads(view())
         self.assertEqual(ret.pop(0),
-                         {'text': u'Monsieur Maxime DG, Directeur général (Mon organisation / Direction générale)',
-                          'id': self.pf['dirg']['directeur-general'].UID()})
-        self.assertEqual(ret.pop(0),
                          {'text': u'Monsieur Maxime DG, Directeur du personnel (Mon organisation / Direction générale '
                                   u'/ GRH)',
                           'id': self.pf['dirg']['directeur-du-personnel'].UID()})
+        self.assertEqual(ret.pop(0),
+                         {'text': u'Monsieur Maxime DG, Directeur général (Mon organisation / Direction générale)',
+                          'id': self.pf['dirg']['directeur-general'].UID()})
         # search organization
         view.request['term'] = 'direction générale grh'
         ret = json.loads(view())
