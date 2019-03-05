@@ -91,13 +91,15 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                          'outgoingmail_talexpression'), u"python:'S%04d'%int(number)")
         self.assertEquals(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
-                                                         'outgoingmail_edit_irn'), u'show')
+                                                         'outgoingmail_edit_irn'), u'hide')
         self.assertTrue(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                        'outgoingmail_increment_number'))
         self.assertTrue(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                        'outgoingmail_today_mail_date'))
 
         # testing OM views: default parameters
+        api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
+                                       'outgoingmail_edit_irn', u'show')
         self.request = self.portal['outgoing-mail'].REQUEST
         add = OMCustomAddForm(self.portal['outgoing-mail'], self.request)
         add.portal_type = 'dmsoutgoingmail'
@@ -144,7 +146,7 @@ class TestDmsmail(unittest.TestCase):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to hide
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
-                                       'outgoingmail_edit_irn', 'hide')
+                                       'outgoingmail_edit_irn', u'hide')
         add.update()
         self.assertEquals(self.request['_hide_irn'], True)
         self.assertNotIn('_auto_ref', self.request.keys())
@@ -167,7 +169,7 @@ class TestDmsmail(unittest.TestCase):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to reply
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
-                                       'outgoingmail_edit_irn', 'reply')
+                                       'outgoingmail_edit_irn', u'reply')
         add.update()
         self.assertEquals(self.request['_hide_irn'], True)
         self.assertNotIn('_auto_ref', self.request.keys())
@@ -214,7 +216,7 @@ class TestDmsmail(unittest.TestCase):
                                 title=u'I mail', sender=[RelationValue(intids.getId(swde))],
                                 external_reference_no=u'xx/1', treating_groups=tg)
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
-                                       'outgoingmail_edit_irn', 'show')
+                                       'outgoingmail_edit_irn', u'show')
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                        'outgoingmail_increment_number', True)
         reply = ReplyForm(im, self.request)
@@ -251,7 +253,7 @@ class TestDmsmail(unittest.TestCase):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to hide
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
-                                       'outgoingmail_edit_irn', 'hide')
+                                       'outgoingmail_edit_irn', u'hide')
         reply.update()
         self.assertEquals(self.request['_hide_irn'], True)
         self.assertNotIn('_auto_ref', self.request.keys())
@@ -268,7 +270,7 @@ class TestDmsmail(unittest.TestCase):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to reply
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
-                                       'outgoingmail_edit_irn', 'reply')
+                                       'outgoingmail_edit_irn', u'reply')
         reply.update()
         self.assertEquals(self.request['_hide_irn'], False)
         self.assertEquals(self.request['_auto_ref'], False)
