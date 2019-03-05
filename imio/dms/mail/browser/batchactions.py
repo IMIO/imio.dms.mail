@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
 
-from AccessControl import getSecurityManager
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
-from collective.task import _ as TMF
-from collective.task.interfaces import ITaskContent
+from collective.eeafaceted.batchactions.utils import filter_on_permission, cannot_modify_field_msg
+from collective.eeafaceted.batchactions.utils import is_permitted
+from collective.task.browser.batchactions import AssignedGroupBatchActionForm as agbaf
+from collective.task.browser.batchactions import AssignedUserBatchActionForm as aubaf
 from imio.dms.mail import _
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
-from operator import methodcaller
 from plone import api
 from plone.formwidget.masterselect import MasterSelectField
 from z3c.form.browser.select import SelectFieldWidget
@@ -25,30 +25,6 @@ from zope.schema.vocabulary import SimpleVocabulary
 import datetime
 
 
-def canNotModify(brains, perm='Modify portal content'):
-    """ Check all brains to verify change permission """
-    pb = False
-    sm = getSecurityManager()
-    for brain in brains:
-        obj = brain.getObject()
-        if not sm.checkPermission(perm, obj):
-            pb = True
-            break
-    return pb
-
-cannot_modify_msg = _(u"You can't change this field on selected items. Modify your selection.")
-
-
-def filter_on_permission(brains, perm='Modify portal content'):
-    """ Return only objects where current user has the permission """
-    ret = []
-    sm = getSecurityManager()
-    for brain in brains:
-        obj = brain.getObject()
-        if sm.checkPermission(perm, obj):
-            ret.append(obj)
-    return ret
-
 # IM batch actions
 
 
@@ -58,14 +34,13 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
     weight = 20
 
     def _update(self):
-        self.pb = canNotModify(self.brains, perm='imio.dms.mail: Write treating group field')
-        self.do_apply = not self.pb
+        self.do_apply = is_permitted(self.brains, perm='imio.dms.mail: Write treating group field')
         self.fields += Fields(schema.Choice(
             __name__='treating_group',
             title=_(u"Treating groups"),
-            description=(self.pb and cannot_modify_msg or u''),
+            description=(not self.do_apply and cannot_modify_field_msg or u''),
             required=self.do_apply,
-            vocabulary=(self.pb and SimpleVocabulary([]) or u'collective.dms.basecontent.treating_groups'),
+            vocabulary=(self.do_apply and u'collective.dms.basecontent.treating_groups' or SimpleVocabulary([])),
         ))
 
     def _apply(self, **data):
@@ -95,12 +70,11 @@ class RecipientGroupBatchActionForm(BaseBatchActionForm):
     weight = 40
 
     def _update(self):
-        self.pb = canNotModify(self.brains)
-        self.do_apply = not self.pb
+        self.do_apply = is_permitted(self.brains)
         self.fields += Fields(MasterSelectField(
             __name__='action_choice',
             title=_(u'Batch action choice'),
-            description=(self.pb and cannot_modify_msg or u''),
+            description=(not self.do_apply and cannot_modify_field_msg or u''),
             vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add items')),
                                          SimpleTerm(value=u'remove', title=_(u'Remove items')),
                                          SimpleTerm(value=u'replace', title=_(u'Replace some items by others')),
@@ -165,54 +139,13 @@ class RecipientGroupBatchActionForm(BaseBatchActionForm):
                 modified(obj)
 
 
-def getAvailableAssignedUserVoc(brains, attribute):
-    """ Returns available assigned users common for all brains. """
-    terms = [SimpleTerm(value='__none__', token='no_value', title=_('Set to no value'))]
-    users = None
-    for brain in brains:
-        #obj = brain.getObject()
-        if not getattr(brain, attribute):
-            return SimpleVocabulary([])
-        if users is None:
-            users = set(get_selected_org_suffix_users(getattr(brain, attribute), DOC_ASSIGNED_USER_FUNCTIONS))
-        else:
-            users &= set(get_selected_org_suffix_users(getattr(brain, attribute), DOC_ASSIGNED_USER_FUNCTIONS))
-    if users:
-        for member in sorted(users, key=methodcaller('getUserName')):
-            terms.append(SimpleTerm(
-                value=member.getUserName(),  # login
-                token=member.getId(),  # id
-                title=member.getUser().getProperty('fullname') or member.getUserName()))  # title
-    return SimpleVocabulary(terms)
+class AssignedUserBatchActionForm(aubaf):
 
-
-class AssignedUserBatchActionForm(BaseBatchActionForm):
-
-    label = _(u"Batch assigned user change")
     master = 'treating_groups'
-    err_msg = _(u'No common or available treating group, or no available assigned user. '
-                'Modify your selection.')
     weight = 30
 
-    def _update(self):
-        self.voc = getAvailableAssignedUserVoc(self.brains, self.master)
-        self.pb = canNotModify(self.brains)
-        self.do_apply = not self.pb
-        self.fields += Fields(schema.Choice(
-            __name__='assigned_user',
-            title=TMF(u'Assigned user'),
-            vocabulary=self.voc,
-            description=((len(self.voc) == 0 and self.err_msg) or (self.pb and cannot_modify_msg) or u''),
-            required=(len(self.voc) and self.do_apply)))
-
-    def _apply(self, **data):
-        if data['assigned_user']:
-            if data['assigned_user'] == '__none__':
-                data['assigned_user'] = None
-            for brain in self.brains:
-                obj = brain.getObject()
-                obj.assigned_user = data['assigned_user']
-                modified(obj)
+    def get_group_users(self, assigned_group):
+        return get_selected_org_suffix_users(assigned_group, DOC_ASSIGNED_USER_FUNCTIONS)
 
 
 class ReplyBatchActionForm(BaseBatchActionForm):
@@ -232,12 +165,11 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
     weight = 50
 
     def _update(self):
-        self.pb = canNotModify(self.brains)
-        self.do_apply = not self.pb
+        self.do_apply = is_permitted(self.brains)
         self.fields += Fields(schema.Datetime(
             __name__='outgoing_date',
             title=_(u"Outgoing Date"),
-            description=(self.pb and cannot_modify_msg or u''),
+            description=(not self.do_apply and cannot_modify_field_msg or u''),
             required=(self.do_apply),
             default=datetime.datetime.now(),
         ))
@@ -252,46 +184,20 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
 # Task batch actions
 
 
-class AssignedGroupBatchActionForm(BaseBatchActionForm):
+class AssignedGroupBatchActionForm(agbaf):
 
-    label = _(u"Batch assigned group change")
     weight = 20
 
-    def _update(self):
-        self.pb = canNotModify(self.brains)
-        self.do_apply = not self.pb
-        self.fields += Fields(schema.Choice(
-            __name__='assigned_group',
-            title=TMF(u"Assigned group"),
-            description=(self.pb and cannot_modify_msg or u''),
-            required=(self.do_apply),
-            vocabulary=(self.pb and SimpleVocabulary([]) or u'collective.dms.basecontent.treating_groups'),
-        ))
-
-    def _apply(self, **data):
-        if data['assigned_group']:
-            for brain in self.brains:
-                # check if assigned_group is changed and assigned_user is no more in
-                if (brain.assigned_group is not None and brain.assigned_user != EMPTY_STRING and
-                    data['assigned_group'] != brain.assigned_group and
-                    brain.assigned_user not in [mb.getUserName() for mb in get_selected_org_suffix_users(
-                        data['assigned_group'], DOC_ASSIGNED_USER_FUNCTIONS)]):
-                        api.portal.show_message(_(u'An assigned user is not in this new assigned group. '
-                                                  u'Task "${task}" !', mapping={'task': brain.getURL().decode('utf8')}),
-                                                self.request, 'error')
-                        break
-            else:  # here if no break !
-                for brain in self.brains:
-                    obj = brain.getObject()
-                    obj.assigned_group = data['assigned_group']
-                    modified(obj, Attributes(ITaskContent, 'ITask.assigned_group'))
+    def get_group_users(self, assigned_group):
+        return get_selected_org_suffix_users(assigned_group, DOC_ASSIGNED_USER_FUNCTIONS)
 
 
-class TaskAssignedUserBatchActionForm(AssignedUserBatchActionForm):
+class TaskAssignedUserBatchActionForm(aubaf):
 
     master = 'assigned_group'
-    err_msg = _(u'No common or available assigned group, or no available assigned user. '
-                'Modify your selection.')
+
+    def get_group_users(self, assigned_group):
+        return get_selected_org_suffix_users(assigned_group, DOC_ASSIGNED_USER_FUNCTIONS)
 
 # OM Templates Folder batch actions
 

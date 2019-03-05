@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 """Test views."""
-from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
-from imio.dms.mail.browser.batchactions import canNotModify
-from imio.dms.mail.browser.batchactions import getAvailableAssignedUserVoc
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
 from plone.app.testing import setRoles
@@ -42,12 +39,6 @@ class BatchActions(unittest.TestCase):
         view.handleApply(view, 'apply')
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im1))
         self.assertEqual('proposed_to_manager', api.content.get_state(self.im2))
-
-    def test_canNotModify(self):
-        brains = self.pc(UID=[self.im1.UID()])
-        self.assertFalse(canNotModify(brains, perm='imio.dms.mail: Write treating group field'))
-        self.im1.manage_permission('imio.dms.mail: Write treating group field', (), acquire=0)
-        self.assertTrue(canNotModify(brains, perm='imio.dms.mail: Write treating group field'))
 
     def test_TreatingGroupBatchActionForm(self):
         self.assertEqual(self.im1.treating_groups, self.pgof['direction-generale'].UID())
@@ -117,28 +108,6 @@ class BatchActions(unittest.TestCase):
                                                                  self.pgof['direction-generale']['secretariat'].UID()]))
         self.assertSetEqual(set(self.im2.recipient_groups), set([self.pgof['direction-generale'].UID(),
                                                                  self.pgof['direction-generale']['secretariat'].UID()]))
-
-    def test_getAvailableAssignedUserVoc(self):
-        brains = self.pc(UID=[self.im1.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set(['__none__', 'chef']))
-        brains = self.pc(UID=[self.im2.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set(['__none__', 'chef', 'agent']))
-        # intersection
-        brains = self.pc(UID=[self.im1.UID(), self.im2.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set(['__none__', 'chef']))
-        # no treating_groups attribute in self.imf
-        brains = self.pc(UID=[self.im1.UID(), self.imf.UID()])
-        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set([]))
-        # no users
-        brains = self.pc(UID=[self.im1.UID()])
-        for fct in DOC_ASSIGNED_USER_FUNCTIONS:
-            api.group.remove_user(groupname='%s_%s' % (self.im1.treating_groups, fct), username='chef')
-        self.assertSetEqual(set([t.value for t in getAvailableAssignedUserVoc(brains, 'treating_groups')]),
-                            set(['__none__']))
 
     def test_AssignedUserBatchActionForm(self):
         self.assertIsNone(self.im1.assigned_user)

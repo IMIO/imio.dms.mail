@@ -17,14 +17,6 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: collective.eeafaceted.batchactions\n"
 
-#. Default: "Change assigned user"
-msgid "assignedgroup-batch-action-but"
-msgstr ""
-
-#. Default: "Change assigned user"
-msgid "assigneduser-batch-action-but"
-msgstr ""
-
 #. Default: "Change state"
 msgid "copy-to-batch-action-but"
 msgstr ""

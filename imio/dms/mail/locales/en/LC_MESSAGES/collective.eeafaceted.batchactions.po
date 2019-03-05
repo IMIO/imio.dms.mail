@@ -15,14 +15,6 @@ msgstr ""
 "Domain: collective.eeafaceted.batchactions\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
-#. Default: "Change assigned user"
-msgid "assignedgroup-batch-action-but"
-msgstr ""
-
-#. Default: "Change assigned user"
-msgid "assigneduser-batch-action-but"
-msgstr ""
-
 #. Default: "Change state"
 msgid "copy-to-batch-action-but"
 msgstr ""
