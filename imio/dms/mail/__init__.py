@@ -1,5 +1,9 @@
+from AccessControl.Permissions import delete_objects
 from collective.dms.basecontent import dmsfile
 from datetime import date
+from plone.dexterity.content import Container
+from Products.Archetypes.BaseFolder import BaseFolder
+from Products.CMFPlone.PloneFolder import BasePloneFolder
 from zope.i18nmessageid import MessageFactory
 
 import os
@@ -29,3 +33,19 @@ BACK_OR_AGAIN_ICONS = {'': False,
 def add_path(path):
     path = path.strip('/ ')
     return "%s/%s" % (PRODUCT_DIR, path)
+
+
+# Based on what is done in AccessControl.class_init
+for klass in (BaseFolder, BasePloneFolder, Container):
+    new = []
+    for perm in klass.__ac_permissions__:
+        if perm[0] == delete_objects:
+            if len(perm[1]) > 1:
+                methods = list(perm[1])
+                methods.remove('manage_delObjects')
+                perm[1] = tuple(methods)
+            else:
+                continue
+        new.append(perm)
+    klass.__ac_permissions__ = tuple(new)
+    klass.manage_delObjects__roles__ = ('Authenticated', 'Member')

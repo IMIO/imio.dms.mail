@@ -56,6 +56,14 @@
    <property name="available_expr">python: not globals_view.isPortalOrPortalDefaultPage()</property>
   </object>
 
+  <object name="cut" meta_type="CMF Action" i18n:domain="plone">
+   <property name="available_expr">python: checkPermission("Copy or Move", object) and not globals_view.isPortalOrPortalDefaultPage()</property>
+  </object>
+
+  <object name="rename" meta_type="CMF Action" i18n:domain="plone">
+   <property name="available_expr">python: checkPermission("Copy or Move", object) and checkPermission("Add portal content", object) and not globals_view.isPortalOrPortalDefaultPage()</property>
+  </object>
+
  </object>
 
  <object name="user" meta_type="CMF Action Category">
