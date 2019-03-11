@@ -34,7 +34,9 @@ def add_path(path):
     path = path.strip('/ ')
     return "%s/%s" % (PRODUCT_DIR, path)
 
-
+# We modify the protection ('Delete objects' permission) on container manage_delObjects method
+# Normally to delete an item, user must have the delete permission on the item and on the parent container
+# Now container 'manage_delObjects' method is protected by roles (Member)
 # Based on what is done in AccessControl.class_init
 for klass in (BaseFolder, BasePloneFolder, Container):
     new = []

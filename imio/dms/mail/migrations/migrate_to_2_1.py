@@ -272,6 +272,13 @@ class Migrate_To_2_1(Migrator):
         self.registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
         self.registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
 
+        # hide faceted actions
+        paob = self.portal.portal_actions.object_buttons
+        for act in ('faceted.sync', 'faceted.disable', 'faceted.enable', 'faceted.search.disable',
+                    'faceted.search.enable', 'faceted.actions.disable', 'faceted.actions.enable'):
+            if act in paob:
+                paob[act].visible = False
+
     def update_contacts(self):
         contacts = self.portal['contacts']
         if not IDirectoryFacetedNavigable.providedBy(contacts):
