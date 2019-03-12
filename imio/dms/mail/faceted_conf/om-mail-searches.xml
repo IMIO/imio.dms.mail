@@ -121,7 +121,7 @@
    <property name="position">top</property>
    <property name="section">advanced</property>
    <property name="hidden">False</property>
-   <property name="index">sender</property>
+   <property name="index">sender_index</property>
    <property name="default"></property>
    <property name="autocomplete_view">sender-autocomplete-suggest</property>
    <property name="onlyallelements">True</property>
@@ -134,7 +134,7 @@
    <property name="position">top</property>
    <property name="section">advanced</property>
    <property name="hidden">False</property>
-   <property name="index">recipients</property>
+   <property name="index">recipients_index</property>
    <property name="default"></property>
    <property name="autocomplete_view">contact-autocomplete-suggest</property>
    <property name="onlyallelements">True</property>
