@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2019-03-04 15:00+0000\n"
+"POT-Creation-Date: 2019-03-20 10:56+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -141,12 +141,12 @@ msgstr "Commentaire"
 msgid "Common templates"
 msgstr "Modèles communs"
 
-#: ./migrations/migrate_to_2_1.py:311
+#: ./migrations/migrate_to_2_1.py:324
 #: ./setuphandlers.py:269
 msgid "Contact list searches"
 msgstr "Recherches listes de contact"
 
-#: ./migrations/migrate_to_2_1.py:311
+#: ./migrations/migrate_to_2_1.py:324
 #: ./setuphandlers.py:269
 msgid "Contact lists"
 msgstr "Listes de contact"
@@ -195,12 +195,12 @@ msgstr "Sous-document de pied de page"
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
-#: ./migrations/migrate_to_2_1.py:293
+#: ./migrations/migrate_to_2_1.py:306
 #: ./setuphandlers.py:251
 msgid "Held positions"
 msgstr "Fonctions occupées"
 
-#: ./migrations/migrate_to_2_1.py:293
+#: ./migrations/migrate_to_2_1.py:306
 #: ./setuphandlers.py:251
 msgid "Held positions searches"
 msgstr "Recherches fonctions occupées"
@@ -297,12 +297,12 @@ msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifi�
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
-#: ./migrations/migrate_to_2_1.py:281
+#: ./migrations/migrate_to_2_1.py:294
 #: ./setuphandlers.py:239
 msgid "Organizations"
 msgstr "Organisations"
 
-#: ./migrations/migrate_to_2_1.py:281
+#: ./migrations/migrate_to_2_1.py:294
 #: ./setuphandlers.py:239
 msgid "Organizations searches"
 msgstr "Recherches organisations"
@@ -336,12 +336,12 @@ msgstr "Courrier sortant"
 msgid "Overwrite"
 msgstr "Écraser le contenu avec les éléments choisis"
 
-#: ./migrations/migrate_to_2_1.py:302
+#: ./migrations/migrate_to_2_1.py:315
 #: ./setuphandlers.py:260
 msgid "Persons"
 msgstr "Personnes"
 
-#: ./migrations/migrate_to_2_1.py:302
+#: ./migrations/migrate_to_2_1.py:315
 #: ./setuphandlers.py:260
 msgid "Persons searches"
 msgstr "Recherches personnes"
@@ -560,24 +560,24 @@ msgid "create_person"
 msgstr "Créer une personne"
 
 #: ./migrations/migrate_to_2_0.py:211
-#: ./migrations/migrate_to_2_1.py:209
+#: ./migrations/migrate_to_2_1.py:211
 #: ./setuphandlers.py:753
 msgid "front_page_descr"
 msgstr "Bienvenue sur votre outil de gestion du courrier"
 
 #: ./migrations/migrate_to_2_0.py:212
-#: ./migrations/migrate_to_2_1.py:210
+#: ./migrations/migrate_to_2_1.py:212
 #: ./setuphandlers.py:754
 msgid "front_page_text"
 msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p><ul><li>Création d'un courrier entrant<ul><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier</li><li>manuellement avec la possibilité d'associer ensuite un document scanné (par exemple si son format est particulier et ne passe pas dans le scanner fourni)</li></ul></li><li>Création d'un courrier sortant<ul><li>en réponse à un courrier entrant avec reprise dans la fiche courrier des données déjà encodées</li><li>manuellement avec la possibilité d'associer ensuite un document de réponse au format bureautique ou de le générer à partir d'un modèle</li><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier (par exemple un courrier généré par une autre application, déjà imprimé et signé)</li></ul></li><li>Pour les documents injectés depuis le scanner, la fiche courrier (entrant ou sortant) est complétée en se basant sur la prévisualisation du document scanné et la possibilité de glisser/déplacer depuis le texte océrisé</li><li>L'utilisation d'un modèle de courrier sortant a comme avantage de gérer automatiquement<ul><li>la fusion de données,</li><li>l'impression en lot,</li><li>l'intégration d'un code-barre</li><li>le publipostage</li></ul></li><li>Le code barre intégré dans le courrier sortant permet d’effectuer un scan des documents après signature, avec les avantages suivants&nbsp;:<ul><li>la sauvegarde de la version signée du document dans la fiche courrier sortant</li><li>l'enregistrement automatique de la date d'expédition</li><li>la clôture de la fiche courrier</li></ul></li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments &lt;&lt; à traiter &gt;&gt;</li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Assignation d'un service traitant, des services en copie et gestion de tâches (qui peuvent aussi être assignées à d'autres services)</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires, liste de contacts)</li><li>Workflow de validation et de traitement du courrier et des tâches</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale (facilité de visualisation sur tablette)</li><li>etc.</li></ul>"
 
 #: ./migrations/migrate_to_2_0.py:210
-#: ./migrations/migrate_to_2_1.py:208
+#: ./migrations/migrate_to_2_1.py:210
 #: ./setuphandlers.py:752
 msgid "front_page_title"
 msgstr "Gestion du courrier 2.1"
 
-#: ./migrations/migrate_to_2_1.py:157
+#: ./migrations/migrate_to_2_1.py:159
 #: ./setuphandlers.py:516
 msgid "im_followed"
 msgstr "Étiquette: Suivi"
@@ -594,7 +594,7 @@ msgstr "Que je traite"
 msgid "im_in_copy"
 msgstr "En copie"
 
-#: ./migrations/migrate_to_2_1.py:149
+#: ./migrations/migrate_to_2_1.py:151
 #: ./setuphandlers.py:500
 msgid "im_in_copy_unread"
 msgstr "En copie, non lu"

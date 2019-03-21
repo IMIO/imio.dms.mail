@@ -240,6 +240,16 @@
         factory=".wfadaptations.IMPreManagerValidation"
     />
 
+    <utility
+        name="imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief"
+        factory=".wfadaptations.IMSkipProposeToServiceChief"
+    />
+
+    <utility
+        name="imio.dms.mail.wfadaptations.OMSkipProposeToServiceChief"
+        factory=".wfadaptations.OMSkipProposeToServiceChief"
+    />
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />

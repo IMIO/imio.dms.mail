@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-03-04 15:00+0000\n"
+"POT-Creation-Date: 2019-03-20 10:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -113,12 +113,12 @@ msgstr ""
 msgid "Common templates"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:311
+#: ./migrations/migrate_to_2_1.py:324
 #: ./setuphandlers.py:269
 msgid "Contact list searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:311
+#: ./migrations/migrate_to_2_1.py:324
 #: ./setuphandlers.py:269
 msgid "Contact lists"
 msgstr ""
@@ -163,12 +163,12 @@ msgstr ""
 msgid "Header template"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:293
+#: ./migrations/migrate_to_2_1.py:306
 #: ./setuphandlers.py:251
 msgid "Held positions"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:293
+#: ./migrations/migrate_to_2_1.py:306
 #: ./setuphandlers.py:251
 msgid "Held positions searches"
 msgstr ""
@@ -249,12 +249,12 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:281
+#: ./migrations/migrate_to_2_1.py:294
 #: ./setuphandlers.py:239
 msgid "Organizations"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:281
+#: ./migrations/migrate_to_2_1.py:294
 #: ./setuphandlers.py:239
 msgid "Organizations searches"
 msgstr ""
@@ -288,12 +288,12 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:302
+#: ./migrations/migrate_to_2_1.py:315
 #: ./setuphandlers.py:260
 msgid "Persons"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:302
+#: ./migrations/migrate_to_2_1.py:315
 #: ./setuphandlers.py:260
 msgid "Persons searches"
 msgstr ""
@@ -488,24 +488,24 @@ msgid "create_om"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:211
-#: ./migrations/migrate_to_2_1.py:209
+#: ./migrations/migrate_to_2_1.py:211
 #: ./setuphandlers.py:753
 msgid "front_page_descr"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:212
-#: ./migrations/migrate_to_2_1.py:210
+#: ./migrations/migrate_to_2_1.py:212
 #: ./setuphandlers.py:754
 msgid "front_page_text"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:210
-#: ./migrations/migrate_to_2_1.py:208
+#: ./migrations/migrate_to_2_1.py:210
 #: ./setuphandlers.py:752
 msgid "front_page_title"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:157
+#: ./migrations/migrate_to_2_1.py:159
 #: ./setuphandlers.py:516
 msgid "im_followed"
 msgstr ""
@@ -522,7 +522,7 @@ msgstr ""
 msgid "im_in_copy"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:149
+#: ./migrations/migrate_to_2_1.py:151
 #: ./setuphandlers.py:500
 msgid "im_in_copy_unread"
 msgstr ""

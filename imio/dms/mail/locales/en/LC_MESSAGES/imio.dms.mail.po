@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-03-04 15:00+0000\n"
+"POT-Creation-Date: 2019-03-20 10:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -139,12 +139,12 @@ msgstr ""
 msgid "Common templates"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:311
+#: ./migrations/migrate_to_2_1.py:324
 #: ./setuphandlers.py:269
 msgid "Contact list searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:311
+#: ./migrations/migrate_to_2_1.py:324
 #: ./setuphandlers.py:269
 msgid "Contact lists"
 msgstr ""
@@ -193,12 +193,12 @@ msgstr ""
 msgid "Header template"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:293
+#: ./migrations/migrate_to_2_1.py:306
 #: ./setuphandlers.py:251
 msgid "Held positions"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:293
+#: ./migrations/migrate_to_2_1.py:306
 #: ./setuphandlers.py:251
 msgid "Held positions searches"
 msgstr ""
@@ -295,12 +295,12 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:281
+#: ./migrations/migrate_to_2_1.py:294
 #: ./setuphandlers.py:239
 msgid "Organizations"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:281
+#: ./migrations/migrate_to_2_1.py:294
 #: ./setuphandlers.py:239
 msgid "Organizations searches"
 msgstr ""
@@ -334,12 +334,12 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:302
+#: ./migrations/migrate_to_2_1.py:315
 #: ./setuphandlers.py:260
 msgid "Persons"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:302
+#: ./migrations/migrate_to_2_1.py:315
 #: ./setuphandlers.py:260
 msgid "Persons searches"
 msgstr ""
@@ -558,24 +558,24 @@ msgid "create_person"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:211
-#: ./migrations/migrate_to_2_1.py:209
+#: ./migrations/migrate_to_2_1.py:211
 #: ./setuphandlers.py:753
 msgid "front_page_descr"
 msgstr "Welcome on the mail management application"
 
 #: ./migrations/migrate_to_2_0.py:212
-#: ./migrations/migrate_to_2_1.py:210
+#: ./migrations/migrate_to_2_1.py:212
 #: ./setuphandlers.py:754
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>The application integrates the management of incoming mail:</p><ul><li>Automatic creation of incoming mail from scanned files with a separator barcode stuck on the first page of every mail</li><li>Completion of incoming mail with preview of the scanned document and drag / drop from the extracted text by OCR</li><li>Without automatic injection from the scanner, the ability to create a mail and manually link the scanned document (for example, if the format is particular)</li><li>Predefined searches following actions to take and state of mails</li><li>Results display in a dynamic table with changeable fields filters, sorting, pagination, actions column, batch actions, etc.</li><li>Contact management (senders, recipients)</li><li>Choice of treating service, copy services and task management (that can be assigned to other services)</li><li>Choice of a responsible user in the treating service or on a task and also a due date</li><li>Mail validation workflow</li><li>Mail treatment workflow</li><li>Possibility to advance element by element from a search results</li><li>etc.</li></ul><p>&nbsp;</p>"
 
 #: ./migrations/migrate_to_2_0.py:210
-#: ./migrations/migrate_to_2_1.py:208
+#: ./migrations/migrate_to_2_1.py:210
 #: ./setuphandlers.py:752
 msgid "front_page_title"
 msgstr "Mails management"
 
-#: ./migrations/migrate_to_2_1.py:157
+#: ./migrations/migrate_to_2_1.py:159
 #: ./setuphandlers.py:516
 msgid "im_followed"
 msgstr "Label : Followed"
@@ -592,7 +592,7 @@ msgstr "That I treat"
 msgid "im_in_copy"
 msgstr "In copy"
 
-#: ./migrations/migrate_to_2_1.py:149
+#: ./migrations/migrate_to_2_1.py:151
 #: ./setuphandlers.py:500
 msgid "im_in_copy_unread"
 msgstr "In copy, unread"

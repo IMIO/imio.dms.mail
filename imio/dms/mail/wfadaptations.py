@@ -3,6 +3,7 @@
 from collections import OrderedDict
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from setuphandlers import _
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -357,5 +358,137 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             lst.append('dmsincomingmail.back_to_pre_manager|')
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
                                            lst)
+
+        return True, ''
+
+
+class IIMSkipProposeToServiceChiefParameters(Interface):
+
+    assigned_user_check = schema.Bool(
+        title=u'Assigned user check',
+        description=u'Check if there is an assigned user before proposing incoming mail to an agent.',
+        default=True
+    )
+
+
+class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
+
+    schema = IIMSkipProposeToServiceChiefParameters
+
+    def patch_workflow(self, workflow_name, **parameters):
+        portal = api.portal.get()
+        wtool = portal.portal_workflow
+        im_workflow = wtool['incomingmail_workflow']
+        msg = self.check_state_in_workflow(im_workflow, 'proposed_to_service_chief')
+        if msg:
+            return False, msg
+
+        # remove state
+        list_states = ['proposed_to_service_chief']
+        im_workflow.states.deleteStates(list_states)
+
+        # change created transition
+        transitions = list(im_workflow.states['created'].transitions)
+        transitions.remove('propose_to_service_chief')
+        transitions.append('propose_to_agent')
+        im_workflow.states['created'].transitions = tuple(transitions)
+        # change proposed_to_manager transition
+        transitions = list(im_workflow.states['proposed_to_manager'].transitions)
+        transitions.remove('propose_to_service_chief')
+        transitions.append('propose_to_agent')
+        im_workflow.states['proposed_to_manager'].transitions = tuple(transitions)
+        # change proposed_to_agent transition
+        transitions = list(im_workflow.states['proposed_to_agent'].transitions)
+        transitions.remove('back_to_service_chief')
+        transitions.append('back_to_manager')
+        transitions.append('back_to_creation')
+        im_workflow.states['proposed_to_agent'].transitions = tuple(transitions)
+        # remove transitions
+        list_transitions = ['propose_to_service_chief', 'back_to_service_chief']
+        im_workflow.transitions.deleteTransitions(list_transitions)
+
+        # change assigned user verification option
+        if not parameters['assigned_user_check']:
+            api.portal.set_registry_record('assigned_user_check', False, IImioDmsMailConfig)
+            # change transition titles
+            for tr, title in (('back_to_agent', 'back_to_service'), ('propose_to_agent', 'propose_to_service')):
+                msg = self.check_transition_in_workflow(im_workflow, tr)
+                if msg:
+                    return False, msg
+                im_workflow.transitions[tr].title = str(title)
+
+        # remove local roles
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        changed_flag = False
+        for lrgroup in lr:
+            if 'proposed_to_service_chief' in lr[lrgroup]:
+                del lr[lrgroup]['proposed_to_service_chief']
+                changed_flag = True
+        if changed_flag:
+            # the object has been modified and must be saved in db
+            lr._p_changed = True
+
+        # disable collection
+        folder = portal['incoming-mail']['mail-searches']
+        if folder['searchfor_proposed_to_service_chief'].enabled:
+            folder['searchfor_proposed_to_service_chief'].enabled = False
+            folder['searchfor_proposed_to_service_chief'].reindexObject()
+            # update search collection list
+            invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+
+        # update state list
+        invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')
+
+        return True, ''
+
+
+class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
+
+    def patch_workflow(self, workflow_name, **parameters):
+        portal = api.portal.get()
+        wtool = portal.portal_workflow
+        om_workflow = wtool['outgoingmail_workflow']
+        msg = self.check_state_in_workflow(om_workflow, 'proposed_to_service_chief')
+        if msg:
+            return False, msg
+
+        # remove state
+        list_states = ['proposed_to_service_chief']
+        om_workflow.states.deleteStates(list_states)
+
+        # change created transitions
+        transitions = list(om_workflow.states['created'].transitions)
+        transitions.remove('propose_to_service_chief')
+        om_workflow.states['created'].transitions = tuple(transitions)
+        # change to_be_signed transitions
+        transitions = list(om_workflow.states['to_be_signed'].transitions)
+        transitions.remove('back_to_service_chief')
+        om_workflow.states['to_be_signed'].transitions = tuple(transitions)
+        # remove transitions
+        list_transitions = ['propose_to_service_chief', 'back_to_service_chief']
+        om_workflow.transitions.deleteTransitions(list_transitions)
+
+        # remove local roles
+        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
+        lr = getattr(fti, 'localroles')
+        changed_flag = False
+        for lrgroup in lr:
+            if 'proposed_to_service_chief' in lr[lrgroup]:
+                del lr[lrgroup]['proposed_to_service_chief']
+                changed_flag = True
+        if changed_flag:
+            lr._p_changed = True
+
+        # disable collection
+        folder = portal['outgoing-mail']['mail-searches']
+        if folder['searchfor_proposed_to_service_chief'].enabled:
+            folder['searchfor_proposed_to_service_chief'].enabled = False
+            folder['searchfor_proposed_to_service_chief'].reindexObject()
+            # update search collection list
+            invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+
+        # update state list
+        invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
 
         return True, ''
