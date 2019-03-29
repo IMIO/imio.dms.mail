@@ -185,6 +185,11 @@ body.template-item_view h1 .pretty_link_icons img{
     vertical-align: baseline;
 }  /* Center icons in h1 viewlet */
 
+#contentActionMenus #faceted_settings, #contentActionMenus #plone-contentmenu-display,
+#contentActionMenus #plone-contentmenu-actions a[id^="plone-contentmenu-actions-faceted."] {
+    display: None !important;
+}
+
 /* Other */
 
 #faceted-results td.pretty_link a.link-tooltip .pretty_link_content{

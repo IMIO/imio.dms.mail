@@ -7,6 +7,7 @@
 # GNU General Public License (GPL)
 #
 
+from collective.dms.mailcontent.browser.utils import UtilsMethods
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
@@ -90,3 +91,10 @@ class PloneSearch(Search):
         if 'SearchableText' in qr and not qr['SearchableText'].endswith('*'):
             qr['SearchableText'] += '*'
         return qr
+
+
+class IDMUtilsMethods(UtilsMethods):
+    """ View containing utils methods """
+
+    def outgoingmail_folder(self):
+        return api.portal.get()['outgoing-mail']

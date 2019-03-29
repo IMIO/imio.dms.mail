@@ -163,12 +163,11 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                                  tal_condition=None,
                                  showNumberOfItems=True,
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
+                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0, enabled=True)
             col = folder[col_id]
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
-            folder.portal_workflow.doActionFor(col, "show_internally")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_to_be_signed'))
             # Add template to folder
             tmpl = portal['templates']['om']['d-print']

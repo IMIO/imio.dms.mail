@@ -1,75 +1,30 @@
 # -*- coding: utf-8 -*-
 """Reply form."""
-from imio.dms.mail import _
+# from collections import Counter
+from collective.dms.mailcontent.browser.reply_form import ReplyForm as BaseReplyForm
 from collective.eeafaceted.batchactions.browser.views import brains_from_uids
+from imio.dms.mail import _
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateFields
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateWidgets
 from plone import api
-from plone.dexterity.browser.add import DefaultAddForm
-from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import addContentToContainer
 from Products.CMFPlone.utils import safe_unicode
-# from collections import Counter
-# from z3c.form.interfaces import DISPLAY_MODE
-from zope.component import getUtility
 
 
-class ReplyForm(DefaultAddForm):
+class ReplyForm(BaseReplyForm):
 
     """Form to reply to an incoming mail."""
-
-    description = u""
-    portal_type = "dmsoutgoingmail"
-
-    @property
-    def label(self):
-        return _(u"Reply to ${ref}", mapping={'ref': safe_unicode(self.context.Title())})
 
     def updateFields(self):
 
         super(ReplyForm, self).updateFields()
-        imail = self.context
-        form = self.request.form
-        # Completing form values wasn't working anymore, but relations must be set here too !
-        form["form.widgets.reply_to"] = ('/'.join(imail.getPhysicalPath()),)
-        form["form.widgets.recipients"] = tuple([sd.to_path for sd in imail.sender])
-        # form["form.widgets.IDublinCore.title"] = "Réponse: %s" % safe_encode(imail.title)
-        # form["form.widgets.treating_groups"] = imail.treating_groups
-        # if imail.external_reference_no:
-        #     form["form.widgets.external_reference_no"] = imail.external_reference_no
-        # if imail.recipient_groups:
-        #     form["form.widgets.recipient_groups"] = imail.recipient_groups
         ImioDmsOutgoingMailUpdateFields(self)
 
     def updateWidgets(self):
         super(ReplyForm, self).updateWidgets()
-        imail = self.context
         prefix = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                 'omail_response_prefix', default='') or ''
-        self.widgets["IDublinCore.title"].value = u"%s%s" % (prefix, safe_unicode(imail.title))
-        self.widgets["treating_groups"].value = imail.treating_groups
-        self.widgets["reply_to"].value = ('/'.join(imail.getPhysicalPath()),)
-        self.widgets["recipients"].value = tuple([sd.to_path for sd in imail.sender])
-        if imail.external_reference_no:
-            self.widgets["external_reference_no"].value = imail.external_reference_no
-        if imail.recipient_groups:
-            self.widgets["recipient_groups"].value = imail.recipient_groups
+        self.widgets["IDublinCore.title"].value = u"%s%s" % (prefix, safe_unicode(self.context.title))
         ImioDmsOutgoingMailUpdateWidgets(self)
-
-    def add(self, obj):
-        """Create outgoing mail in outgoing-mail folder."""
-        fti = getUtility(IDexterityFTI, name=self.portal_type)
-        container = api.portal.get()['outgoing-mail']
-        new_object = addContentToContainer(container, obj)
-
-        if fti.immediate_view:
-            self.immediate_view = "/".join(
-                [container.absolute_url(), new_object.id, fti.immediate_view]
-            )
-        else:
-            self.immediate_view = "/".join(
-                [container.absolute_url(), new_object.id]
-            )
 
 
 class MultipleReplyForm(ReplyForm):

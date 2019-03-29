@@ -142,7 +142,7 @@ class TestVocabularies(unittest.TestCase):
         logout()
         login(self.portal, 'agent')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
-                             [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
+                             [t for i, t in enumerate(all_titles) if i not in (0, 3, 7)])
         with api.env.adopt_roles(['Manager']):
             api.content.transition(obj=self.omail, transition='propose_to_service_chief')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)

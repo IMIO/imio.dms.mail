@@ -270,7 +270,7 @@ class VariousUtilsMethods(UtilsMethods):
                 continue
             nb = int(brain.scan_id[7:])
             if (nb % divisor) == 0:
-                ref = brain.getObject().__parent__.internal_reference_no
+                ref = brain._unrestrictedGetObject().__parent__.internal_reference_no
                 if sort == 'scan':
                     res[brain.scan_id[2:3]][nb] = (os.path.dirname(brain.getURL()), ref)
                 else:

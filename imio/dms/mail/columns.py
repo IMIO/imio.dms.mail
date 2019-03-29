@@ -46,7 +46,7 @@ class DueDateColumn(DateColumn):
 
 class IMActionsColumn(ActionsColumn):
 
-    params = {'showHistory': True, 'showActions': False}
+    params = {'showHistory': True, 'showActions': True}
 
 
 class MailTypeColumn(VocabularyColumn):
@@ -187,7 +187,7 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     weight = 70
     view_name = 'actions_panel'
     attrName = 'actions'
-    params = {'showHistory': True, 'showActions': False}
+    params = {'showHistory': True, 'showActions': True}
 
 
 # Columns for collective.task.browser.table.TasksTable

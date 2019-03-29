@@ -89,4 +89,14 @@
             />
     </configure>
 
+    <browser:page
+        for="*"
+        name="cdmc-utils"
+        class=".browser.overrides.IDMUtilsMethods"
+        permission="zope2.View"
+        allowed_attributes="
+            outgoingmail_folder
+        "
+        />
+
 </configure>
