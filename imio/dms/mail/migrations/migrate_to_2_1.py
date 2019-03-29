@@ -136,6 +136,8 @@ class Migrate_To_2_1(Migrator):
                                             new_class_name='imio.dms.mail.browser.task.Task')
 
     def update_collections(self):
+        if 'in_copy_unread' in self.imf['mail-searches']:
+            return
         # update incomingmail collections
         for brain in api.content.find(context=self.imf['mail-searches'], portal_type='DashboardCollection'):
             obj = brain.getObject()
@@ -223,25 +225,27 @@ class Migrate_To_2_1(Migrator):
                                        'IDocumentGeneratorControlPanelSchema.raiseOnError_for_non_managers', True)
 
         # ftw.labels
-        labels = {self.imf: [('Lu', 'green', True), ('Suivi', 'yellow', True)],
-                  self.omf: [],
-                  self.portal['tasks']: []}
-        for folder in labels:
-            if not ILabelRoot.providedBy(folder):
-                alsoProvides(folder, ILabelRoot)
-                adapted = ILabelJar(folder)
-                existing = [dic['title'] for dic in adapted.list()]
-                for title, color, by_user in labels[folder]:
-                    if title not in existing:
-                        adapted.add(title, color, by_user)
-        self.portal.manage_permission('ftw.labels: Manage Labels Jar', ('Manager', 'Site Administrator'),
-                                      acquire=0)
-        self.portal.manage_permission('ftw.labels: Change Labels', ('Manager', 'Site Administrator'),
-                                      acquire=0)
-        self.portal.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator', 'Member'),
-                                      acquire=0)
+        if not ILabelRoot.providedBy(self.imf):
+            labels = {self.imf: [('Lu', 'green', True), ('Suivi', 'yellow', True)],
+                      self.omf: [],
+                      self.portal['tasks']: []}
+            for folder in labels:
+                if not ILabelRoot.providedBy(folder):
+                    alsoProvides(folder, ILabelRoot)
+                    adapted = ILabelJar(folder)
+                    existing = [dic['title'] for dic in adapted.list()]
+                    for title, color, by_user in labels[folder]:
+                        if title not in existing:
+                            adapted.add(title, color, by_user)
 
-        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-mark-copy-im-as-read'], profile='singles')
+            self.portal.manage_permission('ftw.labels: Manage Labels Jar', ('Manager', 'Site Administrator'),
+                                          acquire=0)
+            self.portal.manage_permission('ftw.labels: Change Labels', ('Manager', 'Site Administrator'),
+                                          acquire=0)
+            self.portal.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator',
+                                                                                 'Member'), acquire=0)
+
+            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-mark-copy-im-as-read'], profile='singles')
 
         # INextPrevNotNavigable
         alsoProvides(self.portal['tasks'], INextPrevNotNavigable)
@@ -268,8 +272,17 @@ class Migrate_To_2_1(Migrator):
         self.registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
         self.registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
 
+        # hide faceted actions
+        paob = self.portal.portal_actions.object_buttons
+        for act in ('faceted.sync', 'faceted.disable', 'faceted.enable', 'faceted.search.disable',
+                    'faceted.search.enable', 'faceted.actions.disable', 'faceted.actions.enable'):
+            if act in paob:
+                paob[act].visible = False
+
     def update_contacts(self):
         contacts = self.portal['contacts']
+        if not IDirectoryFacetedNavigable.providedBy(contacts):
+            return
         blacklistPortletCategory(contacts, contacts, value=False)
         noLongerProvides(contacts, IHidePloneLeftColumn)
         noLongerProvides(contacts, IHidePloneRightColumn)
@@ -355,7 +368,7 @@ class Migrate_To_2_1(Migrator):
         self.upgradeProfile('collective.documentgenerator:default')
         self.runProfileSteps('imio.helpers', steps=['jsregistry'])
 
-        self.reinstall(['collective.contact.contactlist:default'])
+        self.install(['collective.contact.contactlist'])  # , 'ftw.labels'
         try:
             self.reinstall(['ftw.labels:default'])
         except LookupError, e:
@@ -380,8 +393,6 @@ class Migrate_To_2_1(Migrator):
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-icons-to-contact-workflow'], profile='singles')
 
         add_transforms(self.portal)
-
-        # set unicode on internal_reference_number !!
 
         # replace faceted on contacts
         self.update_contacts()

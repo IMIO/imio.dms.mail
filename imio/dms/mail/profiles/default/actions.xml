@@ -52,8 +52,20 @@
 
  <object name="object_buttons" meta_type="CMF Action Category">
 
+  <object name="faceted.sync" meta_type="CMF Action" i18n:domain="eea">
+   <property name="visible">False</property>
+  </object>
+
   <object name="delete" meta_type="CMF Action" i18n:domain="plone">
    <property name="available_expr">python: not globals_view.isPortalOrPortalDefaultPage()</property>
+  </object>
+
+  <object name="cut" meta_type="CMF Action" i18n:domain="plone">
+   <property name="available_expr">python: checkPermission("Copy or Move", object) and not globals_view.isPortalOrPortalDefaultPage()</property>
+  </object>
+
+  <object name="rename" meta_type="CMF Action" i18n:domain="plone">
+   <property name="available_expr">python: checkPermission("Copy or Move", object) and checkPermission("Add portal content", object) and not globals_view.isPortalOrPortalDefaultPage()</property>
   </object>
 
  </object>
