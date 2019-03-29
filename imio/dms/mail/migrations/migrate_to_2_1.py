@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import OrderedDict
 from collective.contact.facetednav.interfaces import IActionsEnabled
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
@@ -37,6 +38,8 @@ from imio.dms.mail.setuphandlers import createHeldPositionsCollections
 from imio.dms.mail.setuphandlers import createOrganizationsCollections
 from imio.dms.mail.setuphandlers import createPersonsCollections
 from imio.dms.mail.setuphandlers import reimport_faceted_config
+from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -357,20 +360,44 @@ class Migrate_To_2_1(Migrator):
         blacklistPortletCategory(self, contacts['plonegroup-organization'])
         blacklistPortletCategory(self, contacts['personnel-folder'])
 
+    def dms_config(self):
+        try:
+            get_dms_config()
+            return
+        except KeyError:
+            pass
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                    ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+        set_dms_config(['review_levels', 'task'],
+                       OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
+        set_dms_config(['review_levels', 'dmsoutgoingmail'],
+                       OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+        set_dms_config(['review_states', 'dmsincomingmail'],
+                       OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
+                                    ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+        set_dms_config(['review_states', 'task'],
+                       OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
+                                    ('realized', {'group': '_validateur', 'org': 'assigned_group'})]))
+        set_dms_config(['review_states', 'dmsoutgoingmail'],
+                       OrderedDict([('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.1...')
         self.cleanRegistries()
 
         self.set_Members()
 
+        self.upgradeProfile('collective.contact.plonegroup:default')
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('collective.messagesviewlet:default')
+        self.upgradeProfile('imio.dashboard:default')
         self.upgradeProfile('collective.documentgenerator:default')
         self.runProfileSteps('imio.helpers', steps=['jsregistry'])
 
-        self.install(['collective.contact.contactlist'])  # , 'ftw.labels'
+        self.install(['collective.contact.contactlist'])
         try:
-            self.reinstall(['ftw.labels:default'])
+            self.install(['ftw.labels'])
         except LookupError, e:
             if not e.message.startswith('Could not find ILabelJar on any parents'):
                 raise e
@@ -401,6 +428,9 @@ class Migrate_To_2_1(Migrator):
         self.update_templates()
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
+        # set config
+        self.dms_config()
+
         # update collections
         self.update_collections()
 
@@ -419,15 +449,16 @@ class Migrate_To_2_1(Migrator):
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
         for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.contact.core',
-                     'collective.contact.duplicated', 'collective.contact.plonegroup', 'collective.contact.widget',
-                     'collective.dms.basecontent', 'collective.dms.scanbehavior', 'collective.eeafaceted.batchactions',
+                     'collective.contact.contactlist', 'collective.contact.duplicated',
+                     'collective.contact.plonegroup', 'collective.contact.widget', 'collective.dms.basecontent',
+                     'collective.dms.scanbehavior', 'collective.eeafaceted.batchactions',
                      'collective.eeafaceted.collectionwidget', 'collective.eeafaceted.z3ctable',
                      'collective.js.underscore', 'collective.messagesviewlet', 'collective.plonefinder',
                      'collective.querynextprev', 'collective.task', 'collective.z3cform.datagridfield',
-                     'collective.z3cform.datetimewidget', 'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail',
-                     'imio.history', 'plone.app.dexterity', 'plone.formwidget.autocomplete',
-                     'plone.formwidget.contenttree', 'plone.formwidget.datetime', 'plonetheme.classic',
-                     'plonetheme.imioapps']:
+                     'collective.z3cform.datetimewidget', 'dexterity.localroles', 'imio.actionspanel',
+                     'imio.dashboard', 'imio.dms.mail', 'imio.history', 'plone.app.dexterity',
+                     'plone.formwidget.autocomplete', 'plone.formwidget.contenttree', 'plone.formwidget.datetime',
+                     'plonetheme.classic', 'plonetheme.imioapps']:
             mark_last_version(self.portal, product=prod)
 
         #self.refreshDatabase()

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2018-10-30 13:39+0000\n"
+"POT-Creation-Date: 2019-03-20 10:56+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -87,10 +87,14 @@ msgstr "Back to manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager_zs"
-msgstr ""
+msgstr "Back to emergency zone commander"
 
 msgid "back_to_pre_manager"
-msgstr ""
+msgstr "Back to pre manager"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "back_to_service"
+msgstr "Back to service"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service_chief"
@@ -157,7 +161,7 @@ msgid "om_back_to_creation"
 msgstr "Back to creation"
 
 msgid "om_back_to_print"
-msgstr ""
+msgstr "Back to print"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_scanned"
@@ -200,14 +204,14 @@ msgid "om_set_scanned"
 msgstr "Set to scanned"
 
 msgid "om_set_to_print"
-msgstr ""
+msgstr "Set to print"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"
 msgstr "To be signed"
 
 msgid "om_to_print"
-msgstr ""
+msgstr "To print"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_agent"
@@ -219,10 +223,14 @@ msgstr "Propose to manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_manager_zs"
-msgstr ""
+msgstr "Propose to emergency zone commander"
 
 msgid "propose_to_pre_manager"
-msgstr ""
+msgstr "Propose to pre manager"
+
+#: profiles/default/workflows/incomingmail_workflow/definition.xml
+msgid "propose_to_service"
+msgstr "Propose to service"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service_chief"
@@ -238,10 +246,10 @@ msgstr "Proposed to manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager_zs"
-msgstr ""
+msgstr "Propose to emergency zone commander"
 
 msgid "proposed_to_pre_manager"
-msgstr ""
+msgstr "Propose to pre manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_service_chief"
