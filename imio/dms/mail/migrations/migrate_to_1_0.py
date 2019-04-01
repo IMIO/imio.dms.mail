@@ -13,7 +13,7 @@ from imio.dms.mail.setuphandlers import createIMailCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import createTaskCollections
 from imio.dms.mail.setuphandlers import reimport_faceted_config
-from imio.dms.mail.utils import create_richtextval
+from imio.helpers.content import richtextval
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -180,7 +180,7 @@ class Migrate_To_1_0(Migrator):
             if not base_hasattr(obj, 'notes') or not obj.notes:
                 continue
             text = u'<p>%s</p>\r\n' % obj.notes.replace('\r\n', '<br />\r\n')
-            obj.task_description = create_richtextval(text)
+            obj.task_description = richtextval(text)
             delattr(obj, 'notes')
         #    obj.reindexObject()
 

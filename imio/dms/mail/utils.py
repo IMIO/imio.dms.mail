@@ -153,14 +153,6 @@ def object_modified_cachekey(method, self, brain=False):
     return (self, self.modified())
 
 
-# Moved to imio.helpers
-def create_richtextval(text):
-    """ Return a RichTextValue """
-    if not isinstance(text, unicode):
-        text = text.decode('utf8')
-    return RichTextValue(raw=text, mimeType='text/html', outputMimeType='text/html', encoding='utf-8')
-
-
 def get_scan_id(obj):
     """ Return scan_id in multiple form """
     sid = (obj.scan_id and obj.scan_id.startswith('IMIO') and obj.scan_id[4:] or obj.scan_id)

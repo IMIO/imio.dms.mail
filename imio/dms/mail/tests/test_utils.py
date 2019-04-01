@@ -2,7 +2,6 @@
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import back_or_again_state
-from imio.dms.mail.utils import create_richtextval
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
@@ -84,14 +83,6 @@ class TestUtils(unittest.TestCase):
                          'back')  # we have a back action found in transitions parameter
         api.content.transition(obj=imail, transition='propose_to_service_chief')
         self.assertEqual(back_or_again_state(imail), 'again')  # third state again
-
-    def test_create_richtextval(self):
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
-                                         task_description=create_richtextval('Text content'))
-        self.assertEqual(imail.task_description.output, 'Text content')
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
-                                         task_description=create_richtextval(u'Text content'))
-        self.assertEqual(imail.task_description.output, 'Text content')
 
     def test_get_scan_id(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
