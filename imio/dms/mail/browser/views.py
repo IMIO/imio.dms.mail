@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
-from imio.dms.mail.setuphandlers import _ as _fr
+from imio.dms.mail import _tr
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from plone import api
 from plone.app.contenttypes.interfaces import IFile
@@ -84,7 +84,7 @@ class ContactSuggest(BrowserView):
         self.request.response.setHeader("Content-type", "application/json")
         query = parse_query(query)
         hp, org_bis = [], []
-        all_str = _fr('All under')
+        all_str = _tr('All under')
         # search held_positions
         crit = {'portal_type': 'held_position', 'sort_on': 'sortable_title'}
         crit.update(query)
@@ -126,7 +126,7 @@ class SenderSuggest(BrowserView):
         self.request.response.setHeader("Content-type", "application/json")
         query = parse_query(query)
         hp, org_bis = [], []
-        all_str = _fr('All under')
+        all_str = _tr('All under')
         portal_path = '/'.join(api.portal.get().getPhysicalPath())
         # search held_positions in personnel-folder
         crit = {'portal_type': 'held_position', 'path': '%s/contacts/personnel-folder' % portal_path,

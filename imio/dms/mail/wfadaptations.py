@@ -2,7 +2,7 @@
 """Example."""
 from collections import OrderedDict
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
-from setuphandlers import _
+from imio.dms.mail import _tr as _
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config

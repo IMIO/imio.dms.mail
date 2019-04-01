@@ -14,6 +14,7 @@ from eea.facetednavigation.settings.interfaces import IHidePloneLeftColumn
 from eea.facetednavigation.settings.interfaces import IHidePloneRightColumn
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
+from imio.dms.mail import _tr as _
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IDirectoryFacetedNavigable
@@ -26,7 +27,6 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboard
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
-from imio.dms.mail.setuphandlers import _
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import add_transforms

@@ -2,10 +2,10 @@
 
 #from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.dms.mail import _tr as _
 from imio.dms.mail.interfaces import IExternalContact
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IInternalContact
-from imio.dms.mail.setuphandlers import _
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_task_rolefields

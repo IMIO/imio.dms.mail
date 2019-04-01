@@ -4,7 +4,7 @@ from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task import _ as _task
 from imio.dms.mail import _
-from imio.dms.mail.setuphandlers import _ as _t
+from imio.dms.mail import _tr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from z3c.table.column import LinkColumn
@@ -76,7 +76,7 @@ class GenerationColumn(LinkColumn):
         return '%s/@@mailing-loop-persistent-document-generation?document_uid=%s' % (om_url, item.UID)
 
     def getLinkContent(self, item):
-        return u"""<img title="%s" src="%s" />""" % (_t(u"Mailing"), '%s/%s' % (self.table.portal_url, self.iconName))
+        return u"""<img title="%s" src="%s" />""" % (_tr(u"Mailing"), '%s/%s' % (self.table.portal_url, self.iconName))
 
     def has_mailing(self, item):
         obj = item.getObject()
