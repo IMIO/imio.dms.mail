@@ -29,6 +29,8 @@ from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
+from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
@@ -51,6 +53,9 @@ from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.app.uuid.utils import uuidToObject
+from plone.dexterity.fti import DexterityFTIModificationDescription
+from plone.dexterity.fti import ftiModified
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
@@ -67,6 +72,7 @@ from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
+from zope.lifecycleevent import ObjectModifiedEvent
 
 import datetime
 import logging
@@ -805,6 +811,8 @@ def adaptDefaultPortal(context):
     site.manage_permission('imio.dms.mail: Write mail base fields', ('Manager', 'Site Administrator'),
                            acquire=0)
     site.manage_permission('imio.dms.mail: Write treating group field', ('Manager', 'Site Administrator'),
+                           acquire=0)
+    site.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
                            acquire=0)
 
     # Set markup allowed types: for RichText field, don't display anymore types listbox
@@ -2056,3 +2064,38 @@ def mark_copy_im_as_read(context):
     out.append('%d mails labelled with "lu"' % changed_mails)
     out.append('%d users are concerned' % len(related_users))
     return '\n'.join(out)
+
+
+def configure_group_encoder(portal_type):
+    """
+        Used to configure a creating function and group for some internal organization
+    """
+    # function
+    functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
+    if u'group-encoder' not in [fct['fct_id'] for fct in functions]:
+        functions.append({'fct_title': u'Encodeur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': []})
+        api.portal.set_registry_record(FUNCTIONS_REGISTRY, functions)
+    # behaviors
+    fti = getUtility(IDexterityFTI, name=portal_type)
+    if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
+        old_bav = tuple(fti.behaviors)
+        fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])
+        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
+    # role and permission
+    portal = api.portal.get()
+    already_roles = list(portal.valid_roles())
+    if CREATING_FIELD_ROLE not in already_roles:
+        already_roles.append(CREATING_FIELD_ROLE)
+        portal.__ac_roles__ = tuple(already_roles)
+        portal.manage_permission('imio.dms.mail: Write userid field',
+                                 ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
+    # local roles
+    lr = getattr(fti, 'localroles')
+    lrsc = lr['static_config']
+    if 'to_print' not in lrsc:
+        lrsc['to_print'] = {'expedition': {'roles': ['Editor', 'Reviewer']},
+                            'encodeurs': {'roles': ['Reader']},
+                            'dir_general': {'roles': ['Reader']}}
+    lrtg = lr['treating_groups']
+    lrrg = lr['recipient_groups']
+    lr._p_changed = True

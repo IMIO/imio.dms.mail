@@ -85,4 +85,12 @@
         handler="imio.dms.mail.migrations.migrate_to_2_1.migrate"
         profile="imio.dms.mail:default" />
 
+    <genericsetup:upgradeStep
+        title="Go to imio.dms.mail 3.0"
+        description=""
+        source="2.1"
+        destination="3.0"
+        handler="imio.dms.mail.migrations.migrate_to_3_0.migrate"
+        profile="imio.dms.mail:default" />
+
 </configure>

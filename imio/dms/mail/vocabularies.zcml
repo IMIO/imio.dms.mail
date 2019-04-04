@@ -69,4 +69,14 @@
         factory="imio.dms.mail.vocabularies.LabelsVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.CreatingGroupVocabulary"
+        factory="imio.dms.mail.vocabularies.CreatingGroupVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.ActiveCreatingGroupVocabulary"
+        factory="imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary"
+        />
+
 </configure>

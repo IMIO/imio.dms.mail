@@ -76,7 +76,7 @@
     <!-- Configuration -->
     <subscriber
         for="plone.registry.interfaces.IRecordModifiedEvent"
-        handler=".browser.settings.manageIImioDmsMailConfigChange"
+        handler=".browser.settings.imiodmsmail_settings_changed"
         />
 
     <subscriber

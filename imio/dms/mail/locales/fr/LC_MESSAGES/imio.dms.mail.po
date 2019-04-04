@@ -575,7 +575,7 @@ msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suiv
 #: ./migrations/migrate_to_2_1.py:210
 #: ./setuphandlers.py:752
 msgid "front_page_title"
-msgstr "Gestion du courrier 2.1"
+msgstr "Gestion du courrier 3.0"
 
 #: ./migrations/migrate_to_2_1.py:159
 #: ./setuphandlers.py:516

@@ -4,6 +4,7 @@ from AccessControl import getSecurityManager
 from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
+from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
@@ -21,7 +22,6 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import logger
-from imio.dms.mail.utils import organizations_with_suffixes
 from imio.prettylink.adapters import PrettyLinkAdapter
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem

@@ -19,6 +19,8 @@
                 title="imio.dms.mail: Write treating group field"/>
     <permission id="imio.dms.mail.write_userid_field"
                 title="imio.dms.mail: Write userid field"/>
+    <permission id="imio.dms.mail.write_creating_group_field"
+                title="imio.dms.mail: Write creating group field"/>
 
     <include package="Products.PasswordStrength" />
     <include package="imio.dashboard"/>
@@ -40,6 +42,7 @@
     <include package="collective.dexteritytextindexer"/>
     <include package="plone.app.versioningbehavior"/>
     <include package=".browser" />
+    <include package=".content" />
 
     <include package="collective.querynextprev" />
 
@@ -186,6 +189,7 @@
         allowed_attributes="
             check_scan_id
             initialize_service_folder
+            kofax_orgs
             pg_organizations
             unread_criteria
         "

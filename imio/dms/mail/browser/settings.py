@@ -1,8 +1,9 @@
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from imio.dms.mail import _
+from imio.dms.mail.setuphandlers import configure_group_encoder
 from imio.helpers.cache import invalidate_cachekey_volatile_for
-#from z3c.form.browser.radio import RadioFieldWidget
+from plone import api
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.autoform.directives import widget
@@ -10,8 +11,15 @@ from plone.registry.interfaces import IRecordModifiedEvent
 from plone.supermodel import model
 from plone.z3cform import layout
 from z3c.form import form
+#from z3c.form.browser.radio import RadioFieldWidget
 from zope import schema
 from zope.interface import Interface
+from zope.interface import Invalid
+
+import logging
+
+
+logger = logging.getLogger('imio.dms.mail: settings')
 
 
 class IMailTypeSchema(Interface):
@@ -28,7 +36,8 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'incomingmail',
         label=_(u"Incoming mail"),
-        fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'imail_remark_states']
+        fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'imail_remark_states',
+                'imail_group_encoder']
     )
 
     mail_types = schema.List(
@@ -54,6 +63,15 @@ class IImioDmsMailConfig(model.Schema):
     imail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary'),
+    )
+
+    imail_group_encoder = schema.Bool(
+        title=_(u'Activate group encoder'),
+        description=_(u"when activating this option, a group encoder function is added to manage incoming mails "
+                      u"in creation. A new field is added to the mail to choose the creating group. "
+                      u"Mails are now only visible by the creating group, no more by the global 'encoder' group. "
+                      u"A list of 'encoder' groups, can be generated to be used in 'scanner program'."),
+        default=False
     )
 
     model.fieldset(
@@ -119,13 +137,21 @@ class SettingsEditForm(RegistryEditForm):
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
 
 
-def manageIImioDmsMailConfigChange(event):
+def imiodmsmail_settings_changed(event):
     """ Manage a record change """
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
-            event.record.interface == IImioDmsMailConfig and event.record.fieldName == 'mail_types'):
+            event.record.interface != IImioDmsMailConfig):
+        return
+    if event.record.fieldName == 'mail_types':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMActiveMailTypesVocabulary')
-    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
-            event.record.interface == IImioDmsMailConfig and event.record.fieldName == 'omail_types'):
+    if event.record.fieldName == 'omail_types':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')
+    if event.record.fieldName == 'imail_group_encoder':
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
+            configure_group_encoder('dmsincomingmail')
+        else:
+            logger.exception('Unchecking the imail_group_encoder setting is not expected !!')
+            from imio.dms.mail import _tr as _
+            raise Invalid(_(u'Unchecking the imail_group_encoder setting is not expected !!'))

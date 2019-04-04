@@ -4,13 +4,15 @@ from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
+from collective.contact.plonegroup.utils import get_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
+from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import list_wf_states
-from imio.dms.mail.utils import organizations_with_suffixes
 from imio.helpers.cache import get_cachekey_volatile
 from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
@@ -273,6 +275,25 @@ class LabelsVocabulary(object):
                 terms.append(SimpleVocabulary.createTerm(label['label_id'], label['label_id'],
                                                          safe_unicode(label['title'])))
         return SimpleVocabulary(terms)
+
+
+class CreatingGroupVocabulary(object):
+    """ Creating group vocabulary """
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        # we get all orgs where there are plone groups with the creating group suffix
+        return organizations_with_suffixes(api.group.get_groups(), [CREATING_GROUP_SUFFIX])
+
+
+class ActiveCreatingGroupVocabulary(object):
+    """ Active creating group vocabulary """
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        return get_organizations(not_empty_suffix=True, caching=False)
 
 
 class SourceAbleVocabulary(object):
