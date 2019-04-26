@@ -1190,7 +1190,7 @@ def configureContactPloneGroup(context):
     site = context.getSite()
     if not registry.get(FUNCTIONS_REGISTRY):
         registry[FUNCTIONS_REGISTRY] = [
-            {'fct_title': u'Encodeur', 'fct_id': u'encodeur', 'fct_orgs': []},
+            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': []},
             {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': []},
             {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': []},
             {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': []},
@@ -2072,7 +2072,7 @@ def configure_group_encoder(portal_type):
     """
     # function
     functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
-    if u'group-encoder' not in [fct['fct_id'] for fct in functions]:
+    if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
         functions.append({'fct_title': u'Encodeur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': []})
         api.portal.set_registry_record(FUNCTIONS_REGISTRY, functions)
     # behaviors
@@ -2083,19 +2083,22 @@ def configure_group_encoder(portal_type):
         ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
     # role and permission
     portal = api.portal.get()
-    already_roles = list(portal.valid_roles())
-    if CREATING_FIELD_ROLE not in already_roles:
-        already_roles.append(CREATING_FIELD_ROLE)
-        portal.__ac_roles__ = tuple(already_roles)
+    existing_roles = list(portal.valid_roles())
+    if CREATING_FIELD_ROLE not in existing_roles:
+        existing_roles.append(CREATING_FIELD_ROLE)
+        portal.__ac_roles__ = tuple(existing_roles)
         portal.manage_permission('imio.dms.mail: Write userid field',
                                  ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
     # local roles
-    lr = getattr(fti, 'localroles')
-    lrsc = lr['static_config']
-    if 'to_print' not in lrsc:
-        lrsc['to_print'] = {'expedition': {'roles': ['Editor', 'Reviewer']},
-                            'encodeurs': {'roles': ['Reader']},
-                            'dir_general': {'roles': ['Reader']}}
-    lrtg = lr['treating_groups']
-    lrrg = lr['recipient_groups']
-    lr._p_changed = True
+    config = {
+        'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
+                                                      'Base Field Writer', 'Treating Group Writer']}},
+        'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
+        'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+        'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+        'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+        'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+    }
+    msg = add_fti_configuration(portal_type, config, keyname='creating_group')
+    if msg:
+        logger.warn(msg)

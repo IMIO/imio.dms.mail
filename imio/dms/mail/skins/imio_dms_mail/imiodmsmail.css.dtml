@@ -190,6 +190,15 @@ body.template-item_view h1 .pretty_link_icons img{
     display: None !important;
 }
 
+.template-localroles.section-dexterity-types.subsection-dmsincomingmail div#assigned_group,
+.template-localroles.section-dexterity-types.subsection-dmsincomingmail div#enquirer,
+.template-localroles.section-dexterity-types.subsection-dmsoutgoingmail div#assigned_group,
+.template-localroles.section-dexterity-types.subsection-dmsoutgoingmail div#enquirer
+{
+    display: None;
+}  /* Hide some localrole fields configuration not used */
+
+
 /* Other */
 
 #faceted-results td.pretty_link a.link-tooltip .pretty_link_content{
