@@ -28,7 +28,7 @@
                 category="context"
                 key="/"
                 manager="plone.leftcolumn"
-                type="imio.dashboard.FacetedCollectionPortlet">
+                type="FacetedCollectionPortlet">
 	</assignment>
 
 </portlets>

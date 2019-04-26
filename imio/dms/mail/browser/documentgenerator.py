@@ -12,7 +12,7 @@ from collective.documentgenerator.helper.archetypes import ATDocumentGenerationH
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
-from imio.dashboard.browser.overrides import IDDocumentGenerationView
+from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from imio.helpers.barcode import generate_barcode
 from imio.zamqp.core import base
 from imio.zamqp.core.utils import next_scan_id
@@ -336,13 +336,13 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
 
 ### GENERATION VIEW ###
 
-class DashboardDocumentGenerationView(IDDocumentGenerationView):
+class DbDocumentGenerationView(DashboardDocumentGenerationView):
     """
     """
 
     def _get_generation_context(self, helper_view, pod_template):
         """ """
-        gen_context = super(DashboardDocumentGenerationView, self)._get_generation_context(helper_view, pod_template)
+        gen_context = super(DbDocumentGenerationView, self)._get_generation_context(helper_view, pod_template)
         if pod_template.getId() == 'd-im-listing':
             gen_context['by_tg'] = helper_view.group_by_tg(gen_context.get('brains', []))
         return gen_context

@@ -22,13 +22,13 @@ from collective.dms.mailcontent.dmsmail import receptionDateDefaultValue
 from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
 from collective.documentgenerator.utils import update_templates
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
+from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
+from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
-from imio.dashboard.utils import _updateDefaultCollectionFor
-from imio.dashboard.utils import enableFacetedDashboardFor
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
@@ -387,7 +387,7 @@ def createStateCollections(folder, content_type):
         state = stateo.id
         col_id = "searchfor_%s" % state
         if not base_hasattr(folder, col_id):
-            folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
+            folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id), enabled=True,
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [content_type]},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
@@ -404,7 +404,6 @@ def createStateCollections(folder, content_type):
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
-            folder.portal_workflow.doActionFor(col, "show_internally")
 
 
 def createDashboardCollections(folder, collections):
@@ -417,6 +416,7 @@ def createDashboardCollections(folder, collections):
         if not base_hasattr(folder, dic['id']):
             folder.invokeFactory("DashboardCollection",
                                  dic['id'],
+                                 enabled=True,
                                  title=dic['tit'],
                                  query=dic['query'],
                                  tal_condition=dic['cond'],
@@ -428,7 +428,6 @@ def createDashboardCollections(folder, collections):
                                  b_size=30,
                                  limit=0)
             collection = folder[dic['id']]
-            folder.portal_workflow.doActionFor(collection, "show_internally")
             if 'subj' in dic:
                 collection.setSubject(dic['subj'])
                 collection.reindexObject(['Subject'])
@@ -1183,10 +1182,10 @@ def configureContactPloneGroup(context):
     site = context.getSite()
     if not registry.get(FUNCTIONS_REGISTRY):
         registry[FUNCTIONS_REGISTRY] = [
-            {'fct_title': u'Encodeur', 'fct_id': u'encodeur'},
-            {'fct_title': u'Lecteur', 'fct_id': u'lecteur'},
-            {'fct_title': u'Éditeur', 'fct_id': u'editeur'},
-            {'fct_title': u'Validateur', 'fct_id': u'validateur'},
+            {'fct_title': u'Encodeur', 'fct_id': u'encodeur', 'fct_orgs': []},
+            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': []},
+            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': []},
+            {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': []},
         ]
     if not registry.get(ORGANIZATIONS_REGISTRY):
         contacts = site['contacts']

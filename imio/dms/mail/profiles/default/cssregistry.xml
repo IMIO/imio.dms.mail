@@ -59,19 +59,99 @@
 
  <stylesheet id="++resource++collective.z3cform.datagridfield/datagridfield.css" insert-after="IEFixes.css" />
 
- <stylesheet id="faceted_view.css" insert-after="++resource++collective.z3cform.datagridfield/datagridfield.css" />
+ <stylesheet id="++resource++eea.faceted-navigation.css" insert-after="++resource++collective.z3cform.datagridfield/datagridfield.css" />
 
- <stylesheet id="faceted_edit.css" insert-after="faceted_view.css" />
+ <stylesheet id="++resource++collective.eeafaceted.collectionwidget.view.css" insert-after="++resource++eea.faceted-navigation.css" />
 
- <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" insert-after="faceted_edit.css" />
+ <stylesheet id="++resource++eea.facetednavigation.widgets.text.view.css" insert-after="++resource++collective.eeafaceted.collectionwidget.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.tal.view.css" insert-after="++resource++eea.facetednavigation.widgets.text.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.tagscloud.view.css" insert-after="++resource++eea.facetednavigation.widgets.tal.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.sorting.view.css" insert-after="++resource++eea.facetednavigation.widgets.tagscloud.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.select.view.css" insert-after="++resource++eea.facetednavigation.widgets.sorting.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.resultsperpage.view.css" insert-after="++resource++eea.facetednavigation.widgets.select.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.resultsfilter.view.css" insert-after="++resource++eea.facetednavigation.widgets.resultsperpage.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.range.view.css" insert-after="++resource++eea.facetednavigation.widgets.resultsfilter.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.radio.view.css" insert-after="++resource++eea.facetednavigation.widgets.range.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.portlet.view.css" insert-after="++resource++eea.facetednavigation.widgets.radio.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.path.view.css" insert-after="++resource++eea.facetednavigation.widgets.portlet.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.etag.view.css" insert-after="++resource++eea.facetednavigation.widgets.path.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.debug.view.css" insert-after="++resource++eea.facetednavigation.widgets.etag.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.daterange.view.css" insert-after="++resource++eea.facetednavigation.widgets.debug.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.date.view.css" insert-after="++resource++eea.facetednavigation.widgets.daterange.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.criteria.view.css" insert-after="++resource++eea.facetednavigation.widgets.date.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.checkbox.view.css" insert-after="++resource++eea.facetednavigation.widgets.criteria.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.autocomplete.view.css" insert-after="++resource++eea.facetednavigation.widgets.checkbox.view.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.alphabets.view.css" insert-after="++resource++eea.facetednavigation.widgets.autocomplete.view.css" />
+
+ <stylesheet id="++resource++eea.faceted-navigation-edit.css" insert-after="++resource++eea.facetednavigation.widgets.alphabets.view.css" />
+
+ <stylesheet id="++resource++collective.eeafaceted.collectionwidget.edit.css" insert-after="++resource++eea.faceted-navigation-edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.text.edit.css" insert-after="++resource++collective.eeafaceted.collectionwidget.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.tal.edit.css" insert-after="++resource++eea.facetednavigation.widgets.text.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.tagscloud.edit.css" insert-after="++resource++eea.facetednavigation.widgets.tal.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.sorting.edit.css" insert-after="++resource++eea.facetednavigation.widgets.tagscloud.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.select.edit.css" insert-after="++resource++eea.facetednavigation.widgets.sorting.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.resultsperpage.edit.css" insert-after="++resource++eea.facetednavigation.widgets.select.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.resultsfilter.edit.css" insert-after="++resource++eea.facetednavigation.widgets.resultsperpage.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.range.edit.css" insert-after="++resource++eea.facetednavigation.widgets.resultsfilter.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.radio.edit.css" insert-after="++resource++eea.facetednavigation.widgets.range.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.portlet.edit.css" insert-after="++resource++eea.facetednavigation.widgets.radio.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.path.edit.css" insert-after="++resource++eea.facetednavigation.widgets.portlet.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.etag.edit.css" insert-after="++resource++eea.facetednavigation.widgets.path.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.debug.edit.css" insert-after="++resource++eea.facetednavigation.widgets.etag.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.daterange.edit.css" insert-after="++resource++eea.facetednavigation.widgets.debug.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.date.edit.css" insert-after="++resource++eea.facetednavigation.widgets.daterange.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.criteria.edit.css" insert-after="++resource++eea.facetednavigation.widgets.date.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.checkbox.edit.css" insert-after="++resource++eea.facetednavigation.widgets.criteria.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.autocomplete.edit.css" insert-after="++resource++eea.facetednavigation.widgets.checkbox.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.alphabets.edit.css" insert-after="++resource++eea.facetednavigation.widgets.autocomplete.edit.css" />
+
+ <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" insert-after="++resource++eea.facetednavigation.widgets.alphabets.edit.css" />
 
  <stylesheet id="++resource++imio.history/imiohistory.css" insert-after="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" />
 
  <stylesheet id="++resource++imio.actionspanel/actionspanel.css" insert-after="++resource++imio.history/imiohistory.css" />
 
- <stylesheet id="++resource++imio.dashboard/imio.dashboard.css" insert-after="++resource++imio.actionspanel/actionspanel.css" />
+ <stylesheet id="++resource++collective.eeafaceted.dashboard/collective.eeafaceted.dashboard.css" insert-after="++resource++imio.actionspanel/actionspanel.css" />
 
- <stylesheet id="++resource++plone.formwidget.autocomplete/jquery.autocomplete.css" insert-after="++resource++imio.dashboard/imio.dashboard.css" />
+ <stylesheet id="++resource++plone.formwidget.autocomplete/jquery.autocomplete.css" insert-after="++resource++collective.eeafaceted.dashboard/collective.eeafaceted.dashboard.css" />
 
  <stylesheet id="++resource++plone.formwidget.contenttree/contenttree.css" insert-after="++resource++plone.formwidget.autocomplete/jquery.autocomplete.css" />
 
@@ -117,7 +197,13 @@
 
  <stylesheet id="++resource++ftw.labels/ftw-labels.css" insert-after="++resource++ftw.labels/select2.css" />
 
- <stylesheet id="imiodmsmail.css" insert-after="++resource++ftw.labels/ftw-labels.css" />
+<stylesheet id="++resource++plone.formwidget.querystring.querywidget.css" insert-after="++resource++ftw.labels/ftw-labels.css" />
+
+<stylesheet id="++resource++collective.eeafaceted.collectionwidget/collective.eeafaceted.collectionwidget.css" insert-after="++resource++plone.formwidget.querystring.querywidget.css" />
+
+<stylesheet id="++resource++collective.contact.plonegroup/plonegroup.css" insert-after="++resource++collective.eeafaceted.collectionwidget/collective.eeafaceted.collectionwidget.css" />
+
+ <stylesheet id="imiodmsmail.css" insert-after="++resource++collective.contact.plonegroup/plonegroup.css" />
 
  <!--stylesheet id="" insert-after="" /-->
 

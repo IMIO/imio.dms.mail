@@ -8,7 +8,7 @@
    <property name="title">Sort on</property>
    <property name="position">top</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
+   <property name="hidden">True</property>
    <property name="vocabulary"></property>
    <property name="default"></property>
   </criterion>
@@ -18,15 +18,15 @@
    <property name="title">Base collections</property>
    <property name="position">top</property>
    <property name="section">default</property>
-   <property name="hidden">1</property>
-   <property name="count">0</property>
-   <property name="sortcountable">0</property>
-   <property name="hidezerocount">0</property>
+   <property name="hidden">True</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
    <property
-      name="vocabulary">imio.dashboard.conditionawarecollectionvocabulary</property>
-   <property name="hidealloption">1</property>
+      name="vocabulary">collective.eeafaceted.collectionwidget.cachedcollectionvocabulary</property>
+   <property name="hidealloption">True</property>
    <property name="maxitems">0</property>
-   <property name="sortreversed">0</property>
+   <property name="sortreversed">False</property>
    <property name="default"></property>
   </criterion>
 

@@ -3,16 +3,16 @@
 from AccessControl import getSecurityManager
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
 from collective.eeafaceted.z3ctable import _ as _cez
+from collective.eeafaceted.z3ctable.columns import ActionsColumn
 from collective.eeafaceted.z3ctable.columns import BaseColumn
 from collective.eeafaceted.z3ctable.columns import DateColumn
 from collective.eeafaceted.z3ctable.columns import DxWidgetRenderColumn
 from collective.eeafaceted.z3ctable.columns import I18nColumn
 from collective.eeafaceted.z3ctable.columns import MemberIdColumn
+from collective.eeafaceted.z3ctable.columns import PrettyLinkColumn
+from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
 from collective.task.interfaces import ITaskMethods
-from imio.dashboard.columns import ActionsColumn
-from imio.dashboard.columns import PrettyLinkColumn
-from imio.dashboard.columns import RelationPrettyLinkColumn
 from plone import api
 from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
