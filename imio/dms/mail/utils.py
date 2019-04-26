@@ -316,9 +316,10 @@ class VariousUtilsMethods(UtilsMethods):
         for term in factory(self.context):
             uid, title = term.value, term.title
             if uid in encoders:
-                cgs.append('{} | {}'.format(title.encode('utf8'), uid))
+                cgs.append('{} ___ {}'.format(title.encode('utf8'), uid))
             if uid in activated:
-                tgs.append('{} | {}'.format(title.encode('utf8'), uid))
+                #tgs.append('{} | {}'.format(title.encode('utf8'), uid))
+                tgs.append('{} ___ {}'.format(title.encode('utf8'), uid))
         ret = []
         ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
