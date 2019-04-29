@@ -27,7 +27,7 @@ class ReplyForm(BaseReplyForm):
         ImioDmsOutgoingMailUpdateWidgets(self)
 
 
-class MultipleReplyForm(ReplyForm):
+class MultipleReplyForm(BaseReplyForm):
 
     """Form to reply to multiple incoming mails."""
 
@@ -43,18 +43,19 @@ class MultipleReplyForm(ReplyForm):
                                                                                       'imio.dms.mail'))})
 
     def updateFields(self):
-        super(ReplyForm, self).updateFields()
-        form = self.request.form
+        super(BaseReplyForm, self).updateFields()  # skipping BaseReplyForm itself
+        self.update_fields_irn()
         # Completing form values wasn't working anymore, but relations must be set here too !
         if self.uids:  # view is called a second time by masterselect. uids is empty.
                        # We don't want to change request form values
+            form = self.request.form
             form["form.widgets.reply_to"] = tuple([b.getPath() for b in self.brains])
             sender_uids = set([sender for b in self.brains for sender in b.sender_index if not sender.startswith('l:')])
             form["form.widgets.recipients"] = [b.getPath() for b in brains_from_uids(list(sender_uids))]
         ImioDmsOutgoingMailUpdateFields(self)
 
     def updateWidgets(self):
-        super(ReplyForm, self).updateWidgets()
+        super(BaseReplyForm, self).updateWidgets()  # skipping BaseReplyForm itself
         if self.uids:  # see upper comment
             first = self.brains and self.brains[0] or None
             form = self.request.form
