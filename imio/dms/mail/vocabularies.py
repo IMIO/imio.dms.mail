@@ -283,8 +283,16 @@ class CreatingGroupVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
+        terms = []
+        factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
+        vocab = factory(context)
+
         # we get all orgs where there are plone groups with the creating group suffix
-        return organizations_with_suffixes(api.group.get_groups(), [CREATING_GROUP_SUFFIX])
+        to_keep = organizations_with_suffixes(api.group.get_groups(), [CREATING_GROUP_SUFFIX])
+        for term in vocab:
+            if term.value in to_keep:
+                terms.append(term)
+        return SimpleVocabulary(terms)
 
 
 class ActiveCreatingGroupVocabulary(object):
@@ -293,7 +301,17 @@ class ActiveCreatingGroupVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return get_organizations(not_empty_suffix=True, caching=False)
+        terms = []
+        factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
+        vocab = factory(context)
+
+        # we get all orgs where there are plone groups with the creating group suffix
+        to_keep = get_organizations(not_empty_suffix=CREATING_GROUP_SUFFIX, only_selected=False, the_objects=False,
+                                    caching=False)
+        for term in vocab:
+            if term.value in to_keep:
+                terms.append(term)
+        return SimpleVocabulary(terms)
 
 
 class SourceAbleVocabulary(object):

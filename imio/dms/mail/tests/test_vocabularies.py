@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
+from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.setuphandlers import configure_group_encoder
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersVocabulary
+from imio.dms.mail.vocabularies import CreatingGroupVocabulary
 from imio.dms.mail.vocabularies import EmptyAssignedUsersVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.vocabularies import getMailTypes
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
+from imio.dms.mail.vocabularies import LabelsVocabulary
 from imio.dms.mail.vocabularies import OMActiveMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMSenderVocabulary
@@ -146,3 +152,39 @@ class TestVocabularies(unittest.TestCase):
         with api.env.adopt_roles(['Manager']):
             api.content.transition(obj=self.omail, transition='propose_to_service_chief')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+
+    def test_LabelsVocabulary(self):
+        login(self.portal, 'agent')
+        voc_inst = LabelsVocabulary()
+        voc_list = [t.value for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list, ['agent:lu', 'agent:suivi'])
+
+    def test_CreatingGroupVocabulary(self):
+        voc_inst1 = CreatingGroupVocabulary()
+        voc_inst2 = ActiveCreatingGroupVocabulary()
+        self.assertEqual(len(voc_inst1(self.imail)), 0)
+        self.assertEqual(len(voc_inst2(self.imail)), 0)
+        configure_group_encoder('dmsincomingmail')
+        # test cache
+        self.assertEqual(len(voc_inst1(self.imail)), 0)
+        self.assertEqual(len(voc_inst2(self.imail)), 0)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+        self.assertEqual(len(voc_inst1(self.imail)), 11)
+        self.assertEqual(len(voc_inst2(self.imail)), 0)
+        # defining specific group_encoder orgs
+        selected_orgs = [t.value for i, t in enumerate(voc_inst1(self.imail)) if i <= 1]
+        functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
+        functions[-1]['fct_orgs'] = selected_orgs
+        api.portal.set_registry_record(FUNCTIONS_REGISTRY, functions)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+        self.assertEqual(len(voc_inst1(self.imail)), 11)
+        self.assertEqual(len(voc_inst2(self.imail)), 0)
+        # adding user to group_encoder plone groups
+        for org_uid in selected_orgs:
+            api.group.add_user(groupname='{}_{}'.format(org_uid, CREATING_GROUP_SUFFIX), username='agent')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+        self.assertEqual(len(voc_inst1(self.imail)), 11)
+        self.assertEqual(len(voc_inst2(self.imail)), 2)

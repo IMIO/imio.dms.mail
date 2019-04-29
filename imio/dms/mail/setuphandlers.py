@@ -2087,12 +2087,12 @@ def configure_group_encoder(portal_type):
     if CREATING_FIELD_ROLE not in existing_roles:
         existing_roles.append(CREATING_FIELD_ROLE)
         portal.__ac_roles__ = tuple(existing_roles)
-        portal.manage_permission('imio.dms.mail: Write userid field',
+        portal.manage_permission('imio.dms.mail: Write creating group field',
                                  ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
     # local roles
     config = {
         'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                      'Base Field Writer', 'Treating Group Writer']}},
+                                                      'Base Field Writer', 'Treating Group Writer', CREATING_FIELD_ROLE]}},
         'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
         'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
         'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
