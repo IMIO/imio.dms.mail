@@ -253,6 +253,10 @@ def contact_plonegroup_change(event):
         registry = getUtility(IRegistry)
         if not registry[FUNCTIONS_REGISTRY] or not registry[ORGANIZATIONS_REGISTRY]:
             return
+        # invalidate vocabularies caches
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+
         portal = api.portal.get()
         # contributor on a contact can edit too
         for folder in (portal['outgoing-mail'], portal['contacts'],
@@ -304,6 +308,9 @@ def ploneGroupContactChanged(organization, event):
     if IContainerModifiedEvent.providedBy(event) or \
        event.object.portal_type == 'Plone Site':
         return
+    # invalidate vocabularies caches
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     # is the current organization a part of own organization
     organization_path = '/'.join(organization.getPhysicalPath())
     if not organization_path.startswith(get_own_organization_path('unfound')):
@@ -404,6 +411,10 @@ def group_deleted(event):
     if len(parts) == 1:
         return
     group_suffix = '_'.join(parts[1:])
+
+    # invalidate vocabularies caches
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
 
     def get_query(portal_type, field, org, suffix):
         fti = getUtility(IDexterityFTI, name=portal_type)

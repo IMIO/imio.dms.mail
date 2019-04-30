@@ -165,11 +165,6 @@ class TestVocabularies(unittest.TestCase):
         self.assertEqual(len(voc_inst1(self.imail)), 0)
         self.assertEqual(len(voc_inst2(self.imail)), 0)
         configure_group_encoder('dmsincomingmail')
-        # test cache
-        self.assertEqual(len(voc_inst1(self.imail)), 0)
-        self.assertEqual(len(voc_inst2(self.imail)), 0)
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
         self.assertEqual(len(voc_inst1(self.imail)), 11)
         self.assertEqual(len(voc_inst2(self.imail)), 0)
         # defining specific group_encoder orgs
@@ -177,8 +172,6 @@ class TestVocabularies(unittest.TestCase):
         functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
         functions[-1]['fct_orgs'] = selected_orgs
         api.portal.set_registry_record(FUNCTIONS_REGISTRY, functions)
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
         self.assertEqual(len(voc_inst1(self.imail)), 11)
         self.assertEqual(len(voc_inst2(self.imail)), 0)
         # adding user to group_encoder plone groups
