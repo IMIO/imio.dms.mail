@@ -141,16 +141,11 @@ class TestDmsmail(unittest.TestCase):
         # is used in content
         registry = getUtility(IRegistry)
         group = '%s_editeur' % registry[ORGANIZATIONS_REGISTRY][0]
+        # we remove this organization to escape plonegroup subscriber
+        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][1:]
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        orga = api.content.find(UID=registry[ORGANIZATIONS_REGISTRY][0])[0]
-        if ' used in ' in msgs[0].message:
-            self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index."
-                             % group)
-        else:
-        # message from collective.contact.plonegroup
-            self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', linked to used organization '%s'." % (
-                             group, safe_unicode(orga.Title)))
+        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
 
     def test_organization_modified(self):
         pc = self.portal.portal_catalog

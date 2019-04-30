@@ -22,6 +22,7 @@ from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.app.uuid.utils import uuidToObject
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
@@ -402,21 +403,40 @@ def group_deleted(event):
     parts = group.split('_')
     if len(parts) == 1:
         return
+    group_suffix = '_'.join(parts[1:])
 
-    # search in indexes
-    for (idx, domain) in (('assigned_group', 'collective.eeafaceted.z3ctable'),
-                          ('treating_groups', 'collective.eeafaceted.z3ctable'),
-                          ('recipient_groups', 'collective.eeafaceted.z3ctable')):
-        brains = portal.portal_catalog({idx: parts[0]})
-        if brains:
-            api.portal.show_message(message=_("You cannot delete the group '${group}', used in '${idx}' index.",
-                                              mapping={'group': group, 'idx': translate(idx, domain=domain,
-                                                                                        context=request)}),
-                                    request=request, type='error')
-            api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
-                                    'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains])}),
-                                    request=request, type='error')
-            raise Redirect(request.get('ACTUAL_URL'))
+    def get_query(portal_type, field, org, suffix):
+        fti = getUtility(IDexterityFTI, name=portal_type)
+        config = fti.localroles.get(field)
+        if not config:
+            return {}
+        for st in config:
+            if suffix in config[st]:
+                return {field: org}
+        return {}
+
+    # search in indexes following suffix use in type localroles
+    for (idx, pts, domain) in (
+            ('assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
+            ('treating_groups', ['dmsincomingmail', 'dmsoutgoingmail'], 'collective.eeafaceted.z3ctable'),
+            ('recipient_groups', ['dmsincomingmail', 'dmsoutgoingmail'], 'collective.eeafaceted.z3ctable'),
+            ('creating_group', ['dmsincomingmail', 'dmsoutgoingmail'], 'collective.eeafaceted.z3ctable')):
+        for pt in pts:
+            query = get_query(pt, idx, parts[0], group_suffix)
+            if not query:
+                continue
+            query.update({'portal_type': pt})
+            brains = portal.portal_catalog(**query)
+            if brains:
+                api.portal.show_message(message=_("You cannot delete the group '${group}', used in '${idx}' index.",
+                                                  mapping={'group': group, 'idx': translate(idx, domain=domain,
+                                                                                            context=request)}),
+                                        request=request, type='error')
+                api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
+                                        'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title))
+                                        for b in brains])}),
+                                        request=request, type='error')
+                raise Redirect(request.get('ACTUAL_URL'))
 
 
 # CONTACT
