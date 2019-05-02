@@ -28,6 +28,10 @@ msgid "Created"
 msgstr "Créé le"
 
 #: ../faceted_conf/im-faceted:
+msgid "Creating group"
+msgstr "Groupe indicateur"
+
+#: ../faceted_conf/im-faceted:
 msgid "Due date"
 msgstr "Échéance"
 

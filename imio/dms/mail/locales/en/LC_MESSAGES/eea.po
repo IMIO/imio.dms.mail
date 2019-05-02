@@ -28,6 +28,10 @@ msgid "Created"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
+msgid "Creating group"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
 msgid "Due date"
 msgstr ""
 
