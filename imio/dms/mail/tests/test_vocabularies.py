@@ -177,6 +177,8 @@ class TestVocabularies(unittest.TestCase):
         # adding user to group_encoder plone groups
         for org_uid in selected_orgs:
             api.group.add_user(groupname='{}_{}'.format(org_uid, CREATING_GROUP_SUFFIX), username='agent')
+        self.assertEqual(len(voc_inst1(self.imail)), 11)
+        self.assertEqual(len(voc_inst2(self.imail)), 0)
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
         self.assertEqual(len(voc_inst1(self.imail)), 11)

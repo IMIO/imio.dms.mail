@@ -19,8 +19,8 @@ class IDmsMailCreatingGroup(model.Schema):
         vocabulary=u'imio.dms.mail.ActiveCreatingGroupVocabulary'
     )
 
-#    directives.read_permission(creating_group='imio.dms.mail: Write creating group field')
-    directives.write_permission(creating_group='imio.dms.mail: Write creating group field')
+    # directives.write_permission(creating_group='imio.dms.mail: Write creating group field')
+    directives.write_permission(creating_group='imio.dms.mail: Write mail base fields')
 
 alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
 

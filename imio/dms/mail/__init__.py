@@ -33,7 +33,7 @@ BACK_OR_AGAIN_ICONS = {'': False,
                        'again': '++resource++imio.dms.mail/wf_again.png'}
 
 CREATING_GROUP_SUFFIX = u'group_encoder'
-CREATING_FIELD_ROLE = 'Creating Group Field Writer'
+# CREATING_FIELD_ROLE = 'Creating Group Field Writer'
 
 
 def _tr(msgid, domain='imio.dms.mail'):

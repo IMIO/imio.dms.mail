@@ -461,7 +461,7 @@ def om_in_out_date_index(obj):
 
 
 @indexer(IImioDmsIncomingMail)
-def im_organization_type_index(obj):
+def im_reception_date_index(obj):
     # No acquisition pb because organization_type isn't an attr
     if obj.reception_date:
         return int(time.mktime(obj.reception_date.timetuple()))
@@ -470,7 +470,7 @@ def im_organization_type_index(obj):
 
 
 @indexer(IImioDmsOutgoingMail)
-def om_organization_type_index(obj):
+def om_outgoing_date_index(obj):
     # No acquisition pb because organization_type isn't an attr
     if obj.outgoing_date:
         return int(time.mktime(obj.outgoing_date.timetuple()))
@@ -526,6 +526,13 @@ def get_full_title_index(obj):
     # No acquisition pb because get_full_title isn't an attr
     if obj.title:
         return obj.title.encode('utf8')
+    return common_marker
+
+
+@indexer(IDmsDocument)
+def creating_group_index(obj):
+    if base_hasattr(obj, 'creating_group') and obj.creating_group:
+        return obj.creating_group
     return common_marker
 
 

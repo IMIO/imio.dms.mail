@@ -30,7 +30,7 @@ from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail import CREATING_FIELD_ROLE
+#from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
@@ -812,8 +812,8 @@ def adaptDefaultPortal(context):
                            acquire=0)
     site.manage_permission('imio.dms.mail: Write treating group field', ('Manager', 'Site Administrator'),
                            acquire=0)
-    site.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
-                           acquire=0)
+    # site.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
+    #                       acquire=0)
 
     # Set markup allowed types: for RichText field, don't display anymore types listbox
     adapter = MarkupControlPanelAdapter(site)
@@ -2073,7 +2073,7 @@ def configure_group_encoder(portal_type):
     # function
     functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
     if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
-        functions.append({'fct_title': u'Encodeur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': []})
+        functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': []})
         api.portal.set_registry_record(FUNCTIONS_REGISTRY, functions)
     # behaviors
     fti = getUtility(IDexterityFTI, name=portal_type)
@@ -2083,16 +2083,17 @@ def configure_group_encoder(portal_type):
         ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
     # role and permission
     portal = api.portal.get()
-    existing_roles = list(portal.valid_roles())
-    if CREATING_FIELD_ROLE not in existing_roles:
-        existing_roles.append(CREATING_FIELD_ROLE)
-        portal.__ac_roles__ = tuple(existing_roles)
-        portal.manage_permission('imio.dms.mail: Write creating group field',
-                                 ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
+    # existing_roles = list(portal.valid_roles())
+    # if CREATING_FIELD_ROLE not in existing_roles:
+    #     existing_roles.append(CREATING_FIELD_ROLE)
+    #     portal.__ac_roles__ = tuple(existing_roles)
+    #     portal.manage_permission('imio.dms.mail: Write creating group field',
+    #                              ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
     # local roles
     config = {
         'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                      'Base Field Writer', 'Treating Group Writer', CREATING_FIELD_ROLE]}},
+                                                      'Base Field Writer', 'Treating Group Writer']}},
+#                                                      CREATING_FIELD_ROLE]}},
         'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
         'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
         'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
@@ -2102,3 +2103,7 @@ def configure_group_encoder(portal_type):
     msg = add_fti_configuration(portal_type, config, keyname='creating_group')
     if msg:
         logger.warn(msg)
+
+    # criteria
+    reimport_faceted_config(portal['incoming-mail']['mail-searches'], xml='im-mail-searches.xml',
+                            default_UID=portal['incoming-mail']['mail-searches']['all_mails'].UID())
