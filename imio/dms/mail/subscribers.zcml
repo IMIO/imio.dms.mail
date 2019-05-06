@@ -156,6 +156,12 @@
         />
 
     <subscriber
+        for="collective.contact.widget.interfaces.IContactContent
+             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+        handler=".subscribers.contact_modified"
+      />
+
+    <subscriber
         for=".interfaces.IPersonnelContact
              OFS.interfaces.IObjectWillBeRemovedEvent"
         handler=".subscribers.personnel_contact_removed"
