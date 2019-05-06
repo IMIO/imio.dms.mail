@@ -44,4 +44,5 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 5)
         with self.assertRaises(Invalid) as cm:
             self.registry[key] = False
-        self.assertEqual(cm.exception.message, u'Unchecking the imail_group_encoder setting is not expected !!')
+        self.assertEqual(cm.exception.message, u"Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' "
+                                               u"n'est pas prévu !!")
