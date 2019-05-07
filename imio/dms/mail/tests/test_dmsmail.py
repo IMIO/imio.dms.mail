@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.browser.reply_form import ReplyForm
 from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
@@ -211,7 +211,7 @@ class TestDmsmail(unittest.TestCase):
         # Testing reply view
         intids = getUtility(IIntIds)
         swde = self.portal.contacts['swde']
-        tg = api.portal.get_registry_record(ORGANIZATIONS_REGISTRY)[0]
+        tg = get_registry_organizations()[0]
         im = api.content.create(container=self.portal['incoming-mail'], type='dmsincomingmail', id='im',
                                 title=u'I mail', sender=[RelationValue(intids.getId(swde))],
                                 external_reference_no=u'xx/1', treating_groups=tg)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.vocabularies import AssignedUsersVocabulary
@@ -10,11 +11,8 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
-from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 from zExceptions import Redirect
-from zope.component import getUtility
 from zope.interface import Interface
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -35,8 +33,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_dmsdocument_modified(self):
         # owner changing test
-        registry = getUtility(IRegistry)
-        orgs = registry[ORGANIZATIONS_REGISTRY]
+        orgs = get_registry_organizations()
         with api.env.adopt_user(username='scanner'):
             imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
                                              **{'title': 'IMail created by scanner', 'treating_groups': orgs[0]})
@@ -100,8 +97,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef 2'),
                                                 ('agent1', 'Stef Agent')]))
         # we change the activated services
-        registry = getUtility(IRegistry)
-        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][0:1]
+        set_registry_organizations(get_registry_organizations()[0:1])
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertSetEqual(set(voc_list), set([('chef', 'Michel Chef 2')]))
         # wrong configuration change
@@ -139,10 +135,9 @@ class TestDmsmail(unittest.TestCase):
         msgs = smi.show()
         self.assertEqual(msgs[0].message, u"You cannot delete the group 'expedition'.")
         # is used in content
-        registry = getUtility(IRegistry)
-        group = '%s_editeur' % registry[ORGANIZATIONS_REGISTRY][0]
+        group = '%s_editeur' % get_registry_organizations()[0]
         # we remove this organization to escape plonegroup subscriber
-        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][1:]
+        set_registry_organizations(get_registry_organizations()[1:])
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
         self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
@@ -162,12 +157,11 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(index_value, 'electrabel 0001|')
 
     def test_contact_plonegroup_change(self):
-        registry = getUtility(IRegistry)
-        e_groups = [('%s_encodeur' % uid, ('Contributor', )) for uid in registry[ORGANIZATIONS_REGISTRY]]
+        e_groups = [('%s_encodeur' % uid, ('Contributor', )) for uid in get_registry_organizations()]
         e_groups.append(('admin', ('Owner',)))
         e_groups.append(('expedition', ('Contributor',)))
         e_groups.append(('dir_general', ('Contributor',)))
         self.assertSetEqual(set(self.omf.get_local_roles()), set(e_groups))
         self.assertEqual(len(self.omf.get_local_roles()), 14)
-        registry[ORGANIZATIONS_REGISTRY] = registry[ORGANIZATIONS_REGISTRY][:3]
+        set_registry_organizations(get_registry_organizations()[:3])
         self.assertEqual(len(self.omf.get_local_roles()), 6)

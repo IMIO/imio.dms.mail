@@ -1,4 +1,4 @@
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
 from plone.app.testing import setRoles
@@ -97,8 +97,7 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertListEqual(pf.objectIds(), ['chef', 'dirg', 'agent'])
         member = self.portal.portal_registration.addMember(id='newuser', password='TestUser=6')
         member.setMemberProperties({'fullname': 'Leloup Pierre', 'email': 'test@macommune.be'})
-        registry = getUtility(IRegistry)
-        orgs = registry.get(ORGANIZATIONS_REGISTRY)
+        orgs = get_registry_organizations()
         api.group.add_user(groupname='%s_encodeur' % orgs[0], username='newuser')
         self.portal.portal_setup.runImportStepFromProfile('imio.dms.mail:singles',
                                                           'imiodmsmail-create-persons-from-users-inverted',

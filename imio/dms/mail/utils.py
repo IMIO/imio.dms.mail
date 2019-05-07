@@ -1,8 +1,7 @@
 # encoding: utf-8
 
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from collective.contact.plonegroup.utils import organizations_with_suffixes
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
 from datetime import timedelta
@@ -284,8 +283,7 @@ class VariousUtilsMethods(UtilsMethods):
             return
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         lst = []
-        registry = getUtility(IRegistry)
-        activated = registry[ORGANIZATIONS_REGISTRY]
+        activated = get_registry_organizations()
         for term in factory(self.context):
             uid, title = term.value, term.title
             status = uid in activated and 'a' or 'na'
@@ -309,10 +307,9 @@ class VariousUtilsMethods(UtilsMethods):
             return
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         cgs, tgs = [], []
-        registry = getUtility(IRegistry)
-        activated = registry[ORGANIZATIONS_REGISTRY]
+        activated = get_registry_organizations()
         encoders = []
-        for function in registry[FUNCTIONS_REGISTRY]:
+        for function in get_registry_functions():
             if function['fct_id'] == CREATING_GROUP_SUFFIX:
                 encoders = function['fct_orgs']
                 break

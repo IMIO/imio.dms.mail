@@ -2,8 +2,8 @@
 """Subscribers."""
 from Acquisition import aq_get
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_own_organization_path
@@ -252,7 +252,9 @@ def contact_plonegroup_change(event):
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface == IContactPlonegroupConfig):
         registry = getUtility(IRegistry)
-        if not registry[FUNCTIONS_REGISTRY] or not registry[ORGANIZATIONS_REGISTRY]:
+        s_orgs = get_registry_organizations()
+        s_fcts = get_registry_functions()
+        if not s_fcts or not s_orgs:
             return
         # invalidate vocabularies caches
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
@@ -266,14 +268,14 @@ def contact_plonegroup_change(event):
             for principal in dic.keys():
                 if principal.endswith('_encodeur'):
                     del dic[principal]
-            for uid in registry[ORGANIZATIONS_REGISTRY]:
+            for uid in s_orgs:
                 dic["%s_encodeur" % uid] = ['Contributor']
             folder._p_changed = True
         # we add a directory by organization in templates/om
         base_folder = portal.templates.om
         base_model = base_folder.get('main', None)
         cl_folder = portal.contacts['contact-lists-folder']
-        for uid in registry[ORGANIZATIONS_REGISTRY]:
+        for uid in s_orgs:
             obj = uuidToObject(uid)
             full_title = obj.get_full_title(separator=' - ', first_index=1)
             if uid not in base_folder:
@@ -297,7 +299,7 @@ def contact_plonegroup_change(event):
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
         # we manage local roles to give needed permissions related to group_encoder
-        group_encoder_config = [dic for dic in registry[FUNCTIONS_REGISTRY] if dic['fct_id'] == CREATING_GROUP_SUFFIX]
+        group_encoder_config = [dic for dic in s_fcts if dic['fct_id'] == CREATING_GROUP_SUFFIX]
         if group_encoder_config:
             orgs = group_encoder_config[0]['fct_orgs']
             for folder in (portal['incoming-mail'], portal['contacts'],

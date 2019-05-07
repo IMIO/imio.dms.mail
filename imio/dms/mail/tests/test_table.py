@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.browser.table import AssignedGroupColumn
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
-from plone.registry.interfaces import IRegistry
-from zope.component import getUtility
 
 import unittest
 
@@ -33,8 +31,7 @@ class TestTable(unittest.TestCase):
         self.assertEqual(col.getLinkTitle(brains[0]), u'title="scan_id: 123456789\nscan_date: \nVersion: "')
 
     def test_AssignedGroupColumn(self):
-        registry = getUtility(IRegistry)
-        group0 = registry[ORGANIZATIONS_REGISTRY][0]
+        group0 = get_registry_organizations()[0]
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         task = createContentInContainer(imail, 'task', id='testid1', assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
