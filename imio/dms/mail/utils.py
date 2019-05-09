@@ -27,6 +27,7 @@ from zope.schema.interfaces import IVocabularyFactory
 
 import logging
 
+cg_separator = ' ___ '
 
 # methods
 
@@ -317,10 +318,9 @@ class VariousUtilsMethods(UtilsMethods):
         for term in factory(self.context):
             uid, title = term.value, term.title
             if uid in encoders:
-                cgs.append('{} ___ {}'.format(title.encode('utf8'), uid))
+                cgs.append('{}{}{}'.format(title.encode('utf8'), cg_separator, uid))
             if uid in activated:
-                #tgs.append('{} | {}'.format(title.encode('utf8'), uid))
-                tgs.append('{} ___ {}'.format(title.encode('utf8'), uid))
+                tgs.append('{}{}{}'.format(title.encode('utf8'), cg_separator, uid))
         ret = []
         ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
