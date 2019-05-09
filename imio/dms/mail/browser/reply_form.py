@@ -49,9 +49,12 @@ class MultipleReplyForm(BaseReplyForm):
         if self.uids:  # view is called a second time by masterselect. uids is empty.
                        # We don't want to change request form values
             form = self.request.form
-            form["form.widgets.reply_to"] = tuple([b.getPath() for b in self.brains])
-            sender_uids = set([sender for b in self.brains for sender in b.sender_index if not sender.startswith('l:')])
-            form["form.widgets.recipients"] = [b.getPath() for b in brains_from_uids(list(sender_uids))]
+            if not "form.widgets.reply_to" in form:
+                form["form.widgets.reply_to"] = tuple([b.getPath() for b in self.brains])
+            if not "form.widgets.recipients" in form:
+                sender_uids = set([sender for b in self.brains for sender in b.sender_index
+                                   if not sender.startswith('l:')])
+                form["form.widgets.recipients"] = [b.getPath() for b in brains_from_uids(list(sender_uids))]
         ImioDmsOutgoingMailUpdateFields(self)
 
     def updateWidgets(self):
