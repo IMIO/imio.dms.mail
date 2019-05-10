@@ -56,6 +56,8 @@ class Migrate_To_3_0(Migrator):
         logger.info('Migrating to imio.dms.mail 3.0...')
         self.cleanRegistries()
 
+        self.upgradeProfile('collective.dms.mailcontent:default')
+
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
 
         # check if oo port must be changed
