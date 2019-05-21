@@ -898,20 +898,25 @@ def configure_rolefields(context):
         'created': {'encodeurs': {'roles': ['Contributor', 'Editor', 'DmsFile Contributor', 'Base Field Writer',
                                             'Treating Group Writer']}},
         'proposed_to_manager': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                                'Treating Group Writer']},
-                                'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
+                                                          'Treating Group Writer']},
+                                'encodeurs': {'roles': ['Base Field Writer', 'Reader']},
+                                'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                      'Base Field Writer', 'Treating Group Writer']},
-                                      'encodeurs': {'roles': ['Reader']}},
+                                                                'Base Field Writer', 'Treating Group Writer']},
+                                      'encodeurs': {'roles': ['Reader']},
+                                      'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
-                              'encodeurs': {'roles': ['Reader']}},
+                              'encodeurs': {'roles': ['Reader']},
+                              'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'in_treatment': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
-                         'encodeurs': {'roles': ['Reader']}},
+                         'encodeurs': {'roles': ['Reader']},
+                         'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'closed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
-                   'encodeurs': {'roles': ['Reader']}},
+                   'encodeurs': {'roles': ['Reader']},
+                   'lecteurs_globaux_ce': {'roles': ['Reader']}},
     }, 'treating_groups': {
-        #'created': {},
-        #'proposed_to_manager': {},
+        # 'created': {},
+        # 'proposed_to_manager': {},
         'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
                                                                'Treating Group Writer']}},
         'proposed_to_agent': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
@@ -924,8 +929,8 @@ def configure_rolefields(context):
                    'editeur': {'roles': ['Reviewer']},
                    'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
-        #'created': {},
-        #'proposed_to_manager': {},
+        # 'created': {},
+        # 'proposed_to_manager': {},
         'proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
         'proposed_to_agent': {'validateur': {'roles': ['Reader']},
                               'editeur': {'roles': ['Reader']},
@@ -1466,7 +1471,7 @@ def addTestUsersAndGroups(context):
     }
     password = 'Dmsmail69!'
     if get_environment() == 'prod':
-#        password = site.portal_registration.generatePassword()
+        # password = site.portal_registration.generatePassword()
         password = generate_password()
     logger.info("Generated password='%s'" % password)
 
@@ -1502,6 +1507,8 @@ def addTestUsersAndGroups(context):
         site['contacts']['contact-lists-folder'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
         api.group.add_user(groupname='expedition', username='scanner')
         api.group.add_user(groupname='expedition', username='encodeur')
+    if api.group.get('lecteurs_globaux_ce') is None:
+        api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
 
 
 def addOwnOrganization(context):

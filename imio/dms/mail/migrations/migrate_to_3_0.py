@@ -6,6 +6,7 @@ from collective.messagesviewlet.utils import add_message
 from imio.dms.mail import _tr as _
 from imio.migrator.migrator import Migrator
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from Products.CPUtils.Extensions.utils import mark_last_version
 from zope.component import getUtility
@@ -49,8 +50,22 @@ class Migrate_To_3_0(Migrator):
             if dic['fct_id'] == u'encodeur':
                 dic['fct-title'] = u'Créateur CS'
 
-        # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
-        #                              acquire=0)
+        # add group
+        if api.group.get('lecteurs_globaux_ce') is None:
+            api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
+        # change local roles
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        lrsc = lr['static_config']
+        for state in ['proposed_to_manager', 'proposed_to_service_chief',
+                      'proposed_to_agent', 'in_treatment', 'closed']:
+            if 'lecteurs_globaux_ce' not in lrsc[state]:
+                lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
+        # We need to indicate that the object has been modified and must be "saved"
+        lr._p_changed = True
+
+        # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
+        #                               'Site Administrator'), acquire=0)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
