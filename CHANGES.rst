@@ -1,6 +1,13 @@
 Changelog
 =========
 
+3.0 (unreleased)
+----------------
+
+- Added Lecteurs Globaux CE plone group and local roles.
+  [bleybaert]
+
+
 2.1.1 (unreleased)
 ------------------
 
