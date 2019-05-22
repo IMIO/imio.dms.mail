@@ -71,6 +71,8 @@ def highest_validation_criterion(portal_type):
         Return a query criterion corresponding to current user highest validation level
         NO MORE USED
     """
+    if portal_type == 'dmsincoming_email':
+        portal_type = 'dmsincomingmail'
     groups = api.group.get_groups(user=api.user.get_current())
     highest_level = highest_review_level(portal_type, str([g.id for g in groups]))
     if highest_level is None:
@@ -119,6 +121,8 @@ class TaskHighestValidationCriterion(object):
 
 def validation_criterion(context, portal_type):
     """ Return a query criterion corresponding to current user validation level """
+    if portal_type == 'dmsincoming_email':
+        portal_type = 'dmsincomingmail'
     groups = api.group.get_groups(user=api.user.get_current())
     groups_ids = [g.id for g in groups]
     config = get_dms_config(['review_levels', portal_type])
@@ -485,7 +489,8 @@ def state_group_index(obj):
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
     state = api.content.get_state(obj=obj)
-    config = get_dms_config(['review_states', obj.portal_type])
+    portal_type = (obj.portal_type == 'dmsincoming_email' and 'dmsincomingmail' or obj.portal_type)
+    config = get_dms_config(['review_states', portal_type])
     if state not in config or not config[state]['group'].startswith('_'):
         return state
     else:

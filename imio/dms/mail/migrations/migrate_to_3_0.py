@@ -3,6 +3,7 @@
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
+from collective.wfadaptations.api import apply_from_registry
 from imio.dms.mail import _tr as _
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -50,6 +51,9 @@ class Migrate_To_3_0(Migrator):
             if dic['fct_id'] == u'encodeur':
                 dic['fct-title'] = u'Créateur CS'
 
+        # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
+        #                               'Site Administrator'), acquire=0)
+
         # add group
         if api.group.get('lecteurs_globaux_ce') is None:
             api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
@@ -64,8 +68,33 @@ class Migrate_To_3_0(Migrator):
         # We need to indicate that the object has been modified and must be "saved"
         lr._p_changed = True
 
-        # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
-        #                               'Site Administrator'), acquire=0)
+    def insert_emails(self):
+        # allowed types
+        self.imf.setConstrainTypesMode(1)
+        self.imf.setLocallyAllowedTypes(['dmsincomingmail', 'dmsincoming_email'])
+        self.imf.setImmediatelyAddableTypes(['dmsincomingmail', 'dmsincoming_email'])
+        # diff
+        pdiff = api.portal.get_tool('portal_diff')
+        pdiff.setDiffForPortalType('dmsincoming_email', {'any': "Compound Diff for Dexterity types"})
+        # collections
+        brains = self.catalog.searchResults(portal_type='DashboardCollection',
+                                            path='/'.join(self.imf.getPhysicalPath()))
+        for brain in brains:
+            col = brain.getObject()
+            new_lst = []
+            change = False
+            for dic in col.query:
+                if dic['i'] == 'portal_type' and len(dic['v']) == 1 and dic['v'][0] == 'dmsincomingmail':
+                    dic['v'] = ['dmsincomingmail', 'dmsincoming_email']
+                    change = True
+                new_lst.append(dic)
+            if change:
+                col.query = new_lst
+
+    def check_previously_migrated_collections(self):
+        # check if changes have been persisted
+        # TO BE DONE
+        pass
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
@@ -73,7 +102,17 @@ class Migrate_To_3_0(Migrator):
 
         self.upgradeProfile('collective.dms.mailcontent:default')
 
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])
+
+        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo', 'workflow'])
+
+        self.portal.portal_workflow.updateRoleMappings()
+        # Apply workflow adaptations
+        RECORD_NAME = 'collective.wfadaptations.applied_adaptations'
+        if api.portal.get_registry_record(RECORD_NAME, default=False):
+            success, errors = apply_from_registry()
+            if errors:
+                logger.error("Problem applying wf adaptations: %d errors" % errors)
 
         # check if oo port must be changed
         update_oo_config()
@@ -81,15 +120,22 @@ class Migrate_To_3_0(Migrator):
         # do various global adaptations
         self.update_site()
 
+        # do various adaptations for dmsincoming_email
+        self.insert_emails()
+
+        self.check_previously_migrated_collections()
+
         # self.catalog.refreshCatalog(clear=1)
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
-        # self.upgradeAll(omit=['imio.dms.mail:default'])
+        self.upgradeAll(omit=['imio.dms.mail:default'])
+
+        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
-        for prod in []:
+        for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
             mark_last_version(self.portal, product=prod)
 
         #self.refreshDatabase()

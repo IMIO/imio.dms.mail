@@ -113,6 +113,14 @@
      name="review_state"
   />
 
+  <adapter
+     for="imio.dms.mail.interfaces.IIMDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.IMTitleColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="pretty_link" />
+
   <!-- collective.task.browser.table.TasksTable -->
   <adapter
     for="zope.interface.Interface

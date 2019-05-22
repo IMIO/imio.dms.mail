@@ -13,13 +13,15 @@
 
 /* view mode of IMdmsmail and OMdmsmail (ok) */
 
-.template-view.portaltype-dmsincomingmail #fieldset-versions, .template-view.portaltype-dmsoutgoingmail #fieldset-versions {
+.template-view.portaltype-dmsincomingmail #fieldset-versions, .template-view.portaltype-dmsoutgoingmail #fieldset-versions,
+.template-view.portaltype-dmsincoming_email #fieldset-versions {
     display:table-cell;
     min-width: 60%;
     width: inherit !important;
 }
 
-.template-view.portaltype-dmsincomingmail #fields, .template-view.portaltype-dmsoutgoingmail #fields {
+.template-view.portaltype-dmsincomingmail #fields, .template-view.portaltype-dmsoutgoingmail #fields,
+.template-view.portaltype-dmsincoming_email #fields {
     display:table-cell;
     float:none !important;
 }
@@ -109,12 +111,14 @@
     display: None;
 }
 
-.portaltype-dmsincomingmail #formfield-form-widgets-signed {
+.portaltype-dmsincomingmail #formfield-form-widgets-signed,
+.portaltype-dmsincoming_email #formfield-form-widgets-signed {
     display: None;
 }
 
 .template-dmsdocument-edit #fieldsetlegend-categorization, .template-dmsdocument-edit #fieldsetlegend-dates, .template-dmsdocument-edit #fieldsetlegend-ownership,
 .template-dmsincomingmail #fieldsetlegend-categorization, .template-dmsincomingmail #fieldsetlegend-dates, .template-dmsincomingmail #fieldsetlegend-ownership,
+.template-dmsincoming_email #fieldsetlegend-categorization, .template-dmsincoming_email #fieldsetlegend-dates, .template-dmsincoming_email #fieldsetlegend-ownership,
 .template-dmsoutgoingmail #fieldsetlegend-categorization, .template-dmsoutgoingmail #fieldsetlegend-dates, .template-dmsoutgoingmail #fieldsetlegend-ownership,
 .template-reply #fieldsetlegend-categorization, .template-reply #fieldsetlegend-dates, .template-reply #fieldsetlegend-ownership,
 .template-multiple-reply #fieldsetlegend-categorization, .template-multiple-reply #fieldsetlegend-dates, .template-multiple-reply #fieldsetlegend-ownership {
@@ -175,6 +179,7 @@ table.faceted-table-results a.contact-list + div.tooltip.pb-ajax {
 }
 
 body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.keep-it),
+body.template-view.portaltype-dmsincoming_email h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it),
 body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it) {
     display: none;
@@ -191,7 +196,7 @@ body.template-item_view h1 .pretty_link_icons img{
 }
 
 .template-localroles.section-dexterity-types.subsection-dmsincomingmail div#assigned_group,
-.template-localroles.section-dexterity-types.subsection-dmsincomingmail div#enquirer,
+.template-localroles.section-dexterity-types.subsection-dmsincoming_email div#enquirer,
 .template-localroles.section-dexterity-types.subsection-dmsoutgoingmail div#assigned_group,
 .template-localroles.section-dexterity-types.subsection-dmsoutgoingmail div#enquirer
 {

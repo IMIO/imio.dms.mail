@@ -68,6 +68,8 @@ class PrettyLinkTitleViewlet(ViewletBase):
 
     def adapted(self, showColors=False, display_tag_title=False, isViewable=False):
         plo = IPrettyLink(self.context)
+        if self.context.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
+            plo.showContentIcon = True
         plo.showColors = showColors
         plo.display_tag_title = display_tag_title
         plo.isViewable = isViewable

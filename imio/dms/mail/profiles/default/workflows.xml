@@ -15,6 +15,9 @@
   <type type_id="dmsincomingmail">
    <bound-workflow workflow_id="incomingmail_workflow" />
   </type>
+  <type type_id="dmsincoming_email">
+   <bound-workflow workflow_id="incomingmail_workflow" />
+  </type>
   <type type_id="dmsoutgoingmail">
    <bound-workflow workflow_id="outgoingmail_workflow" />
   </type>

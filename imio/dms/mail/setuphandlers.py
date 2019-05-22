@@ -160,8 +160,8 @@ def postInstall(context):
                                  default_UID=col_folder['all_mails'].UID())
 
         im_folder.setConstrainTypesMode(1)
-        im_folder.setLocallyAllowedTypes(['dmsincomingmail'])
-        im_folder.setImmediatelyAddableTypes(['dmsincomingmail'])
+        im_folder.setLocallyAllowedTypes(['dmsincomingmail', 'dmsincoming_email'])
+        im_folder.setImmediatelyAddableTypes(['dmsincomingmail', 'dmsincoming_email'])
         site.portal_workflow.doActionFor(im_folder, "show_internally")
         logger.info('incoming-mail folder created')
 
@@ -290,6 +290,7 @@ def postInstall(context):
     # enable portal diff on mails
     pdiff = api.portal.get_tool('portal_diff')
     pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
+    pdiff.setDiffForPortalType('dmsincoming_email', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('dmsoutgoingmail', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('task', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('dmsommainfile', {'any': "Compound Diff for Dexterity types"})
@@ -391,13 +392,17 @@ def createStateCollections(folder, content_type):
         },
     }
 
+    portal_types = {
+        'dmsincomingmail': ['dmsincomingmail', 'dmsincoming_email']
+    }
+
     for stateo in list_wf_states(folder, content_type):
         state = stateo.id
         col_id = "searchfor_%s" % state
         if not base_hasattr(folder, col_id):
             folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id), enabled=True,
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': [content_type]},
+                                         'v': portal_types.get(content_type, content_type)},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [state]}],
                                  customViewFields=(state in view_fields[content_type] and
@@ -450,13 +455,15 @@ def createIMailCollections(folder):
     """
     collections = [
         {'id': 'all_mails', 'tit': _('all_incoming_mails'), 'subj': (u'search', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']}],
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
@@ -465,7 +472,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'to_treat', 'tit': _('im_to_treat'), 'subj': (u'todo', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']}],
             'cond': u"", 'bypass': [],
@@ -473,7 +481,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'im_treating', 'tit': _('im_im_treating'), 'subj': (u'todo', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['in_treatment']}],
             'cond': u"", 'bypass': [],
@@ -481,7 +490,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'have_treated', 'tit': _('im_have_treated'), 'subj': (u'search', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed']}],
             'cond': u"", 'bypass': [],
@@ -489,7 +499,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'to_treat_in_my_group', 'tit': _('im_to_treat_in_my_group'), 'subj': (u'search', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-treating-group'}],
@@ -498,7 +509,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
@@ -506,7 +518,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-copy-group-unread'}],
             'cond': u"", 'bypass': [],
@@ -514,7 +527,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'in_copy', 'tit': _('im_in_copy'), 'subj': (u'todo', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
@@ -522,7 +536,8 @@ def createIMailCollections(folder):
                      u'mail_type', u'sender', u'reception_date', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'followed', 'tit': _('im_followed'), 'subj': (u'search', ), 'query': [
-            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-followed'}],
             'cond': u"", 'bypass': [],
@@ -946,6 +961,9 @@ def configure_rolefields(context):
     for keyname in roles_config:
         # don't overwrite existing configuration
         msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)
+        if msg:
+            logger.warn(msg)
+        msg = add_fti_configuration('dmsincoming_email', roles_config[keyname], keyname=keyname)
         if msg:
             logger.warn(msg)
 
@@ -1869,7 +1887,7 @@ def add_templates(site):
             alsoProvides(tplt_fld, IActionsPanelFolderAll)
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             for itf in interfaces:
-                alsoProvides(tplt_fld, IOMTemplatesFolder)
+                alsoProvides(tplt_fld, itf)
             logger.info("'%s' folder created" % path)
 
     # adding view for Folder type
@@ -2108,6 +2126,16 @@ def configure_group_encoder(portal_type):
             'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
         },
+        'dmsincoming_email': {
+            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
+                                                          'Base Field Writer', 'Treating Group Writer']}},
+#                                                          CREATING_FIELD_ROLE]}},
+            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
+            'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+        },
         'dmsoutgoingmail': {
             'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
             'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
@@ -2122,8 +2150,10 @@ def configure_group_encoder(portal_type):
     # criteria
     criterias = {
         'dmsincomingmail': ('incoming-mail', ''),
+        'dmsincoming_email': ('', ''),
         'dmsoutgoingmail': ('outgoing-mail', '')
     }
     folder_id, xml_prefix = criterias[portal_type]
-    reimport_faceted_config(portal[folder_id]['mail-searches'], xml='mail-searches-group-encoder.xml',
-                            default_UID=portal[folder_id]['mail-searches']['all_mails'].UID())
+    if folder_id:
+        reimport_faceted_config(portal[folder_id]['mail-searches'], xml='mail-searches-group-encoder.xml',
+                                default_UID=portal[folder_id]['mail-searches']['all_mails'].UID())

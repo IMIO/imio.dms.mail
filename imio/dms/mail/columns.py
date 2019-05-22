@@ -25,6 +25,11 @@ from zope.i18n import translate
 import os
 
 
+class IMTitleColumn(PrettyLinkColumn):
+
+    params = {'showContentIcon': True, 'display_tag_title': False}
+
+
 class TreatingGroupsColumn(VocabularyColumn):
 
     vocabulary = u'collective.dms.basecontent.treating_groups'

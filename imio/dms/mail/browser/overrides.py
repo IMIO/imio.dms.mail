@@ -58,7 +58,7 @@ class DocumentBylineViewlet(IHDocumentBylineViewlet):
         return True
 
     def creator(self):
-        if self.context.portal_type == 'dmsincomingmail':
+        if self.context.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
             return None
         return super(DocumentBylineViewlet, self).creator()
 

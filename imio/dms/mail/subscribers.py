@@ -85,7 +85,7 @@ def dmsdocument_added(mail, event):
     """
         Replace ContactList in contact field.
     """
-    if mail.portal_type == 'dmsincomingmail':
+    if mail.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
         if replace_contact_list(mail, 'sender'):
             mail.reindexObject(['sender', ])
     elif mail.portal_type == 'dmsoutgoingmail':
@@ -132,7 +132,7 @@ def dmsdocument_modified(mail, event):
         mail.reindexObjectSecurity()
 
     # contact list
-    if mail.portal_type == 'dmsincomingmail':
+    if mail.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
         replace_contact_list(mail, 'sender')
     elif mail.portal_type == 'dmsoutgoingmail':
         replace_contact_list(mail, 'recipients')
@@ -445,11 +445,11 @@ def group_deleted(event):
     # search in indexes following suffix use in type localroles
     for (idx, field, pts, domain) in (
             ('assigned_group', 'assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
-            ('treating_groups', 'treating_groups', ['dmsincomingmail', 'dmsoutgoingmail'],
+            ('treating_groups', 'treating_groups', ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
              'collective.eeafaceted.z3ctable'),
-            ('recipient_groups', 'recipient_groups', ['dmsincomingmail', 'dmsoutgoingmail'],
+            ('recipient_groups', 'recipient_groups', ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
              'collective.eeafaceted.z3ctable'),
-            ('assigned_group', 'creating_group', ['dmsincomingmail', 'dmsoutgoingmail'],
+            ('assigned_group', 'creating_group', ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
              'collective.eeafaceted.z3ctable')):
         for pt in pts:
             query = get_query(pt, field, idx, parts[0], group_suffix)

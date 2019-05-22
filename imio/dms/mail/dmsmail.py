@@ -175,7 +175,7 @@ def ImioDmsIncomingMailUpdateWidgets(the_form):
     if not current_user.has_role(['Manager', 'Site Administrator']):
         the_form.widgets['internal_reference_no'].mode = 'hidden'
         # we empty value to bypass validator when creating object
-        if the_form.context.portal_type != 'dmsincomingmail':
+        if the_form.context.portal_type not in ('dmsincomingmail', 'dmsincoming_email'):
             the_form.widgets['internal_reference_no'].value = ''
 
     for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
@@ -292,6 +292,16 @@ class CustomAddForm(DefaultAddForm):
 class AddIM(DefaultAddView):
 
     form = CustomAddForm
+
+
+class IEMCustomAddForm(CustomAddForm):
+
+    portal_type = 'dmsincoming_email'
+
+
+class AddIEM(DefaultAddView):
+
+    form = IEMCustomAddForm
 
 ###################################################################
 ######                   OUTGOING MAILS                       #####

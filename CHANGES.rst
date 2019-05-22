@@ -4,15 +4,14 @@ Changelog
 3.0 (unreleased)
 ----------------
 
+- Added creating_group function feature to enable distinct mail encoders
+  [sgeulette]
+
+- Added dmsincoming_email type
+  [sgeulette]
+
 - Added Lecteurs Globaux CE plone group and local roles.
   [bleybaert]
-
-
-2.1.1 (unreleased)
-------------------
-
-- Nothing changed yet.
-
 
 2.1 (2018-08-22)
 ----------------

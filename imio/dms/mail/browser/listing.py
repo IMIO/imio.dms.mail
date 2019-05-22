@@ -22,7 +22,7 @@ class ListingView(BrowserView):
             start_date : string date at format YYYYMMDD
         """
         kw = {}
-        kw['portal_type'] = ('dmsincomingmail',)
+        kw['portal_type'] = ('dmsincomingmail', 'dmsincoming_email')
         #kw['review_state'] = ('published',)
         kw['created'] = {"query": [DateTime()-5, ], "range": "min"}
 #        kw['modified'] = {"query": [DateTime()-5, ], "range": "min"}
