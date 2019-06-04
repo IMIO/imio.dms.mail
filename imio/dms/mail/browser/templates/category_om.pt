@@ -10,6 +10,13 @@
             <img tal:attributes="src string:$portal_url/++resource++dmsoutgoingmail_icon.png"
               title="create_om" i18n:attributes="title" />
         </a>
+        <a id="newOEMCreation" href="#"
+           style="display: inline;"
+           tal:condition="python: member.has_permission('collective.dms.mailcontent: Add Outgoing Mail', folder)"
+           tal:attributes="href string:$portal_url/outgoing-mail/++add++dmsoutgoing_email?no_redirect=1">
+            <img tal:attributes="src string:$portal_url/++resource++imio.dms.mail/dmsoutgoing_email_icon.png"
+              title="create_oem" i18n:attributes="title" />
+        </a>
     </div>
     <div class="title" tal:content="python: context.Rights()">Category title</div>
 </tal:defines>
