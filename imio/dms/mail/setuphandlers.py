@@ -2091,21 +2091,16 @@ def mark_copy_im_as_read(context):
     return '\n'.join(out)
 
 
-def configure_group_encoder(portal_type):
+def configure_group_encoder(portal_types):
     """
-        Used to configure a creating function and group for some internal organization
+        Used to configure a creating function and group for some internal organizations.
+        Update portal_type to add behavior, configure localroles field
     """
     # function
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
         functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': []})
         set_registry_functions(functions)
-    # behaviors
-    fti = getUtility(IDexterityFTI, name=portal_type)
-    if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
-        old_bav = tuple(fti.behaviors)
-        fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])
-        ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
     # role and permission
     portal = api.portal.get()
     # existing_roles = list(portal.valid_roles())
@@ -2114,7 +2109,8 @@ def configure_group_encoder(portal_type):
     #     portal.__ac_roles__ = tuple(existing_roles)
     #     portal.manage_permission('imio.dms.mail: Write creating group field',
     #                              ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
-    # local roles
+
+    # local roles config
     config = {
         'dmsincomingmail': {
             'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
@@ -2141,19 +2137,35 @@ def configure_group_encoder(portal_type):
             'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
             'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
                                                           'Base Field Writer', 'Treating Group Writer']}},
-        }
+        },
     }
-    msg = add_fti_configuration(portal_type, config[portal_type], keyname='creating_group')
-    if msg:
-        logger.warn(msg)
 
-    # criteria
+    # criterias config
     criterias = {
-        'dmsincomingmail': ('incoming-mail', ''),
-        'dmsincoming_email': ('', ''),
-        'dmsoutgoingmail': ('outgoing-mail', '')
+        'dmsincomingmail': ('incoming-mail', 'mail-searches', 'all_mails'),
+        'dmsoutgoingmail': ('outgoing-mail', 'mail-searches', 'all_mails'),
+        'organization': ('contacts', 'orgs-searches', 'all_orgs'),
+        'person': ('contacts', 'persons-searches', 'all_persons'),
+        'held_position': ('contacts', 'hps-searches', 'all_hps'),
+        'contact_list': ('contacts', 'cls-searches', 'all_cls'),
     }
-    folder_id, xml_prefix = criterias[portal_type]
-    if folder_id:
-        reimport_faceted_config(portal[folder_id]['mail-searches'], xml='mail-searches-group-encoder.xml',
-                                default_UID=portal[folder_id]['mail-searches']['all_mails'].UID())
+
+    for portal_type in portal_types:
+        # behaviors
+        fti = getUtility(IDexterityFTI, name=portal_type)
+        if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
+            old_bav = tuple(fti.behaviors)
+            fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])
+            ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
+
+        # local roles
+        if config.get(portal_type):
+            msg = add_fti_configuration(portal_type, config[portal_type], keyname='creating_group')
+            if msg:
+                logger.warn(msg)
+
+        # criterias
+        folder_id, category_id, default_id = criterias.get(portal_type, ('', '', ''))
+        if folder_id:
+            reimport_faceted_config(portal[folder_id][category_id], xml='mail-searches-group-encoder.xml',
+                                    default_UID=portal[folder_id][category_id][default_id].UID())
