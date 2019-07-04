@@ -139,8 +139,6 @@ class Migrate_To_2_1(Migrator):
                                             new_class_name='imio.dms.mail.browser.task.Task')
 
     def update_collections(self):
-        if 'in_copy_unread' in self.imf['mail-searches']:
-            return
         # update incomingmail collections
         for brain in api.content.find(context=self.imf['mail-searches'], portal_type='DashboardCollection'):
             obj = brain.getObject()
@@ -167,9 +165,8 @@ class Migrate_To_2_1(Migrator):
                 'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user',
                          u'due_date', u'mail_type', u'sender', u'reception_date', u'actions'),
                 'sort': u'organization_type', 'rev': True, 'count': False}]
-        createDashboardCollections(self.imf['mail-searches'], collections)
-        reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
-                                default_UID=self.imf['mail-searches']['all_mails'].UID())
+        if 'in_copy_unread' not in self.imf['mail-searches']:
+            createDashboardCollections(self.imf['mail-searches'], collections)
 
         # ICollectionCategories
         alsoProvides(self.imf['mail-searches'], ICollectionCategories)
@@ -196,6 +193,12 @@ class Migrate_To_2_1(Migrator):
         self.omf['mail-searches']['have_treated'].reindexObject()
         self.portal['tasks']['task-searches']['to_treat'].setTitle(u'Qui me sont assignées')
         self.portal['tasks']['task-searches']['to_treat'].reindexObject()
+
+        # reimport faceted
+        reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
+                                default_UID=self.imf['mail-searches']['all_mails'].UID())
+        reimport_faceted_config(self.omf['mail-searches'], xml='om-mail-searches.xml',
+                                default_UID=self.omf['mail-searches']['all_mails'].UID())
 
     def update_site(self):
         # add documentation message
