@@ -7,6 +7,7 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from collective.contact.widget.schema import ContactChoice
 from collective.contact.widget.schema import ContactList
+from collective.contact.widget.source import ContactSource
 from collective.contact.widget.source import ContactSourceBinder
 from collective.dms.basecontent.browser.views import DmsDocumentEdit
 from collective.dms.basecontent.browser.views import DmsDocumentView
@@ -55,6 +56,24 @@ from zope.schema.vocabulary import SimpleVocabulary
 import copy
 
 
+class DmsContactSource(ContactSource):
+
+    do_post_sort = False  # do not sort by title before displaying search results
+
+    def __init__(self, context, selectable_filter, navigation_tree_query=None,
+                 default=None, defaultFactory=None, **kw):
+        super(DmsContactSource, self).__init__(context, selectable_filter, navigation_tree_query,
+                                               default, defaultFactory, **kw)
+        # criteria cannot be a list. We correct it
+        if 'sort_on' in self.selectable_filter.criteria:
+            self.selectable_filter.criteria['sort_on'] = self.selectable_filter.criteria['sort_on'][0]
+
+
+class DmsContactSourceBinder(ContactSourceBinder):
+
+    path_source = DmsContactSource
+
+
 def filter_dmsincomingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms incoming mail
@@ -71,8 +90,9 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         title=_(u'Sender'),
         required=True,
         value_type=ContactChoice(
-            source=ContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
-                                       review_state=['active'])
+            source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
+                                          review_state=['active'],
+                                          sort_on='sortable_title')
         )
     )
 
@@ -341,8 +361,9 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         title=_cdmsm(u'Recipients'),
         required=True,
         value_type=ContactChoice(
-            source=ContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
-                                       review_state=['active'])
+            source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
+                                          review_state=['active'],
+                                          sort_on='sortable_title')
         )
     )
 
