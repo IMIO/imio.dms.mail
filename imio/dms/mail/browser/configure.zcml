@@ -40,15 +40,6 @@
         permission="zope2.View"
         />
 
-    <browser:viewlet
-        name="collective.contact.core.backrefs"
-        for="collective.contact.widget.interfaces.IContactContent"
-        manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
-        class=".viewlets.ContactContentBackrefsViewlet"
-        layer="*"
-        permission="zope2.View"
-        />
-
     <!-- ACTIONSPANEL -->
     <configure package="imio.actionspanel">
         <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
@@ -396,6 +387,15 @@
         />
 
     <!-- Viewlets -->
+    <browser:viewlet
+        name="collective.contact.core.backrefs"
+        for="collective.contact.widget.interfaces.IContactContent"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+        class=".viewlets.ContactContentBackrefsViewlet"
+        layer="*"
+        permission="zope2.View"
+        />
+
     <configure package="collective.documentgenerator">
         <browser:viewlet
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
@@ -433,6 +433,24 @@
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
         class="imio.dms.mail.browser.viewlets.PrettyLinkTitleViewlet"
         template="templates/title_viewlet.pt"
+        permission="zope2.View"
+        />
+
+    <browser:viewlet
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        layer="collective.messagesviewlet.interfaces.ICollectiveMessagesviewletLayer"
+        name="information-message-viewlet"
+        manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+        class="imio.dms.mail.browser.viewlets.ContextInformationViewlet"
+        permission="zope2.View"
+        />
+
+    <browser:viewlet
+        for="collective.contact.widget.interfaces.IContactContent"
+        layer="collective.messagesviewlet.interfaces.ICollectiveMessagesviewletLayer"
+        name="information-message-viewlet"
+        manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+        class="imio.dms.mail.browser.viewlets.ContextInformationViewlet"
         permission="zope2.View"
         />
 

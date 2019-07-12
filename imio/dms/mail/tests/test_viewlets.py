@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test views."""
 from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
+from imio.dms.mail.browser.viewlets import ContextInformationViewlet
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
@@ -54,3 +55,8 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         viewlet = ContactContentBackrefsViewlet(agent, agent.REQUEST, None)
         ret = viewlet.find_relations()
         self.assertSetEqual(set([b.getObject() for b in ret]), set([self.imf['courrier5']]))
+
+    def test_ContextInformationViewlet(self):
+        login(self.portal, 'encodeur')
+        viewlet = ContextInformationViewlet(self.elec, self.elec.REQUEST, None)
+        ret = viewlet.find_relations(from_attribute='sender')

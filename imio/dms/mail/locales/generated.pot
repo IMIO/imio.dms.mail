@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-06-05 12:40+0000\n"
+"POT-Creation-Date: 2019-07-12 12:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -121,12 +121,12 @@ msgstr ""
 msgid "Common templates"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:327
+#: ./migrations/migrate_to_2_1.py:330
 #: ./setuphandlers.py:277
 msgid "Contact list searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:327
+#: ./migrations/migrate_to_2_1.py:330
 #: ./setuphandlers.py:277
 msgid "Contact lists"
 msgstr ""
@@ -143,7 +143,7 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:327
+#: ./utils.py:333
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
@@ -183,12 +183,12 @@ msgstr ""
 msgid "Header template"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:309
+#: ./migrations/migrate_to_2_1.py:312
 #: ./setuphandlers.py:259
 msgid "Held positions"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:309
+#: ./migrations/migrate_to_2_1.py:312
 #: ./setuphandlers.py:259
 msgid "Held positions searches"
 msgstr ""
@@ -237,7 +237,7 @@ msgid "Mail listing template"
 msgstr ""
 
 #: ./browser/settings.py:46
-#: ./dmsmail.py:109
+#: ./dmsmail.py:129
 msgid "Mail type"
 msgstr ""
 
@@ -277,12 +277,12 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:297
+#: ./migrations/migrate_to_2_1.py:300
 #: ./setuphandlers.py:247
 msgid "Organizations"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:297
+#: ./migrations/migrate_to_2_1.py:300
 #: ./setuphandlers.py:247
 msgid "Organizations searches"
 msgstr ""
@@ -292,7 +292,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:171
-#: ./dmsmail.py:370
+#: ./dmsmail.py:391
 msgid "Outgoing Date"
 msgstr ""
 
@@ -316,12 +316,12 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:318
+#: ./migrations/migrate_to_2_1.py:321
 #: ./setuphandlers.py:268
 msgid "Persons"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:318
+#: ./migrations/migrate_to_2_1.py:321
 #: ./setuphandlers.py:268
 msgid "Persons searches"
 msgstr ""
@@ -338,7 +338,7 @@ msgstr ""
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:101
+#: ./dmsmail.py:121
 msgid "Recipient groups"
 msgstr ""
 
@@ -383,7 +383,7 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
-#: ./dmsmail.py:73
+#: ./dmsmail.py:92
 msgid "Sender"
 msgstr ""
 
@@ -423,21 +423,21 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:545
+#: ./dmsmail.py:566
 msgid "The assigned user is not in the selected assigned group !"
 msgstr ""
 
-#: ./dmsmail.py:535
+#: ./dmsmail.py:556
 msgid "The assigned user is not in the selected treating group !"
 msgstr ""
 
 #: ./browser/batchactions.py:40
 #: ./browser/table.py:113
-#: ./dmsmail.py:82
+#: ./dmsmail.py:102
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:331
+#: ./utils.py:337
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -485,7 +485,7 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:247
+#: ./dmsmail.py:267
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
@@ -536,24 +536,24 @@ msgid "create_om"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:211
-#: ./migrations/migrate_to_2_1.py:214
+#: ./migrations/migrate_to_2_1.py:217
 #: ./migrations/migrate_to_3_0.py:43
 msgid "front_page_descr"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:212
-#: ./migrations/migrate_to_2_1.py:215
+#: ./migrations/migrate_to_2_1.py:218
 #: ./migrations/migrate_to_3_0.py:44
 msgid "front_page_text"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:210
-#: ./migrations/migrate_to_2_1.py:213
+#: ./migrations/migrate_to_2_1.py:216
 #: ./migrations/migrate_to_3_0.py:42
 msgid "front_page_title"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:162
+#: ./migrations/migrate_to_2_1.py:160
 #: ./setuphandlers.py:538
 msgid "im_followed"
 msgstr ""
@@ -570,7 +570,7 @@ msgstr ""
 msgid "im_in_copy"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:154
+#: ./migrations/migrate_to_2_1.py:152
 #: ./setuphandlers.py:520
 msgid "im_in_copy_unread"
 msgstr ""
