@@ -1273,7 +1273,7 @@ def addTestDirectory(context):
               'person_title': u'Monsieur',
               'birthday': datetime.date(1981, 11, 22),
               'email': u'jean.courant@electrabel.be',
-              'phone': u'012/345.678',
+              'phone': u'012345678',
               'zip_code': u'0020',
               'city': u'E-ville',
               'street': u"Rue de l'électron",
@@ -1289,7 +1289,7 @@ def addTestDirectory(context):
               'person_title': u'Monsieur',
               'birthday': datetime.date(1981, 11, 22),
               'email': u'serge.robinet@swde.be',
-              'phone': u'012/345.678',
+              'phone': u'012345678',
               'zip_code': u'0020',
               'city': u'E-ville',
               'street': u"Rue de l'eau vive",
@@ -1305,7 +1305,7 @@ def addTestDirectory(context):
               'person_title': u'Monsieur',
               'birthday': datetime.date(1981, 11, 22),
               'email': u'bernard.lermitte@swde.be',
-              'phone': u'012/345.678',
+              'phone': u'012345678',
               'zip_code': u'0020',
               'city': u'E-ville',
               'street': u"Rue de l'eau vive",
@@ -1323,6 +1323,7 @@ def addTestDirectory(context):
               'end_date': datetime.date(2100, 1, 1),
               'position': RelationValue(intids.getId(swde)),
               'label': u'Agent',
+              'use_parent_address': True
               }
     sergerobinet.invokeFactory('held_position', 'agent-swde', **params)
     bernardlermitte.invokeFactory('held_position', 'agent-swde', **params)
@@ -1331,6 +1332,7 @@ def addTestDirectory(context):
               'end_date': datetime.date(2100, 1, 1),
               'position': RelationValue(intids.getId(electrabel)),
               'label': u'Agent',
+              'use_parent_address': True
               }
     jeancourant.invokeFactory('held_position', 'agent-electrabel', **params)
 

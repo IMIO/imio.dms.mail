@@ -22,6 +22,9 @@ Changelog
 - Added workflow leading icons for back and again states, in dashboard and item view
   [sgeulette]
 
+- Added viewlet to display when a contact address field is missing
+  [sgeulette]
+
 2.0 (2017-06-02)
 ----------------
 

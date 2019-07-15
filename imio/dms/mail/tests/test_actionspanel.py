@@ -15,6 +15,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
     def setUp(self):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.portal.REQUEST['AUTHENTICATED_USER'] = api.user.get(username=TEST_USER_ID)
         self.im1 = self.portal['incoming-mail']['courrier1']
         self.view = self.im1.unrestrictedTraverse('@@actions_panel')
 

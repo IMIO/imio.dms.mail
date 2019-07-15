@@ -1,14 +1,22 @@
 # -*- coding: utf-8 -*-
+from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
+from collective.messagesviewlet.browser.messagesviewlet import MessagesViewlet
+from collective.messagesviewlet.message import generate_uid
+from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
 from imio.dms.mail.browser.table import OMVersionsTable
+from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.utils import object_link
+from imio.helpers.content import richtextval
 from imio.prettylink.interfaces import IPrettyLink
 from plone import api
 from plone.app.layout.viewlets import ViewletBase
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.intid.interfaces import IIntIds
 
 
@@ -73,3 +81,40 @@ class PrettyLinkTitleViewlet(ViewletBase):
         plo.isViewable = isViewable
         plo.notViewableHelpMessage = ''
         return plo
+
+
+class ContextInformationViewlet(MessagesViewlet):
+    """
+        Viewlet displaying context information
+    """
+
+    def getAllMessages(self):
+        """ Check if an address field is empty """
+        if IContactContent.providedBy(self.context):
+            contacts = [self.context]
+        elif IImioDmsOutgoingMail.providedBy(self.context):
+            contacts = []
+            for rv in self.context.recipients:
+                if not rv.isBroken() and rv.to_path:
+                    contacts.append(self.context.restrictedTraverse(rv.to_path))
+        if not contacts:
+            return []
+        errors = []
+        for contact in contacts:
+            address = get_address(contact)
+            empty_keys = []
+            for key in ('street', 'number', 'zip_code', 'city',):
+                if not address.get(key, ''):
+                    empty_keys.append(translate(key, domain='imio.dms.mail', context=self.request))
+            if empty_keys:
+                errors.append((contact, empty_keys))
+
+        ret = []
+        for (contact, keys) in errors:
+            msg = translate(u"This contact '${title}' has missing address fields: ${keys}",
+                            domain='imio.dms.mail', context=self.request,
+                            mapping={'title': object_link(contact, view='edit', title='get_full_title'),
+                                     'keys': ', '.join(keys)})
+            ret.append(PseudoMessage(msg_type='significant', text=richtextval(msg),
+                       hidden_uid=generate_uid(), can_hide=False))
+        return ret
