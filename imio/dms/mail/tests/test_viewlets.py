@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Test views."""
+from collective.messagesviewlet.message import PseudoMessage
 from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
 from imio.dms.mail.browser.viewlets import ContextInformationViewlet
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
@@ -58,5 +59,25 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
 
     def test_ContextInformationViewlet(self):
         login(self.portal, 'encodeur')
-        viewlet = ContextInformationViewlet(self.elec, self.elec.REQUEST, None)
-        ret = viewlet.find_relations(from_attribute='sender')
+        org_v = ContextInformationViewlet(self.elec, self.elec.REQUEST, None)
+        self.assertListEqual(org_v.getAllMessages(), [])
+        sorg_v = ContextInformationViewlet(self.elec['travaux'], self.elec.REQUEST, None)
+        self.assertTrue(self.elec['travaux'].use_parent_address)
+        self.assertListEqual(sorg_v.getAllMessages(), [])
+        pers_v = ContextInformationViewlet(self.jean, self.elec.REQUEST, None)
+        self.assertListEqual(pers_v.getAllMessages(), [])
+        hp_v = ContextInformationViewlet(self.jean['agent-electrabel'], self.elec.REQUEST, None)
+        self.assertTrue(self.jean['agent-electrabel'].use_parent_address)
+        self.assertListEqual(hp_v.getAllMessages(), [])
+        om_v = ContextInformationViewlet(self.omf['reponse1'], self.elec.REQUEST, None)
+        self.assertListEqual(om_v.getAllMessages(), [])
+        # removing street from electrabel org
+        self.elec.street = None
+        msgs = org_v.getAllMessages()
+        self.assertEqual(len(msgs), 1)
+        self.assertTrue(isinstance(msgs[0], PseudoMessage))
+        self.assertIn('missing address fields: street', msgs[0].text.output)
+        self.assertEqual(len(sorg_v.getAllMessages()), 1)  # suborganization has missing street too
+        self.assertListEqual(pers_v.getAllMessages(), [])
+        self.assertEqual(len(hp_v.getAllMessages()), 1)  # held position has missing street too
+        self.assertEqual(len(om_v.getAllMessages()), 1)  # outgoing mail has missing street too

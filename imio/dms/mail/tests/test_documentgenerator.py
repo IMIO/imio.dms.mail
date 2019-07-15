@@ -47,7 +47,7 @@ class TestDocumentGenerator(unittest.TestCase):
         det = {'address': {'city': u'E-ville', 'country': '', 'region': '',
                            'additional_address_details': '', 'number': u'1',
                            'street': u"Rue de l'électron", 'zip_code': u'0020'},
-               'website': '', 'fax': '', 'phone': u'012/345.678', 'im_handle': '',
+               'website': '', 'fax': '', 'phone': u'012345678', 'im_handle': '',
                'cell_phone': '', 'email': u'jean.courant@electrabel.be'}
         self.assertDictEqual(view1.get_ctct_det(self.jc), det)
 
