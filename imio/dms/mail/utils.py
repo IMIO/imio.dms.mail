@@ -166,12 +166,6 @@ def get_scan_id(obj):
     return [sid, sid_long, sid_short]
 
 
-def object_link(obj, view='view', title='Title'):
-    from Products.CMFPlone.utils import safe_unicode
-    href = view and "%s/%s" % (obj.absolute_url(), view) or obj.absolute_url()
-    return u'<a href="%s">%s</a>' % (href, safe_unicode(getattr(obj, title)()))
-
-
 # views
 
 class UtilsMethods(BrowserView):
