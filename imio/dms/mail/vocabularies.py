@@ -304,7 +304,7 @@ class ActiveCreatingGroupVocabulary(object):
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         vocab = factory(context)
 
-        # we get all orgs where there are plone groups with the creating group suffix
+        # we get all orgs where there are plone groups with the creating group suffix and with users
         to_keep = get_organizations(not_empty_suffix=CREATING_GROUP_SUFFIX, only_selected=False, the_objects=False,
                                     caching=False)
         for term in vocab:

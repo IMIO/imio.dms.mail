@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-07-12 12:11+0000\n"
+"POT-Creation-Date: 2019-09-03 07:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Domain: imio.dms.mail\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
-#: ./browser/views.py:36
+#: ./browser/views.py:37
 msgid "${title}: create from template"
 msgstr ""
 
@@ -59,7 +59,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./setuphandlers.py:1926
+#: ./setuphandlers.py:1928
 msgid "All contacts export"
 msgstr ""
 
@@ -75,11 +75,15 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
+#: ./browser/templates/actions_panel_assign_user.pt:7
+msgid "Assign"
+msgstr ""
+
 #: ./browser/settings.py:52
 msgid "Assigned user check"
 msgstr ""
 
-#: ./setuphandlers.py:1963
+#: ./setuphandlers.py:1965
 msgid "Base template"
 msgstr ""
 
@@ -135,7 +139,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:41
+#: ./browser/views.py:42
 msgid "Choose this template"
 msgstr ""
 
@@ -143,7 +147,7 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1875
+#: ./setuphandlers.py:1877
 msgid "Common templates"
 msgstr ""
 
@@ -173,7 +177,7 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:333
+#: ./utils.py:327
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
@@ -197,7 +201,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1947
+#: ./setuphandlers.py:1949
 msgid "Ending template"
 msgstr ""
 
@@ -205,11 +209,11 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1943
+#: ./setuphandlers.py:1945
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1941
+#: ./setuphandlers.py:1943
 msgid "Header template"
 msgstr ""
 
@@ -254,7 +258,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1945
+#: ./setuphandlers.py:1947
 msgid "Intro template"
 msgstr ""
 
@@ -262,7 +266,7 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1919
+#: ./setuphandlers.py:1921
 msgid "Mail listing template"
 msgstr ""
 
@@ -283,7 +287,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:1949
+#: ./setuphandlers.py:1951
 msgid "Mailing template"
 msgstr ""
 
@@ -376,11 +380,11 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1957
+#: ./setuphandlers.py:1959
 msgid "Print template"
 msgstr "To print"
 
-#: ./setuphandlers.py:1972
+#: ./setuphandlers.py:1974
 msgid "Receipt template"
 msgstr ""
 
@@ -449,7 +453,7 @@ msgstr ""
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1933
+#: ./setuphandlers.py:1935
 msgid "Style template"
 msgstr ""
 
@@ -465,7 +469,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1873
+#: ./setuphandlers.py:1875
 msgid "Templates"
 msgstr ""
 
@@ -495,7 +499,7 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:337
+#: ./utils.py:331
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 

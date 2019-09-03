@@ -1,5 +1,6 @@
 from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
 from imio.actionspanel.browser.views import ActionsPanelView
+from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
 from plone import api
 from plone.memoize import ram
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
@@ -38,6 +39,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
         super(DmsIMActionsPanelView, self).__init__(context, request)
         self.SECTIONS_TO_RENDER += (
             'renderReplyButton',
+            'renderAssignUser',
         )
         self.ACCEPTABLE_ACTIONS = ['delete']
         self.ogm = api.portal.get()['outgoing-mail']
@@ -53,6 +55,21 @@ class DmsIMActionsPanelView(ActionsPanelView):
             return ViewPageTemplateFile(
                 "templates/actions_panel_reply.pt")(self)
         return ""
+
+    def showAssignUser(self):
+        return bool(self.context.treating_groups) and self.member.has_permission('Modify portal content', self.context)
+
+    def renderAssignUser(self):
+        """
+          Render users that can be assigned.
+        """
+        if self.showAssignUser():
+            return ViewPageTemplateFile("templates/actions_panel_assign_user.pt")(self)
+        return ''
+
+    def assignable_users(self):
+        voc = filter_dmsincomingmail_assigned_users(self.context.treating_groups)
+        return voc
 
     def sortTransitions(self, lst):
         """ Sort transitions following transitions list order"""

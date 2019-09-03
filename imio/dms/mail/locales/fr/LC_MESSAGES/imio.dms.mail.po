@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2019-07-12 12:11+0000\n"
+"POT-Creation-Date: 2019-09-03 07:22+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,7 +17,7 @@ msgstr ""
 "Language: fr\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: ./browser/views.py:36
+#: ./browser/views.py:37
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -61,7 +61,7 @@ msgstr "Éléments à ajouter"
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./setuphandlers.py:1926
+#: ./setuphandlers.py:1928
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -77,11 +77,15 @@ msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Cour
 msgid "Apply"
 msgstr "Appliquer"
 
+#: ./browser/templates/actions_panel_assign_user.pt:7
+msgid "Assign"
+msgstr "Assigner"
+
 #: ./browser/settings.py:52
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./setuphandlers.py:1963
+#: ./setuphandlers.py:1965
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -137,7 +141,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:41
+#: ./browser/views.py:42
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -145,7 +149,7 @@ msgstr "Choisir ce modèle"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:1875
+#: ./setuphandlers.py:1877
 msgid "Common templates"
 msgstr "Modèles communs"
 
@@ -175,7 +179,7 @@ msgstr "Créer depuis modèle"
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:333
+#: ./utils.py:327
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
@@ -199,7 +203,7 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1947
+#: ./setuphandlers.py:1949
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -207,11 +211,11 @@ msgstr "Sous-document de fin"
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1943
+#: ./setuphandlers.py:1945
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1941
+#: ./setuphandlers.py:1943
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -256,7 +260,7 @@ msgstr "Courrier entrant"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1945
+#: ./setuphandlers.py:1947
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -264,7 +268,7 @@ msgstr "Sous-document d'introduction"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1919
+#: ./setuphandlers.py:1921
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -285,7 +289,7 @@ msgstr "Valeur stockée"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:1949
+#: ./setuphandlers.py:1951
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -378,11 +382,11 @@ msgstr "Recherches personnes"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1957
+#: ./setuphandlers.py:1959
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:1972
+#: ./setuphandlers.py:1974
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -451,7 +455,7 @@ msgstr "Single steps profile for imio.dms.mail"
 msgid "States for which to display remark icon"
 msgstr "États pour lesquels afficher l'icône de \"remarque\""
 
-#: ./setuphandlers.py:1933
+#: ./setuphandlers.py:1935
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -467,7 +471,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1873
+#: ./setuphandlers.py:1875
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -497,7 +501,7 @@ msgstr "Transition"
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:337
+#: ./utils.py:331
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
