@@ -57,6 +57,11 @@ class ContactContentBackrefsViewlet(ViewletBase):
 
     index = ViewPageTemplateFile("templates/contactcontent_backrefs.pt")
 
+    def render(self):
+        if not self.request.get('ajax_load', False):
+            return self.index()
+        return ''
+
 
 class DMSTaskParentViewlet(TaskParentViewlet):
 
