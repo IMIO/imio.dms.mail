@@ -193,4 +193,3 @@ class UpdateItem(BrowserView):
         if 'assigned_user' in self.request:
             self.context.assigned_user = self.request.get('assigned_user')
             modified(self.context)
-        return self.request.RESPONSE.redirect(self.context.absolute_url())
