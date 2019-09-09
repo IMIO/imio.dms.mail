@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-09-03 07:22+0000\n"
+"POT-Creation-Date: 2019-09-09 12:11+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,7 +53,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./setuphandlers.py:1928
+#: ./setuphandlers.py:1931
 msgid "All contacts export"
 msgstr ""
 
@@ -69,7 +69,7 @@ msgstr ""
 msgid "Assigned user check"
 msgstr ""
 
-#: ./setuphandlers.py:1965
+#: ./setuphandlers.py:1968
 msgid "Base template"
 msgstr ""
 
@@ -121,7 +121,7 @@ msgstr ""
 msgid "Choose this template"
 msgstr ""
 
-#: ./setuphandlers.py:1877
+#: ./setuphandlers.py:1880
 msgid "Common templates"
 msgstr ""
 
@@ -171,7 +171,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1949
+#: ./setuphandlers.py:1952
 msgid "Ending template"
 msgstr ""
 
@@ -179,11 +179,11 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1945
+#: ./setuphandlers.py:1948
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1943
+#: ./setuphandlers.py:1946
 msgid "Header template"
 msgstr ""
 
@@ -228,7 +228,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1947
+#: ./setuphandlers.py:1950
 msgid "Intro template"
 msgstr ""
 
@@ -236,7 +236,7 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1921
+#: ./setuphandlers.py:1924
 msgid "Mail listing template"
 msgstr ""
 
@@ -253,7 +253,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./setuphandlers.py:1951
+#: ./setuphandlers.py:1954
 msgid "Mailing template"
 msgstr ""
 
@@ -334,11 +334,11 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1959
+#: ./setuphandlers.py:1962
 msgid "Print template"
 msgstr ""
 
-#: ./setuphandlers.py:1974
+#: ./setuphandlers.py:1977
 msgid "Receipt template"
 msgstr ""
 
@@ -371,7 +371,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./setuphandlers.py:1195
+#: ./setuphandlers.py:1198
 msgid "Response: "
 msgstr ""
 
@@ -403,7 +403,7 @@ msgstr ""
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1935
+#: ./setuphandlers.py:1938
 msgid "Style template"
 msgstr ""
 
@@ -419,7 +419,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1875
+#: ./setuphandlers.py:1878
 msgid "Templates"
 msgstr ""
 

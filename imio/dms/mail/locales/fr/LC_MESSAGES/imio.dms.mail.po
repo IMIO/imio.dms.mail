@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2019-09-03 07:22+0000\n"
+"POT-Creation-Date: 2019-09-09 12:11+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -61,7 +61,7 @@ msgstr "Éléments à ajouter"
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./setuphandlers.py:1928
+#: ./setuphandlers.py:1931
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -85,7 +85,7 @@ msgstr "Assigner"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./setuphandlers.py:1965
+#: ./setuphandlers.py:1968
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -149,7 +149,7 @@ msgstr "Choisir ce modèle"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:1877
+#: ./setuphandlers.py:1880
 msgid "Common templates"
 msgstr "Modèles communs"
 
@@ -203,7 +203,7 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1949
+#: ./setuphandlers.py:1952
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -211,11 +211,11 @@ msgstr "Sous-document de fin"
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1945
+#: ./setuphandlers.py:1948
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1943
+#: ./setuphandlers.py:1946
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -260,7 +260,7 @@ msgstr "Courrier entrant"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1947
+#: ./setuphandlers.py:1950
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -268,7 +268,7 @@ msgstr "Sous-document d'introduction"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1921
+#: ./setuphandlers.py:1924
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -289,7 +289,7 @@ msgstr "Valeur stockée"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:1951
+#: ./setuphandlers.py:1954
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -382,11 +382,11 @@ msgstr "Recherches personnes"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1959
+#: ./setuphandlers.py:1962
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:1974
+#: ./setuphandlers.py:1977
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -423,7 +423,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./setuphandlers.py:1195
+#: ./setuphandlers.py:1198
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -455,7 +455,7 @@ msgstr "Single steps profile for imio.dms.mail"
 msgid "States for which to display remark icon"
 msgstr "États pour lesquels afficher l'icône de \"remarque\""
 
-#: ./setuphandlers.py:1935
+#: ./setuphandlers.py:1938
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -471,7 +471,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1875
+#: ./setuphandlers.py:1878
 msgid "Templates"
 msgstr "Modèles doc"
 
