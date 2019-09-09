@@ -263,11 +263,9 @@ class ContactTitleColumn(PrettyLinkColumn):
     attrName = 'get_full_title'
     params = {'target': '_blank', 'additionalCSSClasses': ['link-tooltip'], 'display_tag_title': False}
 
-    def renderCell(self, item):
+    def contentValue(self, item):
         """ """
-        obj = self._getObject(item)
-        self.params['contentValue'] = getattr(obj, self.attrName)()
-        return PrettyLinkColumn.getPrettyLink(self, obj)
+        return item.get_full_title()
 
 
 class ContactListTitleColumn(PrettyLinkColumn):
