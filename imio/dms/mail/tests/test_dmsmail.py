@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.browser.reply_form import ReplyForm
+from imio.dms.mail.dmsmail import CustomAddForm
 from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -96,6 +97,23 @@ class TestDmsmail(unittest.TestCase):
                                                        'outgoingmail_increment_number'))
         self.assertTrue(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                        'outgoingmail_today_mail_date'))
+        self.assertEquals(api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                       'due_date_extension'), 0)
+
+        # testing IM views: default parameters
+        self.request = self.portal['incoming-mail'].REQUEST
+        add = CustomAddForm(self.portal['incoming-mail'], self.request)
+        add.portal_type = 'dmsincomingmail'
+        add.update()
+        self.assertEquals(add.widgets['ITask.due_date'].value, ('','',''))
+        # set due_date_extension to 15
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                       'due_date_extension', 15)
+        self.request = self.portal['incoming-mail'].REQUEST
+        add = CustomAddForm(self.portal['incoming-mail'], self.request)
+        add.portal_type = 'dmsincomingmail'
+        add.update()
+        self.assertNotEquals(add.widgets['ITask.due_date'].value, ('','',''))
 
         # testing OM views: default parameters
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'

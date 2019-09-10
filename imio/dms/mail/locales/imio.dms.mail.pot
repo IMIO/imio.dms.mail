@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-09-09 12:11+0000\n"
+"POT-Creation-Date: 2019-09-10 12:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,11 +33,11 @@ msgstr ""
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
-#: ./browser/settings.py:140
+#: ./browser/settings.py:147
 msgid "A user can see all mail titles linked to a contact."
 msgstr ""
 
-#: ./browser/settings.py:69
+#: ./browser/settings.py:76
 msgid "Activate group encoder"
 msgstr ""
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:117
+#: ./browser/settings.py:124
 msgid "Check if a service encoder can edit his service templates."
 msgstr ""
 
@@ -163,7 +163,7 @@ msgstr ""
 msgid "Contact lists"
 msgstr ""
 
-#: ./browser/settings.py:135
+#: ./browser/settings.py:142
 msgid "Contacts"
 msgstr ""
 
@@ -191,20 +191,28 @@ msgstr ""
 msgid "Dms Mail Creating Group"
 msgstr ""
 
-#: ./browser/settings.py:106
+#: ./browser/settings.py:113
 msgid "Dms file must be an odt format"
+msgstr ""
+
+#: ./browser/settings.py:64
+msgid "Due date extension"
 msgstr ""
 
 #: ./vocabularies.py:122
 msgid "Empty value"
 msgstr ""
 
-#: ./browser/settings.py:116
+#: ./browser/settings.py:123
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
 #: ./setuphandlers.py:1952
 msgid "Ending template"
+msgstr ""
+
+#: ./browser/settings.py:65
+msgid "Extends the due date by a number of days. 0 means no due date will be set by default."
 msgstr ""
 
 #: ./browser/batchactions.py:225
@@ -273,7 +281,7 @@ msgid "Mail listing template"
 msgstr ""
 
 #: ./browser/settings.py:46
-#: ./dmsmail.py:129
+#: ./dmsmail.py:131
 msgid "Mail type"
 msgstr ""
 
@@ -313,11 +321,11 @@ msgstr ""
 msgid "No incoming mail !"
 msgstr ""
 
-#: ./browser/settings.py:146
+#: ./browser/settings.py:153
 msgid "ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />When activating this option, a group encoder function is added in the configuration, a new field is added to the contact form to choose the creating group and permissions are given to the selected creating group. Contacts are then separately handled following the creating groups. <br />This option can be combined with the mail creating group option."
 msgstr ""
 
-#: ./browser/settings.py:70
+#: ./browser/settings.py:77
 msgid "ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />When activating this option, a group encoder function is added in the configuration, a new field is added to the mail form to choose the creating group and permissions are given to the selected creating group. Mails are then separately handled following the creating groups. <br />The creating group can be preset in scanning program. It's then possible to have multiple scanners and separated 'encoder' groups. The list of 'encoder' groups, can be generated to be used in 'scanner program'. "
 msgstr ""
 
@@ -344,11 +352,11 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:171
-#: ./dmsmail.py:391
+#: ./dmsmail.py:398
 msgid "Outgoing Date"
 msgstr ""
 
-#: ./browser/settings.py:82
+#: ./browser/settings.py:89
 #: ./migrations/migrate_to_0_2.py:119
 #: ./setuphandlers.py:169
 msgid "Outgoing mail"
@@ -390,7 +398,7 @@ msgstr ""
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:121
+#: ./dmsmail.py:123
 msgid "Recipient groups"
 msgstr ""
 
@@ -419,7 +427,7 @@ msgstr ""
 msgid "Reply to ${ref}"
 msgstr ""
 
-#: ./browser/settings.py:101
+#: ./browser/settings.py:108
 msgid "Response prefix"
 msgstr ""
 
@@ -439,11 +447,11 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
-#: ./dmsmail.py:92
+#: ./dmsmail.py:94
 msgid "Sender"
 msgstr ""
 
-#: ./browser/settings.py:111
+#: ./browser/settings.py:118
 msgid "Sender list is sorted on firstname"
 msgstr ""
 
@@ -451,7 +459,7 @@ msgstr ""
 msgid "Single steps profile for imio.dms.mail"
 msgstr ""
 
-#: ./browser/settings.py:64
+#: ./browser/settings.py:71
 msgid "States for which to display remark icon"
 msgstr ""
 
@@ -479,11 +487,11 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:566
+#: ./dmsmail.py:573
 msgid "The assigned user is not in the selected assigned group !"
 msgstr ""
 
-#: ./dmsmail.py:556
+#: ./dmsmail.py:563
 msgid "The assigned user is not in the selected treating group !"
 msgstr ""
 
@@ -497,7 +505,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:40
 #: ./browser/table.py:113
-#: ./dmsmail.py:102
+#: ./dmsmail.py:104
 msgid "Treating groups"
 msgstr ""
 
@@ -509,19 +517,19 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/settings.py:88
+#: ./browser/settings.py:95
 msgid "Types of outgoing mail"
 msgstr ""
 
-#: ./browser/settings.py:200
+#: ./browser/settings.py:207
 msgid "Unchecking the contact_group_encoder setting is not expected !!"
 msgstr ""
 
-#: ./browser/settings.py:182
+#: ./browser/settings.py:189
 msgid "Unchecking the imail_group_encoder setting is not expected !!"
 msgstr ""
 
-#: ./browser/settings.py:189
+#: ./browser/settings.py:196
 msgid "Unchecking the omail_group_encoder setting is not expected !!"
 msgstr ""
 
@@ -549,7 +557,7 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:267
+#: ./dmsmail.py:269
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
