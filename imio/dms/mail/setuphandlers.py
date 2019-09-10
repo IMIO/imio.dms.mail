@@ -864,6 +864,9 @@ def adaptDefaultPortal(context):
     # registry
     api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
                                         'search_rss_enabled', value=False)
+    api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
+                                   'contact_source_metadata_content',
+                                   u'{gft} ↈ {number}, {street}, {zip_code}, {city} ↈ {email}')
 
     # imio.dms.mail configuration annotation
     # review levels configuration, used in utils and adapters
