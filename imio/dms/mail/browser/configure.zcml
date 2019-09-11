@@ -486,8 +486,7 @@
         manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
         class=".viewlets.ContactContentBackrefsViewlet"
         layer="*"
-        permission="zope2.View"
-        >
+        permission="zope2.View" />
 
     <configure package="collective.documentgenerator">
         <browser:viewlet
