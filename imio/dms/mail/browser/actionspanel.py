@@ -57,7 +57,8 @@ class DmsIMActionsPanelView(ActionsPanelView):
         return ""
 
     def showAssignUser(self):
-        return bool(self.context.treating_groups) and self.member.has_permission('Modify portal content', self.context)
+        return (bool(self.context.treating_groups) and self.member.has_permission('Modify portal content', self.context)
+                and api.content.get_state(self.context, 'none') not in ('created', 'in_treatment', 'closed'))
 
     def renderAssignUser(self):
         """
