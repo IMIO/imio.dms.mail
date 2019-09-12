@@ -4,13 +4,28 @@ Changelog
 3.0 (unreleased)
 ----------------
 
-- Added creating_group function feature to enable distinct mail encoders
-  [sgeulette]
-
 - Added dmsincoming_email type
   [sgeulette]
 
+2.2 (2019-09-12)
+----------------
+
+- Added creating_group function feature to enable distinct mail encoders
+  [sgeulette]
+
 - Added Lecteurs Globaux CE plone group and local roles.
+  [bleybaert]
+
+- Added assigned user selection button
+  [sgeulette]
+
+- Added more information when selecting a contact
+  [sgeulette]
+
+- Removed actions green bar
+  [sgeulette]
+
+- Added due date default value configuration
   [bleybaert]
 
 2.1 (2018-08-22)
