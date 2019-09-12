@@ -2,10 +2,10 @@
 
 #from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.dms.mail import _tr as _
 from imio.dms.mail.interfaces import IExternalContact
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IInternalContact
-from imio.dms.mail.setuphandlers import _
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_task_rolefields
@@ -13,7 +13,7 @@ from imio.dms.mail.setuphandlers import createIMailCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import createTaskCollections
 from imio.dms.mail.setuphandlers import reimport_faceted_config
-from imio.dms.mail.utils import create_richtextval
+from imio.helpers.content import richtextval
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -180,7 +180,7 @@ class Migrate_To_1_0(Migrator):
             if not base_hasattr(obj, 'notes') or not obj.notes:
                 continue
             text = u'<p>%s</p>\r\n' % obj.notes.replace('\r\n', '<br />\r\n')
-            obj.task_description = create_richtextval(text)
+            obj.task_description = richtextval(text)
             delattr(obj, 'notes')
         #    obj.reindexObject()
 

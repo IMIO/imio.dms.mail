@@ -6,9 +6,9 @@ from collective.documentgenerator.config import set_oo_port
 from collective.documentgenerator.config import set_uno_path
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from imio.dms.mail import _tr as _
 from imio.dms.mail.interfaces import IOMDashboard
 from imio.dms.mail.interfaces import ITaskDashboard
-from imio.dms.mail.setuphandlers import _
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import changeSearchedTypes

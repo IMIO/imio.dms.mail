@@ -1,9 +1,12 @@
 from AccessControl.Permissions import delete_objects
 from collective.dms.basecontent import dmsfile
 from datetime import date
+from plone import api
 from plone.dexterity.content import Container
 from Products.Archetypes.BaseFolder import BaseFolder
 from Products.CMFPlone.PloneFolder import BasePloneFolder
+from zope.component import queryUtility
+from zope.i18n.interfaces import ITranslationDomain
 from zope.i18nmessageid import MessageFactory
 
 import os
@@ -28,6 +31,12 @@ PRODUCT_DIR = os.path.dirname(__file__)
 BACK_OR_AGAIN_ICONS = {'': False,
                        'back': '++resource++imio.dms.mail/wf_back.png',
                        'again': '++resource++imio.dms.mail/wf_again.png'}
+
+
+def _tr(msgid, domain='imio.dms.mail'):
+    translation_domain = queryUtility(ITranslationDomain, domain)
+    sp = api.portal.get().portal_properties.site_properties
+    return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'))
 
 
 def add_path(path):

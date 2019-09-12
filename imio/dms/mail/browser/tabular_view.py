@@ -1,4 +1,4 @@
-from imio.dms.mail.setuphandlers import _
+from imio.dms.mail import _tr as _
 from plone import api
 from Products.Five import BrowserView
 from zope.component import getMultiAdapter
@@ -51,8 +51,8 @@ class TabularView(BrowserView):
             if state:
                 klass = 'state-%s' % state
             if self.context.getId() == 'searchfor_created' and item.getObject().wl_isLocked():
-                return '<img width="16" height="16" title="Locked" src="lock_icon.png"><a href="%s" class="%s">%s</a>' % (
-                    item.getURL(), klass, value)
+                return ('<img width="16" height="16" title="Locked" src="lock_icon.png">'
+                        '<a href="%s" class="%s">%s</a>' % (item.getURL(), klass, value))
             return '<a href="%s" class="%s">%s</a>' % (item.getURL(), klass, value)
         elif field_name == 'review_state':
             return _(value, domain='plone')
