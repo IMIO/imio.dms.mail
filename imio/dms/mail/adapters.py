@@ -490,7 +490,12 @@ def state_group_index(obj):
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
     state = api.content.get_state(obj=obj)
-    portal_type = (obj.portal_type == 'dmsincoming_email' and 'dmsincomingmail' or obj.portal_type)
+    if obj.portal_type == 'dmsincoming_email':
+        portal_type = 'dmsincomingmail'
+    elif obj.portal_type == 'dmsoutgoing_email':
+        portal_type = 'dmsoutgoingmail'
+    else:
+        portal_type = obj.portal_type
     config = get_dms_config(['review_states', portal_type])
     if state not in config or not config[state]['group'].startswith('_'):
         return state

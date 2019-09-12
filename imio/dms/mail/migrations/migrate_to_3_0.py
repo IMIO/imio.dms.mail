@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from imio.dms.mail import _tr as _
+from imio.dms.mail.setuphandlers import add_templates
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -68,7 +70,7 @@ class Migrate_To_3_0(Migrator):
         # We need to indicate that the object has been modified and must be "saved"
         lr._p_changed = True
 
-    def insert_emails(self):
+    def insert_incoming_emails(self):
         # allowed types
         self.imf.setConstrainTypesMode(1)
         self.imf.setLocallyAllowedTypes(['dmsincomingmail', 'dmsincoming_email'])
@@ -86,6 +88,29 @@ class Migrate_To_3_0(Migrator):
             for dic in col.query:
                 if dic['i'] == 'portal_type' and len(dic['v']) == 1 and dic['v'][0] == 'dmsincomingmail':
                     dic['v'] = ['dmsincomingmail', 'dmsincoming_email']
+                    change = True
+                new_lst.append(dic)
+            if change:
+                col.query = new_lst
+
+    def insert_outgoing_emails(self):
+        # allowed types
+        self.omf.setConstrainTypesMode(1)
+        self.omf.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        self.omf.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        # diff
+        pdiff = api.portal.get_tool('portal_diff')
+        pdiff.setDiffForPortalType('dmsoutgoing_email', {'any': "Compound Diff for Dexterity types"})
+        # collections
+        brains = self.catalog.searchResults(portal_type='DashboardCollection',
+                                            path='/'.join(self.omf.getPhysicalPath()))
+        for brain in brains:
+            col = brain.getObject()
+            new_lst = []
+            change = False
+            for dic in col.query:
+                if dic['i'] == 'portal_type' and len(dic['v']) == 1 and dic['v'][0] == 'dmsoutgoingmail':
+                    dic['v'] = ['dmsoutgoingmail', 'dmsoutgoing_email']
                     change = True
                 new_lst.append(dic)
             if change:
@@ -120,8 +145,9 @@ class Migrate_To_3_0(Migrator):
         # do various global adaptations
         self.update_site()
 
-        # do various adaptations for dmsincoming_email
-        self.insert_emails()
+        # do various adaptations for dmsincoming_email and dmsoutgoing_email
+        self.insert_incoming_emails()
+        self.insert_outgoing_emails()
 
         self.check_previously_migrated_collections()
 

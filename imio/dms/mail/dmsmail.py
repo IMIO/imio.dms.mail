@@ -467,7 +467,8 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
     current_user = api.user.get_current()
 
     # sender can be None if om is created by worker.
-    if the_form.context.portal_type != 'dmsoutgoingmail' or not the_form.context.sender:
+    if the_form.context.portal_type not in ('dmsoutgoingmail', 'dmsoutgoing_email') \
+            or not the_form.context.sender:
         # we search for a held position related to current user and take the first one !
         default = None
         for term in the_form.widgets['sender'].bound_source:
@@ -533,6 +534,14 @@ class OMCustomAddForm(BaseOMAddForm):
 class AddOM(BaseAddOM):
 
     form = OMCustomAddForm
+
+
+class OEMCustomAddForm(OMCustomAddForm):
+    portal_type = 'dmsoutgoing_email'
+
+
+class AddOEM(DefaultAddView):
+    form = OEMCustomAddForm
 
 
 class OMView(DmsDocumentView):

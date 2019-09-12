@@ -21,6 +21,9 @@
   <type type_id="dmsoutgoingmail">
    <bound-workflow workflow_id="outgoingmail_workflow" />
   </type>
+  <type type_id="dmsoutgoing_email">
+   <bound-workflow workflow_id="outgoingmail_workflow" />
+  </type>
   <type type_id="dmsommainfile">
    <bound-workflow workflow_id=""/>
   </type>

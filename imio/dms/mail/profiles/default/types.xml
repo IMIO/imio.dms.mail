@@ -4,6 +4,7 @@
  <object name="dmsincomingmail" meta_type="Dexterity FTI"/>
  <object name="dmsincoming_email" meta_type="Dexterity FTI"/>
  <object name="dmsoutgoingmail" meta_type="Dexterity FTI"/>
+ <object name="dmsoutgoing_email" meta_type="Dexterity FTI"/>
  <object name="dmsommainfile" meta_type="Dexterity FTI"/>
  <object name="member_area" meta_type="Dexterity FTI"/>
 </object>

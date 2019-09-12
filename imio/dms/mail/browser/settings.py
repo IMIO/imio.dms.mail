@@ -189,7 +189,7 @@ def imiodmsmail_settings_changed(event):
             raise Invalid(_(u'Unchecking the imail_group_encoder setting is not expected !!'))
     if event.record.fieldName == 'omail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
-            configure_group_encoder(['dmsoutgoingmail'])
+            configure_group_encoder(['dmsoutgoingmail', 'dmsoutgoing_email'])
         else:
             logger.exception('Unchecking the omail_group_encoder setting is not expected !!')
             from imio.dms.mail import _tr as _

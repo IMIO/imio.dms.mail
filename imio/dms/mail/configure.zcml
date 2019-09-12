@@ -154,6 +154,21 @@
             />
     </class>
 
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".dmsmail.AddOEM"
+        name="dmsoutgoing_email"
+        />
+    <class class=".dmsmail.AddOEM">
+        <require
+            permission="collective.dms.mailcontent.dmsoutgoingmail.add"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
     <!-- CLASS INTERFACES -->
     <class class="plone.app.collection.collection.Collection">
         <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />
