@@ -263,11 +263,19 @@ class IMEdit(DmsDocumentEdit):
                 [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
 
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+        state = api.content.get_state(obj=self.context)
         if settings.assigned_user_check and not self.context.assigned_user \
-                and api.content.get_state(obj=self.context) == 'proposed_to_service_chief':
+                and state == 'proposed_to_service_chief':
             self.widgets['ITask.assigned_user'].field = copy.copy(self.widgets['ITask.assigned_user'].field)
             self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
                                                                       ' can propose to an agent !')
+
+        # Set a due date only if its still created and the value was not set before
+        if state == 'created' and self.widgets['ITask.due_date'].value == ('','',''):
+            due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
+            if due_date_extension > 0:
+                due_date = datetime.today() + timedelta(days=due_date_extension)
+                self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
 
     #def applyChanges(self, data):
     #    """ We need to remove a disabled field from data """
