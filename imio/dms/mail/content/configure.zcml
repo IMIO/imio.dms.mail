@@ -1,0 +1,24 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
+    i18n_domain="imio.dms.mail">
+
+    <include package="plone.behavior" file="meta.zcml" />
+
+    <include package="plone.directives.form" file="meta.zcml" />
+    <include package="plone.directives.form" />
+
+   <plone:behavior
+        title="Dms Mail Creating Group"
+        description="Adds localrole creating group field"
+        provides=".behaviors.IDmsMailCreatingGroup"
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument"
+        />
+
+    <adapter
+        name="creating_group"
+        factory=".behaviors.creating_group_indexer"
+        />
+
+</configure>

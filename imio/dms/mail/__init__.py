@@ -32,6 +32,9 @@ BACK_OR_AGAIN_ICONS = {'': False,
                        'back': '++resource++imio.dms.mail/wf_back.png',
                        'again': '++resource++imio.dms.mail/wf_again.png'}
 
+CREATING_GROUP_SUFFIX = 'group_encoder'
+CREATING_FIELD_ROLE = 'Creating Group Field Writer'
+
 
 def _tr(msgid, domain='imio.dms.mail'):
     translation_domain = queryUtility(ITranslationDomain, domain)

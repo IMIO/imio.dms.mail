@@ -1,20 +1,21 @@
 # encoding: utf-8
 
-from browser.settings import IImioDmsMailConfig
+from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
 from datetime import timedelta
+from imio.dms.mail import _tr as _
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from interfaces import IIMDashboard
 from natsort import natsorted
+from persistent.dict import PersistentDict
 #from operator import itemgetter
 from persistent.list import PersistentList
-from persistent.dict import PersistentDict
 from plone import api
-from plone.app.textfield.value import RichTextValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
@@ -304,6 +305,36 @@ class VariousUtilsMethods(UtilsMethods):
                 ret.append('%s;%s' % (uid, tit))
         return '\n'.join(ret)
 
+    def kofax_orgs(self):
+        """ Return a list of orgs formatted for Kofax """
+        if not self.user_is_admin():
+            return
+        factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
+        cgs, tgs = [], []
+        registry = getUtility(IRegistry)
+        activated = registry[ORGANIZATIONS_REGISTRY]
+        encoders = []
+        for function in registry[FUNCTIONS_REGISTRY]:
+            if function['fct_id'] == CREATING_GROUP_SUFFIX:
+                encoders = function['fct_orgs']
+                break
+
+        for term in factory(self.context):
+            uid, title = term.value, term.title
+            if uid in encoders:
+                cgs.append('{} | {}'.format(title.encode('utf8'), uid))
+            if uid in activated:
+                tgs.append('{} | {}'.format(title.encode('utf8'), uid))
+        ret = []
+        ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
+        ret.append('')
+        ret.append('\n'.join(cgs))
+        ret.append('')
+        ret.append(_('Treating groups : to be used in kofax index').encode('utf8'))
+        ret.append('')
+        ret.append('\n'.join(tgs))
+        return '\n'.join(ret)
+
 
 class IdmUtilsMethods(UtilsMethods):
     """ View containing incoming mail utils methods """
@@ -317,8 +348,7 @@ class IdmUtilsMethods(UtilsMethods):
         """ Test if assigned_user is set or if the test is required or if the user is admin """
         if self.context.assigned_user is not None:
             return True
-        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-        if not settings.assigned_user_check:
+        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'):
             return True
         if self.user_is_admin():
             return True

@@ -87,7 +87,7 @@ $(document).ready(function(){
     /* Remove this overlay causing error in overlayhelpers and ckeditor not loading */
     $('.template-atct_edit.portaltype-document #atrb_relatedItems').remove();
     $('#faceted-form #type_widget').click(dmsmail.manage_orgtype_filter);
-    $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a></span>');
+    $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a><br /><a href="@@various-utils/kofax_orgs" target="_blank">Listing des services pour Kofax</a></span>');
 
     // replace error message with interpreted html to render links
     $('.template-usergroup-userprefs .portalMessage.error dd, .template-usergroup-groupprefs .portalMessage.error dd').html(function(index, html){
