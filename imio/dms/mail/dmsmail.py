@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 from AccessControl import getSecurityManager
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
@@ -23,6 +24,7 @@ from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
+from datetime import datetime, timedelta
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
@@ -303,6 +305,11 @@ class CustomAddForm(DefaultAddForm):
     def updateWidgets(self):
         super(CustomAddForm, self).updateWidgets()
         ImioDmsIncomingMailUpdateWidgets(self)
+        # Set a due date by default if it was set in the configuration
+        due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
+        if due_date_extension > 0:
+            due_date = datetime.today() + timedelta(days=due_date_extension)
+            self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
 
 
 class AddIM(DefaultAddView):

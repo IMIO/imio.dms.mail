@@ -28,7 +28,8 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'incomingmail',
         label=_(u"Incoming mail"),
-        fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'imail_remark_states']
+        fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'due_date_extension',
+                'imail_remark_states']
     )
 
     mail_types = schema.List(
@@ -49,6 +50,13 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u'Original mail date requirement'),
         description=_(u"Check if the incoming mail 'original mail date' field must be required."),
         default=True
+    )
+
+    due_date_extension = schema.Int(
+        title=_(u'Due date extension'),
+        description=_(u'Extends the due date by a number of days. 0 means no due date will be set by default.'),
+        default=0,
+        min=0
     )
 
     imail_remark_states = schema.List(

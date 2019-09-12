@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-03-20 10:56+0000\n"
+"POT-Creation-Date: 2019-09-12 08:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
-#: ./browser/settings.py:107
+#: ./browser/settings.py:115
 msgid "A user can see all mail titles linked to a contact."
 msgstr ""
 
@@ -45,7 +45,7 @@ msgstr ""
 msgid "Added values"
 msgstr ""
 
-#: ./setuphandlers.py:1893
+#: ./setuphandlers.py:1895
 msgid "All contacts export"
 msgstr ""
 
@@ -53,11 +53,11 @@ msgstr ""
 msgid "An assigned user is not in this new treating group. Mail \"${mail}\" !"
 msgstr ""
 
-#: ./browser/settings.py:43
+#: ./browser/settings.py:44
 msgid "Assigned user check"
 msgstr ""
 
-#: ./setuphandlers.py:1930
+#: ./setuphandlers.py:1932
 msgid "Base template"
 msgstr ""
 
@@ -89,19 +89,19 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:96
+#: ./browser/settings.py:104
 msgid "Check if a service encoder can edit his service templates."
 msgstr ""
 
-#: ./browser/settings.py:50
+#: ./browser/settings.py:51
 msgid "Check if the incoming mail 'original mail date' field must be required."
 msgstr ""
 
-#: ./browser/settings.py:44
+#: ./browser/settings.py:45
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./vocabularies.py:134
+#: ./vocabularies.py:130
 msgid "Choose a value !"
 msgstr ""
 
@@ -109,21 +109,21 @@ msgstr ""
 msgid "Choose this template"
 msgstr ""
 
-#: ./setuphandlers.py:1842
+#: ./setuphandlers.py:1844
 msgid "Common templates"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:324
+#: ./migrations/migrate_to_2_1.py:330
 #: ./setuphandlers.py:269
 msgid "Contact list searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:324
+#: ./migrations/migrate_to_2_1.py:330
 #: ./setuphandlers.py:269
 msgid "Contact lists"
 msgstr ""
 
-#: ./browser/settings.py:102
+#: ./browser/settings.py:110
 msgid "Contacts"
 msgstr ""
 
@@ -135,40 +135,48 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./browser/settings.py:85
+#: ./browser/settings.py:93
 msgid "Dms file must be an odt format"
 msgstr ""
 
-#: ./vocabularies.py:121
+#: ./browser/settings.py:56
+msgid "Due date extension"
+msgstr ""
+
+#: ./vocabularies.py:117
 msgid "Empty value"
 msgstr ""
 
-#: ./browser/settings.py:95
+#: ./browser/settings.py:103
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1914
+#: ./setuphandlers.py:1916
 msgid "Ending template"
+msgstr ""
+
+#: ./browser/settings.py:57
+msgid "Extends the due date by a number of days. 0 means no due date will be set by default."
 msgstr ""
 
 #: ./browser/batchactions.py:225
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1910
+#: ./setuphandlers.py:1912
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1908
+#: ./setuphandlers.py:1910
 msgid "Header template"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:306
+#: ./migrations/migrate_to_2_1.py:312
 #: ./setuphandlers.py:251
 msgid "Held positions"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:306
+#: ./migrations/migrate_to_2_1.py:312
 #: ./setuphandlers.py:251
 msgid "Held positions searches"
 msgstr ""
@@ -204,7 +212,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1912
+#: ./setuphandlers.py:1914
 msgid "Intro template"
 msgstr ""
 
@@ -212,12 +220,12 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1886
+#: ./setuphandlers.py:1888
 msgid "Mail listing template"
 msgstr ""
 
-#: ./browser/settings.py:37
-#: ./dmsmail.py:109
+#: ./browser/settings.py:38
+#: ./dmsmail.py:127
 msgid "Mail type"
 msgstr ""
 
@@ -229,7 +237,7 @@ msgstr ""
 msgid "Mail type value"
 msgstr ""
 
-#: ./setuphandlers.py:1916
+#: ./setuphandlers.py:1918
 msgid "Mailing template"
 msgstr ""
 
@@ -245,30 +253,30 @@ msgstr ""
 msgid "No incoming mail !"
 msgstr ""
 
-#: ./browser/settings.py:36
+#: ./browser/settings.py:37
 msgid "Once created and used, value doesn't be changed anymore."
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:294
+#: ./migrations/migrate_to_2_1.py:300
 #: ./setuphandlers.py:239
 msgid "Organizations"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:294
+#: ./migrations/migrate_to_2_1.py:300
 #: ./setuphandlers.py:239
 msgid "Organizations searches"
 msgstr ""
 
-#: ./browser/settings.py:49
+#: ./browser/settings.py:50
 msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:171
-#: ./dmsmail.py:360
+#: ./dmsmail.py:384
 msgid "Outgoing Date"
 msgstr ""
 
-#: ./browser/settings.py:61
+#: ./browser/settings.py:69
 #: ./migrations/migrate_to_0_2.py:118
 #: ./setuphandlers.py:161
 msgid "Outgoing mail"
@@ -288,12 +296,12 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:315
+#: ./migrations/migrate_to_2_1.py:321
 #: ./setuphandlers.py:260
 msgid "Persons"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:315
+#: ./migrations/migrate_to_2_1.py:321
 #: ./setuphandlers.py:260
 msgid "Persons searches"
 msgstr ""
@@ -302,15 +310,15 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1924
+#: ./setuphandlers.py:1926
 msgid "Print template"
 msgstr ""
 
-#: ./setuphandlers.py:1939
+#: ./setuphandlers.py:1941
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:101
+#: ./dmsmail.py:121
 msgid "Recipient groups"
 msgstr ""
 
@@ -335,7 +343,7 @@ msgstr ""
 msgid "Reply to ${ref}"
 msgstr ""
 
-#: ./browser/settings.py:80
+#: ./browser/settings.py:88
 msgid "Response prefix"
 msgstr ""
 
@@ -355,11 +363,11 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
-#: ./dmsmail.py:73
+#: ./dmsmail.py:92
 msgid "Sender"
 msgstr ""
 
-#: ./browser/settings.py:90
+#: ./browser/settings.py:98
 msgid "Sender list is sorted on firstname"
 msgstr ""
 
@@ -367,11 +375,11 @@ msgstr ""
 msgid "Single steps profile for imio.dms.mail"
 msgstr ""
 
-#: ./browser/settings.py:55
+#: ./browser/settings.py:63
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1900
+#: ./setuphandlers.py:1902
 msgid "Style template"
 msgstr ""
 
@@ -387,7 +395,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1840
+#: ./setuphandlers.py:1842
 msgid "Templates"
 msgstr ""
 
@@ -395,25 +403,25 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:535
+#: ./dmsmail.py:559
 msgid "The assigned user is not in the selected assigned group !"
 msgstr ""
 
-#: ./dmsmail.py:525
+#: ./dmsmail.py:549
 msgid "The assigned user is not in the selected treating group !"
 msgstr ""
 
 #: ./browser/batchactions.py:40
-#: ./browser/table.py:113
-#: ./dmsmail.py:82
+#: ./browser/table.py:114
+#: ./dmsmail.py:102
 msgid "Treating groups"
 msgstr ""
 
-#: ./browser/settings.py:35
+#: ./browser/settings.py:36
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/settings.py:67
+#: ./browser/settings.py:75
 msgid "Types of outgoing mail"
 msgstr ""
 
@@ -441,7 +449,7 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:247
+#: ./dmsmail.py:265
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
@@ -488,24 +496,24 @@ msgid "create_om"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:211
-#: ./migrations/migrate_to_2_1.py:211
+#: ./migrations/migrate_to_2_1.py:217
 #: ./setuphandlers.py:753
 msgid "front_page_descr"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:212
-#: ./migrations/migrate_to_2_1.py:212
+#: ./migrations/migrate_to_2_1.py:218
 #: ./setuphandlers.py:754
 msgid "front_page_text"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:210
-#: ./migrations/migrate_to_2_1.py:210
+#: ./migrations/migrate_to_2_1.py:216
 #: ./setuphandlers.py:752
 msgid "front_page_title"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:159
+#: ./migrations/migrate_to_2_1.py:160
 #: ./setuphandlers.py:516
 msgid "im_followed"
 msgstr ""
@@ -522,7 +530,7 @@ msgstr ""
 msgid "im_in_copy"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:151
+#: ./migrations/migrate_to_2_1.py:152
 #: ./setuphandlers.py:500
 msgid "im_in_copy_unread"
 msgstr ""
