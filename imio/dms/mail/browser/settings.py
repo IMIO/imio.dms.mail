@@ -74,10 +74,11 @@ class IImioDmsMailConfig(model.Schema):
 
     imail_group_encoder = schema.Bool(
         title=_(u'Activate group encoder'),
-        description=_(u"when activating this option, a group encoder function is added to manage incoming mails "
+        description=_(u"When activating this option, a group encoder function is added to manage incoming mails "
                       u"in creation. A new field is added to the mail to choose the creating group. "
-                      u"Mails are now only visible by the creating group, no more by the global 'encoder' group. "
-                      u"A list of 'encoder' groups, can be generated to be used in 'scanner program'."),
+                      u"Mails are then only visible by the creating group, no more by the global 'encoder' group. "
+                      u"A list of 'encoder' groups, can be generated to be used in 'scanner program'. "
+                      u"UNLESS ACTIVATED, THIS OPTION CAN'T BE UNDONE !!"),
         default=False
     )
 
