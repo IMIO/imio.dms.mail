@@ -70,6 +70,10 @@ msgstr ""
 msgid "Sender"
 msgstr ""
 
+#: ../faceted_conf/im-faceted:
+msgid "Creating group"
+msgstr ""
+
 #: ../faceted_conf/om-faceted:
 msgid "Outgoing Date"
 msgstr ""
