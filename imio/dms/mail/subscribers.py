@@ -13,6 +13,7 @@ from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from DateTime import DateTime
 from imio.dms.mail import _
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -295,6 +296,19 @@ def contact_plonegroup_change(event):
                 roles = ['Reader', 'Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
+        # we manage local roles to give needed permissions related to group_encoder
+        group_encoder_config = [dic for dic in registry[FUNCTIONS_REGISTRY] if dic['fct_id'] == CREATING_GROUP_SUFFIX]
+        if group_encoder_config:
+            orgs = group_encoder_config[0]['fct_orgs']
+            for folder in (portal['incoming-mail'], portal['contacts'],
+                           portal['contacts']['contact-lists-folder']['common']):
+                dic = folder.__ac_local_roles__
+                for principal in dic.keys():
+                    if principal.endswith(CREATING_GROUP_SUFFIX):
+                        del dic[principal]
+                for uid in orgs:
+                    dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
+                folder._p_changed = True
 
 
 def ploneGroupContactChanged(organization, event):
@@ -416,24 +430,27 @@ def group_deleted(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
 
-    def get_query(portal_type, field, org, suffix):
+    def get_query(portal_type, field, idx, org, suffix):
         fti = getUtility(IDexterityFTI, name=portal_type)
         config = fti.localroles.get(field)
         if not config:
             return {}
         for st in config:
             if suffix in config[st]:
-                return {field: org}
+                return {idx: org}
         return {}
 
     # search in indexes following suffix use in type localroles
-    for (idx, pts, domain) in (
-            ('assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
-            ('treating_groups', ['dmsincomingmail', 'dmsoutgoingmail'], 'collective.eeafaceted.z3ctable'),
-            ('recipient_groups', ['dmsincomingmail', 'dmsoutgoingmail'], 'collective.eeafaceted.z3ctable'),
-            ('creating_group', ['dmsincomingmail', 'dmsoutgoingmail'], 'collective.eeafaceted.z3ctable')):
+    for (idx, field, pts, domain) in (
+            ('assigned_group', 'assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
+            ('treating_groups', 'treating_groups', ['dmsincomingmail', 'dmsoutgoingmail'],
+             'collective.eeafaceted.z3ctable'),
+            ('recipient_groups', 'recipient_groups', ['dmsincomingmail', 'dmsoutgoingmail'],
+             'collective.eeafaceted.z3ctable'),
+            ('assigned_group', 'creating_group', ['dmsincomingmail', 'dmsoutgoingmail'],
+             'collective.eeafaceted.z3ctable')):
         for pt in pts:
-            query = get_query(pt, idx, parts[0], group_suffix)
+            query = get_query(pt, field, idx, parts[0], group_suffix)
             if not query:
                 continue
             query.update({'portal_type': pt})

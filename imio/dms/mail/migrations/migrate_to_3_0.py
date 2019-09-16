@@ -49,8 +49,8 @@ class Migrate_To_3_0(Migrator):
             if dic['fct_id'] == u'encodeur':
                 dic['fct-title'] = u'Créateur CS'
 
-        self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
-                                      acquire=0)
+        # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
+        #                              acquire=0)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
