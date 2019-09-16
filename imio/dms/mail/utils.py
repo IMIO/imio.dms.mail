@@ -1,8 +1,7 @@
 # encoding: utf-8
 
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
-from collective.contact.plonegroup.utils import organizations_with_suffixes
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
 from datetime import timedelta
@@ -201,16 +200,20 @@ class UtilsMethods(BrowserView):
         else:  # pragma: no cover
             return 'No scan id'
 
-    def is_in_user_groups(self, groups=[], admin=True, test='any'):
-        """ Test if one or all of a given group list is part of the current user groups """
+    def is_in_user_groups(self, groups=[], admin=True, test='any', suffixes=[]):
+        """
+            Test if one or all of a given group list is part of the current user groups
+            Test if one or all of a suffix list is part of the current user groups
+        """
         # for admin, we bypass the check
         if admin and self.user_is_admin():
             return True
         u_groups = self.current_user_groups_ids(api.user.get_current())
+        u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
         if test == 'any':
-            return any(x in u_groups for x in groups)
+            return any(x in u_groups for x in groups) or any(sfx in u_suffixes for sfx in suffixes)
         elif test == 'all':
-            return all(x in u_groups for x in groups)
+            return all(x in u_groups for x in groups) and all(sfx in u_suffixes for sfx in suffixes)
         return False
 
     def user_has_review_level(self, portal_type=None):
@@ -286,8 +289,7 @@ class VariousUtilsMethods(UtilsMethods):
             return
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         lst = []
-        registry = getUtility(IRegistry)
-        activated = registry[ORGANIZATIONS_REGISTRY]
+        activated = get_registry_organizations()
         for term in factory(self.context):
             uid, title = term.value, term.title
             status = uid in activated and 'a' or 'na'
@@ -311,10 +313,9 @@ class VariousUtilsMethods(UtilsMethods):
             return
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         cgs, tgs = [], []
-        registry = getUtility(IRegistry)
-        activated = registry[ORGANIZATIONS_REGISTRY]
+        activated = get_registry_organizations()
         encoders = []
-        for function in registry[FUNCTIONS_REGISTRY]:
+        for function in get_registry_functions():
             if function['fct_id'] == CREATING_GROUP_SUFFIX:
                 encoders = function['fct_orgs']
                 break
@@ -357,20 +358,21 @@ class IdmUtilsMethods(UtilsMethods):
 
     def created_col_cond(self):
         """ Condition for searchfor_created collection """
-        return self.is_in_user_groups(['encodeurs'], admin=False)
+        return self.is_in_user_groups(['encodeurs'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
 
     def proposed_to_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_manager collection """
-        return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False)
+        return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
 
     def proposed_to_pre_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_pre_manager collection """
-        return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False)
+        return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False,
+                                      suffixes=[CREATING_GROUP_SUFFIX])
 
     def proposed_to_serv_chief_col_cond(self):
         """ Condition for searchfor_proposed_to_service_chief collection """
-        if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False) or \
-                organizations_with_suffixes(self.current_user_groups(api.user.get_current()), ['validateur']):
+        if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False,
+                                  suffixes=[CREATING_GROUP_SUFFIX, 'validateur']):
             return True
         return False
 
@@ -400,7 +402,7 @@ class OdmUtilsMethods(UtilsMethods):
 
     def scanned_col_cond(self):
         """ Condition for searchfor_scanned collection """
-        return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False)
+        return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
 
     def is_odt_activated(self):
         registry = getUtility(IRegistry)

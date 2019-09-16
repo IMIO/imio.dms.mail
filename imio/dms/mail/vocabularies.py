@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
 from browser.settings import IImioDmsMailConfig
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_organizations
@@ -90,11 +90,10 @@ class AssignedUsersVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        registry = getUtility(IRegistry)
         terms = []
         users = {}
         titles = []
-        for uid in registry[ORGANIZATIONS_REGISTRY]:
+        for uid in get_registry_organizations():
             members = get_selected_org_suffix_users(uid, ['editeur', 'encodeur', 'validateur'])
             for member in members:
                 title = member.getUser().getProperty('fullname') or member.getUserName()

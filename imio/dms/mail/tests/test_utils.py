@@ -34,6 +34,7 @@ class TestUtils(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        api.group.create('abc_group_encoder', 'ABC group encoder')
 
     def test_dms_config(self):
         annot = IAnnotations(self.portal)
@@ -110,6 +111,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.is_in_user_groups(groups=['abc']))
         self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False))
         self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False, test='all'))
+        self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False, suffixes=['general']))
         # current user is not Manager
         login(self.portal, 'dirg')
         self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
@@ -117,8 +119,12 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.is_in_user_groups(groups=['abc']))
         self.assertTrue(view.is_in_user_groups(groups=['abc', 'dir_general']))
         self.assertFalse(view.is_in_user_groups(groups=['abc', 'dir_general'], test='all'))
-        self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers', 'dir_general']))
+        self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers', 'dir_general'], test='all'))
         self.assertFalse(view.is_in_user_groups(groups=['dir_general'], test='other'))
+        self.assertTrue(view.is_in_user_groups(suffixes=['general']))
+        self.assertTrue(view.is_in_user_groups(groups=['abc'], suffixes=['general']))
+        self.assertFalse(view.is_in_user_groups(groups=['abc'], suffixes=['general'], test='all'))
+        self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers'], suffixes=['general'], test='all'))
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
@@ -159,6 +165,10 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.created_col_cond())
         login(self.portal, 'encodeur')
         self.assertTrue(view.created_col_cond())
+        login(self.portal, 'agent')
+        self.assertFalse(view.created_col_cond())
+        api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.assertTrue(view.created_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_manager_col_cond(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
@@ -166,14 +176,40 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.proposed_to_manager_col_cond())
         login(self.portal, 'encodeur')
         self.assertTrue(view.proposed_to_manager_col_cond())
+        login(self.portal, 'agent')
+        self.assertFalse(view.proposed_to_manager_col_cond())
+        api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.assertTrue(view.proposed_to_manager_col_cond())
         login(self.portal, 'dirg')
         self.assertTrue(view.proposed_to_manager_col_cond())
+
+    def test_IdmUtilsMethods_proposed_to_premanager_col_cond(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        self.assertFalse(view.proposed_to_pre_manager_col_cond())
+        login(self.portal, 'encodeur')
+        self.assertTrue(view.proposed_to_pre_manager_col_cond())
+        login(self.portal, 'agent')
+        self.assertFalse(view.proposed_to_pre_manager_col_cond())
+        api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.assertTrue(view.proposed_to_pre_manager_col_cond())
+        login(self.portal, 'dirg')
+        self.assertTrue(view.proposed_to_pre_manager_col_cond())
+        login(self.portal, 'agent1')
+        self.assertFalse(view.proposed_to_pre_manager_col_cond())
+        api.group.create('pre_manager', 'Pre manager')
+        api.group.add_user(groupname='pre_manager', username='agent1')
+        self.assertTrue(view.proposed_to_pre_manager_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_serv_chief_col_cond(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.proposed_to_serv_chief_col_cond())
         login(self.portal, 'encodeur')
+        self.assertTrue(view.proposed_to_serv_chief_col_cond())
+        login(self.portal, 'agent')
+        self.assertFalse(view.proposed_to_serv_chief_col_cond())
+        api.group.add_user(groupname='abc_group_encoder', username='agent')
         self.assertTrue(view.proposed_to_serv_chief_col_cond())
         login(self.portal, 'dirg')
         self.assertTrue(view.proposed_to_serv_chief_col_cond())

@@ -12,8 +12,10 @@ __author__ = """Gauthier BASTIEN <gbastien@imio.be>, Stephan GEULETTE
 __docformat__ = 'plaintext'
 
 from collections import OrderedDict
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.config import set_registry_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
@@ -1186,16 +1188,15 @@ def configureContactPloneGroup(context):
     if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
     logger.info('Configure contact plonegroup')
-    registry = getUtility(IRegistry)
     site = context.getSite()
-    if not registry.get(FUNCTIONS_REGISTRY):
-        registry[FUNCTIONS_REGISTRY] = [
+    if not get_registry_functions():
+        set_registry_functions([
             {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': []},
             {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': []},
             {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': []},
             {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': []},
-        ]
-    if not registry.get(ORGANIZATIONS_REGISTRY):
+        ])
+    if not get_registry_organizations():
         contacts = site['contacts']
         own_orga = contacts['plonegroup-organization']
         (u'Direction générale', (u'Secrétariat', u'GRH', u'Informatique', u'Communication')),
@@ -1215,7 +1216,7 @@ def configureContactPloneGroup(context):
         services2 = dep2.listFolderContents(contentFilter={'portal_type': 'organization'})
         orgas = [dep0, services0[0], services0[1], services0[3], dep1, services1[0], services1[1],
                  dep2, services2[0], services2[1], departments[5]]
-        registry[ORGANIZATIONS_REGISTRY] = [org.UID() for org in orgas]
+        set_registry_organizations([org.UID() for org in orgas])
 
         # Add users to created groups
         for org in orgas:
@@ -1372,8 +1373,7 @@ def addTestMails(context):
     ]
     senders_cycle = cycle(senders)
 
-    registry = getUtility(IRegistry)
-    selected_orgs = [org for i, org in enumerate(registry[ORGANIZATIONS_REGISTRY]) if i in (0, 1, 2, 4, 5, 6)]
+    selected_orgs = [org for i, org in enumerate(get_registry_organizations()) if i in (0, 1, 2, 4, 5, 6)]
     orgas_cycle = cycle(selected_orgs)
 
     # incoming mails
@@ -2073,10 +2073,10 @@ def configure_group_encoder(portal_type):
         Used to configure a creating function and group for some internal organization
     """
     # function
-    functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
+    functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
         functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': []})
-        api.portal.set_registry_record(FUNCTIONS_REGISTRY, functions)
+        set_registry_functions(functions)
     # behaviors
     fti = getUtility(IDexterityFTI, name=portal_type)
     if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:

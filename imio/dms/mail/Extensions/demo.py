@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
-from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
@@ -197,7 +197,7 @@ def clean_examples(self):
                               id=['plonegroup-organization', 'college-communal', 'conseil-communal'])
     kept_orgs = [brain.UID for brain in brains]
     log_list(out, "Activating only 'college-communal'")
-    api.portal.set_registry_record(name=ORGANIZATIONS_REGISTRY, value=[ownorg['college-communal'].UID()])
+    set_registry_organizations([ownorg['college-communal'].UID()])
     # Delete organization and template folders
     tmpl_folder = portal['templates']['om']
     brains = api.content.find(context=ownorg, portal_type='organization', sort_on='path', sort_order='descending')
@@ -238,7 +238,7 @@ def clean_examples(self):
         log_list(out, "Deleting user '%s'" % userid)
         api.user.delete(user=user)
     # Delete groups
-    functions = [dic['fct_id'] for dic in api.portal.get_registry_record(FUNCTIONS_REGISTRY)]
+    functions = [dic['fct_id'] for dic in get_registry_functions()]
     groups = api.group.get_groups()
     for group in groups:
         if '_' not in group.id or group.id in ['dir_general']:
