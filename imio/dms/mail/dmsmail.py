@@ -267,7 +267,7 @@ class IMEdit(DmsDocumentEdit):
                                                                       ' can propose to an agent !')
 
         # Set a due date only if its still created and the value was not set before
-        if state == 'created' and self.widgets['ITask.due_date'].value == ('','',''):
+        if state == 'created' and self.widgets['ITask.due_date'].value == ('', '', ''):
             due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
             if due_date_extension > 0:
                 due_date = datetime.today() + timedelta(days=due_date_extension)

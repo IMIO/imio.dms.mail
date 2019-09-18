@@ -138,10 +138,10 @@ class TestUpdateItem(unittest.TestCase):
         self.assertIsNone(imail1.assigned_user)
         view = imail1.unrestrictedTraverse('@@update_item')
         # called without form value
-        self.assertEqual(view(), 'http://nohost/plone/incoming-mail/courrier1')
+        view()
         self.assertIsNone(imail1.assigned_user)
         # called with form value
         form = self.portal.REQUEST.form
         form['assigned_user'] = 'chef'
-        self.assertEqual(view(), 'http://nohost/plone/incoming-mail/courrier1')
+        view()
         self.assertEqual(imail1.assigned_user, 'chef')

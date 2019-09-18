@@ -33,19 +33,26 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
 
     def test_renderAssignUser(self):
         self.view.useIcons = False
+        self.assertEqual(api.content.get_state(self.view.context), 'created')
+        self.assertEqual(self.view.renderAssignUser(), '')
+        api.content.transition(self.view.context, 'propose_to_manager')
+        # right state
         self.assertEqual(self.view.renderAssignUser(),
-                         u'<td>\n    <form action="">\n      <select class="apButton apButtonAction '
-                         u'apButtonAction_assign" name="Assign" onchange="javascript:window.location=this.value;">'
-                         u'\n        <option style="display:none" value="#">Assign</option>\n        \n        <option '
-                         u'value="http://nohost/plone/incoming-mail/courrier1/@@update_item?assigned_user=chef">'
-                         u'Michel Chef</option>\n      </select>\n    </form>\n</td>\n')
+                         u'<td>\n    <form action="">\n      <select class="apButton apButtonSelect apButtonAction '
+                         u'apButtonAction_assign" name="Assign" onchange="javascript:callViewAndReload(base_url='
+                         u'\'http://nohost/plone/incoming-mail/courrier1\', view_name=\'@@update_item\', params='
+                         u'{\'assigned_user\': this.value})">\n        <option style="display:none" value="#">Assign'
+                         u'</option>\n        \n        <option value="chef">Michel Chef</option>\n      </select>'
+                         u'\n    </form>\n</td>\n')
         self.view.useIcons = True
         self.assertEqual(self.view.renderAssignUser(),
-                         u'<td>\n    <form action="">\n      <select class="apButton apButtonAction '
-                         u'apButtonAction_assign" name="Assign" onchange="javascript:window.location=this.value;">'
-                         u'\n        \n        <option style="display:none" value="#"></option>\n        <option '
-                         u'value="http://nohost/plone/incoming-mail/courrier1/@@update_item?assigned_user=chef">'
-                         u'Michel Chef</option>\n      </select>\n    </form>\n</td>\n')
+                         u'<td>\n    <form action="">\n      <select class="apButton apButtonSelect apButtonAction '
+                         u'apButtonAction_assign" name="Assign" onchange="javascript:callViewAndReload(base_url='
+                         u'\'http://nohost/plone/incoming-mail/courrier1\', view_name=\'@@update_item\', params='
+                         u'{\'assigned_user\': this.value})">\n        \n        <option style="display:none" '
+                         u'value="#"></option>\n        <option value="chef">Michel Chef</option>\n      </select>'
+                         u'\n    </form>\n</td>\n')
+        # without treating_groups
         new = api.content.create(self.portal['incoming-mail'], 'dmsincomingmail', 'c1')
         view = new.unrestrictedTraverse('@@actions_panel')
         view.useIcons = True
