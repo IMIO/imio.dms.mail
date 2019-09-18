@@ -3,11 +3,11 @@
     tal:condition="users_voc/_terms">
     <form action='' tal:define="current_url string:${context/absolute_url};
                                 useIcons view/useIcons;">
-      <select class="apButton apButtonAction apButtonAction_assign" name="Assign" onchange="javascript:window.location=this.value;">
+      <select class="apButton apButtonSelect apButtonAction apButtonAction_assign" name="Assign" tal:attributes="onchange string:javascript:callViewAndReload(base_url='${current_url}', view_name='@@update_item', params={'assigned_user': this.value});">
         <option tal:condition="not: useIcons" style="display:none" value=# i18n:translate="">Assign</option>
         <option tal:condition="useIcons" style="display:none" value=#></option>
         <option tal:repeat="term users_voc"
-                tal:attributes="value python:'{}/@@update_item?assigned_user={}'.format(current_url, term.value);"
+                tal:attributes="value term/value;"
                 tal:content="term/title">
         </option>
       </select>
