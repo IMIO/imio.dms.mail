@@ -642,14 +642,17 @@ class IdmSearchableExtender(object):
         self.context = context
 
     def __call__(self):
-        brains = self.context.portal_catalog.unrestrictedSearchResults(object_provides='collective.dms.basecontent.'
-                                                                       'dmsfile.IDmsFile',
-                                                                       path={'query':
-                                                                       '/'.join(self.context.getPhysicalPath()),
-                                                                       'depth': 1})
+        # Dont use a catalog search to avoid bug in collective.indexing after optimize
+        # brains = self.context.portal_catalog.unrestrictedSearchResults(object_provides='collective.dms.basecontent.'
+        #                                                                'dmsfile.IDmsFile',
+        #                                                                path={'query':
+        #                                                                '/'.join(self.context.getPhysicalPath()),
+        #                                                                'depth': 1})
         index = []
-        for brain in brains:
-            sid_infos = get_scan_id(brain)
+        for id, obj in self.context.contentItems():
+            if not IDmsFile.providedBy(obj):
+                continue
+            sid_infos = get_scan_id(obj)
             if sid_infos[0]:
                 index += sid_infos
         if index:
