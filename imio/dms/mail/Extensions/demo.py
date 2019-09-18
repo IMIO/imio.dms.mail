@@ -71,6 +71,8 @@ def import_scanned(self, number=2, only=''):
         for key, value in docs[doc]['f'].items():
             setattr(main_file, key, value)
         main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
+        # transaction.commit()  # commit here to be sure to index preceding when using collective.indexing
+        # change has been done in IdmSearchableExtender to avoid using catalog
         document.reindexObject(idxs=('SearchableText'))
         count += 1
     return portal.REQUEST.response.redirect(folder.absolute_url())
