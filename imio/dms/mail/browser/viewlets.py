@@ -8,8 +8,8 @@ from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
-from imio.dms.mail.utils import object_link
 from imio.helpers.content import richtextval
+from imio.helpers.xhtml import object_link
 from imio.prettylink.interfaces import IPrettyLink
 from plone import api
 from plone.app.layout.viewlets import ViewletBase
@@ -56,6 +56,11 @@ class ContactContentBackrefsViewlet(ViewletBase):
         return method(path={'query': ret, 'depth': 0})
 
     index = ViewPageTemplateFile("templates/contactcontent_backrefs.pt")
+
+    def render(self):
+        if not self.request.get('ajax_load', False):
+            return self.index()
+        return ''
 
 
 class DMSTaskParentViewlet(TaskParentViewlet):
@@ -113,7 +118,7 @@ class ContextInformationViewlet(MessagesViewlet):
         for (contact, keys) in errors:
             msg = translate(u"This contact '${title}' has missing address fields: ${keys}",
                             domain='imio.dms.mail', context=self.request,
-                            mapping={'title': object_link(contact, view='edit', title='get_full_title'),
+                            mapping={'title': object_link(contact, view='edit', attribute='get_full_title'),
                                      'keys': ', '.join(keys)})
             ret.append(PseudoMessage(msg_type='significant', text=richtextval(msg),
                        hidden_uid=generate_uid(), can_hide=False))

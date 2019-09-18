@@ -31,11 +31,35 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
                          'courrier1/@@reply">\n     <input type="button" value="Reply" class="apButton apButtonAction '
                          'apButtonAction_reply" />\n     \n  </a>\n</td>\n<td class="noPadding"></td>\n')
 
+    def test_renderAssignUser(self):
+        self.view.useIcons = False
+        self.assertEqual(self.view.renderAssignUser(),
+                         u'<td>\n    <form action="">\n      <select class="apButton apButtonAction '
+                         u'apButtonAction_assign" name="Assign" onchange="javascript:window.location=this.value;">'
+                         u'\n        <option style="display:none" value="#">Assign</option>\n        \n        <option '
+                         u'value="http://nohost/plone/incoming-mail/courrier1/@@update_item?assigned_user=chef">'
+                         u'Michel Chef</option>\n      </select>\n    </form>\n</td>\n')
+        self.view.useIcons = True
+        self.assertEqual(self.view.renderAssignUser(),
+                         u'<td>\n    <form action="">\n      <select class="apButton apButtonAction '
+                         u'apButtonAction_assign" name="Assign" onchange="javascript:window.location=this.value;">'
+                         u'\n        \n        <option style="display:none" value="#"></option>\n        <option '
+                         u'value="http://nohost/plone/incoming-mail/courrier1/@@update_item?assigned_user=chef">'
+                         u'Michel Chef</option>\n      </select>\n    </form>\n</td>\n')
+        new = api.content.create(self.portal['incoming-mail'], 'dmsincomingmail', 'c1')
+        view = new.unrestrictedTraverse('@@actions_panel')
+        view.useIcons = True
+        self.assertEqual(view.renderAssignUser(), '')
+
     def test_sortTransitions(self):
         self.assertListEqual([t['id'] for t in self.view.getTransitions()],
                              ['propose_to_manager', 'propose_to_service_chief'])
         api.content.transition(obj=self.im1, to_state='proposed_to_agent')
+        # with caching
         self.assertListEqual([t['id'] for t in self.view.getTransitions()],
+                             ['propose_to_manager', 'propose_to_service_chief'])
+        # without caching
+        self.assertListEqual([t['id'] for t in self.view.getTransitions(caching=False)],
                              ['back_to_service_chief', 'treat', 'close'])
         to_sort = [{'id': 'close'}, {'id': 'back_to_creation'}, {'id': 'treat'}]
         self.view.sortTransitions(to_sort)

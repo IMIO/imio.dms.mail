@@ -7,7 +7,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import list_wf_states
-from imio.dms.mail.utils import object_link
+from imio.helpers.xhtml import object_link
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import UtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -215,16 +215,3 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.proposed_to_serv_chief_col_cond())
         login(self.portal, 'chef')
         self.assertTrue(view.proposed_to_serv_chief_col_cond())
-
-    def test_object_link(self):
-        elec = self.portal.contacts.electrabel
-        self.assertEqual(object_link(elec), u'<a href="http://nohost/plone/contacts/electrabel/view">Electrabel</a>')
-        self.assertEqual(object_link(elec, view='edit'),
-                         u'<a href="http://nohost/plone/contacts/electrabel/edit">Electrabel</a>')
-        self.assertEqual(object_link(elec, title='get_full_title'),
-                         u'<a href="http://nohost/plone/contacts/electrabel/view">Electrabel</a>')
-        trav = elec['travaux']
-        self.assertEqual(object_link(trav), u'<a href="http://nohost/plone/contacts/electrabel/travaux/view">'
-                                            u'Travaux 1</a>')
-        self.assertEqual(object_link(trav, title='get_full_title'), u'<a href="http://nohost/plone/contacts/electrabel/'
-                                                                    u'travaux/view">Electrabel / Travaux 1</a>')

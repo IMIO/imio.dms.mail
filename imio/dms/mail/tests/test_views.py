@@ -124,3 +124,24 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(ret.pop(0),
                          {'text': u'Mon organisation / Direction générale / GRH [TOUT]',
                           u'id': 'l:%s' % self.pgo['direction-generale']['grh'].UID()})
+
+
+class TestUpdateItem(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+
+    def test_call(self):
+        imail1 = self.portal['incoming-mail']['courrier1']
+        self.assertIsNone(imail1.assigned_user)
+        view = imail1.unrestrictedTraverse('@@update_item')
+        # called without form value
+        self.assertEqual(view(), 'http://nohost/plone/incoming-mail/courrier1')
+        self.assertIsNone(imail1.assigned_user)
+        # called with form value
+        form = self.portal.REQUEST.form
+        form['assigned_user'] = 'chef'
+        self.assertEqual(view(), 'http://nohost/plone/incoming-mail/courrier1')
+        self.assertEqual(imail1.assigned_user, 'chef')

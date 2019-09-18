@@ -10,6 +10,7 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from zope.i18n import translate
 from zope.interface import implements
+from zope.lifecycleevent import modified
 
 import json
 
@@ -181,3 +182,15 @@ class ServerSentEvents(BrowserView):
                     child.conversion_finished = False
 
         return response
+
+
+class UpdateItem(BrowserView):
+    """
+        update attribute of an item
+    """
+
+    def __call__(self):
+        if 'assigned_user' in self.request:
+            self.context.assigned_user = self.request.get('assigned_user')
+            modified(self.context)
+        return self.request.RESPONSE.redirect(self.context.absolute_url())

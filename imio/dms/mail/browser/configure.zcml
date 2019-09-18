@@ -40,6 +40,13 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+        name="update_item"
+        class=".views.UpdateItem"
+        permission="cmf.ModifyPortalContent"
+        />
+
     <!-- ACTIONSPANEL -->
     <configure package="imio.actionspanel">
         <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
