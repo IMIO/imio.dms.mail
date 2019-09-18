@@ -898,20 +898,25 @@ def configure_rolefields(context):
         'created': {'encodeurs': {'roles': ['Contributor', 'Editor', 'DmsFile Contributor', 'Base Field Writer',
                                             'Treating Group Writer']}},
         'proposed_to_manager': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                                'Treating Group Writer']},
-                                'encodeurs': {'roles': ['Base Field Writer', 'Reader']}},
+                                                          'Treating Group Writer']},
+                                'encodeurs': {'roles': ['Base Field Writer', 'Reader']},
+                                'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                      'Base Field Writer', 'Treating Group Writer']},
-                                      'encodeurs': {'roles': ['Reader']}},
+                                                                'Base Field Writer', 'Treating Group Writer']},
+                                      'encodeurs': {'roles': ['Reader']},
+                                      'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
-                              'encodeurs': {'roles': ['Reader']}},
+                              'encodeurs': {'roles': ['Reader']},
+                              'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'in_treatment': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
-                         'encodeurs': {'roles': ['Reader']}},
+                         'encodeurs': {'roles': ['Reader']},
+                         'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'closed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
-                   'encodeurs': {'roles': ['Reader']}},
+                   'encodeurs': {'roles': ['Reader']},
+                   'lecteurs_globaux_ce': {'roles': ['Reader']}},
     }, 'treating_groups': {
-        #'created': {},
-        #'proposed_to_manager': {},
+        # 'created': {},
+        # 'proposed_to_manager': {},
         'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
                                                                'Treating Group Writer']}},
         'proposed_to_agent': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
@@ -924,8 +929,8 @@ def configure_rolefields(context):
                    'editeur': {'roles': ['Reviewer']},
                    'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
-        #'created': {},
-        #'proposed_to_manager': {},
+        # 'created': {},
+        # 'proposed_to_manager': {},
         'proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
         'proposed_to_agent': {'validateur': {'roles': ['Reader']},
                               'editeur': {'roles': ['Reader']},
@@ -1468,7 +1473,7 @@ def addTestUsersAndGroups(context):
     }
     password = 'Dmsmail69!'
     if get_environment() == 'prod':
-#        password = site.portal_registration.generatePassword()
+        # password = site.portal_registration.generatePassword()
         password = generate_password()
     logger.info("Generated password='%s'" % password)
 
@@ -1504,6 +1509,8 @@ def addTestUsersAndGroups(context):
         site['contacts']['contact-lists-folder'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
         api.group.add_user(groupname='expedition', username='scanner')
         api.group.add_user(groupname='expedition', username='encodeur')
+    if api.group.get('lecteurs_globaux_ce') is None:
+        api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
 
 
 def addOwnOrganization(context):
@@ -2093,19 +2100,32 @@ def configure_group_encoder(portal_type):
     #                              ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
     # local roles
     config = {
-        'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                      'Base Field Writer', 'Treating Group Writer']}},
-#                                                      CREATING_FIELD_ROLE]}},
-        'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-        'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-        'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-        'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-        'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+        'dmsincomingmail': {
+            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
+                                                          'Base Field Writer', 'Treating Group Writer']}},
+#                                                          CREATING_FIELD_ROLE]}},
+            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
+            'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+        },
+        'dmsoutgoingmail': {
+            'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
+            'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
+            'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                                          'Base Field Writer', 'Treating Group Writer']}},
+        }
     }
-    msg = add_fti_configuration(portal_type, config, keyname='creating_group')
+    msg = add_fti_configuration(portal_type, config[portal_type], keyname='creating_group')
     if msg:
         logger.warn(msg)
 
     # criteria
-    reimport_faceted_config(portal['incoming-mail']['mail-searches'], xml='im-mail-searches.xml',
-                            default_UID=portal['incoming-mail']['mail-searches']['all_mails'].UID())
+    criterias = {
+        'dmsincomingmail': ('incoming-mail', ''),
+        'dmsoutgoingmail': ('outgoing-mail', '')
+    }
+    folder_id, xml_prefix = criterias[portal_type]
+    reimport_faceted_config(portal[folder_id]['mail-searches'], xml='mail-searches-group-encoder.xml',
+                            default_UID=portal[folder_id]['mail-searches']['all_mails'].UID())

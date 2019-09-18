@@ -88,7 +88,7 @@ class IImioDmsMailConfig(model.Schema):
         'outgoingmail',
         label=_(u"Outgoing mail"),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
-                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit']
+                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -123,6 +123,18 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u'Enable edition of service templates for encoder'),
         description=_(u"Check if a service encoder can edit his service templates."),
         default=True
+    )
+
+    omail_group_encoder = schema.Bool(
+        title=_(u'Activate group encoder'),
+        description=_(u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
+                      u"When activating this option, a group encoder function is added in the configuration, "
+                      u"a new field is added to the mail form to choose the creating group and permissions are given "
+                      u"to the selected creating group. Mails are then separately handled following the creating "
+                      u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
+                      u"multiple scanners and separated 'encoder' groups. "
+                      u"The list of 'encoder' groups, can be generated to be used in 'scanner program'. "),
+        default=False
     )
 
     model.fieldset(
@@ -165,3 +177,10 @@ def imiodmsmail_settings_changed(event):
             logger.exception('Unchecking the imail_group_encoder setting is not expected !!')
             from imio.dms.mail import _tr as _
             raise Invalid(_(u'Unchecking the imail_group_encoder setting is not expected !!'))
+    elif event.record.fieldName == 'omail_group_encoder':
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
+            configure_group_encoder('dmsoutgoingmail')
+        else:
+            logger.exception('Unchecking the omail_group_encoder setting is not expected !!')
+            from imio.dms.mail import _tr as _
+            raise Invalid(_(u'Unchecking the omail_group_encoder setting is not expected !!'))
