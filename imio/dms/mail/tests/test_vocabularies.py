@@ -164,7 +164,7 @@ class TestVocabularies(unittest.TestCase):
         voc_inst2 = ActiveCreatingGroupVocabulary()
         self.assertEqual(len(voc_inst1(self.imail)), 0)
         self.assertEqual(len(voc_inst2(self.imail)), 0)
-        configure_group_encoder('dmsincomingmail')
+        configure_group_encoder(['dmsincomingmail'])
         self.assertEqual(len(voc_inst1(self.imail)), 11)
         self.assertEqual(len(voc_inst2(self.imail)), 0)
         # defining specific group_encoder orgs

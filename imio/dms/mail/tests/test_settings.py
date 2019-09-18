@@ -45,4 +45,4 @@ class TestSettings(unittest.TestCase):
         with self.assertRaises(Invalid) as cm:
             self.registry[key] = False
         self.assertEqual(cm.exception.message, u"Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' "
-                                               u"n'est pas prévu !!")
+                                               u"pour le courrier entrant n'est pas prévu !!")

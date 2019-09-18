@@ -140,11 +140,21 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'contact',
         label=_(u"Contacts"),
-        fields=['all_backrefs_view']
+        fields=['all_backrefs_view', 'contact_group_encoder']
     )
 
     all_backrefs_view = schema.Bool(
         title=_(u'A user can see all mail titles linked to a contact.'),
+        default=False
+    )
+
+    contact_group_encoder = schema.Bool(
+        title=_(u'Activate group encoder'),
+        description=_(u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
+                      u"When activating this option, a group encoder function is added in the configuration, a "
+                      u"new field is added to the contact form to choose the creating group and permissions are given "
+                      u"to the selected creating group. Contacts are then separately handled following the creating "
+                      u"groups. <br />This option can be combined with the mail creating group option."),
         default=False
     )
 
@@ -172,15 +182,26 @@ def imiodmsmail_settings_changed(event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')
     if event.record.fieldName == 'imail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
-            configure_group_encoder('dmsincomingmail')
+            configure_group_encoder(['dmsincomingmail'])
         else:
             logger.exception('Unchecking the imail_group_encoder setting is not expected !!')
             from imio.dms.mail import _tr as _
             raise Invalid(_(u'Unchecking the imail_group_encoder setting is not expected !!'))
-    elif event.record.fieldName == 'omail_group_encoder':
+    if event.record.fieldName == 'omail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
-            configure_group_encoder('dmsoutgoingmail')
+            configure_group_encoder(['dmsoutgoingmail'])
         else:
             logger.exception('Unchecking the omail_group_encoder setting is not expected !!')
             from imio.dms.mail import _tr as _
             raise Invalid(_(u'Unchecking the omail_group_encoder setting is not expected !!'))
+    if event.record.fieldName == 'contact_group_encoder':
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
+            configure_group_encoder(['organization', 'person', 'held_position', 'contact_list'])
+            # set permission on contacts directory
+            portal = api.portal.get()
+            portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
+                                                 ('Manager', 'Site Administrator', 'Contributor'), acquire=1)
+        else:
+            logger.exception('Unchecking the contact_group_encoder setting is not expected !!')
+            from imio.dms.mail import _tr as _
+            raise Invalid(_(u'Unchecking the contact_group_encoder setting is not expected !!'))

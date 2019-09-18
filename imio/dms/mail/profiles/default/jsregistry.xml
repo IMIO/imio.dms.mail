@@ -313,6 +313,8 @@
 
   <javascript id="++resource++collective.contact.contactlist/javascript.js" insert-after="++resource++ftw.labels/ftw-labels.js"  enabled="False"/>
 
+  <javascript id="++resource++plonetheme.imioapps/skin.js" insert-after="++resource++collective.contact.contactlist/javascript.js" />
+
   <!--<javascript id="" insert-after="" />-->
 
 </object>

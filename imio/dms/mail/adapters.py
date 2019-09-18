@@ -4,6 +4,7 @@ from AccessControl import getSecurityManager
 from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
+from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
 from collective.dms.basecontent.dmsdocument import IDmsDocument
@@ -531,6 +532,13 @@ def get_full_title_index(obj):
 
 @indexer(IDmsDocument)
 def creating_group_index(obj):
+    if base_hasattr(obj, 'creating_group') and obj.creating_group:
+        return obj.creating_group
+    return common_marker
+
+
+@indexer(IContactContent)
+def contact_creating_group_index(obj):
     if base_hasattr(obj, 'creating_group') and obj.creating_group:
         return obj.creating_group
     return common_marker

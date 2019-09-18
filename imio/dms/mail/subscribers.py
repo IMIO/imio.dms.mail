@@ -246,8 +246,8 @@ def dexterity_transition(obj, event):
 
 def contact_plonegroup_change(event):
     """
-        Update outgoing-mail folder local roles for encodeur.
-        Adding directory by organization in templates/om and contacts/contact-lists-folder
+        Update local roles for encodeur and group_encoder.
+        Adding directory by organization in templates/om and contacts/contact-lists-folder.
     """
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface == IContactPlonegroupConfig):
