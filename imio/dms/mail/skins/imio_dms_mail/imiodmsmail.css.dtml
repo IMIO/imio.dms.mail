@@ -220,6 +220,10 @@ body.template-item_view h1 .pretty_link_icons img{
 
 /* Other */
 
+div.ac_results {
+    width: auto !important;
+}
+
 #faceted-results td.pretty_link a.link-tooltip .pretty_link_content{
     border-bottom: 1px dotted;
 }
