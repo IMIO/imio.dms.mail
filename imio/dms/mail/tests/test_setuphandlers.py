@@ -131,7 +131,7 @@ class TestSetuphandlers(unittest.TestCase):
         # activate imail group encoder
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder', True)
         self.assertIn(u'group_encoder', [fct['fct_id'] for fct in get_registry_functions()])
-        for portal_type in ('dmsincomingmail', 'dmsincoming_email'):
+        for portal_type in ('dmsincomingmail',):
             fti = getUtility(IDexterityFTI, name=portal_type)
             self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)])
             self.assertTrue(fti.localroles.get('creating_group'))  # config dic not empty
