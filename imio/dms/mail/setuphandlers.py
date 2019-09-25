@@ -1721,7 +1721,7 @@ def addContactListsFolder(context):
                                      RelationValue(intids.getId(contacts['bernardlermitte']['agent-swde']))])
 
 
-def create_persons_from_users(portal, start='firstname', functions=['encodeur']):
+def create_persons_from_users(portal, start='firstname', functions=['encodeur'], userid=''):
     """
         create own personnel from plone users
     """
@@ -1740,6 +1740,8 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'])
         if function and function not in functions:
             continue
         for user in api.user.get_users(group=group):
+            if userid and user.id != userid:
+                continue
             if user.id not in users and user.id not in ['scanner']:
                 users[user.id] = {'pers': {}, 'orgs': []}
                 fullname = safe_unicode(user.getProperty('fullname'))
