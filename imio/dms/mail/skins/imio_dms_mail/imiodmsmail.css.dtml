@@ -103,10 +103,6 @@
 }
 /* Display None */
 
-#edit-bar {
-    display: none;
-}
-
 .template-facetednavigation_view .viewlet_workflowstate{
     display: none;
 }

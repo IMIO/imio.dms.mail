@@ -5,7 +5,6 @@ from imio.dms.mail import _tr
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from plone import api
 from plone.app.contenttypes.interfaces import IFile
-from Products.CMFPlone.browser.ploneview import Plone
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from zope.i18n import translate
@@ -13,17 +12,6 @@ from zope.interface import implements
 from zope.lifecycleevent import modified
 
 import json
-
-
-class PloneView(Plone):
-    """
-        Redefinition of plone view
-    """
-
-    def showEditableBorder(self):
-        """Determine if the editable border (green bar) should be shown
-        """
-        return True
 
 
 class CreateFromTemplateForm(BaseRenderFancyTree):

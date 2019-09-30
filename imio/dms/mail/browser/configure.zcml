@@ -329,14 +329,6 @@
     </class>
 
     <browser:page
-        for="collective.dms.basecontent.dmsdocument.IDmsDocument"
-        name="plone"
-        class=".views.PloneView"
-        permission="zope.Public"
-        allowed_interface="Products.CMFPlone.browser.interfaces.IPlone"
-    />
-
-    <browser:page
         name="reply"
         for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
         class=".reply_form.ReplyForm"
