@@ -261,6 +261,13 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
+        name="labels-batch-action"
+        class="collective.eeafaceted.batchactions.browser.views.LabelsBatchActionForm"
+        permission="zope2.View"
+        />
+
     <!-- BATCH ACTIONS OM MAILS -->
     <browser:page
         for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
