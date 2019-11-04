@@ -95,7 +95,12 @@
 .chzn-container {
     font-size: inherit;
 }
+
 /* Display None */
+
+.template-facetednavigation_view .viewlet_workflowstate{
+    display: none;
+}
 
 #formfield-oform-widgets-position,
 .template-dmsdocument-edit .overlay-contact-addnew div.field[id$="_date"],

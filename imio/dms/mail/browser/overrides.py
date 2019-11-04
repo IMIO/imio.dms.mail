@@ -7,16 +7,30 @@
 # GNU General Public License (GPL)
 #
 
+from Acquisition import aq_inner
+from collective.contact.contactlist.interfaces import IContactList
+from collective.contact.widget.interfaces import IContactContent
+from collective.dms.basecontent.dmsdocument import IDmsDocument
+from collective.dms.basecontent.dmsfile import IDmsFile, IDmsAppendixFile
 from collective.dms.mailcontent.browser.utils import UtilsMethods
+from collective.documentgenerator.content.pod_template import IPODTemplate
+from collective.documentgenerator.content.style_template import IStyleTemplate
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
+from collective.task.behaviors import ITask
+from collective.task.interfaces import ITaskContent
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
 from imio.history.browser.views import IHDocumentBylineViewlet
 from plone import api
+from plone.app.layout.viewlets.common import ContentActionsViewlet as CAV
 from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
+from Products.ATContentTypes.interfaces.document import IATDocument
+from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
+from Products.CMFPlone.browser.ploneview import Plone as PV
+from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 
@@ -82,6 +96,26 @@ class LockingOperations(PLLockingOperations):
             self.request.RESPONSE.redirect('%s/view' % self.context.absolute_url())
         else:
             super(LockingOperations, self).force_unlock(redirect=redirect)
+
+
+class Plone(PV):
+
+    def showEditableBorder(self):
+        context = aq_inner(self.context)
+        for interface in (ITask, IContactContent, IContactList, IDmsFile, IATBTreeFolder, IPODTemplate, IStyleTemplate):
+            if interface.providedBy(context):
+                return False
+        return super(Plone, self).showEditableBorder()
+
+
+class ContentActionsViewlet(CAV):
+    """ """
+    def render(self):
+        context = aq_inner(self.context)
+        for interface in (IATDocument, IDmsAppendixFile, IPloneSiteRoot):
+            if interface.providedBy(context):
+                return ''
+        return self.index()
 
 
 class PloneSearch(Search):

@@ -324,12 +324,12 @@ class VariousUtilsMethods(UtilsMethods):
         ret = []
         ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
-        ret.append('\n'.join(cgs))
+        ret.append('\r\n'.join(cgs))
         ret.append('')
         ret.append(_('Treating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
-        ret.append('\n'.join(tgs))
-        return '\n'.join(ret)
+        ret.append('\r\n'.join(tgs))
+        return '\r\n'.join(ret)
 
 
 class IdmUtilsMethods(UtilsMethods):
