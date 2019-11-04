@@ -372,84 +372,58 @@ ul.select2-choices {
 .state-created {
  color: red !important;
 }
-
-#plone-contentmenu-workflow .state-created, .viewlet_workflowstate .state-created {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-created {
     background-color: red;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid red;
+    border-color: red;
 }
 
 .state-proposed_to_manager {
  color: DarkOrange !important;
 }
-#plone-contentmenu-workflow .state-proposed_to_manager, .viewlet_workflowstate .state-proposed_to_manager {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-proposed_to_manager {
     background-color: DarkOrange;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid DarkOrange;
+    border-color: DarkOrange;
 }
 
 .state-proposed_to_division_head {
  color: blue !important;
 }
 
-#plone-contentmenu-workflow .state-proposed_to_division_head, .viewlet_workflowstate .state-proposed_to_division_head {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-proposed_to_division_head {
     background-color: blue;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid blue;
+    border-color: blue;
 }
 
 .state-proposed_to_service_chief {
  color: blueviolet !important;
 }
-
-#plone-contentmenu-workflow .state-proposed_to_service_chief, .viewlet_workflowstate .state-proposed_to_service_chief {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-proposed_to_service_chief {
     background-color: blueviolet;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid blueviolet;
+    border-color: blueviolet;
 }
 
 .state-proposed_to_agent {
  color: blue !important;
 }
-
-#plone-contentmenu-workflow .state-proposed_to_agent, .viewlet_workflowstate .state-proposed_to_agent {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-proposed_to_agent {
     background-color: blue;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid blue;
+    border-color: blue;
 }
 
 .state-in_treatment {
  color: green !important;
 }
-
-#plone-contentmenu-workflow .state-in_treatment, .viewlet_workflowstate .state-in_treatment {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-in_treatment {
     background-color: green;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid green;
+    border-color: green;
 }
 
 .state-closed {
  color: dimgrey !important;
 }
-
-#plone-contentmenu-workflow .state-closed, .viewlet_workflowstate .state-closed {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-closed {
     background-color: dimgrey;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid dimgrey;
+    border-color: dimgrey;
 }
 
 /* colorization for outgoing_mail_workflow */
@@ -459,48 +433,33 @@ ul.select2-choices {
  color: blue !important;
 }
 
-#plone-contentmenu-workflow .state-scanned, .viewlet_workflowstate .state-scanned {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-scanned {
     background-color: blue;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid blue;
+    border-color: blue;
 }
 
 .state-to_be_signed {
  color: green !important;
 }
-
-#plone-contentmenu-workflow .state-to_be_signed, .viewlet_workflowstate .state-to_be_signed {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-to_be_signed {
     background-color: green;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid green;
+    border-color: green;
 }
 
 .state-sent {
  color: dimgrey !important;
 }
-
-#plone-contentmenu-workflow .state-sent, .viewlet_workflowstate .state-sent {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-sent {
     background-color: dimgrey;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid dimgrey;
+    border-color: dimgrey;
 }
 
 .state-to_print {
  color: cornflowerBlue !important;
 }
-
-#plone-contentmenu-workflow .state-to_print, .viewlet_workflowstate .state-to_print {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-to_print {
     background-color: cornflowerBlue;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid cornflowerBlue;
+    border-color: cornflowerBlue;
 }
 
 /* colorization for internal_application_workflow */
@@ -508,39 +467,27 @@ ul.select2-choices {
 .state-internally_published {
  color: #436976 !important;
 }
-
-#plone-contentmenu-workflow .state-internally_published, .viewlet_workflowstate .state-internally_published {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-internally_published {
     background-color: #436976;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid #436976;
+    border-color: #436976;
 }
 
-/* colorization for active_inactive_workflow */
+/* colorization for active_inactive_workflow, collective_contact_core_workflow */
 
 .state-deactivated {
  color: red !important;
 }
-
-#plone-contentmenu-workflow .state-deactivated, .viewlet_workflowstate .state-deactivated {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-deactivated {
     background-color: red;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid red;
+    border-color: red;
 }
 
 .state-active {
  color: #436976 !important;
 }
-
-#plone-contentmenu-workflow .state-active, .viewlet_workflowstate .state-active {
-    border-radius: 0.5em 0.5em 0.5em 0.5em;
+.viewlet_workflowstate span.state-active {
     background-color: #436976;
-    padding: 0 0.5em;
-    color: white !important;
-    border: 2px solid #436976;
+    border-color: #436976;
 }
 
 .state-color {
