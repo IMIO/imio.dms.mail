@@ -874,8 +874,8 @@ def adaptDefaultPortal(context):
                                         'search_rss_enabled', value=False)
     api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
                                    'contact_source_metadata_content',
-                                   u'{gft} ↈ {number}, {street}, {zip_code}, {city} ↈ {email}')
-
+                                   u'{gft} ⏺ {number}, {street}, {zip_code}, {city} ⏺ {email}')
+    # chars ⏺, ↈ  , ▐ , ⬤ (see ubuntu character table. Use ctrl+shift+u+code)
     # imio.dms.mail configuration annotation
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
