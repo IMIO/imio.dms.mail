@@ -4,6 +4,7 @@ from AccessControl import getSecurityManager
 from collective import dexteritytextindexer
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
+from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
@@ -542,6 +543,13 @@ def contact_creating_group_index(obj):
     if base_hasattr(obj, 'creating_group') and obj.creating_group:
         return obj.creating_group
     return common_marker
+
+
+@indexer(IContactContent)
+def imio_contact_source(contact):
+    # we get first a <plone.indexer.delegate.DelegatingIndexer object>
+    value = contact_source(contact)().strip()
+    return value.replace(', ,', '').replace('  ,', '').replace(',  ', '')
 
 
 # See getObjSize_file method from plone/app/contenttypes/indexers.py
