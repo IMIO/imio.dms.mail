@@ -197,6 +197,14 @@
             class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAdd"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="collective.dms.basecontent.dmsfile.IDmsFile"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAdd"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
     </configure>
 
     <!-- BATCH ACTIONS CONTACTS -->
@@ -393,14 +401,91 @@
         />
 
     <!-- Viewlets -->
+    <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.task.behaviors.ITask"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.contact.widget.interfaces.IContactContent"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.contact.contactlist.interfaces.IContactList"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="Products.ATContentTypes.interfaces.folder.IATBTreeFolder"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.eeafaceted.collectionwidget.interfaces.ICollectionCategories"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="imio.dms.mail.interfaces.IActionsPanelFolder"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="imio.dms.mail.interfaces.IActionsPanelFolderAll"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.documentgenerator.content.style_template.IStyleTemplate"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.documentgenerator.content.pod_template.IPODTemplate"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="imio.dms.mail.interfaces.IMemberAreaFolder"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.eeafaceted.collectionwidget.interfaces.IDashboardCollection"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
     <browser:viewlet
         name="collective.contact.core.backrefs"
         for="collective.contact.widget.interfaces.IContactContent"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
         class=".viewlets.ContactContentBackrefsViewlet"
         layer="*"
-        permission="zope2.View"
-        />
+        permission="zope2.View" />
 
     <configure package="collective.documentgenerator">
         <browser:viewlet

@@ -4,12 +4,12 @@ from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
 from plone import api
 from plone.memoize import ram
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from zope.component import getMultiAdapter
 
 
 def actionspanelview_cachekey(method,
                               self,
                               useIcons=True,
+                              showEdit=True,
                               showOwnDelete=False,
                               showActions=False,
                               showAddContent=False,
@@ -23,7 +23,7 @@ def actionspanelview_cachekey(method,
         * user groups
     """
     user = self.request['AUTHENTICATED_USER']
-    return (useIcons, showOwnDelete, showActions, showAddContent,
+    return (useIcons, showOwnDelete, showActions, showAddContent, showEdit,
             self.context, user.getId(), self.context.modified(), api.content.get_state(self.context, default=None),
             sorted(user.getGroups()))
 
@@ -81,7 +81,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
                  useIcons=True,
                  #showTransitions=True,
                  #appendTypeNameToTransitionLabel=False,
-                 #showEdit=True,
+                 showEdit=True,
                  #showExtEdit=False,
                  showOwnDelete=False,
                  showActions=False,
@@ -95,7 +95,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
             useIcons=useIcons,
             #showTransitions=showTransitions,
             #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
-            #showEdit=showEdit,
+            showEdit=showEdit,
             #showExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
@@ -112,10 +112,13 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
         Override render method for dms document
     """
 
-    def renderViewlet(self):
-        if self.show():
-            view = getMultiAdapter((self.context, self.request), name='actions_panel')
-            return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
+    params = {
+        'useIcons': False,
+        'showEdit': True,
+        'showOwnDelete': False,
+        'showAddContent': True,
+        'showActions': True,
+    }
 
 
 class DmsOMActionsPanelView(ActionsPanelView):
@@ -157,7 +160,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
                  useIcons=True,
                  #showTransitions=True,
                  #appendTypeNameToTransitionLabel=False,
-                 #showEdit=True,
+                 showEdit=True,
                  #showExtEdit=False,
                  showOwnDelete=False,
                  showActions=False,
@@ -171,7 +174,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
             useIcons=useIcons,
             #showTransitions=showTransitions,
             #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
-            #showEdit=showEdit,
+            showEdit=showEdit,
             #showExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
@@ -203,7 +206,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
                  useIcons=True,
                  #showTransitions=True,
                  #appendTypeNameToTransitionLabel=False,
-                 #showEdit=True,
+                 showEdit=True,
                  #showExtEdit=False,
                  showOwnDelete=False,
                  showActions=False,
@@ -217,7 +220,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
             useIcons=useIcons,
             #showTransitions=showTransitions,
             #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
-            #showEdit=showEdit,
+            showEdit=showEdit,
             #showExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
@@ -244,10 +247,13 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
         Override render method for contacts
     """
 
-    def renderViewlet(self):
-        if self.show():
-            view = getMultiAdapter((self.context, self.request), name='actions_panel')
-            return view(useIcons=False, showExtEdit=False, showOwnDelete=False, showAddContent=True, showActions=True)
+    params = {
+        'useIcons': False,
+        'showEdit': True,
+        'showOwnDelete': False,
+        'showAddContent': True,
+        'showActions': True,
+    }
 
 
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
@@ -255,11 +261,14 @@ class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
         Override render method for IActionsPanelFolder
     """
 
-    def renderViewlet(self):
-        if self.show():
-            view = getMultiAdapter((self.context, self.request), name='actions_panel')
-            return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
-                        showActions=True)
+    params = {
+        'useIcons': False,
+        'showEdit': True,
+        'showOwnDelete': False,
+        'showAddContent': True,
+        'showActions': True,
+        'showTransitions': False,
+    }
 
 
 class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
@@ -267,11 +276,13 @@ class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
         Override render method for IActionsPanelFolder
     """
 
-    def renderViewlet(self):
-        if self.show():
-            view = getMultiAdapter((self.context, self.request), name='actions_panel')
-            return view(useIcons=False, showExtEdit=False, showTransitions=True, showOwnDelete=False, showAddContent=True,
-                        showActions=True)
+    params = {
+        'useIcons': False,
+        'showEdit': True,
+        'showOwnDelete': False,
+        'showAddContent': True,
+        'showActions': True,
+    }
 
 
 class ActionsPanelViewletAdd(ActionsPanelViewlet):
@@ -279,8 +290,11 @@ class ActionsPanelViewletAdd(ActionsPanelViewlet):
         Override render method
     """
 
-    def renderViewlet(self):
-        if self.show():
-            view = getMultiAdapter((self.context, self.request), name='actions_panel')
-            return view(useIcons=False, showExtEdit=False, showTransitions=False, showOwnDelete=False, showAddContent=True,
-                        showActions=False)
+    params = {
+        'useIcons': False,
+        'showEdit': True,
+        'showOwnDelete': False,
+        'showAddContent': True,
+        'showActions': False,
+        'showTransitions': False,
+    }

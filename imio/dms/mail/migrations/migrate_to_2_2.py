@@ -33,8 +33,7 @@ class Migrate_To_2_2(Migrator):
 
         self.upgradeProfile('collective.contact.core:default')
 
-#        self.runProfileSteps('imio.dms.mail', steps=['actions', 'cssregistry', 'jsregistry', 'repositorytool',
-#                                                     'typeinfo', 'viewlets', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'viewlets'])
         # check if oo port must be changed
         update_oo_config()
 
