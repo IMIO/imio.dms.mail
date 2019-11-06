@@ -38,9 +38,21 @@ class Migrate_To_2_2(Migrator):
         # check if oo port must be changed
         update_oo_config()
 
-        api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
-                                       'contact_source_metadata_content',
-                                       u'{gft} ↈ {number}, {street}, {zip_code}, {city} ↈ {email}')
+        if u'⏺' not in api.portal.get_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
+                                                        'contact_source_metadata_content'):
+            api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
+                                           'contact_source_metadata_content',
+                                           u'{gft} ⏺ {number}, {street}, {zip_code}, {city} ⏺ {email}')
+        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'):
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order', [
+                'IDublinCore.title', 'IDublinCore.description', 'sender', 'treating_groups', 'ITask.assigned_user',
+                'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
+                'ITask.task_description', 'external_reference_no', 'original_mail_date', 'internal_reference_no'])
+        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'):
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order', [
+                'IDublinCore.title', 'IDublinCore.description', 'recipients', 'treating_groups', 'ITask.assigned_user',
+                'sender', 'recipient_groups', 'mail_type', 'mail_date', 'reply_to', 'ITask.task_description',
+                'ITask.due_date', 'outgoing_date', 'external_reference_no', 'internal_reference_no'])
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])

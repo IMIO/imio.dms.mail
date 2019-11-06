@@ -1,8 +1,10 @@
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from imio.dms.mail import _
+from imio.dms.mail import _tr
 from imio.dms.mail.setuphandlers import configure_group_encoder
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import get_schema_fields
 from plone import api
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
@@ -13,13 +15,52 @@ from plone.z3cform import layout
 from z3c.form import form
 #from z3c.form.browser.radio import RadioFieldWidget
 from zope import schema
+from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
+#from zope.interface import provider
+#from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 import logging
 
 
 logger = logging.getLogger('imio.dms.mail: settings')
+
+
+def get_pt_fields_voc(pt, excluded):
+    terms = []
+    for name, field in get_schema_fields(type_name=pt, prefix=True):
+        if name in excluded:
+            continue
+        terms.append(SimpleTerm(name, title=_tr(field.title)))
+    return SimpleVocabulary(terms)
+
+
+#@provider(IContextSourceBinder)
+#def IMFields(context):
+class IMFieldsVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return get_pt_fields_voc('dmsincomingmail',
+                                 ['IDublinCore.contributors', 'IDublinCore.creators', 'IDublinCore.effective',
+                                  'IDublinCore.expires', 'IDublinCore.language', 'IDublinCore.rights',
+                                  'IDublinCore.subjects', 'INameFromTitle.title', 'ITask.assigned_group',
+                                  'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'recipients', 'related_docs'])
+
+
+class OMFieldsVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return get_pt_fields_voc('dmsoutgoingmail',
+                                 ['IDublinCore.contributors', 'IDublinCore.creators', 'IDublinCore.effective',
+                                  'IDublinCore.expires', 'IDublinCore.language', 'IDublinCore.rights',
+                                  'IDublinCore.subjects', 'INameFromTitle.title', 'ITask.assigned_group',
+                                  'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'related_docs'])
 
 
 class IMailTypeSchema(Interface):
@@ -37,7 +78,7 @@ class IImioDmsMailConfig(model.Schema):
         'incomingmail',
         label=_(u"Incoming mail"),
         fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'due_date_extension',
-                'imail_remark_states', 'imail_group_encoder']
+                'imail_remark_states', 'imail_fields_order', 'imail_group_encoder']
     )
 
     mail_types = schema.List(
@@ -72,6 +113,12 @@ class IImioDmsMailConfig(model.Schema):
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary'),
     )
 
+    imail_fields_order = schema.List(
+        title=_(u"Display order of fields"),
+        value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMFieldsVocabulary'),
+#        value_type=schema.Choice(source=IMFields),  # a source is not managed by registry !!
+    )
+
     imail_group_encoder = schema.Bool(
         title=_(u'Activate group encoder'),
         description=_(u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
@@ -88,7 +135,8 @@ class IImioDmsMailConfig(model.Schema):
         'outgoingmail',
         label=_(u"Outgoing mail"),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
-                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit', 'omail_group_encoder']
+                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit', 'omail_fields_order',
+                'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -123,6 +171,11 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u'Enable edition of service templates for encoder'),
         description=_(u"Check if a service encoder can edit his service templates."),
         default=True
+    )
+
+    omail_fields_order = schema.List(
+        title=_(u"Display order of fields"),
+        value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMFieldsVocabulary'),
     )
 
     omail_group_encoder = schema.Bool(

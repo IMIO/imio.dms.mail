@@ -1149,10 +1149,7 @@ def configureImioDmsMail(context):
     logger.info('Configure imio dms mail')
     registry = getUtility(IRegistry)
 
-    # Hide internal reference for om. Increment number automatically
-    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
-    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
-
+    # IM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'] = [
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
@@ -1166,6 +1163,13 @@ def configureImioDmsMail(context):
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = [
             'proposed_to_service_chief', 'proposed_to_agent']
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'] = [
+            'IDublinCore.title', 'IDublinCore.description', 'sender', 'treating_groups', 'ITask.assigned_user',
+            'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
+            'ITask.task_description', 'external_reference_no', 'original_mail_date', 'internal_reference_no']
+
+    # OM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'] = [
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
@@ -1178,6 +1182,16 @@ def configureImioDmsMail(context):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'] = _(u'Response: ')
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'] = [
+            'IDublinCore.title', 'IDublinCore.description', 'recipients', 'treating_groups', 'ITask.assigned_user',
+            'sender', 'recipient_groups', 'mail_type', 'mail_date', 'reply_to', 'ITask.task_description',
+            'ITask.due_date', 'outgoing_date', 'external_reference_no', 'internal_reference_no']
+
+    # mailcontent
+    # Hide internal reference for om. Increment number automatically
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
 
     if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == \
             u"python:'in/'+number":

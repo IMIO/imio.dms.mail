@@ -47,6 +47,8 @@ class TestPloneView(unittest.TestCase):
 
     def test_showEditableBorder(self):
         view = self.portal['incoming-mail']['courrier1'].unrestrictedTraverse('@@plone')
+        self.assertEqual(view.showEditableBorder(), False)
+        view = self.portal['front-page'].unrestrictedTraverse('@@plone')
         self.assertEqual(view.showEditableBorder(), True)
 
 

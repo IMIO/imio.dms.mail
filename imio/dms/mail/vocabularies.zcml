@@ -79,4 +79,14 @@
         factory="imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.IMFieldsVocabulary"
+        factory="imio.dms.mail.browser.settings.IMFieldsVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.OMFieldsVocabulary"
+        factory="imio.dms.mail.browser.settings.OMFieldsVocabulary"
+        />
+
 </configure>
