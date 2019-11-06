@@ -18,7 +18,8 @@ from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.utils import safe_unicode, base_hasattr
+from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
 from z3c.formwidget.query.interfaces import IQuerySource
 from zope.component import getUtility

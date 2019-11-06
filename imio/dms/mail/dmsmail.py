@@ -24,7 +24,8 @@ from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
@@ -45,7 +46,8 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
-from plone.z3cform.fieldsets.utils import move
+from plone.z3cform.fieldsets.utils import add
+from plone.z3cform.fieldsets.utils import remove
 from Products.CMFPlone.utils import base_hasattr
 from vocabularies import encodeur_active_orgs
 from z3c.form import validator
@@ -136,17 +138,6 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         default=None,
     )
 
-    # doesn't work well if IImioDmsIncomingMail is a behavior instead a subclass
-    directives.order_before(sender='recipient_groups')
-    directives.order_before(mail_type='recipient_groups')
-    directives.order_before(original_mail_date='recipient_groups')
-    directives.order_before(reception_date='recipient_groups')
-    directives.order_before(internal_reference_no='recipient_groups')
-    directives.order_before(external_reference_no='recipient_groups')
-    directives.order_before(notes='recipient_groups')
-    directives.order_before(treating_groups='recipient_groups')
-    directives.order_after(reply_to='recipient_groups')
-
     directives.omitted('related_docs', 'recipients', 'notes')
     #directives.widget(recipient_groups=SelectFieldWidget)
 
@@ -175,6 +166,17 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     @ram.cache(object_modified_cachekey)
     def get_back_or_again_icon(self):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
+
+
+def OrderFields(the_form, config_key):
+    """
+        Reorder fields
+    """
+    ordered = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(config_key))
+    for field_name in reversed(ordered):
+        field = remove(the_form, field_name)
+        if field is not None:
+            add(the_form, field, index=0)
 
 
 def ImioDmsIncomingMailUpdateFields(the_form):
@@ -223,6 +225,7 @@ class IMEdit(DmsDocumentEdit):
 
     def updateFields(self):
         super(IMEdit, self).updateFields()
+        OrderFields(self, 'imail_fields_order')
         ImioDmsIncomingMailUpdateFields(self)
         #sm = getSecurityManager()
         #if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
@@ -271,7 +274,7 @@ class IMEdit(DmsDocumentEdit):
                                                                       ' can propose to an agent !')
 
         # Set a due date only if its still created and the value was not set before
-        if state == 'created' and self.widgets['ITask.due_date'].value == ('','',''):
+        if state == 'created' and self.widgets['ITask.due_date'].value == ('', '', ''):
             due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
             if due_date_extension > 0:
                 due_date = datetime.today() + timedelta(days=due_date_extension)
@@ -289,6 +292,10 @@ class IMView(DmsDocumentView):
     """
         View form redefinition to customize fields.
     """
+
+    def updateFieldsFromSchemata(self):
+        super(IMView, self).updateFieldsFromSchemata()
+        OrderFields(self, 'imail_fields_order')
 
     def updateWidgets(self, prefix=None):
         super(IMView, self).updateWidgets()
@@ -312,6 +319,7 @@ class CustomAddForm(DefaultAddForm):
 
     def updateFields(self):
         super(CustomAddForm, self).updateFields()
+        OrderFields(self, 'imail_fields_order')
         ImioDmsIncomingMailUpdateFields(self)
 
     def updateWidgets(self):
@@ -406,15 +414,6 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
     directives.widget('outgoing_date', DatetimeFieldWidget, show_today_link=True, show_time=True)
 
-    directives.order_before(treating_groups='outgoing_date')
-    directives.order_before(sender='outgoing_date')
-    directives.order_before(recipients='outgoing_date')
-    directives.order_before(mail_date='outgoing_date')
-    directives.order_before(mail_type='outgoing_date')
-    directives.order_before(recipient_groups='outgoing_date')
-    directives.order_before(reply_to='outgoing_date')
-    directives.order_before(internal_reference_no='outgoing_date')
-    directives.order_before(external_reference_no='outgoing_date')
     directives.omitted('related_docs', 'notes')
 
 
@@ -456,7 +455,6 @@ def ImioDmsOutgoingMailUpdateFields(the_form):
     """
     the_form.fields['ITask.assigned_user'].field = copy.copy(the_form.fields['ITask.assigned_user'].field)
     the_form.fields['ITask.assigned_user'].field.required = True
-    move(the_form, 'assigned_user', after='treating_groups', prefix='ITask')
 
 
 def ImioDmsOutgoingMailUpdateWidgets(the_form):
@@ -491,6 +489,7 @@ class OMEdit(BaseOMEdit):
 
     def updateFields(self):
         super(OMEdit, self).updateFields()
+        OrderFields(self, 'omail_fields_order')
         ImioDmsOutgoingMailUpdateFields(self)
 
     def updateWidgets(self):
@@ -522,6 +521,7 @@ class OMCustomAddForm(BaseOMAddForm):
 
     def updateFields(self):
         super(OMCustomAddForm, self).updateFields()
+        OrderFields(self, 'omail_fields_order')
         ImioDmsOutgoingMailUpdateFields(self)
 
     def updateWidgets(self):
@@ -551,7 +551,7 @@ class OMView(DmsDocumentView):
 
     def updateFieldsFromSchemata(self):
         super(OMView, self).updateFieldsFromSchemata()
-        move(self, 'assigned_user', after='treating_groups', prefix='ITask')
+        OrderFields(self, 'omail_fields_order')
 
     def updateWidgets(self, prefix=None):
         super(OMView, self).updateWidgets()
