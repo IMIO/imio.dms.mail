@@ -101,6 +101,10 @@
     <adapter name="assigned_group" factory=".adapters.contact_creating_group_index" />
     <adapter name="getObjSize" factory=".adapters.get_obj_size_af_index" />
     <adapter name="getObjSize" factory=".adapters.get_obj_size_df_index" />
+    <unconfigure package="collective.contact.core">
+        <adapter name="contact_source" factory="collective.contact.core.indexers.contact_source"/>
+    </unconfigure>
+    <adapter name="contact_source" factory=".adapters.imio_contact_source"/>
 
     <!-- MISSING VOCABULARIES -->
     <!-- type, layer, view, field, vocabulary, widget -->
