@@ -255,7 +255,11 @@
 
   <javascript id="++resource++eea.facetednavigation.widgets.alphabets.edit.js" insert-after="++resource++eea.facetednavigation.widgets.autocomplete.edit.js" />
 
-  <javascript id="++resource++collective.eeafaceted.collectionwidget.widgets.edit.js" insert-after="++resource++eea.facetednavigation.widgets.alphabets.edit.js" />
+  <javascript id="++resource++eea.facetednavigation.widgets.multiselect.view.js" insert-after="++resource++eea.facetednavigation.widgets.alphabets.edit.js" />
+
+  <javascript id="++resource++eea.facetednavigation.widgets.multiselect.edit.js" insert-after="++resource++eea.facetednavigation.widgets.multiselect.view.js" />
+
+  <javascript id="++resource++collective.eeafaceted.collectionwidget.widgets.edit.js" insert-after="++resource++eea.facetednavigation.widgets.multiselect.edit.js" />
 
   <javascript id="++resource++plone.formwidget.querystring.querywidget.js" insert-after="++resource++collective.eeafaceted.collectionwidget.widgets.edit.js" />
 
