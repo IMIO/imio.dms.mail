@@ -143,7 +143,11 @@
 
  <stylesheet id="++resource++eea.facetednavigation.widgets.alphabets.edit.css" insert-after="++resource++eea.facetednavigation.widgets.autocomplete.edit.css" />
 
- <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" insert-after="++resource++eea.facetednavigation.widgets.alphabets.edit.css" />
+ <stylesheet id="++resource++eea.facetednavigation.widgets.multiselect.view.css" insert-after="++resource++eea.facetednavigation.widgets.alphabets.edit.css" />
+
+ <stylesheet id="++resource++eea.facetednavigation.widgets.multiselect.edit.css" insert-after="++resource++eea.facetednavigation.widgets.multiselect.view.css" />
+
+ <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" insert-after="++resource++eea.facetednavigation.widgets.multiselect.edit.css" />
 
  <stylesheet id="++resource++imio.history/imiohistory.css" insert-after="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" />
 
