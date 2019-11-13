@@ -4,6 +4,8 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     i18n_domain="collective.eeafaceted.z3ctable">
 
+  <include package="z3c.unconfigure" file="meta.zcml" />
+
   <!-- collective.eeafaceted.z3ctable.interfaces.IFacetedTable -->
   <adapter
     for="zope.interface.Interface
@@ -141,6 +143,17 @@
     provides="z3c.table.interfaces.IColumn"
     name="dms.extedit"
     />
+
+  <unconfigure package="collective.dms.basecontent">
+    <!-- remove state column -->
+    <adapter name="dms.state"
+      factory="collective.dms.basecontent.browser.listing.StateColumn"
+      provides="z3c.table.interfaces.IColumn"/>
+    <!-- remove label column on versions table -->
+    <adapter name="dms.label"
+      factory="collective.dms.basecontent.browser.listing.VersionLabelColumn"
+      provides="z3c.table.interfaces.IColumn"/>
+  </unconfigure>
 
   <!-- imio.dms.mail.interfaces.IContactsDashboard -->
   <adapter

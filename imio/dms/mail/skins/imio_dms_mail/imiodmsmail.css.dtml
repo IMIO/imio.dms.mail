@@ -204,6 +204,13 @@ body.template-item_view h1 .pretty_link_icons img{
 }  /* Hide some localrole fields configuration not used */
 
 
+.portaltype-dmsincomingmail #fieldset-versions table.listing th.th_header_author,
+.portaltype-dmsincomingmail #fieldset-versions table.listing td.td_cell_author,
+.portaltype-dmsincomingmail #fieldset-versions table.listing th.th_header_modified,
+.portaltype-dmsincomingmail #fieldset-versions table.listing td.td_cell_modified {
+    display: None;
+}
+
 /* Other */
 
 div.ac_results {
