@@ -258,6 +258,8 @@ class ExternalEditColumn(eec_base):
 
 class NoExternalEditColumn(eec_base):
 
+    cssClasses = {'th': 'empty_col', 'td': 'empty_cell'}
+
     def renderCell(self, item):
         return u''
 

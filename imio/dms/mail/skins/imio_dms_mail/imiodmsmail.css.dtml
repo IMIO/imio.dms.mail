@@ -213,6 +213,9 @@ body.template-item_view h1 .pretty_link_icons img{
     display: None;
 }  /* Hide some localrole fields configuration not used */
 
+#fieldset-versions table.listing th.empty_col, #fieldset-versions table.listing td.empty_cell {
+    display: None;
+} /* NoExternalEditColumn */
 
 /* Other */
 
