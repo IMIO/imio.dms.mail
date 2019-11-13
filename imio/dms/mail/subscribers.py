@@ -552,7 +552,7 @@ def personnel_contact_removed(del_obj, event):
         return
     if pp.site_properties.enable_link_integrity_checks:
         storage = ILinkIntegrityInfo(aq_get(del_obj, 'REQUEST', None))
-        for brain in catalog.unrestrictedSearchResults(portal_type=['dmsoutgoingmail'], sender=[del_obj.UID()]):
+        for brain in catalog.unrestrictedSearchResults(portal_type=['dmsoutgoingmail'], sender_index=[del_obj.UID()]):
             storage.addBreach(brain._unrestrictedGetObject(), del_obj)
 
 
