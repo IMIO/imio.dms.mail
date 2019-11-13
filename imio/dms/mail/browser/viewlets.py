@@ -100,7 +100,7 @@ class ContextInformationViewlet(MessagesViewlet):
             contacts = [self.context]
         elif IImioDmsOutgoingMail.providedBy(self.context):
             contacts = []
-            for rv in self.context.recipients:
+            for rv in self.context.recipients or []:
                 if not rv.isBroken() and rv.to_path:
                     contacts.append(self.context.restrictedTraverse(rv.to_path))
         if not contacts:
