@@ -228,6 +228,11 @@ body.template-item_view h1 .pretty_link_icons img{
     display: None;
 }
 
+td.td_cell_actions select.apButtonAction_assign {
+    color: rgba(0,0,0,0);
+    text-shadow: 0 0 0 #213C68;
+}
+
 /* Other */
 
 .portaltype-dmsincomingmail #fieldset-versions table.listing {
