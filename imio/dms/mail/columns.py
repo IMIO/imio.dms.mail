@@ -2,7 +2,9 @@
 """Custom columns."""
 from AccessControl import getSecurityManager
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
+from collective.dms.basecontent.browser.column import IconColumn
 from collective.dms.basecontent.browser.column import LinkColumn as lc_base
+from collective.documentviewer.settings import Settings
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.eeafaceted.z3ctable.columns import ActionsColumn
 from collective.eeafaceted.z3ctable.columns import BaseColumn
@@ -14,6 +16,7 @@ from collective.eeafaceted.z3ctable.columns import PrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
 from collective.task.interfaces import ITaskMethods
+from imio.dms.mail import _
 from plone import api
 from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone.utils import safe_unicode
@@ -262,6 +265,30 @@ class NoExternalEditColumn(eec_base):
 
     def renderCell(self, item):
         return u''
+
+
+class DVConvertColumn(IconColumn):
+
+    header = u""
+    weight = 20
+    linkName = "@@convert-to-documentviewer"
+    # linkTarget = '_blank'
+    linkContent = _('Update preview')
+    iconName = "++resource++imio.dms.mail/dv_convert.svg"
+    cssClasses = {'td': 'td_cell_convert'}
+
+    def actionAvailable(self, item):
+        various = getMultiAdapter((self.context, self.request), name='various-utils')
+        if False and various.is_in_user_groups(groups=['encodeurs', 'expedition'], admin=True):
+            return True
+        else:
+            settings = Settings(item.getObject())
+            return settings.successfully_converted
+
+    def renderCell(self, item):
+        if not self.actionAvailable(item):
+            return u""
+        return super(DVConvertColumn, self).renderCell(item)
 
 
 class HistoryColumn(lc_base):

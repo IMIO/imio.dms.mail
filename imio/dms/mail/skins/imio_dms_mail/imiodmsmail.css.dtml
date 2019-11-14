@@ -217,6 +217,10 @@ body.template-item_view h1 .pretty_link_icons img{
     display: None;
 } /* NoExternalEditColumn */
 
+#fieldset-versions thead {
+    display: none;
+}
+
 .portaltype-dmsincomingmail #fieldset-versions table.listing th.th_header_author,
 .portaltype-dmsincomingmail #fieldset-versions table.listing td.td_cell_author,
 .portaltype-dmsincomingmail #fieldset-versions table.listing th.th_header_modified,
@@ -315,6 +319,11 @@ ul.select2-choices {
 
 .select2-with-searchbox {
     min-width: 15em !important
+}
+
+fieldset table.listing td.td_cell_convert img {
+    width: 16px;
+    height: 16px;
 }
 
 /* columns */

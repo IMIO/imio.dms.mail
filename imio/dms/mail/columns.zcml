@@ -152,6 +152,15 @@
     name="dms.extedit"
     />
 
+  <adapter
+    for="zope.interface.Interface
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    factory=".columns.DVConvertColumn"
+    provides="z3c.table.interfaces.IColumn"
+    name="dms.dvconvert"
+    />
+
   <unconfigure package="collective.dms.basecontent">
     <!-- remove state column -->
     <adapter name="dms.state"
