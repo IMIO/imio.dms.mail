@@ -277,11 +277,14 @@ class DVConvertColumn(IconColumn):
 
     def actionAvailable(self, item):
         various = getMultiAdapter((self.context, self.request), name='various-utils')
-        if False and various.is_in_user_groups(groups=['encodeurs', 'expedition'], admin=True):
+        if various.is_in_user_groups(groups=['encodeurs', 'expedition'], admin=True):
             return True
         else:
-            settings = Settings(item.getObject())
-            return settings.successfully_converted
+            obj = item.getObject()
+            if api.user.has_permission('Modify portal content', obj=obj):
+                settings = Settings(obj)
+                return not settings.successfully_converted
+            return False
 
     def renderCell(self, item):
         if not self.actionAvailable(item):

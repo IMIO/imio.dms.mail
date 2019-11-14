@@ -204,7 +204,7 @@ body.template-item_view h1 .pretty_link_icons img{
 }  /* Hide some localrole fields configuration not used */
 
 
-#fieldset-versions thead {
+.portaltype-dmsincomingmail #fieldset-versions thead {
     display: none;
 }
 
@@ -216,6 +216,11 @@ body.template-item_view h1 .pretty_link_icons img{
 }
 
 /* Other */
+
+.portaltype-dmsincomingmail #fieldset-versions table.listing {
+    border-top: 1px solid #ddd;
+    border-collapse: inherit;
+}
 
 div.ac_results {
     width: auto !important;
