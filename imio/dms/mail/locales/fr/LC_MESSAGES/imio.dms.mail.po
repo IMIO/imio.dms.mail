@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2019-11-06 13:22+0000\n"
+"POT-Creation-Date: 2019-11-14 09:13+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -536,6 +536,10 @@ msgstr "Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' p
 #: ./browser/settings.py:249
 msgid "Unchecking the omail_group_encoder setting is not expected !!"
 msgstr "Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' pour le courrier sortant n'est pas prévu !!"
+
+#: ./columns.py:274
+msgid "Update preview"
+msgstr "Reconstruire la prévisualisation"
 
 #: ./dmsfile.py:31
 msgid "You can only upload \".odt\" file (Libre Office format)"

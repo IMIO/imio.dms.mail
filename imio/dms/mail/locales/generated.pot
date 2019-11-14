@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-11-06 13:22+0000\n"
+"POT-Creation-Date: 2019-11-14 09:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -475,6 +475,10 @@ msgstr ""
 
 #: ./browser/settings.py:249
 msgid "Unchecking the omail_group_encoder setting is not expected !!"
+msgstr ""
+
+#: ./columns.py:274
+msgid "Update preview"
 msgstr ""
 
 #: ./dmsfile.py:31
