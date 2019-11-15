@@ -231,6 +231,11 @@ body.template-item_view h1 .pretty_link_icons img{
 td.td_cell_actions select.apButtonAction_assign {
     color: rgba(0,0,0,0);
     text-shadow: 0 0 0 #213C68;
+} /* disable dotted border when using select button in dashboard */
+
+body.portaltype-folder.section-contacts.subsection-personnel-folder #content #plone-document-byline,
+body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_workflowstate {
+    display: none;
 }
 
 /* Other */
@@ -238,6 +243,12 @@ td.td_cell_actions select.apButtonAction_assign {
 .portaltype-dmsincomingmail #fieldset-versions table.listing {
     border-top: 1px solid #ddd;
     border-collapse: inherit;
+} /* added border after removing head table */
+
+#pers_fold {
+    float: right;
+    padding-right: 1em;
+    margin-top: -2em;
 }
 
 div.ac_results {
