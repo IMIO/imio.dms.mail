@@ -2,13 +2,7 @@
 """Custom columns."""
 from AccessControl import getSecurityManager
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
-<<<<<<< .working
-||||||| .merge-left.r31541
-from collective.dms.basecontent.browser.column import LinkColumn as lc_base
-=======
 from collective.dms.basecontent.browser.column import IconColumn
-from collective.dms.basecontent.browser.column import LinkColumn as lc_base
->>>>>>> .merge-right.r31542
 from collective.documentviewer.settings import Settings
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.eeafaceted.z3ctable.columns import ActionsColumn
