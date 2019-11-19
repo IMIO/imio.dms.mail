@@ -2,8 +2,10 @@
 """Batch actions views."""
 
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
+from collective.contact.widget.schema import ContactChoice
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
+from collective.eeafaceted.batchactions.browser.views import ContactBaseBatchActionForm
 from collective.eeafaceted.batchactions.utils import filter_on_permission, cannot_modify_field_msg
 from collective.eeafaceted.batchactions.utils import is_permitted
 from collective.task.browser.batchactions import AssignedGroupBatchActionForm as agbaf
@@ -11,6 +13,7 @@ from collective.task.browser.batchactions import AssignedUserBatchActionForm as 
 from imio.dms.mail import _
 from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
+from imio.dms.mail.dmsmail import DmsContactSourceBinder
 from plone import api
 from plone.formwidget.masterselect import MasterSelectField
 from z3c.form.browser.select import SelectFieldWidget
@@ -25,7 +28,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 import datetime
 
 
-# IM batch actions
+# IM and OM batch actions
 
 
 class TreatingGroupBatchActionForm(BaseBatchActionForm):
@@ -159,6 +162,18 @@ class ReplyBatchActionForm(BaseBatchActionForm):
         return view()
 
 
+class IMSenderBatchActionForm(ContactBaseBatchActionForm):
+
+    label = _(u"Batch sender contact field change")
+    weight = 60
+    available_permission = 'Manage portal'
+    attribute = 'sender'
+    field_value_type = ContactChoice(
+        source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
+                                      review_state=['active'],
+                                      sort_on='sortable_title'))
+
+
 class OutgoingDateBatchActionForm(BaseBatchActionForm):
 
     label = _(u"Batch outgoing date change")
@@ -180,6 +195,18 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
                 obj = brain.getObject()
                 obj.outgoing_date = data['outgoing_date']
                 modified(obj)
+
+
+class RecipientsBatchActionForm(ContactBaseBatchActionForm):
+
+    label = _(u"Batch recipients contact field change")
+    weight = 60
+    available_permission = 'Manage portal'
+    attribute = 'recipients'
+    field_value_type = ContactChoice(
+        source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
+                                      review_state=['active'],
+                                      sort_on='sortable_title'))
 
 # Task batch actions
 

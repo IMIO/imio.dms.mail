@@ -268,6 +268,13 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
+        name="im-sender-batch-action"
+        class=".batchactions.IMSenderBatchActionForm"
+        permission="zope2.View"
+        />
+
     <!-- BATCH ACTIONS OM MAILS -->
     <browser:page
         for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
@@ -294,6 +301,13 @@
         for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="outgoingdate-batch-action"
         class=".batchactions.OutgoingDateBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
+        name="recipients-batch-action"
+        class=".batchactions.RecipientsBatchActionForm"
         permission="zope2.View"
         />
 

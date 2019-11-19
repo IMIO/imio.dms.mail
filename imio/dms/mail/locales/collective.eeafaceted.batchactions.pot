@@ -40,3 +40,11 @@ msgstr ""
 #. Default: "Change treating group"
 msgid "treatinggroup-batch-action-but"
 msgstr ""
+
+#. Default: "Change senders"
+msgid "im-sender-batch-action-but"
+msgstr ""
+
+#. Default: "Change recipients"
+msgid "recipients-batch-action-but"
+msgstr ""
