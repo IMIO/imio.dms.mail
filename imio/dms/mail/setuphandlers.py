@@ -853,6 +853,8 @@ def adaptDefaultPortal(context):
                                    'contact_source_metadata_content',
                                    u'{gft} ⏺ {number}, {street}, {zip_code}, {city} ⏺ {email}')
     # chars ⏺, ↈ  , ▐ , ⬤ (see ubuntu character table. Use ctrl+shift+u+code)
+    api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
+                                   'display_below_content_title_on_views', True)
     # imio.dms.mail configuration annotation
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],

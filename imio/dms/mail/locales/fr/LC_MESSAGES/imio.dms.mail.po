@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2019-11-14 09:13+0000\n"
+"POT-Creation-Date: 2019-11-19 14:39+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -45,7 +45,7 @@ msgstr "Activation de plusieurs groupes d'indicatage"
 msgid "Active"
 msgstr "Activé"
 
-#: ./browser/batchactions.py:78
+#: ./browser/batchactions.py:81
 msgid "Add items"
 msgstr "Ajouter des éléments"
 
@@ -53,7 +53,7 @@ msgstr "Ajouter des éléments"
 msgid "Add test examples for imio.dms.mail"
 msgstr "Configuration de base fr pour imio.dms.mail"
 
-#: ./browser/batchactions.py:109
+#: ./browser/batchactions.py:112
 msgid "Added values"
 msgstr "Éléments à ajouter"
 
@@ -61,7 +61,7 @@ msgstr "Éléments à ajouter"
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./setuphandlers.py:1929
+#: ./setuphandlers.py:1931
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -69,7 +69,7 @@ msgstr "Exportation de tous les contacts"
 msgid "All under"
 msgstr "TOUT"
 
-#: ./browser/batchactions.py:55
+#: ./browser/batchactions.py:58
 msgid "An assigned user is not in this new treating group. Mail \"${mail}\" !"
 msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Courrier \"${mail}\" !"
 
@@ -85,11 +85,11 @@ msgstr "Assigner"
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./setuphandlers.py:1966
+#: ./setuphandlers.py:1968
 msgid "Base template"
 msgstr "Modèle de base"
 
-#: ./browser/batchactions.py:76
+#: ./browser/batchactions.py:79
 msgid "Batch action choice"
 msgstr "Choix de l'action à effectuer"
 
@@ -97,7 +97,7 @@ msgstr "Choix de l'action à effectuer"
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
-#: ./browser/batchactions.py:208
+#: ./browser/batchactions.py:235
 msgid "Batch copy to"
 msgstr "Copie par lot vers les dossiers sélectionnés"
 
@@ -109,19 +109,27 @@ msgstr "Importation depuis dossier"
 msgid "Batch import of dms document"
 msgstr "Importation de fichier ged depuis un dossier du système de fichier"
 
-#: ./browser/batchactions.py:164
+#: ./browser/batchactions.py:179
 msgid "Batch outgoing date change"
 msgstr "Changement de date d'expédition par lot"
 
-#: ./browser/batchactions.py:68
+#: ./browser/batchactions.py:71
 msgid "Batch recipient groups change"
 msgstr "Changement de services en copie par lot"
+
+#: ./browser/batchactions.py:202
+msgid "Batch recipients contact field change"
+msgstr "Changement des destinataires par lot"
+
+#: ./browser/batchactions.py:167
+msgid "Batch sender contact field change"
+msgstr "Changement des expéditeurs par lot"
 
 #: ./browser/batchactions.py:134
 msgid "Batch state change"
 msgstr "Changement d'état par lot"
 
-#: ./browser/batchactions.py:33
+#: ./browser/batchactions.py:36
 msgid "Batch treating group change"
 msgstr "Changement de service traitant par lot"
 
@@ -149,7 +157,7 @@ msgstr "Choisir ce modèle"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:1878
+#: ./setuphandlers.py:1880
 msgid "Common templates"
 msgstr "Modèles communs"
 
@@ -211,7 +219,7 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1950
+#: ./setuphandlers.py:1952
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -219,15 +227,15 @@ msgstr "Sous-document de fin"
 msgid "Extends the due date by a number of days. 0 means no due date will be set by default."
 msgstr "Délai de l'échéance par défaut, en nombre de jours. 0 pour ne pas utiliser d'échéance par défaut."
 
-#: ./browser/batchactions.py:225
+#: ./browser/batchactions.py:252
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1946
+#: ./setuphandlers.py:1948
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1944
+#: ./setuphandlers.py:1946
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -272,7 +280,7 @@ msgstr "Courrier entrant"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1948
+#: ./setuphandlers.py:1950
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -280,7 +288,7 @@ msgstr "Sous-document d'introduction"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1922
+#: ./setuphandlers.py:1924
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -301,7 +309,7 @@ msgstr "Valeur stockée"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:1952
+#: ./setuphandlers.py:1954
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -317,7 +325,7 @@ msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sél
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./browser/batchactions.py:229
+#: ./browser/batchactions.py:256
 msgid "No folder available where you can add templates."
 msgstr "Il n'y a aucun dossier où vous pouvez ajouter des modèles."
 
@@ -355,7 +363,7 @@ msgstr "Recherches organisations"
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
-#: ./browser/batchactions.py:171
+#: ./browser/batchactions.py:186
 #: ./dmsmail.py:400
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
@@ -376,7 +384,7 @@ msgstr "Recherches courriers sortants"
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
-#: ./browser/batchactions.py:81
+#: ./browser/batchactions.py:84
 msgid "Overwrite"
 msgstr "Écraser le contenu avec les éléments choisis"
 
@@ -394,11 +402,11 @@ msgstr "Recherches personnes"
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1960
+#: ./setuphandlers.py:1962
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:1975
+#: ./setuphandlers.py:1977
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -410,15 +418,15 @@ msgstr "Services en copie"
 msgid "Remark icon"
 msgstr "Le champ \"description de la tâche\" n'est pas vide"
 
-#: ./browser/batchactions.py:79
+#: ./browser/batchactions.py:82
 msgid "Remove items"
 msgstr "Retirer des éléments"
 
-#: ./browser/batchactions.py:102
+#: ./browser/batchactions.py:105
 msgid "Removed values"
 msgstr "Éléments à retirer"
 
-#: ./browser/batchactions.py:80
+#: ./browser/batchactions.py:83
 msgid "Replace some items by others"
 msgstr "Remplacer des éléments par d'autres"
 
@@ -435,19 +443,19 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./setuphandlers.py:1184
+#: ./setuphandlers.py:1186
 msgid "Response: "
 msgstr "Réponse: "
 
-#: ./browser/batchactions.py:228
+#: ./browser/batchactions.py:255
 msgid "Select multiple values (CTRL+click)"
 msgstr "Sélectionner les éléments (CTRL+clic)"
 
-#: ./browser/batchactions.py:110
+#: ./browser/batchactions.py:113
 msgid "Select the values to add (CTRL+click)"
 msgstr "Sélectionner les éléments à ajouter (CTRL+clic)"
 
-#: ./browser/batchactions.py:103
+#: ./browser/batchactions.py:106
 msgid "Select the values to remove (CTRL+click)"
 msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
 
@@ -467,7 +475,7 @@ msgstr "Single steps profile for imio.dms.mail"
 msgid "States for which to display remark icon"
 msgstr "États pour lesquels afficher l'icône de \"remarque\""
 
-#: ./setuphandlers.py:1936
+#: ./setuphandlers.py:1938
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -483,7 +491,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1876
+#: ./setuphandlers.py:1878
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -507,7 +515,7 @@ msgstr "Ce contact ${title} a des champs d'adresse vides: ${keys}"
 msgid "Transition"
 msgstr "Transition"
 
-#: ./browser/batchactions.py:40
+#: ./browser/batchactions.py:43
 #: ./browser/table.py:113
 #: ./dmsmail.py:104
 msgid "Treating groups"
@@ -537,7 +545,7 @@ msgstr "Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' p
 msgid "Unchecking the omail_group_encoder setting is not expected !!"
 msgstr "Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' pour le courrier sortant n'est pas prévu !!"
 
-#: ./columns.py:274
+#: ./columns.py:268
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 

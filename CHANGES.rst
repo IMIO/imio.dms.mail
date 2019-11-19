@@ -22,6 +22,9 @@ Changelog
 - Added due date default value configuration
   [bleybaert]
 
+- Added batch actions buttons (labels, senders, recipients)
+  [sgeulette]
+
 2.1 (2018-08-22)
 ----------------
 

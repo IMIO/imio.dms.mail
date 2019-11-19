@@ -23,6 +23,10 @@ msgstr "Copier par lot"
 msgid "duplicated-batch-action-but"
 msgstr "Fusionner les doublons"
 
+#. Default: "Change senders"
+msgid "im-sender-batch-action-but"
+msgstr "Changer les expéditeurs"
+
 #. Default: "Change outgoing date"
 msgid "outgoingdate-batch-action-but"
 msgstr "Changer la date d'expédition"
@@ -30,6 +34,10 @@ msgstr "Changer la date d'expédition"
 #. Default: "Change recipient groups"
 msgid "recipientgroup-batch-action-but"
 msgstr "Changer les services en copie"
+
+#. Default: "Change recipients"
+msgid "recipients-batch-action-but"
+msgstr "Changer les destinataires"
 
 #. Default: "Reply to all"
 msgid "reply-batch-action-but"

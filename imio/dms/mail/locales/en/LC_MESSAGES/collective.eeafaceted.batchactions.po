@@ -17,24 +17,32 @@ msgstr ""
 
 #. Default: "Change state"
 msgid "copy-to-batch-action-but"
-msgstr ""
+msgstr "Change state"
 
 #. Default: "Merge contacts"
 msgid "duplicated-batch-action-but"
-msgstr ""
+msgstr "Merge contacts"
+
+#. Default: "Change senders"
+msgid "im-sender-batch-action-but"
+msgstr "Change senders"
 
 #. Default: "Change outgoing date"
 msgid "outgoingdate-batch-action-but"
-msgstr ""
+msgstr "Change outgoing date"
 
 #. Default: "Change recipient groups"
 msgid "recipientgroup-batch-action-but"
-msgstr ""
+msgstr "Change recipient groups"
+
+#. Default: "Change recipients"
+msgid "recipients-batch-action-but"
+msgstr "Change recipients"
 
 #. Default: "Reply to all"
 msgid "reply-batch-action-but"
-msgstr ""
+msgstr "Reply to all"
 
 #. Default: "Change treating group"
 msgid "treatinggroup-batch-action-but"
-msgstr ""
+msgstr "Change treating group"
