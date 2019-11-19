@@ -34,6 +34,7 @@ CE depuis le scanner
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail
+    Sleep  0.5
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1 onglet courrier entrant.png  css=.site-plone  id=portal-footer-wrapper
@@ -46,11 +47,11 @@ CE depuis le scanner
     Wait until element is visible  css=.DV-pageImage  10
 
     ### Edit mail
-    Capture and crop page screenshot  doc/utilisation/2-2-1 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-2-1 lien modifier courrier.png  id=viewlet-below-content-title
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier.png  id=content
     Click element  css=.DV-textView span.DV-trigger
     #Highlight  css=.DV-textView
     ${note1}  Add pointy note  css=.DV-textView  Onglet texte  position=top  color=blue
@@ -166,8 +167,9 @@ CE depuis le scanner
 
     ### Create function
     Input text  name=oform.widgets.organization.widgets.query  IMIO
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:nth-child(2)
+    sleep  0.5
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[2]
     Wait until element is visible  css=#formfield-oform-widgets-plone_0_held_position-label input  10
     Update element style  css=.pb-ajax  max-height  800px !important
     Update element style  id=pb_1  top  30px ! important
@@ -179,8 +181,8 @@ CE depuis le scanner
 
     ### Choose person
     Input text  name=form.widgets.sender.widgets.query  ledu
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[1]
     Capture and crop page screenshot  doc/utilisation/2-2-1 expéditeur 0 fini.png  id=formfield-form-widgets-IDublinCore-description  id=formfield-form-widgets-original_mail_date
 
     ### Complete last fields
@@ -190,7 +192,7 @@ CE depuis le scanner
     Select from list by value  id=form-widgets-original_mail_date-year  2012
     Select from list by index  id=form-widgets-treating_groups  2
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier fini.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-2-1 édition courrier fini.png  id=content
     Click button  id=form-buttons-save
     Sleep  2
 
@@ -210,8 +212,8 @@ CE manuel
     Capture and crop page screenshot  doc/utilisation/2-2-2 courrier 1 création.png  id=content
     Input text  name=form.widgets.IDublinCore.title  Lettre de demande de stage
     Input text  name=form.widgets.sender.widgets.query  Non encod
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[1]
     Select from list by value  id=form-widgets-mail_type  courrier
     Select from list by index  id=form-widgets-treating_groups  2
     Click button  id=form-buttons-save
@@ -383,8 +385,8 @@ CS nouveau
     Capture and crop page screenshot  doc/utilisation/2-3-2 cs 1 création.png  id=content
     Input text  name=form.widgets.IDublinCore.title  Annonce de la réfection des trottoirs Rue Moyenne
     Input text  name=form.widgets.recipients.widgets.query  Non encod
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[1]
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-2 cs 1 création finie.png  id=content  id=viewlet-below-content
@@ -414,11 +416,11 @@ CS depuis le scanner
     Wait until element is visible  css=.DV-pageImage  10
 
     ### Edit mail
-    Capture and crop page screenshot  doc/utilisation/2-3-3 cs lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs lien modifier courrier.png  id=viewlet-below-content-title
     Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-3-3 cs édition courrier.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-3-3 cs édition courrier.png  id=content
     Click element  css=.DV-textView span.DV-trigger
     ${note1}  Add pointy note  css=.DV-textView  Onglet texte  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-3 cs édition texte océrisé.png  id=portal-columns  ${note1}
@@ -429,8 +431,8 @@ CS depuis le scanner
     Input text  css=.chzn-search input  agent
     Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_1
     Input text  name=form.widgets.recipients.widgets.query  Bernard
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:first-of-type
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[1]
     Sleep  0.5
     Click element  css=input#form-widgets-external_reference_no
     Click button  id=form-buttons-save
@@ -590,21 +592,21 @@ Modification
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    ${note20}  Add pointy note  id=contentview-edit  Lien d'édition  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-6 lien modifier courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table  ${note20}
+    ${note20}  Add pointy note  id=viewlet-below-content-title  Lien d'édition  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-6 lien modifier courrier.png  id=viewlet-below-content-title  ${note20}
     Remove element  id=${note20}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Sleep  0.2
-    Capture and crop page screenshot  doc/utilisation/2-6 édition courrier.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-6 édition courrier.png  id=content
     Click button  id=form-buttons-cancel
     Fire transition  ${UID}  propose_to_service_chief
     Enable autologin as  chef
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-6 édition limitée courrier.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-6 édition limitée courrier.png  id=content
     Click button  id=form-buttons-cancel
 
 Tache
@@ -641,7 +643,7 @@ Tache
     ${TUID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
     Fire transition  ${TUID}  do_to_assign
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
-    Wait until element is visible  css=#plone-contentmenu-workflow span.state-to_assign  10
+    Wait until element is visible  css=.template-item_view.portaltype-task #formfield-form-widgets-ITask-due_date  10
     Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout to assign.png  id=content
 # partie 2.7.2 Visualisation d'une tâche
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
@@ -676,34 +678,34 @@ Workflow ce
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état en création.png  id=portal-column-content
     ${note30}  Add pointy note  css=input.apButtonWF_propose_to_manager  Transition  position=top  color=blue
     ${note31}  Add pointy note  css=input.apButtonWF_propose_to_service_chief  Transition  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-8-1 bouton transition.png  id=contentview-view  id=content-history  css=table.actionspanel-no-style-table  ${note30}
+    Capture and crop page screenshot  doc/utilisation/2-8-1 bouton transition.png  id=viewlet-above-content  id=viewlet-below-content-title  ${note30}
     Remove elements  id=${note30}  id=${note31}
 # partie 2.8.2 ce
     Fire transition  ${UID}  propose_to_manager
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 transition vers dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-2 transition vers dg.png  id=portal-column-content
     Enable autologin as  dirg
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 état dg.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état dg.png  id=portal-column-content
     Fire transition  ${UID}  propose_to_service_chief
     Enable autologin as  chef
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-8-2 état chef.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état chef.png  id=content
     Remove element  id=${note32}
     Sleep  0.1
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 édition limitée courrier.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-8-2 édition limitée courrier.png  id=content
     Select from list by value  id=form-widgets-ITask-due_date-day  6
     Select from list by value  id=form-widgets-ITask-due_date-month  6
     Select from list by value  id=form-widgets-ITask-due_date-year  2015
@@ -712,23 +714,23 @@ Workflow ce
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 état chef assigné.png  css=.documentEditable
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état chef assigné.png  id=content
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent à traiter.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent à traiter.png  id=portal-column-content
     Fire transition  ${UID}  treat
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent traitement.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent traitement.png  id=portal-column-content
     Fire transition  ${UID}  close
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-2 état agent clôturé.png  id=portal-column-content
     # back & history
     Click button  css=input.apButtonWF_back_to_treatment
     Wait until element is visible  css=form#confirmTransitionForm  10
@@ -738,7 +740,7 @@ Workflow ce
     Click button  name=form.buttons.save
     Wait until element is visible  css=.highlight-history-link  10
     # CHANGE locator when overlay bug is resolved
-    Capture and crop page screenshot  doc/utilisation/2-8-1 lien historique.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-1 lien historique.png  id=portal-column-content
     Click element  css=#content-history .link-overlay
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
@@ -764,33 +766,33 @@ Workflow cs
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état en création.png  id=portal-column-content
     # transitions
     Fire transition  ${UID}  propose_to_service_chief
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers chef.png  id=portal-column-content
     Enable autologin as  chef
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état chef.png  id=portal-column-content
     Fire transition  ${UID}  propose_to_be_signed
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers signature.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers signature.png  id=portal-column-content
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état à la signature.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état à la signature.png  id=portal-column-content
     Fire transition  ${UID}  mark_as_sent
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état envoyé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3 état envoyé.png  id=portal-column-content
 
 Workflow tâche
 # partie 2.8.4 Tâches
@@ -802,35 +804,35 @@ Workflow tâche
     Set field value  ${UID}  assigned_group  ${GRH}  str
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
     Wait until element is visible  css=#formfield-form-widgets-ITask-due_date label  10
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état en création.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état en création.png  id=portal-column-content
     # transitions
     Fire transition  ${UID}  do_to_assign
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_assign
-    Capture and crop page screenshot  doc/utilisation/2-8-4 transition vers chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  id=portal-column-content
+    Capture and crop page screenshot  doc/utilisation/2-8-4 transition vers chef.png  id=portal-column-content
     Enable autologin as  chef
     Set field value  ${UID}  assigned_user  agent  str
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_assign
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état à assigner.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  id=portal-column-content
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état à assigner.png  id=portal-column-content
     Fire transition  ${UID}  do_to_do
     Enable autologin as  agent
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_do
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état à faire.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  id=portal-column-content
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état à faire.png  id=portal-column-content
     Fire transition  ${UID}  do_in_progress
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-in_progress
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état en cours.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  id=portal-column-content
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état en cours.png  id=portal-column-content
     Fire transition  ${UID}  do_realized
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-realized
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état réalisé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  id=portal-column-content
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état réalisé.png  id=portal-column-content
     Enable autologin as  chef
     Fire transition  ${UID}  do_closed
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-closed
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  id=portal-column-content
+    Capture and crop page screenshot  doc/utilisation/2-8-4 état clôturé.png  id=portal-column-content
 
 Contacts 1
 # partie 2.9.1 Listing des contacts
@@ -842,7 +844,7 @@ Contacts 1
     # MOUSE MUST BE OUTSIDE BROWSER WINDOW !!!
     Mouse over  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip
     Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 orga tooltip.png  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip  css=div.tooltip
+    Capture and crop page screenshot  doc/utilisation/2-9-1 orga tooltip.png  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip  css=.tooltip.pb-ajax
     Select collection  contacts/hps-searches/all_hps
     Capture and crop page screenshot  doc/utilisation/2-9-1 type fonction.png  id=portal-columns
     Select collection  contacts/persons-searches/all_persons
@@ -909,11 +911,11 @@ Contacts 3
     Wait until element is visible  id=formfield-form-widgets-contacts  10
     Input text  name=form.widgets.IBasic.title  Liste des candidats poste DF
     Input text  name=form.widgets.contacts.widgets.query  courant
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:first-child
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[1]
     Input text  name=form.widgets.contacts.widgets.query  lermitte
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:first-child
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[1]
     Capture and crop page screenshot  doc/utilisation/2-9-3 contact list création.png  id=content
     Click button  form-buttons-save
     Sleep  1
@@ -923,11 +925,13 @@ Contacts 3
     Go to  ${PLONE_URL}/outgoing-mail/reponse2/edit
     Wait until element is visible  formfield-form-widgets-recipients  10
     Input text  name=form.widgets.recipients.widgets.query  liste candidats
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:first-child
+    Wait until element is visible  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]  10
+    Click element  xpath=//div[@class='ac_results' and not(contains(@style, 'display: none'))]/ul/li[1]
     Capture and crop page screenshot  doc/utilisation/2-9-3 contact list utilisation.png  formfield-form-widgets-recipients  formfield-form-widgets-IDublinCore-description
     Click element  css=#formfield-form-widgets-mail_date label
     Click button  form-buttons-save
+    ### !!! Necessary to allow jQuery to load !!!
+    Sleep  0.5
     Wait until element is visible  css=#form-widgets-recipients li:nth-child(3)  10
     Capture and crop page screenshot  doc/utilisation/2-9-3 contact list remplacement.png  formfield-form-widgets-recipients
 
@@ -1001,7 +1005,7 @@ Configuration
     #Wait until element is visible  id=pg-orga-link  10
     #Capture and crop page screenshot  doc/configuration/3-2 config services.png  id=content
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
-    Wait until element is visible  id=sub_organizations  10
+    Wait until element is visible  css=.listing.nosort.templates-listing.icons-on  10
     Capture and crop page screenshot  doc/configuration/3-2 config propre organisation.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder
     Wait until element is visible  css=.subsection-personnel-folder #content dt span.summary  10
