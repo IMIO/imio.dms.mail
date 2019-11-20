@@ -105,6 +105,16 @@
         />
 
     <subscriber
+        for="Products.PluggableAuthService.interfaces.events.IPrincipalAddedToGroupEvent"
+        handler=".subscribers.group_assignment"
+        />
+
+    <!--subscriber
+        for="Products.PluggableAuthService.interfaces.events.IPrincipalRemovedFromGroupEvent"
+        handler=".subscribers.group_assignment"
+        /-->
+
+    <subscriber
         for="collective.contact.plonegroup.interfaces.IPloneGroupContact
              zope.app.container.interfaces.IObjectMovedEvent"
         handler=".subscribers.ploneGroupContactChanged"

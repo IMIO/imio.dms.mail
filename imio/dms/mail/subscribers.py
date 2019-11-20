@@ -7,17 +7,20 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_own_organization_path
+from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from DateTime import DateTime
+from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
@@ -43,6 +46,7 @@ from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
+import datetime
 import logging
 
 
@@ -354,6 +358,7 @@ def user_related_modification(event):
     # we pass if the config change is not related to users
     if IConfigurationChangedEvent.providedBy(event) and not isinstance(event.context, UserDataConfiglet):
         return
+
     # we pass if the registry change is not related to plonegroup
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface != IContactPlonegroupConfig):
@@ -467,6 +472,32 @@ def group_deleted(event):
                                         for b in brains])}),
                                         request=request, type='error')
                 raise Redirect(request.get('ACTUAL_URL'))
+
+
+def group_assignment(event):
+    """
+        manage the add or remove of a user in a plone group
+    """
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+    # we will manage the 'lu' label for a new assignment
+    # same functions as IncomingMailInCopyGroupUnreadCriterion
+    orgs = organizations_with_suffixes([event.group], ['validateur', 'editeur', 'lecteur'], group_as_str=True)
+    if orgs:
+        DAYS_BACK = 5
+        start = datetime.datetime(1973, 02, 12)
+        end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
+        catalog = api.portal.get_tool('portal_catalog')
+        for brain in catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'], recipient_groups=orgs,
+                             labels={'not': ['%s:lu' % event.principal]},
+                             created={'query': (start, end), 'range': 'min:max'}):
+            if not brain.recipient_groups:
+                continue
+            obj = brain.getObject()
+            labeling = ILabeling(obj)
+            user_ids = labeling.storage.setdefault('lu', PersistentList())  # _p_changed is managed
+            user_ids.append(event.principal)  # _p_changed is managed
+            obj.reindexObject(idxs=['labels'])
+    # can manage the personnel-folder ? TODO
 
 
 # CONTACT
