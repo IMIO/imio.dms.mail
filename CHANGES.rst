@@ -34,6 +34,9 @@ Changelog
 - Added batch actions buttons (labels, senders, recipients)
   [sgeulette]
 
+- Added subscriber to manage 'lu' label for a new user assignment
+  [sgeulette]
+
 2.1 (2018-08-22)
 ----------------
 
