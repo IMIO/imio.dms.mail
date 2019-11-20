@@ -2094,7 +2094,7 @@ def mark_copy_im_as_read(context):
     end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
     users = {}
     functions = {'i': ['validateur', 'editeur', 'lecteur'], 'o': ['encodeur', 'validateur', 'editeur', 'lecteur']}
-    brains = site.portal_catalog(portal_type=['dmsincomingmail'],
+    brains = site.portal_catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
                                  created={'query': (start, end), 'range': 'min:max'},
                                  sort_on='created')
     out = []
