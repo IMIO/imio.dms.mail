@@ -28,6 +28,9 @@ Changelog
 - Added subscriber to manage 'lu' label for a new user assignment
   [sgeulette]
 
+- Simplified user and group overview listings
+  [sgeulette]
+
 2.1 (2018-08-22)
 ----------------
 

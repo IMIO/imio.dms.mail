@@ -595,4 +595,26 @@
         name="dms.generation"
     />
 
+    <!-- Override @@usergroup-userprefs -->
+    <configure package="plone.app.controlpanel">
+        <browser:page
+            name="usergroup-userprefs"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            class="imio.dms.mail.browser.overrides.DocsUsersOverviewControlPanel"
+            permission="plone.app.controlpanel.UsersAndGroups"
+            template="usergroups_usersoverview.pt"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer" />
+    </configure>
+
+    <!-- Override @@usergroup-groupprefs -->
+    <configure package="plone.app.controlpanel">
+        <browser:page
+            name="usergroup-groupprefs"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            class="imio.dms.mail.browser.overrides.DocsGroupsOverviewControlPanel"
+            permission="plone.app.controlpanel.UsersAndGroups"
+            template="usergroups_groupsoverview.pt"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer" />
+    </configure>
+
 </configure>
