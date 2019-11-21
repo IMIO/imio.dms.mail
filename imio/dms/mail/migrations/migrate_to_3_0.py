@@ -25,8 +25,6 @@ class Migrate_To_3_0(Migrator):
 
     def __init__(self, context):
         Migrator.__init__(self, context)
-        self.registry = getUtility(IRegistry)
-        self.catalog = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
 

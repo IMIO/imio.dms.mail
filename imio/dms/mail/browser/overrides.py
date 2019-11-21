@@ -23,6 +23,9 @@ from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
 from imio.history.browser.views import IHDocumentBylineViewlet
 from plone import api
+from plone.app.controlpanel.usergroups import GroupsOverviewControlPanel
+from plone.app.controlpanel.usergroups import UsersGroupsControlPanelView
+from plone.app.controlpanel.usergroups import UsersOverviewControlPanel
 from plone.app.layout.viewlets.common import ContentActionsViewlet as CAV
 from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
@@ -31,6 +34,7 @@ from Products.ATContentTypes.interfaces.document import IATDocument
 from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
 from Products.CMFPlone.browser.ploneview import Plone as PV
 from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
+from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 
@@ -132,3 +136,35 @@ class IDMUtilsMethods(UtilsMethods):
 
     def outgoingmail_folder(self):
         return api.portal.get()['outgoing-mail']
+
+
+class BaseOverviewControlPanel(UsersGroupsControlPanelView):
+    """Override to filter result and remove every selectable roles."""
+
+    @property
+    def portal_roles(self):
+        return ['Batch importer', 'Manager', 'Member', 'Site Administrator']
+
+    def doSearch(self, searchString):
+        results = super(BaseOverviewControlPanel, self).doSearch(searchString)
+        if check_zope_admin:
+            return results
+        adapted_results = []
+        for item in results:
+            adapted_item = item.copy()
+            for role in self.portal_roles:
+                adapted_item['roles'][role]['canAssign'] = False
+            adapted_results.append(adapted_item)
+        return adapted_results
+
+
+class DocsUsersOverviewControlPanel(BaseOverviewControlPanel, UsersOverviewControlPanel):
+    """See PMBaseOverviewControlPanel docstring."""
+
+
+class DocsGroupsOverviewControlPanel(BaseOverviewControlPanel, GroupsOverviewControlPanel):
+    """See PMBaseOverviewControlPanel docstring."""
+
+    @property
+    def portal_roles(self):
+        return ['Manager', 'Site Administrator']

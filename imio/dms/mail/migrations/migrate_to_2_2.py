@@ -18,8 +18,6 @@ class Migrate_To_2_2(Migrator):
 
     def __init__(self, context):
         Migrator.__init__(self, context)
-        self.registry = getUtility(IRegistry)
-        self.catalog = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
 
@@ -43,13 +41,41 @@ class Migrate_To_2_2(Migrator):
                 'sender', 'recipient_groups', 'mail_type', 'mail_date', 'reply_to', 'ITask.task_description',
                 'ITask.due_date', 'outgoing_date', 'external_reference_no', 'internal_reference_no'])
 
+    def check_roles(self):
+        # check user roles
+        for user in api.user.get_users():
+            roles = api.user.get_roles(user=user)
+            for role in roles:
+                if role in ['Member', 'Authenticated'] or (role == 'Batch importer' and user.id == 'scanner'):
+                    continue
+                elif role == 'Manager':
+                    self.portal.acl_users.source_groups.addPrincipalToGroup(user.id, 'Administrators')
+                    api.user.revoke_roles(user=user, roles=['Manager'])
+                elif role == 'Site Administrator':
+                    self.portal.acl_users.source_groups.addPrincipalToGroup(user.id, 'Site Administrators')
+                    api.user.revoke_roles(user=user, roles=['Site Administrator'])
+                else:
+                    logger.warn("User '{}' has role: {}".format(user.id, role))
+        # check group roles
+        for group in api.group.get_groups():
+            roles = api.group.get_roles(group=group)
+            for role in roles:
+                if (role == 'Authenticated' or (role == 'Manager' and group.id == 'Administrators') or
+                        (role == 'Site Administrator' and group.id == 'Site Administrators') or
+                        (role == 'Reviewer' and group.id == 'Reviewers')):
+                    continue
+                else:
+                    logger.warn("Group '{}' has role: {}".format(group.id, role))
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.2...')
         self.cleanRegistries()
 
         self.upgradeProfile('collective.contact.core:default')
 
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'viewlets'])
+        self.check_roles()
+
+        self.runProfileSteps('imio.dms.mail', steps=['browserlayer', 'plone.app.registry', 'viewlets'])
 
         # check if oo port must be changed
         update_oo_config()

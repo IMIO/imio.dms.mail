@@ -439,7 +439,7 @@ def group_deleted(event):
 
     def get_query(portal_type, field, idx, org, suffix):
         fti = getUtility(IDexterityFTI, name=portal_type)
-        config = fti.localroles.get(field)
+        config = getattr(fti, 'localroles', {}).get(field, None)
         if not config:
             return {}
         for st in config:
