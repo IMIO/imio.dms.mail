@@ -1223,14 +1223,7 @@ def configureContactPloneGroup(context):
     if not get_registry_organizations():
         contacts = site['contacts']
         own_orga = contacts['plonegroup-organization']
-        (u'Direction générale', (u'Secrétariat', u'GRH', u'Informatique', u'Communication')),
-        (u'Direction financière', (u'Budgets', u'Comptabilité', u'Taxes', u'Marchés publics')),
-        (u'Direction technique', (u'Bâtiments', u'Voiries', u'Urbanisme')),
-        (u'Département population', (u'Population', u'État-civil')),
-        (u'Département culturel', (u'Enseignement', u'Culture-loisirs')),
-        (u'Événements', []),
-        (u'Collège communal', []),
-        (u'Conseil communal', []),
+        # full list of orgs defined in addOwnOrganization ~1600
         departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
         dep0 = departments[0]
         dep1 = departments[1]
@@ -1240,6 +1233,11 @@ def configureContactPloneGroup(context):
         services2 = dep2.listFolderContents(contentFilter={'portal_type': 'organization'})
         orgas = [dep0, services0[0], services0[1], services0[3], dep1, services1[0], services1[1],
                  dep2, services2[0], services2[1], departments[5]]
+        # selected orgs
+        # u'Direction générale', (u'Secrétariat', u'GRH', u'Communication')
+        # u'Direction financière', (u'Budgets', u'Comptabilité')
+        # u'Direction technique', (u'Bâtiments', u'Voiries')
+        # u'Événements'
         set_registry_organizations([org.UID() for org in orgas])
 
         # Add users to created groups
@@ -1618,43 +1616,59 @@ def addOwnPersonnel(context):
     # Test if we are already in production
     if inb > 20:
         return
+    # selected orgs
+    # u'Direction générale', (u'Secrétariat', u'GRH', u'Communication')
+    # u'Direction financière', (u'Budgets', u'Comptabilité')
+    # u'Direction technique', (u'Bâtiments', u'Voiries')
+    # u'Événements'
+    # Assignments defined in configureContactPloneGroup
+    orgs = {
+        'chef': {
+            'o': [own_orga['direction-generale'], own_orga['direction-generale']['secretariat'],
+                  own_orga['direction-generale']['grh'], own_orga['direction-generale']['communication'],
+                  own_orga['direction-financiere'], own_orga['direction-financiere']['budgets'],
+                  own_orga['direction-financiere']['comptabilite'], own_orga['direction-technique'],
+                  own_orga['direction-technique']['batiments'], own_orga['direction-technique']['voiries'],
+                  own_orga['evenements']],
+            'e': u'michel.chef@macommune.be', 'p': u'012345679', 'l': u'Responsable {}'},
+        'agent': {
+            'o': [own_orga['direction-generale']['secretariat'], own_orga['direction-generale']['grh'],
+                  own_orga['direction-generale']['communication'], own_orga['direction-financiere']['budgets'],
+                  own_orga['direction-financiere']['comptabilite'], own_orga['direction-technique']['batiments'],
+                  own_orga['direction-technique']['voiries']],
+            'e': u'fred.agent@macommune.be', 'p': u'012345670', 'l': u'Agent {}'},
+        'agent1': {
+            'o': [own_orga['evenements']], 'l': u'Agent {}'}
+    }
+
+    def hp_dic_list(key):
+        return [{'position': RelationValue(intids.getId(o)), 'email': orgs[key].get('e'),
+                 'phone': orgs[key].get('p'), 'use_parent_address': True,
+                 'label': orgs[key]['l'].format(o.title)} for o in orgs[key]['o']]
+
     persons = {
         'dirg': {'pers': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
                  'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'électron",
                  'number': u'1', 'use_parent_address': False},
                  'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale'])),
-                           'label': u'Directeur général', 'start_date': datetime.date(2016, 6, 15), 'end_date': None,
-                           'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                           'email': u'maxime.dirg@macommune.be', 'phone': u'012345678', 'use_parent_address': False},
+                           'label': u'Directeur général', 'email': u'maxime.dirg@macommune.be', 'phone': u'012345678',
+                           'use_parent_address': True},
                           {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
                            'label': u'Directeur du personnel', 'start_date': datetime.date(2012, 9, 1),
-                           'end_date': datetime.date(2016, 6, 14), 'use_parent_address': False,
-                           'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
+                           'end_date': datetime.date(2016, 6, 14), 'use_parent_address': True,
                            'email': u'maxime.dirg@macommune.be', 'phone': u'012345678'}]},
         'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
                  'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
                  'number': u'2', 'use_parent_address': False},
-                 'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale']['secretariat'])),
-                           'label': u'Responsable secrétariat', 'start_date': None, 'end_date': None,
-                           'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                           'email': u'michel.chef@macommune.be', 'phone': u'012345679', 'use_parent_address': False},
-                          {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
-                           'label': u'Responsable GRH', 'start_date': None, 'end_date': None,
-                           'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                           'email': u'michel.chef@macommune.be', 'phone': u'012345679',
-                           'use_parent_address': False}]},
+                 'fcts': hp_dic_list('chef')},
         'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
                   'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
                   'number': u'3', 'use_parent_address': False},
-                  'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale']['secretariat'])),
-                            'label': u'Agent secrétariat', 'start_date': None, 'end_date': None,
-                            'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                            'email': u'fred.agent@macommune.be', 'phone': u'012345670', 'use_parent_address': False},
-                           {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
-                            'label': u'Agent GRH', 'start_date': None, 'end_date': None,
-                            'zip_code': u'0010', 'city': u'Ma ville', 'street': u'Rue de la commune', 'number': u'1',
-                            'email': u'fred.agent@macommune.be', 'phone': u'012345670',
-                            'use_parent_address': False}]},
+                  'fcts': hp_dic_list('agent')},
+        'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
+                   'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
+                   'number': u'1', 'use_parent_address': False},
+                   'fcts': hp_dic_list('agent1')},
     }
 
     normalizer = getUtility(IIDNormalizer)
@@ -1708,6 +1722,26 @@ def addContactListsFolder(context):
                                      RelationValue(intids.getId(contacts['bernardlermitte']['agent-swde']))])
 
 
+def separate_fullname(user, start='firstname'):
+    """ Separate firstname and lastname from fullname """
+    fullname = safe_unicode(user.getProperty('fullname'))
+    lastname = firstname = u''
+    if fullname:
+        parts = fullname.split()
+        if len(parts) == 1:
+            lastname = parts[0]
+        elif len(parts) > 1:
+            if start == 'firstname':
+                firstname = parts[0]
+                lastname = ' '.join(parts[1:])
+            else:
+                lastname = parts[0]
+                firstname = ' '.join(parts[1:])
+    else:
+        lastname = safe_unicode(user.id)
+    return firstname, lastname
+
+
 def create_persons_from_users(portal, start='firstname', functions=['encodeur'], userid=''):
     """
         create own personnel from plone users
@@ -1717,7 +1751,7 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
     groups = api.group.get_groups()
     for group in groups:
 #        if '_' not in group.id and group.id not in ['dir_general', 'encodeurs', 'expedition']:
-        if '_' not in group.id or group.id in ['dir_general']:
+        if '_' not in group.id or group.id in ['dir_general', 'lecteurs_globaux_ce']:
             continue
         parts = group.id.split('_')
         org_uid = function = None
@@ -1731,21 +1765,7 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
                 continue
             if user.id not in users and user.id not in ['scanner']:
                 users[user.id] = {'pers': {}, 'orgs': []}
-                fullname = safe_unicode(user.getProperty('fullname'))
-                lastname = firstname = u''
-                if fullname:
-                    parts = fullname.split()
-                    if len(parts) == 1:
-                        lastname = parts[0]
-                    elif len(parts) > 1:
-                        if start == 'firstname':
-                            firstname = parts[0]
-                            lastname = ' '.join(parts[1:])
-                        else:
-                            lastname = parts[0]
-                            firstname = ' '.join(parts[1:])
-                else:
-                    lastname = safe_unicode(user.id)
+                firstname, lastname = separate_fullname(user, start=start)
                 users[user.id]['pers'] = {'lastname': lastname, 'firstname': firstname, 'email':
                                           safe_unicode(user.getProperty('email')), 'use_parent_address': False}
             if org_uid and org_uid not in users[user.id]['orgs']:
@@ -1766,17 +1786,25 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
                                                                           users[userid]['pers']['lastname']))
             logger.info(out[-1])
             pers = api.content.create(container=pf, type='person', id=userid, userid=userid, **users[userid]['pers'])
-
-        hps = api.content.find(context=pers, portal_type='held_position')
-        hps = [b.getObject().get_organization() for b in hps]
+        if api.content.get_state(pers) == 'deactivated':
+            api.content.transition(pers, 'activate')
+        hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
+        orgs = dict([(hp.get_organization(), hp) for hp in hps])
         for uid in users[userid]['orgs']:
             org = uuidToObject(uid)
-            if not org or uid in pers or org in hps:
+            if not org:
                 continue
-            out.append(u" -> hp created with org '%s'" % org.get_full_title())
-            logger.info(out[-1])
-            api.content.create(container=pers, id=uid, type='held_position', **{'email': email,
-                               'position': RelationValue(intids.getId(org)), 'use_parent_address': True})
+            if uid in pers:
+                hp = pers[uid]
+            elif org in orgs:
+                hp = orgs[org]
+            else:
+                out.append(u" -> hp created with org '%s'" % org.get_full_title())
+                logger.info(out[-1])
+                hp = api.content.create(container=pers, id=uid, type='held_position', **{'email': email,
+                                        'position': RelationValue(intids.getId(org)), 'use_parent_address': True})
+            if api.content.get_state(hp) == 'deactivated':
+                api.content.transition(hp, 'activate')
     return out
 
 

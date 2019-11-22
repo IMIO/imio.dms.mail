@@ -62,6 +62,13 @@ class OMFieldsVocabulary(object):
                                   'IDublinCore.subjects', 'INameFromTitle.title', 'ITask.assigned_group',
                                   'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'related_docs'])
 
+fullname_forms = SimpleVocabulary(
+    [
+        SimpleTerm(value=u'firstname', title=_(u'Firstname Lastname')),
+        SimpleTerm(value=u'lastname', title=_(u'Lastname Firstname'))
+    ]
+)
+
 
 class IMailTypeSchema(Interface):
     mt_value = schema.TextLine(title=_("Mail type value"), required=True)
@@ -135,8 +142,8 @@ class IImioDmsMailConfig(model.Schema):
         'outgoingmail',
         label=_(u"Outgoing mail"),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
-                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit', 'omail_fields_order',
-                'omail_group_encoder']
+                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit', 'omail_fullname_used_form',
+                'omail_fields_order', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -176,6 +183,12 @@ class IImioDmsMailConfig(model.Schema):
     omail_fields_order = schema.List(
         title=_(u"Display order of fields"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMFieldsVocabulary'),
+    )
+
+    omail_fullname_used_form = schema.Choice(
+        title=_(u"User fullname used format"),
+        vocabulary=fullname_forms,
+        default='firstname',
     )
 
     omail_group_encoder = schema.Bool(

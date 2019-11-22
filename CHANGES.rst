@@ -25,7 +25,7 @@ Changelog
 - Added batch actions buttons (labels, senders, recipients)
   [sgeulette]
 
-- Added subscriber to manage 'lu' label for a new user assignment
+- Added subscriber to manage 'lu' label and internal held positions for a new user assignment
   [sgeulette]
 
 - Simplified user and group overview listings

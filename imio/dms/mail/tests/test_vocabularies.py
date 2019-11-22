@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
@@ -111,24 +112,19 @@ class TestVocabularies(unittest.TestCase):
 
     def test_OMSenderVocabulary(self):
         voc_inst = OMSenderVocabulary()
-        self.assertEqual(len(voc_inst(self.omail)), 6)
-        self.assertEqual([s.title for s in voc_inst(self.omail)],
-                         [u'Monsieur Fred Agent, Agent GRH (Direction générale / GRH)',
-                          u'Monsieur Fred Agent, Agent secrétariat (Direction générale / Secrétariat)',
-                          u'Monsieur Maxime DG, Directeur du personnel (Direction générale / GRH)',
-                          u'Monsieur Maxime DG, Directeur général (Direction générale)',
-                          u'Monsieur Michel Chef, Responsable GRH (Direction générale / GRH)',
-                          u'Monsieur Michel Chef, Responsable secrétariat (Direction générale / Secrétariat)'])
+        self.assertEqual(len(voc_inst(self.omail)), 22)
+        # get first part, as unique value, keeping order
+        res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
+        # res is sorted by firstname
+        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Maxime DG', u'Monsieur Michel Chef',
+                               u'Monsieur Stef Agent'])
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                        'omail_sender_firstname_sorting', False)
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
-        self.assertEqual([s.title for s in voc_inst(self.omail)],
-                         [u'Monsieur Fred Agent, Agent GRH (Direction générale / GRH)',
-                          u'Monsieur Fred Agent, Agent secrétariat (Direction générale / Secrétariat)',
-                          u'Monsieur Michel Chef, Responsable GRH (Direction générale / GRH)',
-                          u'Monsieur Michel Chef, Responsable secrétariat (Direction générale / Secrétariat)',
-                          u'Monsieur Maxime DG, Directeur du personnel (Direction générale / GRH)',
-                          u'Monsieur Maxime DG, Directeur général (Direction générale)'])
+        res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
+        # res is sorted by lastname
+        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Stef Agent', u'Monsieur Michel Chef',
+                               u'Monsieur Maxime DG'])
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
