@@ -109,10 +109,10 @@
         handler=".subscribers.group_assignment"
         />
 
-    <!--subscriber
+    <subscriber
         for="Products.PluggableAuthService.interfaces.events.IPrincipalRemovedFromGroupEvent"
-        handler=".subscribers.group_assignment"
-        /-->
+        handler=".subscribers.group_unassignment"
+        />
 
     <subscriber
         for="collective.contact.plonegroup.interfaces.IPloneGroupContact

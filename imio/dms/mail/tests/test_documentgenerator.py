@@ -173,18 +173,17 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # Test get_persons
         res = [
-            (1, self.ctct['personnel-folder']['agent']), (2, self.chef),
-            (3, self.ctct['jeancourant']), (4, self.ctct['personnel-folder']['dirg']),
-            (5, self.ctct['bernardlermitte']), (6, self.ctct['notencoded']),
-            (7, self.ctct['sergerobinet'])]
+            (1, self.ctct['personnel-folder']['agent']), (2, self.ctct['personnel-folder']['agent1']), (3, self.chef),
+            (4, self.ctct['jeancourant']), (5, self.ctct['personnel-folder']['dirg']),
+            (6, self.ctct['bernardlermitte']), (7, self.ctct['notencoded']),
+            (8, self.ctct['sergerobinet'])]
         self.assertListEqual(view.get_persons(), res)
 
         # Test get_held_positions
         res = [
-            (1, 5, 27, self.ctct['bernardlermitte']['agent-swde']),
-            (2, 3, 1, self.ctct['jeancourant']['agent-electrabel']),
-            (3, 1, 19, self.ctct['personnel-folder']['agent']['agent-grh'])]
-        self.assertListEqual(view.get_held_positions()[:3], res)
+            (1, 6, 27, self.ctct['bernardlermitte']['agent-swde']),
+            (2, 4, 1, self.ctct['jeancourant']['agent-electrabel'])]
+        self.assertListEqual(view.get_held_positions()[:2], res)
 
     def test_DashboardDocumentGenerationView(self):
         """

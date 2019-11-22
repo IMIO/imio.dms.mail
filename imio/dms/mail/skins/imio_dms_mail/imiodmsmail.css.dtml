@@ -251,11 +251,15 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
     margin-top: -2em;
 }
 
+#pers_fold a {
+    line-height: 1.5em;
+}
+
 div.ac_results {
     width: auto !important;
 }
 
-#faceted-results td.pretty_link a.link-tooltip .pretty_link_content{
+#faceted-results td.pretty_link a.link-tooltip .pretty_link_content {
     border-bottom: 1px dotted;
 }
 

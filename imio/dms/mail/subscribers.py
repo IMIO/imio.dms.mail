@@ -16,9 +16,11 @@ from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.setuphandlers import separate_fullname
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from persistent.list import PersistentList
 from plone import api
@@ -479,11 +481,12 @@ def group_deleted(event):
 
 def group_assignment(event):
     """
-        manage the add or remove of a user in a plone group
+        manage the add of a user in a plone group
     """
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
-    # we will manage the 'lu' label for a new assignment
+    # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
+    userid = event.principal
     orgs = organizations_with_suffixes([event.group], ['validateur', 'editeur', 'lecteur'], group_as_str=True)
     if orgs:
         DAYS_BACK = 5
@@ -491,16 +494,75 @@ def group_assignment(event):
         end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
         catalog = api.portal.get_tool('portal_catalog')
         for brain in catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'], recipient_groups=orgs,
-                             labels={'not': ['%s:lu' % event.principal]},
+                             labels={'not': ['%s:lu' % userid]},
                              created={'query': (start, end), 'range': 'min:max'}):
             if not brain.recipient_groups:
                 continue
             obj = brain.getObject()
             labeling = ILabeling(obj)
             user_ids = labeling.storage.setdefault('lu', PersistentList())  # _p_changed is managed
-            user_ids.append(event.principal)  # _p_changed is managed
+            user_ids.append(userid)  # _p_changed is managed
             obj.reindexObject(idxs=['labels'])
-    # can manage the personnel-folder ? TODO
+    # we manage the personnel-folder person and held position
+    orgs = organizations_with_suffixes([event.group], ['encodeur'], group_as_str=True)
+    if orgs:
+        user = api.user.get(userid)
+        start = api.portal.get_registry_record('omail_fullname_used_form', IImioDmsMailConfig, default='firstname')
+        firstname, lastname = separate_fullname(user, start=start)
+        portal = api.portal.get()
+        intids = getUtility(IIntIds)
+        pf = portal['contacts']['personnel-folder']
+        # exists already
+        exist = portal.portal_catalog(mail_type=userid, portal_type='person')
+        if userid in pf:
+            pers = pf[userid]
+        elif exist:
+            pers = exist[0].getObject()
+        else:
+            pers = api.content.create(container=pf, type='person', id=userid, userid=userid, lastname=lastname,
+                                      firstname=firstname, use_parent_address=False)
+        if api.content.get_state(pers) == 'deactivated':
+            api.content.transition(pers, 'activate')
+        hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
+        hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
+        uid = orgs[0]
+        org = uuidToObject(uid)
+        if not org:
+            return
+        if uid in pers:
+            hp = pers[uid]
+        elif org in hps_orgs:
+            hp = hps_orgs[org]
+        else:
+            hp = api.content.create(container=pers, id=uid, type='held_position',
+                                    email=safe_unicode(user.getProperty('email')),
+                                    position=RelationValue(intids.getId(org)), use_parent_address=True)
+        if api.content.get_state(hp) == 'deactivated':
+            api.content.transition(hp, 'activate')
+
+
+def group_unassignment(event):
+    """
+        manage the remove of a user in a plone group
+    """
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+    # we manage the personnel-folder person and held position
+    orgs = organizations_with_suffixes([event.group], ['encodeur'], group_as_str=True)
+    if orgs:
+        userid = event.principal
+        portal = api.portal.get()
+        pf = portal['contacts']['personnel-folder']
+        exist = portal.portal_catalog(mail_type=userid, portal_type='person')
+        if userid in pf:
+            pers = pf[userid]
+        elif exist:
+            pers = exist[0].getObject()
+        else:
+            return
+        hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
+        for hp in hps:
+            if hp.get_organization().UID() == orgs[0] and api.content.get_state(hp) == 'active':
+                api.content.transition(hp, 'deactivate')
 
 
 # CONTACT
