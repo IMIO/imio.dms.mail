@@ -931,7 +931,7 @@ Contacts 3
     Click element  css=#formfield-form-widgets-mail_date label
     Click button  form-buttons-save
     ### !!! Necessary to allow jQuery to load !!!
-    Sleep  0.5
+    Sleep  1
     Wait until element is visible  css=#form-widgets-recipients li:nth-child(3)  10
     Capture and crop page screenshot  doc/utilisation/2-9-3 contact list remplacement.png  formfield-form-widgets-recipients
 
@@ -997,13 +997,13 @@ Configuration
     Go to  ${PLONE_URL}/@@dmsmailcontent-settings
     Wait until element is visible  id=formfield-form-widgets-incomingmail_number  10
     Capture and crop page screenshot  doc/configuration/3-1 config courrier.png  id=content
-    # Erreur chargement page, voir http://trac.imio.be/trac/ticket/21954
-    #Go to  ${PLONE_URL}/@@imiodmsmail-settings
-    #Wait until element is visible  id=formfield-form-widgets-mail_types  10
-    #Capture and crop page screenshot  doc/configuration/3-1 config courrier 2.png  id=content
-    #Go to  ${PLONE_URL}/@@contact-plonegroup-settings
-    #Wait until element is visible  id=pg-orga-link  10
-    #Capture and crop page screenshot  doc/configuration/3-2 config services.png  id=content
+    # Erreur chargement page, voir https://support.imio.be/browse/DMS-434
+    # Go to  ${PLONE_URL}/@@imiodmsmail-settings
+    # Wait until element is visible  id=formfield-form-widgets-mail_types  10
+    # Capture and crop page screenshot  doc/configuration/3-1 config courrier 2.png  id=content
+    # Go to  ${PLONE_URL}/@@contact-plonegroup-settings
+    # Wait until element is visible  id=pg-orga-link  10
+    # Capture and crop page screenshot  doc/configuration/3-2 config services.png  id=content
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
     Wait until element is visible  css=.listing.nosort.templates-listing.icons-on  10
     Capture and crop page screenshot  doc/configuration/3-2 config propre organisation.png  id=content
