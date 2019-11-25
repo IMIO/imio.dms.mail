@@ -487,7 +487,7 @@ def group_assignment(event):
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
-    orgs = organizations_with_suffixes([event.group], ['validateur', 'editeur', 'lecteur'], group_as_str=True)
+    orgs = organizations_with_suffixes([event.group_id], ['validateur', 'editeur', 'lecteur'], group_as_str=True)
     if orgs:
         DAYS_BACK = 5
         start = datetime.datetime(1973, 02, 12)
@@ -504,7 +504,7 @@ def group_assignment(event):
             user_ids.append(userid)  # _p_changed is managed
             obj.reindexObject(idxs=['labels'])
     # we manage the personnel-folder person and held position
-    orgs = organizations_with_suffixes([event.group], ['encodeur'], group_as_str=True)
+    orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
     if orgs:
         user = api.user.get(userid)
         start = api.portal.get_registry_record('omail_fullname_used_form', IImioDmsMailConfig, default='firstname')
@@ -547,7 +547,7 @@ def group_unassignment(event):
     """
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
     # we manage the personnel-folder person and held position
-    orgs = organizations_with_suffixes([event.group], ['encodeur'], group_as_str=True)
+    orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
     if orgs:
         userid = event.principal
         portal = api.portal.get()

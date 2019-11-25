@@ -79,6 +79,7 @@ setup(
         'plone.app.dexterity[grok]',
         'plone.app.lockingbehavior',
         'plonetheme.imioapps',
+        'Products.PluggableAuthService>=1.11.3',
         'z3c.unconfigure',
         # -*- Extra requirements: -*-
     ],
