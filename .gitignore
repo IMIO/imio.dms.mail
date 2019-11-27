@@ -1,0 +1,4 @@
+imio.dms.mail.egg-info
+*.egg-info
+*.mo
+*.pyc
