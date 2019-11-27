@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from collective.documentgenerator.utils import update_oo_config
+from imio.dms.mail import _tr
 from imio.migrator.migrator import Migrator
 from plone import api
-from plone.registry.interfaces import IRegistry
 from Products.CPUtils.Extensions.utils import mark_last_version
-from zope.component import getUtility
 
 import logging
 
@@ -40,6 +39,12 @@ class Migrate_To_2_2(Migrator):
                 'IDublinCore.title', 'IDublinCore.description', 'recipients', 'treating_groups', 'ITask.assigned_user',
                 'sender', 'recipient_groups', 'mail_type', 'mail_date', 'reply_to', 'ITask.task_description',
                 'ITask.due_date', 'outgoing_date', 'external_reference_no', 'internal_reference_no'])
+        # update front-page
+        frontpage = self.portal['front-page']
+        if frontpage.Title() == 'Gestion du courrier 2.1':
+            frontpage.setTitle(_tr("front_page_title"))
+            frontpage.setDescription(_tr("front_page_descr"))
+            frontpage.setText(_tr("front_page_text"), mimetype='text/html')
 
     def check_roles(self):
         # check user roles
