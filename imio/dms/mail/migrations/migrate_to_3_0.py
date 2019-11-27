@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
-from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from imio.dms.mail import _tr as _
-from imio.dms.mail.setuphandlers import add_templates
+from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.registry.interfaces import IRegistry
 from Products.CPUtils.Extensions.utils import mark_last_version
 from zope.component import getUtility
 
@@ -121,6 +119,11 @@ class Migrate_To_3_0(Migrator):
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
+
+        # check if oo port or solr port must be changed
+        update_solr_config()
+        update_oo_config()
+
         self.cleanRegistries()
 
         self.upgradeProfile('collective.dms.mailcontent:default')
@@ -136,9 +139,6 @@ class Migrate_To_3_0(Migrator):
             success, errors = apply_from_registry()
             if errors:
                 logger.error("Problem applying wf adaptations: %d errors" % errors)
-
-        # check if oo port must be changed
-        update_oo_config()
 
         # do various global adaptations
         self.update_site()

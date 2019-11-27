@@ -2,6 +2,7 @@
 
 from collective.documentgenerator.utils import update_oo_config
 from imio.dms.mail import _tr
+from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
 from Products.CPUtils.Extensions.utils import mark_last_version
@@ -74,6 +75,11 @@ class Migrate_To_2_2(Migrator):
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.2...')
+
+        # check if oo port or solr port must be changed
+        update_solr_config()
+        update_oo_config()
+
         self.cleanRegistries()
 
         self.upgradeProfile('collective.contact.core:default')
@@ -81,9 +87,6 @@ class Migrate_To_2_2(Migrator):
         self.check_roles()
 
         self.runProfileSteps('imio.dms.mail', steps=['browserlayer', 'plone.app.registry', 'viewlets'])
-
-        # check if oo port must be changed
-        update_oo_config()
 
         self.update_site()
 

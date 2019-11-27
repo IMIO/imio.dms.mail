@@ -26,6 +26,7 @@ from zope.component.hooks import getSite
 from zope.schema.interfaces import IVocabularyFactory
 
 import logging
+import os
 
 cg_separator = ' ___ '
 
@@ -410,3 +411,12 @@ class Dummy(object):
     def __init__(self, context, request):
         self.context = context
         self.request = request
+
+
+def update_solr_config():
+    """ Update config following buildout var """
+    full_key = 'collective.solr.port'
+    configured_oo_option = api.portal.get_registry_record(full_key)
+    new_oo_option = int(os.getenv('SOLR_PORT', ''))
+    if new_oo_option and new_oo_option != configured_oo_option:
+        api.portal.set_registry_record(full_key, new_oo_option)
