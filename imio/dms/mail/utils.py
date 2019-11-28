@@ -416,7 +416,9 @@ class Dummy(object):
 def update_solr_config():
     """ Update config following buildout var """
     full_key = 'collective.solr.port'
-    configured_oo_option = api.portal.get_registry_record(full_key)
-    new_oo_option = int(os.getenv('SOLR_PORT', ''))
-    if new_oo_option and new_oo_option != configured_oo_option:
-        api.portal.set_registry_record(full_key, new_oo_option)
+    configured_port = api.portal.get_registry_record(full_key, default=None)
+    if configured_port is None:
+        return
+    new_port = int(os.getenv('SOLR_PORT', ''))
+    if new_port and new_port != configured_port:
+        api.portal.set_registry_record(full_key, new_port)
