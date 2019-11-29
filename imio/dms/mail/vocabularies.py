@@ -135,7 +135,7 @@ def getMailTypes(choose=False, active=[True, False], field='mail_types'):
     if choose:
         terms.append(SimpleVocabulary.createTerm(None, '', _("Choose a value !")))
     id_utility = queryUtility(IIDNormalizer)
-    for mail_type in getattr(settings, field) or []:
+    for mail_type in (getattr(settings, field) or []):
         #value (stored), token (request), title
         if mail_type['mt_active'] in active:
             terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],

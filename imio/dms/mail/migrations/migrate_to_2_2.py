@@ -98,6 +98,8 @@ class Migrate_To_2_2(Migrator):
 
         self.check_roles()
 
+        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])
+
         self.runProfileSteps('imio.dms.mail', steps=['browserlayer', 'plone.app.registry', 'viewlets'])
 
         self.update_site()
