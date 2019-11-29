@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collective.documentgenerator.utils import update_oo_config
+from collective.messagesviewlet.utils import add_message
 from imio.dms.mail import _tr
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
@@ -46,6 +47,17 @@ class Migrate_To_2_2(Migrator):
             frontpage.setTitle(_tr("front_page_title"))
             frontpage.setDescription(_tr("front_page_descr"))
             frontpage.setText(_tr("front_page_text"), mimetype='text/html')
+        # message
+        if 'new-version' not in self.portal['messages-config']:
+            add_message('new-version', 'Version 2.2', u'<p>Vous êtes passé à la version d\'iA.docs 2.2 !</p>'
+                        u'<p>La <a href="https://www.imio.be/support/documentation/topic/cp_app_ged" target="_blank">'
+                        u'documentation</a> a été mise à jour et comporte plusieurs nouvelles sections, dont '
+                        u'<a href="https://www.imio.be/support/documentation/manual/gestion-de-courriers/'
+                        u'introduction/les-nouvelles-fonctionnalites-de-la-version-2.2" target="_blank">'
+                        u'une page sur les nouveautés</a>.</p>', msg_type='warning',
+                        can_hide=True, req_roles=['Authenticated'], activate=True)
+        if 'indispo' in self.portal['messages-config']:
+            api.content.transition(self.portal['messages-config']['indispo'], 'deactivate')
 
     def check_roles(self):
         # check user roles
