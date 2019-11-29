@@ -349,8 +349,8 @@ class IMPrettyLinkAdapter(PrettyLinkAdapter):
         icons = []
         if self.context.task_description and self.context.task_description.raw:
             registry = getUtility(IRegistry)
-            if api.content.get_state(self.context) in registry.get(
-                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states') or []:
+            if api.content.get_state(self.context) in (registry.get(
+                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states') or []):
                 icons.append(("++resource++imio.dms.mail/remark.gif", translate("Remark icon", domain="imio.dms.mail",
                                                                                 context=self.request)))
         back_or_again_icon = self.context.get_back_or_again_icon()
@@ -366,8 +366,8 @@ class OMPrettyLinkAdapter(PrettyLinkAdapter):
         icons = []
         if self.context.task_description and self.context.task_description.raw:
             registry = getUtility(IRegistry)
-            if api.content.get_state(self.context) in registry.get(
-                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states') or []:
+            if api.content.get_state(self.context) in (registry.get(
+                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states') or []):
                 icons.append(("++resource++imio.dms.mail/remark.gif", translate("Remark icon", domain="imio.dms.mail",
                                                                                 context=self.request)))
         back_or_again_icon = self.context.get_back_or_again_icon()
