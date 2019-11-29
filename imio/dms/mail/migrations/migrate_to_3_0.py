@@ -66,6 +66,9 @@ class Migrate_To_3_0(Migrator):
         # We need to indicate that the object has been modified and must be "saved"
         lr._p_changed = True
 
+        if 'new-version' not in self.portal['messages-config']:
+            'TO BE CONTINUED' / 1
+
     def insert_incoming_emails(self):
         # allowed types
         self.imf.setConstrainTypesMode(1)
