@@ -49,7 +49,7 @@ class Migrate_To_2_2(Migrator):
             frontpage.setText(_tr("front_page_text"), mimetype='text/html')
         # message
         if 'new-version' not in self.portal['messages-config']:
-            add_message('new-version', 'Version 2.2', u'<p>Vous êtes passé à la version d\'iA.docs 2.2 !</p>'
+            add_message('new-version', 'Version 2.2', u'<p>Vous êtes passés à la version d\'iA.docs 2.2 !</p>'
                         u'<p>La <a href="https://www.imio.be/support/documentation/topic/cp_app_ged" target="_blank">'
                         u'documentation</a> a été mise à jour et comporte plusieurs nouvelles sections, dont '
                         u'<a href="https://www.imio.be/support/documentation/manual/gestion-de-courriers/'
