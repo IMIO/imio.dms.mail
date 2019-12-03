@@ -310,29 +310,23 @@ class VariousUtilsMethods(UtilsMethods):
         """ Return a list of orgs formatted for Kofax """
         if not self.user_is_admin():
             return
-        factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
-        cgs, tgs = [], []
-        activated = get_registry_organizations()
-        encoders = []
-        for function in get_registry_functions():
-            if function['fct_id'] == CREATING_GROUP_SUFFIX:
-                encoders = function['fct_orgs']
-                break
 
-        for term in factory(self.context):
-            uid, title = term.value, term.title
-            if uid in encoders:
-                cgs.append('{}{}{}'.format(title.encode('utf8'), cg_separator, uid))
-            if uid in activated:
-                tgs.append('{}{}{}'.format(title.encode('utf8'), cg_separator, uid))
+        def get_voc_values(voc_name):
+            ret = []
+            factory = getUtility(IVocabularyFactory, voc_name)
+            for term in factory(self.context):
+                uid, title = term.value, term.title
+                ret.append('{}{}{}'.format(term.title.encode('utf8'), cg_separator, term.value))
+            return ret
+
         ret = []
         ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
-        ret.append('\r\n'.join(cgs))
+        ret.append('\r\n'.join(get_voc_values('imio.dms.mail.ActiveCreatingGroupVocabulary')))
         ret.append('')
         ret.append(_('Treating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
-        ret.append('\r\n'.join(tgs))
+        ret.append('\r\n'.join(get_voc_values('collective.dms.basecontent.treating_groups')))
         return '\r\n'.join(ret)
 
 
