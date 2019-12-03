@@ -481,6 +481,8 @@ def group_assignment(event):
         manage the add of a user in a plone group
     """
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+    if event.group_id.endswith(CREATING_GROUP_SUFFIX):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
@@ -543,6 +545,8 @@ def group_unassignment(event):
         manage the remove of a user in a plone group
     """
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+    if event.group_id.endswith(CREATING_GROUP_SUFFIX):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     # we manage the personnel-folder person and held position
     orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
     if orgs:
