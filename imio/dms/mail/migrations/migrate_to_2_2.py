@@ -57,7 +57,8 @@ class Migrate_To_2_2(Migrator):
                         u'introduction/les-nouvelles-fonctionnalites-de-la-version-2.2" target="_blank">'
                         u'une page sur les nouveautés</a>.</p>', msg_type='warning',
                         can_hide=True, req_roles=['Authenticated'], activate=True)
-        if 'indispo' in self.portal['messages-config']:
+        if ('indispo' in self.portal['messages-config'] and
+                api.content.get_state(self.portal['messages-config']['indispo']) == 'activated'):
             api.content.transition(self.portal['messages-config']['indispo'], 'deactivate')
 
     def check_roles(self):
