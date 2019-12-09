@@ -28,7 +28,14 @@
                 category="context"
                 key="/"
                 manager="plone.leftcolumn"
-                type="FacetedCollectionPortlet">
-	</assignment>
+                type="FacetedCollectionPortlet"
+                insert-before="*" />
+
+    <assignment name="portlet_actions"
+                category="context"
+                key="/"
+                manager="plone.leftcolumn"
+                type="portlets.Actions"
+                insert-before="ftw-labels-labeljar" />
 
 </portlets>

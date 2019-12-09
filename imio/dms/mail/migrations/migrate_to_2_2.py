@@ -3,6 +3,7 @@
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from imio.dms.mail import _tr
+from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -94,15 +95,20 @@ class Migrate_To_2_2(Migrator):
 
         self.cleanRegistries()
 
+        self.install(['collective.portlet.actions'])
+
         self.upgradeProfile('collective.contact.core:default')
 
         self.check_roles()
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])
 
-        self.runProfileSteps('imio.dms.mail', steps=['browserlayer', 'plone.app.registry', 'viewlets'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'browserlayer', 'componentregistry',
+                                                     'plone.app.registry', 'portlets', 'viewlets'])
 
         self.update_site()
+
+        set_portlet(self.portal)
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])

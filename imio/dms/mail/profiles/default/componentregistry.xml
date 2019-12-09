@@ -21,5 +21,10 @@
       factory="collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
       name="collective.task.Enquirer"
     />
+    <utility
+      interface="zope.schema.interfaces.IVocabularyFactory"
+      factory="imio.dms.mail.vocabularies.ActionCategoriesVocabularyFactory"
+      name="plone.app.vocabularies.Actions"
+    />
   </utilities>
 </componentregistry>
