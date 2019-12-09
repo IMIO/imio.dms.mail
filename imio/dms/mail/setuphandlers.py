@@ -68,6 +68,7 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -306,6 +307,8 @@ def postInstall(context):
     add_templates(site)
 
     add_transforms(site)
+
+    set_portlet(site)
 
     # add usefull methods
     try:
@@ -2192,3 +2195,13 @@ def configure_group_encoder(portal_types):
         if folder_id:
             reimport_faceted_config(portal[folder_id][category_id], xml='mail-searches-group-encoder.xml',
                                     default_UID=portal[folder_id][category_id][default_id].UID())
+
+
+def set_portlet(portal):
+    ann = IAnnotations(portal)
+    portlet = ann['plone.portlets.contextassignments']['plone.leftcolumn']['portlet_actions']
+    portlet.ptitle = u'Liens divers'
+    portlet.category = u'portlet'
+    portlet.show_icons = False
+    portlet.default_icon = None
+    portlet._p_changed = True

@@ -307,3 +307,17 @@ class ActiveCreatingGroupVocabulary(object):
             if term.value in to_keep:
                 terms.append(term)
         return SimpleVocabulary(terms)
+
+
+class ActionCategoriesVocabularyFactory(object):
+    """Provides an actions categories vocabulary"""
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        portal_actions = api.portal.get_tool('portal_actions')
+
+        categories = portal_actions.objectIds()
+        categories.sort()
+        return SimpleVocabulary(
+            [SimpleTerm(cat, title=cat) for cat in categories]
+        )

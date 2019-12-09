@@ -232,6 +232,16 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
     border-collapse: inherit;
 } /* added border after removing head table */
 
+dl.portlet.portletActionsPortlet dd.portletItem.first {
+    padding-top: 0.3em;
+}
+dl.portletActionsPortlet dd.portletItem span {
+    padding-left: 0;
+    margin-left: 0.5em;
+    margin-bottom: 0.3em;
+    line-height: 1em;
+}
+
 #pers_fold {
     float: right;
     padding-right: 1em;

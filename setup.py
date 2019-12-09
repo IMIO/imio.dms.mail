@@ -64,6 +64,7 @@ setup(
         'collective.iconifieddocumentactions',
         'collective.js.fancytree',
         'collective.messagesviewlet',
+        'collective.portlet.actions',
         'collective.querynextprev',
 #          'collective.schedulefield',
         'collective.task',
