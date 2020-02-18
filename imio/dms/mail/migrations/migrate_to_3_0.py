@@ -120,6 +120,17 @@ class Migrate_To_3_0(Migrator):
         # TO BE DONE
         pass
 
+    def update_count(self, folder, ids=[]):
+        """ Set showNumberOfItems on collection """
+        crit = {'portal_type': 'DashboardCollection',
+                'path': {'query': '/'.join(folder.getPhysicalPath()), 'depth': 1}}
+        if ids:
+            crit['id'] = ids
+        brains = self.catalog.searchResults(crit)
+        for brain in brains:
+            col = brain.getObject()
+            col.showNumberOfItems = True
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
 
@@ -151,6 +162,9 @@ class Migrate_To_3_0(Migrator):
         self.insert_outgoing_emails()
 
         self.check_previously_migrated_collections()
+
+        # set showNumberOfItems on to_treat in_my_group
+        self.update_count(im_folder['mail-searches'], ids=['to_treat_in_my_group'])
 
         # self.catalog.refreshCatalog(clear=1)
 
