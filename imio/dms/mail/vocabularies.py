@@ -376,3 +376,19 @@ class ActionCategoriesVocabularyFactory(object):
         return SimpleVocabulary(
             [SimpleTerm(cat, title=cat) for cat in categories]
         )
+
+
+class IMPreValidationTypesVocabulary(object):
+    """ Pre validation types vocabulary """
+    implements(IVocabularyFactory)
+
+    def __call_(self, context):
+        voc = SimpleVocabulary(
+            [
+                SimpleTerm(value=u'proposed_to_business_lead', title=_(u'Business lead validation')),
+                SimpleTerm(value=u'proposed_to_division_lead', title=_(u'Division lead validation')),
+                SimpleTerm(value=u'proposed_to_department_lead', title=_(u'Department lead validation')),
+                SimpleTerm(value=u'proposed_to_office_lead', title=_(u'Office lead validation'))
+            ]
+        )
+        return voc

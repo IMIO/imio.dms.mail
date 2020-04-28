@@ -492,3 +492,51 @@ class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
 
         return True, ''
+
+
+class IIMPreServiceValidationParameters(WorkflowAdaptationBase):
+
+    pre_validation_type = schema.Choice(
+        title=_("Pre-validation type"),
+        required=True,
+        vocabulary=u'imio.dms.mail.IMPreValidationTypesVocabulary',
+        default=None,
+    )
+
+    state_before = schema.Choice(
+        title=_("State before"),
+        required=True,
+        vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
+        default=None,
+    )
+
+    state_after = schema.Choice(
+        title=_("State after"),
+        required=True,
+        vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
+        default=None,
+    )
+
+
+class IMPreServiceValidation(WorkflowAdaptationBase):
+
+    schema = IIMPreServiceValidationParameters
+
+    def patch_workflow(self, workflow_name, **parameters):
+        portal = api.portal.get()
+        wtool = portal.portal_workflow
+        im_workflow = wtool['incomingmail_workflow']
+
+        state_to_add = parameters['pre_validation_type']
+        import ipdb; ipdb.set_trace()
+
+        # Il faudra tester pour chaque cas s'il existe déjà
+        # msg = self.check_state_in_workflow(im_workflow, 'proposed_to_service_chief')
+        # if msg:
+        #    return False, msg
+        # add state
+        # wf.states.addState()
+
+        # add transitions
+
+        return True, ''

@@ -284,6 +284,11 @@
         factory=".wfadaptations.OMSkipProposeToServiceChief"
     />
 
+    <utility
+        name="imio.dms.mail.wfadaptations.IMPreServiceValidation"
+        factory=".wfadaptations.IMPreServiceValidation"
+    />
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />
