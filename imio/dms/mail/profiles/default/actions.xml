@@ -13,7 +13,7 @@
 
  </object>
 
- <object name="portlet" meta_type="CMF Action Category">
+ <object name="object_portlet" meta_type="CMF Action Category">
 
   <object name="batchimport" meta_type="CMF Action" i18n:domain="imio.dms.mail">
    <property name="title" i18n:translate="">Batch import</property>

@@ -5,6 +5,7 @@ from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from imio.dms.mail import _tr as _
+from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -129,9 +130,11 @@ class Migrate_To_3_0(Migrator):
 
         self.cleanRegistries()
 
+        self.correct_actions()
+
         self.upgradeProfile('collective.dms.mailcontent:default')
 
-        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])
+        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
 
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo', 'workflow'])
 
@@ -167,6 +170,12 @@ class Migrate_To_3_0(Migrator):
 
         #self.refreshDatabase()
         self.finish()
+
+    def correct_actions(self):
+        pa = self.portal.portal_actions
+        if 'portlet' in pa:
+            api.content.rename(obj=pa['portlet'], new_id='object_portlet')
+            set_portlet(self.portal)
 
 
 def migrate(context):

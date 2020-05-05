@@ -2246,7 +2246,7 @@ def set_portlet(portal):
     ann = IAnnotations(portal)
     portlet = ann['plone.portlets.contextassignments']['plone.leftcolumn']['portlet_actions']
     portlet.ptitle = u'Liens divers'
-    portlet.category = u'portlet'
+    portlet.category = u'object_portlet'
     portlet.show_icons = False
     portlet.default_icon = None
     portlet._p_changed = True
