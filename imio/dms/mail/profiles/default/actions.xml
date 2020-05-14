@@ -89,7 +89,7 @@
   </object>
   <object name="documentation" meta_type="CMF Action" i18n:domain="plone" insert-before="*">
    <property name="title" i18n:translate="">Documentation iA.Docs</property>
-   <property name="url_expr">string:https://www.imio.be/support/documentation/manual/gestion-de-courriers</property>
+   <property name="url_expr">string:https://docs.imio.be/imio-doc/ia.docs/</property>
    <property name="link_target">_blank</property>
    <property name="available_expr"></property>
    <property name="permissions">

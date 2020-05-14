@@ -71,6 +71,7 @@ from Products.CPUtils.Extensions.utils import configure_ckeditor
 from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
+from zope.component.interfaces import ComponentLookupError
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -872,6 +873,8 @@ def adaptDefaultPortal(context):
     site.manage_permission('ftw.labels: Change Labels', ('Manager', 'Site Administrator'),
                            acquire=0)
     site.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator', 'Member'),
+                           acquire=0)
+    site.manage_permission('Portlets: Manage own portlets', ('Manager', 'Site Administrator'),
                            acquire=0)
 
     # registry
@@ -2228,6 +2231,10 @@ def configure_group_encoder(portal_types):
     for portal_type in portal_types:
         # behaviors
         fti = getUtility(IDexterityFTI, name=portal_type)
+        # try:
+        #     fti = getUtility(IDexterityFTI, name=portal_type)
+        # except ComponentLookupError:
+        #     continue
         if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
             old_bav = tuple(fti.behaviors)
             fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])

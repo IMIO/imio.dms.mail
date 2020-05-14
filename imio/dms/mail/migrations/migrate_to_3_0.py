@@ -30,13 +30,6 @@ class Migrate_To_3_0(Migrator):
         self.omf = self.portal['outgoing-mail']
 
     def update_site(self):
-        # add documentation message
-        if 'doc' not in self.portal['messages-config']:
-            add_message('doc', 'Documentation', u'<p>Vous pouvez consulter la <a href="http://www.imio.be/'
-                        u'support/documentation/topic/cp_app_ged" target="_blank">documentation en ligne de la '
-                        u'dernière version</a>, ainsi que d\'autres documentations liées.</p>', msg_type='significant',
-                        can_hide=True, req_roles=['Authenticated'], activate=True)
-
         # update front-page
         frontpage = self.portal['front-page']
         if frontpage.Title() == 'Gestion du courrier 2.2':
