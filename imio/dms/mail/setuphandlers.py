@@ -13,8 +13,10 @@ __docformat__ = 'plaintext'
 
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_groups_mgt
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
@@ -1247,11 +1249,13 @@ def configureContactPloneGroup(context):
     site = context.getSite()
     if not get_registry_functions():
         set_registry_functions([
-            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': []},
-            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': []},
-            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': []},
-            {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': []},
+            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False},
+            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': [], 'fct_management': False},
+            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': [], 'fct_management': False},
+            {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': [], 'fct_management': True},
         ])
+    if not get_registry_groups_mgt():
+        set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
     if not get_registry_organizations():
         contacts = site['contacts']
         own_orga = contacts['plonegroup-organization']

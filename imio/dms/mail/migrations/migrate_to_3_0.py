@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_groups_mgt
+from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
@@ -16,7 +19,6 @@ from zope.component import getUtility
 import logging
 
 
-# createStateCollections
 logger = logging.getLogger('imio.dms.mail')
 
 
@@ -45,10 +47,16 @@ class Migrate_To_3_0(Migrator):
         # update portal title
         self.portal.title = 'Gestion du courrier 3.0'
 
-        functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
-        for dic in functions:
-            if dic['fct_id'] == u'encodeur':
-                dic['fct-title'] = u'Créateur CS'
+        # update plonegroup
+        if not get_registry_groups_mgt():
+            set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
+            functions = get_registry_functions()
+            for dic in functions:
+                if dic['fct_id'] == u'encodeur':
+                    dic['fct_title'] = u'Créateur CS'
+                elif dic['fct_id'] == u'validateur':
+                    dic['fct_management'] = True
+            set_registry_functions(functions)
 
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
@@ -67,8 +75,10 @@ class Migrate_To_3_0(Migrator):
         # We need to indicate that the object has been modified and must be "saved"
         lr._p_changed = True
 
-        if 'new-version' not in self.portal['messages-config']:
-            'TO BE CONTINUED' / 1
+        if False and 'new-version' not in self.portal['messages-config']:
+            add_message('new-version', 'Nouvelles fonctionnalités', u'<p>Vous pouvez consulter la <a href="https://'
+                        u'www.imio.be/" target="_blank">liste des nouvelles fonctionnalités</a></p>',
+                        msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
 
     def insert_incoming_emails(self):
         # allowed types
@@ -132,6 +142,7 @@ class Migrate_To_3_0(Migrator):
 
         self.correct_actions()
 
+        self.upgradeProfile('collective.contact.plonegroup:default')
         self.upgradeProfile('collective.dms.mailcontent:default')
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
