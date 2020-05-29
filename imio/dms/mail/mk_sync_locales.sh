@@ -29,8 +29,8 @@ if ! test -f locales/$CATALOGNAME.pot; then
 fi
 
 #merging new messages
-if [ `svn diff locales/generated.pot |grep "^\+[^+]" |wc -l` -le "1" ]; then
-    svn revert locales/generated.pot
+if [ `git diff locales/generated.pot |grep "^\+[^+]" |wc -l` -le "1" ]; then
+    git co locales/generated.pot
 else
     cp locales/$CATALOGNAME.pot locales/$CATALOGNAME_tmp.pot
     cp locales/generated.pot locales/$CATALOGNAME.pot
@@ -45,8 +45,8 @@ if ! test -f locales/plone.pot || [ "$1" == "rebuild-plone" ]; then
 fi
 
 i18ndude merge --pot locales/plone.pot --merge locales/plone-manual.pot 2>/dev/null
-if [ `svn diff locales/plone.pot |grep "^\+[^+]" |wc -l` -le "1" ]; then
-    svn revert locales/plone.pot
+if [ `git diff locales/plone.pot |grep "^\+[^+]" |wc -l` -le "1" ]; then
+    git co locales/plone.pot
 fi
 
 if ! test -f locales/collective.dms.basecontent.pot; then

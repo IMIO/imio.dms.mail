@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from collective.contact.plonegroup.config import get_registry_functions
-from collective.contact.plonegroup.config import get_registry_groups_mgt
-from collective.contact.plonegroup.config import set_registry_functions
-from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
-from collective.wfadaptations.api import apply_from_registry
+from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from eea.facetednavigation.interfaces import ICriteria
+from eea.facetednavigation.widgets.storage import Criterion
 from imio.dms.mail import _tr as _
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
-from plone.dexterity.interfaces import IDexterityFTI
 from Products.CPUtils.Extensions.utils import mark_last_version
 from zope.component import getUtility
 
@@ -44,6 +41,8 @@ class Migrate_To_2_2_1(Migrator):
 
         # do various global adaptations
         self.update_site()
+
+        self.update_dashboards()
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
@@ -80,6 +79,26 @@ class Migrate_To_2_2_1(Migrator):
             add_message('new-version', 'Nouvelles fonctionnalités', u'<p>Vous pouvez consulter la <a href="https://'
                         u'www.imio.be/" target="_blank">liste des nouvelles fonctionnalités</a></p>',
                         msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=False)
+
+    def update_dashboards(self):
+        # update daterange criteria
+        brains = api.content.find(object_provides=IFacetedNavigable.__identifier__)
+        for brain in brains:
+            obj = brain.getObject()
+            criterion = ICriteria(obj)
+            for key, criteria in criterion.items():
+                if criteria.get("widget") != "daterange":
+                    continue
+                if criteria.get("usePloneDateFormat") is True:
+                    continue
+                logger.info("Upgrade daterange widget for faceted {0}".format(obj))
+                position = criterion.criteria.index(criteria)
+                values = criteria.__dict__
+                values["usePloneDateFormat"] = True
+                values["labelStart"] = u'Start date'
+                values["labelEnd"] = u'End date'
+                criterion.criteria[position] = Criterion(**values)
+                criterion.criteria._p_changed = 1
 
 
 def migrate(context):
