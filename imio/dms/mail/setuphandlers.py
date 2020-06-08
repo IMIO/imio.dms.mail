@@ -221,23 +221,23 @@ def postInstall(context):
 
     # Directory creation
     if not base_hasattr(site, 'contacts'):
-        position_types = [{'name': u'Président', 'token': 'president'},
-                          {'name': u'Directeur général', 'token': 'directeur-gen'},
-                          {'name': u'Directeur financier', 'token': 'directeur-fin'},
-                          {'name': u'Secrétaire', 'token': 'secretaire'},
-                          {'name': u'Employé', 'token': 'employe'},
+        position_types = [{'name': u'Président', 'token': u'president'},
+                          {'name': u'Directeur général', 'token': u'directeur-gen'},
+                          {'name': u'Directeur financier', 'token': u'directeur-fin'},
+                          {'name': u'Secrétaire', 'token': u'secretaire'},
+                          {'name': u'Employé', 'token': u'employe'},
                           ]
-        organization_types = [{'name': u'Non défini', 'token': 'non-defini'},
-                              {'name': u'SA', 'token': 'sa'},
-                              {'name': u'Commune', 'token': 'commune'},
-                              {'name': u'CPAS', 'token': 'cpas'},
-                              {'name': u'Intercommunale', 'token': 'intercommunale'},
-                              {'name': u'Zone de police', 'token': 'zp'},
-                              {'name': u'Zone de secours', 'token': 'zs'},
+        organization_types = [{'name': u'Non défini', 'token': u'non-defini'},
+                              {'name': u'SA', 'token': u'sa'},
+                              {'name': u'Commune', 'token': u'commune'},
+                              {'name': u'CPAS', 'token': u'cpas'},
+                              {'name': u'Intercommunale', 'token': u'intercommunale'},
+                              {'name': u'Zone de police', 'token': u'zp'},
+                              {'name': u'Zone de secours', 'token': u'zs'},
                               ]
-        organization_levels = [{'name': u'Non défini', 'token': 'non-defini'},
-                               {'name': u'Département', 'token': 'department'},
-                               {'name': u'Service', 'token': 'service'},
+        organization_levels = [{'name': u'Non défini', 'token': u'non-defini'},
+                               {'name': u'Département', 'token': u'department'},
+                               {'name': u'Service', 'token': u'service'},
                                ]
         params = {'title': "Contacts",
                   'position_types': position_types,

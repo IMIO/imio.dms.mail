@@ -53,6 +53,7 @@ setup(
         'collective.contact.contactlist',
         'collective.contact.duplicated',
         'collective.contact.facetednav',
+        'collective.contact.importexport',
         'collective.contact.plonegroup',
         'collective.dexteritytextindexer',
         'collective.dms.basecontent',
