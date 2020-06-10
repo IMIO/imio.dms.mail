@@ -43,7 +43,6 @@
     <include package="collective.dexteritytextindexer"/>
     <include package="plone.app.versioningbehavior"/>
     <include package=".browser" />
-    <include package=".blueprints" />
     <include package=".content" />
 
     <include package="collective.querynextprev" />
