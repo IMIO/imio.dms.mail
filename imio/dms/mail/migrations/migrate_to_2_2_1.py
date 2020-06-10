@@ -44,6 +44,9 @@ class Migrate_To_2_2_1(Migrator):
 
         self.update_dashboards()
 
+        # update templates
+        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
+
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
 
