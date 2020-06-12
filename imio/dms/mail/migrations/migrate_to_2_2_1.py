@@ -37,7 +37,8 @@ class Migrate_To_2_2_1(Migrator):
 
         self.correct_actions()
 
-        self.runProfileSteps('imio.dms.mail', steps=['actions'])
+        self.install(['collective.contact.importexport'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'])
 
         # do various global adaptations
         self.update_site()
