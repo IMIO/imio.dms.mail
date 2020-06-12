@@ -41,7 +41,7 @@ pipeline =
     schemaupdater
     reindexobject
     breakpoint
-    logger
+    short_log
 
 # mandatory section !
 [config]
@@ -94,7 +94,7 @@ blueprint = collective.contact.importexport.relationsinserter
 
 [updatepathinserter]
 blueprint = collective.contact.importexport.updatepathinserter
-# list of 'column' 'index name' pairs used to search in catalog for an existing object
+# list of ('column' 'index name' 'condition') tuples used to search in catalog for an existing object
 organization_uniques = _uid UID python:True
 person_uniques = _uid UID python:True internal_number mail_type python:item['_ic'] internal_number internal_number python:options['cbin']=='True'
 held_position_uniques = _uid UID python:True
@@ -116,6 +116,9 @@ blueprint = imio.transmogrifier.contact.iadocs_userid_updater
 
 [reindexobject]
 blueprint = plone.app.transmogrifier.reindexobject
+
+[short_log]
+blueprint = collective.contact.importexport.short_log
 
 [logger]
 blueprint = collective.transmogrifier.sections.logger
@@ -163,7 +166,6 @@ delete =
 [breakpoint]
 blueprint = collective.contact.importexport.breakpoint
 condition = python:item.get('_id', u'') == u'0'
-
 </value>
   </record>
 
