@@ -72,6 +72,8 @@ csv_headers = ${config:csv_headers}
 
 [common_input_checks]
 blueprint = collective.contact.importexport.common_input_checks
+phone_country = BE
+language = fr
 organization_uniques = _uid
 organization_booleans = use_parent_address _ic
 person_uniques = _uid
