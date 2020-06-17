@@ -47,6 +47,8 @@ pipeline =
 [config]
 # if empty, first found directory is used. Else relative path in portal
 directory_path =
+csv_encoding =
+plonegroup_org_title =
 organizations_filename =
 organizations_fieldnames = _id _oid title description organization_type use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country _uid _ic
 persons_filename =
@@ -83,7 +85,7 @@ held_position_booleans = use_parent_address _ic
 
 [plonegrouporganizationpath]
 blueprint = imio.transmogrifier.contact.plonegrouporganizationpath
-title =
+plonegroup_org_title = ${config:plonegroup_org_title}
 
 [plonegroupinternalparent]
 blueprint = imio.transmogrifier.contact.plonegroupinternalparent
