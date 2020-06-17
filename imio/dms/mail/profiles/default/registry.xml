@@ -32,6 +32,7 @@ pipeline =
     common_input_checks
     plonegrouporganizationpath
     plonegroupinternalparent
+#    iadocs_inbw_subtitle
     dependencysorter
     relationsinserter
     updatepathinserter
@@ -93,6 +94,9 @@ plonegroup_org_title = ${config:plonegroup_org_title}
 
 [plonegroupinternalparent]
 blueprint = imio.transmogrifier.contact.plonegroupinternalparent
+
+[iadocs_inbw_subtitle]
+blueprint = imio.transmogrifier.contact.iadocs_inbw_subtitle_updater
 
 [dependencysorter]
 blueprint = collective.contact.importexport.dependencysorter
