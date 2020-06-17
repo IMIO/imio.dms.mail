@@ -37,14 +37,19 @@ pipeline =
     updatepathinserter
     pathinserter
     constructor
-    iadocs_userid_updater
+    iadocs_userid
+#    iadocs_creating_group
     schemaupdater
     reindexobject
+    transitions_inserter
+    workflowupdater
     breakpoint
     short_log
+#    logger
 
 # mandatory section !
 [config]
+creating_group =
 # if empty, first found directory is used. Else relative path in portal
 directory_path =
 csv_encoding =
@@ -55,7 +60,6 @@ persons_filename =
 persons_fieldnames = _id lastname firstname gender person_title birthday use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country internal_number _uid _ic
 held_positions_filename =
 held_positions_fieldnames = _id _pid _oid _fid label start_date end_date use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country _uid _ic
-csv_headers = python:True
 
 [initialization]
 blueprint = collective.contact.importexport.init
@@ -70,18 +74,18 @@ organizations_filename = ${config:organizations_filename}
 persons_filename = ${config:persons_filename}
 held_positions_filename = ${config:held_positions_filename}
 fmtparam-strict = python:True
-csv_headers = ${config:csv_headers}
+csv_headers = python:True
 
 [common_input_checks]
 blueprint = collective.contact.importexport.common_input_checks
 phone_country = BE
 language = fr
-organization_uniques = _uid
-organization_booleans = use_parent_address _ic
-person_uniques = _uid
-person_booleans = use_parent_address _ic
+organization_uniques = _uid internal_number
+organization_booleans = use_parent_address _ic _inactive
+person_uniques = _uid internal_number
+person_booleans = use_parent_address _ic _inactive
 held_position_uniques = _uid
-held_position_booleans = use_parent_address _ic
+held_position_booleans = use_parent_address _ic _inactive
 
 [plonegrouporganizationpath]
 blueprint = imio.transmogrifier.contact.plonegrouporganizationpath
@@ -112,14 +116,23 @@ held_position_id_keys = label
 [constructor]
 blueprint = collective.transmogrifier.sections.constructor
 
+[iadocs_userid]
+blueprint = imio.transmogrifier.contact.iadocs_userid_inserter
+
+[iadocs_creating_group]
+blueprint = imio.transmogrifier.contact.iadocs_creating_group_inserter
+
 [schemaupdater]
 blueprint = transmogrify.dexterity.schemaupdater
 
-[iadocs_userid_updater]
-blueprint = imio.transmogrifier.contact.iadocs_userid_updater
-
 [reindexobject]
 blueprint = plone.app.transmogrifier.reindexobject
+
+[transitions_inserter]
+blueprint = collective.contact.importexport.transitions_inserter
+
+[workflowupdater]
+blueprint = plone.app.transmogrifier.workflowupdater
 
 [short_log]
 blueprint = collective.contact.importexport.short_log
