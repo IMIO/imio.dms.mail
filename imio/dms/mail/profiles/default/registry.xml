@@ -28,7 +28,8 @@
 <value>[transmogrifier]
 pipeline =
     initialization
-    csvcontactsource
+    csv_disk_source
+    csv_reader
     common_input_checks
     plonegrouporganizationpath
     plonegroupinternalparent
@@ -69,11 +70,14 @@ basepath =
 # if subpath, it will be appended to basepath
 subpath = imports
 
-[csvcontactsource]
-blueprint = collective.contact.importexport.csvcontactsource
+[csv_disk_source]
+blueprint = collective.contact.importexport.csv_disk_source
 organizations_filename = ${config:organizations_filename}
 persons_filename = ${config:persons_filename}
 held_positions_filename = ${config:held_positions_filename}
+
+[csv_reader]
+blueprint = collective.contact.importexport.csv_reader
 fmtparam-strict = python:True
 csv_headers = python:True
 
