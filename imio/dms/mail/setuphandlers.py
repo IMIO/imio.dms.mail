@@ -45,6 +45,8 @@ from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
+from imio.dms.mail.statistics import StatisticsGenerator
+from imio.dms.mail.statistics import visualizations_config
 from imio.dms.mail.utils import Dummy
 from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import create
@@ -310,6 +312,8 @@ def postInstall(context):
     configure_ckeditor(site, custom='ged')
 
     add_templates(site)
+
+    add_visualizations(site)
 
     add_transforms(site)
 
@@ -2075,6 +2079,18 @@ def add_transforms(site):
             pt.manage_addTransform(name, module)
             logger.info("Added '%s' transform" % name)
 
+
+def add_visualizations(site):
+    folder_id = 'visualizations'
+    if not base_hasattr(site, folder_id):
+        site.invokeFactory("Folder", id=folder_id, title=_(u"Visualizations"))
+    viz_folder = getattr(site, folder_id)
+
+    generator = StatisticsGenerator()
+    for config in visualizations_config:
+        viz = viz_folder.get(config['id'])
+        if not viz:
+            viz_folder.invokeFactory("DavizVisualization", id=config['id'], title=config['title'])
 
 # Singles steps
 

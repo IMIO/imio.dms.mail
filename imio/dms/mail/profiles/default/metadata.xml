@@ -29,6 +29,7 @@
     <dependency>profile-communesplone.layout:default</dependency>
     <dependency>profile-dexterity.localrolesfield:default</dependency>
     <dependency>profile-eea.jquery:23-select2</dependency>
+    <dependency>profile-eea.daviz:default</dependency>
     <dependency>profile-ftw.labels:default</dependency>
     <dependency>profile-imio.actionspanel:default</dependency>
     <dependency>profile-imio.dashboard:default</dependency>

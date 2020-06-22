@@ -2,6 +2,8 @@
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail.statistics import StatisticsGenerator
+from imio.dms.mail.statistics import visualizations_config
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from plone import api
 from plone.app.contenttypes.interfaces import IFile
@@ -181,3 +183,21 @@ class UpdateItem(BrowserView):
         if 'assigned_user' in self.request:
             self.context.assigned_user = self.request.get('assigned_user')
             modified(self.context)
+
+
+class StatisticsGenerationView(BrowserView):
+
+    def __call__(self):
+        folder_id = 'visualizations'
+        portal = api.portal.get()
+        viz_folder = getattr(portal, folder_id)
+
+        generator = StatisticsGenerator()
+        for config in visualizations_config:
+            viz = viz_folder.get(config['id'])
+            if viz:
+                csv = getattr(generator, config['property'])
+                field = viz.getField('spreadsheet')
+                field.getMutator(viz)(csv)
+
+        return _(u'Visualization data has been refreshed.')

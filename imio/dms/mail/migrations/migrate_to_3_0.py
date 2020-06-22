@@ -8,6 +8,7 @@ from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from imio.dms.mail import _tr as _
+from imio.dms.mail.setuphandlers import add_visualizations
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
@@ -67,6 +68,10 @@ class Migrate_To_3_0(Migrator):
                 lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
         # We need to indicate that the object has been modified and must be "saved"
         lr._p_changed = True
+
+        # add visualizations
+        add_visualizations(self.portal)
+        api.content.get_view('generate_statistics', self.portal, self.portal.REQUEST)()
 
         if False and 'new-version' not in self.portal['messages-config']:
             add_message('new-version', 'Nouvelles fonctionnalités', u'<p>Vous pouvez consulter la <a href="https://'

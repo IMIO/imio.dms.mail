@@ -41,6 +41,13 @@
         />
 
     <browser:page
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        name="generate_statistics"
+        class=".views.StatisticsGenerationView"
+        permission="cmf.ManagePortal"
+        />
+
+    <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
         name="update_item"
         class=".views.UpdateItem"

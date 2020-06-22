@@ -42,6 +42,7 @@
     <include package="plone.app.lockingbehavior"/>
     <include package="collective.dexteritytextindexer"/>
     <include package="plone.app.versioningbehavior"/>
+    <include package="eea.daviz"/>
     <include package=".browser" />
     <include package=".content" />
 
