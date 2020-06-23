@@ -23,14 +23,18 @@ def user_creating_group(context):
     creating_groups = [term.value for term in voc]
     if not creating_groups:
         return None
-    user_groups = set([gp.id[:-14] for gp in api.group.get_groups(user=api.user.get_current()) if
-                       gp.id.endswith(CREATING_GROUP_SUFFIX)])
-    inter = set(creating_groups) & user_groups
-    if inter:
-        # ordered = [uid for uid in creating_groups if uid in inter]; return ordered[0]
-        return inter.pop()
-    else:
-        return creating_groups[0]
+    user = api.user.get_current()
+    # user is anonymous when some widget are accessed in source search or masterselect
+    # check if we have a real user to avoid 404 because get_groups on None user
+    if user.getId():
+        print user.getId()
+        user_groups = set([gp.id[:-14] for gp in api.group.get_groups(user=api.user.get_current()) if
+                           gp.id.endswith(CREATING_GROUP_SUFFIX)])
+        inter = set(creating_groups) & user_groups
+        if inter:
+            # ordered = [uid for uid in creating_groups if uid in inter]; return ordered[0]
+            return inter.pop()
+    return creating_groups[0]
 
 
 class IDmsMailCreatingGroup(model.Schema):
