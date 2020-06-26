@@ -13,6 +13,7 @@
     <dependency>profile-collective.contact.core:default</dependency>
     <dependency>profile-collective.contact.duplicated:default</dependency>
     <dependency>profile-collective.contact.facetednav:default</dependency>
+    <dependency>profile-collective.contact.importexport:default</dependency>
     <dependency>profile-collective.contact.plonegroup:default</dependency>
     <dependency>profile-collective.contact.contactlist:default</dependency>
     <dependency>profile-collective.externaleditor:default</dependency>
