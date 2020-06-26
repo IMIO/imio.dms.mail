@@ -61,13 +61,14 @@ class Migrate_To_3_0(Migrator):
         lrsc = lr['static_config']
         for state in ['proposed_to_manager', 'proposed_to_service_chief',
                       'proposed_to_agent', 'in_treatment', 'closed']:
-            if 'lecteurs_globaux_ce' not in lrsc[state]:
-                lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
+            if state in lrsc:
+                if 'lecteurs_globaux_ce' not in lrsc[state]:
+                    lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
         # We need to indicate that the object has been modified and must be "saved"
         lr._p_changed = True
 
-        if 'new-version' not in self.portal['messages-config']:
-            'TO BE CONTINUED' / 1
+        # if 'new-version' not in self.portal['messages-config']:
+        #    'TO BE CONTINUED' / 1
 
     def insert_incoming_emails(self):
         # allowed types
