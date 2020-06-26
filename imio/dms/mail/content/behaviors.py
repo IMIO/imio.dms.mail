@@ -27,7 +27,6 @@ def user_creating_group(context):
     # user is anonymous when some widget are accessed in source search or masterselect
     # check if we have a real user to avoid 404 because get_groups on None user
     if user.getId():
-        print user.getId()
         user_groups = set([gp.id[:-14] for gp in api.group.get_groups(user=api.user.get_current()) if
                            gp.id.endswith(CREATING_GROUP_SUFFIX)])
         inter = set(creating_groups) & user_groups
