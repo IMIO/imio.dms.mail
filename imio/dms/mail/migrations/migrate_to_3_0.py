@@ -164,12 +164,15 @@ class Migrate_To_3_0(Migrator):
 
         self.check_previously_migrated_collections()
 
-        # set showNumberOfItems on to_treat in_my_group only
+        # set showNumberOfItems on to_treat in_my_group only if SkipProposeToServiceChief adaptation was applied
         folder = self.portal['incoming-mail']['mail-searches']
+        wf_adapts = api.portal.get_registry_record('collective.wfadaptations.applied_adaptations')
         user_check = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig'
                                                     '.assigned_user_check')
-        if user_check and not folder['to_treat_in_my_group'].showNumberOfItems:
-            self.update_count(folder, ids=['to_treat_in_my_group'])
+        for adapt in wf_adapts:
+            if 'IMSkipProposeToServiceChief' in adapt['adaptation']:
+                if user_check and not folder['to_treat_in_my_group'].showNumberOfItems:
+                    self.update_count(folder, ids=['to_treat_in_my_group'])
 
         # self.catalog.refreshCatalog(clear=1)
 
