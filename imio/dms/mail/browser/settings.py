@@ -13,13 +13,13 @@ from plone.registry.interfaces import IRecordModifiedEvent
 from plone.supermodel import model
 from plone.z3cform import layout
 from z3c.form import form
-#from z3c.form.browser.radio import RadioFieldWidget
+# from z3c.form.browser.radio import RadioFieldWidget
 from zope import schema
 from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
-#from zope.interface import provider
-#from zope.schema.interfaces import IContextSourceBinder
+# from zope.interface import provider
+# from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -39,8 +39,8 @@ def get_pt_fields_voc(pt, excluded):
     return SimpleVocabulary(terms)
 
 
-#@provider(IContextSourceBinder)
-#def IMFields(context):
+# @provider(IContextSourceBinder)
+# def IMFields(context):
 class IMFieldsVocabulary(object):
     implements(IVocabularyFactory)
 
@@ -61,6 +61,7 @@ class OMFieldsVocabulary(object):
                                   'IDublinCore.expires', 'IDublinCore.language', 'IDublinCore.rights',
                                   'IDublinCore.subjects', 'INameFromTitle.title', 'ITask.assigned_group',
                                   'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'related_docs'])
+
 
 fullname_forms = SimpleVocabulary(
     [
@@ -123,7 +124,7 @@ class IImioDmsMailConfig(model.Schema):
     imail_fields_order = schema.List(
         title=_(u"Display order of fields"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMFieldsVocabulary'),
-#        value_type=schema.Choice(source=IMFields),  # a source is not managed by registry !!
+        # value_type=schema.Choice(source=IMFields),  # a source is not managed by registry !!
     )
 
     imail_group_encoder = schema.Bool(
@@ -232,13 +233,14 @@ class SettingsEditForm(RegistryEditForm):
     form.extends(RegistryEditForm)
     schema = IImioDmsMailConfig
 
+
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
 
 
 def imiodmsmail_settings_changed(event):
     """ Manage a record change """
-    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
-            event.record.interface != IImioDmsMailConfig):
+    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName
+            and event.record.interface != IImioDmsMailConfig):
         return
     if event.record.fieldName == 'mail_types':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMMailTypesVocabulary')
