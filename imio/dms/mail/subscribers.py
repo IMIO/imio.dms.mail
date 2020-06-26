@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
-from Acquisition import aq_get
+from Acquisition import aq_get  # noqa
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -37,7 +37,7 @@ from z3c.relationfield.event import updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
-from zope.component.interfaces import ComponentLookupError
+# from zope.component.interfaces import ComponentLookupError
 from zope.component import getAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -306,18 +306,24 @@ def contact_plonegroup_change(event):
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
         # we manage local roles to give needed permissions related to group_encoder
-        group_encoder_config = [dic for dic in s_fcts if dic['fct_id'] == CREATING_GROUP_SUFFIX]
+        options_config = {'imail_group_encoder': [portal['incoming-mail']],
+                          'contact_group_encoder': [portal['contacts'],
+                                                    portal['contacts']['contact-lists-folder']['common']]}
+        group_encoder_config = [dic for dic in s_fcts if dic['fct_id'] == CREATING_GROUP_SUFFIX]  # noqa F812
         if group_encoder_config:
             orgs = group_encoder_config[0]['fct_orgs']
-            for folder in (portal['incoming-mail'], portal['contacts'],
-                           portal['contacts']['contact-lists-folder']['common']):
-                dic = folder.__ac_local_roles__
-                for principal in dic.keys():
-                    if principal.endswith(CREATING_GROUP_SUFFIX):
-                        del dic[principal]
-                for uid in orgs:
-                    dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
-                folder._p_changed = True
+            for option in options_config:
+                option_value = api.portal.get_registry_record('imio.dms.mail.browser.settings.'
+                                                              'IImioDmsMailConfig.{}'.format(option), default=False)
+                for folder in options_config[option]:
+                    dic = folder.__ac_local_roles__
+                    for principal in dic.keys():
+                        if principal.endswith(CREATING_GROUP_SUFFIX):
+                            del dic[principal]
+                    if option_value:
+                        for uid in orgs:
+                            dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
+                    folder._p_changed = True
 
 
 def ploneGroupContactChanged(organization, event):
