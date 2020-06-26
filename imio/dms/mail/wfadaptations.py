@@ -438,7 +438,7 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
             invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
         # enable shoNumberOfItems on 'to_treat_in_my_group'
-        if not (folder['to_treat_in_my_group'].showNumberOfItems or parameters['assigned_user_check']):
+        if not folder['to_treat_in_my_group'].showNumberOfItems and not parameters['assigned_user_check']:
             folder['to_treat_in_my_group'].showNumberOfItems = True
             folder['to_treat_in_my_group'].reindexObject()
 

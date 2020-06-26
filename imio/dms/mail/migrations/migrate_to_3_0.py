@@ -14,7 +14,6 @@ from zope.component import getUtility
 
 import logging
 
-
 # createStateCollections
 logger = logging.getLogger('imio.dms.mail')
 
@@ -30,8 +29,9 @@ class Migrate_To_3_0(Migrator):
         # add documentation message
         if 'doc' not in self.portal['messages-config']:
             add_message('doc', 'Documentation', u'<p>Vous pouvez consulter la <a href="http://www.imio.be/'
-                        u'support/documentation/topic/cp_app_ged" target="_blank">documentation en ligne de la '
-                        u'dernière version</a>, ainsi que d\'autres documentations liées.</p>', msg_type='significant',
+                                                u'support/documentation/topic/cp_app_ged" target="_blank">documentation en ligne de la '
+                                                u'dernière version</a>, ainsi que d\'autres documentations liées.</p>',
+                        msg_type='significant',
                         can_hide=True, req_roles=['Authenticated'], activate=True)
 
         # update front-page
@@ -163,8 +163,12 @@ class Migrate_To_3_0(Migrator):
 
         self.check_previously_migrated_collections()
 
-        # set showNumberOfItems on to_treat in_my_group
-        self.update_count(im_folder['mail-searches'], ids=['to_treat_in_my_group'])
+        # set showNumberOfItems on to_treat in_my_group only
+        folder = self.portal['incoming-mail']['mail-searches']
+        user_check = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig'
+                                                    '.assigned_user_check')
+        if user_check and not folder['to_treat_in_my_group'].showNumberOfItems:
+            self.update_count(folder, ids=['to_treat_in_my_group'])
 
         # self.catalog.refreshCatalog(clear=1)
 
@@ -179,7 +183,7 @@ class Migrate_To_3_0(Migrator):
         for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
             mark_last_version(self.portal, product=prod)
 
-        #self.refreshDatabase()
+        # self.refreshDatabase()
         self.finish()
 
 
