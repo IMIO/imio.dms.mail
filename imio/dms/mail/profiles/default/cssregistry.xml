@@ -147,9 +147,9 @@
 
  <stylesheet id="++resource++eea.facetednavigation.widgets.multiselect.edit.css" insert-after="++resource++eea.facetednavigation.widgets.multiselect.view.css" />
 
- <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" insert-after="++resource++eea.facetednavigation.widgets.multiselect.edit.css" />
+ <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collective.eeafaceted.collectionwidget.css" insert-after="++resource++eea.facetednavigation.widgets.multiselect.edit.css" />
 
- <stylesheet id="++resource++imio.history/imiohistory.css" insert-after="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" />
+ <stylesheet id="++resource++imio.history/imiohistory.css" insert-after="++resource++collective.eeafaceted.collectionwidget/collective.eeafaceted.collectionwidget.css" />
 
  <stylesheet id="++resource++imio.actionspanel/actionspanel.css" insert-after="++resource++imio.history/imiohistory.css" />
 
@@ -201,11 +201,9 @@
 
  <stylesheet id="++resource++ftw.labels/ftw-labels.css" insert-after="++resource++ftw.labels/select2.css" />
 
-<stylesheet id="++resource++plone.formwidget.querystring.querywidget.css" insert-after="++resource++ftw.labels/ftw-labels.css" />
+ <stylesheet id="++resource++plone.formwidget.querystring.querywidget.css" insert-after="++resource++ftw.labels/ftw-labels.css" />
 
-<stylesheet id="++resource++collective.eeafaceted.collectionwidget/collective.eeafaceted.collectionwidget.css" insert-after="++resource++plone.formwidget.querystring.querywidget.css" />
-
-<stylesheet id="++resource++collective.contact.plonegroup/plonegroup.css" insert-after="++resource++collective.eeafaceted.collectionwidget/collective.eeafaceted.collectionwidget.css" />
+ <stylesheet id="++resource++collective.contact.plonegroup/plonegroup.css" insert-after="++resource++plone.formwidget.querystring.querywidget.css" />
 
  <stylesheet id="imiodmsmail.css" insert-after="++resource++collective.contact.plonegroup/plonegroup.css" />
 

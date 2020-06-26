@@ -37,6 +37,7 @@ from z3c.relationfield.event import updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
+from zope.component.interfaces import ComponentLookupError
 from zope.component import getAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -441,6 +442,10 @@ def group_deleted(event):
 
     def get_query(portal_type, field, idx, org, suffix):
         fti = getUtility(IDexterityFTI, name=portal_type)
+        # try:
+        #     fti = getUtility(IDexterityFTI, name=portal_type)
+        # except ComponentLookupError:
+        #     return {}
         config = getattr(fti, 'localroles', {}).get(field, None)
         if not config:
             return {}

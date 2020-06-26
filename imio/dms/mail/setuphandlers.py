@@ -13,8 +13,10 @@ __docformat__ = 'plaintext'
 
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_groups_mgt
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
@@ -69,6 +71,7 @@ from Products.CPUtils.Extensions.utils import configure_ckeditor
 from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
+from zope.component.interfaces import ComponentLookupError
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -218,23 +221,23 @@ def postInstall(context):
 
     # Directory creation
     if not base_hasattr(site, 'contacts'):
-        position_types = [{'name': u'Président', 'token': 'president'},
-                          {'name': u'Directeur général', 'token': 'directeur-gen'},
-                          {'name': u'Directeur financier', 'token': 'directeur-fin'},
-                          {'name': u'Secrétaire', 'token': 'secretaire'},
-                          {'name': u'Employé', 'token': 'employe'},
+        position_types = [{'name': u'Président', 'token': u'president'},
+                          {'name': u'Directeur général', 'token': u'directeur-gen'},
+                          {'name': u'Directeur financier', 'token': u'directeur-fin'},
+                          {'name': u'Secrétaire', 'token': u'secretaire'},
+                          {'name': u'Employé', 'token': u'employe'},
                           ]
-        organization_types = [{'name': u'Non défini', 'token': 'non-defini'},
-                              {'name': u'SA', 'token': 'sa'},
-                              {'name': u'Commune', 'token': 'commune'},
-                              {'name': u'CPAS', 'token': 'cpas'},
-                              {'name': u'Intercommunale', 'token': 'intercommunale'},
-                              {'name': u'Zone de police', 'token': 'zp'},
-                              {'name': u'Zone de secours', 'token': 'zs'},
+        organization_types = [{'name': u'Non défini', 'token': u'non-defini'},
+                              {'name': u'SA', 'token': u'sa'},
+                              {'name': u'Commune', 'token': u'commune'},
+                              {'name': u'CPAS', 'token': u'cpas'},
+                              {'name': u'Intercommunale', 'token': u'intercommunale'},
+                              {'name': u'Zone de police', 'token': u'zp'},
+                              {'name': u'Zone de secours', 'token': u'zs'},
                               ]
-        organization_levels = [{'name': u'Non défini', 'token': 'non-defini'},
-                               {'name': u'Département', 'token': 'department'},
-                               {'name': u'Service', 'token': 'service'},
+        organization_levels = [{'name': u'Non défini', 'token': u'non-defini'},
+                               {'name': u'Département', 'token': u'department'},
+                               {'name': u'Service', 'token': u'service'},
                                ]
         params = {'title': "Contacts",
                   'position_types': position_types,
@@ -871,6 +874,8 @@ def adaptDefaultPortal(context):
                            acquire=0)
     site.manage_permission('ftw.labels: Change Personal Labels', ('Manager', 'Site Administrator', 'Member'),
                            acquire=0)
+    site.manage_permission('Portlets: Manage own portlets', ('Manager', 'Site Administrator'),
+                           acquire=0)
 
     # registry
     api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
@@ -1247,11 +1252,13 @@ def configureContactPloneGroup(context):
     site = context.getSite()
     if not get_registry_functions():
         set_registry_functions([
-            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': []},
-            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': []},
-            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': []},
-            {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': []},
+            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False},
+            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': [], 'fct_management': False},
+            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': [], 'fct_management': False},
+            {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': [], 'fct_management': True},
         ])
+    if not get_registry_groups_mgt():
+        set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
     if not get_registry_organizations():
         contacts = site['contacts']
         own_orga = contacts['plonegroup-organization']
@@ -2164,7 +2171,8 @@ def configure_group_encoder(portal_types):
     # function
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
-        functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': []})
+        functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': [],
+                          'fct_management': False})
         set_registry_functions(functions)
     # role and permission
     portal = api.portal.get()
@@ -2224,6 +2232,10 @@ def configure_group_encoder(portal_types):
     for portal_type in portal_types:
         # behaviors
         fti = getUtility(IDexterityFTI, name=portal_type)
+        # try:
+        #     fti = getUtility(IDexterityFTI, name=portal_type)
+        # except ComponentLookupError:
+        #     continue
         if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
             old_bav = tuple(fti.behaviors)
             fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])
@@ -2246,7 +2258,7 @@ def set_portlet(portal):
     ann = IAnnotations(portal)
     portlet = ann['plone.portlets.contextassignments']['plone.leftcolumn']['portlet_actions']
     portlet.ptitle = u'Liens divers'
-    portlet.category = u'portlet'
+    portlet.category = u'object_portlet'
     portlet.show_icons = False
     portlet.default_icon = None
     portlet._p_changed = True
