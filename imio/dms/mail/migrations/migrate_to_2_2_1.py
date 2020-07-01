@@ -56,6 +56,15 @@ class Migrate_To_2_2_1(Migrator):
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
+        # set showNumberOfItems on to_treat in_my_group only if SkipProposeToServiceChief adaptation was applied
+        folder = self.portal['incoming-mail']['mail-searches']
+        wf_adapts = api.portal.get_registry_record('collective.wfadaptations.applied_adaptations')
+        user_check = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig'
+                                                    '.assigned_user_check')
+        if 'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in [adapt['adaptation'] for adapt in wf_adapts]:
+            if user_check and not folder['to_treat_in_my_group'].showNumberOfItems:
+                self.update_count(folder, ids=['to_treat_in_my_group'])
+
         for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
             mark_last_version(self.portal, product=prod)
 
@@ -104,6 +113,16 @@ class Migrate_To_2_2_1(Migrator):
                 criterion.criteria[position] = Criterion(**values)
                 criterion.criteria._p_changed = 1
 
+    def update_count(self, folder, ids=[]):
+        """ Set showNumberOfItems on collection """
+        crit = {'portal_type': 'DashboardCollection',
+                'path': {'query': '/'.join(folder.getPhysicalPath()), 'depth': 1}}
+        if ids:
+            crit['id'] = ids
+        brains = self.catalog.searchResults(crit)
+        for brain in brains:
+            col = brain.getObject()
+            col.showNumberOfItems = True
 
 def migrate(context):
     '''
