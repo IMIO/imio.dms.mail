@@ -5,21 +5,18 @@ from collective.messagesviewlet.utils import add_message
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.widgets.storage import Criterion
-from imio.dms.mail import _tr as _
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
 from Products.CPUtils.Extensions.utils import mark_last_version
-from zope.component import getUtility
 
 import logging
-
 
 logger = logging.getLogger('imio.dms.mail')
 
 
-class Migrate_To_2_2_1(Migrator):
+class Migrate_To_2_2_1(Migrator):  # noqa
 
     def __init__(self, context):
         Migrator.__init__(self, context)
@@ -48,6 +45,14 @@ class Migrate_To_2_2_1(Migrator):
         # update templates
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
+        # set showNumberOfItems on to_treat in_my_group only if SkipProposeToServiceChief adaptation was applied
+        wf_adapts = api.portal.get_registry_record('collective.wfadaptations.applied_adaptations', default=[])
+        user_check = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig'
+                                                    '.assigned_user_check')
+        if 'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in [adapt['adaptation'] for adapt in wf_adapts]:
+            if not user_check and not self.imf['mail-searches']['to_treat_in_my_group'].showNumberOfItems:
+                self.imf['mail-searches']['to_treat_in_my_group'].showNumberOfItems = True  # noqa
+
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
 
@@ -56,19 +61,10 @@ class Migrate_To_2_2_1(Migrator):
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
-        # set showNumberOfItems on to_treat in_my_group only if SkipProposeToServiceChief adaptation was applied
-        folder = self.portal['incoming-mail']['mail-searches']
-        wf_adapts = api.portal.get_registry_record('collective.wfadaptations.applied_adaptations')
-        user_check = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig'
-                                                    '.assigned_user_check')
-        if 'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in [adapt['adaptation'] for adapt in wf_adapts]:
-            if user_check and not folder['to_treat_in_my_group'].showNumberOfItems:
-                self.update_count(folder, ids=['to_treat_in_my_group'])
-
         for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
             mark_last_version(self.portal, product=prod)
 
-        #self.refreshDatabase()
+        # self.refreshDatabase()
         self.finish()
 
     def correct_actions(self):
@@ -113,18 +109,6 @@ class Migrate_To_2_2_1(Migrator):
                 criterion.criteria[position] = Criterion(**values)
                 criterion.criteria._p_changed = 1
 
-    def update_count(self, folder, ids=[]):
-        """ Set showNumberOfItems on collection """
-        crit = {'portal_type': 'DashboardCollection',
-                'path': {'query': '/'.join(folder.getPhysicalPath()), 'depth': 1}}
-        if ids:
-            crit['id'] = ids
-        brains = self.catalog.searchResults(crit)
-        for brain in brains:
-            col = brain.getObject()
-            col.showNumberOfItems = True
 
 def migrate(context):
-    '''
-    '''
     Migrate_To_2_2_1(context).run()
