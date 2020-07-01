@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from collective.contact.plonegroup.config import get_registry_functions
-from collective.contact.plonegroup.config import get_registry_groups_mgt
-from collective.contact.plonegroup.config import set_registry_functions
-from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
@@ -12,9 +8,7 @@ from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
-from plone.dexterity.interfaces import IDexterityFTI
 from Products.CPUtils.Extensions.utils import mark_last_version
-from zope.component import getUtility
 
 import logging
 
@@ -22,7 +16,7 @@ import logging
 logger = logging.getLogger('imio.dms.mail')
 
 
-class Migrate_To_3_0(Migrator):
+class Migrate_To_3_0(Migrator):  # noqa
 
     def __init__(self, context):
         Migrator.__init__(self, context)
@@ -40,34 +34,8 @@ class Migrate_To_3_0(Migrator):
         # update portal title
         self.portal.title = 'Gestion du courrier 3.0'
 
-        # update plonegroup
-        if not get_registry_groups_mgt():
-            set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
-            functions = get_registry_functions()
-            for dic in functions:
-                if dic['fct_id'] == u'encodeur':
-                    dic['fct_title'] = u'Créateur CS'
-                elif dic['fct_id'] == u'validateur':
-                    dic['fct_management'] = True
-            set_registry_functions(functions)
-
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
-
-        # add group
-        if api.group.get('lecteurs_globaux_ce') is None:
-            api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
-        # change local roles
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        lrsc = lr['static_config']
-        for state in ['proposed_to_manager', 'proposed_to_service_chief',
-                      'proposed_to_agent', 'in_treatment', 'closed']:
-            if state in lrsc:
-                if 'lecteurs_globaux_ce' not in lrsc[state]:
-                    lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
-        # We need to indicate that the object has been modified and must be "saved"
-        lr._p_changed = True
 
         if False and 'new-version' not in self.portal['messages-config']:
             add_message('new-version', 'Nouvelles fonctionnalités', u'<p>Vous pouvez consulter la <a href="https://'
@@ -145,8 +113,8 @@ class Migrate_To_3_0(Migrator):
 
         self.portal.portal_workflow.updateRoleMappings()
         # Apply workflow adaptations
-        RECORD_NAME = 'collective.wfadaptations.applied_adaptations'
-        if api.portal.get_registry_record(RECORD_NAME, default=False):
+        record_name = 'collective.wfadaptations.applied_adaptations'
+        if api.portal.get_registry_record(record_name, default=False):
             success, errors = apply_from_registry()
             if errors:
                 logger.error("Problem applying wf adaptations: %d errors" % errors)
@@ -184,6 +152,4 @@ class Migrate_To_3_0(Migrator):
 
 
 def migrate(context):
-    '''
-    '''
     Migrate_To_3_0(context).run()

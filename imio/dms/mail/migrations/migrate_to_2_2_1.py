@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_groups_mgt
+from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
@@ -9,7 +13,9 @@ from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from Products.CPUtils.Extensions.utils import mark_last_version
+from zope.component import getUtility
 
 import logging
 
@@ -35,6 +41,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.correct_actions()
 
         self.install(['collective.contact.importexport'])
+        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'])
 
         # do various global adaptations
@@ -88,6 +95,30 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             add_message('new-version', 'Nouvelles fonctionnalités', u'<p>Vous pouvez consulter la <a href="https://'
                         u'www.imio.be/" target="_blank">liste des nouvelles fonctionnalités</a></p>',
                         msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=False)
+        # update plonegroup
+        if not get_registry_groups_mgt():
+            set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
+            functions = get_registry_functions()
+            for dic in functions:
+                if dic['fct_id'] == u'encodeur':
+                    dic['fct_title'] = u'Créateur CS'
+                elif dic['fct_id'] == u'validateur':
+                    dic['fct_management'] = True
+            set_registry_functions(functions)
+        # add group
+        if api.group.get('lecteurs_globaux_ce') is None:
+            api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
+        # change local roles
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        lrsc = lr['static_config']
+        for state in ['proposed_to_manager', 'proposed_to_service_chief',
+                      'proposed_to_agent', 'in_treatment', 'closed']:
+            if state in lrsc:
+                if 'lecteurs_globaux_ce' not in lrsc[state]:
+                    lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
+        # We need to indicate that the object has been modified and must be "saved"
+        lr._p_changed = True
 
     def update_dashboards(self):
         # update daterange criteria
