@@ -22,6 +22,9 @@ Changelog
 - Added default value for creating_group
   [sgeulette]
 
+- Added more precise default value for sender on a reply
+  [sgeulette]
+
 2.2 (2019-09-12)
 ----------------
 

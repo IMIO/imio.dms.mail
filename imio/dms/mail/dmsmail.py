@@ -469,11 +469,18 @@ def imio_dmsoutgoingmail_updatewidgets(the_form):
     if the_form.context.portal_type not in ('dmsoutgoingmail', 'dmsoutgoing_email') \
             or not the_form.context.sender:
         # we search for a held position related to current user and take the first one !
-        default = None
+        default = treating_group = None
+        if the_form.__name__ == 'reply':
+            treating_group = the_form.widgets['treating_groups'].value
         for term in the_form.widgets['sender'].bound_source:
             if term.token.endswith('_%s' % current_user.id):
-                default = term.token
-                break
+                if not default:
+                    default = term.token
+                if not treating_group:  # not a reply
+                    break
+                if term.token == '{}_{}'.format(treating_group, current_user.id):
+                    default = term.token
+                    break
         the_form.widgets['sender'].value = [default]
 
     for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
