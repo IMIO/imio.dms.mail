@@ -494,12 +494,30 @@ class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
         return True, ''
 
 
-class IIMPreServiceValidationParameters(Interface):
+class IIMServiceValidationParameters(Interface):
 
-    pre_validation_type = schema.Choice(
-        title=u"Pre-validation type",
+    validation_level = schema.Choice(
+        title=u"Service validation levels",
         required=True,
-        vocabulary=u'imio.dms.mail.IMPreValidationTypesVocabulary',
+        vocabulary=u'imio.dms.mail.IMServiceValidationLevelsVocabulary',
+    )
+
+    state_title = schema.TextLine(
+        title=u"State title",
+        default=u"",
+        required=True,
+    )
+
+    transition_forward_title = schema.TextLine(
+        title=u"Title of forward transition",
+        default=u"",
+        required=True,
+    )
+
+    transition_backward_title = schema.TextLine(
+        title=u"Title of backward transition",
+        default=u"",
+        required=True,
     )
 
     state_before = schema.Choice(
@@ -514,10 +532,16 @@ class IIMPreServiceValidationParameters(Interface):
         vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
     )
 
+    function_title = schema.TextLine(
+        title=u"Title of function",
+        default=u"",
+        required=True,
+    )
 
-class IMPreServiceValidation(WorkflowAdaptationBase):
 
-    schema = IIMPreServiceValidationParameters
+class IMServiceValidation(WorkflowAdaptationBase):
+
+    schema = IIMServiceValidationParameters
 
     def patch_workflow(self, workflow_name, **parameters):
         portal = api.portal.get()

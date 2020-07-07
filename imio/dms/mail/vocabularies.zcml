@@ -90,8 +90,8 @@
         />
 
      <utility
-        name="imio.dms.mail.IMPreValidationTypesVocabulary"
-        factory="imio.dms.mail.vocabularies.IMPreValidationTypesVocabulary"
+        name="imio.dms.mail.IMServiceValidationLevelsVocabulary"
+        factory="imio.dms.mail.vocabularies.IMServiceValidationLevelsVocabulary"
         />
 
 </configure>
