@@ -382,7 +382,7 @@ class IMPreValidationTypesVocabulary(object):
     """ Pre validation types vocabulary """
     implements(IVocabularyFactory)
 
-    def __call_(self, context):
+    def __call__(self, context):
         voc = SimpleVocabulary(
             [
                 SimpleTerm(value=u'proposed_to_business_lead', title=_(u'Business lead validation')),

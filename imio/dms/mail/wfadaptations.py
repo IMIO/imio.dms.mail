@@ -494,27 +494,24 @@ class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
         return True, ''
 
 
-class IIMPreServiceValidationParameters(WorkflowAdaptationBase):
+class IIMPreServiceValidationParameters(Interface):
 
     pre_validation_type = schema.Choice(
-        title=_("Pre-validation type"),
+        title=u"Pre-validation type",
         required=True,
         vocabulary=u'imio.dms.mail.IMPreValidationTypesVocabulary',
-        default=None,
     )
 
     state_before = schema.Choice(
-        title=_("State before"),
+        title=u"State before",
         required=True,
         vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
-        default=None,
     )
 
     state_after = schema.Choice(
-        title=_("State after"),
+        title=u"State after",
         required=True,
         vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
-        default=None,
     )
 
 
