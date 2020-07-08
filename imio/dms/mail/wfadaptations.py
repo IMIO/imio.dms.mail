@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Example."""
+
 from collections import OrderedDict
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from imio.dms.mail import _tr as _
@@ -10,17 +10,20 @@ from imio.helpers.cache import invalidate_cachekey_volatile_for
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from zope import schema
-from zope.i18n import translate
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.interface import Interface
 from zope.interface import provider
 from zope.schema.interfaces import IContextAwareDefaultFactory
+from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 
 class IEmergencyZoneParameters(Interface):
 
     manager_suffix = schema.TextLine(
-        title=u"Manager suffix",
+        title=u'Manager suffix',
         default=u'_zs',
         required=True)
 
@@ -38,7 +41,7 @@ class EmergencyZoneAdaptation(WorkflowAdaptationBase):
         if msg:
             return False, msg
         state = im_workflow.states['proposed_to_manager']
-        new_title = "proposed_to_manager%s" % parameters['manager_suffix']
+        new_title = 'proposed_to_manager%s' % parameters['manager_suffix']
         if state.title != new_title:
             state.title = str(new_title)
 
@@ -48,7 +51,7 @@ class EmergencyZoneAdaptation(WorkflowAdaptationBase):
             if msg:
                 return False, msg
             transition = im_workflow.transitions[tr]
-            new_title = "%s%s" % (tr, parameters['manager_suffix'])
+            new_title = '%s%s' % (tr, parameters['manager_suffix'])
             if transition.title != new_title:
                 transition.title = str(new_title)
 
@@ -146,14 +149,14 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                                 'editeur': {'roles': ['Reader']},
                                 'encodeur': {'roles': ['Reader']},
                                 'lecteur': {'roles': ['Reader']}}
-        # We need to indicate that the object has been modified and must be "saved"
+        # We need to indicate that the object has been modified and must be 'saved'
         lr._p_changed = True
 
         # add collection
         folder = portal['outgoing-mail']['mail-searches']
         col_id = 'searchfor_to_print'
         if col_id not in folder:
-            folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id),
+            folder.invokeFactory('DashboardCollection', id=col_id, title=_(col_id),
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': ['dmsoutgoingmail']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
@@ -212,22 +215,22 @@ def impv_collection_default(context):
 class IIMPreValidationParameters(Interface):
 
     state_title = schema.TextLine(
-        title=u"State title",
+        title=u'State title',
         defaultFactory=impv_state_default,
         required=True)
 
     forward_transition_title = schema.TextLine(
-        title=u"Forward transition title",
+        title=u'Forward transition title',
         defaultFactory=impv_fw_tr_default,
         required=True)
 
     backward_transition_title = schema.TextLine(
-        title=u"Backward transition title",
+        title=u'Backward transition title',
         defaultFactory=impv_bw_tr_default,
         required=True)
 
     collection_title = schema.TextLine(
-        title=u"Collection title",
+        title=u'Collection title',
         defaultFactory=impv_collection_default,
         required=True)
 
@@ -313,14 +316,14 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             lrsc['proposed_to_agent'].update({'pre_manager': {'roles': ['Reader']}})
             lrsc['in_treatment'].update({'pre_manager': {'roles': ['Reader']}})
             lrsc['closed'].update({'pre_manager': {'roles': ['Reader']}})
-        # We need to indicate that the object has been modified and must be "saved"
+        # We need to indicate that the object has been modified and must be 'saved'
         lr._p_changed = True
 
         # add collection
         folder = portal['incoming-mail']['mail-searches']
         col_id = 'searchfor_proposed_to_pre_manager'
         if col_id not in folder:
-            folder.invokeFactory("DashboardCollection", id=col_id, title=parameters['collection_title'],
+            folder.invokeFactory('DashboardCollection', id=col_id, title=parameters['collection_title'],
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': ['dmsincomingmail']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
@@ -336,7 +339,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
-            folder.portal_workflow.doActionFor(col, "show_internally")
+            folder.portal_workflow.doActionFor(col, 'show_internally')
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_proposed_to_manager'))
 
         # update configuration annotation
@@ -494,47 +497,55 @@ class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
         return True, ''
 
 
+SERVICE_VALIDATION_LEVELS = SimpleVocabulary([SimpleTerm(value=u'n_plus_{}'.format(i)) for i in range(1, 6)])
+
+
+@provider(IContextSourceBinder)
+def service_validation_levels(context):
+    # must return not yet used levels
+    return SERVICE_VALIDATION_LEVELS
+
+
 class IIMServiceValidationParameters(Interface):
 
     validation_level = schema.Choice(
-        title=u"Service validation levels",
+        title=u'Service validation levels',
         required=True,
-        vocabulary=u'imio.dms.mail.IMServiceValidationLevelsVocabulary',
+        source=service_validation_levels,
     )
 
     state_title = schema.TextLine(
-        title=u"State title",
-        default=u"",
+        title=u'State title',
+        default=u'À valider par ',
         required=True,
     )
 
     transition_forward_title = schema.TextLine(
-        title=u"Title of forward transition",
-        default=u"",
+        title=u'Title of forward transition',
+        default=u'Proposer ',
         required=True,
     )
 
     transition_backward_title = schema.TextLine(
-        title=u"Title of backward transition",
-        default=u"",
+        title=u'Title of backward transition',
+        default=u'Renvoyer ',
         required=True,
     )
 
     state_before = schema.Choice(
-        title=u"State before",
+        title=u'State before',
         required=True,
         vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
     )
 
     state_after = schema.Choice(
-        title=u"State after",
+        title=u'State after',
         required=True,
         vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
     )
 
     function_title = schema.TextLine(
-        title=u"Title of function",
-        default=u"",
+        title=u'Title of plonegroup function',
         required=True,
     )
 
