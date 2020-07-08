@@ -622,14 +622,21 @@ class IMServiceValidation(WorkflowAdaptationBase):
 
         # modify existing states
         next_state = wf.states['proposed_to_{}'.format(next_id)]
+        transitions = list(next_state.transitions)
+        for tr in ('back_to_manager', 'back_to_creation'):
+            if tr in transitions:
+                transitions.remove(tr)
+        transitions.append(back_tr_id)
+        previous_state.transitions = tuple(transitions)
+
         next_state.transitions = (back_tr_id, )
         for st in ('proposed_to_manager', 'created'):
             previous_state = wf.states[st]
             transitions = list(previous_state.transitions)
             for tr in ('propose_to_{}'.format(next_id), 'close'):
                 if tr in transitions:
-                    transitions.remove('propose_to_{}'.format(next_id))
-            transitions.append('propose_to_{}'.format(new_id))
+                    transitions.remove(tr)
+            transitions.append(propose_tr_id)
             previous_state.transitions = tuple(transitions)
 
         return True, ''
