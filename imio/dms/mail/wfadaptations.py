@@ -631,7 +631,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
         transitions.append(back_tr_id)
         next_state.transitions = tuple(transitions)
 
-        next_state.transitions = (back_tr_id, )
         for st in ('proposed_to_manager', 'created'):
             previous_state = wf.states[st]
             transitions = list(previous_state.transitions)
@@ -651,7 +650,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
-        previous_states = ['proposed_to_{}'.format(i) for i in range(1, level)]
+        previous_states = ['proposed_to_n_plus_{}'.format(i) for i in range(1, level)]
         lrg = lr['treating_groups']
         if new_state_id not in lrg:
             lrg[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
