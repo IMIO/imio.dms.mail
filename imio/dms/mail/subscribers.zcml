@@ -27,7 +27,7 @@
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
              OFS.interfaces.IObjectWillBeRemovedEvent"
-        handler=".subscribers.referenceDocumentRemoved" />
+        handler=".subscribers.reference_document_removed" />
 
     <!-- IImioDmsIncomingMail -->
     <subscriber
@@ -117,13 +117,13 @@
     <subscriber
         for="collective.contact.plonegroup.interfaces.IPloneGroupContact
              zope.app.container.interfaces.IObjectMovedEvent"
-        handler=".subscribers.ploneGroupContactChanged"
+        handler=".subscribers.plonegroup_contact_changed"
         />
 
     <subscriber
         for="collective.contact.plonegroup.interfaces.IPloneGroupContact
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
-        handler=".subscribers.ploneGroupContactChanged"
+        handler=".subscribers.plonegroup_contact_changed"
         />
 
     <!-- Contact -->

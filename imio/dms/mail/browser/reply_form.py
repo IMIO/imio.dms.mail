@@ -4,8 +4,8 @@
 from collective.dms.mailcontent.browser.reply_form import ReplyForm as BaseReplyForm
 from collective.eeafaceted.batchactions.browser.views import brains_from_uids
 from imio.dms.mail import _
-from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateFields
-from imio.dms.mail.dmsmail import ImioDmsOutgoingMailUpdateWidgets
+from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatefields
+from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatewidgets
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 
@@ -17,14 +17,14 @@ class ReplyForm(BaseReplyForm):
     def updateFields(self):
 
         super(ReplyForm, self).updateFields()
-        ImioDmsOutgoingMailUpdateFields(self)
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(ReplyForm, self).updateWidgets()
         prefix = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                 'omail_response_prefix', default='') or ''
         self.widgets["IDublinCore.title"].value = u"%s%s" % (prefix, safe_unicode(self.context.title))
-        ImioDmsOutgoingMailUpdateWidgets(self)
+        imio_dmsoutgoingmail_updatewidgets(self)
 
 
 class MultipleReplyForm(BaseReplyForm):
@@ -46,16 +46,15 @@ class MultipleReplyForm(BaseReplyForm):
         super(BaseReplyForm, self).updateFields()  # skipping BaseReplyForm itself
         self.update_fields_irn()
         # Completing form values wasn't working anymore, but relations must be set here too !
-        if self.uids:  # view is called a second time by masterselect. uids is empty.
-                       # We don't want to change request form values
+        if self.uids:  # view is called a 2d time by MS. uids is empty. We don't want to change request form values
             form = self.request.form
-            if not "form.widgets.reply_to" in form:
+            if "form.widgets.reply_to" not in form:
                 form["form.widgets.reply_to"] = tuple([b.getPath() for b in self.brains])
-            if not "form.widgets.recipients" in form:
+            if "form.widgets.recipients" not in form:
                 sender_uids = set([sender for b in self.brains for sender in b.sender_index
                                    if not sender.startswith('l:')])
                 form["form.widgets.recipients"] = [b.getPath() for b in brains_from_uids(list(sender_uids))]
-        ImioDmsOutgoingMailUpdateFields(self)
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(BaseReplyForm, self).updateWidgets()  # skipping BaseReplyForm itself
@@ -73,4 +72,4 @@ class MultipleReplyForm(BaseReplyForm):
             self.widgets["recipients"].value = form["form.widgets.recipients"]
             self.widgets["recipient_groups"].value = list(set([uid for b in self.brains for uid in b.recipient_groups
                                                                if b.recipient_groups]))
-        ImioDmsOutgoingMailUpdateWidgets(self)
+        imio_dmsoutgoingmail_updatewidgets(self)

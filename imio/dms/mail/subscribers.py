@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
-from Acquisition import aq_get
+from Acquisition import aq_get  # noqa
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -37,6 +37,7 @@ from z3c.relationfield.event import updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
+# from zope.component.interfaces import ComponentLookupError
 from zope.component import getAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -168,18 +169,18 @@ def im_edit_finished(mail, event):
     user = api.user.get_current()
     if not user.has_permission('View', mail):
         portal = api.portal.get()
-        redirectToUrl = api.portal.get().absolute_url()
+        redirect_to_url = api.portal.get().absolute_url()
         col_path = '%s/incoming-mail/mail-searches/all_mails' % portal.absolute_url_path()
         brains = portal.portal_catalog(path={'query': col_path, 'depth': 0})
         if brains:
-            redirectToUrl = '%s/incoming-mail/mail-searches#c1=%s' % (redirectToUrl, brains[0].UID)
+            redirect_to_url = '%s/incoming-mail/mail-searches#c1=%s' % (redirect_to_url, brains[0].UID)
         # add a specific portal_message before redirecting the user
         msg = _('redirected_after_edition',
                 default="You have been redirected here because you do not have "
                         "access anymore to the element you just edited.")
         portal['plone_utils'].addPortalMessage(msg, 'warning')
         response = mail.REQUEST.response
-        response.redirect(redirectToUrl)
+        response.redirect(redirect_to_url)
 
 
 def dmsdocument_transition(mail, event):
@@ -189,7 +190,7 @@ def dmsdocument_transition(mail, event):
     mail.reindexObject(['state_group'])
 
 
-def referenceDocumentRemoved(obj, event):
+def reference_document_removed(obj, event):
     """
         Check if there is a relation with another Document.
         Like collective.contact.core.subscribers.referenceRemoved.
@@ -305,21 +306,27 @@ def contact_plonegroup_change(event):
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
         # we manage local roles to give needed permissions related to group_encoder
-        group_encoder_config = [dic for dic in s_fcts if dic['fct_id'] == CREATING_GROUP_SUFFIX]
+        options_config = {'imail_group_encoder': [portal['incoming-mail']],
+                          'contact_group_encoder': [portal['contacts'],
+                                                    portal['contacts']['contact-lists-folder']['common']]}
+        group_encoder_config = [dic for dic in s_fcts if dic['fct_id'] == CREATING_GROUP_SUFFIX]  # noqa F812
         if group_encoder_config:
             orgs = group_encoder_config[0]['fct_orgs']
-            for folder in (portal['incoming-mail'], portal['contacts'],
-                           portal['contacts']['contact-lists-folder']['common']):
-                dic = folder.__ac_local_roles__
-                for principal in dic.keys():
-                    if principal.endswith(CREATING_GROUP_SUFFIX):
-                        del dic[principal]
-                for uid in orgs:
-                    dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
-                folder._p_changed = True
+            for option in options_config:
+                option_value = api.portal.get_registry_record('imio.dms.mail.browser.settings.'
+                                                              'IImioDmsMailConfig.{}'.format(option), default=False)
+                for folder in options_config[option]:
+                    dic = folder.__ac_local_roles__
+                    for principal in dic.keys():
+                        if principal.endswith(CREATING_GROUP_SUFFIX):
+                            del dic[principal]
+                    if option_value:
+                        for uid in orgs:
+                            dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
+                    folder._p_changed = True
 
 
-def ploneGroupContactChanged(organization, event):
+def plonegroup_contact_changed(organization, event):
     """
         Manage an organization change
     """
@@ -377,7 +384,7 @@ def user_deleted(event):
     request = portal.REQUEST
 
     # is protected user
-    if princ in ('scanner'):
+    if princ in ('scanner',):
         api.portal.show_message(message=_("You cannot delete the user name '${user}'.", mapping={'user': princ}),
                                 request=request, type='error')
         raise Redirect(request.get('ACTUAL_URL'))
@@ -439,8 +446,12 @@ def group_deleted(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
 
-    def get_query(portal_type, field, idx, org, suffix):
+    def get_query(portal_type, field_p, idx_p, org, suffix):
         fti = getUtility(IDexterityFTI, name=portal_type)
+        # try:
+        #     fti = getUtility(IDexterityFTI, name=portal_type)
+        # except ComponentLookupError:
+        #     return {}
         config = getattr(fti, 'localroles', {}).get(field, None)
         if not config:
             return {}
@@ -491,9 +502,9 @@ def group_assignment(event):
     userid = event.principal
     orgs = organizations_with_suffixes([event.group_id], ['validateur', 'editeur', 'lecteur'], group_as_str=True)
     if orgs:
-        DAYS_BACK = 5
+        days_back = 5
         start = datetime.datetime(1973, 02, 12)
-        end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
+        end = datetime.datetime.now() - datetime.timedelta(days=days_back)
         catalog = api.portal.get_tool('portal_catalog')
         for brain in catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'], recipient_groups=orgs,
                              labels={'not': ['%s:lu' % userid]},

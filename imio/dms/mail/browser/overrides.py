@@ -7,17 +7,15 @@
 # GNU General Public License (GPL)
 #
 
-from Acquisition import aq_inner
+from Acquisition import aq_inner  # noqa
 from collective.contact.contactlist.interfaces import IContactList
 from collective.contact.widget.interfaces import IContactContent
-from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsFile, IDmsAppendixFile
 from collective.dms.mailcontent.browser.utils import UtilsMethods
 from collective.documentgenerator.content.pod_template import IPODTemplate
 from collective.documentgenerator.content.style_template import IStyleTemplate
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
 from collective.task.behaviors import ITask
-from collective.task.interfaces import ITaskContent
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
@@ -26,24 +24,24 @@ from plone import api
 from plone.app.controlpanel.usergroups import GroupsOverviewControlPanel
 from plone.app.controlpanel.usergroups import UsersGroupsControlPanelView
 from plone.app.controlpanel.usergroups import UsersOverviewControlPanel
-from plone.app.layout.viewlets.common import ContentActionsViewlet as CAV
+from plone.app.layout.viewlets.common import ContentActionsViewlet as PALContentActionsViewlet
 from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
 from Products.ATContentTypes.interfaces.document import IATDocument
 from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
-from Products.CMFPlone.browser.ploneview import Plone as PV
+from Products.CMFPlone.browser.ploneview import Plone as PloneView
 from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 
 class IMRenderCategoryView(RenderCategoryView):
-    '''
+    """
       Override the way a category is rendered in the portlet based on the
       faceted collection widget so we can manage some usecases where icons
-      are displayed to add items or meetings.
-    '''
+      are displayed to add items.
+    """
 
     def contact_infos(self):
         return {'orgs-searches': {'typ': 'organization', 'add': '++add++organization', 'img': 'organization_icon.png'},
@@ -53,25 +51,24 @@ class IMRenderCategoryView(RenderCategoryView):
                                  'img': 'directory_icon.png', 'class': ''}
                 }
 
-    def __call__(self, widget):
-        self.widget = widget
+    def _get_category_template(self):
         if IIMDashboard.providedBy(self.context):
-            return ViewPageTemplateFile("templates/category_im.pt")(self)
+            return ViewPageTemplateFile('templates/category_im.pt')
         elif IOMDashboard.providedBy(self.context):
-            return ViewPageTemplateFile("templates/category_om.pt")(self)
+            return ViewPageTemplateFile('templates/category_om.pt')
         elif IContactsDashboard.providedBy(self.context):
-            return ViewPageTemplateFile("templates/category_contact.pt")(self)
-        return ViewPageTemplateFile("templates/category.pt")(self)
+            return ViewPageTemplateFile('templates/category_contact.pt')
+        return ViewPageTemplateFile('templates/category.pt')
 
 
 class DocumentBylineViewlet(IHDocumentBylineViewlet):
-    '''
+    """
       Overrides the IHDocumentBylineViewlet to hide it for some layouts.
-    '''
+    """
 
     def show(self):
-        currentLayout = self.context.getLayout()
-        if currentLayout in ['facetednavigation_view', ]:
+        current_layout = self.context.getLayout()
+        if current_layout in ['facetednavigation_view', ]:
             return False
         return True
 
@@ -102,7 +99,7 @@ class LockingOperations(PLLockingOperations):
             super(LockingOperations, self).force_unlock(redirect=redirect)
 
 
-class Plone(PV):
+class Plone(PloneView):
 
     def showEditableBorder(self):
         context = aq_inner(self.context)
@@ -112,7 +109,7 @@ class Plone(PV):
         return super(Plone, self).showEditableBorder()
 
 
-class ContentActionsViewlet(CAV):
+class ContentActionsViewlet(PALContentActionsViewlet):
     """ """
     def render(self):
         context = aq_inner(self.context)
@@ -145,7 +142,7 @@ class BaseOverviewControlPanel(UsersGroupsControlPanelView):
     def portal_roles(self):
         return ['Batch importer', 'Manager', 'Member', 'Site Administrator']
 
-    def doSearch(self, searchString):
+    def doSearch(self, searchString):  # noqa
         results = super(BaseOverviewControlPanel, self).doSearch(searchString)
         if check_zope_admin:
             return results

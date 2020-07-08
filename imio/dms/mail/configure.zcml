@@ -31,6 +31,7 @@
     <include package="collective.contact.core" />
     <include package="collective.contact.duplicated" />
     <include package="collective.contact.facetednav" />
+    <include package="collective.contact.importexport" />
     <include package="collective.contact.plonegroup" />
     <include package="collective.contact.contactlist" />
     <include package="collective.js.fancytree" />

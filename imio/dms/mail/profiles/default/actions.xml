@@ -13,7 +13,7 @@
 
  </object>
 
- <object name="portlet" meta_type="CMF Action Category">
+ <object name="object_portlet" meta_type="CMF Action Category">
 
   <object name="batchimport" meta_type="CMF Action" i18n:domain="imio.dms.mail">
    <property name="title" i18n:translate="">Batch import</property>
@@ -87,10 +87,19 @@
    </property>
    <property name="visible">False</property>
   </object>
-  <object name="documentation" meta_type="CMF Action" i18n:domain="plone" insert-before="*">
+  <object name="documentation" meta_type="CMF Action" i18n:domain="imio.dms.mail" insert-before="*">
    <property name="title" i18n:translate="">Documentation iA.Docs</property>
-   <property name="url_expr">string:https://www.imio.be/support/documentation/manual/gestion-de-courriers</property>
+   <property name="url_expr">string:https://docs.imio.be/imio-doc/ia.docs/</property>
    <property name="link_target">_blank</property>
+   <property name="available_expr"></property>
+   <property name="permissions">
+    <element value="List portal members"/>
+   </property>
+   <property name="visible">True</property>
+  </object>
+  <object name="own-groups" meta_type="CMF Action" i18n:domain="imio.dms.mail" insert-after="documentation">
+   <property name="title" i18n:translate="">Own groups management</property>
+   <property name="url_expr">string:${portal_url}/manage-own-groups-users</property>
    <property name="available_expr"></property>
    <property name="permissions">
     <element value="List portal members"/>

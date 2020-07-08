@@ -161,6 +161,9 @@
    <property name="index">mail_date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
+   <property name="usePloneDateFormat">True</property>
+   <property name="labelStart">Start date</property>
+   <property name="labelEnd">End date</property>
   </criterion>
 
   <criterion name="c10" i18n:attributes="title">
@@ -172,6 +175,9 @@
    <property name="index">in_out_date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
+   <property name="usePloneDateFormat">True</property>
+   <property name="labelStart">Start date</property>
+   <property name="labelEnd">End date</property>
   </criterion>
 
   <criterion name="c11" i18n:attributes="title">
@@ -183,6 +189,9 @@
    <property name="index">due_date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+5</property>
+   <property name="usePloneDateFormat">True</property>
+   <property name="labelStart">Start date</property>
+   <property name="labelEnd">End date</property>
   </criterion>
 
   <criterion name="c12" i18n:attributes="title">
@@ -207,6 +216,9 @@
    <property name="index">Date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
+   <property name="usePloneDateFormat">True</property>
+   <property name="labelStart">Start date</property>
+   <property name="labelEnd">End date</property>
   </criterion>
 
   <criterion name="c14" i18n:attributes="title">

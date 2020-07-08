@@ -182,7 +182,12 @@ class PloneGroupInterfacesVocabulary(object):
 
 
 class OMSenderVocabulary(object):
-    """ Outgoing mail sender vocabulary """
+    """
+        Outgoing mail sender vocabulary
+        term value = hp uid
+        term token = org uid _ userid
+        term title = hp title
+    """
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
@@ -203,9 +208,10 @@ class OMSenderVocabulary(object):
             # the userid is stored in mail_type index !!
             hp = brain._unrestrictedGetObject()
             person = hp.get_person()
+            org = hp.get_organization()
             terms.append((person, hp,
                           SimpleVocabulary.createTerm(
-                              brain.UID, "%s_%s" % (brain.UID, brain.mail_type or ''),
+                              brain.UID, "%s_%s" % (org.UID(), brain.mail_type or ''),
                               hp.get_full_title(first_index=1))))
 
         def sort_terms(t):

@@ -10,6 +10,21 @@ Changelog
 - Added dmsincoming_email type
   [sgeulette]
 
+2.2.1 ()
+--------
+
+- Added collective.contact.importexport specific pipeline
+  [sgeulette]
+
+- Added own groups users management
+  [sgeulette]
+
+- Added default value for creating_group
+  [sgeulette]
+
+- Added more precise default value for sender on a reply
+  [sgeulette]
+
 2.2 (2019-09-12)
 ----------------
 

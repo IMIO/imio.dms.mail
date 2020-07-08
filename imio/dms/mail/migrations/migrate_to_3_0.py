@@ -1,25 +1,22 @@
 # -*- coding: utf-8 -*-
 
-from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from imio.dms.mail import _tr as _
+from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
-from plone.dexterity.interfaces import IDexterityFTI
 from Products.CPUtils.Extensions.utils import mark_last_version
-from zope.component import getUtility
 
 import logging
 
 
-# createStateCollections
 logger = logging.getLogger('imio.dms.mail')
 
 
-class Migrate_To_3_0(Migrator):
+class Migrate_To_3_0(Migrator):  # noqa
 
     def __init__(self, context):
         Migrator.__init__(self, context)
@@ -27,13 +24,6 @@ class Migrate_To_3_0(Migrator):
         self.omf = self.portal['outgoing-mail']
 
     def update_site(self):
-        # add documentation message
-        if 'doc' not in self.portal['messages-config']:
-            add_message('doc', 'Documentation', u'<p>Vous pouvez consulter la <a href="http://www.imio.be/'
-                        u'support/documentation/topic/cp_app_ged" target="_blank">documentation en ligne de la '
-                        u'dernière version</a>, ainsi que d\'autres documentations liées.</p>', msg_type='significant',
-                        can_hide=True, req_roles=['Authenticated'], activate=True)
-
         # update front-page
         frontpage = self.portal['front-page']
         if frontpage.Title() == 'Gestion du courrier 2.2':
@@ -44,30 +34,13 @@ class Migrate_To_3_0(Migrator):
         # update portal title
         self.portal.title = 'Gestion du courrier 3.0'
 
-        functions = api.portal.get_registry_record(FUNCTIONS_REGISTRY)
-        for dic in functions:
-            if dic['fct_id'] == u'encodeur':
-                dic['fct-title'] = u'Créateur CS'
-
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
 
-        # add group
-        if api.group.get('lecteurs_globaux_ce') is None:
-            api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
-        # change local roles
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        lrsc = lr['static_config']
-        for state in ['proposed_to_manager', 'proposed_to_service_chief',
-                      'proposed_to_agent', 'in_treatment', 'closed']:
-            if 'lecteurs_globaux_ce' not in lrsc[state]:
-                lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
-        # We need to indicate that the object has been modified and must be "saved"
-        lr._p_changed = True
-
-        if 'new-version' not in self.portal['messages-config']:
-            'TO BE CONTINUED' / 1
+        if False and 'new-version' not in self.portal['messages-config']:
+            add_message('new-version', 'Nouvelles fonctionnalités', u'<p>Vous pouvez consulter la <a href="https://'
+                        u'www.imio.be/" target="_blank">liste des nouvelles fonctionnalités</a></p>',
+                        msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
 
     def insert_incoming_emails(self):
         # allowed types
@@ -129,16 +102,19 @@ class Migrate_To_3_0(Migrator):
 
         self.cleanRegistries()
 
+        self.correct_actions()
+
+        self.upgradeProfile('collective.contact.plonegroup:default')
         self.upgradeProfile('collective.dms.mailcontent:default')
 
-        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])
+        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
 
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo', 'workflow'])
 
         self.portal.portal_workflow.updateRoleMappings()
         # Apply workflow adaptations
-        RECORD_NAME = 'collective.wfadaptations.applied_adaptations'
-        if api.portal.get_registry_record(RECORD_NAME, default=False):
+        record_name = 'collective.wfadaptations.applied_adaptations'
+        if api.portal.get_registry_record(record_name, default=False):
             success, errors = apply_from_registry()
             if errors:
                 logger.error("Problem applying wf adaptations: %d errors" % errors)
@@ -165,11 +141,15 @@ class Migrate_To_3_0(Migrator):
         for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
             mark_last_version(self.portal, product=prod)
 
-        #self.refreshDatabase()
+        # self.refreshDatabase()
         self.finish()
+
+    def correct_actions(self):
+        pa = self.portal.portal_actions
+        if 'portlet' in pa:
+            api.content.rename(obj=pa['portlet'], new_id='object_portlet')
+            set_portlet(self.portal)
 
 
 def migrate(context):
-    '''
-    '''
     Migrate_To_3_0(context).run()

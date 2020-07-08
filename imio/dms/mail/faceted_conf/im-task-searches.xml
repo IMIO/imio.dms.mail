@@ -124,6 +124,9 @@
    <property name="index">due_date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+5</property>
+   <property name="usePloneDateFormat">True</property>
+   <property name="labelStart">Start date</property>
+   <property name="labelEnd">End date</property>
   </criterion>
 
   <criterion name="c8" i18n:attributes="title">
@@ -135,6 +138,9 @@
    <property name="index">created</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
+   <property name="usePloneDateFormat">True</property>
+   <property name="labelStart">Start date</property>
+   <property name="labelEnd">End date</property>
   </criterion>
 
   <criterion name="c9" i18n:attributes="title">
@@ -165,6 +171,9 @@
    <property name="index">Date</property>
    <property name="default"></property>
    <property name="calYearRange">2013:+0</property>
+   <property name="usePloneDateFormat">True</property>
+   <property name="labelStart">Start date</property>
+   <property name="labelEnd">End date</property>
   </criterion>
 
  </criteria>

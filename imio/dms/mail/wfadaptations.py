@@ -440,6 +440,11 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
             # update search collection list
             invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
+        # enable shoNumberOfItems on 'to_treat_in_my_group'
+        if not folder['to_treat_in_my_group'].showNumberOfItems and not parameters['assigned_user_check']:
+            folder['to_treat_in_my_group'].showNumberOfItems = True
+            folder['to_treat_in_my_group'].reindexObject()
+
         # update state list
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')
 

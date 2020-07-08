@@ -12,7 +12,7 @@ from collective.contact.widget.source import ContactSource
 from collective.contact.widget.source import ContactSourceBinder
 from collective.dms.basecontent.browser.views import DmsDocumentEdit
 from collective.dms.basecontent.browser.views import DmsDocumentView
-from collective.dms.mailcontent import _ as _cdmsm
+from collective.dms.mailcontent import _ as _cdmsm  # noqa
 from collective.dms.mailcontent.browser.views import AddOM as BaseAddOM
 from collective.dms.mailcontent.browser.views import OMCustomAddForm as BaseOMAddForm
 from collective.dms.mailcontent.browser.views import OMEdit as BaseOMEdit
@@ -33,16 +33,16 @@ from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import object_modified_cachekey
-#from imio.dms.mail.vocabularies import ServicesSourceBinder
+# from imio.dms.mail.vocabularies import ServicesSourceBinder
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.autoform import directives
-#from plone.autoform.interfaces import IFormFieldProvider
+# from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
-#from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
+# from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
@@ -64,10 +64,10 @@ import copy
 
 class DmsContactSource(ContactSource):
 
-    do_post_sort = False  # do not sort by title before displaying search results
+    do_post_sort = False  # do not sort by title before displaying search results (used in contact.widget)
 
     def __init__(self, context, selectable_filter, navigation_tree_query=None,
-                 default=None, defaultFactory=None, **kw):
+                 default=None, defaultFactory=None, **kw):  # noqa
         super(DmsContactSource, self).__init__(context, selectable_filter, navigation_tree_query,
                                                default, defaultFactory, **kw)
         # criteria cannot be a list. We correct it
@@ -125,21 +125,22 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         title=_(u"Recipient groups"),
         required=False,
         value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups')
-#        value_type=schema.Choice(source=ServicesSourceBinder())
+        # value_type=schema.Choice(source=ServicesSourceBinder())
     )
 #    directives.widget(recipient_groups=AutocompleteMultiFieldWidget)  #22423
 
     mail_type = schema.Choice(
         title=_("Mail type"),
-#        description = _("help_mail_type",
-#            default=u"Enter the mail type"),
+        # description = _("help_mail_type",
+        # default=u"Enter the mail type"),
         required=True,
         vocabulary=u'imio.dms.mail.IMActiveMailTypesVocabulary',
         default=None,
     )
 
     directives.omitted('related_docs', 'recipients', 'notes')
-    #directives.widget(recipient_groups=SelectFieldWidget)
+    # directives.widget(recipient_groups=SelectFieldWidget)
+
 
 # Compatibility with old vocabularies
 TreatingGroupsVocabulary = SelectedOrganizationsElephantVocabulary
@@ -148,10 +149,10 @@ RecipientGroupsVocabulary = SelectedOrganizationsElephantVocabulary
 
 class ImioDmsIncomingMailSchemaPolicy(DexteritySchemaPolicy):
     """ """
-    def bases(self, schemaName, tree):
+    def bases(self, schemaName, tree):  # noqa
         return (IImioDmsIncomingMail, )
 
-#alsoProvides(IImioDmsIncomingMail, IFormFieldProvider) #needed for behavior
+# alsoProvides(IImioDmsIncomingMail, IFormFieldProvider) #needed for behavior
 
 
 class ImioDmsIncomingMail(DmsIncomingMail):
@@ -168,7 +169,7 @@ class ImioDmsIncomingMail(DmsIncomingMail):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
 
-def OrderFields(the_form, config_key):
+def order_fields(the_form, config_key):
     """
         Reorder fields
     """
@@ -179,7 +180,7 @@ def OrderFields(the_form, config_key):
             add(the_form, field, index=0)
 
 
-def ImioDmsIncomingMailUpdateFields(the_form):
+def imio_dmsincomingmail_updatefields(the_form):
     """
         Fields update method for add and edit
     """
@@ -191,7 +192,7 @@ def ImioDmsIncomingMailUpdateFields(the_form):
         the_form.fields['original_mail_date'].field.required = False
 
 
-def ImioDmsIncomingMailUpdateWidgets(the_form):
+def imio_dmsincomingmail_updatewidgets(the_form):
     """
         Widgets update method for add and edit
     """
@@ -225,16 +226,16 @@ class IMEdit(DmsDocumentEdit):
 
     def updateFields(self):
         super(IMEdit, self).updateFields()
-        OrderFields(self, 'imail_fields_order')
-        ImioDmsIncomingMailUpdateFields(self)
-        #sm = getSecurityManager()
-        #if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
+        order_fields(self, 'imail_fields_order')
+        imio_dmsincomingmail_updatefields(self)
+        # sm = getSecurityManager()
+        # if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
         #    self.fields['treating_groups'].field = copy.copy(self.fields['treating_groups'].field)
         #    self.fields['treating_groups'].field.required = False
 
-    def updateWidgets(self):
+    def updateWidgets(self, prefix=None):
         super(IMEdit, self).updateWidgets()
-        ImioDmsIncomingMailUpdateWidgets(self)
+        imio_dmsincomingmail_updatewidgets(self)
         sm = getSecurityManager()
         incomingmail_fti = api.portal.get_tool('portal_types').dmsincomingmail
         behaviors = incomingmail_fti.behaviors
@@ -261,7 +262,7 @@ class IMEdit(DmsDocumentEdit):
 
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
-            #self.widgets['treating_groups'].__dict__['disabled'] = True
+            # self.widgets['treating_groups'].__dict__['disabled'] = True
             self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
                 [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
 
@@ -280,7 +281,7 @@ class IMEdit(DmsDocumentEdit):
                 due_date = datetime.today() + timedelta(days=due_date_extension)
                 self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
 
-    #def applyChanges(self, data):
+    # def applyChanges(self, data):
     #    """ We need to remove a disabled field from data """
     #    sm = getSecurityManager()
     #    if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
@@ -295,12 +296,12 @@ class IMView(DmsDocumentView):
 
     def updateFieldsFromSchemata(self):
         super(IMView, self).updateFieldsFromSchemata()
-        OrderFields(self, 'imail_fields_order')
+        order_fields(self, 'imail_fields_order')
 
     def updateWidgets(self, prefix=None):
         super(IMView, self).updateWidgets()
         # this is added to escape treatment when displaying single widget in column
-        #if prefix == 'escape':
+        # if prefix == 'escape':
         #    return
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
@@ -319,12 +320,12 @@ class CustomAddForm(DefaultAddForm):
 
     def updateFields(self):
         super(CustomAddForm, self).updateFields()
-        OrderFields(self, 'imail_fields_order')
-        ImioDmsIncomingMailUpdateFields(self)
+        order_fields(self, 'imail_fields_order')
+        imio_dmsincomingmail_updatefields(self)
 
-    def updateWidgets(self):
+    def updateWidgets(self, prefix=None):
         super(CustomAddForm, self).updateWidgets()
-        ImioDmsIncomingMailUpdateWidgets(self)
+        imio_dmsincomingmail_updatewidgets(self)
         # Set a due date by default if it was set in the configuration
         due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
         if due_date_extension > 0:
@@ -347,7 +348,7 @@ class AddIEM(DefaultAddView):
     form = IEMCustomAddForm
 
 ###################################################################
-######                   OUTGOING MAILS                       #####
+#                        OUTGOING MAILS                           #
 ###################################################################
 
 
@@ -366,7 +367,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     treating_groups = LocalRoleMasterSelectField(
         title=_(u"Treating groups"),
         required=True,
-        #vocabulary=u'collective.dms.basecontent.treating_groups',
+        # vocabulary=u'collective.dms.basecontent.treating_groups',
         source=encodeur_active_orgs,
         slave_fields=(
             {'name': 'ITask.assigned_user',
@@ -419,7 +420,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
 
 class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
     """ """
-    def bases(self, schemaName, tree):
+    def bases(self, schemaName, tree):  # noqa
         return (IImioDmsOutgoingMail, )
 
 
@@ -433,7 +434,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u'recipient_groups'])
 
-    def wf_condition_may_set_scanned(self, state_change):  # pragma: no cover
+    def wf_condition_may_set_scanned(self, state_change):  # noqa, pragma: no cover
         """ method used in wf condition """
         # python: here.wf_condition_may_set_scanned(state_change)
         user = api.user.get_current()
@@ -449,7 +450,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
 
-def ImioDmsOutgoingMailUpdateFields(the_form):
+def imio_dmsoutgoingmail_updatefields(the_form):
     """
         Fields update method for add, edit and reply !
     """
@@ -457,7 +458,7 @@ def ImioDmsOutgoingMailUpdateFields(the_form):
     the_form.fields['ITask.assigned_user'].field.required = True
 
 
-def ImioDmsOutgoingMailUpdateWidgets(the_form):
+def imio_dmsoutgoingmail_updatewidgets(the_form):
     """
         Widgets update method for add, edit and reply !
     """
@@ -468,11 +469,18 @@ def ImioDmsOutgoingMailUpdateWidgets(the_form):
     if the_form.context.portal_type not in ('dmsoutgoingmail', 'dmsoutgoing_email') \
             or not the_form.context.sender:
         # we search for a held position related to current user and take the first one !
-        default = None
+        default = treating_group = None
+        if the_form.__name__ == 'reply':
+            treating_group = the_form.widgets['treating_groups'].value
         for term in the_form.widgets['sender'].bound_source:
             if term.token.endswith('_%s' % current_user.id):
-                default = term.token
-                break
+                if not default:
+                    default = term.token
+                if not treating_group:  # not a reply
+                    break
+                if term.token == '{}_{}'.format(treating_group, current_user.id):
+                    default = term.token
+                    break
         the_form.widgets['sender'].value = [default]
 
     for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
@@ -489,12 +497,12 @@ class OMEdit(BaseOMEdit):
 
     def updateFields(self):
         super(OMEdit, self).updateFields()
-        OrderFields(self, 'omail_fields_order')
-        ImioDmsOutgoingMailUpdateFields(self)
+        order_fields(self, 'omail_fields_order')
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(OMEdit, self).updateWidgets()
-        ImioDmsOutgoingMailUpdateWidgets(self)
+        imio_dmsoutgoingmail_updatewidgets(self)
         sm = getSecurityManager()
         display_fields = []
         if not sm.checkPermission('imio.dms.mail: Write mail base fields', self.context):
@@ -512,7 +520,7 @@ class OMEdit(BaseOMEdit):
 
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
-            #self.widgets['treating_groups'].__dict__['disabled'] = True
+            # self.widgets['treating_groups'].__dict__['disabled'] = True
             self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
                 [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
 
@@ -521,12 +529,12 @@ class OMCustomAddForm(BaseOMAddForm):
 
     def updateFields(self):
         super(OMCustomAddForm, self).updateFields()
-        OrderFields(self, 'omail_fields_order')
-        ImioDmsOutgoingMailUpdateFields(self)
+        order_fields(self, 'omail_fields_order')
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(OMCustomAddForm, self).updateWidgets()
-        ImioDmsOutgoingMailUpdateWidgets(self)
+        imio_dmsoutgoingmail_updatewidgets(self)
         # the following doesn't work
         # self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
 
@@ -551,7 +559,7 @@ class OMView(DmsDocumentView):
 
     def updateFieldsFromSchemata(self):
         super(OMView, self).updateFieldsFromSchemata()
-        OrderFields(self, 'omail_fields_order')
+        order_fields(self, 'omail_fields_order')
 
     def updateWidgets(self, prefix=None):
         super(OMView, self).updateWidgets()
@@ -564,7 +572,7 @@ class OMView(DmsDocumentView):
 
 class AssignedUserValidator(validator.SimpleFieldValidator):
 
-    def validate(self, value):
+    def validate(self, value, force=False):
         # we go out if assigned user is empty
         if value is None:
             return
@@ -577,7 +585,7 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                 value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
                               self.request.form['form.widgets.treating_groups'][0],
                               DOC_ASSIGNED_USER_FUNCTIONS)]):
-                    raise Invalid(_(u"The assigned user is not in the selected treating group !"))
+                raise Invalid(_(u"The assigned user is not in the selected treating group !"))
         # check if we are editing a task
         elif isinstance(self.view, TaskEdit):
             # check if assigned_group is changed and assigned_user is no more in
@@ -587,6 +595,7 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                 value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
                               self.request.form['form.widgets.ITask.assigned_group'][0],
                               DOC_ASSIGNED_USER_FUNCTIONS)]):
-                    raise Invalid(_(u"The assigned user is not in the selected assigned group !"))
+                raise Invalid(_(u"The assigned user is not in the selected assigned group !"))
+
 
 validator.WidgetValidatorDiscriminators(AssignedUserValidator, field=ITask['assigned_user'])
