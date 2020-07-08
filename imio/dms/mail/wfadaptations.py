@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from collections import OrderedDict
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from imio.dms.mail import _tr as _
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
@@ -329,7 +331,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         folder = portal['incoming-mail']['mail-searches']
         col_id = 'searchfor_proposed_to_pre_manager'
         if col_id not in folder:
-            folder.invokeFactory('DashboardCollection', id=col_id, title=parameters['collection_title'],
+            folder.invokeFactory('DashboardCollection', id=col_id, title=parameters['collection_title'], enabled=True,
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': ['dmsincomingmail']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
@@ -345,7 +347,6 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
-            folder.portal_workflow.doActionFor(col, 'show_internally')
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_proposed_to_manager'))
 
         # update configuration annotation
@@ -575,6 +576,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             transitions.append('close')
         else:
             next_id = 'n_plus_{}'.format(level-1)
+        next_state_id = 'proposed_to_{}'.format(next_id)
         transitions.append('propose_to_{}'.format(next_id))
 
         # add state
@@ -621,13 +623,13 @@ class IMServiceValidation(WorkflowAdaptationBase):
             props={'guard_permissions': 'Review portal content'})
 
         # modify existing states
-        next_state = wf.states['proposed_to_{}'.format(next_id)]
+        next_state = wf.states[next_state_id]
         transitions = list(next_state.transitions)
         for tr in ('back_to_manager', 'back_to_creation'):
             if tr in transitions:
                 transitions.remove(tr)
         transitions.append(back_tr_id)
-        previous_state.transitions = tuple(transitions)
+        next_state.transitions = tuple(transitions)
 
         next_state.transitions = (back_tr_id, )
         for st in ('proposed_to_manager', 'created'):
@@ -638,5 +640,57 @@ class IMServiceValidation(WorkflowAdaptationBase):
                     transitions.remove(tr)
             transitions.append(propose_tr_id)
             previous_state.transitions = tuple(transitions)
+
+        # add function
+        functions = get_registry_functions()
+        if new_id not in [fct['fct_id'] for fct in functions]:
+            functions.append({'fct_title': parameters['function_title'], 'fct_id': unicode(new_id), 'fct_orgs': [],
+                              'fct_management': False})
+            set_registry_functions(functions)
+
+        # add local roles config
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        previous_states = ['proposed_to_{}'.format(i) for i in range(1, level)]
+        lrg = lr['treating_groups']
+        if new_state_id not in lrg:
+            lrg[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
+            for st in previous_states:
+                lrg[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+            lrg['proposed_to_agent'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+            lrg['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+            lrg['closed'].update({new_id: {'roles': ['Reviewer']}})
+        lrg = lr['recipient_groups']
+        if new_state_id not in lrg:
+            lrg[new_state_id] = {new_id: {'roles': ['Reader']}}
+            for st in previous_states:
+                lrg[st].update({new_id: {'roles': ['Reader']}})
+            lrg['proposed_to_agent'].update({new_id: {'roles': ['Reader']}})
+            lrg['in_treatment'].update({new_id: {'roles': ['Reader']}})
+            lrg['closed'].update({new_id: {'roles': ['Reader']}})
+        # We need to indicate that the object has been modified and must be 'saved'
+        lr._p_changed = True
+
+        # add collection
+        folder = portal['incoming-mail']['mail-searches']
+        col_id = 'searchfor_{}'.format(new_state_id)
+        col_title = u'État: {}'.format(parameters['state_title'])
+        if col_id not in folder:
+            next_col = folder['searchfor_{}'.format(next_state_id)]
+            folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
+                                 query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': ['dmsincomingmail']},
+                                        {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': [new_state_id]}],
+                                 customViewFields=tuple(next_col.customViewFields),
+                                 tal_condition=None,
+                                 showNumberOfItems=False,
+                                 roles_bypassing_talcondition=['Manager', 'Site Administrator'],
+                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
+            col = folder[col_id]
+            col.setSubject((u'search', ))
+            col.reindexObject(['Subject'])
+            col.setLayout('tabular_view')
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_state_id)))
 
         return True, ''
