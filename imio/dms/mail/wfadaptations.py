@@ -33,6 +33,8 @@ class EmergencyZoneAdaptation(WorkflowAdaptationBase):
     schema = IEmergencyZoneParameters
 
     def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'incomingmail_workflow':
+            return False, _("incomingmail_workflow is not selected")
         portal = api.portal.get()
         wtool = portal.portal_workflow
         # change state title.
@@ -69,6 +71,8 @@ class EmergencyZoneAdaptation(WorkflowAdaptationBase):
 class OMToPrintAdaptation(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'outgoingmail_workflow':
+            return False, _("outgoingmail_workflow is not selected")
         portal = api.portal.get()
         wtool = portal.portal_workflow
         # change state title.
@@ -240,6 +244,8 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
     schema = IIMPreValidationParameters
 
     def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'incomingmail_workflow':
+            return False, _("incomingmail_workflow is not selected")
         portal = api.portal.get()
         wtool = portal.portal_workflow
         wf = wtool['incomingmail_workflow']
@@ -379,6 +385,8 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
     schema = IIMSkipProposeToServiceChiefParameters
 
     def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'incomingmail_workflow':
+            return False, _("incomingmail_workflow is not selected")
         portal = api.portal.get()
         wtool = portal.portal_workflow
         im_workflow = wtool['incomingmail_workflow']
@@ -454,6 +462,8 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
 class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'outgoingmail_workflow':
+            return False, _("outgoingmail_workflow is not selected")
         portal = api.portal.get()
         wtool = portal.portal_workflow
         om_workflow = wtool['outgoingmail_workflow']
@@ -560,20 +570,10 @@ class IMServiceValidation(WorkflowAdaptationBase):
     schema = IIMServiceValidationParameters
 
     def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'incomingmail_workflow':
+            return False, _("incomingmail_workflow was not selected")
         portal = api.portal.get()
         wtool = portal.portal_workflow
-        im_workflow = wtool['incomingmail_workflow']
-
-        state_to_add = parameters['pre_validation_type']
-        import ipdb; ipdb.set_trace()
-
-        # Il faudra tester pour chaque cas s'il existe déjà
-        # msg = self.check_state_in_workflow(im_workflow, 'proposed_to_service_chief')
-        # if msg:
-        #    return False, msg
-        # add state
-        # wf.states.addState()
-
-        # add transitions
+        im_wf = wtool['incomingmail_workflow']
 
         return True, ''
