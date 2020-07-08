@@ -512,7 +512,7 @@ class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
         return True, ''
 
 
-SERVICE_VALIDATION_LEVELS = SimpleVocabulary([SimpleTerm(value=u'n_plus_{}'.format(i)) for i in range(1, 6)])
+SERVICE_VALIDATION_LEVELS = SimpleVocabulary([SimpleTerm(value=i) for i in range(1, 6)])
 
 
 @provider(IContextSourceBinder)
@@ -524,7 +524,7 @@ def service_validation_levels(context):
 class IIMServiceValidationParameters(Interface):
 
     validation_level = schema.Choice(
-        title=u'Service validation levels',
+        title=u'Service validation level',
         required=True,
         source=service_validation_levels,
     )
@@ -535,32 +535,21 @@ class IIMServiceValidationParameters(Interface):
         required=True,
     )
 
-    transition_forward_title = schema.TextLine(
+    forward_transition_title = schema.TextLine(
         title=u'Title of forward transition',
         default=u'Proposer ',
         required=True,
     )
 
-    transition_backward_title = schema.TextLine(
+    backward_transition_title = schema.TextLine(
         title=u'Title of backward transition',
         default=u'Renvoyer ',
         required=True,
     )
 
-    state_before = schema.Choice(
-        title=u'State before',
-        required=True,
-        vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
-    )
-
-    state_after = schema.Choice(
-        title=u'State after',
-        required=True,
-        vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary',
-    )
-
     function_title = schema.TextLine(
         title=u'Title of plonegroup function',
+        default=u'',
         required=True,
     )
 
@@ -568,12 +557,79 @@ class IIMServiceValidationParameters(Interface):
 class IMServiceValidation(WorkflowAdaptationBase):
 
     schema = IIMServiceValidationParameters
+    multiplicity = True
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'incomingmail_workflow':
             return False, _("incomingmail_workflow was not selected")
         portal = api.portal.get()
         wtool = portal.portal_workflow
-        im_wf = wtool['incomingmail_workflow']
+        level = parameters['validation_level']
+        wf = wtool['incomingmail_workflow']
+        new_id = 'n_plus_{}'.format(level)
+        new_state_id = 'proposed_to_{}'.format(new_id)
+        transitions = ['back_to_creation', 'back_to_manager']
+        if level == 1:
+            # next = descending the validation to go to agent
+            next_id = 'agent'
+            transitions.append('close')
+        else:
+            next_id = 'n_plus_{}'.format(level-1)
+        transitions.append('propose_to_{}'.format(next_id))
+
+        # add state
+        msg = self.check_state_in_workflow(wf, new_state_id)
+        if not msg:
+            return False, 'State {} already in workflow'.format(new_state_id)
+        wf.states.addState(new_state_id)
+        state = wf.states[new_state_id]
+        state.setProperties(
+            title=parameters['state_title'].encode('utf8'), description='',
+            transitions=transitions)
+        # permissions
+        perms = {
+            'Access contents information': ('Editor', 'Manager', 'Reader', 'Reviewer', 'Site Administrator'),
+            'Add portal content': ('Contributor', 'Manager', 'Site Administrator'),
+            'Delete objects': ('Manager', 'Site Administrator'),
+            'Modify portal content': ('Editor', 'Manager', 'Site Administrator'),
+            'Review portal content': ('Manager', 'Reviewer', 'Site Administrator'),
+            'View': ('Editor', 'Manager', 'Reader', 'Reviewer', 'Site Administrator'),
+            'collective.dms.basecontent: Add DmsFile': ('DmsFile Contributor', 'Manager', 'Site Administrator'),
+            'imio.dms.mail: Write mail base fields': ('Manager', 'Site Administrator', 'Base Field Writer'),
+            'imio.dms.mail: Write treating group field': ('Manager', 'Site Administrator', 'Treating Group Writer'),
+        }
+        state.permission_roles = perms
+
+        # add transitions
+        propose_tr_id = 'propose_to_{}'.format(new_id)
+        wf.transitions.addTransition(propose_tr_id)
+        wf.transitions[propose_tr_id].setProperties(
+            title=parameters['forward_transition_title'].encode('utf8'),
+            new_state_id=new_state_id, trigger_type=1, script_name='',
+            actbox_name=propose_tr_id, actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_propose_to_n_plus.png',
+            actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+        back_tr_id = 'back_to_{}'.format(new_id)
+        wf.transitions.addTransition(back_tr_id)
+        wf.transitions[back_tr_id].setProperties(
+            title=parameters['backward_transition_title'].encode('utf8'),
+            new_state_id=new_state_id, trigger_type=1, script_name='',
+            actbox_name=back_tr_id, actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_back_to_n_plus.png',
+            actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+
+        # modify existing states
+        next_state = wf.states['proposed_to_{}'.format(next_id)]
+        next_state.transitions = (back_tr_id, )
+        for st in ('proposed_to_manager', 'created'):
+            previous_state = wf.states[st]
+            transitions = list(previous_state.transitions)
+            for tr in ('propose_to_{}'.format(next_id), 'close'):
+                if tr in transitions:
+                    transitions.remove('propose_to_{}'.format(next_id))
+            transitions.append('propose_to_{}'.format(new_id))
+            previous_state.transitions = tuple(transitions)
 
         return True, ''
