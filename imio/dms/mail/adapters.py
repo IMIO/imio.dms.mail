@@ -139,6 +139,7 @@ def validation_criterion(context, portal_type):
                 for state in config[group_or_suffix]['st']:
                     ret['state_group']['query'].append(state)
         else:
+            # get orgs of user groups with suffix
             orgs = organizations_with_suffixes(groups, [group_or_suffix[1:]])
             if orgs:
                 for state in config[group_or_suffix]['st']:

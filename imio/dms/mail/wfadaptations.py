@@ -9,6 +9,7 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.pyutils.utils import insert_in_ordereddict
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from zope import schema
@@ -691,5 +692,28 @@ class IMServiceValidation(WorkflowAdaptationBase):
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_state_id)))
+
+        # update configuration annotation
+        config = get_dms_config(['review_levels', 'dmsincomingmail'])
+        suffix = '_{}'.format(new_id)
+        if suffix not in config:
+            value = (suffix, {'st': [new_state_id], 'org': 'treating_groups'})
+            new_config = insert_in_ordereddict(config, value, after_key='dir_general', at_position=0)
+            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_config)
+        config = get_dms_config(['review_states', 'dmsincomingmail'])
+        if new_state_id not in config:
+            value = (new_state_id, {'group': suffix, 'org': 'treating_groups'})
+            new_config = insert_in_ordereddict(config, value, after_key='proposed_to_manager', at_position=0)
+            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
+
+        # update state list
+        invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')
+
+        # update actionspanel back transitions registry
+        lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+        if 'dmsincomingmail.{}|'.format(back_tr_id) not in lst:
+            lst.append('dmsincomingmail.{}|'.format(back_tr_id))
+            api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
+                                           lst)
 
         return True, ''

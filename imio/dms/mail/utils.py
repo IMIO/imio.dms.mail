@@ -98,10 +98,12 @@ def list_wf_states(context, portal_type):
         list all portal_type wf states
     """
     ordered_states = {
-        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_service_chief',
-                            'proposed_to_agent', 'in_treatment', 'closed'],
-        'dmsincoming_email': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_service_chief',
-                              'proposed_to_agent', 'in_treatment', 'closed'],
+        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_n_plus_5',
+                            'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
+                            'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
+        'dmsincoming_email': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_n_plus_5',
+                              'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
+                              'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
         'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
         'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
         'dmsoutgoing_email': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
