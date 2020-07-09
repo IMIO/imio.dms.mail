@@ -526,7 +526,6 @@ def service_validation_levels(context):
     return SimpleVocabulary([SimpleTerm(value=i)])
 
 
-
 class IIMServiceValidationParameters(Interface):
 
     validation_level = schema.Choice(
@@ -656,6 +655,12 @@ class IMServiceValidation(WorkflowAdaptationBase):
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
         previous_states = ['proposed_to_n_plus_{}'.format(i) for i in range(1, level)]
+        lrg = lr['static_config']
+        if new_state_id not in lrg:
+            lrg[new_state_id] = {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
+                                                           'Base Field Writer', 'Treating Group Writer']},
+                                 'encodeurs': {'roles': ['Reader']},
+                                 'lecteurs_globaux_ce': {'roles': ['Reader']}}
         lrg = lr['treating_groups']
         if new_state_id not in lrg:
             lrg[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
@@ -718,6 +723,12 @@ class IMServiceValidation(WorkflowAdaptationBase):
         if 'dmsincomingmail.{}|'.format(back_tr_id) not in lst:
             lst.append('dmsincomingmail.{}|'.format(back_tr_id))
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
+                                           lst)
+        # update remark states
+        lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
+        if new_state_id not in lst:
+            lst.insert(0, new_state_id)
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
                                            lst)
 
         return True, ''
