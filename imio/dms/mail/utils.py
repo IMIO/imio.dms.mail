@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
@@ -12,7 +11,6 @@ from imio.helpers.cache import get_cachekey_volatile
 from interfaces import IIMDashboard
 from natsort import natsorted
 from persistent.dict import PersistentDict
-#from operator import itemgetter
 from persistent.list import PersistentList
 from plone import api
 from plone.memoize import ram
@@ -117,6 +115,7 @@ def list_wf_states(context, portal_type):
     pw = api.portal.get_tool('portal_workflow')
     ret = []
     # wf states
+    states = []
     for workflow in pw.getWorkflowsFor(portal_type):
         states = dict([(value.id, value) for value in workflow.states.values()])
         break
@@ -131,7 +130,7 @@ def list_wf_states(context, portal_type):
     return ret
 
 
-def back_or_again_state(obj, transitions=[]):
+def back_or_again_state(obj, transitions=()):
     """
         p_transitions : list of back transitions
     """
@@ -156,8 +155,8 @@ def back_or_again_state(obj, transitions=[]):
 
 
 def object_modified_cachekey(method, self, brain=False):
-    ''' cachekey method for an object and his modification date. '''
-    return (self, self.modified())
+    """ cachekey method for an object and his modification date. """
+    return self, self.modified()
 
 
 def get_scan_id(obj):
@@ -201,7 +200,7 @@ class UtilsMethods(BrowserView):
         else:  # pragma: no cover
             return 'No scan id'
 
-    def is_in_user_groups(self, groups=[], admin=True, test='any', suffixes=[]):
+    def is_in_user_groups(self, groups=(), admin=True, test='any', suffixes=()):
         """
             Test if one or all of a given group list is part of the current user groups
             Test if one or all of a suffix list is part of the current user groups
@@ -297,7 +296,7 @@ class VariousUtilsMethods(UtilsMethods):
             if only_activated == '1' and status == 'na':
                 continue
             lst.append((uid, title.encode('utf8'), status))
-        #sorted(lst, key=itemgetter(1))
+        # sorted(lst, key=itemgetter(1))
         if output != 'csv':
             return lst
         ret = []
@@ -314,14 +313,13 @@ class VariousUtilsMethods(UtilsMethods):
             return
 
         def get_voc_values(voc_name):
-            ret = []
+            values = []
             factory = getUtility(IVocabularyFactory, voc_name)
             for term in factory(self.context):
-                uid, title = term.value, term.title
-                ret.append('{}{}{}'.format(term.title.encode('utf8'), cg_separator, term.value))
-            return ret
+                values.append('{}{}{}'.format(term.title.encode('utf8'), cg_separator, term.value))
+            return values
 
-        ret = []
+        ret = []  # noqa
         ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
         ret.append('\r\n'.join(get_voc_values('imio.dms.mail.ActiveCreatingGroupVocabulary')))
