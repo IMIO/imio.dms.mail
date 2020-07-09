@@ -514,13 +514,17 @@ class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
         return True, ''
 
 
-SERVICE_VALIDATION_LEVELS = SimpleVocabulary([SimpleTerm(value=i) for i in range(1, 6)])
-
-
 @provider(IContextSourceBinder)
 def service_validation_levels(context):
-    # must return not yet used levels
-    return SERVICE_VALIDATION_LEVELS
+    # must return next possible level only
+    config = get_dms_config(['review_levels', 'dmsincomingmail'])
+    for i in range(1, 6):  # 5 validation levels
+        if '_n_plus_{}'.format(i) not in config:
+            break
+    else:
+        return SimpleVocabulary([])
+    return SimpleVocabulary([SimpleTerm(value=i)])
+
 
 
 class IIMServiceValidationParameters(Interface):
