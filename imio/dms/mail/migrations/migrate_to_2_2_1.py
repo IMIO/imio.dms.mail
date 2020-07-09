@@ -10,6 +10,8 @@ from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.widgets.storage import Criterion
 from imio.dms.mail.setuphandlers import set_portlet
+from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -47,7 +49,11 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         # do various global adaptations
         self.update_site()
 
+        # update daterange criteria
         self.update_dashboards()
+
+        # remove service_chief related
+        self.remove_service_chief()
 
         # update templates
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
@@ -139,6 +145,48 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 values["labelEnd"] = u'End date'
                 criterion.criteria[position] = Criterion(**values)
                 criterion.criteria._p_changed = 1
+
+    def remove_service_chief(self):
+        # remove collection
+        if 'searchfor_proposed_to_service_chief' in self.imf['mail-searches']:
+            api.content.delete(obj=self.imf['mail-searches']['searchfor_proposed_to_service_chief'])
+        # clean dms config
+        config = get_dms_config(['review_levels', 'dmsincomingmail'])
+        if '_validateur' in config:
+            del config['_validateur']
+            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=config)
+        config = get_dms_config(['review_states', 'dmsincomingmail'])
+        if 'proposed_to_service_chief' in config:
+            del config['proposed_to_service_chief']
+            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=config)
+        # clean local roles
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        lrg = lr['static_config']
+        if 'proposed_to_service_chief' in lrg:
+            del lrg['proposed_to_service_chief']
+        lrg = lr['treating_groups']
+        if 'proposed_to_service_chief' in lrg:
+            del lrg['proposed_to_service_chief']
+        lrg = lr['recipient_groups']
+        if 'proposed_to_service_chief' in lrg:
+            del lrg['proposed_to_service_chief']
+        lr._p_changed = True
+        # update registry
+        lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+        if 'dmsincomingmail.back_to_service_chief|' in lst:
+            lst.remove('dmsincomingmail.back_to_service_chief|')
+            api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
+                                           lst)
+        # update remark states
+        lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
+        if 'proposed_to_service_chief' in lst:
+            lst.remove('proposed_to_service_chief')
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
+                                           lst)
+        # reindex im
+        for brain in self.catalog():
+            brain.getObject().reindexObject(idxs=['state_group'])  # state_group use dms_config
 
 
 def migrate(context):

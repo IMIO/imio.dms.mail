@@ -688,14 +688,15 @@ class IMServiceValidation(WorkflowAdaptationBase):
             next_col = folder['searchfor_{}'.format(next_state_id)]
             folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': ['dmsincomingmail']},
+                                         'v': ['dmsincomingmail', 'dmsincoming_email']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [new_state_id]}],
                                  customViewFields=tuple(next_col.customViewFields),
-                                 tal_condition=None,
+                                 tal_condition="python: object.restrictedTraverse('idm-utils')."
+                                               "proposed_to_n_plus_col_cond()",
                                  showNumberOfItems=False,
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
+                                 sort_on=u'organization_type', sort_reversed=True, b_size=30, limit=0)
             col = folder[col_id]
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])

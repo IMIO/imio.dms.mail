@@ -350,8 +350,6 @@ def createStateCollections(folder, content_type):
         'dmsincomingmail': {
             'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
             'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
-            'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils')."
-                                         "proposed_to_serv_chief_col_cond()",
         },
         'dmsoutgoingmail': {
             'scanned': "python: object.restrictedTraverse('odm-utils').scanned_col_cond()",
@@ -889,16 +887,14 @@ def adaptDefaultPortal(context):
     # imio.dms.mail configuration annotation
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
-                   OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
-                                ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+                   OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
     set_dms_config(['review_levels', 'task'],
                    OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
     set_dms_config(['review_levels', 'dmsoutgoingmail'],
                    OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
     # review_states configuration, is the same as review_levels with some key, value inverted
     set_dms_config(['review_states', 'dmsincomingmail'],
-                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
-                                ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
     set_dms_config(['review_states', 'task'],
                    OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
                                 ('realized', {'group': '_validateur', 'org': 'assigned_group'})]))
@@ -937,10 +933,6 @@ def configure_rolefields(context):
                                                           'Treating Group Writer']},
                                 'encodeurs': {'roles': ['Base Field Writer', 'Reader']},
                                 'lecteurs_globaux_ce': {'roles': ['Reader']}},
-        'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                                'Base Field Writer', 'Treating Group Writer']},
-                                      'encodeurs': {'roles': ['Reader']},
-                                      'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
                               'encodeurs': {'roles': ['Reader']},
                               'lecteurs_globaux_ce': {'roles': ['Reader']}},
@@ -953,8 +945,6 @@ def configure_rolefields(context):
     }, 'treating_groups': {
         # 'created': {},
         # 'proposed_to_manager': {},
-        'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                               'Treating Group Writer']}},
         'proposed_to_agent': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                               'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                               'lecteur': {'roles': ['Reader']}},
@@ -967,7 +957,6 @@ def configure_rolefields(context):
     }, 'recipient_groups': {
         # 'created': {},
         # 'proposed_to_manager': {},
-        'proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
         'proposed_to_agent': {'validateur': {'roles': ['Reader']},
                               'editeur': {'roles': ['Reader']},
                               'lecteur': {'roles': ['Reader']}},
@@ -1200,8 +1189,7 @@ def configureImioDmsMail(context):
             {'mt_value': u'facture', 'mt_title': u'Facture', 'mt_active': True},
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = [
-            'proposed_to_service_chief', 'proposed_to_agent']
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = ['proposed_to_agent']
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'] = [
             'IDublinCore.title', 'IDublinCore.description', 'sender', 'treating_groups', 'ITask.assigned_user',
@@ -1896,7 +1884,7 @@ def configure_actions_panel(portal):
     if not registry.get('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'):
         registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] = \
             ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
-             'dmsincomingmail.back_to_service_chief|', 'dmsincomingmail.back_to_treatment|',
+             'dmsincomingmail.back_to_treatment|',
              'dmsincomingmail.back_to_agent|', 'task.back_in_created|', 'task.back_in_to_assign|',
              'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|',
              'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|',
@@ -2190,7 +2178,6 @@ def configure_group_encoder(portal_types):
                                                           'Base Field Writer', 'Treating Group Writer']}},
 #                                                          CREATING_FIELD_ROLE]}},
             'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
@@ -2200,7 +2187,6 @@ def configure_group_encoder(portal_types):
                                                           'Base Field Writer', 'Treating Group Writer']}},
 #                                                          CREATING_FIELD_ROLE]}},
             'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
@@ -2218,6 +2204,13 @@ def configure_group_encoder(portal_types):
                                                           'Base Field Writer', 'Treating Group Writer']}},
         },
     }
+
+    # add localroles for possible proposed_to_n_plus_ states
+    for typ in ('dmsincomingmail', 'dmsincoming_email'):
+        states = list_wf_states(portal, typ)
+        for state in states:
+            if state.startswith('proposed_to_n_plus_'):
+                config[typ][state] = {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
 
     # criterias config
     criterias = {

@@ -363,10 +363,16 @@ class IdmUtilsMethods(UtilsMethods):
         return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False,
                                       suffixes=[CREATING_GROUP_SUFFIX])
 
-    def proposed_to_serv_chief_col_cond(self):
-        """ Condition for searchfor_proposed_to_service_chief collection """
-        if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False,
-                                  suffixes=[CREATING_GROUP_SUFFIX, 'validateur']):
+    def proposed_to_n_plus_col_cond(self):
+        """
+            Condition for searchfor_proposed_to_n_plus collection
+        """
+        suffixes = []
+        # a lower level search can be viewed by a higher level
+        for i in range(int(self.context.id[-1:]), 6):
+            suffixes.append('n_plus_{}'.format(i))
+        suffixes.append(CREATING_GROUP_SUFFIX)
+        if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False, suffixes=suffixes):
             return True
         return False
 
