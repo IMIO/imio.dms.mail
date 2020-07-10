@@ -18,13 +18,15 @@ _ = MessageFactory("imio.dms.mail")
 def initialize(context):
     """Initializer called when used as a Zope 2 product."""
 
+
 dmsfile.DmsFile.__ac_local_roles_block__ = False
 dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
 
 EMPTY_STRING = '__empty_string__'
 EMPTY_DATE = date(1950, 1, 1)
 
-DOC_ASSIGNED_USER_FUNCTIONS = ['editeur', 'validateur']
+# TODO: remove validateur when no more used
+DOC_ASSIGNED_USER_FUNCTIONS = ['editeur', 'validateur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
 
 PRODUCT_DIR = os.path.dirname(__file__)
 
@@ -45,6 +47,7 @@ def _tr(msgid, domain='imio.dms.mail'):
 def add_path(path):
     path = path.strip('/ ')
     return "%s/%s" % (PRODUCT_DIR, path)
+
 
 # We modify the protection ('Delete objects' permission) on container manage_delObjects method
 # Normally to delete an item, user must have the delete permission on the item and on the parent container
