@@ -29,7 +29,7 @@ from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
-from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import object_modified_cachekey
@@ -84,7 +84,7 @@ def filter_dmsincomingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(org_uid, DOC_ASSIGNED_USER_FUNCTIONS)
+    return voc_selected_org_suffix_users(org_uid, IM_EDITOR_SERVICE_FUNCTIONS)
 
 
 class IImioDmsIncomingMail(IDmsIncomingMail):
@@ -356,7 +356,7 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms outgoing mail
     """
-    return voc_selected_org_suffix_users(org_uid, DOC_ASSIGNED_USER_FUNCTIONS, api.user.get_current())
+    return voc_selected_org_suffix_users(org_uid, IM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current())
 
 
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
@@ -584,7 +584,7 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                 self.request.form['form.widgets.treating_groups'][0] != self.context.treating_groups and
                 value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
                               self.request.form['form.widgets.treating_groups'][0],
-                              DOC_ASSIGNED_USER_FUNCTIONS)]):
+                              IM_EDITOR_SERVICE_FUNCTIONS)]):
                 raise Invalid(_(u"The assigned user is not in the selected treating group !"))
         # check if we are editing a task
         elif isinstance(self.view, TaskEdit):
@@ -594,7 +594,7 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                 self.request.form['form.widgets.ITask.assigned_group'][0] != self.context.assigned_group and
                 value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
                               self.request.form['form.widgets.ITask.assigned_group'][0],
-                              DOC_ASSIGNED_USER_FUNCTIONS)]):
+                              IM_EDITOR_SERVICE_FUNCTIONS)]):
                 raise Invalid(_(u"The assigned user is not in the selected assigned group !"))
 
 

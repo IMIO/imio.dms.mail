@@ -46,14 +46,14 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'])
 
+        # remove service_chief related
+        self.remove_service_chief()
+
         # do various global adaptations
         self.update_site()
 
         # update daterange criteria
         self.update_dashboards()
-
-        # remove service_chief related
-        self.remove_service_chief()
 
         # update templates
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')

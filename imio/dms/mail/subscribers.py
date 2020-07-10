@@ -16,6 +16,7 @@ from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
@@ -500,7 +501,7 @@ def group_assignment(event):
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
-    orgs = organizations_with_suffixes([event.group_id], ['validateur', 'editeur', 'lecteur'], group_as_str=True)
+    orgs = organizations_with_suffixes([event.group_id], IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
     if orgs:
         days_back = 5
         start = datetime.datetime(1973, 02, 12)

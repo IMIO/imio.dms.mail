@@ -9,8 +9,10 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
+from imio.dms.mail import ALL_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
+from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import list_wf_states
 from imio.helpers.cache import get_cachekey_volatile
@@ -99,7 +101,7 @@ class AssignedUsersVocabulary(object):
         users = {}
         titles = []
         for uid in get_registry_organizations():
-            members = get_selected_org_suffix_users(uid, ['editeur', 'encodeur', 'validateur'])
+            members = get_selected_org_suffix_users(uid, ALL_EDITOR_SERVICE_FUNCTIONS)
             for member in members:
                 title = member.getUser().getProperty('fullname') or member.getUserName()
                 if title not in titles:
@@ -126,7 +128,7 @@ class EmptyAssignedUsersVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-def getMailTypes(choose=False, active=[True, False], field='mail_types'):
+def get_mail_types(choose=False, active=(True, False), field='mail_types'):
     """
         Create a vocabulary from registry mail_types variable
     """
@@ -136,7 +138,7 @@ def getMailTypes(choose=False, active=[True, False], field='mail_types'):
         terms.append(SimpleVocabulary.createTerm(None, '', _("Choose a value !")))
     id_utility = queryUtility(IIDNormalizer)
     for mail_type in (getattr(settings, field) or []):
-        #value (stored), token (request), title
+        # value (stored), token (request), title
         if mail_type['mt_active'] in active:
             terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
                          id_utility.normalize(mail_type['mt_value']), mail_type['mt_title']))
@@ -149,7 +151,7 @@ class IMMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return getMailTypes()
+        return get_mail_types()
 
 
 class IMActiveMailTypesVocabulary(object):
@@ -158,7 +160,7 @@ class IMActiveMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return getMailTypes(choose=True, active=[True])
+        return get_mail_types(choose=True, active=[True])
 
 
 class PloneGroupInterfacesVocabulary(object):
@@ -217,7 +219,7 @@ class OMSenderVocabulary(object):
         def sort_terms(t):
             return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title(first_index=1)
 
-        return SimpleVocabulary([term for pers, hp, term in sorted(terms, key=sort_terms)])
+        return SimpleVocabulary([term for pers, hpo, term in sorted(terms, key=sort_terms)])
 
 
 class OMMailTypesVocabulary(object):
@@ -226,7 +228,7 @@ class OMMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return getMailTypes(field='omail_types')
+        return get_mail_types(field='omail_types')
 
 
 class OMActiveMailTypesVocabulary(object):
@@ -235,7 +237,7 @@ class OMActiveMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return getMailTypes(active=[True], field='omail_types')
+        return get_mail_types(active=[True], field='omail_types')
 
 
 def encodeur_active_orgs(context):
@@ -254,9 +256,10 @@ def encodeur_active_orgs(context):
     #   * state is created
     if (not current_user.has_role(['Manager', 'Site Administrator']) and
             (context.portal_type != 'dmsoutgoingmail' or api.content.get_state(context) == 'created')):
-        orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), ['encodeur', 'validateur'])
+        orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), OM_EDITOR_SERVICE_FUNCTIONS)
         return SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
     return voc
+
 
 alsoProvides(encodeur_active_orgs, IContextSourceBinder)
 
@@ -269,7 +272,7 @@ class LabelsVocabulary(object):
         terms = []
         try:
             adapted = ILabelJar(context)
-        except:
+        except:  # noqa
             return SimpleVocabulary(terms)
         user = api.user.get_current()
         for label in adapted.list():
