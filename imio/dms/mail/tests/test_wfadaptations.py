@@ -32,7 +32,7 @@ class TestWFAdaptations(unittest.TestCase):
         imw = self.pw['incomingmail_workflow']
         self.assertEqual(imw.states['proposed_to_manager'].title, 'proposed_to_manager')
         self.assertEqual(imw.transitions['back_to_manager'].title, 'back_to_manager')
-        eza.patch_workflow('', manager_suffix='_zs')
+        eza.patch_workflow('incomingmail_workflow', manager_suffix='_zs')
         self.assertEqual(imw.states['proposed_to_manager'].title, 'proposed_to_manager_zs')
         self.assertEqual(imw.transitions['back_to_manager'].title, 'back_to_manager_zs')
         self.assertEqual(imw.transitions['propose_to_manager'].title, 'propose_to_manager_zs')
@@ -46,7 +46,7 @@ class TestWFAdaptations(unittest.TestCase):
         tpa = OMToPrintAdaptation()
         omw = self.pw['outgoingmail_workflow']
         self.assertTrue(tpa.check_state_in_workflow(omw, 'to_print'))
-        tpa.patch_workflow('')
+        tpa.patch_workflow('outgoingmail_workflow')
         self.assertEqual(tpa.check_state_in_workflow(omw, 'to_print'), '')
         self.assertEqual(tpa.check_transition_in_workflow(omw, 'set_to_print'), '')
         self.assertEqual(tpa.check_transition_in_workflow(omw, 'back_to_print'), '')
@@ -65,7 +65,7 @@ class TestWFAdaptations(unittest.TestCase):
         im_workflow = self.pw['incomingmail_workflow']
         self.assertFalse(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'))
         self.assertTrue(api.portal.get_registry_record('assigned_user_check', IImioDmsMailConfig))
-        imsp.patch_workflow('', assigned_user_check=True)
+        imsp.patch_workflow('incomingmail_workflow', assigned_user_check=True)
         self.assertNotEqual(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'), '')
         self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'propose_to_service_chief'), '')
         self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'back_to_service_chief'), '')
@@ -89,7 +89,7 @@ class TestWFAdaptations(unittest.TestCase):
         im_workflow = self.pw['incomingmail_workflow']
         self.assertFalse(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'))
         self.assertTrue(api.portal.get_registry_record('assigned_user_check', IImioDmsMailConfig))
-        imsp.patch_workflow('', assigned_user_check=False)
+        imsp.patch_workflow('incomingmail_workflow', assigned_user_check=False)
         self.assertNotEqual(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'), '')
         self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'propose_to_service_chief'), '')
         self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'back_to_service_chief'), '')
@@ -112,7 +112,7 @@ class TestWFAdaptations(unittest.TestCase):
         omsp = OMSkipProposeToServiceChief()
         om_workflow = self.pw['outgoingmail_workflow']
         self.assertFalse(omsp.check_state_in_workflow(om_workflow, 'proposed_to_service_chief'))
-        omsp.patch_workflow('')
+        omsp.patch_workflow('outgoingmail_workflow')
         self.assertNotEqual(omsp.check_state_in_workflow(om_workflow, 'proposed_to_service_chief'), '')
         self.assertNotEqual(omsp.check_transition_in_workflow(om_workflow, 'propose_to_service_chief'), '')
         self.assertNotEqual(omsp.check_transition_in_workflow(om_workflow, 'back_to_service_chief'), '')
