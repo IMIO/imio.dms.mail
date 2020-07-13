@@ -60,14 +60,14 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
 
     def test_sortTransitions(self):
         self.assertListEqual([t['id'] for t in self.view.getTransitions()],
-                             ['propose_to_manager', 'propose_to_service_chief'])
+                             ['propose_to_manager', 'propose_to_n_plus_1'])
         api.content.transition(obj=self.im1, to_state='proposed_to_agent')
         # with caching
         self.assertListEqual([t['id'] for t in self.view.getTransitions()],
-                             ['propose_to_manager', 'propose_to_service_chief'])
+                             ['propose_to_manager', 'propose_to_n_plus_1'])
         # without caching
         self.assertListEqual([t['id'] for t in self.view.getTransitions(caching=False)],
-                             ['back_to_service_chief', 'treat', 'close'])
+                             ['back_to_n_plus_1', 'treat', 'close'])
         to_sort = [{'id': 'close'}, {'id': 'back_to_creation'}, {'id': 'treat'}]
         self.view.sortTransitions(to_sort)
         self.assertListEqual(to_sort, [{'id': 'back_to_creation'}, {'id': 'treat'}, {'id': 'close'}])

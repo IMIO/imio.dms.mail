@@ -30,9 +30,11 @@ def actionspanelview_cachekey(method,
 
 class DmsIMActionsPanelView(ActionsPanelView):
 
-    transitions = ['back_to_creation', 'back_to_pre_manager', 'back_to_manager', 'back_to_service_chief',
+    transitions = ['back_to_creation', 'back_to_pre_manager', 'back_to_manager', 'back_to_n_plus_5', 'back_to_n_plus_4',
+                   'back_to_n_plus_3', 'back_to_n_plus_2', 'back_to_n_plus_1',
                    'back_to_agent', 'back_to_treatment', 'propose_to_pre_manager', 'propose_to_manager',
-                   'propose_to_service_chief', 'propose_to_agent', 'treat', 'close']
+                   'propose_to_n_plus_5', 'propose_to_n_plus_4', 'propose_to_n_plus_3', 'propose_to_n_plus_2',
+                   'propose_to_n_plus_1', 'propose_to_agent', 'treat', 'close']
     tr_order = dict((val, i) for (i, val) in enumerate(transitions))
 
     def __init__(self, context, request):
