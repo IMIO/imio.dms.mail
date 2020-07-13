@@ -21,7 +21,7 @@ from imio.dms.mail.setuphandlers import createIMailCollections
 from imio.dms.mail.setuphandlers import createOMailCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import createTaskCollections
-from imio.dms.mail.setuphandlers import reimport_faceted_config
+from imio.dms.mail.utils import reimport_faceted_config
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator

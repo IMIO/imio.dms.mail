@@ -12,7 +12,7 @@ from imio.dms.mail.setuphandlers import configure_task_rolefields
 from imio.dms.mail.setuphandlers import createIMailCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import createTaskCollections
-from imio.dms.mail.setuphandlers import reimport_faceted_config
+from imio.dms.mail.utils import reimport_faceted_config
 from imio.helpers.content import richtextval
 from imio.helpers.catalog import addOrUpdateIndexes
 from imio.migrator.migrator import Migrator

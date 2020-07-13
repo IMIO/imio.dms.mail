@@ -37,7 +37,8 @@ class EmergencyZoneAdaptation(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'incomingmail_workflow':
-            return False, _("incomingmail_workflow is not selected")
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'incomingmail_workflow'})
         portal = api.portal.get()
         wtool = portal.portal_workflow
         # change state title.
@@ -75,7 +76,8 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'outgoingmail_workflow':
-            return False, _("outgoingmail_workflow is not selected")
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'outgoingmail_workflow'})
         portal = api.portal.get()
         wtool = portal.portal_workflow
         # change state title.
@@ -248,7 +250,8 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'incomingmail_workflow':
-            return False, _("incomingmail_workflow is not selected")
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'incomingmail_workflow'})
         portal = api.portal.get()
         wtool = portal.portal_workflow
         wf = wtool['incomingmail_workflow']
@@ -388,7 +391,8 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'incomingmail_workflow':
-            return False, _("incomingmail_workflow is not selected")
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'incomingmail_workflow'})
         portal = api.portal.get()
         wtool = portal.portal_workflow
         im_workflow = wtool['incomingmail_workflow']
@@ -465,7 +469,8 @@ class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'outgoingmail_workflow':
-            return False, _("outgoingmail_workflow is not selected")
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'incomingmail_workflow'})
         portal = api.portal.get()
         wtool = portal.portal_workflow
         om_workflow = wtool['outgoingmail_workflow']
@@ -566,7 +571,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'incomingmail_workflow':
-            return False, _("incomingmail_workflow was not selected")
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'incomingmail_workflow'})
         portal = api.portal.get()
         wtool = portal.portal_workflow
         level = parameters['validation_level']

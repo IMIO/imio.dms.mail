@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-03-20 10:56+0000\n"
+"POT-Creation-Date: 2020-07-13 12:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,10 +95,6 @@ msgstr "Renvoyer pour prévalidation DG"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service"
 msgstr "Renvoyer au service"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_service_chief"
-msgstr "Renvoyer au chef de service"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_treatment"
@@ -233,10 +229,6 @@ msgid "propose_to_service"
 msgstr "Proposer au service"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_service_chief"
-msgstr "Proposer au chef de service"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_agent"
 msgstr "À traiter"
 
@@ -250,10 +242,6 @@ msgstr "À valider par le CZ"
 
 msgid "proposed_to_pre_manager"
 msgstr "À valider avant le DG"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_service_chief"
-msgstr "À valider par le chef de service"
 
 #: configure.zcml
 msgid "task-in-assigned-group"

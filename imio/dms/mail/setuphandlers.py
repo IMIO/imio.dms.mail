@@ -33,8 +33,9 @@ from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
-from imio.dms.mail import CREATING_GROUP_SUFFIX
-#from imio.dms.mail import CREATING_FIELD_ROLE
+# from imio.dms.mail import CREATING_FIELD_ROLE
+from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
@@ -47,6 +48,7 @@ from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import Dummy
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import transitions
@@ -57,9 +59,6 @@ from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.app.uuid.utils import uuidToObject
-from plone.dexterity.fti import DexterityFTIModificationDescription
-from plone.dexterity.fti import ftiModified
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
@@ -71,14 +70,12 @@ from Products.CPUtils.Extensions.utils import configure_ckeditor
 from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
-from zope.component.interfaces import ComponentLookupError
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
-from zope.lifecycleevent import ObjectModifiedEvent
 
 import datetime
 import logging
@@ -888,6 +885,7 @@ def adaptDefaultPortal(context):
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
                    OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
+    # TODO
     set_dms_config(['review_levels', 'task'],
                    OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
     set_dms_config(['review_levels', 'dmsoutgoingmail'],
@@ -945,26 +943,20 @@ def configure_rolefields(context):
     }, 'treating_groups': {
         # 'created': {},
         # 'proposed_to_manager': {},
-        'proposed_to_agent': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
-                              'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+        'proposed_to_agent': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                               'lecteur': {'roles': ['Reader']}},
-        'in_treatment': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
-                         'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+        'in_treatment': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                          'lecteur': {'roles': ['Reader']}},
-        'closed': {'validateur': {'roles': ['Reviewer']},
-                   'editeur': {'roles': ['Reviewer']},
+        'closed': {'editeur': {'roles': ['Reviewer']},
                    'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
         # 'created': {},
         # 'proposed_to_manager': {},
-        'proposed_to_agent': {'validateur': {'roles': ['Reader']},
-                              'editeur': {'roles': ['Reader']},
+        'proposed_to_agent': {'editeur': {'roles': ['Reader']},
                               'lecteur': {'roles': ['Reader']}},
-        'in_treatment': {'validateur': {'roles': ['Reader']},
-                         'editeur': {'roles': ['Reader']},
+        'in_treatment': {'editeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
-        'closed': {'validateur': {'roles': ['Reader']},
-                   'editeur': {'roles': ['Reader']},
+        'closed': {'editeur': {'roles': ['Reader']},
                    'lecteur': {'roles': ['Reader']}},
     },
     }
@@ -1266,11 +1258,9 @@ def configureContactPloneGroup(context):
         # u'Direction technique', (u'Bâtiments', u'Voiries')
         # u'Événements'
         set_registry_organizations([org.UID() for org in orgas])
-
-        # Add users to created groups
+        # Add users to activated groups
         for org in orgas:
             uid = org.UID()
-            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % uid)
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
             if org.organization_type == 'service':
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
@@ -1278,6 +1268,25 @@ def configureContactPloneGroup(context):
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
+
+
+def apply_n_plus_1_wfadaptation(context):
+    """
+        Add n_plus_1 level
+    """
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    logger.info('Apply n_plus_1 level')
+    site = context.getSite()
+    sva = IMServiceValidation()
+    sva.patch_workflow('incomingmail_workflow', validation_level=1, state_title=u'À valider par le chef de service',
+                       forward_transition_title=u'Proposer au chef de service',
+                       backward_transition_title=u'Renvoyer au chef de service',
+                       function_title=u'N+1')
+    # Add users to activated groups
+    orgas = get_registry_organizations()
+    for uid in get_registry_organizations():
+        site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 
 
 def addTestDirectory(context):
@@ -1862,14 +1871,6 @@ def refreshCatalog(context):
     site.portal_catalog.refreshCatalog()
 
 
-def reimport_faceted_config(folder, xml, default_UID=None):
-    """Reimport faceted navigation config."""
-    folder.unrestrictedTraverse('@@faceted_exportimport').import_xml(
-        import_file=open(os.path.dirname(__file__) + '/faceted_conf/%s' % xml))
-    if default_UID:
-        _updateDefaultCollectionFor(folder, default_UID)
-
-
 def setupFacetedContacts(portal):
     """Setup facetednav for contacts. Was used in old migration"""
 
@@ -2119,7 +2120,7 @@ def mark_copy_im_as_read(context):
     start = datetime.datetime(1973, 02, 12)
     end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
     users = {}
-    functions = {'i': ['validateur', 'editeur', 'lecteur'], 'o': ['encodeur', 'validateur', 'editeur', 'lecteur']}
+    functions = {'i': IM_READER_SERVICE_FUNCTIONS, 'o': OM_READER_SERVICE_FUNCTIONS}
     brains = site.portal_catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
                                  created={'query': (start, end), 'range': 'min:max'},
                                  sort_on='created')
@@ -2149,102 +2150,6 @@ def mark_copy_im_as_read(context):
     out.append('%d mails labelled with "lu"' % changed_mails)
     out.append('%d users are concerned' % len(related_users))
     return '\n'.join(out)
-
-
-def configure_group_encoder(portal_types):
-    """
-        Used to configure a creating function and group for some internal organizations.
-        Update portal_type to add behavior, configure localroles field
-    """
-    # function
-    functions = get_registry_functions()
-    if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
-        functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': [],
-                          'fct_management': False})
-        set_registry_functions(functions)
-    # role and permission
-    portal = api.portal.get()
-    # existing_roles = list(portal.valid_roles())
-    # if CREATING_FIELD_ROLE not in existing_roles:
-    #     existing_roles.append(CREATING_FIELD_ROLE)
-    #     portal.__ac_roles__ = tuple(existing_roles)
-    #     portal.manage_permission('imio.dms.mail: Write creating group field',
-    #                              ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
-
-    # local roles config
-    config = {
-        'dmsincomingmail': {
-            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-#                                                          CREATING_FIELD_ROLE]}},
-            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
-        },
-        'dmsincoming_email': {
-            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-#                                                          CREATING_FIELD_ROLE]}},
-            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
-        },
-        'dmsoutgoingmail': {
-            'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
-            'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
-            'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-        },
-        'dmsoutgoing_email': {
-            'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
-            'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
-            'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-        },
-    }
-
-    # add localroles for possible proposed_to_n_plus_ states
-    for typ in ('dmsincomingmail', 'dmsincoming_email'):
-        states = list_wf_states(portal, typ)
-        for state in states:
-            if state.id.startswith('proposed_to_n_plus_'):
-                config[typ][state.id] = {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
-
-    # criterias config
-    criterias = {
-        'dmsincomingmail': ('incoming-mail', 'mail-searches', 'all_mails'),
-        'dmsoutgoingmail': ('outgoing-mail', 'mail-searches', 'all_mails'),
-        'organization': ('contacts', 'orgs-searches', 'all_orgs'),
-        'person': ('contacts', 'persons-searches', 'all_persons'),
-        'held_position': ('contacts', 'hps-searches', 'all_hps'),
-        'contact_list': ('contacts', 'cls-searches', 'all_cls'),
-    }
-
-    for portal_type in portal_types:
-        # behaviors
-        fti = getUtility(IDexterityFTI, name=portal_type)
-        # try:
-        #     fti = getUtility(IDexterityFTI, name=portal_type)
-        # except ComponentLookupError:
-        #     continue
-        if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
-            old_bav = tuple(fti.behaviors)
-            fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])
-            ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
-
-        # local roles
-        if config.get(portal_type):
-            msg = add_fti_configuration(portal_type, config[portal_type], keyname='creating_group')
-            if msg:
-                logger.warn(msg)
-
-        # criterias
-        folder_id, category_id, default_id = criterias.get(portal_type, ('', '', ''))
-        if folder_id:
-            reimport_faceted_config(portal[folder_id][category_id], xml='mail-searches-group-encoder.xml',
-                                    default_UID=portal[folder_id][category_id][default_id].UID())
 
 
 def set_portlet(portal):

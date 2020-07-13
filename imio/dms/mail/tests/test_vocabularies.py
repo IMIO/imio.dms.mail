@@ -4,14 +4,14 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
-from imio.dms.mail.setuphandlers import configure_group_encoder
+from imio.dms.mail.browser.settings import configure_group_encoder
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersVocabulary
 from imio.dms.mail.vocabularies import CreatingGroupVocabulary
 from imio.dms.mail.vocabularies import EmptyAssignedUsersVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
-from imio.dms.mail.vocabularies import getMailTypes
+from imio.dms.mail.vocabularies import get_mail_types
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
 from imio.dms.mail.vocabularies import LabelsVocabulary
 from imio.dms.mail.vocabularies import OMActiveMailTypesVocabulary
@@ -73,8 +73,8 @@ class TestVocabularies(unittest.TestCase):
         self.assertSetEqual(set(voc_list), set([(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'),
                                                 ('chef', 'Michel Chef'), ('agent1', 'Stef Agent')]))
 
-    def test_getMailTypes(self):
-        voc_list = [(t.value, t.title) for t in getMailTypes()]
+    def test_get_mail_types(self):
+        voc_list = [(t.value, t.title) for t in get_mail_types()]
         self.assertEquals(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'), (u'email', u'E-mail'),
                                      (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
                                      (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])

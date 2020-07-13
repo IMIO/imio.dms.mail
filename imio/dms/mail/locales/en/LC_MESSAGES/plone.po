@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-03-20 10:56+0000\n"
+"POT-Creation-Date: 2020-07-13 12:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -95,10 +95,6 @@ msgstr "Back to pre manager"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service"
 msgstr "Back to service"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_service_chief"
-msgstr "Back to service chief"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_treatment"
@@ -233,10 +229,6 @@ msgid "propose_to_service"
 msgstr "Propose to service"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_service_chief"
-msgstr "Propose to service chief"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_agent"
 msgstr "Proposed to agent"
 
@@ -250,10 +242,6 @@ msgstr "Propose to emergency zone commander"
 
 msgid "proposed_to_pre_manager"
 msgstr "Propose to pre manager"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_service_chief"
-msgstr "Proposed to service chief"
 
 #: configure.zcml
 msgid "task-in-assigned-group"

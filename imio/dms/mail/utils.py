@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
 from datetime import timedelta
@@ -167,6 +168,14 @@ def get_scan_id(obj):
         sid_long = u"IMIO%s" % sid
         sid_short = (len(sid) == 15 and sid[7:].lstrip('0') or sid)
     return [sid, sid_long, sid_short]
+
+
+def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
+    """Reimport faceted navigation config."""
+    folder.unrestrictedTraverse('@@faceted_exportimport').import_xml(
+        import_file=open(os.path.dirname(__file__) + '/faceted_conf/%s' % xml))
+    if default_UID:
+        _updateDefaultCollectionFor(folder, default_UID)
 
 
 # views

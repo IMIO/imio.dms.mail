@@ -89,9 +89,4 @@
         factory="imio.dms.mail.browser.settings.OMFieldsVocabulary"
         />
 
-     <utility
-        name="imio.dms.mail.IMServiceValidationLevelsVocabulary"
-        factory="imio.dms.mail.vocabularies.IMServiceValidationLevelsVocabulary"
-        />
-
 </configure>

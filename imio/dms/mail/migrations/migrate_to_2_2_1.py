@@ -108,6 +108,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             for dic in functions:
                 if dic['fct_id'] == u'encodeur':
                     dic['fct_title'] = u'Créateur CS'
+                    # TODO remove validateur when no more used on task and om
                 elif dic['fct_id'] == u'validateur':
                     dic['fct_management'] = True
             set_registry_functions(functions)

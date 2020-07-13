@@ -385,20 +385,3 @@ class ActionCategoriesVocabularyFactory(object):
         return SimpleVocabulary(
             [SimpleTerm(cat, title=cat) for cat in categories]
         )
-
-
-class IMServiceValidationLevelsVocabulary(object):
-    """ Pre validation types vocabulary """
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        service_validation_levels = SimpleVocabulary(
-            [
-                SimpleTerm(value=u'n_plus_1', title=_(u'N+1')),
-                SimpleTerm(value=u'n_plus_2', title=_(u'N+2')),
-                SimpleTerm(value=u'n_plus_3', title=_(u'N+3')),
-                SimpleTerm(value=u'n_plus_4', title=_(u'N+4')),
-                SimpleTerm(value=u'n_plus_5', title=_(u'N+5'))
-            ]
-        )
-        return service_validation_levels
