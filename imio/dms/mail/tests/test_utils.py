@@ -10,6 +10,7 @@ from imio.dms.mail.utils import list_wf_states
 from imio.helpers.xhtml import object_link
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import UtilsMethods
+from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
@@ -26,7 +27,6 @@ import unittest
 
 
 class TestUtils(unittest.TestCase):
-
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
@@ -136,10 +136,10 @@ class TestUtils(unittest.TestCase):
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.user_has_review_level())
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
-        api.group.remove_user(groupname='111_validateur', username=TEST_USER_ID)
+        api.group.remove_user(groupname='111_n_plus_1', username=TEST_USER_ID)
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
@@ -202,16 +202,38 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.proposed_to_pre_manager_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_n_plus_col_cond(self):
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
-        view = IdmUtilsMethods(imail, imail.REQUEST)
-        self.assertFalse(view.proposed_to_n_plus_col_cond())
+        im_folder = self.portal['incoming-mail']['mail-searches']
+        col = im_folder['searchfor_proposed_to_n_plus_1']
+        n_plus_1_view = IdmUtilsMethods(col, col.REQUEST)
+        self.assertFalse(n_plus_1_view.proposed_to_n_plus_col_cond())
         login(self.portal, 'encodeur')
-        self.assertTrue(view.proposed_to_n_plus_col_cond())
+        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
         login(self.portal, 'agent')
-        self.assertFalse(view.proposed_to_n_plus_col_cond())
+        self.assertFalse(n_plus_1_view.proposed_to_n_plus_col_cond())
         api.group.add_user(groupname='abc_group_encoder', username='agent')
-        self.assertTrue(view.proposed_to_n_plus_col_cond())
+        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
+        api.group.remove_user(groupname='abc_group_encoder', username='agent')
         login(self.portal, 'dirg')
-        self.assertTrue(view.proposed_to_n_plus_col_cond())
+        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
         login(self.portal, 'chef')
-        self.assertTrue(view.proposed_to_n_plus_col_cond())
+        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
+        # create N+2 validation by patching the workflow
+        login(self.portal, 'test-user')
+        sva = IMServiceValidation()
+        sva.patch_workflow('incomingmail_workflow',
+                           validation_level=2,
+                           state_title=u'Valider par le chef de département',
+                           forward_transition_title=u'Proposer au chef de département',
+                           backward_transition_title=u'Renvoyer au chef de département',
+                           function_title=u'chef de département')
+        col = im_folder['searchfor_proposed_to_n_plus_2']
+        n_plus_2_view = IdmUtilsMethods(col, col.REQUEST)
+        self.assertFalse(n_plus_2_view.proposed_to_n_plus_col_cond())
+        # Set N+2 to user, have to get an organization UID first
+        contacts = self.portal['contacts']
+        own_orga = contacts['plonegroup-organization']
+        departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
+        self.portal.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_n_plus_2" % departments[5].UID())
+        login(self.portal, 'agent1')
+        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
+        self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())

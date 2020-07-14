@@ -6,6 +6,7 @@ from imio.dms.mail.wfadaptations import EmergencyZoneAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import IMSkipProposeToServiceChief
 from imio.dms.mail.wfadaptations import OMSkipProposeToServiceChief
+from imio.dms.mail.wfadaptations import IMServiceValidation
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -57,6 +58,7 @@ class TestWFAdaptations(unittest.TestCase):
         self.assertIn('to_print', lr['recipient_groups'])
         self.assertIn('searchfor_to_print', self.portal['outgoing-mail']['mail-searches'])
 
+    # TODO: wait for adaptation changes
     def test_IMSkipProposeToServiceChiefWithUserCheck(self):
         """
             Test all methods of IMSkipProposeToServiceChief class with assigned_user_check parameter as True
@@ -81,6 +83,7 @@ class TestWFAdaptations(unittest.TestCase):
         self.assertNotIn('proposed_to_service_chief', lr['recipient_groups'])
         self.assertFalse(self.portal['incoming-mail']['mail-searches']['searchfor_proposed_to_service_chief'].enabled)
 
+    # TODO: wait for adaptation changes
     def test_IMSkipProposeToServiceChiefWithoutUserCheck(self):
         """
             Test all methods of IMSkipProposeToServiceChief class with assigned_user_check parameter as False
@@ -105,6 +108,7 @@ class TestWFAdaptations(unittest.TestCase):
         self.assertNotIn('proposed_to_service_chief', lr['recipient_groups'])
         self.assertFalse(self.portal['incoming-mail']['mail-searches']['searchfor_proposed_to_service_chief'].enabled)
 
+    # TODO: wait for adaptation changes
     def test_OMSkipProposeToServiceChief(self):
         """
             Test all methods of OMSkipProposeToServiceChief class
@@ -122,3 +126,26 @@ class TestWFAdaptations(unittest.TestCase):
         self.assertNotIn('proposed_to_service_chief', lr['treating_groups'])
         self.assertNotIn('proposed_to_service_chief', lr['recipient_groups'])
         self.assertFalse(self.portal['outgoing-mail']['mail-searches']['searchfor_proposed_to_service_chief'].enabled)
+
+    def test_IMServiceValidation(self):
+        """
+            Test all methods of IMServiceValidation class
+        """
+        imsv = IMServiceValidation()
+        im_workflow = self.pw['incomingmail_workflow']
+        self.assertEqual(imsv.check_state_in_workflow(im_workflow, 'proposed_to_n_plus_1'), '')
+        self.assertNotEqual(imsv.check_state_in_workflow(im_workflow, 'proposed_to_n_plus_2'), '')
+        imsv.patch_workflow('incomingmail_workflow', validation_level=2,
+                            state_title=u'Valider par le chef de département',
+                            forward_transition_title=u'Proposer au chef de département',
+                            backward_transition_title=u'Renvoyer au chef de département',
+                            function_title=u'chef de département')
+        self.assertEqual(imsv.check_state_in_workflow(im_workflow, 'proposed_to_n_plus_2'), '')
+        self.assertEqual(imsv.check_transition_in_workflow(im_workflow, 'propose_to_n_plus_2'), '')
+        self.assertEqual(imsv.check_transition_in_workflow(im_workflow, 'back_to_n_plus_2'), '')
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        self.assertIn('proposed_to_n_plus_2', lr['static_config'])
+        self.assertIn('proposed_to_n_plus_2', lr['treating_groups'])
+        self.assertIn('proposed_to_n_plus_2', lr['recipient_groups'])
+        self.assertTrue(self.portal['incoming-mail']['mail-searches']['searchfor_proposed_to_n_plus_2'].enabled)
