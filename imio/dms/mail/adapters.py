@@ -66,7 +66,9 @@ import time
 #######################
 
 default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager', 'proposed_to_pre_manager',
-                                                                    'proposed_to_service_chief']}},
+                                                                    'proposed_to_n_plus_5', 'proposed_to_n_plus_4',
+                                                                    'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
+                                                                    'proposed_to_n_plus_1']}},
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
 
 

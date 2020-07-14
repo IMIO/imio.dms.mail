@@ -43,10 +43,10 @@ class TestAdapters(unittest.TestCase):
         crit = IncomingMailHighestValidationCriterion(self.portal)
         # no groups, => default criterias
         self.assertEqual(crit.query, default_criterias['dmsincomingmail'])
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
-        # in a group _validateur
-        self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_service_chief']},
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        # in a group _n_plus_1
+        self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_n_plus_1']},
                                       'treating_groups': {'query': ['111']}})
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         # in a group dir_general
@@ -56,14 +56,14 @@ class TestAdapters(unittest.TestCase):
         crit = IncomingMailValidationCriterion(self.portal)
         # no groups
         self.assertEqual(crit.query, {'state_group': {'query': []}})
-        # in a group _validateur
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        # in a group _n_plus_1
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
-                                                                'proposed_to_service_chief,111']}})
+                                                                'proposed_to_n_plus_1,111']}})
 
     def test_OutgoingMailValidationCriterion(self):
         crit = OutgoingMailValidationCriterion(self.portal)
@@ -92,8 +92,8 @@ class TestAdapters(unittest.TestCase):
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_OutgoingMailInTreatingGroupCriterion(self):
@@ -139,8 +139,8 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(indexer(), 'created')
         api.content.transition(obj=imail, to_state='proposed_to_manager')
         self.assertEqual(indexer(), 'proposed_to_manager')
-        api.content.transition(obj=imail, to_state='proposed_to_service_chief')
-        self.assertEqual(indexer(), 'proposed_to_service_chief,%s' % dguid)
+        api.content.transition(obj=imail, to_state='proposed_to_n_plus_1')
+        self.assertEqual(indexer(), 'proposed_to_n_plus_1,%s' % dguid)
         api.content.transition(obj=imail, to_state='proposed_to_agent')
         self.assertEqual(indexer(), 'proposed_to_agent')
 
