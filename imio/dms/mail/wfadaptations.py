@@ -23,55 +23,6 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 
-class IEmergencyZoneParameters(Interface):
-
-    manager_suffix = schema.TextLine(
-        title=u'Manager suffix',
-        default=u'_zs',
-        required=True)
-
-
-class EmergencyZoneAdaptation(WorkflowAdaptationBase):
-
-    schema = IEmergencyZoneParameters
-
-    def patch_workflow(self, workflow_name, **parameters):
-        if not workflow_name == 'incomingmail_workflow':
-            return False, _("This workflow adaptation is only valid for ${workflow} !",
-                            mapping={'workflow': 'incomingmail_workflow'})
-        portal = api.portal.get()
-        wtool = portal.portal_workflow
-        # change state title.
-        im_workflow = wtool['incomingmail_workflow']
-        msg = self.check_state_in_workflow(im_workflow, 'proposed_to_manager')
-        if msg:
-            return False, msg
-        state = im_workflow.states['proposed_to_manager']
-        new_title = 'proposed_to_manager%s' % parameters['manager_suffix']
-        if state.title != new_title:
-            state.title = str(new_title)
-
-        # change transition title.
-        for tr in ('back_to_manager', 'propose_to_manager'):
-            msg = self.check_transition_in_workflow(im_workflow, tr)
-            if msg:
-                return False, msg
-            transition = im_workflow.transitions[tr]
-            new_title = '%s%s' % (tr, parameters['manager_suffix'])
-            if transition.title != new_title:
-                transition.title = str(new_title)
-
-        # change collection title
-        collection = portal.restrictedTraverse('incoming-mail/mail-searches/searchfor_proposed_to_manager',
-                                               default=None)
-        if not collection:
-            return False, "'incoming-mail/mail-searches/searchfor_proposed_to_manager' not found"
-        if collection.Title().endswith(' DG'):
-            collection.setTitle(collection.Title().replace(' DG', ' CZ'))
-            collection.reindexObject(['Title', 'SearchableText', 'sortable_title'])
-        return True, ''
-
-
 class OMToPrintAdaptation(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):

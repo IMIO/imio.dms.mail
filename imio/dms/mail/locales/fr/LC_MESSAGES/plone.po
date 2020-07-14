@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-07-13 12:22+0000\n"
+"POT-Creation-Date: 2020-07-14 13:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,10 +84,6 @@ msgstr "Remettre en création"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager"
 msgstr "Renvoyer au DG"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_manager_zs"
-msgstr "Renvoyer au CZ"
 
 msgid "back_to_pre_manager"
 msgstr "Renvoyer pour prévalidation DG"
@@ -217,10 +213,6 @@ msgstr "Proposer à l'agent"
 msgid "propose_to_manager"
 msgstr "Proposer au DG"
 
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_manager_zs"
-msgstr "Proposer au CZ"
-
 msgid "propose_to_pre_manager"
 msgstr "Proposer pour prévalidation DG"
 
@@ -235,10 +227,6 @@ msgstr "À traiter"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
 msgstr "À valider par le DG"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_manager_zs"
-msgstr "À valider par le CZ"
 
 msgid "proposed_to_pre_manager"
 msgstr "À valider avant le DG"

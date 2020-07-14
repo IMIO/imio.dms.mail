@@ -261,11 +261,6 @@
     />
 
     <utility
-        name="imio.dms.mail.wfadaptations.EmergencyZone"
-        factory=".wfadaptations.EmergencyZoneAdaptation"
-    />
-
-    <utility
         name="imio.dms.mail.wfadaptations.OMToPrint"
         factory=".wfadaptations.OMToPrintAdaptation"
     />

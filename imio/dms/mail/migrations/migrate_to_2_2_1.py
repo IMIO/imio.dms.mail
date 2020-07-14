@@ -6,6 +6,8 @@ from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
+from collective.wfadaptations.api import get_applied_adaptations
+from collective.wfadaptations.api import RECORD_NAME
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.widgets.storage import Criterion
@@ -13,6 +15,7 @@ from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
+from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -30,6 +33,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         Migrator.__init__(self, context)
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
+        self.wtool = self.portal.portal_workflow
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 2.2.1...')
@@ -179,12 +183,46 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             lst.remove('dmsincomingmail.back_to_service_chief|')
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
                                            lst)
-        # update remark states
+
+        def remove_adaptation_from_registry(name):
+            record = api.portal.get_registry_record(RECORD_NAME)
+            api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] != name])
+
+        # update remark states and workflow
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         if 'proposed_to_service_chief' in lst:
             lst.remove('proposed_to_service_chief')
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
                                            lst)
+        else:
+            return
+
+        # reset workflows
+        im_workflow = self.wtool['incomingmail_workflow']
+        self.runProfileSteps('imio.dms.mail', steps=['workflow'])
+        self.portal.portal_workflow.updateRoleMappings()
+        # Apply workflow adaptations if necessary
+        applied_wfa = get_applied_adaptations()
+        applied_wfa = [dic['adaptation'] for dic in get_applied_adaptations()]
+        if u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in applied_wfa:
+            remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief')
+        else:
+            sva = IMServiceValidation()
+            sva.patch_workflow('incomingmail_workflow', validation_level=1,
+                               state_title=u'À valider par le chef de service',
+                               forward_transition_title=u'Proposer au chef de service',
+                               backward_transition_title=u'Renvoyer au chef de service',
+                               function_title=u'N+1')
+        # replace EmergencyZoneAdaptation
+        if u'imio.dms.mail.wfadaptations.EmergencyZone' in applied_wfa:
+            state = im_workflow.states['proposed_to_manager']
+            state.title = u'À valider par le CZ'.encode('utf8')
+            for tr, tit in (('back_to_manager', u'Renvoyer au CZ'), ('propose_to_manager', u'Proposer au CZ')):
+                transition = im_workflow.transitions[tr]
+                transition.title = tit.encode('utf8')
+            remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.EmergencyZone')
+
+        # TODO replace old states
         # reindex im
         for brain in self.catalog():
             brain.getObject().reindexObject(idxs=['state_group'])  # state_group use dms_config

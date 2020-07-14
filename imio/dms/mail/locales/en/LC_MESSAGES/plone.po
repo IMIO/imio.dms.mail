@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-07-13 12:22+0000\n"
+"POT-Creation-Date: 2020-07-14 13:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -84,10 +84,6 @@ msgstr "Back to creation"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_manager"
 msgstr "Back to manager"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_manager_zs"
-msgstr "Back to emergency zone commander"
 
 msgid "back_to_pre_manager"
 msgstr "Back to pre manager"
@@ -217,10 +213,6 @@ msgstr "Propose to agent"
 msgid "propose_to_manager"
 msgstr "Propose to manager"
 
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_manager_zs"
-msgstr "Propose to emergency zone commander"
-
 msgid "propose_to_pre_manager"
 msgstr "Propose to pre manager"
 
@@ -235,10 +227,6 @@ msgstr "Proposed to agent"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_manager"
 msgstr "Proposed to manager"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_manager_zs"
-msgstr "Propose to emergency zone commander"
 
 msgid "proposed_to_pre_manager"
 msgstr "Propose to pre manager"

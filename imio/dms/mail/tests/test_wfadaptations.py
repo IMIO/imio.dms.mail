@@ -2,7 +2,6 @@
 """ wfadaptations.py tests for this package."""
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.wfadaptations import EmergencyZoneAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import IMSkipProposeToServiceChief
 from imio.dms.mail.wfadaptations import OMSkipProposeToServiceChief
@@ -24,21 +23,6 @@ class TestWFAdaptations(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
-
-    def test_EmergencyZoneAdaptation(self):
-        """
-            Test all methods of EmergencyZoneAdaptation class
-        """
-        eza = EmergencyZoneAdaptation()
-        imw = self.pw['incomingmail_workflow']
-        self.assertEqual(imw.states['proposed_to_manager'].title, 'proposed_to_manager')
-        self.assertEqual(imw.transitions['back_to_manager'].title, 'back_to_manager')
-        eza.patch_workflow('incomingmail_workflow', manager_suffix='_zs')
-        self.assertEqual(imw.states['proposed_to_manager'].title, 'proposed_to_manager_zs')
-        self.assertEqual(imw.transitions['back_to_manager'].title, 'back_to_manager_zs')
-        self.assertEqual(imw.transitions['propose_to_manager'].title, 'propose_to_manager_zs')
-        collection = self.portal.restrictedTraverse('incoming-mail/mail-searches/searchfor_proposed_to_manager')
-        self.assertEqual(collection.title, u'État: à valider par le CZ')
 
     def test_OMToPrintAdaptation(self):
         """
