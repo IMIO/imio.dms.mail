@@ -53,7 +53,7 @@ class TestUtils(unittest.TestCase):
         self.assertIsNone(highest_review_level('a_type', ""))
         self.assertIsNone(highest_review_level('dmsincomingmail', ""))
         self.assertEquals(highest_review_level('dmsincomingmail', "['dir_general']"), 'dir_general')
-        self.assertEquals(highest_review_level('dmsincomingmail', "['111_validateur']"), '_validateur')
+        self.assertEquals(highest_review_level('dmsincomingmail', "['111_n_plus_1']"), '_n_plus_1')
 
     def test_list_wf_states(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
@@ -75,7 +75,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(back_or_again_state(imail), '')  # initial state: no action
         api.content.transition(obj=imail, transition='propose_to_manager')
         self.assertEqual(back_or_again_state(imail), '')  # second state: empty
-        api.content.transition(obj=imail, transition='propose_to_service_chief')
+        api.content.transition(obj=imail, transition='propose_to_n_plus_1')
         self.assertEqual(back_or_again_state(imail), '')  # third state: empty
         api.content.transition(obj=imail, transition='back_to_manager')
         self.assertEqual(back_or_again_state(imail), 'back')  # we have a back action starting with back_
@@ -83,7 +83,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(back_or_again_state(imail), 'back')  # we have a back action starting with back_
         self.assertEqual(back_or_again_state(imail, transitions=['back_to_creation']),
                          'back')  # we have a back action found in transitions parameter
-        api.content.transition(obj=imail, transition='propose_to_service_chief')
+        api.content.transition(obj=imail, transition='propose_to_n_plus_1')
         self.assertEqual(back_or_again_state(imail), 'again')  # third state again
 
     def test_get_scan_id(self):
