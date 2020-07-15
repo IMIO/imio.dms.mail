@@ -4,6 +4,7 @@ from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_groups_mgt
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_groups_mgt
+from collective.contact.plonegroup.subscribers import group_deleted as pg_group_deleted
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import get_applied_adaptations
@@ -12,6 +13,7 @@ from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.widgets.storage import Criterion
 from imio.dms.mail.setuphandlers import set_portlet
+from imio.dms.mail.subscribers import group_deleted
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
@@ -20,7 +22,9 @@ from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from Products.CPUtils.Extensions.utils import mark_last_version
+from Products.PluggableAuthService.interfaces.events import IGroupDeletedEvent
 from zope.component import getUtility
+from zope.component import globalSiteManager
 
 import logging
 
@@ -112,9 +116,6 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             for dic in functions:
                 if dic['fct_id'] == u'encodeur':
                     dic['fct_title'] = u'Créateur CS'
-                    # TODO remove validateur when no more used on task and om
-                elif dic['fct_id'] == u'validateur':
-                    dic['fct_management'] = True
             set_registry_functions(functions)
         # add group
         if api.group.get('lecteurs_globaux_ce') is None:
@@ -155,6 +156,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         # remove collection
         if 'searchfor_proposed_to_service_chief' in self.imf['mail-searches']:
             api.content.delete(obj=self.imf['mail-searches']['searchfor_proposed_to_service_chief'])
+
         # clean dms config
         config = get_dms_config(['review_levels', 'dmsincomingmail'])
         if '_validateur' in config:
@@ -164,6 +166,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         if 'proposed_to_service_chief' in config:
             del config['proposed_to_service_chief']
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=config)
+
         # clean local roles
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
@@ -177,6 +180,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         if 'proposed_to_service_chief' in lrg:
             del lrg['proposed_to_service_chief']
         lr._p_changed = True
+
         # update registry
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
         if 'dmsincomingmail.back_to_service_chief|' in lst:
@@ -213,6 +217,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                                forward_transition_title=u'Proposer au chef de service',
                                backward_transition_title=u'Renvoyer au chef de service',
                                function_title=u'N+1')
+
         # replace EmergencyZoneAdaptation
         if u'imio.dms.mail.wfadaptations.EmergencyZone' in applied_wfa:
             state = im_workflow.states['proposed_to_manager']
@@ -246,7 +251,26 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 # update state_group (use dms_config), permissions, state
                 obj.reindexObject(idxs=['allowedRolesAndUsers', 'review_state', 'state_group'])
 
-        # TODO migrate plone groups
+        # migrate plone groups
+        # First unregister group deletion handlers
+        globalSiteManager.unregisterHandler(pg_group_deleted, (IGroupDeletedEvent,))
+        globalSiteManager.unregisterHandler(group_deleted, (IGroupDeletedEvent,))
+        # move users from _validateur to _n_plus_1
+        for group in api.group.get_groups():
+            if group.id.endswith('_validateur'):
+                org = group.id.split('_')[0]
+                np1group = api.group.get('{}_n_plus_1'.format(org))
+                for user in api.user.get_users(group=group):
+                    api.group.add_user(group=np1group, user=user)
+                api.group.delete(group=group)
+        # register again group deletion handlers
+        globalSiteManager.registerHandler(pg_group_deleted, (IGroupDeletedEvent,))
+        globalSiteManager.registerHandler(group_deleted, (IGroupDeletedEvent,))
+
+        # remove _validateur function
+        functions = get_registry_functions()
+        if 'validateur' in [fct['fct_id'] for fct in functions]:
+            set_registry_functions([fct for fct in functions if fct['fct_id'] != 'validateur'])
 
 
 def migrate(context):
