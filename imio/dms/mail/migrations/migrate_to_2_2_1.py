@@ -198,9 +198,9 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             return
 
         # reset workflows
-        im_workflow = self.wtool['incomingmail_workflow']
         self.runProfileSteps('imio.dms.mail', steps=['workflow'])
-        self.portal.portal_workflow.updateRoleMappings()
+        # self.portal.portal_workflow.updateRoleMappings()  # done later
+        im_workflow = self.wtool['incomingmail_workflow']
         # Apply workflow adaptations if necessary
         applied_wfa = get_applied_adaptations()
         applied_wfa = [dic['adaptation'] for dic in get_applied_adaptations()]
@@ -222,10 +222,31 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 transition.title = tit.encode('utf8')
             remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.EmergencyZone')
 
-        # TODO replace old states
-        # reindex im
-        for brain in self.catalog():
-            brain.getObject().reindexObject(idxs=['state_group'])  # state_group use dms_config
+        # update wf history to replace review_state and correct history
+        config = {'dmsincomingmail': {'wf': 'incomingmail_workflow',
+                                      'st': {'proposed_to_service_chief': 'proposed_to_n_plus_1'},
+                                      'tr': {'propose_to_service_chief': 'propose_to_n_plus_1',
+                                             'back_to_service_chief': 'back_to_n_plus_1'}}}
+        for pt in config:
+            for brain in self.catalog(portal_type=pt):
+                obj = brain.getObject()
+                # update history
+                wfh = []
+                for status in obj.workflow_history.get(config[pt]['wf']):
+                    # replace old state by new one
+                    if status['review_state'] in config[pt]['st']:
+                        status['review_state'] = config[pt]['st'][status['review_state']]
+                    # replace old transition by new one
+                    if status['action'] in config[pt]['tr']:
+                        status['action'] = config[pt]['tr'][status['action']]
+                    wfh.append(status)
+                obj.workflow_history[config[pt]['wf']] = tuple(wfh)
+                # update permissions and roles
+                im_workflow.updateRoleMappingsFor(obj)
+                # update state_group (use dms_config), permissions, state
+                obj.reindexObject(idxs=['allowedRolesAndUsers', 'review_state', 'state_group'])
+
+        # TODO migrate plone groups
 
 
 def migrate(context):
