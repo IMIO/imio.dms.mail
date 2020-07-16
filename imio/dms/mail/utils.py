@@ -348,10 +348,15 @@ class IdmUtilsMethods(UtilsMethods):
         return portal['incoming-mail']
 
     def idm_has_assigned_user(self):
-        """ Test if assigned_user is set or if the test is required or if the user is admin """
+        """
+            Test if assigned_user is set or if the test is required or if the user is admin.
+            Used in guard expression for propose_to_agent transition
+        """
         if self.context.assigned_user is not None:
             return True
-        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'):
+        # TODO to review
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check') \
+                == u'no_check':
             return True
         if self.user_is_admin():
             return True

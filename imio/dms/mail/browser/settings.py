@@ -1,5 +1,6 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.utils import add_fti_configuration
@@ -73,6 +74,14 @@ class OMFieldsVocabulary(object):
                                   'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'related_docs'])
 
 
+assigned_user_check_levels = SimpleVocabulary(
+    [
+        SimpleTerm(value=u'no_check', title=_(u'No check')),
+        SimpleTerm(value=u'n_plus', title=_(u'Assigned user mandatory only if there is a n+ validation')),
+        SimpleTerm(value=u'mandatory', title=_(u'Assigned user always mandatory'))
+    ]
+)
+
 fullname_forms = SimpleVocabulary(
     [
         SimpleTerm(value=u'firstname', title=_(u'Firstname Lastname')),
@@ -107,10 +116,11 @@ class IImioDmsMailConfig(model.Schema):
 
     widget('mail_types', DataGridFieldFactory, allow_reorder=True)
 
-    assigned_user_check = schema.Bool(
+    assigned_user_check = schema.Choice(
         title=_(u'Assigned user check'),
         description=_(u'Check if there is an assigned user before proposing incoming mail to an agent.'),
-        default=True
+        vocabulary=assigned_user_check_levels,
+        default=u'n_plus'
     )
 
     original_mail_date_required = schema.Bool(
@@ -258,6 +268,18 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == 'omail_types':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')
+    if event.record.fieldName == 'assigned_user_check':
+        n_plus_x = 'imio.dms.mail.wfadaptations.IMServiceValidation' in \
+                   [adapt['adaptation'] for adapt in get_applied_adaptations()]
+        snoi = False
+        if event.newValue == u'no_check' or not n_plus_x:
+            snoi = True
+        portal = api.portal.get()
+        folder = portal['incoming-mail']['mail-searches']
+        if folder['to_treat_in_my_group'].showNumberOfItems != snoi:
+            folder['to_treat_in_my_group'].showNumberOfItems = snoi  # noqa
+            folder['to_treat_in_my_group'].reindexObject()
+
     if event.record.fieldName == 'imail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
             configure_group_encoder(['dmsincomingmail', 'dmsincoming_email'])

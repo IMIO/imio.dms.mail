@@ -150,9 +150,9 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.idm_has_assigned_user())
         imail.assigned_user = None
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-        settings.assigned_user_check = False
+        settings.assigned_user_check = u'no_check'
         self.assertTrue(view.idm_has_assigned_user())
-        settings.assigned_user_check = True
+        settings.assigned_user_check = u'mandatory'
         self.assertTrue(view.idm_has_assigned_user())
         self.assertIn('Manager', api.user.get_roles(username=TEST_USER_ID))
         setRoles(self.portal, TEST_USER_ID, [])

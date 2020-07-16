@@ -509,7 +509,7 @@ def createIMailCollections(folder):
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'reception_date', u'actions'),
-            'sort': u'organization_type', 'rev': True, 'count': False},
+            'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
              'v': ['dmsincomingmail', 'dmsincoming_email']},

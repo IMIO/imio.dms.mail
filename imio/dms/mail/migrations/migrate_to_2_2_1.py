@@ -49,10 +49,14 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.cleanRegistries()
 
         self.correct_actions()
+        auc_stored = self.registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check']
 
         self.install(['collective.contact.importexport'])
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'])
+
+        # migrate assigned_user_check
+        self.update_assigned_user_check(auc_stored)
 
         # remove service_chief related
         self.remove_service_chief()
@@ -66,6 +70,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         # update templates
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
+        # TODO review
         # set showNumberOfItems on to_treat in_my_group only if SkipProposeToServiceChief adaptation was applied
         wf_adapts = api.portal.get_registry_record('collective.wfadaptations.applied_adaptations', default=[])
         user_check = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig'
@@ -93,6 +98,19 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         if 'portlet' in pa:
             api.content.rename(obj=pa['portlet'], new_id='object_portlet')
             set_portlet(self.portal)
+
+    def update_assigned_user_check(self, auc_stored):
+        if isinstance(auc_stored, str):
+            return  # already migrated
+        skip = u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in \
+               [dic['adaptation'] for dic in get_applied_adaptations()]
+        if auc_stored and skip:
+            value = u'mandatory'
+        elif auc_stored:
+            value = u'n_plus'
+        else:
+            value = u'no_check'
+        self.registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'] = value
 
     def update_site(self):
         # change permission to remove dashboard from user menu
@@ -206,7 +224,6 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         # self.portal.portal_workflow.updateRoleMappings()  # done later
         im_workflow = self.wtool['incomingmail_workflow']
         # Apply workflow adaptations if necessary
-        applied_wfa = get_applied_adaptations()
         applied_wfa = [dic['adaptation'] for dic in get_applied_adaptations()]
         if u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in applied_wfa:
             remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief')

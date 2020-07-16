@@ -347,34 +347,6 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
         portal = api.portal.get()
         wtool = portal.portal_workflow
         im_workflow = wtool['incomingmail_workflow']
-        msg = self.check_state_in_workflow(im_workflow, 'proposed_to_service_chief')
-        if msg:
-            return False, msg
-
-        # remove state
-        list_states = ['proposed_to_service_chief']
-        im_workflow.states.deleteStates(list_states)
-
-        # change created transition
-        transitions = list(im_workflow.states['created'].transitions)
-        transitions.remove('propose_to_service_chief')
-        transitions.append('propose_to_agent')
-        im_workflow.states['created'].transitions = tuple(transitions)
-        # change proposed_to_manager transition
-        transitions = list(im_workflow.states['proposed_to_manager'].transitions)
-        transitions.remove('propose_to_service_chief')
-        transitions.append('propose_to_agent')
-        im_workflow.states['proposed_to_manager'].transitions = tuple(transitions)
-        # change proposed_to_agent transition
-        transitions = list(im_workflow.states['proposed_to_agent'].transitions)
-        transitions.remove('back_to_service_chief')
-        transitions.append('back_to_manager')
-        transitions.append('back_to_creation')
-        im_workflow.states['proposed_to_agent'].transitions = tuple(transitions)
-        # remove transitions
-        list_transitions = ['propose_to_service_chief', 'back_to_service_chief']
-        im_workflow.transitions.deleteTransitions(list_transitions)
-
         # change assigned user verification option
         if not parameters['assigned_user_check']:
             api.portal.set_registry_record('assigned_user_check', False, IImioDmsMailConfig)
@@ -384,34 +356,6 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
                 if msg:
                     return False, msg
                 im_workflow.transitions[tr].title = str(title)
-
-        # remove local roles
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        changed_flag = False
-        for lrgroup in lr:
-            if 'proposed_to_service_chief' in lr[lrgroup]:
-                del lr[lrgroup]['proposed_to_service_chief']
-                changed_flag = True
-        if changed_flag:
-            # the object has been modified and must be saved in db
-            lr._p_changed = True
-
-        # disable collection
-        folder = portal['incoming-mail']['mail-searches']
-        if folder['searchfor_proposed_to_service_chief'].enabled:
-            folder['searchfor_proposed_to_service_chief'].enabled = False
-            folder['searchfor_proposed_to_service_chief'].reindexObject()
-            # update search collection list
-            invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
-
-        # enable shoNumberOfItems on 'to_treat_in_my_group'
-        if not folder['to_treat_in_my_group'].showNumberOfItems and not parameters['assigned_user_check']:
-            folder['to_treat_in_my_group'].showNumberOfItems = True
-            folder['to_treat_in_my_group'].reindexObject()
-
-        # update state list
-        invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')
 
         return True, ''
 
@@ -660,6 +604,15 @@ class IMServiceValidation(WorkflowAdaptationBase):
             col.setLayout('tabular_view')
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_state_id)))
 
+        # update showNumberOfItems on 'to_treat_in_my_group'
+        auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
+        snoi = False
+        if auc == u'no_check':
+            snoi = True
+        if folder['to_treat_in_my_group'].showNumberOfItems != snoi:
+            folder['to_treat_in_my_group'].showNumberOfItems = snoi  # noqa
+            folder['to_treat_in_my_group'].reindexObject()
+
         # update configuration annotation
         config = get_dms_config(['review_levels', 'dmsincomingmail'])
         suffix = '_{}'.format(new_id)
@@ -673,7 +626,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
             new_config = insert_in_ordereddict(config, value, after_key='proposed_to_manager', at_position=0)
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
 
-        # update state list
+        # update cache
+        invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')
 
         # update actionspanel back transitions registry
