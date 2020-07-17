@@ -77,7 +77,7 @@ class OMFieldsVocabulary(object):
 assigned_user_check_levels = SimpleVocabulary(
     [
         SimpleTerm(value=u'no_check', title=_(u'No check')),
-        SimpleTerm(value=u'n_plus', title=_(u'Assigned user mandatory only if there is a n+ validation')),
+        SimpleTerm(value=u'n_plus', title=_(u'Assigned user mandatory only if there is a n+1 validation')),
         SimpleTerm(value=u'mandatory', title=_(u'Assigned user always mandatory'))
     ]
 )
