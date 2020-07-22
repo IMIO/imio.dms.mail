@@ -107,7 +107,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         if auc_stored and skip:
             value = u'mandatory'
         elif auc_stored:
-            value = u'n_plus'
+            value = u'n_plus_1'
         else:
             value = u'no_check'
         self.registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'] = value

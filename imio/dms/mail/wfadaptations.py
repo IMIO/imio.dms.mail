@@ -8,6 +8,7 @@ from imio.dms.mail import _tr as _
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import update_do_transitions
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.pyutils.utils import insert_in_ordereddict
 from plone import api
@@ -516,7 +517,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
             actbox_name=propose_tr_id, actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_propose_to_n_plus.png',
             actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('idm-utils')."
+                                 "can_do_transition({})".format(propose_tr_id)})
         back_tr_id = 'back_to_{}'.format(new_id)
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
@@ -625,6 +628,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
             value = (new_state_id, {'group': suffix, 'org': 'treating_groups'})
             new_config = insert_in_ordereddict(config, value, after_key='proposed_to_manager', at_position=0)
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
+        # update do_transitions config
+        update_do_transitions('dmsincomingmail')
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')

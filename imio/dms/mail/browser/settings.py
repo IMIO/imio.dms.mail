@@ -9,6 +9,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
+from imio.dms.mail.utils import update_do_transitions
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
 from plone import api
@@ -77,7 +78,7 @@ class OMFieldsVocabulary(object):
 assigned_user_check_levels = SimpleVocabulary(
     [
         SimpleTerm(value=u'no_check', title=_(u'No check')),
-        SimpleTerm(value=u'n_plus', title=_(u'Assigned user mandatory only if there is a n+1 validation')),
+        SimpleTerm(value=u'n_plus_1', title=_(u'Assigned user mandatory only if there is a n+1 validation')),
         SimpleTerm(value=u'mandatory', title=_(u'Assigned user always mandatory'))
     ]
 )
@@ -120,7 +121,7 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u'Assigned user check'),
         description=_(u'Check if there is an assigned user before proposing incoming mail to an agent.'),
         vocabulary=assigned_user_check_levels,
-        default=u'n_plus'
+        default=u'n_plus_1'
     )
 
     original_mail_date_required = schema.Bool(
@@ -269,6 +270,7 @@ def imiodmsmail_settings_changed(event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')
     if event.record.fieldName == 'assigned_user_check':
+        update_do_transitions('dmsincomingmail')
         n_plus_x = 'imio.dms.mail.wfadaptations.IMServiceValidation' in \
                    [adapt['adaptation'] for adapt in get_applied_adaptations()]
         snoi = False

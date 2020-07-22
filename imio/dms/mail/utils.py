@@ -3,6 +3,7 @@
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.wfadaptations.api import get_applied_adaptations
 from datetime import date
 from datetime import timedelta
 from imio.dms.mail import _tr as _
@@ -14,6 +15,7 @@ from natsort import natsorted
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
+from plone.api.exc import GroupNotFoundError
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
@@ -40,13 +42,15 @@ dms_config
     * ['dmsincomingmail'] = OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                          ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})])
     * ['task'] = OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})])
-    * ['dmsoutgoingmail'] = OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})])
+    * ['dmsoutgoingmail'] = OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'],
+                                                          'org': 'treating_groups'})])
 * ['review_states'] : pour l'index state_group, lié à la validation
     * ['dmsincomingmail'] = OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
                                          ('proposed_to_n_plus_1', {'group': ['_n_plus_1'], 'org': 'treating_groups'})])
     * ['task'] = OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
                                 ('realized', {'group': '_validateur', 'org': 'assigned_group'})])
-    * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})])
+    * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_service_chief', {'group': '_validateur',
+                                          'org': 'treating_groups'})])
 * ['do_transitions'] : renvoie si la transition peut être effectuée
 """
 
@@ -89,6 +93,52 @@ def get_dms_config(keys=None):
     for key in keys:
         annot = annot[key]
     return annot
+
+
+def group_has_user(groupname):
+    """ Check if group contains user """
+    try:
+        if len(api.user.get_users(groupname=groupname)):
+            return True
+    except GroupNotFoundError:
+        return False
+    return False
+
+
+def update_do_transitions(ptype):
+    """
+    Set do_transtions dms config
+    :param ptype: portal type
+    """
+    orgs = get_registry_organizations()
+    if ptype == 'dmsincomingmail':
+        auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
+        transitions = ['propose_to_agent']
+        for wfa in get_applied_adaptations():
+            if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
+                transitions.append('propose_to_n_plus_{}'.format(wfa['parameters']['validation_level']))
+        previous_tr = ''
+        for i, tr in enumerate(transitions):
+            config = {}
+            for org in orgs:
+                val = False
+                if auc == u'no_check':
+                    val = True
+                elif auc == u'mandatory':
+                    # propose_to_agent: previous_tr is empty => val will be False
+                    # propose_to_n_plus_x: lower level True => val is True
+                    # propose_to_n_plus_x: lower level False and user at this level => val is True
+                    if previous_tr and (config[previous_tr][org] or group_has_user('{}_n_plus_{}'.format(org, i))):
+                        val = True
+                elif auc == u'n_plus_1':
+                    # propose_to_agent: no n+1 level => val is True
+                    # propose_to_n_plus_x: previous_tr => val is True
+                    # propose_to_agent: n+1 level doesn't have user => val is True
+                    if len(transitions) == 1 or previous_tr or not group_has_user('{}_n_plus_1'.format(org)):
+                        val = True
+                config[org] = val
+            previous_tr = tr
+            set_dms_config(['do_transitions', 'dmsincomingmail', tr], config)
 
 
 def highest_review_level(portal_type, group_ids):
@@ -374,6 +424,22 @@ class IdmUtilsMethods(UtilsMethods):
         # TODO to review
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check') \
                 == u'no_check':
+            return True
+        if self.user_is_admin():
+            return True
+        return False
+
+    def can_do_transition(self, transition):
+        """
+            Check if assigned_user is set or if the test is required or if the user is admin.
+            Used in guard expression for propose_to_agent transition
+        """
+        if self.context.assigned_user is not None:
+            return True
+        if self.context.treating_groups is None:
+            return False
+        config = get_dms_config(['do_transitions', 'dmsincomingmail', transition])
+        if config.get(self.context.treating_groups, False):
             return True
         if self.user_is_admin():
             return True

@@ -232,6 +232,7 @@
         class=".utils.IdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
+            can_do_transition
             created_col_cond
             current_user_groups
             current_user_groups_ids
