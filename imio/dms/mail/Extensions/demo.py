@@ -17,39 +17,62 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.CPUtils.Extensions.utils import log_list
+from z3c.relationfield import RelationValue
 from zope.component import getUtility
+from zope.intid import IIntIds
 
 import copy
 import os
 import time
 
 
-def import_scanned(self, number=2, only=''):
+def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):
     """
         Import some incoming mail for demo site
     """
+    if ptype not in ('dmsincomingmail', 'dmsincoming_email'):
+        return "ptype parameter must be in ('dmsincomingmail', 'dmsincoming_email') values"
     now = datetime.now()
-    docs = {
-        '59.PDF':
-        {
-            'c': {'mail_type': 'courrier', 'file_title': '010500000000001.pdf', 'recipient_groups': []},
-            'f': {'scan_id': '010500000000001', 'pages_number': 1, 'scan_date': now,
-                  'scan_user': 'Opérateur', 'scanner': 'Ricola'}
-        },
-        '60.PDF':
-        {
-            'c': {'mail_type': 'courrier', 'file_title': '010500000000002.pdf', 'recipient_groups': []},
-            'f': {'scan_id': '010500000000002', 'pages_number': 1, 'scan_date': now,
-                  'scan_user': 'Opérateur', 'scanner': 'Ricola'}
-        },
-    }
-    docs_cycle = cycle(docs)
-
     portal = getToolByName(self, "portal_url").getPortalObject()
+    contacts = portal.contacts
+    intids = getUtility(IIntIds)
+    docs = {
+        'dmsincomingmail': {
+            '59.PDF':
+            {
+                'c': {'mail_type': 'courrier', 'file_title': '010500000000001.pdf', 'recipient_groups': []},
+                'f': {'scan_id': '010500000000001', 'pages_number': 1, 'scan_date': now,
+                      'scan_user': 'Opérateur', 'scanner': 'Ricola'}
+            },
+            '60.PDF':
+            {
+                'c': {'mail_type': 'courrier', 'file_title': '010500000000002.pdf', 'recipient_groups': []},
+                'f': {'scan_id': '010500000000002', 'pages_number': 1, 'scan_date': now,
+                      'scan_user': 'Opérateur', 'scanner': 'Ricola'}
+            },
+        },
+        'dmsincoming_email': {
+            'email1.pdf':
+            {
+                'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'email', 'file_title': u'email1.pdf',
+                      'treating_groups': contacts['plonegroup-organization']['evenements'].UID(),
+                      'assigned_user': 'agent', 'recipient_groups': []},
+                'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
+            },
+            'email2.pdf':
+                {
+                    'c': {'title': u'Où se situe votre entité par rapport aux Objectifs de développement durable ?',
+                          'mail_type': u'email', 'file_title': u'email2.pdf',
+                          'recipient_groups': []},
+                    'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
+                },
+        }
+    }
+    docs_cycle = cycle(docs[ptype])
     folder = portal['incoming-mail']
     count = 1
     limit = int(number)
-    while(count <= limit):
+    while count <= limit:
         doc = docs_cycle.next()
         if only and doc != only:
             time.sleep(0.5)
@@ -58,22 +81,22 @@ def import_scanned(self, number=2, only=''):
             file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
 
         irn = internalReferenceIncomingMailDefaultValue(Dummy(portal, portal.REQUEST))
-        doc_metadata = copy.copy(docs[doc]['c'])
+        doc_metadata = copy.copy(docs[ptype][doc]['c'])
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
             Dummy(portal, portal.REQUEST),
             folder,
-            'dmsincomingmail',
+            ptype,
             '',
             file_object,
             owner='scanner',
             metadata=doc_metadata)
-        for key, value in docs[doc]['f'].items():
+        for key, value in docs[ptype][doc]['f'].items():
             setattr(main_file, key, value)
         main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
         # transaction.commit()  # commit here to be sure to index preceding when using collective.indexing
         # change has been done in IdmSearchableExtender to avoid using catalog
-        document.reindexObject(idxs=('SearchableText'))
+        document.reindexObject(idxs=('SearchableText', ))
         count += 1
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
@@ -109,7 +132,7 @@ def import_scanned2(self, number=2):
     count = 1
     limit = int(number)
     user = api.user.get_current()
-    while(count <= limit):
+    while count <= limit:
         doc = docs_cycle.next()
         with open(add_path('Extensions/%s' % doc), 'rb') as fo:
             file_object = NamedBlobFile(fo.read(), filename=doc)
@@ -131,7 +154,7 @@ def import_scanned2(self, number=2):
         main_file.reindexObject(idxs=('scan_id', 'internal_reference_number'))
         document.reindexObject(idxs=('SearchableText'))
         # we adopt roles for robotframework
-        #with api.env.adopt_roles(roles=['Batch importer', 'Manager']):
+        # with api.env.adopt_roles(roles=['Batch importer', 'Manager']):
         # previous is not working
         api.user.grant_roles(user=user, roles=['Batch importer'], obj=document)
         api.content.transition(obj=document, transition='set_scanned')
