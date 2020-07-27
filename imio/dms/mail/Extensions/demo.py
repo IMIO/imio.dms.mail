@@ -60,12 +60,12 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):
                 'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
             },
             'email2.pdf':
-                {
-                    'c': {'title': u'Où se situe votre entité par rapport aux Objectifs de développement durable ?',
-                          'mail_type': u'email', 'file_title': u'email2.pdf',
-                          'recipient_groups': []},
-                    'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
-                },
+            {
+                'c': {'title': u'Où se situe votre entité par rapport aux Objectifs de développement durable ?',
+                      'mail_type': u'email', 'file_title': u'email2.pdf',
+                      'recipient_groups': []},
+                'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
+            },
         }
     }
     docs_cycle = cycle(docs[ptype])
