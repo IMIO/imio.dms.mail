@@ -519,7 +519,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             actbox_category='workflow',
             props={'guard_permissions': 'Review portal content',
                    'guard_expr': "python:object.restrictedTraverse('idm-utils')."
-                                 "can_do_transition({})".format(propose_tr_id)})
+                                 "can_do_transition('{}')".format(propose_tr_id)})
         back_tr_id = 'back_to_{}'.format(new_id)
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
@@ -629,7 +629,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             new_config = insert_in_ordereddict(config, value, after_key='proposed_to_manager', at_position=0)
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
         # update do_transitions config
-        update_do_transitions('dmsincomingmail')
+        update_do_transitions('dmsincomingmail', level)
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')

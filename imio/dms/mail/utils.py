@@ -105,15 +105,18 @@ def group_has_user(groupname):
     return False
 
 
-def update_do_transitions(ptype):
+def update_do_transitions(ptype, validation_level=None):
     """
     Set do_transtions dms config
     :param ptype: portal type
+    :param validation_level: validation level
     """
     orgs = get_registry_organizations()
     if ptype == 'dmsincomingmail':
         auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
         transitions = ['propose_to_agent']
+        if validation_level is not None:
+            transitions.append('propose_to_n_plus_{}'.format(validation_level))
         for wfa in get_applied_adaptations():
             if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
                 transitions.append('propose_to_n_plus_{}'.format(wfa['parameters']['validation_level']))
