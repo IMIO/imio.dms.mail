@@ -1284,7 +1284,6 @@ def apply_n_plus_1_wfadaptation(context):
                        'backward_transition_title': u'Renvoyer au chef de service',
                        'function_title': u'N+1'}
     sva = IMServiceValidation()
-    import ipdb; ipdb.set_trace()
     adapt_is_applied = sva.patch_workflow('incomingmail_workflow', **n_plus_1_params)
     if adapt_is_applied:
         add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
