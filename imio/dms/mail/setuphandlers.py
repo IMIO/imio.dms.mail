@@ -29,6 +29,7 @@ from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategor
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.wfadaptations.api import add_applied_adaptation
 from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
@@ -1278,13 +1279,17 @@ def apply_n_plus_1_wfadaptation(context):
         return
     logger.info('Apply n_plus_1 level')
     site = context.getSite()
+    n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
+                       'forward_transition_title': u'Proposer au chef de service',
+                       'backward_transition_title': u'Renvoyer au chef de service',
+                       'function_title': u'N+1'}
     sva = IMServiceValidation()
-    sva.patch_workflow('incomingmail_workflow', validation_level=1, state_title=u'À valider par le chef de service',
-                       forward_transition_title=u'Proposer au chef de service',
-                       backward_transition_title=u'Renvoyer au chef de service',
-                       function_title=u'N+1')
+    import ipdb; ipdb.set_trace()
+    adapt_is_applied = sva.patch_workflow('incomingmail_workflow', **n_plus_1_params)
+    if adapt_is_applied:
+        add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
+                               'incomingmail_workflow', True, **n_plus_1_params)
     # Add users to activated groups
-    orgas = get_registry_organizations()
     for uid in get_registry_organizations():
         site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 

@@ -7,7 +7,7 @@ from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.contact.plonegroup.subscribers import group_deleted as pg_group_deleted
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
-from collective.wfadaptations.api import get_applied_adaptations
+from collective.wfadaptations.api import get_applied_adaptations, add_applied_adaptation
 from collective.wfadaptations.api import RECORD_NAME
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.interfaces import ICriteria
@@ -228,12 +228,15 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         if u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in applied_wfa:
             remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief')
         else:
+            n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
+                               'forward_transition_title': u'Proposer au chef de service',
+                               'backward_transition_title': u'Renvoyer au chef de service',
+                               'function_title': u'N+1'}
             sva = IMServiceValidation()
-            sva.patch_workflow('incomingmail_workflow', validation_level=1,
-                               state_title=u'À valider par le chef de service',
-                               forward_transition_title=u'Proposer au chef de service',
-                               backward_transition_title=u'Renvoyer au chef de service',
-                               function_title=u'N+1')
+            adapt_is_applied = sva.patch_workflow('incomingmail_workflow', **n_plus_1_params)
+            if adapt_is_applied:
+                add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
+                                       'incomingmail_workflow', True, **n_plus_1_params)
 
         # replace EmergencyZoneAdaptation
         if u'imio.dms.mail.wfadaptations.EmergencyZone' in applied_wfa:
