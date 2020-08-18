@@ -51,7 +51,8 @@ dms_config
                                 ('realized', {'group': '_validateur', 'org': 'assigned_group'})])
     * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_service_chief', {'group': '_validateur',
                                           'org': 'treating_groups'})])
-* ['do_transitions'] : renvoie si la transition peut être effectuée
+* ['do_transitions'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées
+    * ['dmsincomingmail'][transition] = {'org1': True, 'org2': False}
 """
 
 
@@ -107,7 +108,7 @@ def group_has_user(groupname):
 
 def update_do_transitions(ptype, validation_level=None):
     """
-    Set do_transtions dms config
+    Set do_transitions dms config
     :param ptype: portal type
     :param validation_level: validation level
     """

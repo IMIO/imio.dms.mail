@@ -345,6 +345,7 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
         if not workflow_name == 'incomingmail_workflow':
             return False, _("This workflow adaptation is only valid for ${workflow} !",
                             mapping={'workflow': 'incomingmail_workflow'})
+        # TODO wf plus nécessaire pendant migration ??
         portal = api.portal.get()
         wtool = portal.portal_workflow
         im_workflow = wtool['incomingmail_workflow']

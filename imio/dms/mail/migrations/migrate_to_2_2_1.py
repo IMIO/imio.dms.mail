@@ -7,10 +7,11 @@ from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.contact.plonegroup.subscribers import group_deleted as pg_group_deleted
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
-from collective.wfadaptations.api import get_applied_adaptations, add_applied_adaptation
+from collective.wfadaptations.api import add_applied_adaptation
+from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
-from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.interfaces import ICriteria
+from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.widgets.storage import Criterion
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.subscribers import group_deleted
@@ -27,6 +28,7 @@ from zope.component import getUtility
 from zope.component import globalSiteManager
 
 import logging
+
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -206,10 +208,6 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
                                            lst)
 
-        def remove_adaptation_from_registry(name):
-            record = api.portal.get_registry_record(RECORD_NAME)
-            api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] != name])
-
         # update remark states and workflow
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         if 'proposed_to_service_chief' in lst:
@@ -218,6 +216,10 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                                            lst)
         else:
             return
+
+        def remove_adaptation_from_registry(name):
+            record = api.portal.get_registry_record(RECORD_NAME)
+            api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] != name])
 
         # reset workflows
         self.runProfileSteps('imio.dms.mail', steps=['workflow'])

@@ -59,7 +59,7 @@ csv_encoding = utf8
 # needed if plone-group organization is imported
 plonegroup_org_title =
 organizations_filename =
-organizations_fieldnames = _id _oid title description organization_type use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country enterprise_number internal_number _uid _ic
+organizations_fieldnames = _id _oid title description organization_type use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country enterprise_number _uid _ic
 persons_filename =
 persons_fieldnames = _id lastname firstname gender person_title birthday use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country internal_number _uid _ic
 held_positions_filename =
