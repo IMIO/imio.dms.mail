@@ -883,6 +883,7 @@ def adaptDefaultPortal(context):
     api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
                                    'display_below_content_title_on_views', True)
     # imio.dms.mail configuration annotation
+    set_dms_config(['n_plus_from_states', 'dmsincomingmail'], ['created', 'proposed_to_manager'])
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
                    OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))

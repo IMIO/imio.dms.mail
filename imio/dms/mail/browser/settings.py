@@ -9,7 +9,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
-from imio.dms.mail.utils import update_do_transitions
+from imio.dms.mail.utils import update_transitions_auc_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
 from plone import api
@@ -270,7 +270,7 @@ def imiodmsmail_settings_changed(event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')
     if event.record.fieldName == 'assigned_user_check':
-        update_do_transitions('dmsincomingmail')
+        update_transitions_auc_config('dmsincomingmail')
         n_plus_x = 'imio.dms.mail.wfadaptations.IMServiceValidation' in \
                    [adapt['adaptation'] for adapt in get_applied_adaptations()]
         snoi = False

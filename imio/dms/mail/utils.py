@@ -51,8 +51,11 @@ dms_config
                                 ('realized', {'group': '_validateur', 'org': 'assigned_group'})])
     * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_service_chief', {'group': '_validateur',
                                           'org': 'treating_groups'})])
-* ['do_transitions'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées
+* ['transitions_auc'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées en
+                        fonction du paramètre assigned_user_check
     * ['dmsincomingmail'][transition] = {'org1': True, 'org2': False}
+* ['transitions_levels'] : indique la plus haute transition par état en fonction de la présence des validateurs
+    * ['dmsincomingmail'][state] = {'org1': 'propose_to_n_plus_1', 'org2': 'propose_to_agent'}
 """
 
 
@@ -96,31 +99,83 @@ def get_dms_config(keys=None):
     return annot
 
 
-def group_has_user(groupname):
+def group_has_user(groupname, action=None):
     """ Check if group contains user """
     try:
-        if len(api.user.get_users(groupname=groupname)):
+        if action == 'delete':
+            return False
+        users_len = len(api.user.get_users(groupname=groupname))
+        if action == 'remove' and users_len == 1:
+            return False
+        elif action == 'add' and users_len == 0:
+            return True
+        elif users_len:
             return True
     except GroupNotFoundError:
         return False
     return False
 
 
-def update_do_transitions(ptype, validation_level=None):
+def update_transitions_levels_config(ptype, validation_level=None, action=None, group_id=None):
     """
-    Set do_transitions dms config
+    Set transitions_auc dms config
     :param ptype: portal type
-    :param validation_level: validation level
+    :param validation_level: validation level, if not yet registered in applied transition
+    :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
+    :param group_id: new group assignment
+    """
+    orgs = get_registry_organizations()
+    if ptype == 'dmsincomingmail':
+        from_states = get_dms_config(['n_plus_from_states', 'dmsincomingmail'])
+        states = []
+        max_level = 0
+        for wfa in get_applied_adaptations():
+            if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
+                max_level = wfa['parameters']['validation_level']
+                states.append(('proposed_to_n_plus_{}'.format(max_level), max_level))
+        if validation_level is not None:
+            max_level = validation_level
+            states.append(('proposed_to_n_plus_{}'.format(max_level), max_level))
+        states += [(st, 0) for st in from_states]
+        states.reverse()
+        state0 = ''
+        for state, level in states:
+            # for states before validation levels, we copy the first one
+            if level == 0 and state0:
+                set_dms_config(['transitions_levels', 'dmsincomingmail', state],
+                               get_dms_config(['transitions_levels', 'dmsincomingmail', state0]))
+                continue
+            config = {}
+            for org in orgs:
+                for lev in range(not level and max_level or level-1, 0, -1):  # we check all lower levels
+                    groupname = '{}_n_plus_{}'.format(org, lev)
+                    if group_has_user(groupname, action=(groupname == group_id and action or None)):
+                        config[org] = 'propose_to_n_plus_{}'.format(lev)
+                        break
+                else:
+                    config[org] = 'propose_to_agent'
+            set_dms_config(['transitions_levels', 'dmsincomingmail', state], config)
+            if level == 0 and not state0:
+                state0 = state
+
+
+def update_transitions_auc_config(ptype, validation_level=None, action=None, group_id=None):
+    """
+    Set transitions_auc dms config
+    :param ptype: portal type
+    :param validation_level: validation level, if not yet registered in applied transition
+    :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
+    :param group_id: new group assignment
     """
     orgs = get_registry_organizations()
     if ptype == 'dmsincomingmail':
         auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
         transitions = ['propose_to_agent']
-        if validation_level is not None:
-            transitions.append('propose_to_n_plus_{}'.format(validation_level))
         for wfa in get_applied_adaptations():
             if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
                 transitions.append('propose_to_n_plus_{}'.format(wfa['parameters']['validation_level']))
+        if validation_level is not None:
+            transitions.append('propose_to_n_plus_{}'.format(validation_level))
         previous_tr = ''
         for i, tr in enumerate(transitions):
             config = {}
@@ -132,17 +187,21 @@ def update_do_transitions(ptype, validation_level=None):
                     # propose_to_agent: previous_tr is empty => val will be False
                     # propose_to_n_plus_x: lower level True => val is True
                     # propose_to_n_plus_x: lower level False and user at this level => val is True
-                    if previous_tr and (config[previous_tr][org] or group_has_user('{}_n_plus_{}'.format(org, i))):
+                    groupname = '{}_n_plus_{}'.format(org, i)
+                    action = (groupname == group_id and action or None)
+                    if previous_tr and (config[previous_tr][org] or group_has_user(groupname, action=action)):
                         val = True
                 elif auc == u'n_plus_1':
                     # propose_to_agent: no n+1 level => val is True
                     # propose_to_n_plus_x: previous_tr => val is True
                     # propose_to_agent: n+1 level doesn't have user => val is True
-                    if len(transitions) == 1 or previous_tr or not group_has_user('{}_n_plus_1'.format(org)):
+                    groupname = '{}_n_plus_1'.format(org)
+                    action = (groupname == group_id and action or None)
+                    if len(transitions) == 1 or previous_tr or not group_has_user(groupname, action=action):
                         val = True
                 config[org] = val
             previous_tr = tr
-            set_dms_config(['do_transitions', 'dmsincomingmail', tr], config)
+            set_dms_config(['transitions_auc', 'dmsincomingmail', tr], config)
 
 
 def highest_review_level(portal_type, group_ids):
@@ -438,12 +497,17 @@ class IdmUtilsMethods(UtilsMethods):
             Check if assigned_user is set or if the test is required or if the user is admin.
             Used in guard expression for propose_to_agent transition
         """
-        if self.context.assigned_user is not None:
-            return True
         if self.context.treating_groups is None:
             return False
-        config = get_dms_config(['do_transitions', 'dmsincomingmail', transition])
-        if config.get(self.context.treating_groups, False):
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail', transition])
+        # TODO TO be continued
+        # show only the highest validation level
+        if self.context.treating_groups:
+            return False
+        if self.context.assigned_user is not None:
+            return True
+        transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
+        if transitions_auc.get(self.context.treating_groups, False):
             return True
         if self.user_is_admin():
             return True

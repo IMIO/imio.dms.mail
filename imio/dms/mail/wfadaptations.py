@@ -8,7 +8,8 @@ from imio.dms.mail import _tr as _
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
-from imio.dms.mail.utils import update_do_transitions
+from imio.dms.mail.utils import update_transitions_auc_config
+from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.pyutils.utils import insert_in_ordereddict
 from plone import api
@@ -629,8 +630,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
             value = (new_state_id, {'group': suffix, 'org': 'treating_groups'})
             new_config = insert_in_ordereddict(config, value, after_key='proposed_to_manager', at_position=0)
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
-        # update do_transitions config
-        update_do_transitions('dmsincomingmail', level)
+        # update dms config
+        update_transitions_auc_config('dmsincomingmail', level)
+        update_transitions_levels_config('dmsincomingmail', level)
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')

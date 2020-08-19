@@ -22,7 +22,8 @@ from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.setuphandlers import separate_fullname
-from imio.dms.mail.utils import update_do_transitions
+from imio.dms.mail.utils import update_transitions_auc_config
+from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from persistent.list import PersistentList
 from plone import api
@@ -265,8 +266,9 @@ def contact_plonegroup_change(event):
         s_fcts = get_registry_functions()
         if not s_fcts or not s_orgs:
             return
-        # we update do_transitions config
-        update_do_transitions('dmsincomingmail')
+        # we update dms config
+        update_transitions_auc_config('dmsincomingmail')
+        update_transitions_levels_config('dmsincomingmail')
         # invalidate vocabularies caches
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
@@ -435,10 +437,6 @@ def group_deleted(event):
     portal = api.portal.get()
     request = portal.REQUEST
 
-    # we update do_transitions config
-    if 'n_plus_' in group:
-        update_do_transitions('dmsincomingmail')
-
     # is protected group
     if group in ('dir_general', 'encodeurs', 'expedition', 'Administrators', 'Reviewers', 'Site Administrators'):
         api.portal.show_message(message=_("You cannot delete the group '${group}'.", mapping={'group': group}),
@@ -497,6 +495,11 @@ def group_deleted(event):
                                         request=request, type='error')
                 raise Redirect(request.get('ACTUAL_URL'))
 
+    # we update dms config
+    if 'n_plus_' in group:
+        update_transitions_auc_config('dmsincomingmail', action='delete', group_id=group)
+        update_transitions_levels_config('dmsincomingmail', action='delete', group_id=group)
+
 
 def group_assignment(event):
     """
@@ -505,9 +508,10 @@ def group_assignment(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
-    # we update do_transitions config
+    # we update dms config
     if 'n_plus_' in event.group_id:
-        update_do_transitions('dmsincomingmail')
+        update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)
+        update_transitions_levels_config('dmsincomingmail', action='add', group_id=event.group_id)
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
@@ -572,9 +576,10 @@ def group_unassignment(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
-    # we update do_transitions config
+    # we update dms config
     if 'n_plus_' in event.group_id:
-        update_do_transitions('dmsincomingmail')
+        update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)
+        update_transitions_levels_config('dmsincomingmail', action='remove', group_id=event.group_id)
     # we manage the personnel-folder person and held position
     orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
     if orgs:

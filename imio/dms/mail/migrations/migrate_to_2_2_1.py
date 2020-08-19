@@ -48,6 +48,10 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         update_solr_config()
         update_oo_config()
 
+        # add new dms config used in update_transitions_levels_config
+        if 'n_plus_from_states' not in get_dms_config():
+            set_dms_config(['n_plus_from_states', 'dmsincomingmail'], ['created', 'proposed_to_manager'])
+
         self.cleanRegistries()
 
         self.correct_actions()
