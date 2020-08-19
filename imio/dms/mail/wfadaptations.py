@@ -553,7 +553,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         functions = get_registry_functions()
         if new_id not in [fct['fct_id'] for fct in functions]:
             functions.append({'fct_title': parameters['function_title'], 'fct_id': unicode(new_id), 'fct_orgs': [],
-                              'fct_management': True})
+                              'fct_management': True, 'enabled': True})
             set_registry_functions(functions)
 
         # add local roles config

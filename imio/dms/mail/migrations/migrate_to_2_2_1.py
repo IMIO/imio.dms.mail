@@ -53,9 +53,10 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.correct_actions()
         auc_stored = self.registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check']
 
+        self.upgradeProfile('collective.contact.plonegroup:default')
         self.install(['collective.contact.importexport'])
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'], run_dependencies=False)
 
         # migrate assigned_user_check
         self.update_assigned_user_check(auc_stored)

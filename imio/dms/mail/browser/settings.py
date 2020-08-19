@@ -318,7 +318,7 @@ def configure_group_encoder(portal_types):
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
         functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': [],
-                          'fct_management': False})
+                          'fct_management': False, 'enabled': True})
         set_registry_functions(functions)
     # role and permission
     portal = api.portal.get()
