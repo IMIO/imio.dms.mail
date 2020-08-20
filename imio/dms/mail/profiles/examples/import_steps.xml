@@ -74,7 +74,7 @@ Add test own organization for imio.dms.mail
            <dependency step="imiodmsmail-addTestDirectory"/>
 Add test own personnel for imio.dms.mail
 </import-step>
-<import-step
+<!--import-step
             id="imiodmsmail-apply_n_plus_1_wfadaptation"
             handler="imio.dms.mail.setuphandlers.apply_n_plus_1_wfadaptation"
             title="Add n_plus_1 level in imio.dms.mail"
@@ -82,7 +82,7 @@ Add test own personnel for imio.dms.mail
            <dependency step="imiodmsmail-configureImioDmsMail"/>
            <dependency step="imiodmsmail-configureContactPloneGroup"/>
 Add n_plus_1 level in imio.dms.mail
-</import-step>
+</import-step-->
 <import-step
             id="imiodmsmail-configureDocumentViewer"
             handler="imio.dms.mail.setuphandlers.configureDocumentViewer"
