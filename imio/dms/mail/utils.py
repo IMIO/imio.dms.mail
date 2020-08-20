@@ -162,7 +162,7 @@ def update_transitions_levels_config(ptype, validation_level=None, action=None, 
                 continue
             config = {}
             for org in orgs:
-                propose_to = 'propose_to_agent'\
+                propose_to = 'propose_to_agent'
                 back_to = orgs_back.setdefault(org, 'from_states')
                 # check all lower levels to find first valid propose_to transition
                 for lev in range(start, 0, -1):
