@@ -38,6 +38,8 @@ logger = logging.getLogger('imio.dms.mail: utils')
 """
 dms_config
 ----------
+* ['n_plus_from'] : états précédant les niveaux de validation et transitions pour y accéder
+    * ['dmsincomingmail'] = [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')]
 * ['review_levels'] : sert à déterminer le niveau de validation d'un utilisateur suivant son groupe
     * ['dmsincomingmail'] = OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                          ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})])
@@ -54,8 +56,9 @@ dms_config
 * ['transitions_auc'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées en
                         fonction du paramètre assigned_user_check
     * ['dmsincomingmail'][transition] = {'org1': True, 'org2': False}
-* ['transitions_levels'] : indique la plus haute transition par état en fonction de la présence des validateurs
-    * ['dmsincomingmail'][state] = {'org1': 'propose_to_n_plus_1', 'org2': 'propose_to_agent'}
+* ['transitions_levels'] : indique les transitions valides par état en fonction de la présence des validateurs
+    * ['dmsincomingmail'][state] = {'org1': ('propose_to_n_plus_1', 'from_states'), 'org2': (...) }
+    ('from_states' est une valeur spéciale qui représente les transitions stockées dans from_states)
 """
 
 
@@ -118,7 +121,7 @@ def group_has_user(groupname, action=None):
 
 def update_transitions_levels_config(ptype, validation_level=None, action=None, group_id=None):
     """
-    Set transitions_auc dms config
+    Set transitions_levels dms config following org group users: [ptype][state][org] = (valid_propose_to, valid_back_to)
     :param ptype: portal type
     :param validation_level: validation level, if not yet registered in applied transition
     :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
@@ -126,8 +129,8 @@ def update_transitions_levels_config(ptype, validation_level=None, action=None, 
     """
     orgs = get_registry_organizations()
     if ptype == 'dmsincomingmail':
-        from_states = get_dms_config(['n_plus_from_states', 'dmsincomingmail'])
-        states = []
+        from_states = get_dms_config(['n_plus_from', 'dmsincomingmail'])
+        states = [('proposed_to_agent', 0)]
         max_level = 0
         for wfa in get_applied_adaptations():
             if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
@@ -136,32 +139,52 @@ def update_transitions_levels_config(ptype, validation_level=None, action=None, 
         if validation_level is not None:
             max_level = validation_level
             states.append(('proposed_to_n_plus_{}'.format(max_level), max_level))
-        states += [(st, 0) for st in from_states]
+        states += [(st, 9) for (st, tr) in from_states]
         states.reverse()
-        state0 = ''
+        state9 = ''
+        users_in_groups = {}  # boolean by groupname
+        orgs_back = {}  # last valid back transition by org
+
+        def check_group_users(g_n, u_in_g, g_id, act):
+            print g_n
+            if g_n not in u_in_g:
+                u_in_g[g_n] = group_has_user(g_n, action=(g_n == g_id and act or None))
+            return u_in_g[g_n]
+
         for state, level in states:
+            start = level - 1
+            if level == 9:
+                start = max_level
             # for states before validation levels, we copy the first one
-            if level == 0 and state0:
+            if level == 9 and state9:
                 set_dms_config(['transitions_levels', 'dmsincomingmail', state],
-                               get_dms_config(['transitions_levels', 'dmsincomingmail', state0]))
+                               get_dms_config(['transitions_levels', 'dmsincomingmail', state9]))
                 continue
             config = {}
             for org in orgs:
-                for lev in range(not level and max_level or level-1, 0, -1):  # we check all lower levels
-                    groupname = '{}_n_plus_{}'.format(org, lev)
-                    if group_has_user(groupname, action=(groupname == group_id and action or None)):
-                        config[org] = 'propose_to_n_plus_{}'.format(lev)
+                propose_to = 'propose_to_agent'\
+                back_to = orgs_back.setdefault(org, 'from_states')
+                # check all lower levels to find first valid propose_to transition
+                for lev in range(start, 0, -1):
+                    # level 9: range(0, 0, -1) => [] ; range(1, 0, -1) => [1] ; etc.
+                    # level 1: range(0, 0, -1) => [] ; level 2: range(1, 0, -1) => [1] ; etc.
+                    # level 0: range(-1, 0, -1) => []
+                    if check_group_users('{}_n_plus_{}'.format(org, lev), users_in_groups, group_id, action):
+                        propose_to = 'propose_to_n_plus_{}'.format(lev)
                         break
-                else:
-                    config[org] = 'propose_to_agent'
+                config[org] = (propose_to, back_to)
+                if level != 9 and users_in_groups.get('{}_n_plus_{}'.format(org, level), False):
+                    orgs_back[org] = 'back_to_n_plus_{}'.format(level)
+
             set_dms_config(['transitions_levels', 'dmsincomingmail', state], config)
-            if level == 0 and not state0:
-                state0 = state
+            if level == 9 and not state9:
+                state9 = state
+        pass
 
 
 def update_transitions_auc_config(ptype, validation_level=None, action=None, group_id=None):
     """
-    Set transitions_auc dms config
+    Set transitions_auc dms config following assigned user check: [ptype][transition][org] = True
     :param ptype: portal type
     :param validation_level: validation level, if not yet registered in applied transition
     :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
@@ -499,16 +522,24 @@ class IdmUtilsMethods(UtilsMethods):
         """
         if self.context.treating_groups is None:
             return False
-        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail', transition])
-        # TODO TO be continued
+        way_index = transition.startswith('back_to') and 1 or 0
+        transition_to_test = transition
+        from_states = get_dms_config(['n_plus_from', 'dmsincomingmail'])
+        if transition in [tr for (st, tr) in from_states]:
+            transition_to_test = 'from_states'
         # show only the highest validation level
-        if self.context.treating_groups:
+        state = api.content.get_state(self.context)
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+        if state in transitions_levels.get(state) and transitions_levels[state].get(self.context.treating_groups) and \
+                transitions_levels[state][self.context.treating_groups][way_index] != transition_to_test:
             return False
-        if self.context.assigned_user is not None:
-            return True
-        transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
-        if transitions_auc.get(self.context.treating_groups, False):
-            return True
+        # show transition following assigned_user on propose_to transition only
+        if way_index == 0:
+            if self.context.assigned_user is not None:
+                return True
+            transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
+            if transitions_auc.get(self.context.treating_groups, False):
+                return True
         if self.user_is_admin():
             return True
         return False
