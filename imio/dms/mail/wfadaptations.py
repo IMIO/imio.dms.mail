@@ -477,15 +477,14 @@ class IMServiceValidation(WorkflowAdaptationBase):
         wf = wtool['incomingmail_workflow']
         new_id = 'n_plus_{}'.format(level)
         new_state_id = 'proposed_to_{}'.format(new_id)
-        transitions = ['back_to_creation', 'back_to_manager']
-        if level == 1:
-            # next = descending the validation to go to agent
-            next_id = 'agent'
-            transitions.append('close')
-        else:
-            next_id = 'n_plus_{}'.format(level-1)
-        next_state_id = 'proposed_to_{}'.format(next_id)
-        transitions.append('propose_to_{}'.format(next_id))
+        from_states = get_dms_config(['n_plus_from', 'dmsincomingmail'])
+        transitions = [tr for (st, tr) in from_states]  # back transitions for new state
+        next_levels = ['agent']
+        for i in range(1, level):  # range(1, 1) => [], range(1, 2) => [1]
+            next_levels.append('n_plus_{}'.format(i))
+        for next_lev in next_levels:
+            transitions.append('propose_to_{}'.format(next_lev))
+        next_states = ['proposed_to_{}'.format(lev) for lev in next_levels]
 
         # add state
         msg = self.check_state_in_workflow(wf, new_state_id)
@@ -530,23 +529,22 @@ class IMServiceValidation(WorkflowAdaptationBase):
             actbox_name=back_tr_id, actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_back_to_n_plus.png',
             actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('idm-utils')."
+                                 "can_do_transition('{}')".format(back_tr_id)})
 
         # modify existing states
-        next_state = wf.states[next_state_id]
-        transitions = list(next_state.transitions)
-        for tr in ('back_to_manager', 'back_to_creation'):
-            if tr in transitions:
-                transitions.remove(tr)
-        transitions.append(back_tr_id)
-        next_state.transitions = tuple(transitions)
+        # add new back_to transition on next states
+        for next_state_id in next_states:
+            next_state = wf.states[next_state_id]
+            transitions = list(next_state.transitions)
+            transitions.append(back_tr_id)
+            next_state.transitions = tuple(transitions)
 
-        for st in ('proposed_to_manager', 'created'):
+        # add new propose_to transition on previous states
+        for st in [st for (st, tr) in from_states]:
             previous_state = wf.states[st]
             transitions = list(previous_state.transitions)
-            for tr in ('propose_to_{}'.format(next_id), 'close'):
-                if tr in transitions:
-                    transitions.remove(tr)
             transitions.append(propose_tr_id)
             previous_state.transitions = tuple(transitions)
 
@@ -560,7 +558,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
-        previous_states = ['proposed_to_n_plus_{}'.format(i) for i in range(1, level)]
         lrg = lr['static_config']
         if new_state_id not in lrg:
             lrg[new_state_id] = {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
@@ -570,17 +567,15 @@ class IMServiceValidation(WorkflowAdaptationBase):
         lrg = lr['treating_groups']
         if new_state_id not in lrg:
             lrg[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
-            for st in previous_states:
+            for st in next_states:
                 lrg[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
-            lrg['proposed_to_agent'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
             lrg['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
             lrg['closed'].update({new_id: {'roles': ['Reviewer']}})
         lrg = lr['recipient_groups']
         if new_state_id not in lrg:
             lrg[new_state_id] = {new_id: {'roles': ['Reader']}}
-            for st in previous_states:
+            for st in next_states:
                 lrg[st].update({new_id: {'roles': ['Reader']}})
-            lrg['proposed_to_agent'].update({new_id: {'roles': ['Reader']}})
             lrg['in_treatment'].update({new_id: {'roles': ['Reader']}})
             lrg['closed'].update({new_id: {'roles': ['Reader']}})
         # We need to indicate that the object has been modified and must be 'saved'
@@ -591,7 +586,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         col_id = 'searchfor_{}'.format(new_state_id)
         col_title = u'État: {}'.format(parameters['state_title'])
         if col_id not in folder:
-            next_col = folder['searchfor_{}'.format(next_state_id)]
+            next_col = folder['searchfor_{}'.format(next_states[-1])]
             folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': ['dmsincomingmail', 'dmsincoming_email']},
@@ -607,9 +602,10 @@ class IMServiceValidation(WorkflowAdaptationBase):
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
-            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_state_id)))
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_states[0])))
 
         # update showNumberOfItems on 'to_treat_in_my_group'
+        # TODO yet necessary ? verify code...
         auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
         snoi = False
         if auc == u'no_check':
