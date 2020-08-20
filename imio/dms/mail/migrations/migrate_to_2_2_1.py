@@ -49,8 +49,9 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         update_oo_config()
 
         # add new dms config used in update_transitions_levels_config
-        if 'n_plus_from_states' not in get_dms_config():
-            set_dms_config(['n_plus_from_states', 'dmsincomingmail'], ['created', 'proposed_to_manager'])
+        if 'n_plus_from' not in get_dms_config():
+            set_dms_config(['n_plus_from', 'dmsincomingmail'], [('created', 'back_to_creation'),
+                                                                ('proposed_to_manager', 'back_to_manager')])
 
         self.cleanRegistries()
 
@@ -287,8 +288,9 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             if group.id.endswith('_validateur'):
                 org = group.id.split('_')[0]
                 np1group = api.group.get('{}_n_plus_1'.format(org))
-                for user in api.user.get_users(group=group):
-                    api.group.add_user(group=np1group, user=user)
+                if np1group:
+                    for user in api.user.get_users(group=group):
+                        api.group.add_user(group=np1group, user=user)
                 api.group.delete(group=group)
         # register again group deletion handlers
         globalSiteManager.registerHandler(pg_group_deleted, (IGroupDeletedEvent,))
