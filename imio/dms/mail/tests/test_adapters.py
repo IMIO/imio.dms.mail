@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
@@ -16,6 +17,7 @@ from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import set_dms_config
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -45,6 +47,10 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, default_criterias['dmsincomingmail'])
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        # update reviewlevels because n_plus_1 level is not applied by default
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                    ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         # in a group _n_plus_1
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_n_plus_1']},
                                       'treating_groups': {'query': ['111']}})
@@ -59,6 +65,10 @@ class TestAdapters(unittest.TestCase):
         # in a group _n_plus_1
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        # update reviewlevels because n_plus_1 level is not applied by default
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                    ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
@@ -139,8 +149,6 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(indexer(), 'created')
         api.content.transition(obj=imail, to_state='proposed_to_manager')
         self.assertEqual(indexer(), 'proposed_to_manager')
-        api.content.transition(obj=imail, to_state='proposed_to_n_plus_1')
-        self.assertEqual(indexer(), 'proposed_to_n_plus_1,%s' % dguid)
         api.content.transition(obj=imail, to_state='proposed_to_agent')
         self.assertEqual(indexer(), 'proposed_to_agent')
 

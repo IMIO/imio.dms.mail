@@ -43,6 +43,7 @@ class BatchActions(unittest.TestCase):
     def test_TreatingGroupBatchActionForm(self):
         self.assertEqual(self.im1.treating_groups, self.pgof['direction-generale'].UID())
         self.assertEqual(self.im2.treating_groups, self.pgof['direction-generale']['secretariat'].UID())
+        api.group.add_user(groupname='{}_editeur'.format(self.pgof['direction-financiere'].UID()), username='chef')
         self.im2.assigned_user = 'agent'
         self.im2.reindexObject()
         # assigned user blocking

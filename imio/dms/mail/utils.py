@@ -146,7 +146,6 @@ def update_transitions_levels_config(ptype, validation_level=None, action=None, 
         orgs_back = {}  # last valid back transition by org
 
         def check_group_users(g_n, u_in_g, g_id, act):
-            print g_n
             if g_n not in u_in_g:
                 u_in_g[g_n] = group_has_user(g_n, action=(g_n == g_id and act or None))
             return u_in_g[g_n]

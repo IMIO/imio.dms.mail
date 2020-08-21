@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import back_or_again_state
@@ -35,6 +37,7 @@ class TestUtils(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         api.group.create('abc_group_encoder', 'ABC group encoder')
+        self.pgof = self.portal['contacts']['plonegroup-organization']
 
     def test_dms_config(self):
         annot = IAnnotations(self.portal)
@@ -53,6 +56,9 @@ class TestUtils(unittest.TestCase):
         self.assertIsNone(highest_review_level('a_type', ""))
         self.assertIsNone(highest_review_level('dmsincomingmail', ""))
         self.assertEquals(highest_review_level('dmsincomingmail', "['dir_general']"), 'dir_general')
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                    ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertEquals(highest_review_level('dmsincomingmail', "['111_n_plus_1']"), '_n_plus_1')
 
     def test_list_wf_states(self):
@@ -71,11 +77,12 @@ class TestUtils(unittest.TestCase):
                          ['created', 'to_assign', 'in_progress', 'realized', 'closed', 'NEW'])
 
     def test_back_or_again_state(self):
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', assigned_user='agent',
+                                         treating_groups=self.pgof['direction-generale']['secretariat'].UID())
         self.assertEqual(back_or_again_state(imail), '')  # initial state: no action
         api.content.transition(obj=imail, transition='propose_to_manager')
         self.assertEqual(back_or_again_state(imail), '')  # second state: empty
-        api.content.transition(obj=imail, transition='propose_to_n_plus_1')
+        api.content.transition(obj=imail, transition='propose_to_agent')
         self.assertEqual(back_or_again_state(imail), '')  # third state: empty
         api.content.transition(obj=imail, transition='back_to_manager')
         self.assertEqual(back_or_again_state(imail), 'back')  # we have a back action starting with back_
@@ -83,7 +90,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(back_or_again_state(imail), 'back')  # we have a back action starting with back_
         self.assertEqual(back_or_again_state(imail, transitions=['back_to_creation']),
                          'back')  # we have a back action found in transitions parameter
-        api.content.transition(obj=imail, transition='propose_to_n_plus_1')
+        api.content.transition(obj=imail, transition='propose_to_agent')
         self.assertEqual(back_or_again_state(imail), 'again')  # third state again
 
     def test_get_scan_id(self):
@@ -138,6 +145,9 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                    ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
         api.group.remove_user(groupname='111_n_plus_1', username=TEST_USER_ID)
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
@@ -203,37 +213,5 @@ class TestUtils(unittest.TestCase):
 
     def test_IdmUtilsMethods_proposed_to_n_plus_col_cond(self):
         im_folder = self.portal['incoming-mail']['mail-searches']
-        col = im_folder['searchfor_proposed_to_n_plus_1']
-        n_plus_1_view = IdmUtilsMethods(col, col.REQUEST)
-        self.assertFalse(n_plus_1_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'encodeur')
-        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'agent')
-        self.assertFalse(n_plus_1_view.proposed_to_n_plus_col_cond())
-        api.group.add_user(groupname='abc_group_encoder', username='agent')
-        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
-        api.group.remove_user(groupname='abc_group_encoder', username='agent')
-        login(self.portal, 'dirg')
-        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'chef')
-        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
-        # create N+2 validation by patching the workflow
-        login(self.portal, 'test-user')
-        sva = IMServiceValidation()
-        sva.patch_workflow('incomingmail_workflow',
-                           validation_level=2,
-                           state_title=u'Valider par le chef de département',
-                           forward_transition_title=u'Proposer au chef de département',
-                           backward_transition_title=u'Renvoyer au chef de département',
-                           function_title=u'chef de département')
-        col = im_folder['searchfor_proposed_to_n_plus_2']
-        n_plus_2_view = IdmUtilsMethods(col, col.REQUEST)
-        self.assertFalse(n_plus_2_view.proposed_to_n_plus_col_cond())
-        # Set N+2 to user, have to get an organization UID first
-        contacts = self.portal['contacts']
-        own_orga = contacts['plonegroup-organization']
-        departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
-        self.portal.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_n_plus_2" % departments[5].UID())
-        login(self.portal, 'agent1')
-        self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
-        self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
+        self.assertFalse('searchfor_proposed_to_n_plus_1' in im_folder)
+        self.assertTrue('See test_wfadaptations_imservicevalidation.py')

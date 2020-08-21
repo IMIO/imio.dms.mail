@@ -50,7 +50,6 @@ class TestVocabularies(unittest.TestCase):
         voc_inst = IMReviewStatesVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertEqual(voc_list, [('created', u'En création'), ('proposed_to_manager', u'À valider par le DG'),
-                                    ('proposed_to_n_plus_1', u'À valider par le chef de service'),
                                     ('proposed_to_agent', u'À traiter'), ('in_treatment', u'En cours de traitement'),
                                     ('closed', u'Clôturé')])
 
