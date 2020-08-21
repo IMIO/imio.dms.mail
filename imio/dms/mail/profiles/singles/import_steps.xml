@@ -57,4 +57,12 @@
     Mark old mails in copy as read.
  </import-step>
 
+ <import-step
+    id="imiodmsmail-apply_n_plus_1_wfadaptation"
+    handler="imio.dms.mail.setuphandlers.apply_n_plus_1_wfadaptation"
+    title="Add n_plus_1 level in imio.dms.mail"
+    version="2020-07-13T15:00:00.00000">
+    Add n_plus_1 level in imio.dms.mail
+ </import-step>
+
 </import-steps>

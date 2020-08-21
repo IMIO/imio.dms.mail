@@ -1279,7 +1279,7 @@ def apply_n_plus_1_wfadaptation(context):
     """
         Add n_plus_1 level
     """
-    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
     logger.info('Apply n_plus_1 level')
     site = context.getSite()
