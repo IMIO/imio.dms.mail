@@ -362,6 +362,7 @@
           category="workflow" i18n:translate="">back_to_creation</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
+    <guard-expression>python:object.restrictedTraverse('idm-utils').can_do_transition('back_to_creation')</guard-expression>
   </guard>
  </transition>
  <transition transition_id="back_to_manager"
@@ -375,6 +376,7 @@
           category="workflow" i18n:translate="">back_to_manager</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
+    <guard-expression>python:object.restrictedTraverse('idm-utils').can_do_transition('back_to_manager')</guard-expression>
   </guard>
  </transition>
  <transition transition_id="back_to_treatment"
