@@ -239,6 +239,7 @@
             get_im_folder
             highest_scan_id
             im_listing_url
+            is_in_user_groups
             must_render_im_listing
             proposed_to_manager_col_cond
             proposed_to_pre_manager_col_cond
@@ -256,6 +257,7 @@
         allowed_attributes="
             get_om_folder
             highest_scan_id
+            is_in_user_groups
             scanned_col_cond
             is_odt_activated
         "
