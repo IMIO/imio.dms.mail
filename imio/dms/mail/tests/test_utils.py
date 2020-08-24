@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-
+from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
+from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import list_wf_states
-from imio.helpers.xhtml import object_link
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import update_transitions_levels_config
+from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import UtilsMethods
-from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
@@ -51,6 +52,91 @@ class TestUtils(unittest.TestCase):
         set_dms_config(['a', 'b'], value='plone')
         self.assertTrue(isinstance(annot['imio.dms.mail']['a']['b'], str))
         self.assertEqual(get_dms_config(['a', 'b']), 'plone')
+
+    def test_group_has_user(self):
+        self.assertFalse(group_has_user('xxx', 'delete'))
+        self.assertFalse(group_has_user('xxx'))  # group not found
+        self.assertFalse(group_has_user('abc_group_encoder'))  # no user
+        self.assertTrue(group_has_user('abc_group_encoder', 'add'))  # we are adding a user
+        api.group.add_user(groupname='abc_group_encoder', username='chef')
+        self.assertTrue(group_has_user('abc_group_encoder'))  # group has one user
+        self.assertFalse(group_has_user('abc_group_encoder', 'remove'))  # we are removing the only one user
+
+    def test_update_transitions_levels_config(self):
+        config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+        self.assertSetEqual(set(config.keys()), set(['created', 'proposed_to_manager', 'proposed_to_agent']))
+        self.assertEqual(config['created'], config['proposed_to_manager'])
+        self.assertEqual(config['created'], config['proposed_to_agent'])
+        for state in config:
+            for org in config[state]:
+                self.assertEqual(config[state][org], ('propose_to_agent', 'from_states'))
+        org1, org2 = get_registry_organizations()[0:2]
+        # we simulate the adding of a level without user
+        api.group.create('{}_n_plus_1'.format(org1), 'N+1')
+        update_transitions_levels_config('dmsincomingmail', 1)
+        config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+        self.assertEqual(config['proposed_to_n_plus_1'][org1], ('propose_to_agent', 'from_states'))
+        self.assertEqual(config['proposed_to_manager'][org1], ('propose_to_agent', 'from_states'))
+        self.assertEqual(config['proposed_to_manager'][org2], ('propose_to_agent', 'from_states'))
+        self.assertEqual(config['proposed_to_agent'][org1], ('propose_to_agent', 'from_states'))
+        # we simulate the adding of a level and a user
+        update_transitions_levels_config('dmsincomingmail', 1, 'add', '{}_n_plus_1'.format(org1))
+        config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+        self.assertEqual(config['proposed_to_n_plus_1'][org1], ('propose_to_agent', 'from_states'))
+        self.assertEqual(config['proposed_to_manager'][org1], ('propose_to_n_plus_1', 'from_states'))
+        self.assertEqual(config['proposed_to_manager'][org2], ('propose_to_agent', 'from_states'))
+        self.assertEqual(config['proposed_to_agent'][org1], ('propose_to_agent', 'back_to_n_plus_1'))
+        self.assertEqual(config['proposed_to_agent'][org2], ('propose_to_agent', 'from_states'))
+
+    def test_update_transitions_auc_config(self):
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check',
+                                       u'no_check')
+        # no check
+        config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        self.assertSetEqual(set(config.keys()), set(['propose_to_agent']))
+        self.assertTrue(all(config['propose_to_agent'].values()))  # can always do transition
+        # n_plus_1
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check',
+                                       u'n_plus_1')
+        # only one transition
+        config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        self.assertSetEqual(set(config.keys()), set(['propose_to_agent']))
+        self.assertTrue(all(config['propose_to_agent'].values()))
+        # we simulate the adding of a level without user
+        org1, org2 = get_registry_organizations()[0:2]
+        api.group.create('{}_n_plus_1'.format(org1), 'N+1')
+        update_transitions_auc_config('dmsincomingmail', 1)
+        config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        self.assertSetEqual(set(config.keys()), set(['propose_to_n_plus_1', 'propose_to_agent']))
+        self.assertTrue(all(config['propose_to_n_plus_1'].values()))
+        self.assertTrue(all(config['propose_to_agent'].values()))
+        # we simulate the adding of a level and a user
+        update_transitions_auc_config('dmsincomingmail', 1, 'add', '{}_n_plus_1'.format(org1))
+        config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        self.assertTrue(config['propose_to_n_plus_1'][org1])
+        self.assertFalse(config['propose_to_agent'][org1])  # cannot do transition because user
+        self.assertTrue(config['propose_to_agent'][org2])
+        # mandatory
+        # reset config
+        set_dms_config(['transitions_auc', 'dmsincomingmail'], value='dict')
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check',
+                                       u'mandatory')
+        config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        self.assertFalse(any(config['propose_to_agent'].values()))  # all is False
+        # we simulate the adding of a level without user
+        update_transitions_auc_config('dmsincomingmail', 1)
+        config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        self.assertSetEqual(set(config.keys()), set(['propose_to_n_plus_1', 'propose_to_agent']))
+        self.assertFalse(any(config['propose_to_n_plus_1'].values()))  # all is False
+        self.assertFalse(any(config['propose_to_agent'].values()))  # all is False
+        # we simulate the adding of a level and a user
+        update_transitions_auc_config('dmsincomingmail', 1, 'add', '{}_n_plus_1'.format(org1))
+        config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        self.assertTrue(config['propose_to_n_plus_1'][org1])  # can do transition because user
+        self.assertFalse(config['propose_to_n_plus_1'][org2])
+        self.assertFalse(config['propose_to_agent'][org1])
+        self.assertFalse(config['propose_to_agent'][org2])
+
 
     def test_highest_review_level(self):
         self.assertIsNone(highest_review_level('a_type', ""))
