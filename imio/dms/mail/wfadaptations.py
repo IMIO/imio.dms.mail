@@ -558,26 +558,26 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
-        lrg = lr['static_config']
-        if new_state_id not in lrg:
-            lrg[new_state_id] = {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
+        lrs = lr['static_config']
+        if new_state_id not in lrs:
+            lrs[new_state_id] = {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
                                                            'Base Field Writer', 'Treating Group Writer']},
                                  'encodeurs': {'roles': ['Reader']},
                                  'lecteurs_globaux_ce': {'roles': ['Reader']}}
-        lrg = lr['treating_groups']
-        if new_state_id not in lrg:
-            lrg[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
+        lrt = lr['treating_groups']
+        if new_state_id not in lrt:
+            lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
             for st in next_states:
-                lrg[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
-            lrg['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
-            lrg['closed'].update({new_id: {'roles': ['Reviewer']}})
-        lrg = lr['recipient_groups']
-        if new_state_id not in lrg:
-            lrg[new_state_id] = {new_id: {'roles': ['Reader']}}
+                lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+            lrt['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+            lrt['closed'].update({new_id: {'roles': ['Reviewer']}})
+        lrr = lr['recipient_groups']
+        if new_state_id not in lrr:
+            lrr[new_state_id] = {new_id: {'roles': ['Reader']}}
             for st in next_states:
-                lrg[st].update({new_id: {'roles': ['Reader']}})
-            lrg['in_treatment'].update({new_id: {'roles': ['Reader']}})
-            lrg['closed'].update({new_id: {'roles': ['Reader']}})
+                lrr[st].update({new_id: {'roles': ['Reader']}})
+            lrr['in_treatment'].update({new_id: {'roles': ['Reader']}})
+            lrr['closed'].update({new_id: {'roles': ['Reader']}})
         # We need to indicate that the object has been modified and must be 'saved'
         lr._p_changed = True
 
@@ -602,10 +602,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
-            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_states[0])))
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_states[-1])))
 
         # update showNumberOfItems on 'to_treat_in_my_group'
-        # TODO yet necessary ? verify code...
         auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
         snoi = False
         if auc == u'no_check':
