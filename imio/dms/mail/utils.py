@@ -565,14 +565,10 @@ class IdmUtilsMethods(UtilsMethods):
         for i in range(int(self.context.id[-1:]), 6):
             suffixes.append('n_plus_{}'.format(i))
         suffixes.append(CREATING_GROUP_SUFFIX)
-        if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False, suffixes=suffixes):
-            return True
-        return False
+        return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False, suffixes=suffixes)
 
     def must_render_im_listing(self):
-        if IIMDashboard.providedBy(self.context):
-            return True
-        return False
+        return IIMDashboard.providedBy(self.context)
 
     def im_listing_url(self):
         col_folder = self.get_im_folder()['mail-searches']
