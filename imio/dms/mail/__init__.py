@@ -22,8 +22,12 @@ def initialize(context):
 dmsfile.DmsFile.__ac_local_roles_block__ = False
 dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
 
+AUC_RECORD = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'
+CREATING_GROUP_SUFFIX = u'group_encoder'
+# CREATING_FIELD_ROLE = 'Creating Group Field Writer'
 EMPTY_STRING = '__empty_string__'
 EMPTY_DATE = date(1950, 1, 1)
+PRODUCT_DIR = os.path.dirname(__file__)
 
 # TODO: remove validateur when no more used
 ALL_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
@@ -33,14 +37,9 @@ OM_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'validateur', 'n_plus_1', 'n_plus_2',
 OM_READER_SERVICE_FUNCTIONS = ['encodeur', 'lecteur', 'editeur', 'validateur', 'n_plus_1', 'n_plus_2', 'n_plus_3',
                                'n_plus_4', 'n_plus_5']
 
-PRODUCT_DIR = os.path.dirname(__file__)
-
 BACK_OR_AGAIN_ICONS = {'': False,
                        'back': '++resource++imio.dms.mail/wf_back.png',
                        'again': '++resource++imio.dms.mail/wf_again.png'}
-
-CREATING_GROUP_SUFFIX = u'group_encoder'
-# CREATING_FIELD_ROLE = 'Creating Group Field Writer'
 
 
 def _tr(msgid, domain='imio.dms.mail'):

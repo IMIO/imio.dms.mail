@@ -5,6 +5,7 @@ from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from imio.dms.mail import _tr as _
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
@@ -605,7 +606,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(next_states[-1])))
 
         # update showNumberOfItems on 'to_treat_in_my_group'
-        auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
+        auc = api.portal.get_registry_record(AUC_RECORD)
         snoi = False
         if auc == u'no_check':
             snoi = True

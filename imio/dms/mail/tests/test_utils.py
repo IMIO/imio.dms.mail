@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import back_or_again_state
@@ -89,15 +90,13 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(config['proposed_to_agent'][org2], ('propose_to_agent', 'from_states'))
 
     def test_update_transitions_auc_config(self):
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check',
-                                       u'no_check')
+        api.portal.set_registry_record(AUC_RECORD, u'no_check')
         # no check
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
         self.assertSetEqual(set(config.keys()), {'propose_to_agent'})
         self.assertTrue(all(config['propose_to_agent'].values()))  # can always do transition
         # n_plus_1
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check',
-                                       u'n_plus_1')
+        api.portal.set_registry_record(AUC_RECORD, u'n_plus_1')
         # only one transition
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
         self.assertSetEqual(set(config.keys()), {'propose_to_agent'})
@@ -119,8 +118,7 @@ class TestUtils(unittest.TestCase):
         # mandatory
         # reset config
         set_dms_config(['transitions_auc', 'dmsincomingmail'], value='dict')
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check',
-                                       u'mandatory')
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
         self.assertFalse(any(config['propose_to_agent'].values()))  # all is False
         # we simulate the adding of a level without user

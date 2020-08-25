@@ -7,6 +7,7 @@ from collective.wfadaptations.api import get_applied_adaptations
 from datetime import date
 from datetime import timedelta
 from imio.dms.mail import _tr as _
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
@@ -192,7 +193,7 @@ def update_transitions_auc_config(ptype, validation_level=None, action=None, gro
     """
     orgs = get_registry_organizations()
     if ptype == 'dmsincomingmail':
-        auc = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check')
+        auc = api.portal.get_registry_record(AUC_RECORD)
         transitions = ['propose_to_agent']
         for wfa in get_applied_adaptations():
             if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
@@ -501,12 +502,12 @@ class IdmUtilsMethods(UtilsMethods):
         """
             Test if assigned_user is set or if the test is required or if the user is admin.
             Used in guard expression for propose_to_agent transition
+            NO MORE USED
         """
         if self.context.assigned_user is not None:
             return True
         # TODO to review
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check') \
-                == u'no_check':
+        if api.portal.get_registry_record(AUC_RECORD) == u'no_check':
             return True
         if self.user_is_admin():
             return True

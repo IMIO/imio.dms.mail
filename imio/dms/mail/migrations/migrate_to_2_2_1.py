@@ -13,6 +13,7 @@ from collective.wfadaptations.api import RECORD_NAME
 from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.widgets.storage import Criterion
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.subscribers import group_deleted
 from imio.dms.mail.utils import get_dms_config
@@ -56,7 +57,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.cleanRegistries()
 
         self.correct_actions()
-        auc_stored = self.registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check']
+        auc_stored = self.registry[AUC_RECORD]
 
         self.upgradeProfile('collective.contact.plonegroup:default')
         self.install(['collective.contact.importexport'])
@@ -118,7 +119,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             value = u'n_plus_1'
         else:
             value = u'no_check'
-        self.registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'] = value
+        self.registry[AUC_RECORD] = value
 
     def update_site(self):
         # change permission to remove dashboard from user menu
