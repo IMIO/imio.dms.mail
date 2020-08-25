@@ -519,26 +519,34 @@ class IdmUtilsMethods(UtilsMethods):
             Used in guard expression for propose_to_agent transition
         """
         if self.context.treating_groups is None:
+            # print "no tg: False"
             return False
         way_index = transition.startswith('back_to') and 1 or 0
         transition_to_test = transition
         from_states = get_dms_config(['n_plus_from', 'dmsincomingmail'])
         if transition in [tr for (st, tr) in from_states]:
             transition_to_test = 'from_states'
-        # show only the highest validation level
+        # show only the next valid level
         state = api.content.get_state(self.context)
         transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])
-        if state in transitions_levels.get(state) and transitions_levels[state].get(self.context.treating_groups) and \
-                transitions_levels[state][self.context.treating_groups][way_index] != transition_to_test:
+        if state not in transitions_levels or \
+                (transitions_levels[state].get(self.context.treating_groups)
+                 and transitions_levels[state][self.context.treating_groups][way_index] != transition_to_test):
+            # print "from state: False"
             return False
         # show transition following assigned_user on propose_to transition only
         if way_index == 0:
             if self.context.assigned_user is not None:
+                # print "have assigned user: True"
                 return True
             transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
             if transitions_auc.get(self.context.treating_groups, False):
+                # print 'auc ok: True'
                 return True
+        else:
+            return True  # state ok, back ok
         if self.user_is_admin():
+            # print 'admin: True'
             return True
         return False
 

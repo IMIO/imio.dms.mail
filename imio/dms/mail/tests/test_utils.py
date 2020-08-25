@@ -12,8 +12,8 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
-from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import update_transitions_auc_config
+from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from persistent.dict import PersistentDict
@@ -252,6 +252,37 @@ class TestUtils(unittest.TestCase):
         self.assertNotIn('Manager', api.user.get_roles(username=TEST_USER_ID))
         self.assertFalse(view.idm_has_assigned_user())
 
+    def test_IdmUtilsMethods_can_do_transition0(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.assertEqual(api.content.get_state(imail), 'created')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        # no treating_group: NOK
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user nok but auc ok: OK
+        imail.treating_groups = get_registry_organizations()[0]
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user nok, auc nok, but admin: OK
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user nok, auc nok: NOK
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user nok, auc ok: OK
+        api.portal.set_registry_record(AUC_RECORD, 'no_check')
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user ok, auc nok: OK
+        imail.assigned_user = 'chef'
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # WE DO TRANSITION
+        api.content.transition(imail, 'propose_to_agent')
+        self.assertEqual(api.content.get_state(imail), 'proposed_to_agent')
+        # tg ok, state ok, (assigner_user nok, auc nok): OK
+        imail.assigned_user = None
+        self.assertTrue(view.can_do_transition('back_to_creation'))
+        self.assertTrue(view.can_do_transition('back_to_manager'))
+        self.assertFalse(view.can_do_transition('unknown'))
+
     def test_IdmUtilsMethods_created_col_cond(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         view = IdmUtilsMethods(imail, imail.REQUEST)
@@ -294,7 +325,7 @@ class TestUtils(unittest.TestCase):
         api.group.add_user(groupname='pre_manager', username='agent1')
         self.assertTrue(view.proposed_to_pre_manager_col_cond())
 
-    def test_IdmUtilsMethods_proposed_to_n_plus_col_cond(self):
+    def test_IdmUtilsMethods_proposed_to_n_plus_col_cond0(self):
         im_folder = self.portal['incoming-mail']['mail-searches']
         self.assertFalse('searchfor_proposed_to_n_plus_1' in im_folder)
         self.assertTrue('See test_wfadaptations_imservicevalidation.py')

@@ -3,8 +3,10 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.wfadaptations.api import add_applied_adaptation
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from plone import api
@@ -93,6 +95,57 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertIn('dmsincomingmail.back_to_n_plus_1|', lst)
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         self.assertIn('proposed_to_n_plus_1', lst)
+
+    def test_IdmUtilsMethods_can_do_transition1(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.assertEqual(api.content.get_state(imail), 'created')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        # no treating_group: NOK
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        # tg ok, following states
+        imail.treating_groups = get_registry_organizations()[0]
+        api.portal.set_registry_record(AUC_RECORD, 'no_check')
+        self.assertFalse(view.can_do_transition('propose_to_agent'))  # has higher level
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        # tg ok, following states: no more n_plus_1 user
+        groupname = '{}_n_plus_1'.format(imail.treating_groups)
+        api.group.remove_user(groupname=groupname, username='chef')
+        self.assertFalse(group_has_user(groupname))
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # tg ok, assigner_user nok, auc ok
+        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertTrue(view.can_do_transition('propose_to_agent'))  # ok because no n+1 level
+        # tg ok, assigner_user nok, auc nok
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user ok, auc nok
+        imail.assigned_user = 'chef'
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # WE DO TRANSITION
+        api.group.add_user(groupname=groupname, username='chef')
+        api.content.transition(imail, 'propose_to_n_plus_1')
+        self.assertEqual(api.content.get_state(imail), 'proposed_to_n_plus_1')
+        # tg ok, state ok, assigner_user nok, auc nok
+        imail.assigned_user = None
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertTrue(view.can_do_transition('back_to_creation'))
+        self.assertTrue(view.can_do_transition('back_to_manager'))
+        self.assertFalse(view.can_do_transition('unknown'))
+        # WE DO TRANSITION
+        imail.assigned_user = 'chef'
+        api.content.transition(imail, 'propose_to_agent')
+        self.assertEqual(api.content.get_state(imail), 'proposed_to_agent')
+        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('back_to_creation'))
+        self.assertFalse(view.can_do_transition('back_to_manager'))
+        # we remove n+1 users
+        api.group.remove_user(groupname=groupname, username='chef')
+        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        self.assertTrue(view.can_do_transition('back_to_creation'))
+        self.assertTrue(view.can_do_transition('back_to_manager'))
 
     def test_IdmUtilsMethods_proposed_to_n_plus_col_cond1(self):
         folder = self.portal['incoming-mail']['mail-searches']
@@ -207,6 +260,81 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertIn('dmsincomingmail.back_to_n_plus_2|', lst)
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         self.assertIn('proposed_to_n_plus_2', lst)
+
+    def test_IdmUtilsMethods_can_do_transition2(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.assertEqual(api.content.get_state(imail), 'created')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        # no treating_group: NOK
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        # tg ok, following states
+        imail.treating_groups = get_registry_organizations()[0]
+        api.portal.set_registry_record(AUC_RECORD, 'no_check')
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        # tg ok, following states: no more n_plus_ user
+        groupname2 = '{}_n_plus_2'.format(imail.treating_groups)
+        api.group.remove_user(groupname=groupname2, username='chef')
+        self.assertFalse(group_has_user(groupname2))
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        groupname1 = '{}_n_plus_1'.format(imail.treating_groups)
+        api.group.remove_user(groupname=groupname1, username='chef')
+        self.assertFalse(group_has_user(groupname1))
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # tg ok, assigner_user nok, auc ok
+        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertTrue(view.can_do_transition('propose_to_agent'))  # ok because no n+1 level
+        # tg ok, assigner_user nok, auc nok
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user ok, auc nok
+        imail.assigned_user = 'chef'
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        # WE DO TRANSITION
+        api.group.add_user(groupname=groupname2, username='chef')
+        api.content.transition(imail, 'propose_to_n_plus_2')
+        self.assertEqual(api.content.get_state(imail), 'proposed_to_n_plus_2')
+        # tg ok, state ok, assigner_user nok, auc nok
+        imail.assigned_user = None
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertTrue(view.can_do_transition('back_to_creation'))
+        self.assertTrue(view.can_do_transition('back_to_manager'))
+        # WE DO TRANSITION
+        api.group.add_user(groupname=groupname1, username='chef')
+        api.content.transition(imail, 'propose_to_n_plus_1')
+        self.assertEqual(api.content.get_state(imail), 'proposed_to_n_plus_1')
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertTrue(view.can_do_transition('back_to_n_plus_2'))
+        self.assertFalse(view.can_do_transition('back_to_creation'))
+        self.assertFalse(view.can_do_transition('back_to_manager'))
+        # we remove n+2 users
+        api.group.remove_user(groupname=groupname2, username='chef')
+        self.assertFalse(view.can_do_transition('back_to_n_plus_2'))
+        self.assertTrue(view.can_do_transition('back_to_creation'))
+        self.assertTrue(view.can_do_transition('back_to_manager'))
+        # WE DO TRANSITION
+        imail.assigned_user = 'chef'
+        api.content.transition(imail, 'propose_to_agent')
+        self.assertEqual(api.content.get_state(imail), 'proposed_to_agent')
+        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('back_to_n_plus_2'))
+        self.assertFalse(view.can_do_transition('back_to_creation'))
+        self.assertFalse(view.can_do_transition('back_to_manager'))
+        # we remove n+1 users
+        api.group.remove_user(groupname=groupname1, username='chef')
+        api.group.add_user(groupname=groupname2, username='chef')
+        self.assertTrue(view.can_do_transition('back_to_n_plus_2'))
+        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('back_to_creation'))
+        self.assertFalse(view.can_do_transition('back_to_manager'))
 
     def test_IdmUtilsMethods_proposed_to_n_plus_col_cond2(self):
         folder = self.portal['incoming-mail']['mail-searches']
