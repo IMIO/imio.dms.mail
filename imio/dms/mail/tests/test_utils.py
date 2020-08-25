@@ -261,11 +261,9 @@ class TestUtils(unittest.TestCase):
         # tg ok, state ok, assigner_user nok but auc ok: OK
         imail.treating_groups = get_registry_organizations()[0]
         self.assertTrue(view.can_do_transition('propose_to_agent'))
-        # tg ok, state ok, assigner_user nok, auc nok, but admin: OK
-        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user nok, auc nok: NOK
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
         self.assertFalse(view.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user nok, auc ok: OK
         api.portal.set_registry_record(AUC_RECORD, 'no_check')

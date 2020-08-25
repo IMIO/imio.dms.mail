@@ -545,9 +545,6 @@ class IdmUtilsMethods(UtilsMethods):
                 return True
         else:
             return True  # state ok, back ok
-        if self.user_is_admin():
-            # print 'admin: True'
-            return True
         return False
 
     def created_col_cond(self):
