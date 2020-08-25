@@ -12,6 +12,7 @@ from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.utils import createContentInContainer
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 
@@ -186,12 +187,11 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertIn('_n_plus_2', config)
         config = get_dms_config(['review_states', 'dmsincomingmail'])
         self.assertIn('proposed_to_n_plus_2', config)
-        org1, org2 = get_registry_organizations()[0:2]
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
         self.assertIn('propose_to_n_plus_2', config)
-        self.assertTrue(all(config['propose_to_n_plus_2'][org1]))  # all is True
-        self.assertTrue(all(config['propose_to_n_plus_1'][org1]))  # all is True
-        self.assertFalse(any(config['propose_to_agent'][org1]))  # all is False
+        self.assertTrue(all(config['propose_to_n_plus_2'].values()))  # all is True
+        self.assertTrue(all(config['propose_to_n_plus_1'].values()))  # all is True
+        self.assertFalse(any(config['propose_to_agent'].values()))  # all is False
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
         self.assertEqual(config['proposed_to_manager'].values()[0][0], 'propose_to_n_plus_2')
         self.assertEqual(config['proposed_to_n_plus_2'].values()[0][0], 'propose_to_n_plus_1')
