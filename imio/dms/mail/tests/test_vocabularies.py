@@ -63,14 +63,14 @@ class TestVocabularies(unittest.TestCase):
     def test_AssignedUsersVocabulary(self):
         voc_inst = AssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([('agent', 'Fred Agent'), ('chef', 'Michel Chef'),
-                                                ('agent1', 'Stef Agent')]))
+        self.assertSetEqual(set(voc_list), {('agent', 'Fred Agent'), ('chef', 'Michel Chef'), ('agent1', 'Stef Agent')})
 
     def test_EmptyAssignedUsersVocabulary(self):
         voc_inst = EmptyAssignedUsersVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), set([(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'),
-                                                ('chef', 'Michel Chef'), ('agent1', 'Stef Agent')]))
+        self.assertSetEqual(set(voc_list),
+                            {(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'), ('chef', 'Michel Chef'),
+                             ('agent1', 'Stef Agent')})
 
     def test_get_mail_types(self):
         voc_list = [(t.value, t.title) for t in get_mail_types()]

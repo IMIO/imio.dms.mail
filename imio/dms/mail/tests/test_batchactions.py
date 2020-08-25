@@ -83,10 +83,10 @@ class BatchActions(unittest.TestCase):
         view.widgets.extract = lambda *a, **kw: ({'action_choice': 'add', 'added_values':
                                                   [self.pgof['direction-financiere'].UID()]}, [])
         view.handleApply(view, 'apply')
-        self.assertSetEqual(set(self.im1.recipient_groups), set([self.pgof['direction-financiere']['budgets'].UID(),
-                                                                 self.pgof['direction-financiere'].UID()]))
-        self.assertSetEqual(set(self.im2.recipient_groups), set([self.pgof['direction-generale']['secretariat'].UID(),
-                                                                 self.pgof['direction-financiere'].UID()]))
+        self.assertSetEqual(set(self.im1.recipient_groups), {self.pgof['direction-financiere']['budgets'].UID(),
+                                                             self.pgof['direction-financiere'].UID()})
+        self.assertSetEqual(set(self.im2.recipient_groups), {self.pgof['direction-generale']['secretariat'].UID(),
+                                                             self.pgof['direction-financiere'].UID()})
         # test replace action
         view.widgets.extract = lambda *a, **kw: ({'action_choice': 'replace', 'removed_values':
                                                   [self.pgof['direction-financiere'].UID(),
@@ -94,10 +94,10 @@ class BatchActions(unittest.TestCase):
                                                   'added_values': [self.pgof['direction-generale'].UID(),
                                                   self.pgof['direction-generale']['secretariat'].UID()]}, [])
         view.handleApply(view, 'apply')
-        self.assertSetEqual(set(self.im1.recipient_groups), set([self.pgof['direction-generale'].UID(),
-                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
-        self.assertSetEqual(set(self.im2.recipient_groups), set([self.pgof['direction-generale'].UID(),
-                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
+        self.assertSetEqual(set(self.im1.recipient_groups), {self.pgof['direction-generale'].UID(),
+                                                             self.pgof['direction-generale']['secretariat'].UID()})
+        self.assertSetEqual(set(self.im2.recipient_groups), {self.pgof['direction-generale'].UID(),
+                                                             self.pgof['direction-generale']['secretariat'].UID()})
         # test overwrite action
         view.widgets.extract = lambda *a, **kw: ({'action_choice': 'replace', 'removed_values':
                                                   [self.pgof['direction-financiere'].UID(),
@@ -105,10 +105,10 @@ class BatchActions(unittest.TestCase):
                                                   'added_values': [self.pgof['direction-generale'].UID(),
                                                   self.pgof['direction-generale']['secretariat'].UID()]}, [])
         view.handleApply(view, 'apply')
-        self.assertSetEqual(set(self.im1.recipient_groups), set([self.pgof['direction-generale'].UID(),
-                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
-        self.assertSetEqual(set(self.im2.recipient_groups), set([self.pgof['direction-generale'].UID(),
-                                                                 self.pgof['direction-generale']['secretariat'].UID()]))
+        self.assertSetEqual(set(self.im1.recipient_groups), {self.pgof['direction-generale'].UID(),
+                                                             self.pgof['direction-generale']['secretariat'].UID()})
+        self.assertSetEqual(set(self.im2.recipient_groups), {self.pgof['direction-generale'].UID(),
+                                                             self.pgof['direction-generale']['secretariat'].UID()})
 
     def test_AssignedUserBatchActionForm(self):
         self.assertIsNone(self.im1.assigned_user)

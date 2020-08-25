@@ -34,24 +34,25 @@ class TestIMServiceValidation1(unittest.TestCase):
 
     def test_im_workflow1(self):
         """ Check workflow """
-        self.assertSetEqual(set(self.imw.states), set(['created', 'proposed_to_manager', 'proposed_to_n_plus_1',
-                                                       'proposed_to_agent', 'in_treatment', 'closed']))
+        self.assertSetEqual(set(self.imw.states),
+                            {'created', 'proposed_to_manager', 'proposed_to_n_plus_1', 'proposed_to_agent',
+                             'in_treatment', 'closed'})
         self.assertSetEqual(set(self.imw.transitions),
-                            set(['back_to_creation', 'back_to_manager', 'back_to_n_plus_1', 'back_to_agent',
-                                 'back_to_treatment', 'propose_to_manager', 'propose_to_n_plus_1', 'propose_to_agent',
-                                 'treat', 'close']))
+                            {'back_to_creation', 'back_to_manager', 'back_to_n_plus_1', 'back_to_agent',
+                             'back_to_treatment', 'propose_to_manager', 'propose_to_n_plus_1', 'propose_to_agent',
+                             'treat', 'close'})
         self.assertSetEqual(set(self.imw.states['created'].transitions),
-                            set(['propose_to_manager', 'propose_to_n_plus_1', 'propose_to_agent']))
+                            {'propose_to_manager', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_manager'].transitions),
-                            set(['back_to_creation', 'propose_to_n_plus_1', 'propose_to_agent']))
+                            {'back_to_creation', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_n_plus_1'].transitions),
-                            set(['back_to_creation', 'back_to_manager', 'propose_to_agent']))
+                            {'back_to_creation', 'back_to_manager', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_agent'].transitions),
-                            set(['back_to_creation', 'back_to_manager', 'back_to_n_plus_1', 'treat', 'close']))
+                            {'back_to_creation', 'back_to_manager', 'back_to_n_plus_1', 'treat', 'close'})
         self.assertSetEqual(set(self.imw.states['in_treatment'].transitions),
-                            set(['back_to_agent', 'close']))
+                            {'back_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['closed'].transitions),
-                            set(['back_to_treatment', 'back_to_agent']))
+                            {'back_to_treatment', 'back_to_agent'})
 
     def test_IMServiceValidation1(self):
         """
@@ -139,28 +140,27 @@ class TestIMServiceValidation2(unittest.TestCase):
     def test_im_workflow2(self):
         """ Check workflow """
         self.assertSetEqual(set(self.imw.states),
-                            set(['created', 'proposed_to_manager', 'proposed_to_n_plus_2', 'proposed_to_n_plus_1',
-                                 'proposed_to_agent', 'in_treatment', 'closed']))
+                            {'created', 'proposed_to_manager', 'proposed_to_n_plus_2', 'proposed_to_n_plus_1',
+                             'proposed_to_agent', 'in_treatment', 'closed'})
         self.assertSetEqual(set(self.imw.transitions),
-                            set(['back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'back_to_n_plus_1',
-                                 'back_to_agent', 'back_to_treatment', 'propose_to_manager', 'propose_to_n_plus_2',
-                                 'propose_to_n_plus_1', 'propose_to_agent', 'treat', 'close']))
+                            {'back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'back_to_n_plus_1',
+                             'back_to_agent', 'back_to_treatment', 'propose_to_manager', 'propose_to_n_plus_2',
+                             'propose_to_n_plus_1', 'propose_to_agent', 'treat', 'close'})
         self.assertSetEqual(set(self.imw.states['created'].transitions),
-                            set(['propose_to_manager', 'propose_to_n_plus_2', 'propose_to_n_plus_1',
-                                 'propose_to_agent']))
+                            {'propose_to_manager', 'propose_to_n_plus_2', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_manager'].transitions),
-                            set(['back_to_creation', 'propose_to_n_plus_2', 'propose_to_n_plus_1', 'propose_to_agent']))
+                            {'back_to_creation', 'propose_to_n_plus_2', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_n_plus_2'].transitions),
-                            set(['back_to_creation', 'back_to_manager', 'propose_to_n_plus_1', 'propose_to_agent']))
+                            {'back_to_creation', 'back_to_manager', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_n_plus_1'].transitions),
-                            set(['back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'propose_to_agent']))
+                            {'back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_agent'].transitions),
-                            set(['back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'back_to_n_plus_1',
-                                 'treat', 'close']))
+                            {'back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'back_to_n_plus_1', 'treat',
+                             'close'})
         self.assertSetEqual(set(self.imw.states['in_treatment'].transitions),
-                            set(['back_to_agent', 'close']))
+                            {'back_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['closed'].transitions),
-                            set(['back_to_treatment', 'back_to_agent']))
+                            {'back_to_treatment', 'back_to_agent'})
 
     def test_IMServiceValidation2(self):
         """

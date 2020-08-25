@@ -64,7 +64,7 @@ class TestUtils(unittest.TestCase):
 
     def test_update_transitions_levels_config(self):
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), set(['created', 'proposed_to_manager', 'proposed_to_agent']))
+        self.assertSetEqual(set(config.keys()), {'created', 'proposed_to_manager', 'proposed_to_agent'})
         self.assertEqual(config['created'], config['proposed_to_manager'])
         self.assertEqual(config['created'], config['proposed_to_agent'])
         for state in config:
@@ -93,21 +93,21 @@ class TestUtils(unittest.TestCase):
                                        u'no_check')
         # no check
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), set(['propose_to_agent']))
+        self.assertSetEqual(set(config.keys()), {'propose_to_agent'})
         self.assertTrue(all(config['propose_to_agent'].values()))  # can always do transition
         # n_plus_1
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check',
                                        u'n_plus_1')
         # only one transition
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), set(['propose_to_agent']))
+        self.assertSetEqual(set(config.keys()), {'propose_to_agent'})
         self.assertTrue(all(config['propose_to_agent'].values()))
         # we simulate the adding of a level without user
         org1, org2 = get_registry_organizations()[0:2]
         api.group.create('{}_n_plus_1'.format(org1), 'N+1')
         update_transitions_auc_config('dmsincomingmail', 1)
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), set(['propose_to_n_plus_1', 'propose_to_agent']))
+        self.assertSetEqual(set(config.keys()), {'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertTrue(all(config['propose_to_n_plus_1'].values()))
         self.assertTrue(all(config['propose_to_agent'].values()))
         # we simulate the adding of a level and a user
@@ -126,7 +126,7 @@ class TestUtils(unittest.TestCase):
         # we simulate the adding of a level without user
         update_transitions_auc_config('dmsincomingmail', 1)
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), set(['propose_to_n_plus_1', 'propose_to_agent']))
+        self.assertSetEqual(set(config.keys()), {'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertFalse(any(config['propose_to_n_plus_1'].values()))  # all is False
         self.assertFalse(any(config['propose_to_agent'].values()))  # all is False
         # we simulate the adding of a level and a user
@@ -136,7 +136,6 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(config['propose_to_n_plus_1'][org2])
         self.assertFalse(config['propose_to_agent'][org1])
         self.assertFalse(config['propose_to_agent'][org2])
-
 
     def test_highest_review_level(self):
         self.assertIsNone(highest_review_level('a_type', ""))
@@ -189,7 +188,7 @@ class TestUtils(unittest.TestCase):
         view = UtilsMethods(imail, imail.REQUEST)
         login(self.portal, 'dirg')
         self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
-                            set(['AuthenticatedUsers', 'dir_general']))
+                            {'AuthenticatedUsers', 'dir_general'})
 
     def test_UtilsMethods_highest_scan_id(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
@@ -208,7 +207,7 @@ class TestUtils(unittest.TestCase):
         # current user is not Manager
         login(self.portal, 'dirg')
         self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
-                            set(['AuthenticatedUsers', 'dir_general']))
+                            {'AuthenticatedUsers', 'dir_general'})
         self.assertFalse(view.is_in_user_groups(groups=['abc']))
         self.assertTrue(view.is_in_user_groups(groups=['abc', 'dir_general']))
         self.assertFalse(view.is_in_user_groups(groups=['abc', 'dir_general'], test='all'))
