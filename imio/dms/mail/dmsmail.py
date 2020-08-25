@@ -32,6 +32,7 @@ from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
 from plone import api
@@ -180,6 +181,20 @@ def order_fields(the_form, config_key):
             add(the_form, field, index=0)
 
 
+def updatewidgets_assigned_user_description(the_form):
+    """ Set a description if the field must be completed """
+    state = api.content.get_state(the_form.context)
+    treating_group = the_form.context.treating_groups
+    transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+    if state in transitions_levels and treating_group in transitions_levels[state]:
+        transition = transitions_levels[state][treating_group][0]
+        transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        if transition in transitions_auc and not transitions_auc[transition].get(treating_group, False):
+            the_form.widgets['ITask.assigned_user'].field = copy.copy(the_form.widgets['ITask.assigned_user'].field)
+            the_form.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user '
+                                                                          u'before you can propose to an agent !')
+
+
 def imio_dmsincomingmail_updatefields(the_form):
     """
         Fields update method for add and edit
@@ -196,11 +211,12 @@ def imio_dmsincomingmail_updatewidgets(the_form):
     """
         Widgets update method for add and edit
     """
+    is_dim = the_form.context.portal_type in ('dmsincomingmail', 'dmsincoming_email')
     current_user = api.user.get_current()
     if not current_user.has_role(['Manager', 'Site Administrator']):
         the_form.widgets['internal_reference_no'].mode = 'hidden'
         # we empty value to bypass validator when creating object
-        if the_form.context.portal_type not in ('dmsincomingmail', 'dmsincoming_email'):
+        if not is_dim:
             the_form.widgets['internal_reference_no'].value = ''
 
     for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
@@ -212,8 +228,11 @@ def imio_dmsincomingmail_updatewidgets(the_form):
             the_form.widgets['original_mail_date'].value = (date.year, date.month, date.day)
     else:
         # if the context original_mail_date is already set, the widget value is good and must be kept
-        if not base_hasattr(the_form.context, 'original_mail_date') or the_form.context.original_mail_date is None:
+        if not is_dim or the_form.context.original_mail_date is None:
             the_form.widgets['original_mail_date'].value = ('', '', '')
+
+    if is_dim and the_form.context.treating_groups and the_form.context.assigned_user is None:
+        updatewidgets_assigned_user_description(the_form)
 
     # disable left column
     the_form.request.set('disable_plone.leftcolumn', 1)
@@ -266,14 +285,7 @@ class IMEdit(DmsDocumentEdit):
             self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
                 [t for t in self.widgets['treating_groups'].terms.terms if t.token == self.context.treating_groups])
 
-        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         state = api.content.get_state(obj=self.context)
-        # TODO to review
-        if settings.assigned_user_check != u'no_check' and not self.context.assigned_user \
-                and state.startswith(u'proposed_to_n_plus_1'):
-            self.widgets['ITask.assigned_user'].field = copy.copy(self.widgets['ITask.assigned_user'].field)
-            self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
-                                                                      ' can propose to an agent !')
 
         # Set a due date only if its still created and the value was not set before
         if state == 'created' and self.widgets['ITask.due_date'].value == ('', '', ''):
@@ -307,13 +319,8 @@ class IMView(DmsDocumentView):
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
 
-        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-        # TODO to review
-        if settings.assigned_user_check != u'no_check' and not self.context.assigned_user \
-                and api.content.get_state(obj=self.context).startswith(u'proposed_to_n_plus_1'):
-            self.widgets['ITask.assigned_user'].field = copy.copy(self.widgets['ITask.assigned_user'].field)
-            self.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user before you'
-                                                                      ' can propose to an agent !')
+        if self.context.treating_groups and self.context.assigned_user is None:
+            updatewidgets_assigned_user_description(self)
 
 
 class CustomAddForm(DefaultAddForm):
