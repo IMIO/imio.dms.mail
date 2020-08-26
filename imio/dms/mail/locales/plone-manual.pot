@@ -115,14 +115,6 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_service"
-msgstr ""
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_service"
-msgstr ""
-
 msgid "om_back_to_print"
 msgstr ""
 

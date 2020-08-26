@@ -6,7 +6,6 @@ from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
-from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -344,24 +343,7 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
     schema = IIMSkipProposeToServiceChiefParameters
 
     def patch_workflow(self, workflow_name, **parameters):
-        if not workflow_name == 'incomingmail_workflow':
-            return False, _("This workflow adaptation is only valid for ${workflow} !",
-                            mapping={'workflow': 'incomingmail_workflow'})
-        # TODO wf plus nécessaire pendant migration ??
-        portal = api.portal.get()
-        wtool = portal.portal_workflow
-        im_workflow = wtool['incomingmail_workflow']
-        # change assigned user verification option
-        if not parameters['assigned_user_check']:
-            api.portal.set_registry_record('assigned_user_check', False, IImioDmsMailConfig)
-            # change transition titles
-            for tr, title in (('back_to_agent', 'back_to_service'), ('propose_to_agent', 'propose_to_service')):
-                msg = self.check_transition_in_workflow(im_workflow, tr)
-                if msg:
-                    return False, msg
-                im_workflow.transitions[tr].title = str(title)
-
-        return True, ''
+        return False, "This workflow adaptation is no more usable"
 
 
 class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
