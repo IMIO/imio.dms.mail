@@ -79,15 +79,6 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         # update templates
         self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
-        # TODO review
-        # set showNumberOfItems on to_treat in_my_group only if SkipProposeToServiceChief adaptation was applied
-        wf_adapts = api.portal.get_registry_record('collective.wfadaptations.applied_adaptations', default=[])
-        user_check = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig'
-                                                    '.assigned_user_check')
-        if 'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in [adapt['adaptation'] for adapt in wf_adapts]:
-            if not user_check and not self.imf['mail-searches']['to_treat_in_my_group'].showNumberOfItems:
-                self.imf['mail-searches']['to_treat_in_my_group'].showNumberOfItems = True  # noqa
-
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
 
