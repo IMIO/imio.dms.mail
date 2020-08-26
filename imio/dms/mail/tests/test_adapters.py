@@ -79,13 +79,16 @@ class TestAdapters(unittest.TestCase):
         crit = OutgoingMailValidationCriterion(self.portal)
         # no groups
         self.assertEqual(crit.query, {'state_group': {'query': []}})
-        # in a group _validateur
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        # in a group _n_plus_1
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        # update reviewlevels because n_plus_1 level is not applied by default
+        set_dms_config(['review_levels', 'dmsoutgoingmail'],
+                       OrderedDict([('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
 
     def test_TaskValidationCriterion(self):
         crit = TaskValidationCriterion(self.portal)
@@ -109,8 +112,8 @@ class TestAdapters(unittest.TestCase):
     def test_OutgoingMailInTreatingGroupCriterion(self):
         crit = OutgoingMailInTreatingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_IncomingMailInCopyGroupCriterion(self):

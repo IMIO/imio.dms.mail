@@ -464,14 +464,6 @@ fieldset table.listing td.td_cell_convert img {
     border-color: DarkOrange;
 }
 
-.state-proposed_to_service_chief {
- color: DarkOrange !important;
-}
-.viewlet_workflowstate span.state-proposed_to_service_chief {
-    background-color: DarkOrange;
-    border-color: DarkOrange;
-}
-
 .state-proposed_to_agent {
  color: blue !important;
 }
@@ -497,7 +489,7 @@ fieldset table.listing td.td_cell_convert img {
 }
 
 /* colorization for outgoing_mail_workflow */
-/* created and proposed_to_service_chief already defined in incoming mail */
+/* created and proposed_to_n_plus_1 already defined in incoming mail */
 
 .state-scanned {
  color: blue !important;

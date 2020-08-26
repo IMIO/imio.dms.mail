@@ -28,6 +28,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 class OMToPrintAdaptation(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
+        # TODO to be reviewed following new om workflow
         if not workflow_name == 'outgoingmail_workflow':
             return False, _("This workflow adaptation is only valid for ${workflow} !",
                             mapping={'workflow': 'outgoingmail_workflow'})
@@ -202,6 +203,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
     schema = IIMPreValidationParameters
 
     def patch_workflow(self, workflow_name, **parameters):
+        # TODO review following new workflow
         if not workflow_name == 'incomingmail_workflow':
             return False, _("This workflow adaptation is only valid for ${workflow} !",
                             mapping={'workflow': 'incomingmail_workflow'})
@@ -349,59 +351,11 @@ class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
 class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
 
     def patch_workflow(self, workflow_name, **parameters):
-        if not workflow_name == 'outgoingmail_workflow':
-            return False, _("This workflow adaptation is only valid for ${workflow} !",
-                            mapping={'workflow': 'incomingmail_workflow'})
-        portal = api.portal.get()
-        wtool = portal.portal_workflow
-        om_workflow = wtool['outgoingmail_workflow']
-        msg = self.check_state_in_workflow(om_workflow, 'proposed_to_service_chief')
-        if msg:
-            return False, msg
-
-        # remove state
-        list_states = ['proposed_to_service_chief']
-        om_workflow.states.deleteStates(list_states)
-
-        # change created transitions
-        transitions = list(om_workflow.states['created'].transitions)
-        transitions.remove('propose_to_service_chief')
-        om_workflow.states['created'].transitions = tuple(transitions)
-        # change to_be_signed transitions
-        transitions = list(om_workflow.states['to_be_signed'].transitions)
-        transitions.remove('back_to_service_chief')
-        om_workflow.states['to_be_signed'].transitions = tuple(transitions)
-        # remove transitions
-        list_transitions = ['propose_to_service_chief', 'back_to_service_chief']
-        om_workflow.transitions.deleteTransitions(list_transitions)
-
-        # remove local roles
-        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
-        lr = getattr(fti, 'localroles')
-        changed_flag = False
-        for lrgroup in lr:
-            if 'proposed_to_service_chief' in lr[lrgroup]:
-                del lr[lrgroup]['proposed_to_service_chief']
-                changed_flag = True
-        if changed_flag:
-            lr._p_changed = True
-
-        # disable collection
-        folder = portal['outgoing-mail']['mail-searches']
-        if folder['searchfor_proposed_to_service_chief'].enabled:
-            folder['searchfor_proposed_to_service_chief'].enabled = False
-            folder['searchfor_proposed_to_service_chief'].reindexObject()
-            # update search collection list
-            invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
-
-        # update state list
-        invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
-
-        return True, ''
+        return False, "This workflow adaptation is no more usable"
 
 
 @provider(IContextSourceBinder)
-def service_validation_levels(context):
+def im_service_validation_levels(context):
     # must return next possible level only
     config = get_dms_config(['review_levels', 'dmsincomingmail'])
     for i in range(1, 6):  # 5 validation levels
@@ -417,7 +371,7 @@ class IIMServiceValidationParameters(Interface):
     validation_level = schema.Choice(
         title=u'Service validation level',
         required=True,
-        source=service_validation_levels,
+        source=im_service_validation_levels,
     )
 
     state_title = schema.TextLine(
@@ -460,8 +414,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
         wf = wtool['incomingmail_workflow']
         new_id = 'n_plus_{}'.format(level)
         new_state_id = 'proposed_to_{}'.format(new_id)
-        from_states = get_dms_config(['n_plus_from', 'dmsincomingmail'])
-        transitions = [tr for (st, tr) in from_states]  # back transitions for new state
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        transitions = [tr for (st, tr) in wf_from_to['from']]  # back transitions for new state
+        # TODO use wf_from_to
         next_levels = ['agent']
         for i in range(1, level):  # range(1, 1) => [], range(1, 2) => [1]
             next_levels.append('n_plus_{}'.format(i))
@@ -525,7 +480,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             next_state.transitions = tuple(transitions)
 
         # add new propose_to transition on previous states
-        for st in [st for (st, tr) in from_states]:
+        for st in [st for (st, tr) in wf_from_to['from']]:
             previous_state = wf.states[st]
             transitions = list(previous_state.transitions)
             transitions.append(propose_tr_id)
@@ -627,6 +582,175 @@ class IMServiceValidation(WorkflowAdaptationBase):
         if new_state_id not in lst:
             lst.insert(0, new_state_id)
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
+                                           lst)
+
+        return True, ''
+
+
+class IOMServiceValidationParameters(IIMServiceValidationParameters):
+
+    validation_level = schema.Choice(
+        title=u'Service validation level',
+        required=True,
+        vocabulary=SimpleVocabulary([SimpleTerm(value=1)]),
+    )
+
+
+class OMServiceValidation(WorkflowAdaptationBase):
+
+    schema = IOMServiceValidationParameters
+    multiplicity = False
+
+    def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'outgoingmail_workflow':
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'outgoingmail_workflow'})
+        portal = api.portal.get()
+        wtool = portal.portal_workflow
+        level = parameters['validation_level']
+        wf = wtool['outgoingmail_workflow']
+        new_id = 'n_plus_{}'.format(level)
+        new_state_id = 'proposed_to_{}'.format(new_id)
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'])
+        # from: ('created', 'back_to_creation')
+        # to: ('to_be_signed', 'propose_to_be_signed'), ('to_print', 'set_to_print')
+        transitions = [tr for (st, tr) in wf_from_to['from']] + [tr for (st, tr) in wf_from_to['to']]
+        to_states = [st for (st, tr) in wf_from_to['to']]
+
+        # add state
+        msg = self.check_state_in_workflow(wf, new_state_id)
+        if not msg:
+            return False, 'State {} already in workflow'.format(new_state_id)
+        wf.states.addState(new_state_id)
+        state = wf.states[new_state_id]
+        state.setProperties(
+            title=parameters['state_title'].encode('utf8'), description='',
+            transitions=transitions)
+        # permissions
+        perms = {
+            'Access contents information': ('Editor', 'Manager', 'Owner', 'Reader', 'Reviewer', 'Site Administrator'),
+            'Add portal content': ('Contributor', 'Manager', 'Site Administrator'),
+            'Delete objects': ('Manager', 'Site Administrator'),
+            'Modify portal content': ('Editor', 'Manager', 'Site Administrator'),
+            'Review portal content': ('Manager', 'Reviewer', 'Site Administrator'),
+            'View': ('Editor', 'Manager', 'Owner', 'Reader', 'Reviewer', 'Site Administrator'),
+            'collective.dms.basecontent: Add DmsFile': ('DmsFile Contributor', 'Manager', 'Site Administrator'),
+            'imio.dms.mail: Write mail base fields': ('Manager', 'Site Administrator', 'Base Field Writer'),
+            'imio.dms.mail: Write treating group field': ('Manager', 'Site Administrator', 'Treating Group Writer'),
+        }
+        state.permission_roles = perms
+
+        # add transitions
+        propose_tr_id = 'propose_to_{}'.format(new_id)
+        wf.transitions.addTransition(propose_tr_id)
+        wf.transitions[propose_tr_id].setProperties(
+            title=parameters['forward_transition_title'].encode('utf8'),
+            new_state_id=new_state_id, trigger_type=1, script_name='',
+            actbox_name=propose_tr_id, actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_propose_to_n_plus.png',
+            actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+        back_tr_id = 'back_to_{}'.format(new_id)
+        wf.transitions.addTransition(back_tr_id)
+        wf.transitions[back_tr_id].setProperties(
+            title=parameters['backward_transition_title'].encode('utf8'),
+            new_state_id=new_state_id, trigger_type=1, script_name='',
+            actbox_name=back_tr_id, actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_n_plus.png',
+            actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+
+        # modify existing states
+        # add new back_to transition on next states
+        for next_state_id in to_states:
+            next_state = wf.states[next_state_id]
+            transitions = list(next_state.transitions)
+            transitions.append(back_tr_id)
+            next_state.transitions = tuple(transitions)
+
+        # add new propose_to transition on previous states
+        for st in [st for (st, tr) in wf_from_to['from']]:
+            previous_state = wf.states[st]
+            transitions = list(previous_state.transitions)
+            transitions.append(propose_tr_id)
+            previous_state.transitions = tuple(transitions)
+
+        # add function
+        functions = get_registry_functions()
+        if new_id not in [fct['fct_id'] for fct in functions]:
+            functions.append({'fct_title': parameters['function_title'], 'fct_id': unicode(new_id), 'fct_orgs': [],
+                              'fct_management': True, 'enabled': True})
+            set_registry_functions(functions)
+
+        # add local roles config
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        lrt = lr['treating_groups']
+        if new_state_id not in lrt:
+            lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                                    'Base Field Writer', 'Treating Group Writer']},
+                                 'encodeur': {'roles': ['Reader']}}
+            for st in to_states:
+                lrt[st].update({new_id: {'roles': ['Reader']}})
+            lrt['sent'].update({new_id: {'roles': ['Reader']}})
+        lrr = lr['recipient_groups']
+        if new_state_id not in lrr:
+            lrr[new_state_id] = {new_id: {'roles': ['Reader']}}
+            for st in to_states:
+                lrr[st].update({new_id: {'roles': ['Reader']}})
+            lrr['sent'].update({new_id: {'roles': ['Reader']}})
+        # We need to indicate that the object has been modified and must be 'saved'
+        lr._p_changed = True
+
+        # add collection
+        folder = portal['outgoing-mail']['mail-searches']
+        col_id = 'searchfor_{}'.format(new_state_id)
+        col_title = u'État: {}'.format(parameters['state_title'])
+        if col_id not in folder:
+            next_col = folder['searchfor_{}'.format(to_states[-1])]
+            folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
+                                 query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+                                        {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
+                                         'v': [new_state_id]}],
+                                 customViewFields=tuple(next_col.customViewFields),
+                                 showNumberOfItems=False,
+                                 sort_on=u'sortable_title', sort_reversed=True, b_size=30, limit=0)
+            col = folder[col_id]
+            col.setSubject((u'search', ))
+            col.reindexObject(['Subject'])
+            col.setLayout('tabular_view')
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(to_states[-1])))
+
+        # update configuration annotation
+        config = get_dms_config(['review_levels', 'dmsoutgoingmail'])
+        suffix = '_{}'.format(new_id)
+        if suffix not in config:
+            value = (suffix, {'st': [new_state_id], 'org': 'treating_groups'})
+            new_config = insert_in_ordereddict(config, value, at_position=0)
+            set_dms_config(keys=['review_levels', 'dmsoutgoingmail'], value=new_config)
+        config = get_dms_config(['review_states', 'dmsoutgoingmail'])
+        if new_state_id not in config:
+            value = (new_state_id, {'group': suffix, 'org': 'treating_groups'})
+            new_config = insert_in_ordereddict(config, value, at_position=0)
+            set_dms_config(keys=['review_states', 'dmsoutgoingmail'], value=new_config)
+
+        # update cache
+        invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
+
+        # update actionspanel back transitions registry
+        lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+        if 'dmsoutgoingmail.{}|'.format(back_tr_id) not in lst:
+            lst.append('dmsoutgoingmail.{}|'.format(back_tr_id))
+            api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
+                                           lst)
+        # update remark states
+        lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
+                                             default=[])
+        if new_state_id not in lst:
+            lst.insert(0, new_state_id)
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
                                            lst)
 
         return True, ''

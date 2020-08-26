@@ -19,7 +19,7 @@ from imio.dms.mail.subscribers import group_deleted
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
-from imio.dms.mail.wfadaptations import IMServiceValidation
+from imio.dms.mail import wfadaptations
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -50,9 +50,14 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         update_oo_config()
 
         # add new dms config used in update_transitions_levels_config
-        if 'n_plus_from' not in get_dms_config():
-            set_dms_config(['n_plus_from', 'dmsincomingmail'], [('created', 'back_to_creation'),
-                                                                ('proposed_to_manager', 'back_to_manager')])
+        if 'wf_from_to' not in get_dms_config():
+            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
+                           [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
+            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],
+                           [('proposed_to_agent', 'propose_to_agent')])
+            set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
+            set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'],
+                           [('to_be_signed', 'propose_to_be_signed')])
 
         self.cleanRegistries()
 
@@ -142,7 +147,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
         lrsc = lr['static_config']
-        for state in ['proposed_to_manager', 'proposed_to_service_chief',
+        for state in ['proposed_to_manager', 'proposed_to_n_plus_1',
                       'proposed_to_agent', 'in_treatment', 'closed']:
             if state in lrsc:
                 if 'lecteurs_globaux_ce' not in lrsc[state]:
@@ -172,48 +177,66 @@ class Migrate_To_2_2_1(Migrator):  # noqa
 
     def remove_service_chief(self):
         # remove collection
-        if 'searchfor_proposed_to_service_chief' in self.imf['mail-searches']:
-            api.content.delete(obj=self.imf['mail-searches']['searchfor_proposed_to_service_chief'])
+        for folder in (self.imf['mail-searches'], self.omf['mail-searches']):
+            if 'searchfor_proposed_to_service_chief' in folder:
+                api.content.delete(obj=folder['searchfor_proposed_to_service_chief'])
 
         # clean dms config
-        config = get_dms_config(['review_levels', 'dmsincomingmail'])
-        if '_validateur' in config:
-            del config['_validateur']
-            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=config)
-        config = get_dms_config(['review_states', 'dmsincomingmail'])
-        if 'proposed_to_service_chief' in config:
-            del config['proposed_to_service_chief']
-            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=config)
+        for ptype in ('dmsincomingmail', 'dmsoutgoingmail'):
+            config = get_dms_config(['review_levels', ptype])
+            if '_validateur' in config:
+                del config['_validateur']
+                set_dms_config(keys=['review_levels', ptype], value=config)
+            config = get_dms_config(['review_states', ptype])
+            if 'proposed_to_service_chief' in config:
+                del config['proposed_to_service_chief']
+                set_dms_config(keys=['review_states', ptype], value=config)
 
-        # clean local roles
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        lrg = lr['static_config']
-        if 'proposed_to_service_chief' in lrg:
-            del lrg['proposed_to_service_chief']
-        lrg = lr['treating_groups']
-        if 'proposed_to_service_chief' in lrg:
-            del lrg['proposed_to_service_chief']
-        lrg = lr['recipient_groups']
-        if 'proposed_to_service_chief' in lrg:
-            del lrg['proposed_to_service_chief']
-        lr._p_changed = True
+        def remove_localrole_validateur(dic1):
+            for state1 in dic1:
+                if 'validateur' in dic1[state1]:
+                    del dic1[state1]['validateur']
+
+        # clean dmsincomingmail local roles
+        for ptype in ('dmsincomingmail', 'dmsoutgoingmail'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            lrg = lr['static_config']
+            if 'proposed_to_service_chief' in lrg:
+                del lrg['proposed_to_service_chief']
+                remove_localrole_validateur(lrg)
+            lrg = lr['treating_groups']
+            if 'proposed_to_service_chief' in lrg:
+                del lrg['proposed_to_service_chief']
+                remove_localrole_validateur(lrg)
+            lrg = lr['recipient_groups']
+            if 'proposed_to_service_chief' in lrg:
+                del lrg['proposed_to_service_chief']
+                remove_localrole_validateur(lrg)
+            lr._p_changed = True
 
         # update registry
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
-        if 'dmsincomingmail.back_to_service_chief|' in lst:
-            lst.remove('dmsincomingmail.back_to_service_chief|')
+        for entry in ('dmsincomingmail.back_to_service_chief|', 'dmsoutgoingmail.back_to_service_chief|'):
+            if entry not in lst:
+                break
+            lst.remove(entry)
+        else:
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
                                            lst)
 
-        # update remark states and workflow
-        lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
-        if 'proposed_to_service_chief' in lst:
-            lst.remove('proposed_to_service_chief')
-            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
-                                           lst)
-        else:
-            return
+        # update remark states
+        for attr in ('imail_remark_states', 'omail_remark_states'):
+            lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(attr))
+            if 'proposed_to_service_chief' in lst:
+                lst.remove('proposed_to_service_chief')
+                api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(attr),
+                                               lst)
+
+        # Manage workflows and wfadaptations
+        functions = get_registry_functions()
+        if 'validateur' not in [fct['fct_id'] for fct in functions]:
+            return  # apply the following only once
 
         def remove_adaptation_from_registry(name):
             record = api.portal.get_registry_record(RECORD_NAME)
@@ -222,23 +245,25 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         # reset workflows
         self.runProfileSteps('imio.dms.mail', steps=['workflow'])
         # self.portal.portal_workflow.updateRoleMappings()  # done later
-        im_workflow = self.wtool['incomingmail_workflow']
+
         # Apply workflow adaptations if necessary
         applied_wfa = [dic['adaptation'] for dic in get_applied_adaptations()]
-        if u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief' in applied_wfa:
-            remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief')
-        else:
-            n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
-                               'forward_transition_title': u'Proposer au chef de service',
-                               'backward_transition_title': u'Renvoyer au chef de service',
-                               'function_title': u'N+1'}
-            sva = IMServiceValidation()
-            adapt_is_applied = sva.patch_workflow('incomingmail_workflow', **n_plus_1_params)
-            if adapt_is_applied:
-                add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
-                                       'incomingmail_workflow', True, **n_plus_1_params)
+        n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
+                           'forward_transition_title': u'Proposer au chef de service',
+                           'backward_transition_title': u'Renvoyer au chef de service',
+                           'function_title': u'N+1'}
+        for wkf, acr in (('incomingmail_workflow', 'IM'), ('outgoingmail_workflow', 'OM')):
+            if u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr) in applied_wfa:
+                remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr))
+            else:
+                sva = getattr(wfadaptations, '{}ServiceValidation'.format(acr))()
+                adapt_is_applied = sva.patch_workflow(wkf, **n_plus_1_params)
+                if adapt_is_applied:
+                    add_applied_adaptation('imio.dms.mail.wfadaptations.{}ServiceValidation'.format(acr),
+                                           wkf, True, **n_plus_1_params)
 
         # replace EmergencyZoneAdaptation
+        im_workflow = self.wtool['incomingmail_workflow']
         if u'imio.dms.mail.wfadaptations.EmergencyZone' in applied_wfa:
             state = im_workflow.states['proposed_to_manager']
             state.title = u'À valider par le CZ'.encode('utf8')
@@ -251,12 +276,18 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         config = {'dmsincomingmail': {'wf': 'incomingmail_workflow',
                                       'st': {'proposed_to_service_chief': 'proposed_to_n_plus_1'},
                                       'tr': {'propose_to_service_chief': 'propose_to_n_plus_1',
-                                             'back_to_service_chief': 'back_to_n_plus_1'}}}
+                                             'back_to_service_chief': 'back_to_n_plus_1'}},
+                  'dmsoutgoingmail': {'wf': 'outgoingmail_workflow',
+                                      'st': {'proposed_to_service_chief': 'proposed_to_n_plus_1'},
+                                      'tr': {'propose_to_service_chief': 'propose_to_n_plus_1',
+                                             'back_to_service_chief': 'back_to_n_plus_1'}}
+                  }
         for pt in config:
             for brain in self.catalog(portal_type=pt):
                 obj = brain.getObject()
                 # update history
                 wfh = []
+                wkf = self.wtool[config[pt]['wf']]
                 for status in obj.workflow_history.get(config[pt]['wf']):
                     # replace old state by new one
                     if status['review_state'] in config[pt]['st']:
@@ -267,7 +298,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                     wfh.append(status)
                 obj.workflow_history[config[pt]['wf']] = tuple(wfh)
                 # update permissions and roles
-                im_workflow.updateRoleMappingsFor(obj)
+                wkf.updateRoleMappingsFor(obj)
                 # update state_group (use dms_config), permissions, state
                 obj.reindexObject(idxs=['allowedRolesAndUsers', 'review_state', 'state_group'])
 
@@ -283,6 +314,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 if np1group:
                     for user in api.user.get_users(group=group):
                         api.group.add_user(group=np1group, user=user)
+                        api.group.remove_user(group=group, user=user)
                 api.group.delete(group=group)
         # register again group deletion handlers
         globalSiteManager.registerHandler(pg_group_deleted, (IGroupDeletedEvent,))

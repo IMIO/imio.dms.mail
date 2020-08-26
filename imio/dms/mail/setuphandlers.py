@@ -669,7 +669,7 @@ def createOMailCollections(folder):
              'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v':
-                ['proposed_to_service_chief', 'to_be_signed']}],
+                ['proposed_to_n_plus_1', 'to_be_signed']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'CreationDate', u'actions'),
@@ -883,24 +883,25 @@ def adaptDefaultPortal(context):
     api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
                                    'display_below_content_title_on_views', True)
     # imio.dms.mail configuration annotation
-    set_dms_config(['n_plus_from', 'dmsincomingmail'], [('created', 'back_to_creation'),
-                                                        ('proposed_to_manager', 'back_to_manager')])
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
+                   [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
+    set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
                    OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
     # TODO
     set_dms_config(['review_levels', 'task'],
                    OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
-    set_dms_config(['review_levels', 'dmsoutgoingmail'],
-                   OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+    set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
     # review_states configuration, is the same as review_levels with some key, value inverted
     set_dms_config(['review_states', 'dmsincomingmail'],
                    OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
     set_dms_config(['review_states', 'task'],
                    OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
                                 ('realized', {'group': '_validateur', 'org': 'assigned_group'})]))
-    set_dms_config(['review_states', 'dmsoutgoingmail'],
-                   OrderedDict([('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+    set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
 
 
 def changeSearchedTypes(site):
@@ -990,26 +991,17 @@ def configure_om_rolefields(context):
     }, 'treating_groups': {
         'created': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
                                            'Base Field Writer', 'Treating Group Writer']}},
-        'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                     'DmsFile Contributor', 'Base Field Writer',
-                                                     'Treating Group Writer']},
-                                      'encodeur': {'roles': ['Reader']}},
-        'to_be_signed': {'validateur': {'roles': ['Reader']},
-                         'editeur': {'roles': ['Reader']},
+        'to_be_signed': {'editeur': {'roles': ['Reader']},
                          'encodeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
-        'sent': {'validateur': {'roles': ['Reader']},
-                 'editeur': {'roles': ['Reader']},
+        'sent': {'editeur': {'roles': ['Reader']},
                  'encodeur': {'roles': ['Reader']},
                  'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
-        'proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
-        'to_be_signed': {'validateur': {'roles': ['Reader']},
-                         'editeur': {'roles': ['Reader']},
+        'to_be_signed': {'editeur': {'roles': ['Reader']},
                          'encodeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
-        'sent': {'validateur': {'roles': ['Reader']},
-                 'editeur': {'roles': ['Reader']},
+        'sent': {'editeur': {'roles': ['Reader']},
                  'encodeur': {'roles': ['Reader']},
                  'lecteur': {'roles': ['Reader']}},
     },
@@ -1197,9 +1189,6 @@ def configureImioDmsMail(context):
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
             {'mt_value': u'recommande', 'mt_title': u'Recommandé', 'mt_active': True},
         ]
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states'] = [
-            'proposed_to_service_chief']
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'):
@@ -1234,6 +1223,7 @@ def configureContactPloneGroup(context):
     logger.info('Configure contact plonegroup')
     site = context.getSite()
     if not get_registry_functions():
+        # TODO remove validateur
         set_registry_functions([
             {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False,
              'enabled': True},
@@ -1896,8 +1886,7 @@ def configure_actions_panel(portal):
              'dmsincomingmail.back_to_treatment|',
              'dmsincomingmail.back_to_agent|', 'task.back_in_created|', 'task.back_in_to_assign|',
              'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|',
-             'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|',
-             'dmsoutgoingmail.back_to_service_chief|', 'dmsoutgoingmail.back_to_print|',
+             'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|', 'dmsoutgoingmail.back_to_print|',
              'dmsoutgoingmail.back_to_be_signed|', 'dmsoutgoingmail.back_to_scanned|']
 
 

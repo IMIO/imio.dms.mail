@@ -39,21 +39,24 @@ logger = logging.getLogger('imio.dms.mail: utils')
 """
 dms_config
 ----------
-* ['n_plus_from'] : états précédant les niveaux de validation et transitions pour y accéder
-    * ['dmsincomingmail'] = [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')]
+* ['wf_from_to'] : états précédant/suivant un autre et transitions pour y accéder
+    * ['dmsincomingmail', 'n_plus', 'from'] = [('created', 'back_to_creation'),
+                                               ('proposed_to_manager', 'back_to_manager')]
+    * ['dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    * ['dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
+    * ['dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
 * ['review_levels'] : sert à déterminer le niveau de validation d'un utilisateur suivant son groupe
     * ['dmsincomingmail'] = OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                          ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})])
     * ['task'] = OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})])
-    * ['dmsoutgoingmail'] = OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'],
-                                                          'org': 'treating_groups'})])
+    * ['dmsoutgoingmail'] = OrderedDict([('_n_plus_1', {'st': ['proposed_to_n_plus_1'],
+                                                        'org': 'treating_groups'})])
 * ['review_states'] : pour l'index state_group, lié à la validation
     * ['dmsincomingmail'] = OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
                                          ('proposed_to_n_plus_1', {'group': ['_n_plus_1'], 'org': 'treating_groups'})])
     * ['task'] = OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
                                 ('realized', {'group': '_validateur', 'org': 'assigned_group'})])
-    * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_service_chief', {'group': '_validateur',
-                                          'org': 'treating_groups'})])
+    * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})])
 * ['transitions_auc'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées en
                         fonction du paramètre assigned_user_check
     * ['dmsincomingmail'][transition] = {'org1': True, 'org2': False}
@@ -131,7 +134,8 @@ def update_transitions_levels_config(ptype, validation_level=None, action=None, 
     """
     orgs = get_registry_organizations()
     if ptype == 'dmsincomingmail':
-        from_states = get_dms_config(['n_plus_from', 'dmsincomingmail'])
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        # TODO use wf_from_to to ?
         states = [('proposed_to_agent', 0)]
         max_level = 0
         for wfa in get_applied_adaptations():
@@ -141,7 +145,7 @@ def update_transitions_levels_config(ptype, validation_level=None, action=None, 
         if validation_level is not None:
             max_level = validation_level
             states.append(('proposed_to_n_plus_{}'.format(max_level), max_level))
-        states += [(st, 9) for (st, tr) in from_states]
+        states += [(st, 9) for (st, tr) in wf_from_to['from']]
         states.reverse()
         state9 = ''
         users_in_groups = {}  # boolean by groupname
@@ -260,8 +264,8 @@ def list_wf_states(context, portal_type):
                               'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
                               'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
         'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
-        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
-        'dmsoutgoing_email': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
+        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'],
+        'dmsoutgoing_email': ['scanned', 'created', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'],
         'organization': ['active', 'deactivated'],
         'person': ['active', 'deactivated'],
         'held_position': ['active', 'deactivated'],
@@ -523,8 +527,8 @@ class IdmUtilsMethods(UtilsMethods):
             return False
         way_index = transition.startswith('back_to') and 1 or 0
         transition_to_test = transition
-        from_states = get_dms_config(['n_plus_from', 'dmsincomingmail'])
-        if transition in [tr for (st, tr) in from_states]:
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        if transition in [tr for (st, tr) in wf_from_to['from']]:
             transition_to_test = 'from_states'
         # show only the next valid level
         state = api.content.get_state(self.context)

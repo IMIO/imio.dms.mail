@@ -288,6 +288,11 @@
         factory=".wfadaptations.IMServiceValidation"
     />
 
+    <utility
+        name="imio.dms.mail.wfadaptations.OMServiceValidation"
+        factory=".wfadaptations.OMServiceValidation"
+    />
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />
