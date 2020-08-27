@@ -416,13 +416,13 @@ class IMServiceValidation(WorkflowAdaptationBase):
         new_state_id = 'proposed_to_{}'.format(new_id)
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
         transitions = [tr for (st, tr) in wf_from_to['from']]  # back transitions for new state
-        # TODO use wf_from_to
-        next_levels = ['agent']
-        for i in range(1, level):  # range(1, 1) => [], range(1, 2) => [1]
-            next_levels.append('n_plus_{}'.format(i))
-        for next_lev in next_levels:
-            transitions.append('propose_to_{}'.format(next_lev))
-        next_states = ['proposed_to_{}'.format(lev) for lev in next_levels]
+        transitions += [tr for (st, tr) in wf_from_to['to']]  # agent + previous levels
+        next_states = [st for (st, tr) in wf_from_to['to']]
+
+        # store current level in dms_config
+        propose_tr_id = 'propose_to_{}'.format(new_id)
+        wf_from_to['to'].append((new_state_id, propose_tr_id))
+        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'], wf_from_to)
 
         # add state
         msg = self.check_state_in_workflow(wf, new_state_id)
@@ -448,7 +448,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
         state.permission_roles = perms
 
         # add transitions
-        propose_tr_id = 'propose_to_{}'.format(new_id)
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
             title=parameters['forward_transition_title'].encode('utf8'),

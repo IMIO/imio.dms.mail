@@ -8,6 +8,7 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import IdmUtilsMethods
+from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from plone import api
 from plone.app.testing import login
@@ -34,6 +35,10 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                           'imiodmsmail-apply_n_plus_1_wfadaptation',
                                                           run_dependencies=False)
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
 
     def test_im_workflow1(self):
         """ Check workflow """
@@ -190,6 +195,10 @@ class TestIMServiceValidation2(unittest.TestCase):
                                    'incomingmail_workflow', True, **n_plus_2_params)
         for uid in get_registry_organizations():
             self.portal.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_2" % uid)
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
 
     def test_im_workflow2(self):
         """ Check workflow """
