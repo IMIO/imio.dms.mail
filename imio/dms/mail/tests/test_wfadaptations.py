@@ -94,6 +94,9 @@ class TestWFAdaptations(unittest.TestCase):
         self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 11)
         self.assertEqual(folder.getObjectPosition('searchfor_to_print'), 10)
         self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
+        res = [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0]
+        self.assertIn('to_print', res)
+        self.assertIn('proposed_to_n_plus_1', res)
 
     def test_OMToPrintAdaptationBeforeNp1(self):
         """ Test wf adaptation modifications """
@@ -168,6 +171,8 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertIn('searchfor_proposed_to_n_plus_1', folder)
         self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 10)
         self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
+        self.assertIn('proposed_to_n_plus_1',
+                      [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
         # check annotations
         config = get_dms_config(['review_levels', 'dmsoutgoingmail'])
         self.assertIn('_n_plus_1', config)

@@ -670,7 +670,7 @@ def createOMailCollections(folder):
              'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v':
-                ['proposed_to_n_plus_1', 'to_be_signed']}],
+                ['to_be_signed']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'CreationDate', u'actions'),

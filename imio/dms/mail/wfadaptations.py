@@ -636,6 +636,18 @@ class OMServiceValidation(WorkflowAdaptationBase):
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
                                            lst)
 
+        col = folder['om_treating']
+        query = list(col.query)
+        modif = False
+        for dic in query:
+            if dic['i'] == 'review_state' and new_state_id not in dic['v']:
+                modif = True
+                if 'proposed_to_service_chief' in dic['v']:
+                    dic['v'].remove('proposed_to_service_chief')
+                dic['v'] += [new_state_id]
+        if modif:
+            col.query = query
+
         return True, ''
 
 
