@@ -615,6 +615,10 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # to: ('to_be_signed', 'propose_to_be_signed'), ('to_print', 'set_to_print')
         transitions = [tr for (st, tr) in wf_from_to['from']] + [tr for (st, tr) in wf_from_to['to']]
         to_states = [st for (st, tr) in wf_from_to['to']]
+        # store current level in dms_config
+        propose_tr_id = 'propose_to_{}'.format(new_id)
+        wf_from_to['to'].append((new_state_id, propose_tr_id))
+        set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'], wf_from_to)
 
         # add state
         msg = self.check_state_in_workflow(wf, new_state_id)
@@ -640,7 +644,6 @@ class OMServiceValidation(WorkflowAdaptationBase):
         state.permission_roles = perms
 
         # add transitions
-        propose_tr_id = 'propose_to_{}'.format(new_id)
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
             title=parameters['forward_transition_title'].encode('utf8'),
@@ -682,7 +685,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             set_registry_functions(functions)
 
         # add local roles config
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
         lr = getattr(fti, 'localroles')
         lrt = lr['treating_groups']
         if new_state_id not in lrt:
@@ -746,7 +749,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
                                            lst)
         # update remark states
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
-                                             default=[])
+                                             default=False) or []
         if new_state_id not in lst:
             lst.insert(0, new_state_id)
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',

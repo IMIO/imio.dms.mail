@@ -33,7 +33,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.imw = self.pw['incomingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
-                                                          'imiodmsmail-apply_n_plus_1_wfadaptation',
+                                                          'imiodmsmail-im_n_plus_1_wfadaptation',
                                                           run_dependencies=False)
 
     def tearDown(self):
@@ -181,7 +181,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.imw = self.pw['incomingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
-                                                          'imiodmsmail-apply_n_plus_1_wfadaptation',
+                                                          'imiodmsmail-im_n_plus_1_wfadaptation',
                                                           run_dependencies=False)
         sva = IMServiceValidation()
         n_plus_2_params = {'validation_level': 2,

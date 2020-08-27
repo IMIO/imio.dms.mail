@@ -16,6 +16,7 @@ class TestIMWorkflow(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
         self.imw = self.pw['incomingmail_workflow']
+        self.omw = self.pw['outgoingmail_workflow']
 
     def test_im_workflow0(self):
         """ Check workflow """
@@ -34,3 +35,19 @@ class TestIMWorkflow(unittest.TestCase):
                             {'back_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['closed'].transitions),
                             {'back_to_treatment', 'back_to_agent'})
+
+    def test_om_workflow0(self):
+        """ Check workflow """
+        self.assertSetEqual(set(self.omw.states),
+                            {'created', 'scanned', 'to_be_signed', 'sent'})
+        self.assertSetEqual(set(self.omw.transitions),
+                            {'back_to_creation', 'back_to_agent', 'back_to_scanned', 'back_to_be_signed',
+                             'set_scanned', 'propose_to_be_signed', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['created'].transitions),
+                            {'set_scanned', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['scanned'].transitions),
+                            {'mark_as_sent', 'back_to_agent'})
+        self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
+                            {'mark_as_sent', 'back_to_creation'})
+        self.assertSetEqual(set(self.omw.states['sent'].transitions),
+                            {'back_to_be_signed', 'back_to_scanned'})
