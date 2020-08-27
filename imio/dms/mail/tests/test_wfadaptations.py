@@ -28,26 +28,90 @@ class TestWFAdaptations(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
+        self.omw = self.pw['outgoingmail_workflow']
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
 
     def test_OMToPrintAdaptation(self):
-        """
-            Test all methods of OMToPrintAdaptation class
-        """
-        return
-        # TODO to be corrceted
+        """ Test wf adaptation modifications """
         tpa = OMToPrintAdaptation()
-        omw = self.pw['outgoingmail_workflow']
-        self.assertTrue(tpa.check_state_in_workflow(omw, 'to_print'))
         tpa.patch_workflow('outgoingmail_workflow')
-        self.assertEqual(tpa.check_state_in_workflow(omw, 'to_print'), '')
-        self.assertEqual(tpa.check_transition_in_workflow(omw, 'set_to_print'), '')
-        self.assertEqual(tpa.check_transition_in_workflow(omw, 'back_to_print'), '')
+        # check workflow
+        self.assertSetEqual(set(self.omw.states),
+                            {'created', 'scanned', 'to_print', 'to_be_signed', 'sent'})
+        self.assertSetEqual(set(self.omw.transitions),
+                            {'back_to_creation', 'back_to_agent', 'back_to_scanned', 'back_to_print',
+                             'back_to_be_signed', 'set_scanned', 'set_to_print', 'propose_to_be_signed',
+                             'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['created'].transitions),
+                            {'set_scanned', 'set_to_print', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['scanned'].transitions),
+                            {'back_to_agent', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['to_print'].transitions),
+                            {'back_to_creation', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
+                            {'back_to_creation', 'back_to_print', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['sent'].transitions),
+                            {'back_to_be_signed', 'back_to_scanned'})
+        # various
         fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
         lr = getattr(fti, 'localroles')
         self.assertIn('to_print', lr['static_config'])
         self.assertIn('to_print', lr['treating_groups'])
         self.assertIn('to_print', lr['recipient_groups'])
         self.assertIn('searchfor_to_print', self.portal['outgoing-mail']['mail-searches'])
+        folder = self.portal['outgoing-mail']['mail-searches']
+        self.assertIn('to_print', [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
+        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 10)
+        self.assertEqual(folder.getObjectPosition('searchfor_to_print'), 9)
+        factory = getUtility(IVocabularyFactory, u'imio.dms.mail.OMReviewStatesVocabulary')
+        self.assertEqual(len(factory(self.portal)), 5)
+
+    def common_tests(self):
+        # check workflow
+        self.assertSetEqual(set(self.omw.states),
+                            {'created', 'scanned', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'})
+        self.assertSetEqual(set(self.omw.transitions),
+                            {'back_to_creation', 'back_to_agent', 'back_to_scanned', 'back_to_n_plus_1',
+                             'back_to_print', 'back_to_be_signed', 'set_scanned', 'propose_to_n_plus_1', 'set_to_print',
+                             'propose_to_be_signed', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['created'].transitions),
+                            {'set_scanned', 'propose_to_n_plus_1', 'set_to_print', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['scanned'].transitions),
+                            {'back_to_agent', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['proposed_to_n_plus_1'].transitions),
+                            {'back_to_creation', 'set_to_print', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['to_print'].transitions),
+                            {'back_to_creation', 'back_to_n_plus_1', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
+                            {'back_to_creation', 'back_to_n_plus_1', 'back_to_print', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['sent'].transitions),
+                            {'back_to_be_signed', 'back_to_scanned'})
+        # check collection position
+        folder = self.portal['outgoing-mail']['mail-searches']
+        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 11)
+        self.assertEqual(folder.getObjectPosition('searchfor_to_print'), 10)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
+
+    def test_OMToPrintAdaptationBeforeNp1(self):
+        """ Test wf adaptation modifications """
+        tpa = OMToPrintAdaptation()
+        tpa.patch_workflow('outgoingmail_workflow')
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                          'imiodmsmail-om_n_plus_1_wfadaptation',
+                                                          run_dependencies=False)
+        self.common_tests()
+
+    def test_OMToPrintAdaptationAfterNp1(self):
+        """ Test wf adaptation modifications """
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                          'imiodmsmail-om_n_plus_1_wfadaptation',
+                                                          run_dependencies=False)
+        tpa = OMToPrintAdaptation()
+        tpa.patch_workflow('outgoingmail_workflow')
+        self.common_tests()
 
 
 class TestOMServiceValidation1(unittest.TestCase):
