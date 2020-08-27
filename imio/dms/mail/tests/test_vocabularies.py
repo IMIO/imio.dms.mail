@@ -135,7 +135,7 @@ class TestVocabularies(unittest.TestCase):
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, [u'courrier', u'recommande'])
 
-    def test_encodeur_active_orgs(self):
+    def test_encodeur_active_orgs0(self):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
         all_titles = [t.title for t in factory(self.omail)]
         login(self.portal, 'encodeur')
@@ -144,9 +144,6 @@ class TestVocabularies(unittest.TestCase):
         login(self.portal, 'agent')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
                              [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
-        with api.env.adopt_roles(['Manager']):
-            api.content.transition(obj=self.omail, transition='propose_to_service_chief')
-        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
 
     def test_LabelsVocabulary(self):
         login(self.portal, 'agent')

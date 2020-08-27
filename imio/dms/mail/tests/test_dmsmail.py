@@ -219,9 +219,9 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(edit.widgets['internal_reference_no'].mode, 'input')  # not hidden
         self.clean_request()
         # is a response, workflow and not initial state
-        api.content.transition(om, 'propose_to_service_chief')
+        api.content.transition(om, 'propose_to_be_signed')
         edit.update()
-        self.assertEquals(api.content.get_state(om), 'proposed_to_service_chief')
+        self.assertEquals(api.content.get_state(om), 'to_be_signed')
         self.assertEquals(edit.is_initial_state(), False)
         self.assertEquals(self.request['_hide_irn'], True)
         self.assertNotIn('_auto_ref', self.request.keys())

@@ -4,12 +4,15 @@ from collective.contact.plonegroup.config import get_registry_functions
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
-from imio.dms.mail.wfadaptations import OMServiceValidation
 from plone import api
+from plone.app.testing import login
+from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.utils import createContentInContainer
 from zope.component import getUtility
 
 import unittest
@@ -60,6 +63,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                           'imiodmsmail-om_n_plus_1_wfadaptation',
                                                           run_dependencies=False)
+        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
@@ -115,3 +119,13 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertIn('dmsoutgoingmail.back_to_n_plus_1|', lst)
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states')
         self.assertIn('proposed_to_n_plus_1', lst)
+
+    def test_encodeur_active_orgs1(self):
+        factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
+        all_titles = [t.title for t in factory(self.omail)]
+        login(self.portal, 'agent')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
+                             [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
+        with api.env.adopt_roles(['Manager']):
+            api.content.transition(obj=self.omail, transition='propose_to_n_plus_1')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
