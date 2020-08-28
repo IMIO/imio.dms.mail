@@ -20,6 +20,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail import wfadaptations
+from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -177,6 +178,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
 
     def remove_service_chief(self):
         # remove collection
+        logger.info('Modifying workflows')
         for folder in (self.imf['mail-searches'], self.omf['mail-searches']):
             if 'searchfor_proposed_to_service_chief' in folder:
                 api.content.delete(obj=folder['searchfor_proposed_to_service_chief'])
@@ -256,6 +258,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             if u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr) in applied_wfa:
                 remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr))
             else:
+                logger.info('Applying {}ServiceValidation wf adaptation'.format(acr))
                 sva = getattr(wfadaptations, '{}ServiceValidation'.format(acr))()
                 adapt_is_applied = sva.patch_workflow(wkf, **n_plus_1_params)
                 if adapt_is_applied:
@@ -270,7 +273,14 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             for tr, tit in (('back_to_manager', u'Renvoyer au CZ'), ('propose_to_manager', u'Proposer au CZ')):
                 transition = im_workflow.transitions[tr]
                 transition.title = tit.encode('utf8')
+            logger.info('Removing EmergencyZone wf adaptation')
             remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.EmergencyZone')
+
+        # redo OMToPrintAdaptation
+        if u'imio.dms.mail.wfadaptations.OMToPrint' in applied_wfa:
+            logger.info('Applying OMToPrint wf adaptation')
+            tpa = OMToPrintAdaptation()
+            tpa.patch_workflow('outgoingmail_workflow')
 
         # update wf history to replace review_state and correct history
         config = {'dmsincomingmail': {'wf': 'incomingmail_workflow',
