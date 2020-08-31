@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_groups_mgt
 from collective.contact.plonegroup.config import set_registry_functions
@@ -14,12 +13,13 @@ from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.widgets.storage import Criterion
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail import wfadaptations
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.subscribers import group_deleted
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
-from imio.dms.mail import wfadaptations
+from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -281,6 +281,19 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             logger.info('Applying OMToPrint wf adaptation')
             tpa = OMToPrintAdaptation()
             tpa.patch_workflow('outgoingmail_workflow')
+
+        # redo IMPreManagerValidation
+        if u'imio.dms.mail.wfadaptations.IMPreManagerValidation' in applied_wfa:
+            logger.info('Applying IMPreManagerValidation wf adaptation')
+            params = [dic['parameters'] for dic in get_applied_adaptations()
+                      if dic['adaptation'] == u'imio.dms.mail.wfadaptations.IMPreManagerValidation'][0]
+            remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.IMPreManagerValidation')
+            del params['collection_title']
+            pmva = IMPreManagerValidation()
+            adapt_is_applied = pmva.patch_workflow('incomingmail_workflow', **params)
+            if adapt_is_applied:
+                add_applied_adaptation('imio.dms.mail.wfadaptations.IMPreManagerValidation',
+                                       'incoming_mail', False, **params)
 
         # update wf history to replace review_state and correct history
         config = {'dmsincomingmail': {'wf': 'incomingmail_workflow',

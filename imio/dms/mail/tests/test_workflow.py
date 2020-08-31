@@ -8,7 +8,7 @@ from plone.app.testing import TEST_USER_ID
 import unittest
 
 
-class TestIMWorkflow(unittest.TestCase):
+class TestWorkflows(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 

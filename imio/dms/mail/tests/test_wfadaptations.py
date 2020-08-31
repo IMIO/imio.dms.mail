@@ -5,6 +5,7 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.vocabularies import encodeur_active_orgs
+from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from plone import api
 from plone.app.testing import login
@@ -20,7 +21,7 @@ import unittest
 from zope.schema.interfaces import IVocabularyFactory
 
 
-class TestWFAdaptations(unittest.TestCase):
+class TestOMToPrintAdaptation(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -198,3 +199,62 @@ class TestOMServiceValidation1(unittest.TestCase):
         with api.env.adopt_roles(['Manager']):
             api.content.transition(obj=self.omail, transition='propose_to_n_plus_1')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+
+
+class TestIMPreManagerValidation(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.pw = self.portal.portal_workflow
+        self.imw = self.pw['incomingmail_workflow']
+        params = {'state_title': u'À valider avant le DG',
+                  'forward_transition_title': u'Proposer pour prévalidation DG',
+                  'backward_transition_title': u'Renvoyer pour prévalidation DG',}
+        pmva = IMPreManagerValidation()
+        pmva.patch_workflow('incomingmail_workflow', **params)
+
+    def test_IMPreManagerAdaptation(self):
+        """ Test wf adaptation modifications """
+        # check workflow
+        self.assertSetEqual(set(self.imw.states),
+                            {'created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_agent',
+                             'in_treatment', 'closed'})
+        self.assertSetEqual(set(self.imw.transitions),
+                            {'back_to_creation', 'back_to_pre_manager', 'back_to_manager', 'back_to_agent',
+                             'back_to_treatment', 'propose_to_pre_manager', 'propose_to_manager', 'propose_to_agent',
+                             'treat', 'close'})
+        self.assertSetEqual(set(self.imw.states['created'].transitions),
+                            {'propose_to_pre_manager', 'propose_to_manager', 'propose_to_agent'})
+        self.assertSetEqual(set(self.imw.states['proposed_to_pre_manager'].transitions),
+                            {'back_to_creation', 'propose_to_manager'})
+        self.assertSetEqual(set(self.imw.states['proposed_to_manager'].transitions),
+                            {'back_to_creation', 'back_to_pre_manager', 'propose_to_agent'})
+        self.assertSetEqual(set(self.imw.states['proposed_to_agent'].transitions),
+                            {'back_to_creation', 'back_to_manager', 'treat', 'close'})
+        self.assertSetEqual(set(self.imw.states['in_treatment'].transitions),
+                            {'back_to_agent', 'close'})
+        self.assertSetEqual(set(self.imw.states['closed'].transitions),
+                            {'back_to_treatment', 'back_to_agent'})
+        # check local roles
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        self.assertIn('proposed_to_pre_manager', lr['static_config'])
+        # check collection
+        folder = self.portal['incoming-mail']['mail-searches']
+        self.assertIn('searchfor_proposed_to_pre_manager', folder)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_manager'), 12)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_pre_manager'), 11)
+        # check annotations
+        config = get_dms_config(['review_levels', 'dmsincomingmail'])
+        self.assertIn('pre_manager', config)
+        config = get_dms_config(['review_states', 'dmsincomingmail'])
+        self.assertIn('proposed_to_pre_manager', config)
+        # check voc
+        factory = getUtility(IVocabularyFactory, u'imio.dms.mail.IMReviewStatesVocabulary')
+        self.assertEqual(len(factory(self.portal)), 6)
+        # check configuration
+        lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+        self.assertIn('dmsincomingmail.back_to_pre_manager|', lst)

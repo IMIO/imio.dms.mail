@@ -835,10 +835,6 @@ msgstr ""
 msgid "searchfor_proposed_to_manager"
 msgstr ""
 
-#: dmsincomingmail
-msgid "searchfor_proposed_to_pre_manager"
-msgstr ""
-
 #: task
 msgid "searchfor_realized"
 msgstr ""

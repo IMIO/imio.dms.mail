@@ -17,10 +17,8 @@ from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from zope import schema
 from zope.component import getUtility
-from zope.i18n import translate
 from zope.interface import Interface
 from zope.interface import provider
-from zope.schema.interfaces import IContextAwareDefaultFactory
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -31,46 +29,21 @@ from zope.schema.vocabulary import SimpleVocabulary
 """
 
 
-@provider(IContextAwareDefaultFactory)
-def impv_state_default(context):
-    return translate(u'proposed_to_pre_manager', domain='plone', context=context.REQUEST)
-
-
-@provider(IContextAwareDefaultFactory)
-def impv_fw_tr_default(context):
-    return translate(u'propose_to_pre_manager', domain='plone', context=context.REQUEST)
-
-
-@provider(IContextAwareDefaultFactory)
-def impv_bw_tr_default(context):
-    return translate(u'back_to_pre_manager', domain='plone', context=context.REQUEST)
-
-
-@provider(IContextAwareDefaultFactory)
-def impv_collection_default(context):
-    return translate(u'searchfor_proposed_to_pre_manager', domain='imio.dms.mail', context=context.REQUEST)
-
-
 class IIMPreValidationParameters(Interface):
 
     state_title = schema.TextLine(
         title=u'State title',
-        defaultFactory=impv_state_default,
+        default=u'À valider avant le DG',
         required=True)
 
     forward_transition_title = schema.TextLine(
         title=u'Forward transition title',
-        defaultFactory=impv_fw_tr_default,
+        default=u'Proposer pour prévalidation DG',
         required=True)
 
     backward_transition_title = schema.TextLine(
         title=u'Backward transition title',
-        defaultFactory=impv_bw_tr_default,
-        required=True)
-
-    collection_title = schema.TextLine(
-        title=u'Collection title',
-        defaultFactory=impv_collection_default,
+        default=u'Renvoyer pour prévalidation DG',
         required=True)
 
 
@@ -79,50 +52,25 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
     schema = IIMPreValidationParameters
 
     def patch_workflow(self, workflow_name, **parameters):
-        # TODO review following new workflow
         if not workflow_name == 'incomingmail_workflow':
             return False, _("This workflow adaptation is only valid for ${workflow} !",
                             mapping={'workflow': 'incomingmail_workflow'})
         portal = api.portal.get()
         wtool = portal.portal_workflow
         wf = wtool['incomingmail_workflow']
-        msg = self.check_state_in_workflow(wf, 'proposed_to_pre_manager')
+        new_state_id = 'proposed_to_pre_manager'
+        msg = self.check_state_in_workflow(wf, new_state_id)
         if not msg:
-            return False, 'State %s already in workflow' % 'proposed_to_pre_manager'
+            return False, 'State %s already in workflow' % new_state_id
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        next_states = [st for (st, tr) in wf_from_to['to']]
 
         # add state
-        wf.states.addState('proposed_to_pre_manager')
-        state = wf.states['proposed_to_pre_manager']
+        wf.states.addState(new_state_id)
+        state = wf.states[new_state_id]
         state.setProperties(
             title=parameters['state_title'].encode('utf8'), description='',
             transitions=['back_to_creation', 'propose_to_manager'])
-
-        # add transitions
-        wf.transitions.addTransition('propose_to_pre_manager')
-        wf.transitions['propose_to_pre_manager'].setProperties(
-            title=parameters['forward_transition_title'].encode('utf8'),
-            new_state_id='proposed_to_pre_manager', trigger_type=1, script_name='',
-            actbox_name='propose_to_pre_manager', actbox_url='',
-            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_propose_to_pre_manager.png',
-            actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
-        wf.transitions.addTransition('back_to_pre_manager')
-        wf.transitions['back_to_pre_manager'].setProperties(
-            title=parameters['backward_transition_title'].encode('utf8'),
-            new_state_id='proposed_to_pre_manager', trigger_type=1, script_name='',
-            actbox_name='back_to_pre_manager', actbox_url='',
-            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_back_to_pre_manager.png',
-            actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
-
-        # Other state transitions
-        transitions = list(wf.states['proposed_to_manager'].transitions)
-        transitions.append('back_to_pre_manager')
-        wf.states['proposed_to_manager'].transitions = tuple(transitions)
-        transitions = list(wf.states['created'].transitions)
-        transitions.append('propose_to_pre_manager')
-        wf.states['created'].transitions = tuple(transitions)
-
         # permissions
         perms = {
             'Access contents information': ('Editor', 'Manager', 'Owner', 'Reader', 'Reviewer', 'Site Administrator'),
@@ -136,7 +84,34 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             'imio.dms.mail: Write treating group field': ('Manager', 'Site Administrator', 'Treating Group Writer'),
         }
         state.permission_roles = perms
-        # proposed.setPermission(permission, 0, roles)
+
+        # add transitions
+        propose_tr_id = 'propose_to_pre_manager'
+        wf.transitions.addTransition(propose_tr_id)
+        wf.transitions[propose_tr_id].setProperties(
+            title=parameters['forward_transition_title'].encode('utf8'),
+            new_state_id=new_state_id, trigger_type=1, script_name='',
+            actbox_name=propose_tr_id, actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_propose_to_pre_manager.png',
+            actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+        back_tr_id = 'back_to_pre_manager'
+        wf.transitions.addTransition(back_tr_id)
+        wf.transitions[back_tr_id].setProperties(
+            title=parameters['backward_transition_title'].encode('utf8'),
+            new_state_id=new_state_id, trigger_type=1, script_name='',
+            actbox_name=back_tr_id, actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_back_to_pre_manager.png',
+            actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content'})
+
+        # Other state transitions
+        transitions = list(wf.states['proposed_to_manager'].transitions)
+        transitions.append(back_tr_id)
+        wf.states['proposed_to_manager'].transitions = tuple(transitions)
+        transitions = list(wf.states['created'].transitions)
+        transitions.append(propose_tr_id)
+        wf.states['created'].transitions = tuple(transitions)
 
         # pre_manager group
         if api.group.get('pre_manager') is None:
@@ -150,13 +125,13 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
         lrsc = lr['static_config']
-        if 'proposed_to_pre_manager' not in lrsc:
-            lrsc['proposed_to_pre_manager'] = {'pre_manager': {'roles': ['Editor', 'Reviewer']},
-                                               'encodeurs': {'roles': ['Reader']},
-                                               'dir_general': {'roles': ['Reader']}}
+        if new_state_id not in lrsc:
+            lrsc[new_state_id] = {'pre_manager': {'roles': ['Editor', 'Reviewer']},
+                                  'encodeurs': {'roles': ['Reader']},
+                                  'dir_general': {'roles': ['Reader']}}
             lrsc['proposed_to_manager'].update({'pre_manager': {'roles': ['Reader']}})
-            lrsc['proposed_to_service_chief'].update({'pre_manager': {'roles': ['Reader']}})
-            lrsc['proposed_to_agent'].update({'pre_manager': {'roles': ['Reader']}})
+            for st in next_states:
+                lrsc[st].update({'pre_manager': {'roles': ['Reader']}})
             lrsc['in_treatment'].update({'pre_manager': {'roles': ['Reader']}})
             lrsc['closed'].update({'pre_manager': {'roles': ['Reader']}})
         # We need to indicate that the object has been modified and must be 'saved'
@@ -165,19 +140,20 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # add collection
         folder = portal['incoming-mail']['mail-searches']
         col_id = 'searchfor_proposed_to_pre_manager'
+        col_title = u'État: {}'.format(parameters['state_title'])
         if col_id not in folder:
-            folder.invokeFactory('DashboardCollection', id=col_id, title=parameters['collection_title'], enabled=True,
+            next_col = folder['searchfor_{}'.format(next_states[-1])]
+            folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': ['dmsincomingmail']},
+                                         'v': ['dmsincomingmail', 'dmsincoming_email']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': ['proposed_to_pre_manager']}],
-                                 customViewFields=(u'select_row', u'pretty_link', u'treating_groups', u'assigned_user',
-                                                   u'due_date', u'mail_type', u'sender', u'reception_date', u'actions'),
+                                         'v': [new_state_id]}],
+                                 customViewFields=tuple(next_col.customViewFields),
                                  tal_condition="python: object.restrictedTraverse('idm-utils')."
                                                "proposed_to_pre_manager_col_cond()",
                                  showNumberOfItems=False,
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
-                                 sort_on=u'created', sort_reversed=True, b_size=30, limit=0)
+                                 sort_on=u'organization_type', sort_reversed=True, b_size=30, limit=0)
             col = folder[col_id]
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
@@ -187,14 +163,15 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # update configuration annotation
         config = get_dms_config(['review_levels', 'dmsincomingmail'])
         if 'pre_manager' not in config:
-            new_value = OrderedDict([('pre_manager', {'st': ['proposed_to_pre_manager']})] + config.items())
+            new_value = OrderedDict([('pre_manager', {'st': [new_state_id]})] + config.items())
             set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_value)
         config = get_dms_config(['review_states', 'dmsincomingmail'])
-        if 'proposed_to_pre_manager' not in config:
-            new_value = OrderedDict([('proposed_to_pre_manager', {'group': 'pre_manager'})] + config.items())
+        if new_state_id not in config:
+            new_value = OrderedDict([(new_state_id, {'group': 'pre_manager'})] + config.items())
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_value)
 
         # update state list
+        invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')
 
         # update actionspanel back transitions registry
