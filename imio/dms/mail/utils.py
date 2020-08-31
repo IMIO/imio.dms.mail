@@ -124,27 +124,21 @@ def group_has_user(groupname, action=None):
     return False
 
 
-def update_transitions_levels_config(ptype, validation_level=None, action=None, group_id=None):
+def update_transitions_levels_config(ptype, action=None, group_id=None):
     """
     Set transitions_levels dms config following org group users: [ptype][state][org] = (valid_propose_to, valid_back_to)
     :param ptype: portal type
-    :param validation_level: validation level, if not yet registered in applied transition
     :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
     :param group_id: new group assignment
     """
     orgs = get_registry_organizations()
     if ptype == 'dmsincomingmail':
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
-        # TODO use wf_from_to to ?
-        states = [('proposed_to_agent', 0)]
+        states = []
         max_level = 0
-        for wfa in get_applied_adaptations():
-            if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
-                max_level = wfa['parameters']['validation_level']
-                states.append(('proposed_to_n_plus_{}'.format(max_level), max_level))
-        if validation_level is not None:
-            max_level = validation_level
-            states.append(('proposed_to_n_plus_{}'.format(max_level), max_level))
+        for i, (st, tr) in enumerate(wf_from_to['to']):
+            states.append((st, i))
+            max_level = i
         states += [(st, 9) for (st, tr) in wf_from_to['from']]
         states.reverse()
         state9 = ''
@@ -187,23 +181,18 @@ def update_transitions_levels_config(ptype, validation_level=None, action=None, 
         pass
 
 
-def update_transitions_auc_config(ptype, validation_level=None, action=None, group_id=None):
+def update_transitions_auc_config(ptype, action=None, group_id=None):
     """
     Set transitions_auc dms config following assigned user check: [ptype][transition][org] = True
     :param ptype: portal type
-    :param validation_level: validation level, if not yet registered in applied transition
     :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
     :param group_id: new group assignment
     """
     orgs = get_registry_organizations()
     if ptype == 'dmsincomingmail':
         auc = api.portal.get_registry_record(AUC_RECORD)
-        transitions = ['propose_to_agent']
-        for wfa in get_applied_adaptations():
-            if wfa['adaptation'] == u'imio.dms.mail.wfadaptations.IMServiceValidation':
-                transitions.append('propose_to_n_plus_{}'.format(wfa['parameters']['validation_level']))
-        if validation_level is not None:
-            transitions.append('propose_to_n_plus_{}'.format(validation_level))
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        transitions = [tr for (st, tr) in wf_from_to['to']]
         previous_tr = ''
         global_config = {}
         for i, tr in enumerate(transitions):

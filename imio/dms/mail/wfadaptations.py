@@ -439,8 +439,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
             new_config = insert_in_ordereddict(config, value, after_key='proposed_to_manager', at_position=0)
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
         # update dms config
-        update_transitions_auc_config('dmsincomingmail', level)
-        update_transitions_levels_config('dmsincomingmail', level)
+        update_transitions_auc_config('dmsincomingmail')
+        update_transitions_levels_config('dmsincomingmail')
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')

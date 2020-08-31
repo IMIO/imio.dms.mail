@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ workflow tests for this package."""
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import get_dms_config
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 
@@ -35,6 +36,9 @@ class TestIMWorkflow(unittest.TestCase):
                             {'back_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['closed'].transitions),
                             {'back_to_treatment', 'back_to_agent'})
+        # default annotations
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        self.assertListEqual(wf_from_to['to'], [('proposed_to_agent', 'propose_to_agent')])
 
     def test_om_workflow0(self):
         """ Check workflow """
