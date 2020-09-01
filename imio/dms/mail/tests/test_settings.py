@@ -39,10 +39,9 @@ class TestSettings(unittest.TestCase):
 
         # changing imail group encoder
         key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'
-        # TODO validateur will be soon removed
-        self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 4)
+        self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 3)
         self.registry[key] = True
-        self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 5)
+        self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 4)
         with self.assertRaises(Invalid) as cm:
             self.registry[key] = False
         self.assertEqual(cm.exception.message, u"Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' "

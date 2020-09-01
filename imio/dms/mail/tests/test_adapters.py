@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+
+from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
@@ -57,6 +59,8 @@ class TestAdapters(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         # in a group dir_general
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_manager']}})
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
 
     def test_IncomingMailValidationCriterion(self):
         crit = IncomingMailValidationCriterion(self.portal)
@@ -74,6 +78,8 @@ class TestAdapters(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
                                                                 'proposed_to_n_plus_1,111']}})
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
 
     def test_OutgoingMailValidationCriterion(self):
         crit = OutgoingMailValidationCriterion(self.portal)
@@ -89,18 +95,22 @@ class TestAdapters(unittest.TestCase):
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
+        set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
 
     def test_TaskValidationCriterion(self):
         crit = TaskValidationCriterion(self.portal)
         # no groups
         self.assertEqual(crit.query, {'state_group': {'query': []}})
-        # in a group _validateur
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        # in a group _n_plus_1
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        set_dms_config(['review_levels', 'task'],
+                       OrderedDict([('_n_plus_1', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
         # in a group dir_general, but no effect for task criterion
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
+        set_dms_config(['review_levels', 'task'], OrderedDict())
 
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
@@ -158,8 +168,14 @@ class TestAdapters(unittest.TestCase):
         task = createContentInContainer(imail, 'task', assigned_group=dguid)
         indexer = state_group_index(task)
         self.assertEqual(indexer(), 'created')
-        api.content.transition(obj=task, to_state='to_assign')
+        # simulate adaptation
+        add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+        api.content.transition(obj=task, transition='do_to_assign')
+        self.assertEqual(indexer(), 'to_assign')
+        set_dms_config(['review_states', 'task'], OrderedDict([('to_assign', {'group': '_n_plus_1',
+                                                                              'org': 'assigned_group'})]))
         self.assertEqual(indexer(), 'to_assign,%s' % dguid)
+        set_dms_config(['review_states', 'task'], OrderedDict())
 
     def test_ScanSearchableExtender(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

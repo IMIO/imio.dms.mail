@@ -263,6 +263,8 @@
         "
     />
 
+    <!-- wf adaptations -->
+
     <utility
         name="imio.dms.mail.wfadaptations.OMToPrint"
         factory=".wfadaptations.OMToPrintAdaptation"
@@ -291,6 +293,11 @@
     <utility
         name="imio.dms.mail.wfadaptations.OMServiceValidation"
         factory=".wfadaptations.OMServiceValidation"
+    />
+
+    <utility
+        name="imio.dms.mail.wfadaptations.TaskServiceValidation"
+        factory=".wfadaptations.TaskServiceValidation"
     />
 
     <include file="adapters.zcml" />

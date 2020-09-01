@@ -48,14 +48,14 @@ dms_config
 * ['review_levels'] : sert à déterminer le niveau de validation d'un utilisateur suivant son groupe
     * ['dmsincomingmail'] = OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                          ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})])
-    * ['task'] = OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})])
+    * ['task'] = OrderedDict([('_n_plus_1', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})])
     * ['dmsoutgoingmail'] = OrderedDict([('_n_plus_1', {'st': ['proposed_to_n_plus_1'],
                                                         'org': 'treating_groups'})])
 * ['review_states'] : pour l'index state_group, lié à la validation
     * ['dmsincomingmail'] = OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
                                          ('proposed_to_n_plus_1', {'group': ['_n_plus_1'], 'org': 'treating_groups'})])
-    * ['task'] = OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
-                                ('realized', {'group': '_validateur', 'org': 'assigned_group'})])
+    * ['task'] = OrderedDict([('to_assign', {'group': '_n_plus_1', 'org': 'assigned_group'}),
+                                ('realized', {'group': '_n_plus_1', 'org': 'assigned_group'})])
     * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})])
 * ['transitions_auc'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées en
                         fonction du paramètre assigned_user_check

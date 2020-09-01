@@ -14,13 +14,17 @@ from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.widgets.storage import Criterion
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import wfadaptations
+from imio.dms.mail.setuphandlers import createTaskCollections
 from imio.dms.mail.setuphandlers import set_portlet
+from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.subscribers import group_deleted
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
+from imio.dms.mail.wfadaptations import TaskServiceValidation
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -69,6 +73,9 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.install(['collective.contact.importexport'])
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'], run_dependencies=False)
+
+        # add new task collection
+        createTaskCollections(self.portal['tasks']['task-searches'])
 
         # migrate assigned_user_check
         self.update_assigned_user_check(auc_stored)
@@ -184,7 +191,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 api.content.delete(obj=folder['searchfor_proposed_to_service_chief'])
 
         # clean dms config
-        for ptype in ('dmsincomingmail', 'dmsoutgoingmail'):
+        for ptype in ('dmsincomingmail', 'dmsoutgoingmail', 'task'):
             config = get_dms_config(['review_levels', ptype])
             if '_validateur' in config:
                 del config['_validateur']
@@ -199,7 +206,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 if 'validateur' in dic1[state1]:
                     del dic1[state1]['validateur']
 
-        # clean dmsincomingmail local roles
+        # clean local roles
         for ptype in ('dmsincomingmail', 'dmsoutgoingmail'):
             fti = getUtility(IDexterityFTI, name=ptype)
             lr = getattr(fti, 'localroles')
@@ -216,6 +223,16 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 del lrg['proposed_to_service_chief']
                 remove_localrole_validateur(lrg)
             lr._p_changed = True
+        # on task
+        fti = getUtility(IDexterityFTI, name='task')
+        lr = getattr(fti, 'localroles')
+        lrg = lr['assigned_group']
+        if 'validateur' in lrg['to_do']:
+            remove_localrole_validateur(lrg)
+        lrg = lr['parents_assigned_groups']
+        if 'validateur' in lrg['to_do']:
+            remove_localrole_validateur(lrg)
+        lr._p_changed = True
 
         # update registry
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
@@ -254,9 +271,11 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                            'forward_transition_title': u'Proposer au chef de service',
                            'backward_transition_title': u'Renvoyer au chef de service',
                            'function_title': u'N+1'}
+        task_adapt = True
         for wkf, acr in (('incomingmail_workflow', 'IM'), ('outgoingmail_workflow', 'OM')):
             if u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr) in applied_wfa:
                 remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr))
+                task_adapt = False
             else:
                 logger.info('Applying {}ServiceValidation wf adaptation'.format(acr))
                 sva = getattr(wfadaptations, '{}ServiceValidation'.format(acr))()
@@ -264,6 +283,22 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 if adapt_is_applied:
                     add_applied_adaptation('imio.dms.mail.wfadaptations.{}ServiceValidation'.format(acr),
                                            wkf, True, **n_plus_1_params)
+
+        if task_adapt:
+            tsva = TaskServiceValidation()
+            adapt_is_applied = tsva.patch_workflow('task_workflow', **{})
+            if adapt_is_applied:
+                add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+        else:
+            # update task_workflow
+            update_task_workflow(self.portal)
+            # update collections
+            folder = self.portal['tasks']['task-searches']
+            for cid in ('to_assign', 'to_close'):
+                if folder[cid].enabled:
+                    folder[cid].enabled = False
+                    folder[cid].reindexObject()
+            invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
         # replace EmergencyZoneAdaptation
         im_workflow = self.wtool['incomingmail_workflow']
@@ -343,7 +378,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         globalSiteManager.registerHandler(pg_group_deleted, (IGroupDeletedEvent,))
         globalSiteManager.registerHandler(group_deleted, (IGroupDeletedEvent,))
 
-        # remove _validateur function
+        # remove validateur function
         functions = get_registry_functions()
         if 'validateur' in [fct['fct_id'] for fct in functions]:
             set_registry_functions([fct for fct in functions if fct['fct_id'] != 'validateur'])

@@ -30,6 +30,7 @@ from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectio
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import add_applied_adaptation
+from collective.wfadaptations.api import get_applied_adaptations
 from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
@@ -433,7 +434,7 @@ def createDashboardCollections(folder, collections):
         if not base_hasattr(folder, dic['id']):
             folder.invokeFactory("DashboardCollection",
                                  dic['id'],
-                                 enabled=True,
+                                 enabled=dic.get('enabled', True),
                                  title=dic['tit'],
                                  query=dic['query'],
                                  tal_condition=dic['cond'],
@@ -572,7 +573,7 @@ def createTaskCollections(folder):
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
-            'sort': u'created', 'rev': True, 'count': True},
+            'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
         {'id': 'to_treat', 'tit': _('task_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
@@ -597,6 +598,15 @@ def createTaskCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
+        {'id': 'to_treat_in_my_group', 'tit': _('task_to_treat_in_my_group'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['to_do']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'task-in-assigned-group'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, 'count': True},
         {'id': 'in_my_group', 'tit': _('tasks_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
@@ -629,7 +639,7 @@ def createTaskCollections(folder):
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
-            'sort': u'created', 'rev': True, 'count': True},
+            'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
     ]
     createDashboardCollections(folder, collections)
 
@@ -892,16 +902,12 @@ def adaptDefaultPortal(context):
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
                    OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
-    # TODO
-    set_dms_config(['review_levels', 'task'],
-                   OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
+    set_dms_config(['review_levels', 'task'], OrderedDict())
     set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
     # review_states configuration, is the same as review_levels with some key, value inverted
     set_dms_config(['review_states', 'dmsincomingmail'],
                    OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
-    set_dms_config(['review_states', 'task'],
-                   OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
-                                ('realized', {'group': '_validateur', 'org': 'assigned_group'})]))
+    set_dms_config(['review_states', 'task'], OrderedDict())
     set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
 
 
@@ -1045,36 +1051,25 @@ def configure_task_rolefields(context, force=False):
             },
         },
         'assigned_group': {
-            'to_assign': {
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-            },
+            'to_assign': {},
             'to_do': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
             'in_progress': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
             'realized': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
             'closed': {
                 'editeur': {'roles': ['Reader'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
         },
@@ -1083,27 +1078,21 @@ def configure_task_rolefields(context, force=False):
         'enquirer': {
         },
         'parents_assigned_groups': {
-            'to_assign': {
-                'validateur': {'roles': ['Reader']},
-            },
+            'to_assign': {},
             'to_do': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
             'in_progress': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
             'realized': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
             'closed': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
         },
@@ -1224,14 +1213,11 @@ def configureContactPloneGroup(context):
     logger.info('Configure contact plonegroup')
     site = context.getSite()
     if not get_registry_functions():
-        # TODO remove validateur
         set_registry_functions([
             {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False,
              'enabled': True},
             {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
             {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
-            {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': [], 'fct_management': True,
-             'enabled': True},
         ])
     if not get_registry_groups_mgt():
         set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
@@ -1264,52 +1250,6 @@ def configureContactPloneGroup(context):
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
-
-
-def im_n_plus_1_wfadaptation(context):
-    """
-        Add n_plus_1 level in incomingmail_workflow
-    """
-    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
-        return
-    logger.info('Apply n_plus_1 level in incomingmail_workflow')
-    site = context.getSite()
-    n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
-                       'forward_transition_title': u'Proposer au chef de service',
-                       'backward_transition_title': u'Renvoyer au chef de service',
-                       'function_title': u'N+1'}
-    sva = IMServiceValidation()
-    adapt_is_applied = sva.patch_workflow('incomingmail_workflow', **n_plus_1_params)
-    if adapt_is_applied:
-        add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
-                               'incomingmail_workflow', True, **n_plus_1_params)
-    # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
-        for uid in get_registry_organizations():
-            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
-
-
-def om_n_plus_1_wfadaptation(context):
-    """
-        Add n_plus_1 level in outgoingmail_workflow
-    """
-    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
-        return
-    logger.info('Apply n_plus_1 level in outgoingmail_workflow')
-    site = context.getSite()
-    n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
-                       'forward_transition_title': u'Proposer au chef de service',
-                       'backward_transition_title': u'Renvoyer au chef de service',
-                       'function_title': u'N+1'}
-    sva = OMServiceValidation()
-    adapt_is_applied = sva.patch_workflow('outgoingmail_workflow', **n_plus_1_params)
-    if adapt_is_applied:
-        add_applied_adaptation('imio.dms.mail.wfadaptations.OMServiceValidation',
-                               'outgoingmail_workflow', True, **n_plus_1_params)
-    # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
-        for uid in get_registry_organizations():
-            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 
 
 def addTestDirectory(context):
@@ -2182,3 +2122,59 @@ def set_portlet(portal):
     portlet.show_icons = False
     portlet.default_icon = None
     portlet._p_changed = True
+
+
+def im_n_plus_1_wfadaptation(context):
+    """
+        Add n_plus_1 level in incomingmail_workflow
+    """
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info('Apply n_plus_1 level in incomingmail_workflow')
+    site = context.getSite()
+    n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
+                       'forward_transition_title': u'Proposer au chef de service',
+                       'backward_transition_title': u'Renvoyer au chef de service',
+                       'function_title': u'N+1'}
+    sva = IMServiceValidation()
+    adapt_is_applied = sva.patch_workflow('incomingmail_workflow', **n_plus_1_params)
+    if adapt_is_applied:
+        add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
+                               'incomingmail_workflow', True, **n_plus_1_params)
+    # Add users to activated groups
+    if 'chef' in [u.id for u in api.user.get_users()]:
+        for uid in get_registry_organizations():
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
+
+
+def om_n_plus_1_wfadaptation(context):
+    """
+        Add n_plus_1 level in outgoingmail_workflow
+    """
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info('Apply n_plus_1 level in outgoingmail_workflow')
+    site = context.getSite()
+    n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
+                       'forward_transition_title': u'Proposer au chef de service',
+                       'backward_transition_title': u'Renvoyer au chef de service',
+                       'function_title': u'N+1'}
+    sva = OMServiceValidation()
+    adapt_is_applied = sva.patch_workflow('outgoingmail_workflow', **n_plus_1_params)
+    if adapt_is_applied:
+        add_applied_adaptation('imio.dms.mail.wfadaptations.OMServiceValidation',
+                               'outgoingmail_workflow', True, **n_plus_1_params)
+    # Add users to activated groups
+    if 'chef' in [u.id for u in api.user.get_users()]:
+        for uid in get_registry_organizations():
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
+
+
+def update_task_workflow(portal):
+    """ remove back_in_to_assign transition in task workflow """
+    wf = portal.portal_workflow['task_workflow']
+    state = wf.states['to_do']
+    transitions = list(state.transitions)  # noqa
+    if 'back_in_to_assign' in transitions:
+        transitions.remove('back_in_to_assign')
+        state.transitions = tuple(transitions)

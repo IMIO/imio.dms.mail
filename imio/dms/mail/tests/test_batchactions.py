@@ -136,8 +136,9 @@ class BatchActions(unittest.TestCase):
         view.update()
         view.widgets.extract = lambda *a, **kw: ({'transition': u'do_to_assign', 'comment': u''}, [])
         view.handleApply(view, 'apply')
-        self.assertEqual('to_assign', api.content.get_state(self.ta1))
-        self.assertEqual('to_assign', api.content.get_state(self.ta2))
+        # to_do due to automatic transition
+        self.assertEqual('to_do', api.content.get_state(self.ta1))
+        self.assertEqual('to_do', api.content.get_state(self.ta2))
 
     def test_AssignedGroupBatchActionForm(self):
         self.assertEqual(self.ta1.assigned_group, self.pgof['direction-generale'].UID())

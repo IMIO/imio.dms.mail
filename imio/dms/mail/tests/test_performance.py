@@ -35,19 +35,19 @@ class TestPerformance(unittest.TestCase):
         org_uid = self.portal.contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
         __builtin__.__dict__.update(locals())
         t0 = pt(u'voc_selected_org_suffix_users without n_plus',
-                timed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur', 'validateur'])))
+                timed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur'])))
         t1 = pt(u'voc_selected_org_suffix_users with 5 n_plus',
-                timed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur', 'validateur', 'n_plus_1', 'n_plus_2',
+                timed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur', 'n_plus_1', 'n_plus_2',
                                                                       'n_plus_3', 'n_plus_4', 'n_plus_5'])))
 
     def test_organizations_with_suffixes(self):
         org_uid = self.portal.contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
-        suffixes = ('validateur', 'editeur', 'lecteur')
+        suffixes = ('editeur', 'lecteur')
         groups = ['{}_{}'.format(org_uid, suffix) for suffix in suffixes]
         __builtin__.__dict__.update(locals())
         t0 = pt(u'organizations_with_suffixes without n_plus',
                 timed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True)))
-        suffixes = ('validateur', 'editeur', 'lecteur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5')
+        suffixes = ('editeur', 'lecteur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5')
         __builtin__.__dict__.update(locals())
         t1 = pt(u'organizations_with_suffixes with 5 n_plus',
                 timed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True)))

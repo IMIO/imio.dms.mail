@@ -43,6 +43,14 @@
         handler=".subscribers.dexterity_transition"
       />
 
+    <unconfigure>
+        <subscriber
+             for="collective.task.behaviors.ITask
+                  Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+             handler="collective.task.subscribers.afterTransitionITaskSubscriber"
+          />
+    </unconfigure>
+
     <subscriber
         for="collective.task.interfaces.ITaskContent
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"

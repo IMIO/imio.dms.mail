@@ -562,6 +562,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # We need to indicate that the object has been modified and must be 'saved'
         lr._p_changed = True
 
+        # TODO activer la collection à valider...
         # add collection
         folder = portal['outgoing-mail']['mail-searches']
         col_id = 'searchfor_{}'.format(new_state_id)
@@ -772,5 +773,82 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             col.query = query
 
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
+
+        return True, ''
+
+
+"""
+  task_workflow adaptation
+"""
+
+
+class TaskServiceValidation(WorkflowAdaptationBase):
+
+    def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == 'task_workflow':
+            return False, _("This workflow adaptation is only valid for ${workflow} !",
+                            mapping={'workflow': 'task_workflow'})
+        portal = api.portal.get()
+        wtool = portal.portal_workflow
+        new_id = 'n_plus_1'
+        function_title = u'N+1'
+        wf = wtool['task_workflow']
+
+        # add back_to_assign
+        state = wf.states['to_do']
+        transitions = list(state.transitions)
+        if 'back_in_to_assign' not in transitions:
+            transitions.append('back_in_to_assign')
+            state.transitions = tuple(transitions)
+
+        # add function
+        functions = get_registry_functions()
+        if new_id not in [fct['fct_id'] for fct in functions]:
+            functions.append({'fct_title': function_title, 'fct_id': unicode(new_id), 'fct_orgs': [],
+                              'fct_management': True, 'enabled': True})
+            set_registry_functions(functions)
+
+        # add local roles config
+        fti = getUtility(IDexterityFTI, name='task')
+        lr = getattr(fti, 'localroles')
+        lrag = lr['assigned_group']
+        if new_id not in lrag['to_do']:
+            for st in ['to_assign', 'to_do', 'in_progress', 'realized']:
+                lrag[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer'],
+                                          'rel': "{'collective.task.related_taskcontainer':['Reader']}"}})
+            lrag['closed'].update({new_id: {'roles': ['Editor', 'Reviewer'],
+                                            'rel': "{'collective.task.related_taskcontainer':['Reader']}"}})
+        lrpag = lr['parents_assigned_groups']
+        if new_id not in lrpag['to_do']:
+            for st in ['to_assign', 'to_do', 'in_progress', 'realized', 'closed']:
+                lrpag[st].update({new_id: {'roles': ['Reader']}})
+        lr._p_changed = True
+
+        # update collections
+        folder = portal['tasks']['task-searches']
+        if folder['to_treat_in_my_group'].showNumberOfItems:
+            folder['to_treat_in_my_group'].showNumberOfItems = False  # noqa
+            folder['to_treat_in_my_group'].reindexObject()
+        for cid in ('to_assign', 'to_close'):
+            if not folder[cid].enabled:
+                folder[cid].enabled = True
+                folder[cid].reindexObject()
+
+        # update configuration annotation
+        config = get_dms_config(['review_levels', 'task'])
+        suffix = '_{}'.format(new_id)
+        if suffix not in config:
+            value = (suffix, {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})
+            new_config = insert_in_ordereddict(config, value, at_position=0)
+            set_dms_config(keys=['review_levels', 'task'], value=new_config)
+        new_config = get_dms_config(['review_states', 'task'])
+        if 'to_assign' not in config:
+            for st in ('realized', 'to_assign'):
+                value = (st, {'group': suffix, 'org': 'assigned_group'})
+                new_config = insert_in_ordereddict(new_config, value, at_position=0)
+            set_dms_config(keys=['review_states', 'task'], value=new_config)
+
+        # update cache
+        invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
         return True, ''

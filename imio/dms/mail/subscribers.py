@@ -12,6 +12,7 @@ from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
+from collective.wfadaptations.api import get_applied_adaptations
 from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
@@ -226,6 +227,18 @@ def task_transition(task, event):
         update indexes after a transition
     """
     task.reindexObject(['state_group'])
+
+    if event.transition:
+        if event.transition.id == 'do_to_assign':
+            # Set auto_to_do_flag on task if assigned_user is set or level n_plus_1 is not there.
+            if task.assigned_user or not [dic for dic in get_applied_adaptations()
+                                          if dic['adaptation'] == 'imio.dms.mail.wfadaptations.TaskServiceValidation']:
+                task.auto_to_do_flag = True
+            else:
+                task.auto_to_do_flag = False
+        elif event.transition.id == 'back_in_to_assign':
+            # Remove auto_to_do_flag on task.
+            task.auto_to_do_flag = False
 
 
 def dmsmainfile_modified(dmf, event):
