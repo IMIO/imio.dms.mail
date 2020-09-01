@@ -39,6 +39,7 @@ logger = logging.getLogger('imio.dms.mail: utils')
 """
 dms_config
 ----------
+(not the default values! but possible values to illustrate)
 * ['wf_from_to'] : états précédant/suivant un autre et transitions pour y accéder
     * ['dmsincomingmail', 'n_plus', 'from'] = [('created', 'back_to_creation'),
                                                ('proposed_to_manager', 'back_to_manager')]

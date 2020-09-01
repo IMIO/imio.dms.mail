@@ -70,7 +70,7 @@ class TestWorkflows(unittest.TestCase):
         self.assertSetEqual(set(self.tw.states['to_assign'].transitions),
                             {'back_in_created', 'auto_do_to_do', 'do_to_do'})
         self.assertSetEqual(set(self.tw.states['to_do'].transitions),
-                            {'do_in_progress', 'do_realized'})
+                            {'back_in_created', 'do_in_progress', 'do_realized'})
         self.assertSetEqual(set(self.tw.states['in_progress'].transitions),
                             {'back_in_to_do', 'do_realized'})
         self.assertSetEqual(set(self.tw.states['realized'].transitions),

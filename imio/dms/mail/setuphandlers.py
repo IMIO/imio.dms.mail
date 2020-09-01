@@ -2178,4 +2178,5 @@ def update_task_workflow(portal):
     transitions = list(state.transitions)  # noqa
     if 'back_in_to_assign' in transitions:
         transitions.remove('back_in_to_assign')
+        transitions.append('back_in_created')
         state.transitions = tuple(transitions)

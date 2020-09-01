@@ -2,6 +2,7 @@
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.vocabularies import AssignedUsersVocabulary
 from plone import api
@@ -64,6 +65,25 @@ class TestDmsmail(unittest.TestCase):
         zope.event.notify(ObjectModifiedEvent(imail, Attributes(Interface, 'treating_groups')))
         self.assertListEqual(task1.parents_assigned_groups, [orgs[4]])
         self.assertListEqual(task2.parents_assigned_groups, [orgs[4], orgs[1]])
+
+    def test_task_transition(self):
+        # task = createContentInContainer(self.imail, 'task', id='t1')
+        task = self.portal['incoming-mail']['courrier1']['tache1']
+        # no assigned_user and no TaskServiceValidation
+        self.assertIsNone(task.assigned_user)
+        api.content.transition(task, transition='do_to_assign')
+        self.assertEqual(api.content.get_state(task), 'to_do')
+        # assigned_user and no TaskServiceValidation
+        api.content.transition(task, transition='back_in_created')
+        task.assigned_user = 'chef'
+        api.content.transition(task, transition='do_to_assign')
+        self.assertEqual(api.content.get_state(task), 'to_do')
+        # no assigned_user but TaskServiceValidation
+        api.content.transition(task, transition='back_in_created')
+        task.assigned_user = None
+        add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+        api.content.transition(task, transition='do_to_assign')
+        self.assertEqual(api.content.get_state(task), 'to_assign')
 
     def test_dmsmainfile_modified(self):
         pc = self.portal.portal_catalog

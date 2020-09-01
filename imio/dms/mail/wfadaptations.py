@@ -798,6 +798,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         state = wf.states['to_do']
         transitions = list(state.transitions)
         if 'back_in_to_assign' not in transitions:
+            transitions.remove('back_in_created')
             transitions.append('back_in_to_assign')
             state.transitions = tuple(transitions)
 
