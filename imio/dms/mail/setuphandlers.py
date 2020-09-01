@@ -136,6 +136,7 @@ def postInstall(context):
         configure_task_rolefields(context, force=False)
 
     configure_task_config(context)
+    update_task_workflow(site)
 
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):

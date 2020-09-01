@@ -794,7 +794,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         function_title = u'N+1'
         wf = wtool['task_workflow']
 
-        # add back_to_assign
+        # add back_in_to_assign
         state = wf.states['to_do']
         transitions = list(state.transitions)
         if 'back_in_to_assign' not in transitions:

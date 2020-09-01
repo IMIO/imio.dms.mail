@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """ wfadaptations.py tests for this package."""
 from collective.contact.plonegroup.config import get_registry_functions
+from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
+from imio.dms.mail.wfadaptations import TaskServiceValidation
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import logout
@@ -15,10 +17,9 @@ from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
 from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 
 import unittest
-
-from zope.schema.interfaces import IVocabularyFactory
 
 
 class TestOMToPrintAdaptation(unittest.TestCase):
@@ -212,7 +213,7 @@ class TestIMPreManagerValidation(unittest.TestCase):
         self.imw = self.pw['incomingmail_workflow']
         params = {'state_title': u'À valider avant le DG',
                   'forward_transition_title': u'Proposer pour prévalidation DG',
-                  'backward_transition_title': u'Renvoyer pour prévalidation DG',}
+                  'backward_transition_title': u'Renvoyer pour prévalidation DG'}
         pmva = IMPreManagerValidation()
         pmva.patch_workflow('incomingmail_workflow', **params)
 
@@ -258,3 +259,66 @@ class TestIMPreManagerValidation(unittest.TestCase):
         # check configuration
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
         self.assertIn('dmsincomingmail.back_to_pre_manager|', lst)
+
+
+class TestTaskServiceValidation1(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.pw = self.portal.portal_workflow
+        self.tw = self.pw['task_workflow']
+        tsva = TaskServiceValidation()
+        adapt_is_applied = tsva.patch_workflow('task_workflow', **{})
+        if adapt_is_applied:
+            add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        pass
+
+    def test_task_workflow1(self):
+        """ Check workflow """
+        self.assertSetEqual(set(self.tw.states),
+                            {'created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'})
+        self.assertSetEqual(set(self.tw.transitions),
+                            {'back_in_created', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress',
+                             'back_in_realized', 'do_to_assign', 'auto_do_to_do', 'do_to_do', 'do_in_progress',
+                             'do_realized', 'do_closed'})
+        self.assertSetEqual(set(self.tw.states['created'].transitions),
+                            {'do_to_assign'})
+        self.assertSetEqual(set(self.tw.states['to_assign'].transitions),
+                            {'back_in_created', 'auto_do_to_do', 'do_to_do'})
+        self.assertSetEqual(set(self.tw.states['to_do'].transitions),
+                            {'back_in_to_assign', 'do_in_progress', 'do_realized'})
+        self.assertSetEqual(set(self.tw.states['in_progress'].transitions),
+                            {'back_in_to_do', 'do_realized'})
+        self.assertSetEqual(set(self.tw.states['realized'].transitions),
+                            {'back_in_to_do', 'back_in_progress', 'do_closed'})
+        self.assertSetEqual(set(self.tw.states['closed'].transitions),
+                            {'back_in_realized'})
+
+    def test_TaskServiceValidation1(self):
+        """
+            Test TaskServiceValidation adaptations
+        """
+        # is function added
+        self.assertIn('n_plus_1', [fct['fct_id'] for fct in get_registry_functions()])
+        # is local roles modified
+        fti = getUtility(IDexterityFTI, name='task')
+        lr = getattr(fti, 'localroles')
+        self.assertIn('n_plus_1', lr['assigned_group']['to_do'])
+        self.assertIn('n_plus_1', lr['parents_assigned_groups']['to_do'])
+        # check collection
+        folder = self.portal['tasks']['task-searches']
+        self.assertTrue(folder['to_assign'].enabled)
+        self.assertTrue(folder['to_close'].enabled)
+        self.assertFalse(folder['to_treat_in_my_group'].showNumberOfItems)
+        # check annotations
+        config = get_dms_config(['review_levels', 'task'])
+        self.assertIn('_n_plus_1', config)
+        config = get_dms_config(['review_states', 'task'])
+        self.assertIn('to_assign', config)
+        self.assertIn('realized', config)

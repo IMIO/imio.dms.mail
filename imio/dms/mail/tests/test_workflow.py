@@ -16,11 +16,10 @@ class TestWorkflows(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
-        self.imw = self.pw['incomingmail_workflow']
-        self.omw = self.pw['outgoingmail_workflow']
 
     def test_im_workflow0(self):
         """ Check workflow """
+        self.imw = self.pw['incomingmail_workflow']
         self.assertSetEqual(set(self.imw.states),
                             {'created', 'proposed_to_manager', 'proposed_to_agent', 'in_treatment', 'closed'})
         self.assertSetEqual(set(self.imw.transitions),
@@ -42,6 +41,7 @@ class TestWorkflows(unittest.TestCase):
 
     def test_om_workflow0(self):
         """ Check workflow """
+        self.omw = self.pw['outgoingmail_workflow']
         self.assertSetEqual(set(self.omw.states),
                             {'created', 'scanned', 'to_be_signed', 'sent'})
         self.assertSetEqual(set(self.omw.transitions),
@@ -55,3 +55,29 @@ class TestWorkflows(unittest.TestCase):
                             {'mark_as_sent', 'back_to_creation'})
         self.assertSetEqual(set(self.omw.states['sent'].transitions),
                             {'back_to_be_signed', 'back_to_scanned'})
+
+    def test_task_workflow0(self):
+        """ Check workflow """
+        self.tw = self.pw['task_workflow']
+        self.assertSetEqual(set(self.tw.states),
+                            {'created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'})
+        self.assertSetEqual(set(self.tw.transitions),
+                            {'back_in_created', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress',
+                             'back_in_realized', 'do_to_assign', 'auto_do_to_do', 'do_to_do', 'do_in_progress',
+                             'do_realized', 'do_closed'})
+        self.assertSetEqual(set(self.tw.states['created'].transitions),
+                            {'do_to_assign'})
+        self.assertSetEqual(set(self.tw.states['to_assign'].transitions),
+                            {'back_in_created', 'auto_do_to_do', 'do_to_do'})
+        self.assertSetEqual(set(self.tw.states['to_do'].transitions),
+                            {'do_in_progress', 'do_realized'})
+        self.assertSetEqual(set(self.tw.states['in_progress'].transitions),
+                            {'back_in_to_do', 'do_realized'})
+        self.assertSetEqual(set(self.tw.states['realized'].transitions),
+                            {'back_in_to_do', 'back_in_progress', 'do_closed'})
+        self.assertSetEqual(set(self.tw.states['closed'].transitions),
+                            {'back_in_realized'})
+        # related
+        folder = self.portal['tasks']['task-searches']
+        self.assertFalse(folder['to_assign'].enabled)
+        self.assertFalse(folder['to_close'].enabled)
