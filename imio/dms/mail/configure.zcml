@@ -264,10 +264,9 @@
     />
 
     <!-- wf adaptations -->
-
     <utility
-        name="imio.dms.mail.wfadaptations.OMToPrint"
-        factory=".wfadaptations.OMToPrintAdaptation"
+        name="imio.dms.mail.wfadaptations.IMServiceValidation"
+        factory=".wfadaptations.IMServiceValidation"
     />
 
     <utility
@@ -276,23 +275,13 @@
     />
 
     <utility
-        name="imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief"
-        factory=".wfadaptations.IMSkipProposeToServiceChief"
-    />
-
-    <utility
-        name="imio.dms.mail.wfadaptations.OMSkipProposeToServiceChief"
-        factory=".wfadaptations.OMSkipProposeToServiceChief"
-    />
-
-    <utility
-        name="imio.dms.mail.wfadaptations.IMServiceValidation"
-        factory=".wfadaptations.IMServiceValidation"
-    />
-
-    <utility
         name="imio.dms.mail.wfadaptations.OMServiceValidation"
         factory=".wfadaptations.OMServiceValidation"
+    />
+
+    <utility
+        name="imio.dms.mail.wfadaptations.OMToPrint"
+        factory=".wfadaptations.OMToPrintAdaptation"
     />
 
     <utility

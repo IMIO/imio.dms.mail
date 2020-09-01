@@ -184,29 +184,6 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         return True, ''
 
 
-class IIMSkipProposeToServiceChiefParameters(Interface):
-
-    assigned_user_check = schema.Bool(
-        title=u'Assigned user check',
-        description=u'Check if there is an assigned user before proposing incoming mail to an agent.',
-        default=True
-    )
-
-
-class IMSkipProposeToServiceChief(WorkflowAdaptationBase):
-
-    schema = IIMSkipProposeToServiceChiefParameters
-
-    def patch_workflow(self, workflow_name, **parameters):
-        return False, "This workflow adaptation is no more usable"
-
-
-class OMSkipProposeToServiceChief(WorkflowAdaptationBase):
-
-    def patch_workflow(self, workflow_name, **parameters):
-        return False, "This workflow adaptation is no more usable"
-
-
 @provider(IContextSourceBinder)
 def im_service_validation_levels(context):
     # must return next possible level only
