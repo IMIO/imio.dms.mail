@@ -5,6 +5,7 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import IdmUtilsMethods
@@ -40,7 +41,7 @@ class TestIMServiceValidation1(unittest.TestCase):
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
-        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+        reset_dms_config()
 
     def test_im_workflow1(self):
         """ Check workflow """
@@ -207,7 +208,7 @@ class TestIMServiceValidation2(unittest.TestCase):
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
-        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+        reset_dms_config()
 
     def test_im_workflow2(self):
         """ Check workflow """

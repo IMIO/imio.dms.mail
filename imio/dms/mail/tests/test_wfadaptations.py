@@ -3,6 +3,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.vocabularies import encodeur_active_orgs
@@ -34,7 +35,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
-        set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
+        reset_dms_config()
 
     def test_OMToPrintAdaptation(self):
         """ Test wf adaptation modifications """
@@ -136,7 +137,7 @@ class TestOMServiceValidation1(unittest.TestCase):
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
-        set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
+        reset_dms_config()
 
     def test_om_workflow1(self):
         """ Check workflow """
@@ -218,6 +219,10 @@ class TestIMPreManagerValidation(unittest.TestCase):
         pmva = IMPreManagerValidation()
         pmva.patch_workflow('incomingmail_workflow', **params)
 
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
+
     def test_IMPreManagerAdaptation(self):
         """ Test wf adaptation modifications """
         # check workflow
@@ -278,7 +283,7 @@ class TestTaskServiceValidation1(unittest.TestCase):
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
-        pass
+        reset_dms_config()
 
     def test_task_workflow1(self):
         """ Check workflow """

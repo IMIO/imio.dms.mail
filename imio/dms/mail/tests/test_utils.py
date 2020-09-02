@@ -4,6 +4,7 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -40,6 +41,10 @@ class TestUtils(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.pgof = self.portal['contacts']['plonegroup-organization']
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
 
     def test_dms_config(self):
         annot = IAnnotations(self.portal)
@@ -90,7 +95,6 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(config['proposed_to_manager'][org2], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_agent'][org1], ('propose_to_agent', 'back_to_n_plus_1'))
         self.assertEqual(config['proposed_to_agent'][org2], ('propose_to_agent', 'from_states'))
-        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
 
     def test_update_transitions_auc_config(self):
         api.portal.set_registry_record(AUC_RECORD, u'no_check')
@@ -142,7 +146,6 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(config['propose_to_n_plus_1'][org2])
         self.assertFalse(config['propose_to_agent'][org1])
         self.assertFalse(config['propose_to_agent'][org2])
-        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
 
     def test_highest_review_level(self):
         self.assertIsNone(highest_review_level('a_type', ""))

@@ -19,6 +19,7 @@ from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import set_dms_config
 from plone import api
 from plone.app.testing import setRoles
@@ -43,6 +44,10 @@ class TestAdapters(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pgof = self.portal['contacts']['plonegroup-organization']
 
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
+
     def test_IncomingMailHighestValidationCriterion(self):
         crit = IncomingMailHighestValidationCriterion(self.portal)
         # no groups, => default criterias
@@ -59,8 +64,6 @@ class TestAdapters(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         # in a group dir_general
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_manager']}})
-        set_dms_config(['review_levels', 'dmsincomingmail'],
-                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
 
     def test_IncomingMailValidationCriterion(self):
         crit = IncomingMailValidationCriterion(self.portal)
@@ -78,8 +81,6 @@ class TestAdapters(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
                                                                 'proposed_to_n_plus_1,111']}})
-        set_dms_config(['review_levels', 'dmsincomingmail'],
-                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
 
     def test_OutgoingMailValidationCriterion(self):
         crit = OutgoingMailValidationCriterion(self.portal)
@@ -95,7 +96,6 @@ class TestAdapters(unittest.TestCase):
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
-        set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
 
     def test_TaskValidationCriterion(self):
         crit = TaskValidationCriterion(self.portal)
@@ -110,7 +110,6 @@ class TestAdapters(unittest.TestCase):
         # in a group dir_general, but no effect for task criterion
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
-        set_dms_config(['review_levels', 'task'], OrderedDict())
 
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
@@ -175,7 +174,6 @@ class TestAdapters(unittest.TestCase):
         set_dms_config(['review_states', 'task'], OrderedDict([('to_assign', {'group': '_n_plus_1',
                                                                               'org': 'assigned_group'})]))
         self.assertEqual(indexer(), 'to_assign,%s' % dguid)
-        set_dms_config(['review_states', 'task'], OrderedDict())
 
     def test_ScanSearchableExtender(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
