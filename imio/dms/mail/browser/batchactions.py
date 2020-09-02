@@ -11,7 +11,7 @@ from collective.eeafaceted.batchactions.utils import is_permitted
 from collective.task.browser.batchactions import AssignedGroupBatchActionForm as agbaf
 from collective.task.browser.batchactions import AssignedUserBatchActionForm as aubaf
 from imio.dms.mail import _
-from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
 from plone import api
@@ -53,7 +53,7 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
                 if (brain.treating_groups is not None and brain.assigned_user != EMPTY_STRING and
                     data['treating_group'] != brain.treating_groups and
                     brain.assigned_user not in [mb.getUserName() for mb in get_selected_org_suffix_users(
-                        data['treating_group'], DOC_ASSIGNED_USER_FUNCTIONS)]):
+                        data['treating_group'], IM_EDITOR_SERVICE_FUNCTIONS)]):
                         # self.status not good here because it needs to stay on the same form
                         api.portal.show_message(_(u'An assigned user is not in this new treating group. '
                                                   u'Mail "${mail}" !', mapping={'mail': brain.Title.decode('utf8')}),
@@ -148,7 +148,7 @@ class AssignedUserBatchActionForm(aubaf):
     weight = 30
 
     def get_group_users(self, assigned_group):
-        return get_selected_org_suffix_users(assigned_group, DOC_ASSIGNED_USER_FUNCTIONS)
+        return get_selected_org_suffix_users(assigned_group, IM_EDITOR_SERVICE_FUNCTIONS)
 
 
 class ReplyBatchActionForm(BaseBatchActionForm):
@@ -216,7 +216,7 @@ class AssignedGroupBatchActionForm(agbaf):
     weight = 20
 
     def get_group_users(self, assigned_group):
-        return get_selected_org_suffix_users(assigned_group, DOC_ASSIGNED_USER_FUNCTIONS)
+        return get_selected_org_suffix_users(assigned_group, IM_EDITOR_SERVICE_FUNCTIONS)
 
 
 class TaskAssignedUserBatchActionForm(aubaf):
@@ -224,7 +224,7 @@ class TaskAssignedUserBatchActionForm(aubaf):
     master = 'assigned_group'
 
     def get_group_users(self, assigned_group):
-        return get_selected_org_suffix_users(assigned_group, DOC_ASSIGNED_USER_FUNCTIONS)
+        return get_selected_org_suffix_users(assigned_group, IM_EDITOR_SERVICE_FUNCTIONS)
 
 # OM Templates Folder batch actions
 

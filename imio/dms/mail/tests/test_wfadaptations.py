@@ -1,21 +1,29 @@
 # -*- coding: utf-8 -*-
 """ wfadaptations.py tests for this package."""
-from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from collective.contact.plonegroup.config import get_registry_functions
+from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.wfadaptations import EmergencyZoneAdaptation
+from imio.dms.mail.testing import reset_dms_config
+from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.vocabularies import encodeur_active_orgs
+from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
-from imio.dms.mail.wfadaptations import IMSkipProposeToServiceChief
-from imio.dms.mail.wfadaptations import OMSkipProposeToServiceChief
+from imio.dms.mail.wfadaptations import TaskServiceValidation
 from plone import api
+from plone.app.testing import login
+from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.utils import createContentInContainer
 from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 
 import unittest
 
 
-class TestWFAdaptations(unittest.TestCase):
+class TestOMToPrintAdaptation(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -23,102 +31,300 @@ class TestWFAdaptations(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
+        self.omw = self.pw['outgoingmail_workflow']
 
-    def test_EmergencyZoneAdaptation(self):
-        """
-            Test all methods of EmergencyZoneAdaptation class
-        """
-        eza = EmergencyZoneAdaptation()
-        imw = self.pw['incomingmail_workflow']
-        self.assertEqual(imw.states['proposed_to_manager'].title, 'proposed_to_manager')
-        self.assertEqual(imw.transitions['back_to_manager'].title, 'back_to_manager')
-        eza.patch_workflow('', manager_suffix='_zs')
-        self.assertEqual(imw.states['proposed_to_manager'].title, 'proposed_to_manager_zs')
-        self.assertEqual(imw.transitions['back_to_manager'].title, 'back_to_manager_zs')
-        self.assertEqual(imw.transitions['propose_to_manager'].title, 'propose_to_manager_zs')
-        collection = self.portal.restrictedTraverse('incoming-mail/mail-searches/searchfor_proposed_to_manager')
-        self.assertEqual(collection.title, u'État: à valider par le CZ')
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
 
     def test_OMToPrintAdaptation(self):
-        """
-            Test all methods of OMToPrintAdaptation class
-        """
+        """ Test wf adaptation modifications """
         tpa = OMToPrintAdaptation()
-        omw = self.pw['outgoingmail_workflow']
-        self.assertTrue(tpa.check_state_in_workflow(omw, 'to_print'))
-        tpa.patch_workflow('')
-        self.assertEqual(tpa.check_state_in_workflow(omw, 'to_print'), '')
-        self.assertEqual(tpa.check_transition_in_workflow(omw, 'set_to_print'), '')
-        self.assertEqual(tpa.check_transition_in_workflow(omw, 'back_to_print'), '')
+        tpa.patch_workflow('outgoingmail_workflow')
+        # check workflow
+        self.assertSetEqual(set(self.omw.states),
+                            {'created', 'scanned', 'to_print', 'to_be_signed', 'sent'})
+        self.assertSetEqual(set(self.omw.transitions),
+                            {'back_to_creation', 'back_to_agent', 'back_to_scanned', 'back_to_print',
+                             'back_to_be_signed', 'set_scanned', 'set_to_print', 'propose_to_be_signed',
+                             'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['created'].transitions),
+                            {'set_scanned', 'set_to_print', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['scanned'].transitions),
+                            {'back_to_agent', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['to_print'].transitions),
+                            {'back_to_creation', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
+                            {'back_to_creation', 'back_to_print', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['sent'].transitions),
+                            {'back_to_be_signed', 'back_to_scanned'})
+        # various
         fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
         lr = getattr(fti, 'localroles')
         self.assertIn('to_print', lr['static_config'])
         self.assertIn('to_print', lr['treating_groups'])
         self.assertIn('to_print', lr['recipient_groups'])
         self.assertIn('searchfor_to_print', self.portal['outgoing-mail']['mail-searches'])
+        folder = self.portal['outgoing-mail']['mail-searches']
+        self.assertIn('to_print', [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
+        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 10)
+        self.assertEqual(folder.getObjectPosition('searchfor_to_print'), 9)
+        factory = getUtility(IVocabularyFactory, u'imio.dms.mail.OMReviewStatesVocabulary')
+        self.assertEqual(len(factory(self.portal)), 5)
 
-    def test_IMSkipProposeToServiceChiefWithUserCheck(self):
-        """
-            Test all methods of IMSkipProposeToServiceChief class with assigned_user_check parameter as True
-        """
-        imsp = IMSkipProposeToServiceChief()
-        im_workflow = self.pw['incomingmail_workflow']
-        self.assertFalse(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'))
-        self.assertTrue(api.portal.get_registry_record('assigned_user_check', IImioDmsMailConfig))
-        imsp.patch_workflow('', assigned_user_check=True)
-        self.assertNotEqual(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'), '')
-        self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'propose_to_service_chief'), '')
-        self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'back_to_service_chief'), '')
-        self.assertIn('propose_to_agent', im_workflow.states['created'].transitions)
-        self.assertIn('propose_to_agent', im_workflow.states['proposed_to_manager'].transitions)
-        self.assertIn('back_to_manager', im_workflow.states['proposed_to_agent'].transitions)
-        self.assertIn('back_to_creation', im_workflow.states['proposed_to_agent'].transitions)
-        self.assertTrue(api.portal.get_registry_record('assigned_user_check', IImioDmsMailConfig))
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        self.assertNotIn('proposed_to_service_chief', lr['static_config'])
-        self.assertNotIn('proposed_to_service_chief', lr['treating_groups'])
-        self.assertNotIn('proposed_to_service_chief', lr['recipient_groups'])
-        self.assertFalse(self.portal['incoming-mail']['mail-searches']['searchfor_proposed_to_service_chief'].enabled)
+    def common_tests(self):
+        # check workflow
+        self.assertSetEqual(set(self.omw.states),
+                            {'created', 'scanned', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'})
+        self.assertSetEqual(set(self.omw.transitions),
+                            {'back_to_creation', 'back_to_agent', 'back_to_scanned', 'back_to_n_plus_1',
+                             'back_to_print', 'back_to_be_signed', 'set_scanned', 'propose_to_n_plus_1', 'set_to_print',
+                             'propose_to_be_signed', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['created'].transitions),
+                            {'set_scanned', 'propose_to_n_plus_1', 'set_to_print', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['scanned'].transitions),
+                            {'back_to_agent', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['proposed_to_n_plus_1'].transitions),
+                            {'back_to_creation', 'set_to_print', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['to_print'].transitions),
+                            {'back_to_creation', 'back_to_n_plus_1', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
+                            {'back_to_creation', 'back_to_n_plus_1', 'back_to_print', 'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['sent'].transitions),
+                            {'back_to_be_signed', 'back_to_scanned'})
+        # check collection position
+        folder = self.portal['outgoing-mail']['mail-searches']
+        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 11)
+        self.assertEqual(folder.getObjectPosition('searchfor_to_print'), 10)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
+        res = [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0]
+        self.assertIn('to_print', res)
+        self.assertIn('proposed_to_n_plus_1', res)
 
-    def test_IMSkipProposeToServiceChiefWithoutUserCheck(self):
-        """
-            Test all methods of IMSkipProposeToServiceChief class with assigned_user_check parameter as False
-        """
-        imsp = IMSkipProposeToServiceChief()
-        im_workflow = self.pw['incomingmail_workflow']
-        self.assertFalse(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'))
-        self.assertTrue(api.portal.get_registry_record('assigned_user_check', IImioDmsMailConfig))
-        imsp.patch_workflow('', assigned_user_check=False)
-        self.assertNotEqual(imsp.check_state_in_workflow(im_workflow, 'proposed_to_service_chief'), '')
-        self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'propose_to_service_chief'), '')
-        self.assertNotEqual(imsp.check_transition_in_workflow(im_workflow, 'back_to_service_chief'), '')
-        self.assertIn('propose_to_agent', im_workflow.states['created'].transitions)
-        self.assertIn('propose_to_agent', im_workflow.states['proposed_to_manager'].transitions)
-        self.assertIn('back_to_manager', im_workflow.states['proposed_to_agent'].transitions)
-        self.assertIn('back_to_creation', im_workflow.states['proposed_to_agent'].transitions)
-        self.assertFalse(api.portal.get_registry_record('assigned_user_check', IImioDmsMailConfig))
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        self.assertNotIn('proposed_to_service_chief', lr['static_config'])
-        self.assertNotIn('proposed_to_service_chief', lr['treating_groups'])
-        self.assertNotIn('proposed_to_service_chief', lr['recipient_groups'])
-        self.assertFalse(self.portal['incoming-mail']['mail-searches']['searchfor_proposed_to_service_chief'].enabled)
+    def test_OMToPrintAdaptationBeforeNp1(self):
+        """ Test wf adaptation modifications """
+        tpa = OMToPrintAdaptation()
+        tpa.patch_workflow('outgoingmail_workflow')
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                          'imiodmsmail-om_n_plus_1_wfadaptation',
+                                                          run_dependencies=False)
+        self.common_tests()
 
-    def test_OMSkipProposeToServiceChief(self):
+    def test_OMToPrintAdaptationAfterNp1(self):
+        """ Test wf adaptation modifications """
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                          'imiodmsmail-om_n_plus_1_wfadaptation',
+                                                          run_dependencies=False)
+        tpa = OMToPrintAdaptation()
+        tpa.patch_workflow('outgoingmail_workflow')
+        self.common_tests()
+
+
+class TestOMServiceValidation1(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.pw = self.portal.portal_workflow
+        self.omw = self.pw['outgoingmail_workflow']
+        api.group.create('abc_group_encoder', 'ABC group encoder')
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                          'imiodmsmail-om_n_plus_1_wfadaptation',
+                                                          run_dependencies=False)
+        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
+
+    def test_om_workflow1(self):
+        """ Check workflow """
+        self.assertSetEqual(set(self.omw.states),
+                            {'created', 'scanned', 'proposed_to_n_plus_1', 'to_be_signed', 'sent'})
+        self.assertSetEqual(set(self.omw.transitions),
+                            {'back_to_creation', 'back_to_agent', 'back_to_scanned', 'back_to_n_plus_1',
+                             'back_to_be_signed', 'propose_to_n_plus_1', 'set_scanned', 'propose_to_be_signed',
+                             'mark_as_sent'})
+        self.assertSetEqual(set(self.omw.states['created'].transitions),
+                            {'set_scanned', 'propose_to_n_plus_1', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['scanned'].transitions),
+                            {'mark_as_sent', 'back_to_agent'})
+        self.assertSetEqual(set(self.omw.states['proposed_to_n_plus_1'].transitions),
+                            {'back_to_creation', 'propose_to_be_signed'})
+        self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
+                            {'mark_as_sent', 'back_to_n_plus_1', 'back_to_creation'})
+        self.assertSetEqual(set(self.omw.states['sent'].transitions),
+                            {'back_to_be_signed', 'back_to_scanned'})
+
+    def test_OMServiceValidation1(self):
         """
-            Test all methods of OMSkipProposeToServiceChief class
+            Test OMServiceValidation adaptations
         """
-        omsp = OMSkipProposeToServiceChief()
-        om_workflow = self.pw['outgoingmail_workflow']
-        self.assertFalse(omsp.check_state_in_workflow(om_workflow, 'proposed_to_service_chief'))
-        omsp.patch_workflow('')
-        self.assertNotEqual(omsp.check_state_in_workflow(om_workflow, 'proposed_to_service_chief'), '')
-        self.assertNotEqual(omsp.check_transition_in_workflow(om_workflow, 'propose_to_service_chief'), '')
-        self.assertNotEqual(omsp.check_transition_in_workflow(om_workflow, 'back_to_service_chief'), '')
+        # is function added
+        self.assertIn('n_plus_1', [fct['fct_id'] for fct in get_registry_functions()])
+        # is local roles modified
         fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
         lr = getattr(fti, 'localroles')
-        self.assertNotIn('proposed_to_service_chief', lr['static_config'])
-        self.assertNotIn('proposed_to_service_chief', lr['treating_groups'])
-        self.assertNotIn('proposed_to_service_chief', lr['recipient_groups'])
-        self.assertFalse(self.portal['outgoing-mail']['mail-searches']['searchfor_proposed_to_service_chief'].enabled)
+        self.assertIn('proposed_to_n_plus_1', lr['treating_groups'])
+        self.assertIn('proposed_to_n_plus_1', lr['recipient_groups'])
+        # check collection
+        folder = self.portal['outgoing-mail']['mail-searches']
+        self.assertIn('searchfor_proposed_to_n_plus_1', folder)
+        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 10)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
+        self.assertIn('proposed_to_n_plus_1',
+                      [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
+        self.assertTrue(folder['to_validate'].enabled)
+        # check annotations
+        config = get_dms_config(['review_levels', 'dmsoutgoingmail'])
+        self.assertIn('_n_plus_1', config)
+        config = get_dms_config(['review_states', 'dmsoutgoingmail'])
+        self.assertIn('proposed_to_n_plus_1', config)
+        # check vocabularies
+        factory = getUtility(IVocabularyFactory, u'collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+        self.assertEqual(len(factory(folder, folder)), 12)
+        factory = getUtility(IVocabularyFactory, u'imio.dms.mail.OMReviewStatesVocabulary')
+        self.assertEqual(len(factory(folder)), 5)
+        # check configuration
+        lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+        self.assertIn('dmsoutgoingmail.back_to_n_plus_1|', lst)
+        lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states')
+        self.assertIn('proposed_to_n_plus_1', lst)
+
+    def test_encodeur_active_orgs1(self):
+        factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
+        all_titles = [t.title for t in factory(self.omail)]
+        login(self.portal, 'agent')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
+                             [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
+        with api.env.adopt_roles(['Manager']):
+            api.content.transition(obj=self.omail, transition='propose_to_n_plus_1')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+
+
+class TestIMPreManagerValidation(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.pw = self.portal.portal_workflow
+        self.imw = self.pw['incomingmail_workflow']
+        params = {'state_title': u'À valider avant le DG',
+                  'forward_transition_title': u'Proposer pour prévalidation DG',
+                  'backward_transition_title': u'Renvoyer pour prévalidation DG'}
+        pmva = IMPreManagerValidation()
+        pmva.patch_workflow('incomingmail_workflow', **params)
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
+
+    def test_IMPreManagerAdaptation(self):
+        """ Test wf adaptation modifications """
+        # check workflow
+        self.assertSetEqual(set(self.imw.states),
+                            {'created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_agent',
+                             'in_treatment', 'closed'})
+        self.assertSetEqual(set(self.imw.transitions),
+                            {'back_to_creation', 'back_to_pre_manager', 'back_to_manager', 'back_to_agent',
+                             'back_to_treatment', 'propose_to_pre_manager', 'propose_to_manager', 'propose_to_agent',
+                             'treat', 'close'})
+        self.assertSetEqual(set(self.imw.states['created'].transitions),
+                            {'propose_to_pre_manager', 'propose_to_manager', 'propose_to_agent'})
+        self.assertSetEqual(set(self.imw.states['proposed_to_pre_manager'].transitions),
+                            {'back_to_creation', 'propose_to_manager'})
+        self.assertSetEqual(set(self.imw.states['proposed_to_manager'].transitions),
+                            {'back_to_creation', 'back_to_pre_manager', 'propose_to_agent'})
+        self.assertSetEqual(set(self.imw.states['proposed_to_agent'].transitions),
+                            {'back_to_creation', 'back_to_manager', 'treat', 'close'})
+        self.assertSetEqual(set(self.imw.states['in_treatment'].transitions),
+                            {'back_to_agent', 'close'})
+        self.assertSetEqual(set(self.imw.states['closed'].transitions),
+                            {'back_to_treatment', 'back_to_agent'})
+        # check local roles
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(fti, 'localroles')
+        self.assertIn('proposed_to_pre_manager', lr['static_config'])
+        # check collection
+        folder = self.portal['incoming-mail']['mail-searches']
+        self.assertIn('searchfor_proposed_to_pre_manager', folder)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_manager'), 12)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_pre_manager'), 11)
+        # check annotations
+        config = get_dms_config(['review_levels', 'dmsincomingmail'])
+        self.assertIn('pre_manager', config)
+        config = get_dms_config(['review_states', 'dmsincomingmail'])
+        self.assertIn('proposed_to_pre_manager', config)
+        # check voc
+        factory = getUtility(IVocabularyFactory, u'imio.dms.mail.IMReviewStatesVocabulary')
+        self.assertEqual(len(factory(self.portal)), 6)
+        # check configuration
+        lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+        self.assertIn('dmsincomingmail.back_to_pre_manager|', lst)
+
+
+class TestTaskServiceValidation1(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.pw = self.portal.portal_workflow
+        self.tw = self.pw['task_workflow']
+        tsva = TaskServiceValidation()
+        adapt_is_applied = tsva.patch_workflow('task_workflow', **{})
+        if adapt_is_applied:
+            add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
+
+    def test_task_workflow1(self):
+        """ Check workflow """
+        self.assertSetEqual(set(self.tw.states),
+                            {'created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'})
+        self.assertSetEqual(set(self.tw.transitions),
+                            {'back_in_created', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress',
+                             'back_in_realized', 'do_to_assign', 'auto_do_to_do', 'do_to_do', 'do_in_progress',
+                             'do_realized', 'do_closed'})
+        self.assertSetEqual(set(self.tw.states['created'].transitions),
+                            {'do_to_assign'})
+        self.assertSetEqual(set(self.tw.states['to_assign'].transitions),
+                            {'back_in_created', 'auto_do_to_do', 'do_to_do'})
+        self.assertSetEqual(set(self.tw.states['to_do'].transitions),
+                            {'back_in_to_assign', 'do_in_progress', 'do_realized'})
+        self.assertSetEqual(set(self.tw.states['in_progress'].transitions),
+                            {'back_in_to_do', 'do_realized'})
+        self.assertSetEqual(set(self.tw.states['realized'].transitions),
+                            {'back_in_to_do', 'back_in_progress', 'do_closed'})
+        self.assertSetEqual(set(self.tw.states['closed'].transitions),
+                            {'back_in_realized'})
+
+    def test_TaskServiceValidation1(self):
+        """
+            Test TaskServiceValidation adaptations
+        """
+        # is function added
+        self.assertIn('n_plus_1', [fct['fct_id'] for fct in get_registry_functions()])
+        # is local roles modified
+        fti = getUtility(IDexterityFTI, name='task')
+        lr = getattr(fti, 'localroles')
+        self.assertIn('n_plus_1', lr['assigned_group']['to_do'])
+        self.assertIn('n_plus_1', lr['parents_assigned_groups']['to_do'])
+        # check collection
+        folder = self.portal['tasks']['task-searches']
+        self.assertTrue(folder['to_assign'].enabled)
+        self.assertTrue(folder['to_close'].enabled)
+        self.assertFalse(folder['to_treat_in_my_group'].showNumberOfItems)
+        # check annotations
+        config = get_dms_config(['review_levels', 'task'])
+        self.assertIn('_n_plus_1', config)
+        config = get_dms_config(['review_states', 'task'])
+        self.assertIn('to_assign', config)
+        self.assertIn('realized', config)

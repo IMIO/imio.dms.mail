@@ -10,7 +10,6 @@
  <permission>imio.dms.mail: Write mail base fields</permission>
  <permission>imio.dms.mail: Write treating group field</permission>
  <state state_id="created" title="om_created" i18n:attributes="title">
-  <exit-transition transition_id="propose_to_service_chief"/>
   <exit-transition transition_id="propose_to_be_signed"/>
   <exit-transition transition_id="set_scanned"/>
   <permission-map name="Access contents information" acquired="False">
@@ -68,60 +67,6 @@
   <permission-map name="imio.dms.mail: Write treating group field" acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Owner</permission-role>
-   <permission-role>Site Administrator</permission-role>
-   <permission-role>Treating Group Writer</permission-role>
-  </permission-map>
- </state>
- <state state_id="proposed_to_service_chief" title="om_proposed_to_service_chief" i18n:attributes="title">
-  <exit-transition transition_id="back_to_creation"/>
-  <exit-transition transition_id="propose_to_be_signed"/>
-  <permission-map name="Access contents information" acquired="False">
-   <permission-role>Editor</permission-role>
-   <permission-role>Manager</permission-role>
-   <permission-role>Reader</permission-role>
-   <permission-role>Reviewer</permission-role>
-   <permission-role>Owner</permission-role>
-   <permission-role>Site Administrator</permission-role>
-  </permission-map>
-  <permission-map name="Add portal content" acquired="False">
-   <permission-role>Contributor</permission-role>
-   <permission-role>Manager</permission-role>
-   <permission-role>Site Administrator</permission-role>
-  </permission-map>
-  <permission-map name="Delete objects" acquired="False">
-   <permission-role>Manager</permission-role>
-   <permission-role>Site Administrator</permission-role>
-  </permission-map>
-  <permission-map name="Modify portal content" acquired="False">
-   <permission-role>Editor</permission-role>
-   <permission-role>Manager</permission-role>
-   <permission-role>Site Administrator</permission-role>
-  </permission-map>
-  <permission-map name="Review portal content" acquired="False">
-   <permission-role>Manager</permission-role>
-   <permission-role>Reviewer</permission-role>
-   <permission-role>Site Administrator</permission-role>
-  </permission-map>
-  <permission-map name="View" acquired="False">
-   <permission-role>Editor</permission-role>
-   <permission-role>Manager</permission-role>
-   <permission-role>Owner</permission-role>
-   <permission-role>Reader</permission-role>
-   <permission-role>Reviewer</permission-role>
-   <permission-role>Site Administrator</permission-role>
-  </permission-map>
-  <permission-map name="collective.dms.basecontent: Add DmsFile" acquired="False">
-   <permission-role>DmsFile Contributor</permission-role>
-   <permission-role>Manager</permission-role>
-   <permission-role>Site Administrator</permission-role>
-  </permission-map>
-  <permission-map name="imio.dms.mail: Write mail base fields" acquired="False">
-   <permission-role>Manager</permission-role>
-   <permission-role>Site Administrator</permission-role>
-   <permission-role>Base Field Writer</permission-role>
-  </permission-map>
-  <permission-map name="imio.dms.mail: Write treating group field" acquired="False">
-   <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
    <permission-role>Treating Group Writer</permission-role>
   </permission-map>
@@ -236,7 +181,6 @@
  </state>
  <state state_id="to_be_signed" title="om_to_be_signed" i18n:attributes="title">
   <exit-transition transition_id="back_to_creation"/>
-  <exit-transition transition_id="back_to_service_chief"/>
   <exit-transition transition_id="mark_as_sent"/>
   <permission-map name="Access contents information" acquired="False">
    <permission-role>Editor</permission-role>
@@ -313,12 +257,6 @@
    <guard-permission>Review portal content</guard-permission>
   </guard>
  </transition>
- <transition transition_id="back_to_service_chief" title="om_back_to_service_chief" new_state="proposed_to_service_chief" trigger="USER" before_script="" after_script="" i18n:attributes="title">
-  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_service_chief.png" i18n:translate="">om_back_to_service_chief</action>
-  <guard>
-   <guard-permission>Review portal content</guard-permission>
-  </guard>
- </transition>
  <transition transition_id="mark_as_sent" title="om_mark_as_sent" new_state="sent" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_mark_as_sent.png" i18n:translate="">om_mark_as_sent</action>
   <guard>
@@ -327,12 +265,6 @@
  </transition>
  <transition transition_id="propose_to_be_signed" title="om_propose_to_be_signed" new_state="to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_propose_to_be_signed.png" i18n:translate="">om_propose_to_be_signed</action>
-  <guard>
-   <guard-permission>Review portal content</guard-permission>
-  </guard>
- </transition>
- <transition transition_id="propose_to_service_chief" title="om_propose_to_service_chief" new_state="proposed_to_service_chief" trigger="USER" before_script="" after_script="" i18n:attributes="title">
-  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_propose_to_service_chief.png" i18n:translate="">om_propose_to_service_chief</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
   </guard>

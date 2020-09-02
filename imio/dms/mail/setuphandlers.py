@@ -29,12 +29,15 @@ from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategor
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.wfadaptations.api import add_applied_adaptation
+from collective.wfadaptations.api import get_applied_adaptations
 from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabeling
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
-from imio.dms.mail import CREATING_GROUP_SUFFIX
-#from imio.dms.mail import CREATING_FIELD_ROLE
+# from imio.dms.mail import CREATING_FIELD_ROLE
+from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
@@ -47,6 +50,8 @@ from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import Dummy
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.wfadaptations import IMServiceValidation
+from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import transitions
@@ -57,9 +62,6 @@ from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.app.uuid.utils import uuidToObject
-from plone.dexterity.fti import DexterityFTIModificationDescription
-from plone.dexterity.fti import ftiModified
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
@@ -71,14 +73,12 @@ from Products.CPUtils.Extensions.utils import configure_ckeditor
 from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
-from zope.component.interfaces import ComponentLookupError
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
-from zope.lifecycleevent import ObjectModifiedEvent
 
 import datetime
 import logging
@@ -136,6 +136,7 @@ def postInstall(context):
         configure_task_rolefields(context, force=False)
 
     configure_task_config(context)
+    update_task_workflow(site)
 
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
@@ -350,8 +351,6 @@ def createStateCollections(folder, content_type):
         'dmsincomingmail': {
             'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
             'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
-            'proposed_to_service_chief': "python: object.restrictedTraverse('idm-utils')."
-                                         "proposed_to_serv_chief_col_cond()",
         },
         'dmsoutgoingmail': {
             'scanned': "python: object.restrictedTraverse('odm-utils').scanned_col_cond()",
@@ -436,7 +435,7 @@ def createDashboardCollections(folder, collections):
         if not base_hasattr(folder, dic['id']):
             folder.invokeFactory("DashboardCollection",
                                  dic['id'],
-                                 enabled=True,
+                                 enabled=dic.get('enabled', True),
                                  title=dic['tit'],
                                  query=dic['query'],
                                  tal_condition=dic['cond'],
@@ -514,7 +513,7 @@ def createIMailCollections(folder):
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'reception_date', u'actions'),
-            'sort': u'organization_type', 'rev': True, 'count': False},
+            'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
              'v': ['dmsincomingmail', 'dmsincoming_email']},
@@ -575,7 +574,7 @@ def createTaskCollections(folder):
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
-            'sort': u'created', 'rev': True, 'count': True},
+            'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
         {'id': 'to_treat', 'tit': _('task_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
@@ -600,6 +599,15 @@ def createTaskCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
+        {'id': 'to_treat_in_my_group', 'tit': _('task_to_treat_in_my_group'), 'subj': (u'search', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['to_do']},
+            {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
+             'v': 'task-in-assigned-group'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
+                     u'assigned_user', u'due_date', u'CreationDate', u'actions'),
+            'sort': u'created', 'rev': True, 'count': True},
         {'id': 'in_my_group', 'tit': _('tasks_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['task']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
@@ -632,7 +640,7 @@ def createTaskCollections(folder):
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'task_parent', u'review_state', u'assigned_group',
                      u'assigned_user', u'due_date', u'CreationDate', u'actions'),
-            'sort': u'created', 'rev': True, 'count': True},
+            'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
     ]
     createDashboardCollections(folder, collections)
 
@@ -658,7 +666,7 @@ def createOMailCollections(folder):
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
                      u'mail_type', u'assigned_user', u'CreationDate', u'actions'),
-            'sort': u'created', 'rev': True, 'count': True},
+            'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
         {'id': 'to_treat', 'tit': _('om_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
              'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
@@ -673,7 +681,7 @@ def createOMailCollections(folder):
              'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v':
-                ['proposed_to_service_chief', 'to_be_signed']}],
+                ['to_be_signed']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'CreationDate', u'actions'),
@@ -887,23 +895,22 @@ def adaptDefaultPortal(context):
     api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
                                    'display_below_content_title_on_views', True)
     # imio.dms.mail configuration annotation
+    # if changed, must be updated in testing.py !
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
+                   [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
+    set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
     # review levels configuration, used in utils and adapters
     set_dms_config(['review_levels', 'dmsincomingmail'],
-                   OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
-                                ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
-    set_dms_config(['review_levels', 'task'],
-                   OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
-    set_dms_config(['review_levels', 'dmsoutgoingmail'],
-                   OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+                   OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
+    set_dms_config(['review_levels', 'task'], OrderedDict())
+    set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
     # review_states configuration, is the same as review_levels with some key, value inverted
     set_dms_config(['review_states', 'dmsincomingmail'],
-                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
-                                ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
-    set_dms_config(['review_states', 'task'],
-                   OrderedDict([('to_assign', {'group': '_validateur', 'org': 'assigned_group'}),
-                                ('realized', {'group': '_validateur', 'org': 'assigned_group'})]))
-    set_dms_config(['review_states', 'dmsoutgoingmail'],
-                   OrderedDict([('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
+    set_dms_config(['review_states', 'task'], OrderedDict())
+    set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
 
 
 def changeSearchedTypes(site):
@@ -937,10 +944,6 @@ def configure_rolefields(context):
                                                           'Treating Group Writer']},
                                 'encodeurs': {'roles': ['Base Field Writer', 'Reader']},
                                 'lecteurs_globaux_ce': {'roles': ['Reader']}},
-        'proposed_to_service_chief': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                                'Base Field Writer', 'Treating Group Writer']},
-                                      'encodeurs': {'roles': ['Reader']},
-                                      'lecteurs_globaux_ce': {'roles': ['Reader']}},
         'proposed_to_agent': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']},
                               'encodeurs': {'roles': ['Reader']},
                               'lecteurs_globaux_ce': {'roles': ['Reader']}},
@@ -953,29 +956,20 @@ def configure_rolefields(context):
     }, 'treating_groups': {
         # 'created': {},
         # 'proposed_to_manager': {},
-        'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                               'Treating Group Writer']}},
-        'proposed_to_agent': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
-                              'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+        'proposed_to_agent': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                               'lecteur': {'roles': ['Reader']}},
-        'in_treatment': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
-                         'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
+        'in_treatment': {'editeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                          'lecteur': {'roles': ['Reader']}},
-        'closed': {'validateur': {'roles': ['Reviewer']},
-                   'editeur': {'roles': ['Reviewer']},
+        'closed': {'editeur': {'roles': ['Reviewer']},
                    'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
         # 'created': {},
         # 'proposed_to_manager': {},
-        'proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
-        'proposed_to_agent': {'validateur': {'roles': ['Reader']},
-                              'editeur': {'roles': ['Reader']},
+        'proposed_to_agent': {'editeur': {'roles': ['Reader']},
                               'lecteur': {'roles': ['Reader']}},
-        'in_treatment': {'validateur': {'roles': ['Reader']},
-                         'editeur': {'roles': ['Reader']},
+        'in_treatment': {'editeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
-        'closed': {'validateur': {'roles': ['Reader']},
-                   'editeur': {'roles': ['Reader']},
+        'closed': {'editeur': {'roles': ['Reader']},
                    'lecteur': {'roles': ['Reader']}},
     },
     }
@@ -1006,26 +1000,17 @@ def configure_om_rolefields(context):
     }, 'treating_groups': {
         'created': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
                                            'Base Field Writer', 'Treating Group Writer']}},
-        'proposed_to_service_chief': {'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                     'DmsFile Contributor', 'Base Field Writer',
-                                                     'Treating Group Writer']},
-                                      'encodeur': {'roles': ['Reader']}},
-        'to_be_signed': {'validateur': {'roles': ['Reader']},
-                         'editeur': {'roles': ['Reader']},
+        'to_be_signed': {'editeur': {'roles': ['Reader']},
                          'encodeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
-        'sent': {'validateur': {'roles': ['Reader']},
-                 'editeur': {'roles': ['Reader']},
+        'sent': {'editeur': {'roles': ['Reader']},
                  'encodeur': {'roles': ['Reader']},
                  'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
-        'proposed_to_service_chief': {'validateur': {'roles': ['Reader']}},
-        'to_be_signed': {'validateur': {'roles': ['Reader']},
-                         'editeur': {'roles': ['Reader']},
+        'to_be_signed': {'editeur': {'roles': ['Reader']},
                          'encodeur': {'roles': ['Reader']},
                          'lecteur': {'roles': ['Reader']}},
-        'sent': {'validateur': {'roles': ['Reader']},
-                 'editeur': {'roles': ['Reader']},
+        'sent': {'editeur': {'roles': ['Reader']},
                  'encodeur': {'roles': ['Reader']},
                  'lecteur': {'roles': ['Reader']}},
     },
@@ -1068,36 +1053,25 @@ def configure_task_rolefields(context, force=False):
             },
         },
         'assigned_group': {
-            'to_assign': {
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-            },
+            'to_assign': {},
             'to_do': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
             'in_progress': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
             'realized': {
                 'editeur': {'roles': ['Contributor', 'Editor'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Contributor', 'Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
             'closed': {
                 'editeur': {'roles': ['Reader'],
                             'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
-                'validateur': {'roles': ['Editor', 'Reviewer'],
-                               'rel': "{'collective.task.related_taskcontainer':['Reader']}"},
                 'lecteur': {'roles': ['Reader']},
             },
         },
@@ -1106,27 +1080,21 @@ def configure_task_rolefields(context, force=False):
         'enquirer': {
         },
         'parents_assigned_groups': {
-            'to_assign': {
-                'validateur': {'roles': ['Reader']},
-            },
+            'to_assign': {},
             'to_do': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
             'in_progress': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
             'realized': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
             'closed': {
                 'editeur': {'roles': ['Reader']},
-                'validateur': {'roles': ['Reader']},
                 'lecteur': {'roles': ['Reader']},
             },
         },
@@ -1200,8 +1168,7 @@ def configureImioDmsMail(context):
             {'mt_value': u'facture', 'mt_title': u'Facture', 'mt_active': True},
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = [
-            'proposed_to_service_chief', 'proposed_to_agent']
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = ['proposed_to_agent']
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'] = [
             'IDublinCore.title', 'IDublinCore.description', 'sender', 'treating_groups', 'ITask.assigned_user',
@@ -1214,9 +1181,6 @@ def configureImioDmsMail(context):
             {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
             {'mt_value': u'recommande', 'mt_title': u'Recommandé', 'mt_active': True},
         ]
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states'] = [
-            'proposed_to_service_chief']
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'):
@@ -1252,10 +1216,10 @@ def configureContactPloneGroup(context):
     site = context.getSite()
     if not get_registry_functions():
         set_registry_functions([
-            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False},
-            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': [], 'fct_management': False},
-            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': [], 'fct_management': False},
-            {'fct_title': u'Validateur', 'fct_id': u'validateur', 'fct_orgs': [], 'fct_management': True},
+            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False,
+             'enabled': True},
+            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
+            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
         ])
     if not get_registry_groups_mgt():
         set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
@@ -1278,11 +1242,9 @@ def configureContactPloneGroup(context):
         # u'Direction technique', (u'Bâtiments', u'Voiries')
         # u'Événements'
         set_registry_organizations([org.UID() for org in orgas])
-
-        # Add users to created groups
+        # Add users to activated groups
         for org in orgas:
             uid = org.UID()
-            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_validateur" % uid)
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
             if org.organization_type == 'service':
                 site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
@@ -1874,14 +1836,6 @@ def refreshCatalog(context):
     site.portal_catalog.refreshCatalog()
 
 
-def reimport_faceted_config(folder, xml, default_UID=None):
-    """Reimport faceted navigation config."""
-    folder.unrestrictedTraverse('@@faceted_exportimport').import_xml(
-        import_file=open(os.path.dirname(__file__) + '/faceted_conf/%s' % xml))
-    if default_UID:
-        _updateDefaultCollectionFor(folder, default_UID)
-
-
 def setupFacetedContacts(portal):
     """Setup facetednav for contacts. Was used in old migration"""
 
@@ -1896,11 +1850,10 @@ def configure_actions_panel(portal):
     if not registry.get('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'):
         registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] = \
             ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
-             'dmsincomingmail.back_to_service_chief|', 'dmsincomingmail.back_to_treatment|',
+             'dmsincomingmail.back_to_treatment|',
              'dmsincomingmail.back_to_agent|', 'task.back_in_created|', 'task.back_in_to_assign|',
              'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|',
-             'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|',
-             'dmsoutgoingmail.back_to_service_chief|', 'dmsoutgoingmail.back_to_print|',
+             'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|', 'dmsoutgoingmail.back_to_print|',
              'dmsoutgoingmail.back_to_be_signed|', 'dmsoutgoingmail.back_to_scanned|']
 
 
@@ -2131,7 +2084,7 @@ def mark_copy_im_as_read(context):
     start = datetime.datetime(1973, 02, 12)
     end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
     users = {}
-    functions = {'i': ['validateur', 'editeur', 'lecteur'], 'o': ['encodeur', 'validateur', 'editeur', 'lecteur']}
+    functions = {'i': IM_READER_SERVICE_FUNCTIONS, 'o': OM_READER_SERVICE_FUNCTIONS}
     brains = site.portal_catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
                                  created={'query': (start, end), 'range': 'min:max'},
                                  sort_on='created')
@@ -2163,97 +2116,6 @@ def mark_copy_im_as_read(context):
     return '\n'.join(out)
 
 
-def configure_group_encoder(portal_types):
-    """
-        Used to configure a creating function and group for some internal organizations.
-        Update portal_type to add behavior, configure localroles field
-    """
-    # function
-    functions = get_registry_functions()
-    if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
-        functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': [],
-                          'fct_management': False})
-        set_registry_functions(functions)
-    # role and permission
-    portal = api.portal.get()
-    # existing_roles = list(portal.valid_roles())
-    # if CREATING_FIELD_ROLE not in existing_roles:
-    #     existing_roles.append(CREATING_FIELD_ROLE)
-    #     portal.__ac_roles__ = tuple(existing_roles)
-    #     portal.manage_permission('imio.dms.mail: Write creating group field',
-    #                              ('Manager', 'Site Administrator', CREATING_FIELD_ROLE), acquire=0)
-
-    # local roles config
-    config = {
-        'dmsincomingmail': {
-            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-#                                                          CREATING_FIELD_ROLE]}},
-            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
-        },
-        'dmsincoming_email': {
-            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-#                                                          CREATING_FIELD_ROLE]}},
-            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_service_chief': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
-        },
-        'dmsoutgoingmail': {
-            'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
-            'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
-            'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-        },
-        'dmsoutgoing_email': {
-            'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
-            'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
-            'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-        },
-    }
-
-    # criterias config
-    criterias = {
-        'dmsincomingmail': ('incoming-mail', 'mail-searches', 'all_mails'),
-        'dmsoutgoingmail': ('outgoing-mail', 'mail-searches', 'all_mails'),
-        'organization': ('contacts', 'orgs-searches', 'all_orgs'),
-        'person': ('contacts', 'persons-searches', 'all_persons'),
-        'held_position': ('contacts', 'hps-searches', 'all_hps'),
-        'contact_list': ('contacts', 'cls-searches', 'all_cls'),
-    }
-
-    for portal_type in portal_types:
-        # behaviors
-        fti = getUtility(IDexterityFTI, name=portal_type)
-        # try:
-        #     fti = getUtility(IDexterityFTI, name=portal_type)
-        # except ComponentLookupError:
-        #     continue
-        if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
-            old_bav = tuple(fti.behaviors)
-            fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])
-            ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
-
-        # local roles
-        if config.get(portal_type):
-            msg = add_fti_configuration(portal_type, config[portal_type], keyname='creating_group')
-            if msg:
-                logger.warn(msg)
-
-        # criterias
-        folder_id, category_id, default_id = criterias.get(portal_type, ('', '', ''))
-        if folder_id:
-            reimport_faceted_config(portal[folder_id][category_id], xml='mail-searches-group-encoder.xml',
-                                    default_UID=portal[folder_id][category_id][default_id].UID())
-
-
 def set_portlet(portal):
     ann = IAnnotations(portal)
     portlet = ann['plone.portlets.contextassignments']['plone.leftcolumn']['portlet_actions']
@@ -2262,3 +2124,60 @@ def set_portlet(portal):
     portlet.show_icons = False
     portlet.default_icon = None
     portlet._p_changed = True
+
+
+def im_n_plus_1_wfadaptation(context):
+    """
+        Add n_plus_1 level in incomingmail_workflow
+    """
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info('Apply n_plus_1 level in incomingmail_workflow')
+    site = context.getSite()
+    n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
+                       'forward_transition_title': u'Proposer au chef de service',
+                       'backward_transition_title': u'Renvoyer au chef de service',
+                       'function_title': u'N+1'}
+    sva = IMServiceValidation()
+    adapt_is_applied = sva.patch_workflow('incomingmail_workflow', **n_plus_1_params)
+    if adapt_is_applied:
+        add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
+                               'incomingmail_workflow', True, **n_plus_1_params)
+    # Add users to activated groups
+    if 'chef' in [u.id for u in api.user.get_users()]:
+        for uid in get_registry_organizations():
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
+
+
+def om_n_plus_1_wfadaptation(context):
+    """
+        Add n_plus_1 level in outgoingmail_workflow
+    """
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info('Apply n_plus_1 level in outgoingmail_workflow')
+    site = context.getSite()
+    n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
+                       'forward_transition_title': u'Proposer au chef de service',
+                       'backward_transition_title': u'Renvoyer au chef de service',
+                       'function_title': u'N+1'}
+    sva = OMServiceValidation()
+    adapt_is_applied = sva.patch_workflow('outgoingmail_workflow', **n_plus_1_params)
+    if adapt_is_applied:
+        add_applied_adaptation('imio.dms.mail.wfadaptations.OMServiceValidation',
+                               'outgoingmail_workflow', True, **n_plus_1_params)
+    # Add users to activated groups
+    if 'chef' in [u.id for u in api.user.get_users()]:
+        for uid in get_registry_organizations():
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
+
+
+def update_task_workflow(portal):
+    """ remove back_in_to_assign transition in task workflow """
+    wf = portal.portal_workflow['task_workflow']
+    state = wf.states['to_do']
+    transitions = list(state.transitions)  # noqa
+    if 'back_in_to_assign' in transitions:
+        transitions.remove('back_in_to_assign')
+        transitions.append('back_in_created')
+        state.transitions = tuple(transitions)

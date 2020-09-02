@@ -1,6 +1,6 @@
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from collective.task import _ as _t
-from imio.dms.mail import DOC_ASSIGNED_USER_FUNCTIONS
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from plone import api
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
@@ -15,7 +15,7 @@ def filter_task_assigned_users(group):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(group, DOC_ASSIGNED_USER_FUNCTIONS)
+    return voc_selected_org_suffix_users(group, IM_EDITOR_SERVICE_FUNCTIONS)
 
 
 def TaskUpdateWidgets(self):

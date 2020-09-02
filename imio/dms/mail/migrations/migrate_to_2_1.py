@@ -37,8 +37,8 @@ from imio.dms.mail.setuphandlers import createDashboardCollections
 from imio.dms.mail.setuphandlers import createHeldPositionsCollections
 from imio.dms.mail.setuphandlers import createOrganizationsCollections
 from imio.dms.mail.setuphandlers import createPersonsCollections
-from imio.dms.mail.setuphandlers import reimport_faceted_config
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import transitions
 from imio.migrator.migrator import Migrator
@@ -464,7 +464,7 @@ class Migrate_To_2_1(Migrator):
                      'plonetheme.classic', 'plonetheme.imioapps']:
             mark_last_version(self.portal, product=prod)
 
-        #self.refreshDatabase()
+        # self.refreshDatabase()
         self.finish()
 
 

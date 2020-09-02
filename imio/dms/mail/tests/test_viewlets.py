@@ -41,21 +41,18 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         login(self.portal, 'encodeur')
         viewlet = ContactContentBackrefsViewlet(self.elec, self.elec.REQUEST, None)
         ret = viewlet.find_relations(from_attribute='sender')
-        self.assertSetEqual(set([b.getObject() for b in ret]),
-                            set([self.imf['courrier7'], self.imf['courrier1']]))
+        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier7'], self.imf['courrier1']})
         ret = viewlet.find_relations(from_interfaces_flattened=IImioDmsIncomingMail)
-        self.assertSetEqual(set([b.getObject() for b in ret]),
-                            set([self.imf['courrier7'], self.imf['courrier1']]))
+        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier7'], self.imf['courrier1']})
         # call on person
         viewlet = ContactContentBackrefsViewlet(self.jean, self.jean.REQUEST, None)
         ret = viewlet.find_relations()
-        self.assertSetEqual(set([b.getObject() for b in ret]),
-                            set([self.imf['courrier3'], self.imf['courrier9']]))
+        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier3'], self.imf['courrier9']})
         # call on held position
         agent = self.jean['agent-electrabel']
         viewlet = ContactContentBackrefsViewlet(agent, agent.REQUEST, None)
         ret = viewlet.find_relations()
-        self.assertSetEqual(set([b.getObject() for b in ret]), set([self.imf['courrier5']]))
+        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier5']})
 
     def test_ContextInformationViewlet(self):
         login(self.portal, 'encodeur')

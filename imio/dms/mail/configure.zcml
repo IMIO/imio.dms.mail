@@ -232,16 +232,18 @@
         class=".utils.IdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
+            can_do_transition
             created_col_cond
             current_user_groups
             current_user_groups_ids
             get_im_folder
             highest_scan_id
             im_listing_url
+            is_in_user_groups
             must_render_im_listing
             proposed_to_manager_col_cond
             proposed_to_pre_manager_col_cond
-            proposed_to_serv_chief_col_cond
+            proposed_to_n_plus_col_cond
             user_has_review_level
             user_is_admin
         "
@@ -255,19 +257,16 @@
         allowed_attributes="
             get_om_folder
             highest_scan_id
+            is_in_user_groups
             scanned_col_cond
             is_odt_activated
         "
     />
 
+    <!-- wf adaptations -->
     <utility
-        name="imio.dms.mail.wfadaptations.EmergencyZone"
-        factory=".wfadaptations.EmergencyZoneAdaptation"
-    />
-
-    <utility
-        name="imio.dms.mail.wfadaptations.OMToPrint"
-        factory=".wfadaptations.OMToPrintAdaptation"
+        name="imio.dms.mail.wfadaptations.IMServiceValidation"
+        factory=".wfadaptations.IMServiceValidation"
     />
 
     <utility
@@ -276,13 +275,18 @@
     />
 
     <utility
-        name="imio.dms.mail.wfadaptations.IMSkipProposeToServiceChief"
-        factory=".wfadaptations.IMSkipProposeToServiceChief"
+        name="imio.dms.mail.wfadaptations.OMServiceValidation"
+        factory=".wfadaptations.OMServiceValidation"
     />
 
     <utility
-        name="imio.dms.mail.wfadaptations.OMSkipProposeToServiceChief"
-        factory=".wfadaptations.OMSkipProposeToServiceChief"
+        name="imio.dms.mail.wfadaptations.OMToPrint"
+        factory=".wfadaptations.OMToPrintAdaptation"
+    />
+
+    <utility
+        name="imio.dms.mail.wfadaptations.TaskServiceValidation"
+        factory=".wfadaptations.TaskServiceValidation"
     />
 
     <include file="adapters.zcml" />

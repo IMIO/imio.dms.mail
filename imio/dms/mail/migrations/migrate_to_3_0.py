@@ -3,8 +3,10 @@
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
+from collective.wfadaptations.api import get_applied_adaptations
 from imio.dms.mail import _tr as _
 from imio.dms.mail.setuphandlers import set_portlet
+from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -111,13 +113,16 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo', 'workflow'])
 
-        self.portal.portal_workflow.updateRoleMappings()
         # Apply workflow adaptations
-        record_name = 'collective.wfadaptations.applied_adaptations'
-        if api.portal.get_registry_record(record_name, default=False):
+        applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+        if applied_adaptations:
             success, errors = apply_from_registry()
             if errors:
                 logger.error("Problem applying wf adaptations: %d errors" % errors)
+        if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
+            update_task_workflow(self.portal)
+
+        self.portal.portal_workflow.updateRoleMappings()
 
         # do various global adaptations
         self.update_site()

@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 from AccessControl import getSecurityManager
-from collective import dexteritytextindexer
+from collective.dexteritytextindexer.interfaces import IDynamicTextIndexExtender
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.indexers import contact_source
@@ -16,6 +16,8 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import EMPTY_DATE
+from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.overrides import IDmsPerson
@@ -64,7 +66,9 @@ import time
 #######################
 
 default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager', 'proposed_to_pre_manager',
-                                                                    'proposed_to_service_chief']}},
+                                                                    'proposed_to_n_plus_5', 'proposed_to_n_plus_4',
+                                                                    'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
+                                                                    'proposed_to_n_plus_1']}},
                      'task': {'review_state': {'query': ['to_assign', 'realized']}}}
 
 
@@ -130,7 +134,7 @@ def validation_criterion(context, portal_type):
     config = get_dms_config(['review_levels', portal_type])
     # set_dms_config(['review_levels', 'dmsincomingmail'],
     #            OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
-    #                         ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
+    #                         ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
 
     ret = {'state_group': {'query': []}}
     for group_or_suffix in config:
@@ -139,6 +143,7 @@ def validation_criterion(context, portal_type):
                 for state in config[group_or_suffix]['st']:
                     ret['state_group']['query'].append(state)
         else:
+            # get orgs of user groups with suffix
             orgs = organizations_with_suffixes(groups, [group_or_suffix[1:]])
             if orgs:
                 for state in config[group_or_suffix]['st']:
@@ -197,7 +202,7 @@ class IncomingMailInTreatingGroupCriterion(object):
     @property
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
         return {'treating_groups': {'query': orgs}}
 
@@ -213,7 +218,7 @@ class OutgoingMailInTreatingGroupCriterion(object):
     @property
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, ['encodeur', 'validateur', 'editeur', 'lecteur'])
+        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
         return {'treating_groups': {'query': orgs}}
 
@@ -229,7 +234,7 @@ class IncomingMailInCopyGroupCriterion(object):
     @property
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}}
 
@@ -246,7 +251,7 @@ class IncomingMailInCopyGroupUnreadCriterion(object):
     def query(self):
         user = api.user.get_current()
         groups = api.group.get_groups(user=user)
-        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}, 'labels': {'not': ['%s:lu' % user.id]}}
 
@@ -275,7 +280,7 @@ class OutgoingMailInCopyGroupCriterion(object):
     @property
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, ['encodeur', 'validateur', 'editeur', 'lecteur'])
+        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}}
 
@@ -291,7 +296,7 @@ class TaskInAssignedGroupCriterion(object):
     @property
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
         return {'assigned_group': {'query': orgs}}
 
@@ -307,7 +312,7 @@ class TaskInProposingGroupCriterion(object):
     @property
     def query(self):
         groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, ['validateur', 'editeur', 'lecteur'])
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
         return {'mail_type': {'query': orgs}}
 
@@ -436,7 +441,7 @@ def mail_date_index(obj):
         return obj.original_mail_date
     else:
         return EMPTY_DATE
-    return common_marker
+    # return common_marker
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -489,7 +494,7 @@ def state_group_index(obj):
     # No acquisition pb because state_group isn't an attr
     # set_dms_config(['review_states', 'dmsincomingmail'],
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
-    #                             ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
+    #                             ('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})]))
     state = api.content.get_state(obj=obj)
     if obj.portal_type == 'dmsincoming_email':
         portal_type = 'dmsincomingmail'
@@ -578,7 +583,7 @@ def get_obj_size(obj):
     for c in order:
         if size / const[c] > 0:
             break
-    return '%.1f %s' % (float(size / float(const[c])), c)
+    return '%.1f %s' % (float(size / float(const[c])), c)  # noqa
 
 
 @indexer(IDmsAppendixFile)
@@ -593,7 +598,7 @@ def get_obj_size_df_index(obj):
 
 class ScanSearchableExtender(object):
     adapts(IScanFields)
-    implements(dexteritytextindexer.IDynamicTextIndexExtender)
+    implements(IDynamicTextIndexExtender)
 
     def __init__(self, context):
         self.context = context
@@ -634,7 +639,7 @@ class ScanSearchableExtender(object):
             if ret.startswith(' '):
                 ret = ret[1:]
             return ret
-        except:
+        except:  # noqa
             return self.searchable_text()
 
 
@@ -644,7 +649,7 @@ class IdmSearchableExtender(object):
         Concatenate the contained dmsmainfiles scan_id infos.
     """
     adapts(IDmsDocument)
-    implements(dexteritytextindexer.IDynamicTextIndexExtender)
+    implements(IDynamicTextIndexExtender)
 
     def __init__(self, context):
         self.context = context
@@ -657,7 +662,7 @@ class IdmSearchableExtender(object):
         #                                                                '/'.join(self.context.getPhysicalPath()),
         #                                                                'depth': 1})
         index = []
-        for id, obj in self.context.contentItems():
+        for oid, obj in self.context.contentItems():
             if not IDmsFile.providedBy(obj):
                 continue
             sid_infos = get_scan_id(obj)
@@ -673,29 +678,33 @@ class IdmSearchableExtender(object):
 
 class MissingTerms(MissingTermsMixin):
 
+    complete_voc = NotImplemented
+    field = NotImplemented
+    widget = NotImplemented
+
     def getTerm(self, value):
         try:
-            return super(MissingTermsMixin, self).getTerm(value)
+            return super(MissingTermsMixin, self).getTerm(value)  # noqa
         except LookupError:
             try:
                 return self.complete_voc().getTerm(value)
             except LookupError:
                 pass
-        if (IContextAware.providedBy(self.widget) and not self.widget.ignoreContext):
-            curValue = getMultiAdapter((self.widget.context, self.field), IDataManager).query()
-            if curValue == value:
+        if IContextAware.providedBy(self.widget) and not self.widget.ignoreContext:
+            cur_value = getMultiAdapter((self.widget.context, self.field), IDataManager).query()
+            if cur_value == value:
                 return self._makeMissingTerm(value)
         raise
 
     def getTermByToken(self, token):
         try:
-            return super(MissingTermsMixin, self).getTermByToken(token)
+            return super(MissingTermsMixin, self).getTermByToken(token)  # noqa
         except LookupError:
             try:
                 return self.complete_voc().getTermByToken(token)
             except LookupError:
                 pass
-        if (IContextAware.providedBy(self.widget) and not self.widget.ignoreContext):
+        if IContextAware.providedBy(self.widget) and not self.widget.ignoreContext:
             value = getMultiAdapter((self.widget.context, self.field), IDataManager).query()
             term = self._makeMissingTerm(value)
             if term.token == token:

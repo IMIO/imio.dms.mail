@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_organizations
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.browser.reply_form import ReplyForm
 from imio.dms.mail.dmsmail import CustomAddForm
+from imio.dms.mail.dmsmail import IMView
 from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -98,14 +100,14 @@ class TestDmsmail(unittest.TestCase):
         self.assertTrue(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                        'outgoingmail_today_mail_date'))
         self.assertEquals(api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
-                                                       'due_date_extension'), 0)
+                                                         'due_date_extension'), 0)
 
         # testing IM views: default parameters
         self.request = self.portal['incoming-mail'].REQUEST
         add = CustomAddForm(self.portal['incoming-mail'], self.request)
         add.portal_type = 'dmsincomingmail'
         add.update()
-        self.assertEquals(add.widgets['ITask.due_date'].value, ('','',''))
+        self.assertEquals(add.widgets['ITask.due_date'].value, ('', '', ''))
         # set due_date_extension to 15
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                        'due_date_extension', 15)
@@ -113,7 +115,7 @@ class TestDmsmail(unittest.TestCase):
         add = CustomAddForm(self.portal['incoming-mail'], self.request)
         add.portal_type = 'dmsincomingmail'
         add.update()
-        self.assertNotEquals(add.widgets['ITask.due_date'].value, ('','',''))
+        self.assertNotEquals(add.widgets['ITask.due_date'].value, ('', '', ''))
 
         # testing OM views: default parameters
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
@@ -217,9 +219,9 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(edit.widgets['internal_reference_no'].mode, 'input')  # not hidden
         self.clean_request()
         # is a response, workflow and not initial state
-        api.content.transition(om, 'propose_to_service_chief')
+        api.content.transition(om, 'propose_to_be_signed')
         edit.update()
-        self.assertEquals(api.content.get_state(om), 'proposed_to_service_chief')
+        self.assertEquals(api.content.get_state(om), 'to_be_signed')
         self.assertEquals(edit.is_initial_state(), False)
         self.assertEquals(self.request['_hide_irn'], True)
         self.assertNotIn('_auto_ref', self.request.keys())
@@ -300,3 +302,22 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                          'outgoingmail_number'), 15)  # No increment
         self.clean_request()
+
+    def test_view(self):
+        setRoles(self.portal, TEST_USER_ID, ['Contributor', 'Reviewer'])
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.assertEqual(api.content.get_state(imail), 'created')
+        view = IMView(imail, imail.REQUEST)
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        view.update()  # BEWARE can be called only once (plone.autoform.view.py) !
+        # no treating_groups: cannot do anything
+        self.assertEquals(view.widgets['ITask.assigned_user'].field.description, u'')
+        # no assigned_user but mandatory
+        imail.treating_groups = get_registry_organizations()[0]
+        view.updateWidgets()  # because update() can be called only once
+        self.assertEquals(view.widgets['ITask.assigned_user'].field.description,
+                          u'You must select an assigned user before you can propose to an agent !')
+        # no assigned user but mandatory only for n_plus_1 level
+        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
+        view.updateWidgets()
+        self.assertEquals(view.widgets['ITask.assigned_user'].field.description, u'')

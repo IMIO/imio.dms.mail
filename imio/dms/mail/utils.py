@@ -1,20 +1,22 @@
 # encoding: utf-8
 
-from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.wfadaptations.api import get_applied_adaptations
 from datetime import date
 from datetime import timedelta
 from imio.dms.mail import _tr as _
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from interfaces import IIMDashboard
 from natsort import natsorted
 from persistent.dict import PersistentDict
-#from operator import itemgetter
 from persistent.list import PersistentList
 from plone import api
+from plone.api.exc import GroupNotFoundError
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
@@ -33,6 +35,36 @@ cg_separator = ' ___ '
 # methods
 
 logger = logging.getLogger('imio.dms.mail: utils')
+
+"""
+dms_config
+----------
+(not the default values! but possible values to illustrate)
+* ['wf_from_to'] : états précédant/suivant un autre et transitions pour y accéder
+    * ['dmsincomingmail', 'n_plus', 'from'] = [('created', 'back_to_creation'),
+                                               ('proposed_to_manager', 'back_to_manager')]
+    * ['dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    * ['dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
+    * ['dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
+* ['review_levels'] : sert à déterminer le niveau de validation d'un utilisateur suivant son groupe
+    * ['dmsincomingmail'] = OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                         ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})])
+    * ['task'] = OrderedDict([('_n_plus_1', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})])
+    * ['dmsoutgoingmail'] = OrderedDict([('_n_plus_1', {'st': ['proposed_to_n_plus_1'],
+                                                        'org': 'treating_groups'})])
+* ['review_states'] : pour l'index state_group, lié à la validation
+    * ['dmsincomingmail'] = OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
+                                         ('proposed_to_n_plus_1', {'group': ['_n_plus_1'], 'org': 'treating_groups'})])
+    * ['task'] = OrderedDict([('to_assign', {'group': '_n_plus_1', 'org': 'assigned_group'}),
+                                ('realized', {'group': '_n_plus_1', 'org': 'assigned_group'})])
+    * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})])
+* ['transitions_auc'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées en
+                        fonction du paramètre assigned_user_check
+    * ['dmsincomingmail'][transition] = {'org1': True, 'org2': False}
+* ['transitions_levels'] : indique les transitions valides par état en fonction de la présence des validateurs
+    * ['dmsincomingmail'][state] = {'org1': ('propose_to_n_plus_1', 'from_states'), 'org2': (...) }
+    ('from_states' est une valeur spéciale qui représente les transitions stockées dans from_states)
+"""
 
 
 def set_dms_config(keys=None, value='list'):
@@ -75,6 +107,123 @@ def get_dms_config(keys=None):
     return annot
 
 
+def group_has_user(groupname, action=None):
+    """ Check if group contains user """
+    try:
+        # group is deleted
+        if action == 'delete':
+            return False
+        users_len = len(api.user.get_users(groupname=groupname))
+        if action == 'remove' and users_len == 1:
+            return False
+        elif action == 'add' and users_len == 0:
+            return True
+        elif users_len:
+            return True
+    except GroupNotFoundError:
+        return False
+    return False
+
+
+def update_transitions_levels_config(ptype, action=None, group_id=None):
+    """
+    Set transitions_levels dms config following org group users: [ptype][state][org] = (valid_propose_to, valid_back_to)
+    :param ptype: portal type
+    :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
+    :param group_id: new group assignment
+    """
+    orgs = get_registry_organizations()
+    if ptype == 'dmsincomingmail':
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        states = []
+        max_level = 0
+        for i, (st, tr) in enumerate(wf_from_to['to']):
+            states.append((st, i))
+            max_level = i
+        states += [(st, 9) for (st, tr) in wf_from_to['from']]
+        states.reverse()
+        state9 = ''
+        users_in_groups = {}  # boolean by groupname
+        orgs_back = {}  # last valid back transition by org
+
+        def check_group_users(g_n, u_in_g, g_id, act):
+            if g_n not in u_in_g:
+                u_in_g[g_n] = group_has_user(g_n, action=(g_n == g_id and act or None))
+            return u_in_g[g_n]
+
+        for state, level in states:
+            start = level - 1
+            if level == 9:
+                start = max_level
+            # for states before validation levels, we copy the first one
+            if level == 9 and state9:
+                set_dms_config(['transitions_levels', 'dmsincomingmail', state],
+                               get_dms_config(['transitions_levels', 'dmsincomingmail', state9]))
+                continue
+            config = {}
+            for org in orgs:
+                propose_to = 'propose_to_agent'
+                back_to = orgs_back.setdefault(org, 'from_states')
+                # check all lower levels to find first valid propose_to transition
+                for lev in range(start, 0, -1):
+                    # level 9: range(0, 0, -1) => [] ; range(1, 0, -1) => [1] ; etc.
+                    # level 1: range(0, 0, -1) => [] ; level 2: range(1, 0, -1) => [1] ; etc.
+                    # level 0: range(-1, 0, -1) => []
+                    if check_group_users('{}_n_plus_{}'.format(org, lev), users_in_groups, group_id, action):
+                        propose_to = 'propose_to_n_plus_{}'.format(lev)
+                        break
+                config[org] = (propose_to, back_to)
+                if level != 9 and users_in_groups.get('{}_n_plus_{}'.format(org, level), False):
+                    orgs_back[org] = 'back_to_n_plus_{}'.format(level)
+
+            set_dms_config(['transitions_levels', 'dmsincomingmail', state], config)
+            if level == 9 and not state9:
+                state9 = state
+        pass
+
+
+def update_transitions_auc_config(ptype, action=None, group_id=None):
+    """
+    Set transitions_auc dms config following assigned user check: [ptype][transition][org] = True
+    :param ptype: portal type
+    :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
+    :param group_id: new group assignment
+    """
+    orgs = get_registry_organizations()
+    if ptype == 'dmsincomingmail':
+        auc = api.portal.get_registry_record(AUC_RECORD)
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        transitions = [tr for (st, tr) in wf_from_to['to']]
+        previous_tr = ''
+        global_config = {}
+        for i, tr in enumerate(transitions):
+            config = {}
+            for org in orgs:
+                val = False
+                if auc == u'no_check':
+                    val = True
+                elif auc == u'mandatory':
+                    # propose_to_agent: previous_tr is empty => val will be False
+                    # propose_to_n_plus_x: lower level True => val is True
+                    # propose_to_n_plus_x: lower level False and user at this level => val is True
+                    groupname = '{}_n_plus_{}'.format(org, i)
+                    act = (groupname == group_id and action or None)
+                    if previous_tr and (global_config[previous_tr][org] or group_has_user(groupname, action=act)):
+                        val = True
+                elif auc == u'n_plus_1':
+                    # propose_to_agent: no n+1 level => val is True
+                    # propose_to_n_plus_x: previous_tr => val is True
+                    # propose_to_agent: n+1 level doesn't have user => val is True
+                    groupname = '{}_n_plus_1'.format(org)
+                    act = (groupname == group_id and action or None)
+                    if len(transitions) == 1 or previous_tr or not group_has_user(groupname, action=act):
+                        val = True
+                config[org] = val
+            previous_tr = tr
+            global_config[tr] = config
+            set_dms_config(['transitions_auc', 'dmsincomingmail', tr], config)
+
+
 def highest_review_level(portal_type, group_ids):
     """ Return the first review level """
     review_levels = get_dms_config(['review_levels'])
@@ -98,13 +247,15 @@ def list_wf_states(context, portal_type):
         list all portal_type wf states
     """
     ordered_states = {
-        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_service_chief',
-                            'proposed_to_agent', 'in_treatment', 'closed'],
-        'dmsincoming_email': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_service_chief',
-                              'proposed_to_agent', 'in_treatment', 'closed'],
+        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_n_plus_5',
+                            'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
+                            'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
+        'dmsincoming_email': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_n_plus_5',
+                              'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
+                              'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
         'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
-        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
-        'dmsoutgoing_email': ['scanned', 'created', 'proposed_to_service_chief', 'to_print', 'to_be_signed', 'sent'],
+        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'],
+        'dmsoutgoing_email': ['scanned', 'created', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'],
         'organization': ['active', 'deactivated'],
         'person': ['active', 'deactivated'],
         'held_position': ['active', 'deactivated'],
@@ -115,6 +266,7 @@ def list_wf_states(context, portal_type):
     pw = api.portal.get_tool('portal_workflow')
     ret = []
     # wf states
+    states = []
     for workflow in pw.getWorkflowsFor(portal_type):
         states = dict([(value.id, value) for value in workflow.states.values()])
         break
@@ -129,7 +281,7 @@ def list_wf_states(context, portal_type):
     return ret
 
 
-def back_or_again_state(obj, transitions=[]):
+def back_or_again_state(obj, transitions=()):
     """
         p_transitions : list of back transitions
     """
@@ -154,8 +306,8 @@ def back_or_again_state(obj, transitions=[]):
 
 
 def object_modified_cachekey(method, self, brain=False):
-    ''' cachekey method for an object and his modification date. '''
-    return (self, self.modified())
+    """ cachekey method for an object and his modification date. """
+    return self, self.modified()
 
 
 def get_scan_id(obj):
@@ -168,6 +320,14 @@ def get_scan_id(obj):
     return [sid, sid_long, sid_short]
 
 
+def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
+    """Reimport faceted navigation config."""
+    folder.unrestrictedTraverse('@@faceted_exportimport').import_xml(
+        import_file=open(os.path.dirname(__file__) + '/faceted_conf/%s' % xml))
+    if default_UID:
+        _updateDefaultCollectionFor(folder, default_UID)
+
+
 # views
 
 class UtilsMethods(BrowserView):
@@ -177,9 +337,7 @@ class UtilsMethods(BrowserView):
     def user_is_admin(self):
         """ Test if current user is admin """
         user = api.user.get_current()
-        if user.has_role(['Manager', 'Site Administrator']):
-            return True
-        return False
+        return user.has_role(['Manager', 'Site Administrator'])
 
     def current_user_groups(self, user):
         """ Return current user groups """
@@ -199,7 +357,7 @@ class UtilsMethods(BrowserView):
         else:  # pragma: no cover
             return 'No scan id'
 
-    def is_in_user_groups(self, groups=[], admin=True, test='any', suffixes=[]):
+    def is_in_user_groups(self, groups=(), admin=True, test='any', suffixes=()):
         """
             Test if one or all of a given group list is part of the current user groups
             Test if one or all of a suffix list is part of the current user groups
@@ -219,10 +377,7 @@ class UtilsMethods(BrowserView):
         """ Test if the current user has a review level """
         if portal_type is None:
             portal_type = self.context.portal_type
-        if highest_review_level(portal_type, str(self.current_user_groups_ids(api.user.get_current()))) is not None:
-            return True
-        else:
-            return False
+        return highest_review_level(portal_type, str(self.current_user_groups_ids(api.user.get_current()))) is not None
 
 
 class VariousUtilsMethods(UtilsMethods):
@@ -295,7 +450,7 @@ class VariousUtilsMethods(UtilsMethods):
             if only_activated == '1' and status == 'na':
                 continue
             lst.append((uid, title.encode('utf8'), status))
-        #sorted(lst, key=itemgetter(1))
+        # sorted(lst, key=itemgetter(1))
         if output != 'csv':
             return lst
         ret = []
@@ -312,14 +467,13 @@ class VariousUtilsMethods(UtilsMethods):
             return
 
         def get_voc_values(voc_name):
-            ret = []
+            values = []
             factory = getUtility(IVocabularyFactory, voc_name)
             for term in factory(self.context):
-                uid, title = term.value, term.title
-                ret.append('{}{}{}'.format(term.title.encode('utf8'), cg_separator, term.value))
-            return ret
+                values.append('{}{}{}'.format(term.title.encode('utf8'), cg_separator, term.value))
+            return values
 
-        ret = []
+        ret = []  # noqa
         ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
         ret.append('')
         ret.append('\r\n'.join(get_voc_values('imio.dms.mail.ActiveCreatingGroupVocabulary')))
@@ -338,14 +492,38 @@ class IdmUtilsMethods(UtilsMethods):
         portal = getSite()
         return portal['incoming-mail']
 
-    def idm_has_assigned_user(self):
-        """ Test if assigned_user is set or if the test is required or if the user is admin """
-        if self.context.assigned_user is not None:
-            return True
-        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'):
-            return True
-        if self.user_is_admin():
-            return True
+    def can_do_transition(self, transition):
+        """
+            Check if assigned_user is set or if the test is required or if the user is admin.
+            Used in guard expression for propose_to_agent transition
+        """
+        if self.context.treating_groups is None:
+            # print "no tg: False"
+            return False
+        way_index = transition.startswith('back_to') and 1 or 0
+        transition_to_test = transition
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        if transition in [tr for (st, tr) in wf_from_to['from']]:
+            transition_to_test = 'from_states'
+        # show only the next valid level
+        state = api.content.get_state(self.context)
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+        if state not in transitions_levels or \
+                (transitions_levels[state].get(self.context.treating_groups)
+                 and transitions_levels[state][self.context.treating_groups][way_index] != transition_to_test):
+            # print "from state: False"
+            return False
+        # show transition following assigned_user on propose_to transition only
+        if way_index == 0:
+            if self.context.assigned_user is not None:
+                # print "have assigned user: True"
+                return True
+            transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
+            if transitions_auc.get(self.context.treating_groups, False):
+                # print 'auc ok: True'
+                return True
+        else:
+            return True  # state ok, back ok
         return False
 
     def created_col_cond(self):
@@ -361,17 +539,19 @@ class IdmUtilsMethods(UtilsMethods):
         return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False,
                                       suffixes=[CREATING_GROUP_SUFFIX])
 
-    def proposed_to_serv_chief_col_cond(self):
-        """ Condition for searchfor_proposed_to_service_chief collection """
-        if self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False,
-                                  suffixes=[CREATING_GROUP_SUFFIX, 'validateur']):
-            return True
-        return False
+    def proposed_to_n_plus_col_cond(self):
+        """
+            Condition for searchfor_proposed_to_n_plus collection
+        """
+        suffixes = []
+        # a lower level search can be viewed by a higher level
+        for i in range(int(self.context.id[-1:]), 6):
+            suffixes.append('n_plus_{}'.format(i))
+        suffixes.append(CREATING_GROUP_SUFFIX)
+        return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False, suffixes=suffixes)
 
     def must_render_im_listing(self):
-        if IIMDashboard.providedBy(self.context):
-            return True
-        return False
+        return IIMDashboard.providedBy(self.context)
 
     def im_listing_url(self):
         col_folder = self.get_im_folder()['mail-searches']

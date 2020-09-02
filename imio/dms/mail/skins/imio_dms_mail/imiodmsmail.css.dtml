@@ -432,11 +432,11 @@ fieldset table.listing td.td_cell_convert img {
 }
 
 .state-proposed_to_manager {
- color: DarkOrange !important;
+ color: blueviolet !important;
 }
 .viewlet_workflowstate span.state-proposed_to_manager {
-    background-color: DarkOrange;
-    border-color: DarkOrange;
+    background-color: blueviolet;
+    border-color: blueviolet;
 }
 
 .state-proposed_to_division_head {
@@ -448,12 +448,20 @@ fieldset table.listing td.td_cell_convert img {
     border-color: blue;
 }
 
-.state-proposed_to_service_chief {
- color: blueviolet !important;
+.state-proposed_to_n_plus_1,
+.state-proposed_to_n_plus_2,
+.state-proposed_to_n_plus_3,
+.state-proposed_to_n_plus_4,
+.state-proposed_to_n_plus_5 {
+ color: DarkOrange !important;
 }
-.viewlet_workflowstate span.state-proposed_to_service_chief {
-    background-color: blueviolet;
-    border-color: blueviolet;
+.viewlet_workflowstate span.state-proposed_to_n_plus_1,
+.viewlet_workflowstate span.state-proposed_to_n_plus_2,
+.viewlet_workflowstate span.state-proposed_to_n_plus_3,
+.viewlet_workflowstate span.state-proposed_to_n_plus_4,
+.viewlet_workflowstate span.state-proposed_to_n_plus_5 {
+    background-color: DarkOrange;
+    border-color: DarkOrange;
 }
 
 .state-proposed_to_agent {
@@ -481,7 +489,7 @@ fieldset table.listing td.td_cell_convert img {
 }
 
 /* colorization for outgoing_mail_workflow */
-/* created and proposed_to_service_chief already defined in incoming mail */
+/* created and proposed_to_n_plus_1 already defined in incoming mail */
 
 .state-scanned {
  color: blue !important;

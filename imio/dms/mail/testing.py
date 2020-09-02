@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
+from imio.dms.mail.utils import set_dms_config
 from imio.pyutils.system import runCommand
 from plone import api
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
@@ -100,3 +103,19 @@ DMSMAIL_ROBOT_TESTING = FunctionalTesting(
            REMOTE_LIBRARY_BUNDLE_FIXTURE,
            z2.ZSERVER_FIXTURE,),
     name="DMSMAIL_ROBOT_TESTING")
+
+
+def reset_dms_config():
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
+                   [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
+    set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
+    set_dms_config(['review_levels', 'dmsincomingmail'],
+                   OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
+    set_dms_config(['review_levels', 'task'], OrderedDict())
+    set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
+    set_dms_config(['review_states', 'dmsincomingmail'],
+                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
+    set_dms_config(['review_states', 'task'], OrderedDict())
+    set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())

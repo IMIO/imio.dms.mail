@@ -13,6 +13,12 @@ Changelog
 2.2.1 ()
 --------
 
+- Made assigned_user_check more precise and improved transition guard
+  [sgeulette]
+
+- Added n+ level validation as workflow adaptation
+  [sgeulette, bleybaert]
+
 - Added collective.contact.importexport specific pipeline
   [sgeulette]
 

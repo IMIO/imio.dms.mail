@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
+from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
@@ -16,6 +19,8 @@ from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
+from imio.dms.mail.utils import set_dms_config
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -39,14 +44,22 @@ class TestAdapters(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pgof = self.portal['contacts']['plonegroup-organization']
 
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
+
     def test_IncomingMailHighestValidationCriterion(self):
         crit = IncomingMailHighestValidationCriterion(self.portal)
         # no groups, => default criterias
         self.assertEqual(crit.query, default_criterias['dmsincomingmail'])
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
-        # in a group _validateur
-        self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_service_chief']},
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        # update reviewlevels because n_plus_1 level is not applied by default
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                    ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
+        # in a group _n_plus_1
+        self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_n_plus_1']},
                                       'treating_groups': {'query': ['111']}})
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         # in a group dir_general
@@ -56,34 +69,43 @@ class TestAdapters(unittest.TestCase):
         crit = IncomingMailValidationCriterion(self.portal)
         # no groups
         self.assertEqual(crit.query, {'state_group': {'query': []}})
-        # in a group _validateur
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        # in a group _n_plus_1
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        # update reviewlevels because n_plus_1 level is not applied by default
+        set_dms_config(['review_levels', 'dmsincomingmail'],
+                       OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
+                                    ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
-                                                                'proposed_to_service_chief,111']}})
+                                                                'proposed_to_n_plus_1,111']}})
 
     def test_OutgoingMailValidationCriterion(self):
         crit = OutgoingMailValidationCriterion(self.portal)
         # no groups
         self.assertEqual(crit.query, {'state_group': {'query': []}})
-        # in a group _validateur
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        # in a group _n_plus_1
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        # update reviewlevels because n_plus_1 level is not applied by default
+        set_dms_config(['review_levels', 'dmsoutgoingmail'],
+                       OrderedDict([('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
-        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_service_chief,111']}})
+        self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
 
     def test_TaskValidationCriterion(self):
         crit = TaskValidationCriterion(self.portal)
         # no groups
         self.assertEqual(crit.query, {'state_group': {'query': []}})
-        # in a group _validateur
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        # in a group _n_plus_1
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        set_dms_config(['review_levels', 'task'],
+                       OrderedDict([('_n_plus_1', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
         # in a group dir_general, but no effect for task criterion
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
@@ -92,15 +114,15 @@ class TestAdapters(unittest.TestCase):
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_OutgoingMailInTreatingGroupCriterion(self):
         crit = OutgoingMailInTreatingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
-        api.group.create(groupname='111_validateur')
-        api.group.add_user(groupname='111_validateur', username=TEST_USER_ID)
+        api.group.create(groupname='111_n_plus_1')
+        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_IncomingMailInCopyGroupCriterion(self):
@@ -139,15 +161,18 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(indexer(), 'created')
         api.content.transition(obj=imail, to_state='proposed_to_manager')
         self.assertEqual(indexer(), 'proposed_to_manager')
-        api.content.transition(obj=imail, to_state='proposed_to_service_chief')
-        self.assertEqual(indexer(), 'proposed_to_service_chief,%s' % dguid)
         api.content.transition(obj=imail, to_state='proposed_to_agent')
         self.assertEqual(indexer(), 'proposed_to_agent')
 
         task = createContentInContainer(imail, 'task', assigned_group=dguid)
         indexer = state_group_index(task)
         self.assertEqual(indexer(), 'created')
-        api.content.transition(obj=task, to_state='to_assign')
+        # simulate adaptation
+        add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+        api.content.transition(obj=task, transition='do_to_assign')
+        self.assertEqual(indexer(), 'to_assign')
+        set_dms_config(['review_states', 'task'], OrderedDict([('to_assign', {'group': '_n_plus_1',
+                                                                              'org': 'assigned_group'})]))
         self.assertEqual(indexer(), 'to_assign,%s' % dguid)
 
     def test_ScanSearchableExtender(self):

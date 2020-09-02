@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2019-03-20 10:56+0000\n"
+"POT-Creation-Date: 2020-07-14 13:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -85,20 +85,12 @@ msgstr "Back to creation"
 msgid "back_to_manager"
 msgstr "Back to manager"
 
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_manager_zs"
-msgstr "Back to emergency zone commander"
-
 msgid "back_to_pre_manager"
 msgstr "Back to pre manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_service"
 msgstr "Back to service"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_service_chief"
-msgstr "Back to service chief"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_treatment"
@@ -221,20 +213,12 @@ msgstr "Propose to agent"
 msgid "propose_to_manager"
 msgstr "Propose to manager"
 
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_manager_zs"
-msgstr "Propose to emergency zone commander"
-
 msgid "propose_to_pre_manager"
 msgstr "Propose to pre manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_service"
 msgstr "Propose to service"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_service_chief"
-msgstr "Propose to service chief"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_agent"
@@ -244,16 +228,8 @@ msgstr "Proposed to agent"
 msgid "proposed_to_manager"
 msgstr "Proposed to manager"
 
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_manager_zs"
-msgstr "Propose to emergency zone commander"
-
 msgid "proposed_to_pre_manager"
 msgstr "Propose to pre manager"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "proposed_to_service_chief"
-msgstr "Proposed to service chief"
 
 #: configure.zcml
 msgid "task-in-assigned-group"

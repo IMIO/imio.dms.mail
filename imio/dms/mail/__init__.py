@@ -18,22 +18,27 @@ _ = MessageFactory("imio.dms.mail")
 def initialize(context):
     """Initializer called when used as a Zope 2 product."""
 
+
 dmsfile.DmsFile.__ac_local_roles_block__ = False
 dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
 
+AUC_RECORD = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'
+CREATING_GROUP_SUFFIX = u'group_encoder'
+# CREATING_FIELD_ROLE = 'Creating Group Field Writer'
 EMPTY_STRING = '__empty_string__'
 EMPTY_DATE = date(1950, 1, 1)
-
-DOC_ASSIGNED_USER_FUNCTIONS = ['editeur', 'validateur']
-
 PRODUCT_DIR = os.path.dirname(__file__)
+
+ALL_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
+IM_EDITOR_SERVICE_FUNCTIONS = ['editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
+IM_READER_SERVICE_FUNCTIONS = ['lecteur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
+OM_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
+OM_READER_SERVICE_FUNCTIONS = ['encodeur', 'lecteur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3',
+                               'n_plus_4', 'n_plus_5']
 
 BACK_OR_AGAIN_ICONS = {'': False,
                        'back': '++resource++imio.dms.mail/wf_back.png',
                        'again': '++resource++imio.dms.mail/wf_again.png'}
-
-CREATING_GROUP_SUFFIX = u'group_encoder'
-# CREATING_FIELD_ROLE = 'Creating Group Field Writer'
 
 
 def _tr(msgid, domain='imio.dms.mail'):
@@ -45,6 +50,7 @@ def _tr(msgid, domain='imio.dms.mail'):
 def add_path(path):
     path = path.strip('/ ')
     return "%s/%s" % (PRODUCT_DIR, path)
+
 
 # We modify the protection ('Delete objects' permission) on container manage_delObjects method
 # Normally to delete an item, user must have the delete permission on the item and on the parent container
