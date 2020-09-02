@@ -249,21 +249,6 @@ class TestUtils(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
 
-    def test_IdmUtilsMethods_idm_has_assigned_user(self):
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', assigned_user='thorgal')
-        view = IdmUtilsMethods(imail, imail.REQUEST)
-        self.assertTrue(view.idm_has_assigned_user())
-        imail.assigned_user = None
-        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-        settings.assigned_user_check = u'no_check'
-        self.assertTrue(view.idm_has_assigned_user())
-        settings.assigned_user_check = u'mandatory'
-        self.assertTrue(view.idm_has_assigned_user())
-        self.assertIn('Manager', api.user.get_roles(username=TEST_USER_ID))
-        setRoles(self.portal, TEST_USER_ID, [])
-        self.assertNotIn('Manager', api.user.get_roles(username=TEST_USER_ID))
-        self.assertFalse(view.idm_has_assigned_user())
-
     def test_IdmUtilsMethods_can_do_transition0(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         self.assertEqual(api.content.get_state(imail), 'created')

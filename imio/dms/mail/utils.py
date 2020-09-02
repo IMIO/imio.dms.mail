@@ -492,21 +492,6 @@ class IdmUtilsMethods(UtilsMethods):
         portal = getSite()
         return portal['incoming-mail']
 
-    def idm_has_assigned_user(self):
-        """
-            Test if assigned_user is set or if the test is required or if the user is admin.
-            Used in guard expression for propose_to_agent transition
-            NO MORE USED
-        """
-        if self.context.assigned_user is not None:
-            return True
-        # TODO to review
-        if api.portal.get_registry_record(AUC_RECORD) == u'no_check':
-            return True
-        if self.user_is_admin():
-            return True
-        return False
-
     def can_do_transition(self, transition):
         """
             Check if assigned_user is set or if the test is required or if the user is admin.
