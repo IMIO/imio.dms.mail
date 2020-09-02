@@ -276,6 +276,11 @@ class Migrate_To_2_2_1(Migrator):  # noqa
             if u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr) in applied_wfa:
                 remove_adaptation_from_registry(u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr))
                 task_adapt = False
+                if acr == 'OM':
+                    folder = self.omf['mail-searches']
+                    if folder['to_validate'].enabled:
+                        folder['to_validate'].enabled = False
+                        folder['to_validate'].reindexObject()
             else:
                 logger.info('Applying {}ServiceValidation wf adaptation'.format(acr))
                 sva = getattr(wfadaptations, '{}ServiceValidation'.format(acr))()
@@ -298,7 +303,8 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                 if folder[cid].enabled:
                     folder[cid].enabled = False
                     folder[cid].reindexObject()
-            invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+
+        invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
         # replace EmergencyZoneAdaptation
         im_workflow = self.wtool['incomingmail_workflow']

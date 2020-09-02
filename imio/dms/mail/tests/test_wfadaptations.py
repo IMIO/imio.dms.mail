@@ -175,6 +175,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
         self.assertIn('proposed_to_n_plus_1',
                       [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
+        self.assertTrue(folder['to_validate'].enabled)
         # check annotations
         config = get_dms_config(['review_levels', 'dmsoutgoingmail'])
         self.assertIn('_n_plus_1', config)

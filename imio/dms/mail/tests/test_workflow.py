@@ -55,6 +55,9 @@ class TestWorkflows(unittest.TestCase):
                             {'mark_as_sent', 'back_to_creation'})
         self.assertSetEqual(set(self.omw.states['sent'].transitions),
                             {'back_to_be_signed', 'back_to_scanned'})
+        # related
+        folder = self.portal['outgoing-mail']['mail-searches']
+        self.assertFalse(folder['to_validate'].enabled)
 
     def test_task_workflow0(self):
         """ Check workflow """

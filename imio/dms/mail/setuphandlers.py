@@ -666,7 +666,7 @@ def createOMailCollections(folder):
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
                      u'mail_type', u'assigned_user', u'CreationDate', u'actions'),
-            'sort': u'created', 'rev': True, 'count': True},
+            'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
         {'id': 'to_treat', 'tit': _('om_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
              'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
@@ -895,6 +895,7 @@ def adaptDefaultPortal(context):
     api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
                                    'display_below_content_title_on_views', True)
     # imio.dms.mail configuration annotation
+    # if changed, must be updated in testing.py !
     set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
                    [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
     set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])

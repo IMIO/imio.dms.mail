@@ -539,7 +539,6 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # We need to indicate that the object has been modified and must be 'saved'
         lr._p_changed = True
 
-        # TODO activer la collection à valider...
         # add collection
         folder = portal['outgoing-mail']['mail-searches']
         col_id = 'searchfor_{}'.format(new_state_id)
@@ -559,6 +558,10 @@ class OMServiceValidation(WorkflowAdaptationBase):
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(to_states[-1])))
+
+        if not folder['to_validate'].enabled:
+            folder['to_validate'].enabled = True
+            folder['to_validate'].reindexObject()
 
         # update configuration annotation
         config = get_dms_config(['review_levels', 'dmsoutgoingmail'])
