@@ -30,6 +30,8 @@ from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
@@ -365,7 +367,7 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms outgoing mail
     """
-    return voc_selected_org_suffix_users(org_uid, IM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current())
+    return voc_selected_org_suffix_users(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current())
 
 
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
@@ -585,26 +587,19 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
         # we go out if assigned user is empty
         if value is None:
             return
-        # check if we are editing dmsincomingmail or dmsoutgoingmail
-        if isinstance(self.view, IMEdit) or isinstance(self.view, IMEdit):
-            # check if treating_groups is changed and assigned_user is no more in
-            if (self.context.treating_groups is not None and self.context.assigned_user is not None and
-                self.request.form['form.widgets.treating_groups'] and
-                self.request.form['form.widgets.treating_groups'][0] != self.context.treating_groups and
-                value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
-                              self.request.form['form.widgets.treating_groups'][0],
-                              IM_EDITOR_SERVICE_FUNCTIONS)]):
-                raise Invalid(_(u"The assigned user is not in the selected treating group !"))
-        # check if we are editing a task
-        elif isinstance(self.view, TaskEdit):
-            # check if assigned_group is changed and assigned_user is no more in
-            if (self.context.assigned_group is not None and self.context.assigned_user is not None and
-                self.request.form['form.widgets.ITask.assigned_group'] and
-                self.request.form['form.widgets.ITask.assigned_group'][0] != self.context.assigned_group and
-                value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
-                              self.request.form['form.widgets.ITask.assigned_group'][0],
-                              IM_EDITOR_SERVICE_FUNCTIONS)]):
-                raise Invalid(_(u"The assigned user is not in the selected assigned group !"))
+        config = ((IMEdit, {'attr': 'treating_groups', 'schema': '', 'fcts': IM_EDITOR_SERVICE_FUNCTIONS}),
+                  (OMEdit, {'attr': 'treating_groups', 'schema': '', 'fcts': OM_EDITOR_SERVICE_FUNCTIONS}),
+                  (TaskEdit, {'attr': 'assigned_group', 'schema': 'ITask.', 'fcts': TASK_EDITOR_SERVICE_FUNCTIONS}),)
+        for klass, dic in config:
+            if isinstance(self.view, klass):
+                # check if group is changed and assigned_user is no more in
+                form_widget = 'form.widgets.{}{}'.format(dic['schema'], dic['attr'])
+                if (getattr(self.context, dic['attr']) is not None and self.context.assigned_user is not None and
+                    self.request.form.get(form_widget, False) and
+                    self.request.form[form_widget][0] != getattr(self.context, dic['attr']) and
+                    value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
+                                  self.request.form[form_widget][0], dic['fcts'])]):
+                    raise Invalid(_(u"The assigned user is not in the selected group !"))
 
 
 validator.WidgetValidatorDiscriminators(AssignedUserValidator, field=ITask['assigned_user'])

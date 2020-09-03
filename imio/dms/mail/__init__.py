@@ -35,6 +35,7 @@ IM_READER_SERVICE_FUNCTIONS = ['lecteur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_
 OM_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
 OM_READER_SERVICE_FUNCTIONS = ['encodeur', 'lecteur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3',
                                'n_plus_4', 'n_plus_5']
+TASK_EDITOR_SERVICE_FUNCTIONS = ['editeur', 'n_plus_1']
 
 BACK_OR_AGAIN_ICONS = {'': False,
                        'back': '++resource++imio.dms.mail/wf_back.png',

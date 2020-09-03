@@ -537,8 +537,8 @@ def group_assignment(event):
         for brain in catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'], recipient_groups=orgs,
                              labels={'not': ['%s:lu' % userid]},
                              created={'query': (start, end), 'range': 'min:max'}):
-            if not brain.recipient_groups:
-                continue
+            # if not brain.recipient_groups:
+            #    continue
             obj = brain.getObject()
             labeling = ILabeling(obj)
             user_ids = labeling.storage.setdefault('lu', PersistentList())  # _p_changed is managed

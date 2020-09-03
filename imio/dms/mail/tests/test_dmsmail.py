@@ -2,7 +2,10 @@
 from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.browser.reply_form import ReplyForm
+from imio.dms.mail.browser.task import TaskEdit
+from imio.dms.mail.dmsmail import AssignedUserValidator
 from imio.dms.mail.dmsmail import CustomAddForm
+from imio.dms.mail.dmsmail import IMEdit
 from imio.dms.mail.dmsmail import IMView
 from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
@@ -14,6 +17,7 @@ from plone.dexterity.utils import createContentInContainer
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
+from zope.interface import Invalid
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 
@@ -29,6 +33,7 @@ class TestDmsmail(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        self.pgof = self.portal['contacts']['plonegroup-organization']
 
     def test_TreatingGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary
@@ -321,3 +326,41 @@ class TestDmsmail(unittest.TestCase):
         api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
         view.updateWidgets()
         self.assertEquals(view.widgets['ITask.assigned_user'].field.description, u'')
+
+    def test_AssignedUserValidator(self):
+        # im
+        obj = self.portal['incoming-mail']['courrier1']
+        view = IMEdit(obj, obj.REQUEST)
+        auv = AssignedUserValidator(obj, view.request, view, 'fld', 'widget')
+        self.assertEqual(obj.treating_groups, self.pgof['direction-generale'].UID())
+        obj.assigned_user = 'agent1'
+        # we change group: user is in
+        view.request.form['form.widgets.treating_groups'] = [self.pgof['evenements'].UID()]
+        self.assertIsNone(auv.validate('agent1'))
+        # we change group but user is not in
+        view.request.form['form.widgets.treating_groups'] = [self.pgof['direction-financiere'].UID()]
+        self.assertRaises(Invalid, auv.validate, 'agent1')
+        # om
+        obj = self.portal['outgoing-mail']['reponse1']
+        view = OMEdit(obj, obj.REQUEST)
+        auv = AssignedUserValidator(obj, view.request, view, 'fld', 'widget')
+        self.assertEqual(obj.treating_groups, self.pgof['direction-generale'].UID())
+        obj.assigned_user = 'agent1'
+        # we change group: user is in
+        view.request.form['form.widgets.treating_groups'] = [self.pgof['evenements'].UID()]
+        self.assertIsNone(auv.validate('agent1'))
+        # we change group but user is not in
+        view.request.form['form.widgets.treating_groups'] = [self.pgof['direction-financiere'].UID()]
+        self.assertRaises(Invalid, auv.validate, 'agent1')
+        # task
+        obj = self.portal['incoming-mail']['courrier1']['tache1']
+        view = TaskEdit(obj, obj.REQUEST)
+        auv = AssignedUserValidator(obj, view.request, view, 'fld', 'widget')
+        self.assertEqual(obj.assigned_group, self.pgof['direction-generale'].UID())
+        obj.assigned_user = 'agent1'
+        # we change group: user is in
+        view.request.form['form.widgets.ITask.assigned_group'] = [self.pgof['evenements'].UID()]
+        self.assertIsNone(auv.validate('agent1'))
+        # we change group but user is not in
+        view.request.form['form.widgets.ITask.assigned_group'] = [self.pgof['direction-financiere'].UID()]
+        self.assertRaises(Invalid, auv.validate, 'agent1')

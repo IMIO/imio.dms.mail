@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-09-01 15:06+0000\n"
+"POT-Creation-Date: 2020-09-03 14:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,7 +61,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./setuphandlers.py:1950
+#: ./setuphandlers.py:1951
 msgid "All contacts export"
 msgstr ""
 
@@ -93,7 +93,7 @@ msgstr ""
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr ""
 
-#: ./setuphandlers.py:1987
+#: ./setuphandlers.py:1988
 msgid "Base template"
 msgstr ""
 
@@ -165,7 +165,7 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1899
+#: ./setuphandlers.py:1900
 msgid "Common templates"
 msgstr ""
 
@@ -231,7 +231,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1971
+#: ./setuphandlers.py:1972
 msgid "Ending template"
 msgstr ""
 
@@ -247,11 +247,11 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1967
+#: ./setuphandlers.py:1968
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1965
+#: ./setuphandlers.py:1966
 msgid "Header template"
 msgstr ""
 
@@ -296,7 +296,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1969
+#: ./setuphandlers.py:1970
 msgid "Intro template"
 msgstr ""
 
@@ -308,12 +308,12 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1943
+#: ./setuphandlers.py:1944
 msgid "Mail listing template"
 msgstr ""
 
 #: ./browser/settings.py:115
-#: ./dmsmail.py:134
+#: ./dmsmail.py:149
 msgid "Mail type"
 msgstr ""
 
@@ -329,7 +329,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:1973
+#: ./setuphandlers.py:1974
 msgid "Mailing template"
 msgstr ""
 
@@ -388,7 +388,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:424
+#: ./dmsmail.py:447
 msgid "Outgoing Date"
 msgstr ""
 
@@ -434,15 +434,15 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1981
+#: ./setuphandlers.py:1982
 msgid "Print template"
 msgstr ""
 
-#: ./setuphandlers.py:1996
+#: ./setuphandlers.py:1997
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:126
+#: ./dmsmail.py:141
 msgid "Recipient groups"
 msgstr ""
 
@@ -475,7 +475,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./setuphandlers.py:1186
+#: ./setuphandlers.py:1187
 msgid "Response: "
 msgstr ""
 
@@ -491,7 +491,7 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
-#: ./dmsmail.py:97
+#: ./dmsmail.py:112
 msgid "Sender"
 msgstr ""
 
@@ -507,7 +507,7 @@ msgstr ""
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1957
+#: ./setuphandlers.py:1958
 msgid "Style template"
 msgstr ""
 
@@ -523,7 +523,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1897
+#: ./setuphandlers.py:1898
 msgid "Templates"
 msgstr ""
 
@@ -531,12 +531,8 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:607
-msgid "The assigned user is not in the selected assigned group !"
-msgstr ""
-
-#: ./dmsmail.py:597
-msgid "The assigned user is not in the selected treating group !"
+#: ./dmsmail.py:623
+msgid "The assigned user is not in the selected group !"
 msgstr ""
 
 #: ./browser/viewlets.py:115
@@ -553,7 +549,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:43
 #: ./browser/table.py:113
-#: ./dmsmail.py:107
+#: ./dmsmail.py:122
 msgid "Treating groups"
 msgstr ""
 
@@ -613,7 +609,7 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:194
+#: ./dmsmail.py:217
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
