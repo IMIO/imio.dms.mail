@@ -44,6 +44,7 @@ from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from z3c.form.datamanager import AttributeField
 from z3c.form.interfaces import IContextAware
 from z3c.form.interfaces import IDataManager
+from z3c.form.interfaces import NO_VALUE
 from z3c.form.term import MissingChoiceTermsVocabulary
 from z3c.form.term import MissingTermsMixin
 from z3c.form.validator import SimpleFieldValidator
@@ -773,3 +774,18 @@ class DateDataManager(AttributeField):
             if stored_s:
                 value = value + datetime.timedelta(seconds=stored.second)
             super(DateDataManager, self).set(value)
+
+
+class AssignedUserDataManager(AttributeField):
+    """
+        DataManager for assigned_user widget.
+        To handle assigned_user default value as slave of MS.
+        When voc contains only one value, it's selected.
+    """
+
+    def query(self, default=NO_VALUE):
+        """See z3c.form.interfaces.IDataManager"""
+        if (self.field.__name__ == 'assigned_user' and not getattr(self.adapted_context, 'assigned_user')
+                and '_default_assigned_user_' in self.context.REQUEST):
+            return self.context.REQUEST.get('_default_assigned_user_')
+        return super(AssignedUserDataManager, self).query(default=default)

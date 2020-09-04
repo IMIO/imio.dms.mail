@@ -166,4 +166,14 @@
              zope.schema.interfaces.IDatetime"
         factory=".adapters.DateDataManager" />
 
+    <adapter
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail
+             dexterity.localrolesfield.interfaces.ILocalRoleField"
+        factory=".adapters.AssignedUserDataManager" />
+
+    <adapter
+        for="collective.task.interfaces.ITaskContent
+             dexterity.localrolesfield.interfaces.ILocalRoleField"
+        factory=".adapters.AssignedUserDataManager" />
+
 </configure>

@@ -5,6 +5,7 @@ from plone import api
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
+from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from Products.CMFPlone.utils import base_hasattr
 
 import copy
@@ -14,7 +15,17 @@ def filter_task_assigned_users(group):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(group, TASK_EDITOR_SERVICE_FUNCTIONS)
+    voc = voc_selected_org_suffix_users(group, TASK_EDITOR_SERVICE_FUNCTIONS)
+    if len(voc) == 1:
+        req = api.env.getRequest()
+        view = req.get('PUBLISHED', None)
+        if view is None:
+            return voc
+        elif isinstance(view, MasterSelectJSONValue):
+            form = view.widget.form
+            if 'ITask.assigned_user' in form.widgets and not form.widgets['ITask.assigned_user'].value:
+                view.request.set('_default_assigned_user_', voc.by_value.keys()[0])
+    return voc
 
 
 def TaskUpdateWidgets(self):

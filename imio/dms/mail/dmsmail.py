@@ -45,8 +45,10 @@ from plone.autoform import directives
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
+from plone.directives.form.value import default_value
 # from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
+from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
@@ -87,7 +89,17 @@ def filter_dmsincomingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms incoming mail
     """
-    return voc_selected_org_suffix_users(org_uid, IM_EDITOR_SERVICE_FUNCTIONS)
+    voc = voc_selected_org_suffix_users(org_uid, IM_EDITOR_SERVICE_FUNCTIONS)
+    if len(voc) == 1:
+        req = api.env.getRequest()
+        view = req.get('PUBLISHED', None)
+        if view is None:
+            return voc
+        elif isinstance(view, MasterSelectJSONValue):
+            form = view.widget.form
+            if 'ITask.assigned_user' in form.widgets and not form.widgets['ITask.assigned_user'].value:
+                view.request.set('_default_assigned_user_', voc.by_value.keys()[0])
+    return voc
 
 
 class IImioDmsIncomingMail(IDmsIncomingMail):
@@ -366,6 +378,8 @@ class AddIEM(DefaultAddView):
 def filter_dmsoutgoingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms outgoing mail
+        No need to manage '_default_assigned_user_' because assigned_user is here mandatory:
+        the first voc value is selected
     """
     return voc_selected_org_suffix_users(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current())
 
