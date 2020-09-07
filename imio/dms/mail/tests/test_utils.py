@@ -69,6 +69,7 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(group_has_user('abc_group_encoder', 'remove'))  # we are removing the only one user
 
     def test_update_transitions_levels_config(self):
+        # dmsincomingmail #
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
         self.assertSetEqual(set(config.keys()), {'created', 'proposed_to_manager', 'proposed_to_agent'})
         self.assertEqual(config['created'], config['proposed_to_manager'])
@@ -81,20 +82,42 @@ class TestUtils(unittest.TestCase):
         api.group.create('{}_n_plus_1'.format(org1), 'N+1')
         set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],
                        [('proposed_to_agent', 'propose_to_agent'), ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
-        update_transitions_levels_config('dmsincomingmail')
+        update_transitions_levels_config(['dmsincomingmail'])
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
         self.assertEqual(config['proposed_to_n_plus_1'][org1], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_manager'][org1], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_manager'][org2], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_agent'][org1], ('propose_to_agent', 'from_states'))
         # we simulate the adding of a level and a user
-        update_transitions_levels_config('dmsincomingmail', 'add', '{}_n_plus_1'.format(org1))
+        update_transitions_levels_config(['dmsincomingmail'], 'add', '{}_n_plus_1'.format(org1))
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
         self.assertEqual(config['proposed_to_n_plus_1'][org1], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_manager'][org1], ('propose_to_n_plus_1', 'from_states'))
         self.assertEqual(config['proposed_to_manager'][org2], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_agent'][org1], ('propose_to_agent', 'back_to_n_plus_1'))
         self.assertEqual(config['proposed_to_agent'][org2], ('propose_to_agent', 'from_states'))
+
+        # task #
+        config = get_dms_config(['transitions_levels', 'task'])
+        self.assertSetEqual(set(config.keys()), {'created', 'to_do'})
+        self.assertEqual(config['created'], config['to_do'])
+        for state in config:
+            for org in config[state]:
+                self.assertEqual(config[state][org], ('', 'back_in_created2'))
+        org1, org2 = get_registry_organizations()[0:2]
+        # we simulate the adding of a level without user
+        api.group.create('{}_n_plus_1'.format(org1), 'N+1')
+        update_transitions_levels_config(['task'])
+        config = get_dms_config(['transitions_levels', 'task'])
+        self.assertEqual(config['to_do'][org1], ('', 'back_in_created2'))
+        self.assertEqual(config['to_do'][org2], ('', 'back_in_created2'))
+        # we simulate the adding of a level and a user
+        update_transitions_levels_config(['task'], 'add', '{}_n_plus_1'.format(org1))
+        config = get_dms_config(['transitions_levels', 'task'])
+        self.assertEqual(config['created'][org1], ('do_to_assign', 'back_in_to_assign'))
+        self.assertEqual(config['to_do'][org1], ('do_to_assign', 'back_in_to_assign'))
+        self.assertEqual(config['created'][org2], ('', 'back_in_created2'))
+        self.assertEqual(config['to_do'][org2], ('', 'back_in_created2'))
 
     def test_update_transitions_auc_config(self):
         api.portal.set_registry_record(AUC_RECORD, u'no_check')

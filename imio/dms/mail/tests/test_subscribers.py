@@ -74,14 +74,19 @@ class TestDmsmail(unittest.TestCase):
         api.content.transition(task, transition='do_to_assign')
         self.assertEqual(api.content.get_state(task), 'to_do')
         # assigned_user and no TaskServiceValidation
-        api.content.transition(task, transition='back_in_created')
+        api.content.transition(task, transition='back_in_created2')
         task.assigned_user = 'chef'
         api.content.transition(task, transition='do_to_assign')
         self.assertEqual(api.content.get_state(task), 'to_do')
-        # no assigned_user but TaskServiceValidation
-        api.content.transition(task, transition='back_in_created')
+        # no assigned_user but TaskServiceValidation but no user in groups
+        api.content.transition(task, transition='back_in_created2')
         task.assigned_user = None
         add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+        api.content.transition(task, transition='do_to_assign')
+        self.assertEqual(api.content.get_state(task), 'to_do')
+        # no assigned_user but TaskServiceValidation and user in groups
+        api.content.transition(task, transition='back_in_created2')
+        api.group.create(groupname='{}_n_plus_1'.format(task.assigned_group), groups=['chef'])
         api.content.transition(task, transition='do_to_assign')
         self.assertEqual(api.content.get_state(task), 'to_assign')
 

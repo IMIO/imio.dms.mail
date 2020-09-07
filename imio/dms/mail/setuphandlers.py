@@ -67,6 +67,7 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
@@ -2175,9 +2176,19 @@ def om_n_plus_1_wfadaptation(context):
 def update_task_workflow(portal):
     """ remove back_in_to_assign transition in task workflow """
     wf = portal.portal_workflow['task_workflow']
+    if 'back_in_created2' not in wf.transitions:
+        wf.transitions.addTransition('back_in_created2')
+        wf.transitions['back_in_created2'].setProperties(
+            title='back_in_created',
+            new_state_id='created', trigger_type=1, script_name='',
+            actbox_name='back_in_created2', actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++collective.task/back_in_created.png',
+            actbox_category='workflow',
+            props={'guard_permissions': 'Request review'})
+    # modify to_do transitions
     state = wf.states['to_do']
     transitions = list(state.transitions)  # noqa
     if 'back_in_to_assign' in transitions:
         transitions.remove('back_in_to_assign')
-        transitions.append('back_in_created')
+        transitions.append('back_in_created2')
         state.transitions = tuple(transitions)

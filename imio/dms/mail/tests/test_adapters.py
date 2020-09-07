@@ -169,6 +169,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(indexer(), 'created')
         # simulate adaptation
         add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+        api.group.create(groupname='{}_n_plus_1'.format(dguid), groups=['chef'])
         api.content.transition(obj=task, transition='do_to_assign')
         self.assertEqual(indexer(), 'to_assign')
         set_dms_config(['review_states', 'task'], OrderedDict([('to_assign', {'group': '_n_plus_1',

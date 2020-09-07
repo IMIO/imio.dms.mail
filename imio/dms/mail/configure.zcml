@@ -263,6 +263,16 @@
         "
     />
 
+    <browser:page
+        for="*"
+        name="task-utils"
+        class=".utils.TaskUtilsMethods"
+        permission="zope2.View"
+        allowed_attributes="
+            can_do_transition
+        "
+    />
+
     <!-- wf adaptations -->
     <utility
         name="imio.dms.mail.wfadaptations.IMServiceValidation"

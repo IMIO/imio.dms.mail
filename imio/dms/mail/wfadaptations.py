@@ -394,7 +394,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
         # update dms config
         update_transitions_auc_config('dmsincomingmail')
-        update_transitions_levels_config('dmsincomingmail')
+        update_transitions_levels_config(['dmsincomingmail'])
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
@@ -763,6 +763,10 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
 
 
 class TaskServiceValidation(WorkflowAdaptationBase):
+    """
+        Update task_workflow:
+        * modify new transition back_in_created2 and back_in_to_assign
+    """
 
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == 'task_workflow':
@@ -774,13 +778,20 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         function_title = u'N+1'
         wf = wtool['task_workflow']
 
-        # add back_in_to_assign
+        # add 'back_in_to_assign' on 'to_do' state
         state = wf.states['to_do']
-        transitions = list(state.transitions)
+        transitions = list(state.transitions)  # noqa
         if 'back_in_to_assign' not in transitions:
-            transitions.remove('back_in_created')
             transitions.append('back_in_to_assign')
             state.transitions = tuple(transitions)
+
+        # add conditions to transitions
+        for tr_id in ('back_in_to_assign', 'back_in_created2'):
+            tr = wf.transitions[tr_id]
+            guard = tr.getGuard()
+            if guard.changeFromProperties({'guard_expr': "python:object.restrictedTraverse('task-utils')."
+                                                         "can_do_transition('{}')".format(tr_id)}):
+                tr.guard = guard
 
         # add function
         functions = get_registry_functions()
@@ -828,6 +839,8 @@ class TaskServiceValidation(WorkflowAdaptationBase):
                 value = (st, {'group': suffix, 'org': 'assigned_group'})
                 new_config = insert_in_ordereddict(new_config, value, at_position=0)
             set_dms_config(keys=['review_states', 'task'], value=new_config)
+
+        update_transitions_levels_config(['task'])
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')

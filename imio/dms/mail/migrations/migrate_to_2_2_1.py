@@ -289,14 +289,14 @@ class Migrate_To_2_2_1(Migrator):  # noqa
                     add_applied_adaptation('imio.dms.mail.wfadaptations.{}ServiceValidation'.format(acr),
                                            wkf, True, **n_plus_1_params)
 
+        # update task_workflow
+        update_task_workflow(self.portal)
         if task_adapt:
             tsva = TaskServiceValidation()
             adapt_is_applied = tsva.patch_workflow('task_workflow', **{})
             if adapt_is_applied:
                 add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
         else:
-            # update task_workflow
-            update_task_workflow(self.portal)
             # update collections
             folder = self.portal['tasks']['task-searches']
             for cid in ('to_assign', 'to_close'):

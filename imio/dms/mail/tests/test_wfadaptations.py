@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """ wfadaptations.py tests for this package."""
 from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import TaskUtilsMethods
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
@@ -290,26 +293,26 @@ class TestTaskServiceValidation1(unittest.TestCase):
         self.assertSetEqual(set(self.tw.states),
                             {'created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'})
         self.assertSetEqual(set(self.tw.transitions),
-                            {'back_in_created', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress',
-                             'back_in_realized', 'do_to_assign', 'auto_do_to_do', 'do_to_do', 'do_in_progress',
-                             'do_realized', 'do_closed'})
+                            {'back_in_created', 'back_in_created2', 'back_in_to_assign', 'back_in_to_do',
+                             'back_in_progress', 'back_in_realized', 'do_to_assign', 'auto_do_to_do', 'do_to_do',
+                             'do_in_progress', 'do_realized', 'do_closed'})
         self.assertSetEqual(set(self.tw.states['created'].transitions),
                             {'do_to_assign'})
         self.assertSetEqual(set(self.tw.states['to_assign'].transitions),
                             {'back_in_created', 'auto_do_to_do', 'do_to_do'})
         self.assertSetEqual(set(self.tw.states['to_do'].transitions),
-                            {'back_in_to_assign', 'do_in_progress', 'do_realized'})
+                            {'back_in_created2', 'back_in_to_assign', 'do_in_progress', 'do_realized'})
         self.assertSetEqual(set(self.tw.states['in_progress'].transitions),
                             {'back_in_to_do', 'do_realized'})
         self.assertSetEqual(set(self.tw.states['realized'].transitions),
                             {'back_in_to_do', 'back_in_progress', 'do_closed'})
         self.assertSetEqual(set(self.tw.states['closed'].transitions),
                             {'back_in_realized'})
+        self.assertIsNotNone(self.tw.transitions['back_in_created2'].getGuard().expr)
+        self.assertIsNotNone(self.tw.transitions['back_in_to_assign'].getGuard().expr)
 
     def test_TaskServiceValidation1(self):
-        """
-            Test TaskServiceValidation adaptations
-        """
+        """ Test TaskServiceValidation adaptations """
         # is function added
         self.assertIn('n_plus_1', [fct['fct_id'] for fct in get_registry_functions()])
         # is local roles modified
@@ -328,3 +331,30 @@ class TestTaskServiceValidation1(unittest.TestCase):
         config = get_dms_config(['review_states', 'task'])
         self.assertIn('to_assign', config)
         self.assertIn('realized', config)
+
+    def test_TaskUtilsMethods_can_do_transition1(self):
+        task = self.portal['incoming-mail']['courrier1']['tache1']
+        api.content.transition(task, transition='do_to_assign')
+        self.assertEqual(api.content.get_state(task), 'to_do')
+        view = TaskUtilsMethods(task, task.REQUEST)
+        setRoles(self.portal, TEST_USER_ID, ['Editor', 'Reviewer'])
+        # no assigned_group: NOK
+        task.assigned_group = None
+        self.assertFalse(view.can_do_transition('back_in_created2'))
+        self.assertFalse(view.can_do_transition('back_in_to_assign'))
+        # ag ok, no user in group
+        task.assigned_group = get_registry_organizations()[0]
+        groupname = '{}_n_plus_1'.format(task.assigned_group)
+        self.assertFalse(group_has_user(groupname))
+        self.assertTrue(view.can_do_transition('back_in_created2'))
+        self.assertFalse(view.can_do_transition('back_in_to_assign'))
+        # ag ok, no user in group
+        api.group.add_user(groupname=groupname, username='chef')
+        self.assertTrue(group_has_user(groupname))
+        self.assertFalse(view.can_do_transition('back_in_created2'))
+        self.assertTrue(view.can_do_transition('back_in_to_assign'))
+        # we do transition
+        api.content.transition(task, transition='back_in_to_assign')
+        api.content.transition(task, transition='back_in_created')
+        api.content.transition(task, transition='do_to_assign')
+        self.assertEqual(api.content.get_state(task), 'to_assign')

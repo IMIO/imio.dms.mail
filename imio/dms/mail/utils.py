@@ -125,15 +125,22 @@ def group_has_user(groupname, action=None):
     return False
 
 
-def update_transitions_levels_config(ptype, action=None, group_id=None):
+def update_transitions_levels_config(ptypes, action=None, group_id=None):
     """
     Set transitions_levels dms config following org group users: [ptype][state][org] = (valid_propose_to, valid_back_to)
-    :param ptype: portal type
+    :param ptypes: portal types
     :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
     :param group_id: new group assignment
     """
     orgs = get_registry_organizations()
-    if ptype == 'dmsincomingmail':
+    users_in_groups = {}  # boolean by groupname
+
+    def check_group_users(g_n, u_in_g, g_id, act):
+        if g_n not in u_in_g:
+            u_in_g[g_n] = group_has_user(g_n, action=(g_n == g_id and act or None))
+        return u_in_g[g_n]
+
+    if 'dmsincomingmail' in ptypes:
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
         states = []
         max_level = 0
@@ -143,13 +150,7 @@ def update_transitions_levels_config(ptype, action=None, group_id=None):
         states += [(st, 9) for (st, tr) in wf_from_to['from']]
         states.reverse()
         state9 = ''
-        users_in_groups = {}  # boolean by groupname
         orgs_back = {}  # last valid back transition by org
-
-        def check_group_users(g_n, u_in_g, g_id, act):
-            if g_n not in u_in_g:
-                u_in_g[g_n] = group_has_user(g_n, action=(g_n == g_id and act or None))
-            return u_in_g[g_n]
 
         for state, level in states:
             start = level - 1
@@ -179,7 +180,18 @@ def update_transitions_levels_config(ptype, action=None, group_id=None):
             set_dms_config(['transitions_levels', 'dmsincomingmail', state], config)
             if level == 9 and not state9:
                 state9 = state
-        pass
+    if 'task' in ptypes:
+        states = ('created', 'to_do')
+        config = {}
+        for org in orgs:
+            propose_to = ''
+            back_to = 'back_in_created2'
+            if check_group_users('{}_n_plus_1'.format(org), users_in_groups, group_id, action):
+                propose_to = 'do_to_assign'
+                back_to = 'back_in_to_assign'
+            config[org] = (propose_to, back_to)
+        for state in states:
+            set_dms_config(['transitions_levels', 'task', state], config)
 
 
 def update_transitions_auc_config(ptype, action=None, group_id=None):
@@ -579,6 +591,28 @@ class OdmUtilsMethods(UtilsMethods):
     def is_odt_activated(self):
         registry = getUtility(IRegistry)
         return registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile']
+
+
+class TaskUtilsMethods(UtilsMethods):
+    """ View containing task utils methods """
+
+    def can_do_transition(self, transition):
+        """
+            Check if assigned_user is set or if the test is required or if the user is admin.
+            Used in guard expression for propose_to_agent transition
+        """
+        if self.context.assigned_group is None:
+            # print "no tg: False"
+            return False
+        way_index = transition.startswith('back_in') and 1 or 0
+        # show only the next valid level
+        state = api.content.get_state(self.context)
+        transitions_levels = get_dms_config(['transitions_levels', 'task'])
+        if (self.context.assigned_group in transitions_levels[state] and
+           transitions_levels[state][self.context.assigned_group][way_index] == transition):
+            # print "from state: True"
+            return True
+        return False
 
 
 class Dummy(object):

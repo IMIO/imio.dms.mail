@@ -23,6 +23,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.setuphandlers import separate_fullname
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -230,12 +231,20 @@ def task_transition(task, event):
 
     if event.transition:
         if event.transition.id == 'do_to_assign':
-            # Set auto_to_do_flag on task if assigned_user is set or level n_plus_1 is not there.
-            if task.assigned_user or not [dic for dic in get_applied_adaptations()
-                                          if dic['adaptation'] == 'imio.dms.mail.wfadaptations.TaskServiceValidation']:
+            task.auto_to_do_flag = False
+            # Set auto_to_do_flag on task if :
+            # assigned_user is set OR
+            # level n_plus_1 is not there OR
+            # users in level n_plus_1
+            if task.assigned_user:
+                task.auto_to_do_flag = True
+            elif not [dic for dic in get_applied_adaptations()
+                      if dic['adaptation'] == 'imio.dms.mail.wfadaptations.TaskServiceValidation']:
                 task.auto_to_do_flag = True
             else:
-                task.auto_to_do_flag = False
+                transitions_levels = get_dms_config(['transitions_levels', 'task'])
+                if task.assigned_group and transitions_levels['created'][task.assigned_group][0] != 'do_to_assign':
+                    task.auto_to_do_flag = True
         elif event.transition.id == 'back_in_to_assign':
             # Remove auto_to_do_flag on task.
             task.auto_to_do_flag = False
@@ -281,7 +290,7 @@ def contact_plonegroup_change(event):
             return
         # we update dms config
         update_transitions_auc_config('dmsincomingmail')
-        update_transitions_levels_config('dmsincomingmail')
+        update_transitions_levels_config(['dmsincomingmail', 'task'])
         # invalidate vocabularies caches
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
@@ -511,7 +520,7 @@ def group_deleted(event):
     # we update dms config
     if 'n_plus_' in group:
         update_transitions_auc_config('dmsincomingmail', action='delete', group_id=group)
-        update_transitions_levels_config('dmsincomingmail', action='delete', group_id=group)
+        update_transitions_levels_config(['dmsincomingmail', 'task'], action='delete', group_id=group)
 
 
 def group_assignment(event):
@@ -524,7 +533,7 @@ def group_assignment(event):
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)
-        update_transitions_levels_config('dmsincomingmail', action='add', group_id=event.group_id)
+        update_transitions_levels_config(['dmsincomingmail', 'task'], action='add', group_id=event.group_id)
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
@@ -592,7 +601,7 @@ def group_unassignment(event):
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)
-        update_transitions_levels_config('dmsincomingmail', action='remove', group_id=event.group_id)
+        update_transitions_levels_config(['dmsincomingmail', 'task'], action='remove', group_id=event.group_id)
     # we manage the personnel-folder person and held position
     orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
     if orgs:

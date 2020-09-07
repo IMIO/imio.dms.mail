@@ -138,7 +138,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertTrue(view.can_do_transition('propose_to_agent'))
         # WE DO TRANSITION
         api.group.add_user(groupname=groupname, username='chef')
-        update_transitions_levels_config('dmsincomingmail')
+        # update_transitions_levels_config(['dmsincomingmail'])
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')
