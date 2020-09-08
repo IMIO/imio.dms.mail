@@ -197,17 +197,15 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
             set_dms_config(['transitions_levels', 'dmsoutgoingmail', st], config)
 
     if 'task' in ptypes:
-        states = ('created', 'to_do')
-        config = {}
+        states = (('created', 0), ('to_do', 1))
         right_transitions = ('do_to_assign', 'back_in_to_assign')
-        for org in orgs:
-            propose_to = ''
-            back_to = 'back_in_created2'
-            if check_group_users('{}_n_plus_1'.format(org), users_in_groups, group_id, action):
-                propose_to = 'do_to_assign'
-                back_to = 'back_in_to_assign'
-            config[org] = (propose_to, back_to)
-        for state in states:
+        for state, way in states:
+            config = {}
+            for org in orgs:
+                trs = {0: ['', ''], 1: ['', 'back_in_created2']}
+                if check_group_users('{}_n_plus_1'.format(org), users_in_groups, group_id, action):
+                    trs[way][way] = right_transitions[way]
+                config[org] = tuple(trs[way])
             set_dms_config(['transitions_levels', 'task', state], config)
 
 

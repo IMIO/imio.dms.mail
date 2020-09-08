@@ -123,11 +123,10 @@ class TestUtils(unittest.TestCase):
 
         # task #
         config = get_dms_config(['transitions_levels', 'task'])
-        self.assertSetEqual(set(config.keys()), {'created', 'to_do'})
-        self.assertEqual(config['created'], config['to_do'])
-        for state in config:
-            for org in config[state]:
-                self.assertEqual(config[state][org], ('', 'back_in_created2'))
+        for org in config['created']:
+            self.assertEqual(config['created'][org], ('', ''))
+        for org in config['to_do']:
+            self.assertEqual(config['to_do'][org], ('', 'back_in_created2'))
         org1, org2 = get_registry_organizations()[0:2]
         # we simulate the adding of a level without user
         api.group.create('{}_n_plus_1'.format(org1), 'N+1')
@@ -138,9 +137,9 @@ class TestUtils(unittest.TestCase):
         # we simulate the adding of a level and a user
         update_transitions_levels_config(['task'], 'add', '{}_n_plus_1'.format(org1))
         config = get_dms_config(['transitions_levels', 'task'])
-        self.assertEqual(config['created'][org1], ('do_to_assign', 'back_in_to_assign'))
-        self.assertEqual(config['to_do'][org1], ('do_to_assign', 'back_in_to_assign'))
-        self.assertEqual(config['created'][org2], ('', 'back_in_created2'))
+        self.assertEqual(config['created'][org1], ('do_to_assign', ''))
+        self.assertEqual(config['to_do'][org1], ('', 'back_in_to_assign'))
+        self.assertEqual(config['created'][org2], ('', ''))
         self.assertEqual(config['to_do'][org2], ('', 'back_in_created2'))
 
     def test_update_transitions_auc_config(self):
