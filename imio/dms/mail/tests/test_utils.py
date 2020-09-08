@@ -97,6 +97,30 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(config['proposed_to_agent'][org1], ('propose_to_agent', 'back_to_n_plus_1'))
         self.assertEqual(config['proposed_to_agent'][org2], ('propose_to_agent', 'from_states'))
 
+        # dmsoutgoingmail #
+        config = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
+        self.assertSetEqual(set(config.keys()), {'created', 'to_be_signed'})
+        self.assertEqual(config['created'], config['to_be_signed'])
+        for state in config:
+            for org in config[state]:
+                self.assertEqual(config[state][org], ('', ''))
+        org1, org2 = get_registry_organizations()[0:2]
+        # we simulate the adding of a level without user
+        api.group.create('{}_n_plus_1'.format(org1), 'N+1')
+        update_transitions_levels_config(['dmsoutgoingmail'])
+        config = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
+        self.assertEqual(config['created'][org1], ('', ''))
+        self.assertEqual(config['to_be_signed'][org1], ('', ''))
+        self.assertEqual(config['created'][org2], ('', ''))
+        self.assertEqual(config['to_be_signed'][org2], ('', ''))
+        # we simulate the adding of a level and a user
+        update_transitions_levels_config(['dmsoutgoingmail'], 'add', '{}_n_plus_1'.format(org1))
+        config = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
+        self.assertEqual(config['created'][org1], ('propose_to_n_plus_1', ''))
+        self.assertEqual(config['to_be_signed'][org1], ('', 'back_to_n_plus_1'))
+        self.assertEqual(config['created'][org2], ('', ''))
+        self.assertEqual(config['to_be_signed'][org2], ('', ''))
+
         # task #
         config = get_dms_config(['transitions_levels', 'task'])
         self.assertSetEqual(set(config.keys()), {'created', 'to_do'})

@@ -9,8 +9,6 @@ from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import IdmUtilsMethods
-from imio.dms.mail.utils import set_dms_config
-from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from plone import api
 from plone.app.testing import login
@@ -138,7 +136,6 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertTrue(view.can_do_transition('propose_to_agent'))
         # WE DO TRANSITION
         api.group.add_user(groupname=groupname, username='chef')
-        # update_transitions_levels_config(['dmsincomingmail'])
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')

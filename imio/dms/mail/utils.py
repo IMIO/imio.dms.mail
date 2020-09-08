@@ -180,9 +180,26 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
             set_dms_config(['transitions_levels', 'dmsincomingmail', state], config)
             if level == 9 and not state9:
                 state9 = state
+
+    if 'dmsoutgoingmail' in ptypes:
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'])
+        states = [('created', 0)]
+        for (st, tr) in wf_from_to['to']:
+            states.append((st, 1))
+        right_transitions = ('propose_to_n_plus_1', 'back_to_n_plus_1')
+        for st, way in states:
+            config = {}
+            for org in orgs:
+                trs = ['', '']
+                if check_group_users('{}_n_plus_1'.format(org), users_in_groups, group_id, action):
+                    trs[way] = right_transitions[way]
+                config[org] = tuple(trs)
+            set_dms_config(['transitions_levels', 'dmsoutgoingmail', st], config)
+
     if 'task' in ptypes:
         states = ('created', 'to_do')
         config = {}
+        right_transitions = ('do_to_assign', 'back_in_to_assign')
         for org in orgs:
             propose_to = ''
             back_to = 'back_in_created2'
@@ -583,6 +600,21 @@ class OdmUtilsMethods(UtilsMethods):
         """ Get the outgoing-mail folder """
         portal = getSite()
         return portal['outgoing-mail']
+
+    def can_do_transition(self, transition):
+        """ Used in guard expression for n_plus_1 transitions """
+        if self.context.treating_groups is None:
+            # print "no tg: False"
+            return False
+        way_index = transition.startswith('back_to') and 1 or 0
+        # show only the next valid level
+        state = api.content.get_state(self.context)
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
+        if (self.context.treating_groups in transitions_levels[state] and
+           transitions_levels[state][self.context.treating_groups][way_index] == transition):
+            # print "from state: True"
+            return True
+        return False
 
     def scanned_col_cond(self):
         """ Condition for searchfor_scanned collection """

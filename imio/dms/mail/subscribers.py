@@ -290,7 +290,7 @@ def contact_plonegroup_change(event):
             return
         # we update dms config
         update_transitions_auc_config('dmsincomingmail')
-        update_transitions_levels_config(['dmsincomingmail', 'task'])
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'])
         # invalidate vocabularies caches
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
@@ -520,7 +520,8 @@ def group_deleted(event):
     # we update dms config
     if 'n_plus_' in group:
         update_transitions_auc_config('dmsincomingmail', action='delete', group_id=group)
-        update_transitions_levels_config(['dmsincomingmail', 'task'], action='delete', group_id=group)
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='delete',
+                                         group_id=group)
 
 
 def group_assignment(event):
@@ -533,7 +534,8 @@ def group_assignment(event):
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)
-        update_transitions_levels_config(['dmsincomingmail', 'task'], action='add', group_id=event.group_id)
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='add',
+                                         group_id=event.group_id)
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
@@ -601,7 +603,8 @@ def group_unassignment(event):
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)
-        update_transitions_levels_config(['dmsincomingmail', 'task'], action='remove', group_id=event.group_id)
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='remove',
+                                         group_id=event.group_id)
     # we manage the personnel-folder person and held position
     orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
     if orgs:

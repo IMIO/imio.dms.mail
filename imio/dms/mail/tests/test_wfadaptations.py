@@ -7,6 +7,7 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
+from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import TaskUtilsMethods
 from imio.dms.mail.vocabularies import encodeur_active_orgs
@@ -196,13 +197,45 @@ class TestOMServiceValidation1(unittest.TestCase):
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states')
         self.assertIn('proposed_to_n_plus_1', lst)
 
+    def test_OdmUtilsMethods_can_do_transition1(self):
+        # self.assertEqual(api.content.get_state(self.omail), 'created')
+        view = OdmUtilsMethods(self.omail, self.omail.REQUEST)
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
+        # no treating_groups: NOK
+        self.assertIsNone(self.omail.treating_groups)
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        # tg ok, no user in group
+        self.omail.treating_groups = get_registry_organizations()[0]
+        groupname = '{}_n_plus_1'.format(self.omail.treating_groups)
+        api.group.remove_user(groupname=groupname, username='chef')
+        self.assertFalse(group_has_user(groupname))
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        # tg ok, user in group
+        api.group.add_user(groupname=groupname, username='chef')
+        self.assertTrue(group_has_user(groupname))
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        # we do transition
+        api.content.transition(self.omail, transition='propose_to_n_plus_1')
+        api.content.transition(self.omail, transition='propose_to_be_signed')
+        self.assertEqual(api.content.get_state(self.omail), 'to_be_signed')
+        # tg ok, user in group
+        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
+        # tg ok, no user in group
+        api.group.remove_user(groupname=groupname, username='chef')
+        self.assertFalse(group_has_user(groupname))
+        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+
     def test_encodeur_active_orgs1(self):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
         all_titles = [t.title for t in factory(self.omail)]
         login(self.portal, 'agent')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
                              [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
+        org1, org2 = get_registry_organizations()[0:2]
         with api.env.adopt_roles(['Manager']):
+            self.omail.treating_groups = org2
+            api.group.add_user(groupname='{}_n_plus_1'.format(org2), username=TEST_USER_ID)
             api.content.transition(obj=self.omail, transition='propose_to_n_plus_1')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
 
@@ -348,7 +381,7 @@ class TestTaskServiceValidation1(unittest.TestCase):
         self.assertFalse(group_has_user(groupname))
         self.assertTrue(view.can_do_transition('back_in_created2'))
         self.assertFalse(view.can_do_transition('back_in_to_assign'))
-        # ag ok, no user in group
+        # ag ok, user in group
         api.group.add_user(groupname=groupname, username='chef')
         self.assertTrue(group_has_user(groupname))
         self.assertFalse(view.can_do_transition('back_in_created2'))

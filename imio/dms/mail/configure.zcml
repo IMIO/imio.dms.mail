@@ -256,6 +256,7 @@
         permission="zope2.View"
         allowed_attributes="
             get_om_folder
+            can_do_transition
             highest_scan_id
             is_in_user_groups
             scanned_col_cond

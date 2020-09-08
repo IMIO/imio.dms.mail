@@ -452,8 +452,8 @@ class OMServiceValidation(WorkflowAdaptationBase):
         to_states = [st for (st, tr) in wf_from_to['to']]
         # store current level in dms_config
         propose_tr_id = 'propose_to_{}'.format(new_id)
-        wf_from_to['to'].append((new_state_id, propose_tr_id))
-        set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'], wf_from_to)
+        # wf_from_to['to'].append((new_state_id, propose_tr_id))
+        # set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'], wf_from_to)
 
         # add state
         msg = self.check_state_in_workflow(wf, new_state_id)
@@ -486,7 +486,9 @@ class OMServiceValidation(WorkflowAdaptationBase):
             actbox_name=propose_tr_id, actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_propose_to_n_plus.png',
             actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('odm-utils')."
+                                 "can_do_transition('{}')".format(propose_tr_id)})
         back_tr_id = 'back_to_{}'.format(new_id)
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
@@ -495,7 +497,9 @@ class OMServiceValidation(WorkflowAdaptationBase):
             actbox_name=back_tr_id, actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_n_plus.png',
             actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('odm-utils')."
+                                 "can_do_transition('{}')".format(back_tr_id)})
 
         # modify existing states
         # add new back_to transition on next states
@@ -575,6 +579,8 @@ class OMServiceValidation(WorkflowAdaptationBase):
             value = (new_state_id, {'group': suffix, 'org': 'treating_groups'})
             new_config = insert_in_ordereddict(config, value, at_position=0)
             set_dms_config(keys=['review_states', 'dmsoutgoingmail'], value=new_config)
+        # update dms config
+        update_transitions_levels_config(['dmsoutgoingmail'])
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
