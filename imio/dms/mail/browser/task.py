@@ -37,15 +37,15 @@ def TaskUpdateWidgets(self):
     self.widgets['ITask.assigned_group'].required = True
     self.widgets['ITask.enquirer'].required = True
     # Hide enquirer
-    #self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
+    # self.widgets['ITask.enquirer'].mode = HIDDEN_MODE
 
 
 class TaskEdit(DefaultEditForm):
     """
       Edit view override of update
     """
-    def updateWidgets(self):
-        super(TaskEdit, self).updateWidgets()
+    def updateWidgets(self, prefix=None):
+        super(TaskEdit, self).updateWidgets(prefix=prefix)
         TaskUpdateWidgets(self)
         if not self.context.assigned_user \
                 and api.content.get_state(obj=self.context) == 'to_assign':
@@ -58,8 +58,8 @@ class CustomAddForm(DefaultAddForm):
 
     portal_type = 'task'
 
-    def updateWidgets(self):
-        super(CustomAddForm, self).updateWidgets()
+    def updateWidgets(self, prefix=None):
+        super(CustomAddForm, self).updateWidgets(prefix=prefix)
         TaskUpdateWidgets(self)
         # Set parent assigned group as default value
         if base_hasattr(self.context, 'treating_groups') and self.context.treating_groups:
