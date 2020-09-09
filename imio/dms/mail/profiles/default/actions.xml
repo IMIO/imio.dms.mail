@@ -51,6 +51,10 @@
 
  <object name="user" meta_type="CMF Action Category">
 
+  <object name="dashboard" meta_type="CMF Action" i18n:domain="plone">
+   <property name="visible">False</property>
+  </object>
+
   <object name="undo" meta_type="CMF Action" i18n:domain="plone">
    <property name="visible">True</property>
   </object>
@@ -97,13 +101,7 @@
    </property>
    <property name="visible">True</property>
   </object>
-  <object name="own-groups" meta_type="CMF Action" i18n:domain="imio.dms.mail" insert-after="documentation">
-   <property name="title" i18n:translate="">Own groups management</property>
-   <property name="url_expr">string:${portal_url}/manage-own-groups-users</property>
-   <property name="available_expr"></property>
-   <property name="permissions">
-    <element value="List portal members"/>
-   </property>
+  <object name="own-groups" meta_type="CMF Action" insert-after="documentation">
    <property name="visible">True</property>
   </object>
  </object>
