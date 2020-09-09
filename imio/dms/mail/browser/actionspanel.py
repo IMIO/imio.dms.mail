@@ -1,3 +1,4 @@
+from collective.documentgenerator.browser.actionspanel import ConfigurablePODTemplateActionsPanelView
 from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
 from imio.actionspanel.browser.views import ActionsPanelView
 from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
@@ -236,12 +237,18 @@ class DmsTaskActionsPanelView(ActionsPanelView):
 
 class BasicActionsPanelView(ActionsPanelView):
     """
-      This manage the view displaying actions on contact
+        This manage the view displaying actions on contact, folder, some template, ...
     """
     def __init__(self, context, request):
         super(BasicActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete', 'rename']
+
+
+class CPODTActionsPanelView(BasicActionsPanelView, ConfigurablePODTemplateActionsPanelView):
+    """
+        This manage the view on ConfigurablePODTemplate
+    """
 
 
 class ContactActionsPanelViewlet(ActionsPanelViewlet):

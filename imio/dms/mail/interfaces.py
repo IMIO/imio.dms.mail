@@ -3,12 +3,13 @@
 from collective.contact.core.content.directory import IDirectory
 from collective.eeafaceted.batchactions.interfaces import IBatchActionsMarker
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from imio.actionspanel.interfaces import IActionsPanelLayer
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.theme.interfaces import IDefaultPloneLayer
 from zope.interface import Interface
 
 
-class IImioDmsMailLayer(IDefaultPloneLayer):
+class IImioDmsMailLayer(IDefaultPloneLayer, IActionsPanelLayer):
     """Marker interface that defines a Zope 3 browser layer."""
 
 

@@ -189,6 +189,13 @@
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
+        <browser:page
+            for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
+            name="actions_panel"
+            class="imio.dms.mail.browser.actionspanel.CPODTActionsPanelView"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
         <browser:viewlet
             name="imio.actionspanel"
             for="imio.dms.mail.interfaces.IMemberAreaFolder"
