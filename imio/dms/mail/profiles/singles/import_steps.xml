@@ -73,4 +73,12 @@
     Add n_plus_1 level in outgoingmail_workflow from imio.dms.mail
  </import-step>
 
+ <import-step
+    id="imiodmsmail-configure-wsclient"
+    handler="imio.dms.mail.setuphandlers.configure_wsclient"
+    title="imio.pm.wsclient configure step for imio.dms.mail"
+    version="2020-09-09T11:00:00.00000">
+    imio.pm.wsclient configure step for imio.dms.mail
+ </import-step>
+
 </import-steps>

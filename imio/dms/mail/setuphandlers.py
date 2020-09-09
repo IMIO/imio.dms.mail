@@ -74,6 +74,7 @@ from Products.CPUtils.Extensions.utils import configure_ckeditor
 from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getGlobalSiteManager
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -86,6 +87,8 @@ import logging
 import os
 import pkg_resources
 
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
@@ -2192,3 +2195,62 @@ def update_task_workflow(portal):
         transitions.remove('back_in_to_assign')
         transitions.append('back_in_created2')
         state.transitions = tuple(transitions)
+
+
+def configure_wsclient(context):
+    """ Configure wsclient """
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    site = context.getSite()
+    logger.info('Configure wsclient step')
+    log = ['Installing imio.pm.wsclient']
+    site.portal_setup.runAllImportStepsFromProfile('profile-imio.pm.wsclient:default')
+
+    log.append('Defining settings')
+    prefix = 'imio.pm.wsclient.browser.settings.IWS4PMClientSettings'
+    if not api.portal.get_registry_record('{}.pm_url'.format(prefix), default=False):
+        pmurl = gedurl = os.getenv('PUBLIC_URL', '')
+        pmurl = pmurl.replace('-ged', '-pm')
+        if pmurl != gedurl:
+            api.portal.set_registry_record('{}.pm_url'.format(prefix), u'{}/ws4pm.wsdl'.format(pmurl))
+        api.portal.set_registry_record('{}.pm_username'.format(prefix), u'admin')
+        pmpass = os.getenv('PM_PASS', '')  # not used
+        if pmpass:
+            api.portal.set_registry_record('{}.pm_password'.format(prefix), pmpass)
+        api.portal.set_registry_record('{}.only_one_sending'.format(prefix), True)
+        from imio.pm.wsclient.browser.vocabularies import pm_item_data_vocabulary
+        orig_call = pm_item_data_vocabulary.__call__
+        pm_item_data_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary([SimpleTerm(u'title'),
+                                                                                SimpleTerm(u'description'),
+                                                                                SimpleTerm(u'detailedDescription'),
+                                                                                SimpleTerm(u'annexes')])
+        api.portal.set_registry_record('{}.field_mappings'.format(prefix),
+                                       [{'field_name': u'title', 'expression': u'context/title'},
+                                        {'field_name': u'description',
+                                         'expression': u'context/Description'},
+                                        {'field_name': u'detailedDescription',
+                                         'expression': u'context/@@IncomingmailWSClient/detailed_description'},
+                                        {'field_name': u'annexes',
+                                         'expression': u'context/@@IncomingmailWSClient/get_main_files'},
+                                        ])
+        # u'string: ${context/@@ProjectWSClient/description}<br />${context/@@ProjectWSClient/detailed_description}'
+        pm_item_data_vocabulary.__call__ = orig_call
+        # api.portal.set_registry_record('{}.user_mappings'.format(prefix),
+        #                                [{'local_userid': u'admin', 'pm_userid': u'dgen'}])
+        from imio.pm.wsclient.browser.vocabularies import pm_meeting_config_id_vocabulary
+        orig_call = pm_meeting_config_id_vocabulary.__call__
+        pm_meeting_config_id_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(
+            [SimpleTerm(u'meeting-config-college')])
+        from imio.dms.mail.subscribers import wsclient_configuration_changed
+        from plone.registry.interfaces import IRecordModifiedEvent
+        gsm = getGlobalSiteManager()
+        gsm.unregisterHandler(wsclient_configuration_changed, (IRecordModifiedEvent, ))
+        api.portal.set_registry_record('{}.generated_actions'.format(prefix),
+                                       [{'pm_meeting_config_id': u'meeting-config-college',
+                                         'condition': u"python: context.getPortalTypeName() in ('dmsincomingmail', )",
+                                         'permissions': 'Modify view template'}])
+        api.portal.set_registry_record('{}.viewlet_display_condition'.format(prefix), u'isLinked')
+        pm_meeting_config_id_vocabulary.__call__ = orig_call
+        gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent, ))
+    [logger.info(msg) for msg in log]
+    return '\n'.join(log)

@@ -38,6 +38,7 @@
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
     <!--include package="collective.schedulefield"/-->
+    <include package="imio.pm.wsclient" />
     <include package="dexterity.localrolesfield"/>
     <include package="plone.app.lockingbehavior"/>
     <include package="collective.dexteritytextindexer"/>

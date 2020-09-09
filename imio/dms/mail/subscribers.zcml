@@ -185,4 +185,25 @@
         handler=".subscribers.personnel_contact_removed"
         />
 
+    <!-- imio.pm.wsclient -->
+    <unconfigure>
+        <subscriber
+            for="plone.app.controlpanel.interfaces.IConfigurationChangedEvent"
+            handler="imio.pm.wsclient.browser.settings.notify_configuration_changed"
+            />
+        <subscriber
+            for="plone.registry.interfaces.IRecordModifiedEvent"
+            handler="imio.pm.wsclient.browser.settings.notify_configuration_changed"
+            />
+    </unconfigure>
+
+    <subscriber
+        for="plone.app.controlpanel.interfaces.IConfigurationChangedEvent"
+        handler=".subscribers.wsclient_configuration_changed"
+        />
+    <subscriber
+        for="plone.registry.interfaces.IRecordModifiedEvent"
+        handler=".subscribers.wsclient_configuration_changed"
+        />
+
 </configure>

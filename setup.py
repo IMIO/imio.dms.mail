@@ -74,6 +74,7 @@ setup(
         'dexterity.localrolesfield',
         'ftw.labels',
         'imio.dashboard',
+        'imio.dms.soap2pm',
         'imio.helpers',
         'imio.migrator',
         'imio.zamqp.core',

@@ -27,6 +27,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
@@ -715,6 +716,27 @@ def conversion_finished(obj, event):
 
 def file_added(obj, event):
     obj.just_added = True
+
+
+def wsclient_configuration_changed(event):
+    """ call original subscriber and do more stuff """
+    if IRecordModifiedEvent.providedBy(event):
+        # generated_actions changed, we need to update generated actions in portal_actions
+        if event.record.fieldName == 'generated_actions':
+            notify_configuration_changed(event)
+            portal = api.portal.get()
+            ids = []
+            object_buttons = portal.portal_actions.object_buttons
+            portlet_actions = portal.portal_actions.object_portlet
+            for object_button in object_buttons.objectValues():
+                if object_button.id.startswith('plonemeeting_wsclient_action_'):
+                    ids.append(object_button.id)
+                    if object_button.id in portlet_actions:
+                        api.content.delete(portlet_actions[object_button.id])
+                    api.content.copy(object_button, portlet_actions)
+            existing_pos = portlet_actions.getObjectPosition('im-listing')
+            for i, aid in enumerate(ids):
+                portlet_actions.moveObjectToPosition(aid, existing_pos + i)
 
 
 def member_area_added(obj, event):
