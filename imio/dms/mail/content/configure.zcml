@@ -16,9 +16,4 @@
         for="collective.dms.basecontent.dmsdocument.IDmsDocument"
         />
 
-    <adapter
-        name="creating_group"
-        factory=".behaviors.creating_group_indexer"
-        />
-
 </configure>

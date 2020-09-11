@@ -50,13 +50,3 @@ class IDmsMailCreatingGroup(model.Schema):
 
 
 alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
-
-
-@indexer(IDmsMailCreatingGroup)
-def creating_group_indexer(obj):
-    """
-        indexer method
-    """
-    if base_hasattr(obj, 'creating_group') and obj.creating_group:
-        return obj.creating_group
-    return _marker

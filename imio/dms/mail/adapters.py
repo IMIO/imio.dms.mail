@@ -18,6 +18,7 @@ from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import EMPTY_DATE
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.overrides import IDmsPerson
@@ -547,15 +548,8 @@ def get_full_title_index(obj):
     return common_marker
 
 
-@indexer(IDmsDocument)
+@indexer(IDmsMailCreatingGroup)
 def creating_group_index(obj):
-    if base_hasattr(obj, 'creating_group') and obj.creating_group:
-        return obj.creating_group
-    return common_marker
-
-
-@indexer(IContactContent)
-def contact_creating_group_index(obj):
     if base_hasattr(obj, 'creating_group') and obj.creating_group:
         return obj.creating_group
     return common_marker
