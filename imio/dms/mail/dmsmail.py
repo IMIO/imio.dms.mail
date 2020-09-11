@@ -5,6 +5,7 @@ from AccessControl import getSecurityManager
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
+from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from collective.contact.widget.schema import ContactChoice
 from collective.contact.widget.schema import ContactList
@@ -29,6 +30,7 @@ from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
@@ -59,12 +61,49 @@ from z3c.form import validator
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
 from zope.component import getUtility
+from zope.interface import alsoProvides
 from zope.interface import implements
 from zope.interface import Invalid
 from zope.schema.fieldproperty import FieldProperty
+from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
+
+
+def creating_group_filter(context):
+    """ Return catalog criteria vocabulary to add in contact search """
+    if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
+        return None
+    factory = getUtility(IVocabularyFactory, 'imio.dms.mail.ActiveCreatingGroupVocabulary')
+    voc = factory(context)
+    terms = []
+    for term in voc:
+        # beware to enclose dic content with " to be loaded correctly with json.loads
+        new_term = SimpleTerm(u'{{"assigned_group": "{}"}}'.format(term.value), token=term.token, title=term.title)
+        setattr(new_term, '__org__', term.value)
+        terms.append(new_term)
+    return SimpleVocabulary(terms)
+
+
+alsoProvides(creating_group_filter, IContextSourceBinder)
+
+
+def creating_group_filter_default(context):
+    """ Return default value for  """
+    voc = creating_group_filter(context)
+    if voc is None:
+        return None
+    current_user = api.user.get_current()
+    if current_user.getId() is None:
+        return None
+    orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), [CREATING_GROUP_SUFFIX])
+    for term in voc:
+        if term.__org__ in orgs:
+            return term.value
+    return None
 
 
 class DmsContactSource(ContactSource):
@@ -110,6 +149,8 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     sender = ContactList(
         title=_(u'Sender'),
         required=True,
+        prefilter_vocabulary=creating_group_filter,
+        prefilter_default_value=creating_group_filter_default,
         value_type=ContactChoice(
             source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
                                           review_state=['active'],
