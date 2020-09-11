@@ -467,8 +467,9 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         value_type=ContactChoice(
             source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
                                           review_state=['active'],
-                                          sort_on='sortable_title')
-        )
+                                          sort_on='sortable_title')),
+        prefilter_vocabulary=creating_group_filter,
+        # TODO prefilter_default_value=, another function for om ?
     )
 
     mail_type = schema.Choice(
