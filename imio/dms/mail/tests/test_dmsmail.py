@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail import CONTACTS_PART_SUFFIX
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.reply_form import ReplyForm
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.dmsmail import AssignedUserValidator
+from imio.dms.mail.dmsmail import creating_group_filter
+from imio.dms.mail.dmsmail import creating_group_filter_default
 from imio.dms.mail.dmsmail import CustomAddForm
 from imio.dms.mail.dmsmail import IMEdit
 from imio.dms.mail.dmsmail import IMView
 from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
+from imio.dms.mail.dmsmail import recipients_filter_default
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
+from plone.app.testing import login
+from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
@@ -29,11 +36,32 @@ class TestDmsmail(unittest.TestCase):
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
-        # you'll want to use this to set up anything you need for your tests
-        # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pgof = self.portal['contacts']['plonegroup-organization']
+
+    def test_creating_group_filter(self):
+        login(self.portal, 'encodeur')
+        self.assertIsNone(creating_group_filter(self.portal))
+        self.assertIsNone(creating_group_filter_default(self.portal))
+        # we activate contact group encoder
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder', True)
+        self.assertEqual(len(creating_group_filter(self.portal)), 0)
+        self.assertIsNone(creating_group_filter_default(self.portal))
+        # we add a user in groups
+        selected_orgs = get_registry_organizations()[0:2]
+        api.group.add_user(groupname='{}_{}'.format(selected_orgs[0], CREATING_GROUP_SUFFIX), username='chef')
+        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='chef')
+        self.assertEqual(creating_group_filter(self.portal)._terms[0].value,
+                         u'{{"assigned_group": "{}"}}'.format(selected_orgs[0]))
+        self.assertIsNone(creating_group_filter_default(self.portal))
+        # we add the connected user in group
+        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='encodeur')
+        self.assertEqual(creating_group_filter_default(self.portal),
+                         u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
+        # user logout
+        logout()
+        self.assertIsNone(creating_group_filter_default(self.portal))
 
     def test_TreatingGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary
@@ -326,6 +354,29 @@ class TestDmsmail(unittest.TestCase):
         api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
         view.updateWidgets()
         self.assertEquals(view.widgets['ITask.assigned_user'].field.description, u'')
+
+    def test_recipients_filter_default(self):
+        self.assertIsNone(recipients_filter_default(self.portal))
+        # we activate contact group encoder
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder', True)
+        self.assertIsNone(recipients_filter_default(self.portal))
+        login(self.portal, 'encodeur')
+        self.assertIsNone(recipients_filter_default(self.portal))
+        # we add a user in groups
+        selected_orgs = get_registry_organizations()[0:2]
+        api.group.add_user(groupname='{}_{}'.format(selected_orgs[0], CREATING_GROUP_SUFFIX), username='chef')
+        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='chef')
+        self.assertIsNone(recipients_filter_default(self.portal))
+        # we add the connected user in group
+        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='encodeur')
+        self.assertEqual(recipients_filter_default(self.portal),
+                         u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
+        login(self.portal, 'agent')
+        self.assertIsNone(recipients_filter_default(self.portal))
+        # we add the connected user in group
+        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CONTACTS_PART_SUFFIX), username='agent')
+        self.assertEqual(recipients_filter_default(self.portal),
+                         u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
 
     def test_AssignedUserValidator(self):
         # im
