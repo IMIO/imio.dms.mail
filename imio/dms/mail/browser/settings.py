@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.api import get_applied_adaptations
@@ -6,6 +8,7 @@ from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.utils import add_fti_configuration
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
@@ -298,7 +301,7 @@ def imiodmsmail_settings_changed(event):
             raise Invalid(_(u'Unchecking the omail_group_encoder setting is not expected !!'))
     if event.record.fieldName == 'contact_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
-            configure_group_encoder(['organization', 'person', 'held_position', 'contact_list'])
+            configure_group_encoder(['organization', 'person', 'held_position', 'contact_list'], contacts_part=True)
             # set permission on contacts directory
             portal = api.portal.get()
             portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
@@ -309,7 +312,7 @@ def imiodmsmail_settings_changed(event):
             raise Invalid(_(u'Unchecking the contact_group_encoder setting is not expected !!'))
 
 
-def configure_group_encoder(portal_types):
+def configure_group_encoder(portal_types, contacts_part=False):
     """
         Used to configure a creating function and group for some internal organizations.
         Update portal_type to add behavior, configure localroles field
@@ -318,6 +321,10 @@ def configure_group_encoder(portal_types):
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
         functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': [],
+                          'fct_management': False, 'enabled': True})
+        set_registry_functions(functions)
+    if contacts_part and CONTACTS_PART_SUFFIX not in [fct['fct_id'] for fct in functions]:
+        functions.append({'fct_title': u'Contacts par défaut', 'fct_id': CONTACTS_PART_SUFFIX, 'fct_orgs': [],
                           'fct_management': False, 'enabled': True})
         set_registry_functions(functions)
     # role and permission
@@ -364,11 +371,13 @@ def configure_group_encoder(portal_types):
     }
 
     # add localroles for possible proposed_to_n_plus_ states
-    for typ in ('dmsincomingmail', 'dmsincoming_email'):
-        states = list_wf_states(portal, typ)
-        for state in states:
-            if state.id.startswith('proposed_to_n_plus_'):
-                config[typ][state.id] = {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+    # only incoming mails
+    if 'dmsincomingmail' in portal_types:
+        for typ in ('dmsincomingmail', 'dmsincoming_email'):
+            states = list_wf_states(portal, typ)
+            for state in states:
+                if state.id.startswith('proposed_to_n_plus_'):
+                    config[typ][state.id] = {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
 
     # criterias config
     criterias = {

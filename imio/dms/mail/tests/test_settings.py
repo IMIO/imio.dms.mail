@@ -2,7 +2,14 @@
 """ settings tests for this package. """
 
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from collective.contact.plonegroup.config import get_registry_functions
+from dexterity.localrolesfield.utils import get_localrole_fields
+from eea.facetednavigation.criteria.interfaces import ICriteria
+from imio.dms.mail import CONTACTS_PART_SUFFIX
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from zope.interface import Invalid
@@ -46,3 +53,38 @@ class TestSettings(unittest.TestCase):
             self.registry[key] = False
         self.assertEqual(cm.exception.message, u"Décocher le paramètre 'Activation de plusieurs groupes d'indicatage' "
                                                u"pour le courrier entrant n'est pas prévu !!")
+
+    def test_configure_group_encoder(self):
+        # activate imail group encoder
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder', True)
+        self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
+        for portal_type in ('dmsincomingmail', 'dmsincoming_email'):
+            fti = getUtility(IDexterityFTI, name=portal_type)
+            self.assertIn('imio.dms.mail.content.behaviors.IDmsMailCreatingGroup', fti.behaviors)
+            self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)])
+            self.assertTrue(fti.localroles.get('creating_group'))  # config dic not empty
+        crit = ICriteria(self.portal['incoming-mail']['mail-searches'])
+        self.assertIn('c90', crit.keys())
+
+        # activate omail group encoder
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder', True)
+        self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
+        for portal_type in ('dmsoutgoingmail', 'dmsoutgoing_email'):
+            fti = getUtility(IDexterityFTI, name=portal_type)
+            self.assertIn('imio.dms.mail.content.behaviors.IDmsMailCreatingGroup', fti.behaviors)
+            self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)])
+            self.assertTrue(fti.localroles.get('creating_group'))  # config dic not empty
+        crit = ICriteria(self.portal['outgoing-mail']['mail-searches'])
+        self.assertIn('c90', crit.keys())
+
+        # activate contact group encoder
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder', True)
+        self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
+        self.assertIn(CONTACTS_PART_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
+        for portal_type in ('organization', 'person', 'held_position', 'contact_list'):
+            fti = getUtility(IDexterityFTI, name=portal_type)
+            self.assertIn('imio.dms.mail.content.behaviors.IDmsMailCreatingGroup', fti.behaviors)
+            self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)])
+        for fid in ('orgs-searches', 'persons-searches', 'hps-searches', 'cls-searches'):
+            crit = ICriteria(self.portal['contacts'][fid])
+            self.assertIn('c90', crit.keys())

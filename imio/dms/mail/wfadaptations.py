@@ -332,6 +332,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                  'encodeurs': {'roles': ['Reader']},
                                  'lecteurs_globaux_ce': {'roles': ['Reader']}}
         lrt = lr['treating_groups']
+        # TODO add CREATING_GROUP_SUFFIX
         if new_state_id not in lrt:
             lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
             for st in next_states:

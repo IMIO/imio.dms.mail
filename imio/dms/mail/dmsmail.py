@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 from AccessControl import getSecurityManager
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
@@ -30,6 +29,7 @@ from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
+from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
@@ -47,7 +47,6 @@ from plone.autoform import directives
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
-from plone.directives.form.value import default_value
 # from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
@@ -55,7 +54,6 @@ from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
 from plone.z3cform.fieldsets.utils import remove
-from Products.CMFPlone.utils import base_hasattr
 from vocabularies import encodeur_active_orgs
 from z3c.form import validator
 from z3c.form.interfaces import HIDDEN_MODE
@@ -425,6 +423,23 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
     return voc_selected_org_suffix_users(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current())
 
 
+def recipients_filter_default(context):
+    """ Return default value for  """
+    voc = creating_group_filter(context)
+    if voc is None:
+        return None
+    current_user = api.user.get_current()
+    if current_user.getId() is None:
+        return None
+    # user can be a real "indicator" or an agent
+    orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), [CREATING_GROUP_SUFFIX,
+                                                                                 CONTACTS_PART_SUFFIX])
+    for term in voc:
+        if term.__org__ in orgs:
+            return term.value
+    return None
+
+
 class IImioDmsOutgoingMail(IDmsOutgoingMail):
     """
         Extended schema for mail type field
@@ -469,7 +484,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
                                           review_state=['active'],
                                           sort_on='sortable_title')),
         prefilter_vocabulary=creating_group_filter,
-        # TODO prefilter_default_value=, another function for om ?
+        prefilter_default_value=recipients_filter_default,
     )
 
     mail_type = schema.Choice(

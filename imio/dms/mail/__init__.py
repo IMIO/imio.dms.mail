@@ -24,6 +24,7 @@ dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
 
 AUC_RECORD = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check'
 CREATING_GROUP_SUFFIX = u'group_encoder'
+CONTACTS_PART_SUFFIX = u'contacts_part'
 # CREATING_FIELD_ROLE = 'Creating Group Field Writer'
 EMPTY_STRING = '__empty_string__'
 EMPTY_DATE = date(1950, 1, 1)
