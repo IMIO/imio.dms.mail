@@ -1028,5 +1028,6 @@ Suite Setup
     Set Selenium Implicit Wait  2
     Set Selenium Speed  0.2
     Enable autologin as  Manager
+    Set autologin username  dirg
     Go to  ${PLONE_URL}/robot_init
     Disable autologin
