@@ -52,6 +52,7 @@ from imio.dms.mail.utils import Dummy
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
+from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import transitions
@@ -2136,7 +2137,7 @@ def im_n_plus_1_wfadaptation(context):
     """
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    logger.info('Apply n_plus_1 level in incomingmail_workflow')
+    logger.info('Apply n_plus_1 level on incomingmail_workflow')
     site = context.getSite()
     n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
                        'forward_transition_title': u'Proposer au chef de service',
@@ -2159,7 +2160,7 @@ def om_n_plus_1_wfadaptation(context):
     """
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    logger.info('Apply n_plus_1 level in outgoingmail_workflow')
+    logger.info('Apply n_plus_1 level on outgoingmail_workflow')
     site = context.getSite()
     n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
                        'forward_transition_title': u'Proposer au chef de service',
@@ -2170,6 +2171,25 @@ def om_n_plus_1_wfadaptation(context):
     if adapt_is_applied:
         add_applied_adaptation('imio.dms.mail.wfadaptations.OMServiceValidation',
                                'outgoingmail_workflow', True, **n_plus_1_params)
+    # Add users to activated groups
+    if 'chef' in [u.id for u in api.user.get_users()]:
+        for uid in get_registry_organizations():
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
+
+
+def task_n_plus_1_wfadaptation(context):
+    """
+        Add n_plus_1 level in task_workflow
+    """
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info('Apply n_plus_1 level on task_workflow')
+    site = context.getSite()
+    sva = TaskServiceValidation()
+    adapt_is_applied = sva.patch_workflow('task_workflow', **{})
+    if adapt_is_applied:
+        add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation',
+                               'task_workflow', True, **{})
     # Add users to activated groups
     if 'chef' in [u.id for u in api.user.get_users()]:
         for uid in get_registry_organizations():
