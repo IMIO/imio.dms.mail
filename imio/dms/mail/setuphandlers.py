@@ -181,7 +181,7 @@ def postInstall(context):
         om_folder = getattr(site, folderid)
         alsoProvides(om_folder, INextPrevNotNavigable)
         alsoProvides(om_folder, ILabelRoot)
-        alsoProvides(im_folder, ICountableTab)
+        alsoProvides(om_folder, ICountableTab)
 
         # add mail-searches
         col_folder = add_db_col_folder(om_folder, 'mail-searches', _("Outgoing mail searches"),
@@ -208,7 +208,7 @@ def postInstall(context):
         tsk_folder = getattr(site, folderid)
         alsoProvides(tsk_folder, INextPrevNotNavigable)
         alsoProvides(tsk_folder, ILabelRoot)
-        alsoProvides(im_folder, ICountableTab)
+        alsoProvides(tsk_folder, ICountableTab)
         # add task-searches
         col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
                                        _("Tasks"))

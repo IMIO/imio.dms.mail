@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from collective.documentgenerator.utils import update_oo_config
-from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
@@ -11,7 +10,6 @@ from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
-from zope.interface import alsoProvides
 from Products.CPUtils.Extensions.utils import mark_last_version
 
 import logging
@@ -97,14 +95,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         # TO BE DONE
         pass
 
-    def set_countable_tabs(self):
-        site = api.portal.get()
-        for folder_id in ('incoming-mail', 'outgoing-mail', 'tasks'):
-            folder = getattr(site, folder_id)
-            if not ICountableTab.providedBy(folder):
-                alsoProvides(folder, ICountableTab)
-                folder.reindexObject(idxs='object_provides')
-
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
 
@@ -142,7 +132,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.insert_outgoing_emails()
 
         self.check_previously_migrated_collections()
-        self.set_countable_tabs()
 
         # self.catalog.refreshCatalog(clear=1)
 
