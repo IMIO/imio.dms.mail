@@ -90,7 +90,7 @@ alsoProvides(creating_group_filter, IContextSourceBinder)
 
 
 def creating_group_filter_default(context):
-    """ Return default value for  """
+    """ Return default value for sender """
     voc = creating_group_filter(context)
     if voc is None:
         return None
@@ -424,7 +424,7 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
 
 
 def recipients_filter_default(context):
-    """ Return default value for  """
+    """ Return default value for recipients """
     voc = creating_group_filter(context)
     if voc is None:
         return None

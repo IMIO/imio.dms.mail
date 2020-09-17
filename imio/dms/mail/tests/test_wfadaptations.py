@@ -312,10 +312,13 @@ class TestTaskServiceValidation1(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
         self.tw = self.pw['task_workflow']
-        tsva = TaskServiceValidation()
-        adapt_is_applied = tsva.patch_workflow('task_workflow', **{})
-        if adapt_is_applied:
-            add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation', 'task_workflow', False)
+        self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                          'imiodmsmail-task_n_plus_1_wfadaptation',
+                                                          run_dependencies=False)
+        for uid in get_registry_organizations():
+            groupname = "%s_n_plus_1" % uid
+            if group_has_user(groupname):
+                api.group.remove_user(groupname=groupname, username='chef')
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
