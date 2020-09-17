@@ -72,7 +72,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         auc_stored = self.registry[AUC_RECORD]
 
         self.upgradeProfile('collective.contact.plonegroup:default')
-        self.install(['collective.contact.importexport'])
+        self.install(['collective.contact.importexport', 'collective.fontawesome'])
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'], run_dependencies=False)
 

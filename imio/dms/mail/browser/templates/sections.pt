@@ -16,7 +16,6 @@
                                target tab/link_target|nothing;">
             Tab Name
             </a></li></tal:tabs>
-         <li><img src="#" alt="Refresh tab count" title="Refresh tab count" id="collections-count-refresh" class="plain"
-                tal:attributes="src string:${context/portal_url}/++resource++collective.eeafaceted.z3ctable/refresh.gif"
-                i18n:domain="imio.dms.mail" i18n:attributes="title; alt"></li></ul>
+         <li><span class="fa fa-sync-alt" id="collections-count-refresh" alt="Refresh tab count" title="Refresh tab count"
+                   i18n:domain="imio.dms.mail" i18n:attributes="title; alt" /></li></ul>
 </tal:sections>
