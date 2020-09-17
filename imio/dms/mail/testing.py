@@ -79,6 +79,20 @@ class DmsmailLayer(PloneWithPackageLayer):
         (stdout, stderr, st) = runCommand('%s/bin/soffice.sh stop' % os.getenv('PWD'))
 
 
+class DmsmailLayerNP1(DmsmailLayer):
+
+    def setUpPloneSite(self, portal):
+        super(DmsmailLayerNP1, self).setUpPloneSite(portal)
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+        portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                     'imiodmsmail-im_n_plus_1_wfadaptation', run_dependencies=False)
+        portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                     'imiodmsmail-om_n_plus_1_wfadaptation', run_dependencies=False)
+        portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                                     'imiodmsmail-task_n_plus_1_wfadaptation', run_dependencies=False)
+        setRoles(portal, TEST_USER_ID, ['Member'])
+
+
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
@@ -90,6 +104,17 @@ DMSMAIL_FIXTURE = DmsmailLayer(
     gs_profile_id='imio.dms.mail:testing',
     name="DMSMAIL_FIXTURE")
 
+DMSMAIL_NP1_FIXTURE = DmsmailLayerNP1(
+    zcml_filename="testing.zcml",
+    zcml_package=imio.dms.mail,
+    additional_z2_products=(
+        'Products.PythonScripts',
+        'imio.dashboard',
+        'imio.dms.mail',
+        'Products.PasswordStrength'),
+    gs_profile_id='imio.dms.mail:testing',
+    name="DMSMAIL_NP1_FIXTURE")
+
 DMSMAIL_INTEGRATION_TESTING = IntegrationTesting(
     bases=(DMSMAIL_FIXTURE, ),
     name="DmsMailFixture:Integration")
@@ -99,7 +124,7 @@ DMSMAIL_FUNCTIONAL_TESTING = FunctionalTesting(
     name="DmsMailFixture:Functional")
 
 DMSMAIL_ROBOT_TESTING = FunctionalTesting(
-    bases=(DMSMAIL_FIXTURE,
+    bases=(DMSMAIL_NP1_FIXTURE,
            REMOTE_LIBRARY_BUNDLE_FIXTURE,
            z2.ZSERVER_FIXTURE,),
     name="DMSMAIL_ROBOT_TESTING")
