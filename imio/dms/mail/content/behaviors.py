@@ -33,8 +33,7 @@ def user_creating_group(context):
             if inter:
                 # ordered = [uid for uid in creating_groups if uid in inter]; return ordered[0]
                 return inter.pop()
-
-    return creating_groups[0]
+    return creating_groups.pop()
 
 
 class IDmsMailCreatingGroup(model.Schema):
