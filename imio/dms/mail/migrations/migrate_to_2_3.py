@@ -14,6 +14,7 @@ from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.widgets.storage import Criterion
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail import _tr as _
 from imio.dms.mail import wfadaptations
 from imio.dms.mail.setuphandlers import createTaskCollections
 from imio.dms.mail.setuphandlers import set_portlet
@@ -41,7 +42,7 @@ import logging
 logger = logging.getLogger('imio.dms.mail')
 
 
-class Migrate_To_2_2_1(Migrator):  # noqa
+class Migrate_To_2_3(Migrator):  # noqa
 
     def __init__(self, context):
         Migrator.__init__(self, context)
@@ -50,7 +51,7 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.wtool = self.portal.portal_workflow
 
     def run(self):
-        logger.info('Migrating to imio.dms.mail 2.2.1...')
+        logger.info('Migrating to imio.dms.mail 2.3...')
 
         # check if oo port or solr port must be changed
         update_solr_config()
@@ -128,6 +129,14 @@ class Migrate_To_2_2_1(Migrator):  # noqa
         self.registry[AUC_RECORD] = value
 
     def update_site(self):
+        # update front-page
+        frontpage = self.portal['front-page']
+        if frontpage.Title() == 'Gestion du courrier 2.2':
+            frontpage.setTitle(_("front_page_title"))
+            frontpage.setDescription(_("front_page_descr"))
+            frontpage.setText(_("front_page_text"), mimetype='text/html')
+        # update portal title
+        self.portal.title = 'Gestion du courrier 2.3'
         # change permission to remove dashboard from user menu
         self.portal.manage_permission('Portlets: Manage own portlets', ('Manager', 'Site Administrator'), acquire=0)
         # clean old messages
@@ -398,4 +407,4 @@ class Migrate_To_2_2_1(Migrator):  # noqa
 
 
 def migrate(context):
-    Migrate_To_2_2_1(context).run()
+    Migrate_To_2_3(context).run()

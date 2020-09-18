@@ -10,8 +10,8 @@ Changelog
 - Added dmsincoming_email type
   [sgeulette]
 
-2.2.1 ()
---------
+2.3 ()
+------
 
 - Made assigned_user_check more precise and improved transition guard
   [sgeulette]

@@ -28,7 +28,7 @@ class Migrate_To_3_0(Migrator):  # noqa
     def update_site(self):
         # update front-page
         frontpage = self.portal['front-page']
-        if frontpage.Title() == 'Gestion du courrier 2.2':
+        if frontpage.Title() == 'Gestion du courrier 2.3':
             frontpage.setTitle(_("front_page_title"))
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
