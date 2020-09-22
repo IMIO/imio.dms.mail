@@ -84,12 +84,30 @@ class DmsmailLayerNP1(DmsmailLayer):
     def setUpPloneSite(self, portal):
         super(DmsmailLayerNP1, self).setUpPloneSite(portal)
         setRoles(portal, TEST_USER_ID, ['Manager'])
+        # Change some settings
+        api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
+                                       'contact_source_metadata_content',
+                                       u'{gft} # {number}, {street}, {zip_code}, {city} # {email}')
+        # Activate n+1
         portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                      'imiodmsmail-im_n_plus_1_wfadaptation', run_dependencies=False)
         portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                      'imiodmsmail-om_n_plus_1_wfadaptation', run_dependencies=False)
         portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                      'imiodmsmail-task_n_plus_1_wfadaptation', run_dependencies=False)
+        # Delete om
+        brains = api.content.find(portal_type='dmsoutgoingmail')
+        for brain in brains:
+            api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+        api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
+                                       'outgoingmail_number', 1)
+        # Delete im
+        brains = api.content.find(portal_type='dmsincomingmail')
+        for brain in brains:
+            api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+        api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
+                                       'incomingmail_number', 1)
+
         setRoles(portal, TEST_USER_ID, ['Member'])
 
 
