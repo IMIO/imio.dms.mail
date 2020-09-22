@@ -73,7 +73,9 @@
     margin-top: 3em;
 }
 
-.template-dmsdocument-edit #fieldset-versions table {
+.template-dmsdocument-edit #fieldset-versions table,
+.template-dmsdocument-edit #content-core > p.discreet,
+.template-dmsdocument-edit #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs {
     display: None;
 }
 
