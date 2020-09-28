@@ -62,6 +62,7 @@ setup(
         'collective.dms.scanbehavior',
         'collective.documentgenerator',
         'collective.externaleditor',
+        'collective.fontawesome',
         'collective.iconifieddocumentactions',
         'collective.js.fancytree',
         'collective.messagesviewlet',

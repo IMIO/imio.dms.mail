@@ -5,6 +5,7 @@ from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_groups_mgt
 from collective.contact.plonegroup.subscribers import group_deleted as pg_group_deleted
 from collective.documentgenerator.utils import update_oo_config
+from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import add_applied_adaptation
 from collective.wfadaptations.api import get_applied_adaptations
@@ -33,6 +34,7 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.PluggableAuthService.interfaces.events import IGroupDeletedEvent
 from zope.component import getUtility
 from zope.component import globalSiteManager
+from zope.interface import alsoProvides
 
 import logging
 
@@ -71,7 +73,7 @@ class Migrate_To_2_3(Migrator):  # noqa
         auc_stored = self.registry[AUC_RECORD]
 
         self.upgradeProfile('collective.contact.plonegroup:default')
-        self.install(['collective.contact.importexport'])
+        self.install(['collective.contact.importexport', 'collective.fontawesome'])
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'], run_dependencies=False)
 
@@ -169,8 +171,13 @@ class Migrate_To_2_3(Migrator):  # noqa
             if state in lrsc:
                 if 'lecteurs_globaux_ce' not in lrsc[state]:
                     lrsc[state]['lecteurs_globaux_ce'] = {'roles': ['Reader']}
-        # We need to indicate that the object has been modified and must be "saved"
-        lr._p_changed = True
+        lr._p_changed = True   # We need to indicate that the object has been modified and must be "saved"
+        # mark tabs to add count on
+        for folder_id in ('incoming-mail', 'outgoing-mail', 'tasks'):
+            folder = self.portal[folder_id]
+            if not ICountableTab.providedBy(folder):
+                alsoProvides(folder, ICountableTab)
+                folder.reindexObject(idxs='object_provides')
 
     def update_dashboards(self):
         # update daterange criteria

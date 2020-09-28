@@ -242,6 +242,12 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
 
 /* Other */
 
+#collections-count-refresh {
+    vertical-align: middle;
+    margin-left: 1em;
+    color: white;
+}
+
 .portaltype-dmsincomingmail #fieldset-versions table.listing {
     border-top: 1px solid #ddd;
     border-collapse: inherit;

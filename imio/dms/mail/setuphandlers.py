@@ -27,6 +27,7 @@ from collective.documentgenerator.interfaces import IBelowContentBodyBatchAction
 from collective.documentgenerator.utils import update_templates
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
+from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import add_applied_adaptation
@@ -149,6 +150,7 @@ def postInstall(context):
         im_folder = getattr(site, folderid)
         alsoProvides(im_folder, INextPrevNotNavigable)
         alsoProvides(im_folder, ILabelRoot)
+        alsoProvides(im_folder, ICountableTab)
         adapted = ILabelJar(im_folder)
         adapted.add('Lu', 'green', True)  # label_id = lu
         adapted.add('Suivi', 'yellow', True)  # label_id = suivi
@@ -180,6 +182,7 @@ def postInstall(context):
         om_folder = getattr(site, folderid)
         alsoProvides(om_folder, INextPrevNotNavigable)
         alsoProvides(om_folder, ILabelRoot)
+        alsoProvides(om_folder, ICountableTab)
 
         # add mail-searches
         col_folder = add_db_col_folder(om_folder, 'mail-searches', _("Outgoing mail searches"),
@@ -206,6 +209,7 @@ def postInstall(context):
         tsk_folder = getattr(site, folderid)
         alsoProvides(tsk_folder, INextPrevNotNavigable)
         alsoProvides(tsk_folder, ILabelRoot)
+        alsoProvides(tsk_folder, ICountableTab)
         # add task-searches
         col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
                                        _("Tasks"))

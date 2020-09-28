@@ -95,9 +95,7 @@ $(document).ready(function(){
 
     // replace error message with interpreted html to render links
     $('.template-usergroup-userprefs .portalMessage.error dd, .template-usergroup-groupprefs .portalMessage.error dd').html(function(index, html){
-        return $("<div/>").html(html).text();
-
-})
+        return $("<div/>").html(html).text();})
 
     /* remove inline validation for dmsoutgoingmail
     $('.template-dmsoutgoingmail .z3cformInlineValidation, .template-dmsdocument-edit.portaltype-dmsoutgoingmail .z3cformInlineValidation').removeClass('z3cformInlineValidation'); */

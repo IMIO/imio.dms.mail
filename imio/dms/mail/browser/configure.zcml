@@ -524,6 +524,15 @@
     </configure>
 
     <browser:viewlet
+        name="plone.global_sections"
+        manager="plone.app.layout.viewlets.interfaces.IPortalHeader"
+        class="plone.app.layout.viewlets.common.GlobalSectionsViewlet"
+        permission="zope2.View"
+        template="templates/sections.pt"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+    <browser:viewlet
         for="collective.dms.basecontent.dmsdocument.IDmsDocument"
         name="pretty-link-title"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
