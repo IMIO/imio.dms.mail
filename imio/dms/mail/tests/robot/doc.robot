@@ -20,7 +20,6 @@ Premiers pas
 # partie 2.1 Premiers pas
     [TAGS]  RUN
     #Log to console  LOG
-    pause
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1-acces-a-lapplication.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
@@ -607,7 +606,7 @@ Visualisation
 
 Modification
 # partie 2.6 Modification des courriers
-    [TAGS]  RUN0
+    [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -622,8 +621,8 @@ Modification
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    ${note20}  Add pointy note  id=contentview-edit  Lien d'édition  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-6-lien-modifier-courrier.png  id=contentview-edit  id=content-history  css=table.actionspanel-no-style-table  ${note20}
+    ${note20}  Add pointy note  css=table.actionspanel-no-style-table tr:first-child td  Lien d'édition  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-6-lien-modifier-courrier.png  id=portal-breadcrumbs  id=content-history  css=table.actionspanel-no-style-table  ${note20}
     Remove element  id=${note20}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
@@ -641,7 +640,7 @@ Modification
 
 Tache
 # partie 2.7.1 Ajout d'une tâche
-    [TAGS]  RUN2
+    [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -663,28 +662,28 @@ Tache
     Sleep  0.5
     Wait until element is visible  id=formfield-form-widgets-ITask-assigned_group  10
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout vierge.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-7-1-tache-ajout-vierge.png  id=content
     Sleep  0.2
     Input text  name=form.widgets.title  Placer le CV dans notre référentiel
     #Input text  css=#formfield-form-widgets-ITask-task_description #content  TEST
     #Select from list by index  name=form.widgets.ITask.assigned_user:list  1
     Click button  id=form-buttons-save
     Wait until element is visible  css=.template-item_view.portaltype-task #formfield-form-widgets-ITask-due_date  10
-    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout complete.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-7-1-tache-ajout-complete.png  id=content
     ${TUID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
     Fire transition  ${TUID}  do_to_assign
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
-    Wait until element is visible  css=#plone-contentmenu-workflow span.state-to_assign  10
-    Capture and crop page screenshot  doc/utilisation/2-7-1 tache ajout to assign.png  id=content
+    Wait until element is visible  css=div.viewlet_workflowstate span.state-to_assign  10
+    Capture and crop page screenshot  doc/utilisation/2-7-1-tache-ajout-to-assign.png  id=content
 # partie 2.7.2 Visualisation d'une tâche
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans courrier.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-7-2-tache-dans-courrier.png  id=content
     Go to  ${PLONE_URL}/tasks
     Wait until element is visible  css=.faceted-table-results  10
     Wait until element is visible  css=.th_header_assigned_group  10
-    Capture and crop page screenshot  doc/utilisation/2-7-2 tache dans tableau.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-7-2-tache-dans-tableau.png  id=content
 
 Workflow ce
 # partie 2.8.1 Principe et utilisation
@@ -842,30 +841,30 @@ Workflow tâche
     # transitions
     Fire transition  ${UID}  do_to_assign
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_assign
+    Wait until element is visible  css=div.viewlet_workflowstate .label-state-to_assign
     Capture and crop page screenshot  doc/utilisation/2-8-4 transition vers chef.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Set field value  ${UID}  assigned_user  agent  str
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_assign
+    Wait until element is visible  css=div.viewlet_workflowstate .label-state-to_assign
     Capture and crop page screenshot  doc/utilisation/2-8-4 état à assigner.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_to_do
     Enable autologin as  agent
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-to_do
+    Wait until element is visible  css=div.viewlet_workflowstate .label-state-to_do
     Capture and crop page screenshot  doc/utilisation/2-8-4 état à faire.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_in_progress
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-in_progress
+    Wait until element is visible  css=div.viewlet_workflowstate .label-state-in_progress
     Capture and crop page screenshot  doc/utilisation/2-8-4 état en cours.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_realized
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-realized
+    Wait until element is visible  css=div.viewlet_workflowstate .label-state-realized
     Capture and crop page screenshot  doc/utilisation/2-8-4 état réalisé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Fire transition  ${UID}  do_closed
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=#plone-contentmenu-workflow .label-state-closed
+    Wait until element is visible  css=div.viewlet_workflowstate .label-state-closed
     Capture and crop page screenshot  doc/utilisation/2-8-4 état clôturé.png  id=edit-bar  id=content-history  css=table.actionspanel-no-style-table
 
 Contacts 1
