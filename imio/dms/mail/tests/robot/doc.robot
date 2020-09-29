@@ -736,7 +736,7 @@ Workflow ce
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2-edition-limitee-courrier.png  css=h1.documentFirstHeading  id=formfield-form-widgets-recipient_groups
+    # Capture and crop page screenshot  doc/utilisation/2-8-2-edition-limitee-courrier.png  css=h1.documentFirstHeading  id=formfield-form-widgets-recipient_groups
     Select from list by value  id=form-widgets-ITask-due_date-day  6
     Select from list by value  id=form-widgets-ITask-due_date-month  6
     Select from list by value  id=form-widgets-ITask-due_date-year  2015
@@ -779,7 +779,7 @@ Workflow ce
 
 Workflow cs
 # partie 2.8.3 Courrier sortant
-    [TAGS]  RUN2
+    [TAGS]  RUN1
     Enable autologin as  encodeur
     ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     Enable autologin as  agent
@@ -798,33 +798,33 @@ Workflow cs
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état en création.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-en-creation.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     # transitions
     Fire transition  ${UID}  propose_to_n_plus_1
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  propose_to_be_signed
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 transition vers signature.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-signature.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état à la signature.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-a-la-signature.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  mark_as_sent
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3 état envoyé.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-envoye.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
 
 Workflow tâche
 # partie 2.8.4 Tâches
