@@ -137,6 +137,8 @@ class Migrate_To_2_3(Migrator):  # noqa
             frontpage.setText(_("front_page_text"), mimetype='text/html')
         # update portal title
         self.portal.title = 'Gestion du courrier 2.3'
+        # set om folder as default page
+        self.portal.templates.setDefaultPage('om')
         # change permission to remove dashboard from user menu
         self.portal.manage_permission('Portlets: Manage own portlets', ('Manager', 'Site Administrator'), acquire=0)
         # clean old messages

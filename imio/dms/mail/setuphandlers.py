@@ -1924,6 +1924,8 @@ def add_templates(site):
                 alsoProvides(tplt_fld, itf)
             logger.info("'%s' folder created" % path)
 
+    site.templates.setDefaultPage('om')
+
     # adding view for Folder type
     # ptype = site.portal_types.Folder
     # if 'dg-templates-listing' not in ptype.view_methods:
