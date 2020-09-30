@@ -828,7 +828,7 @@ Workflow cs
 
 Workflow tâche
 # partie 2.8.4 Tâches
-    [TAGS]  RUN2
+    [TAGS]  RUN1
     Enable autologin as  agent
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     ${OM} =  Create content  type=dmsoutgoingmail  container=/${PLONE_SITE_ID}/outgoing-mail  title=Réponse candidature  internal_reference_number=S0020
@@ -837,35 +837,35 @@ Workflow tâche
     Set field value  ${UID}  assigned_group  ${GRH}  str
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
     Wait until element is visible  css=#formfield-form-widgets-ITask-due_date label  10
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état en création.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-4-etat-en-creation.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     # transitions
     Fire transition  ${UID}  do_to_assign
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=div.viewlet_workflowstate .label-state-to_assign
-    Capture and crop page screenshot  doc/utilisation/2-8-4 transition vers chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  css=div.viewlet_workflowstate span.state-to_assign
+    Capture and crop page screenshot  doc/utilisation/2-8-4-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Set field value  ${UID}  assigned_user  agent  str
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=div.viewlet_workflowstate .label-state-to_assign
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état à assigner.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  css=div.viewlet_workflowstate span.state-to_assign
+    Capture and crop page screenshot  doc/utilisation/2-8-4-etat-a-assigner.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_to_do
     Enable autologin as  agent
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=div.viewlet_workflowstate .label-state-to_do
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état à faire.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  css=div.viewlet_workflowstate span.state-to_do
+    Capture and crop page screenshot  doc/utilisation/2-8-4-etat-a-faire.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_in_progress
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=div.viewlet_workflowstate .label-state-in_progress
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état en cours.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  css=div.viewlet_workflowstate span.state-in_progress
+    Capture and crop page screenshot  doc/utilisation/2-8-4-etat-en-cours.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_realized
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=div.viewlet_workflowstate .label-state-realized
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état réalisé.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  css=div.viewlet_workflowstate span.state-realized
+    Capture and crop page screenshot  doc/utilisation/2-8-4-etat-realise.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Fire transition  ${UID}  do_closed
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
-    Wait until element is visible  css=div.viewlet_workflowstate .label-state-closed
-    Capture and crop page screenshot  doc/utilisation/2-8-4 état clôturé.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Wait until element is visible  css=div.viewlet_workflowstate span.state-closed
+    Capture and crop page screenshot  doc/utilisation/2-8-4-etat-cloture.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
 
 Contacts 1
 # partie 2.9.1 Listing des contacts
