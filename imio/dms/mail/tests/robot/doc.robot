@@ -869,45 +869,53 @@ Workflow tâche
 
 Contacts 1
 # partie 2.9.1 Listing des contacts
-    [TAGS]  RUN2
+    [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/contacts
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 base.png  id=portal-columns
+    Capture and crop page screenshot  doc/utilisation/2-9-1-base.png  id=portal-columns
     # MOUSE MUST BE OUTSIDE BROWSER WINDOW !!!
     Mouse over  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip
     Sleep  1
-    Capture and crop page screenshot  doc/utilisation/2-9-1 orga tooltip.png  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip  css=div.tooltip
+    Capture and crop page screenshot  doc/utilisation/2-9-1-orga-tooltip.png  css=table.faceted-table-results tr:first-child td.pretty_link a.link-tooltip  css=div.tooltip
     Select collection  contacts/hps-searches/all_hps
-    Capture and crop page screenshot  doc/utilisation/2-9-1 type fonction.png  id=portal-columns
+    Capture and crop page screenshot  doc/utilisation/2-9-1-type-fonction.png  id=portal-columns
     Select collection  contacts/persons-searches/all_persons
-    Capture and crop page screenshot  doc/utilisation/2-9-1 type personne.png  id=portal-columns
+    Capture and crop page screenshot  doc/utilisation/2-9-1-type-personne.png  id=portal-columns
     Select collection  contacts/cls-searches/all_cls
-    Capture and crop page screenshot  doc/utilisation/2-9-1 type liste contacts.png  id=portal-columns
+    Capture and crop page screenshot  doc/utilisation/2-9-1-type-liste-contacts.png  id=portal-columns
     Enable autologin as  Contributor  Site Administrator
     Go to  ${PLONE_URL}/contacts
     Wait until element is visible  css=.faceted-table-results  10
     ${note35}  Add pointy note  css=#doc-generation-view ul.pod-template a  Lien d'exportation  position=top  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-9-1 export.png  id=content  ${note35}
+    Capture and crop page screenshot  doc/utilisation/2-9-1-export.png  id=content  ${note35}
     Remove element  id=${note35}
 
 
 Contacts 2
 # partie 2.9.2 Gestion de contacts
-    [TAGS]  RUN2
+    [TAGS]  RUN1
     Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/electrabel
+    ${TG} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale
+    Set field value  ${UID}  title  Remplacement du compteur électrique  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${TG}  str
     ### icones de gestion
     Go to  ${PLONE_URL}/contacts/electrabel/edit
     Wait until element is visible  id=formfield-form-widgets-organization_type  10
     # Update element style  id=formfield-form-widgets-activity  display  none
-    Capture and crop page screenshot  doc/utilisation/2-9-2 edition organisation.png  content-core
+    Capture and crop page screenshot  doc/utilisation/2-9-2-edition-organisation.png  content-core
     Click button  id=form-buttons-cancel
     Sleep  0.5
     Go to  ${PLONE_URL}/contacts/electrabel/delete_confirmation
     Wait until element is visible  css=input.destructive  10
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-9-2 suppression organisation.png  content
+    Capture and crop page screenshot  doc/utilisation/2-9-2-suppression-organisation.png  content
     Click button  css=input[name=cancel]
     ### boutons de gestion
     Go to  ${PLONE_URL}/contacts
@@ -919,18 +927,18 @@ Contacts 2
     Select checkbox  css=td.select_item_checkbox input[value='${UID2}']
     Click button  id=duplicated-batch-action-but
     Wait until element is visible  css=form[action*="merge-contacts-apply"]  10
-    Capture and crop page screenshot  doc/utilisation/2-9-2 fusion organisation.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-9-2-fusion-organisation.png  id=content
 
 Contacts 3
 # partie 2.9.3 Liste de contacts
-    [TAGS]  RUN2
+    [TAGS]  RUN1
     ### création liste contact
     Enable autologin as  agent
     Go to  ${PLONE_URL}/contacts
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  contacts/cls-searches/all_cls
     ${note36}  Add pointy note  css=#c1_widget ul div.category:nth-child(4) div.title  Icône de création  position=right  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list icone.png  css=#portal-column-one div.portletWrapper  ${note36}
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-icone.png  css=#portal-column-one div.portletWrapper  ${note36}
     Remove element  id=${note36}
     Go to  ${PLONE_URL}/contacts/contact-lists-folder
     Wait until element is visible  css=table.listing tbody tr:nth-child(2) a.state-private  10
@@ -941,33 +949,44 @@ Contacts 3
     Wait until element is visible  css=#content-core p.discreet  10
     ${note37}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
     Click element  name=Add element
-    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list folder.png  id=content  ${note37}
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-folder.png  id=content  ${note37}
     Remove element  id=${note37}
     Select from list by label  name=Add element  Liste de contacts
     Wait until element is visible  id=formfield-form-widgets-contacts  10
     Input text  name=form.widgets.IBasic.title  Liste des candidats poste DF
     Input text  name=form.widgets.contacts.widgets.query  courant
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:first-child
+    Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
+    Click element  css=.ac_results:not([style*="display: none"]) li:first-child
     Input text  name=form.widgets.contacts.widgets.query  lermitte
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:first-child
-    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list création.png  id=content
+    Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
+    Click element  css=.ac_results:not([style*="display: none"]) li:first-child
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-creation.png  id=content
     Click button  form-buttons-save
     Sleep  1
     Select collection  contacts/cls-searches/all_cls
-    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list dashboard.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-dashboard.png  id=content
     ### utilisation liste contact
-    Go to  ${PLONE_URL}/outgoing-mail/reponse2/edit
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned2
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/outgoing-mail/dmsoutgoingmail
+    ${TG} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/secretariat
+    Set field value  ${UID}  treating_groups  ${TG}  str
+    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/edit
     Wait until element is visible  formfield-form-widgets-recipients  10
+    Input text  name=form.widgets.IDublinCore.title  Convocation des candidats DF
+    Select from list by index  id=form-widgets-treating_groups  1
+    Click element  form_widgets_sender_select_chzn
+    Input text  css=.chzn-search input  agent
+    Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_1
     Input text  name=form.widgets.recipients.widgets.query  liste candidats
-    Wait until element is visible  css=.ac_results[style*="display: block"]  10
-    Click element  css=.ac_results[style*="display: block"] li:first-child
-    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list utilisation.png  formfield-form-widgets-recipients  formfield-form-widgets-IDublinCore-description
+    Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
+    Click element  css=.ac_results:not([style*="display: none"]) li:first-child
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-utilisation.png  formfield-form-widgets-recipients  formfield-form-widgets-IDublinCore-description
     Click element  css=#formfield-form-widgets-mail_date label
     Click button  form-buttons-save
-    Wait until element is visible  css=#form-widgets-recipients li:nth-child(3)  10
-    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list remplacement.png  formfield-form-widgets-recipients
+    Wait until element is visible  css=#form-widgets-recipients li:nth-child(2)  10
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-remplacement.png  formfield-form-widgets-recipients
 
 Gestion modèles
 # partie 2.10 Gestion des modèles
