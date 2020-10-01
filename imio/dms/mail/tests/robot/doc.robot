@@ -1036,44 +1036,55 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
 Configuration
-    [TAGS]  RUN2
+    [TAGS]  RUN1
     Enable autologin as  Manager
     Set autologin username  dirg
     Go to  ${PLONE_URL}/@@overview-controlpanel
     Wait until page contains  Configuration de module  10
     Update element style  css=dl.warning  display  None
     ${note50}  Add pointy note  css=.configlets li a[href$="/@@contact-plonegroup-settings"]  Configuration services  position=top  color=blue
-    Capture and crop page screenshot  doc/configuration/3-2 Liens config services.png  css=h2:nth-of-type(2)  css=h2:nth-of-type(3)  ${note50}
+    Capture and crop page screenshot  doc/configuration/3-2-liens-config-services.png  css=h2:nth-of-type(2)  css=h2:nth-of-type(3)  ${note50}
     Remove element  ${note50}
     ${note51}  Add pointy note  css=.configlets li a[href$="/@@dmsmailcontent-settings"]  Configuration courrier  position=top  color=blue
-    Capture and crop page screenshot  doc/configuration/3-1 Liens config courrier.png  css=h2:nth-of-type(2)  css=h2:nth-of-type(3)  ${note51}
+    Capture and crop page screenshot  doc/configuration/3-1-liens-config-courrier.png  css=h2:nth-of-type(2)  css=h2:nth-of-type(3)  ${note51}
     Remove element  ${note51}
     Go to  ${PLONE_URL}/@@dmsmailcontent-settings
     Wait until element is visible  id=formfield-form-widgets-incomingmail_number  10
-    Capture and crop page screenshot  doc/configuration/3-1 config courrier.png  id=content
-    # Erreur chargement page, voir http://trac.imio.be/trac/ticket/21954
+    Capture and crop page screenshot  doc/configuration/3-1-config-courrier.png  id=content
+    Click element  id=fieldsetlegend-outgoingmail
+    Wait until element is visible  id=formfield-form-widgets-outgoingmail_number  10
+    Capture and crop page screenshot  doc/configuration/3-1-config-courrier-cs.png  id=content
+    # Erreur chargement page, voir https://support.imio.be/browse/DMS-434
     #Go to  ${PLONE_URL}/@@imiodmsmail-settings
     #Wait until element is visible  id=formfield-form-widgets-mail_types  10
-    #Capture and crop page screenshot  doc/configuration/3-1 config courrier 2.png  id=content
+    #Capture and crop page screenshot  doc/configuration/3-1-config-courrier-2-ce.png  id=content
     #Go to  ${PLONE_URL}/@@contact-plonegroup-settings
     #Wait until element is visible  id=pg-orga-link  10
-    #Capture and crop page screenshot  doc/configuration/3-2 config services.png  id=content
+    #Capture and crop page screenshot  doc/configuration/3-2-config-services.png  id=content
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
-    Wait until element is visible  id=sub_organizations  10
-    Capture and crop page screenshot  doc/configuration/3-2 config propre organisation.png  id=content
+    Wait until element is visible  css=table.suborganizations-listing  10
+    Capture and crop page screenshot  doc/configuration/3-2-config-propre-organisation.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder
     Wait until element is visible  css=.subsection-personnel-folder #content dt span.summary  10
-    Capture and crop page screenshot  doc/configuration/3-2 config propre personnel.png  id=content
+    Capture and crop page screenshot  doc/configuration/3-2-config-propre-personnel.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef/edit
     Wait until element is visible  formfield-form-widgets-userid  10
-    Capture and crop page screenshot  doc/configuration/3-2 config personnel chef edit.png  id=content
+    Capture and crop page screenshot  doc/configuration/3-2-config-personnel-chef-edit.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef
     Wait until element is visible  css=.subsection-personnel-folder-chef #person #held_positions  10
-    Capture and crop page screenshot  doc/configuration/3-2 config personnel chef.png  id=content
+    Capture and crop page screenshot  doc/configuration/3-2-config-personnel-chef.png  id=content
 # contacts
     Go to  ${PLONE_URL}/contacts/edit
     Wait until element is visible  id=formfield-form-widgets-position_types  10
-    Capture and crop page screenshot  doc/configuration/3-4 config contacts.png  id=content
+    Capture and crop page screenshot  doc/configuration/3-4-config-contacts.png  id=content
+
+Debug
+    [TAGS]  DBG
+    Pass execution  Only for debug purpose
+    Enable autologin as  Manager
+    Set autologin username  dirg
+    Go to  ${PLONE_URL}/@@imiodmsmail-settings#fieldsetlegend-contact
+    debug
 
 
 *** Keywords ***
