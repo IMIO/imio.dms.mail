@@ -483,6 +483,8 @@ Tableaux de bord
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
+    Click element   css=div.pagination a.next
+    Wait until element is visible  css=.faceted-table-results  10
     Unselect checkbox  select_unselect_items
     # treating group
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
@@ -548,7 +550,7 @@ Tableaux de bord
 
 Recherche générale
 # partie 2.4.3 Recherche dans les fichiers scannés
-    [TAGS]  RUN
+    [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -973,7 +975,7 @@ Contacts 3
     ${TG} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/secretariat
     Set field value  ${UID}  treating_groups  ${TG}  str
     Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/edit
-    Wait until element is visible  formfield-form-widgets-recipients  10
+    Wait until element is visible  formfield-form-widgets-recipients  20
     Input text  name=form.widgets.IDublinCore.title  Convocation des candidats DF
     Select from list by index  id=form-widgets-treating_groups  1
     Click element  form_widgets_sender_select_chzn
@@ -982,11 +984,12 @@ Contacts 3
     Input text  name=form.widgets.recipients.widgets.query  liste candidats
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li:first-child
-    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-utilisation.png  formfield-form-widgets-recipients  formfield-form-widgets-IDublinCore-description
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-utilisation.png  id=formfield-form-widgets-recipients  id=formfield-form-widgets-IDublinCore-description
     Click element  css=#formfield-form-widgets-mail_date label
     Click button  form-buttons-save
-    Wait until element is visible  css=#form-widgets-recipients li:nth-child(2)  10
-    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-remplacement.png  formfield-form-widgets-recipients
+    Sleep  1
+    Wait until element is visible  css=#form-widgets-recipients li:nth-child(2)  20
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-remplacement.png  id=formfield-form-widgets-recipients
 
 Gestion modèles
 # partie 2.10 Gestion des modèles
@@ -1057,7 +1060,10 @@ Configuration
     # Erreur chargement page, voir https://support.imio.be/browse/DMS-434
     #Go to  ${PLONE_URL}/@@imiodmsmail-settings
     #Wait until element is visible  id=formfield-form-widgets-mail_types  10
+    # TODO MANUALLY
     #Capture and crop page screenshot  doc/configuration/3-1-config-courrier-2-ce.png  id=content
+    #Capture and crop page screenshot  doc/configuration/3-1-config-courrier-2-cs.png  id=content
+    #Capture and crop page screenshot  doc/configuration/3-1-config-courrier-2-contacts.png  id=content
     #Go to  ${PLONE_URL}/@@contact-plonegroup-settings
     #Wait until element is visible  id=pg-orga-link  10
     #Capture and crop page screenshot  doc/configuration/3-2-config-services.png  id=content
