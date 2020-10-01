@@ -943,7 +943,7 @@ Contacts 3
     Go to  ${PLONE_URL}/contacts/contact-lists-folder
     Wait until element is visible  css=table.listing tbody tr:nth-child(2) a.state-private  10
     ${link}=  Get element attribute  css=table.listing tbody tr:nth-child(2) a.state-private  href
-    Capture and crop page screenshot  doc/utilisation/2-9-3 contact list listing.png  id=content-core
+    Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-listing.png  id=content-core
     # Click element  css=table.listing tbody tr:nth-child(2) a.state-private
     Go to  ${PLONE_URL}/contacts/contact-lists-folder/${link}
     Wait until element is visible  css=#content-core p.discreet  10
