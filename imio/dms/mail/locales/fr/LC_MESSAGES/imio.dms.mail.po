@@ -91,7 +91,7 @@ msgstr "Vérification sur l'utilisateur assigné"
 
 #: ./browser/settings.py:84
 msgid "Assigned user mandatory only if there is a n+1 validation"
-msgstr "Utilisateur obligatoire seulement si le niveau n+1 existe"
+msgstr "Utilisateur obligatoire seulement au niveau n+1"
 
 #: ./setuphandlers.py:1997
 msgid "Base template"
