@@ -23,6 +23,14 @@
         factory=".browser.table.AssignedGroupColumn"
     />
 
+    <adapter
+        name="Title"
+        for="zope.interface.Interface
+             zope.publisher.interfaces.browser.IBrowserRequest
+             collective.contact.plonegroup.browser.tables.SubOrganizationsTable"
+        provides="z3c.table.interfaces.IColumn"
+        factory=".browser.table.OrgaPrettyLinkWithAdditionalInfosColumn" />
+
     <configure package="collective.eeafaceted.collectionwidget">
         <browser:page
             for="*"

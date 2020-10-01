@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.contact.plonegroup.browser.tables import OrgaPrettyLinkWithAdditionalInfosColumn as opl_base
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
@@ -123,3 +124,9 @@ class AssignedGroupColumn(Column):
 
 class OMVersionsTable(VersionsTable):
     pass
+
+
+class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
+    """ Remove some additional infos """
+    ai_excluded_fields = ['organization_type']
+    ai_extra_fields = []
