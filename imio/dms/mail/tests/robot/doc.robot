@@ -1049,7 +1049,7 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
 Configuration
-    [TAGS]  RUN1
+    [TAGS]  RUN10
     Enable autologin as  Manager
     Set autologin username  dirg
     Go to  ${PLONE_URL}/@@overview-controlpanel
@@ -1089,6 +1089,15 @@ Configuration
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef
     Wait until element is visible  css=.subsection-personnel-folder-chef #person #held_positions  10
     Capture and crop page screenshot  doc/configuration/3-2-config-personnel-chef.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  css=#held_positions div:nth-child(2)
+    Go to  ${PLONE_URL}/@@usergroup-userprefs
+    Wait until element is visible  css=table.listing  10
+    Capture and crop page screenshot  doc/configuration/3-3-users-listing.png  css=#edit-bar li  css=table.listing  css=input[name='form.button.Modify']
+    Go to  ${PLONE_URL}/@@usergroup-groupprefs
+    Wait until element is visible  css=table.listing  10
+    Capture and crop page screenshot  doc/configuration/3-3-groups-listing.png  css=#edit-bar li  css=table.listing  css=input[name='form.button.Modify']
+    Go to  ${PLONE_URL}/@@usergroup-usermembership?userid=agent1
+    Wait until element is visible  css=input[name='form.button.Add']  10
+    Capture and crop page screenshot  doc/configuration/3-3-user-groups.png  css=#edit-bar li.selected  css=table[summary='Groups']  css=input[name='form.button.Add']
 # contacts
     Go to  ${PLONE_URL}/contacts/edit
     Wait until element is visible  id=formfield-form-widgets-position_types  10
