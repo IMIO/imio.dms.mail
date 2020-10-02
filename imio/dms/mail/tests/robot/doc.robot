@@ -735,6 +735,9 @@ Workflow ce
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-chef.png  css=table.actionspanel-no-style-table  ${note32}
     Remove element  id=${note32}
     Sleep  0.1
+    ${note33}  Add pointy note  css=select.apButtonAction_assign  Assigner un agent  position=right  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-8-2-etat-chef-assigne-bouton.png  css=table.actionspanel-no-style-table  ${note33}  css=div.viewlet_workflowstate
+    Remove element  id=${note33}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
@@ -747,7 +750,7 @@ Workflow ce
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2-etat-chef-assigne.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-8-2-etat-chef-assigne.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-recipient_groups
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
