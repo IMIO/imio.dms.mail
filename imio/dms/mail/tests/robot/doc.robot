@@ -773,11 +773,18 @@ Workflow ce
     Click button  name=form.buttons.save
     Wait until element is visible  css=.highlight-history-link  10
     # CHANGE locator when overlay bug is resolved
+    Capture and crop page screenshot  doc/utilisation/2-8-1-transition-fleche-rouge.png  css=#parent-fieldname-title .pretty_link_icons  css=#parent-fieldname-title .pretty_link_content
     Capture and crop page screenshot  doc/utilisation/2-8-1-lien-historique.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Click element  css=#content-history .link-overlay
     #Wait until element is visible  css=#content-history #content  10
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-8-1-historique.png  id=content  css=.overlay-history
+    Click element  css=#pb_1 .close
+    Fire transition  ${UID}  close
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-8-1-transition-fleche-verte.png  css=#parent-fieldname-title .pretty_link_icons  css=#parent-fieldname-title .pretty_link_content
 
 Workflow cs
 # partie 2.8.3 Courrier sortant
