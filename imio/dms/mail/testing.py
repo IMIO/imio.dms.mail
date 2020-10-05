@@ -30,6 +30,8 @@ class DmsmailLayer(PloneWithPackageLayer):
         manage_addExternalMethod(portal, 'import_scanned2', 'import_scanned2', 'imio.dms.mail.demo', 'import_scanned2')
         manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',
                                  'create_main_file')
+        manage_addExternalMethod(portal, 'activate_group_encoder', 'activate_group_encoder', 'imio.dms.mail.demo',
+                                 'activate_group_encoder')
         manage_addExternalMethod(portal, 'lock-unlock', '', 'imio.dms.mail.robot', 'lock')
         manage_addExternalMethod(portal, 'robot_init', '', 'imio.dms.mail.robot', 'robot_init')
 

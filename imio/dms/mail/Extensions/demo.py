@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
@@ -7,6 +8,7 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from datetime import date
 from datetime import datetime
 from imio.dms.mail import add_path
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import Dummy
 from itertools import cycle
 from plone import api
@@ -16,6 +18,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
+from Products.CPUtils.Extensions.utils import check_role
 from Products.CPUtils.Extensions.utils import log_list
 from z3c.relationfield import RelationValue
 from zope.component import getUtility
@@ -279,3 +282,30 @@ def clean_examples(self):
         api.group.delete(group=group)
     portal.portal_properties.site_properties.enable_link_integrity_checks = True
     return '\n'.join(out)
+
+
+def activate_group_encoder(self, typ='imail'):
+    """ Clean created examples """
+    if not check_role(self):
+        return "You must be a manager to run this script"
+    portal = api.portal.getSite()
+    # activate group encoder
+    api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}_group_encoder'.format(typ),
+                                   True)
+    # we add organizations
+    orgs = [portal['contacts']['plonegroup-organization']['direction-generale']['secretariat'].UID(),
+            portal['contacts']['plonegroup-organization']['evenements'].UID()]
+    functions = get_registry_functions()
+    for dic in functions:
+        if dic['fct_id'] != CREATING_GROUP_SUFFIX:
+            continue
+        if not dic['fct_orgs']:
+            dic['fct_orgs'] = orgs
+    set_registry_functions(functions)
+    # we add members in groups
+    if 'encodeur' not in [u.getId() for u in
+                          api.user.get_users(groupname='{}_{}'.format(orgs[0], CREATING_GROUP_SUFFIX))]:
+        api.group.add_user(groupname='{}_{}'.format(orgs[0], CREATING_GROUP_SUFFIX), username='encodeur')
+        api.group.add_user(groupname='{}_{}'.format(orgs[1], CREATING_GROUP_SUFFIX), username='agent1')
+
+    return portal.REQUEST.response.redirect(portal.absolute_url())

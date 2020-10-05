@@ -246,6 +246,27 @@ CE manuel
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-2-courrier-2-visualisation.png  id=content
 
+CE multi-indicatage
+    [TAGS]  RUN
+    Enable autologin as  Manager
+    Set autologin username  encodeur
+    Go to  ${PLONE_URL}/activate_group_encoder
+    Wait until element is visible  css=h1.documentFirstHeading
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Click element  id=form-widgets-IDmsMailCreatingGroup-creating_group
+    Wait until element is visible  id=form-widgets-IDmsMailCreatingGroup-creating_group-1  10
+    Capture and crop page screenshot  doc/utilisation/3-1-3-ce-groupe-indicateur.png  id=formfield-form-widgets-internal_reference_no  id=form-buttons-save
+    Go to  ${PLONE_URL}/activate_group_encoder?typ=contact
+    Wait until element is visible  css=h1.documentFirstHeading
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/3-1-3-ce-filtre-contact.png  id=formfield-form-widgets-sender
+
 CS en réponse
 # partie 2.3.1 Réponse à un courrier entrant
     [TAGS]  RUN
@@ -1049,7 +1070,7 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
 Configuration
-    [TAGS]  RUN10
+    [TAGS]  RUN1
     Enable autologin as  Manager
     Set autologin username  dirg
     Go to  ${PLONE_URL}/@@overview-controlpanel
