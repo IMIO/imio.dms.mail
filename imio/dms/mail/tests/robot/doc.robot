@@ -30,7 +30,7 @@ Premiers pas
 
 CE depuis le scanner
 # partie 2.2.1 Envoi par le scanner
-    [TAGS]  RUN
+    [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Go to  ${PLONE_URL}/incoming-mail
@@ -185,6 +185,8 @@ CE depuis le scanner
     Capture and crop page screenshot  doc/utilisation/2-2-1-expediteur-0-fini.png  id=formfield-form-widgets-IDublinCore-description  id=formfield-form-widgets-original_mail_date
 
     ### Complete last fields
+    # scroll up
+    Execute javascript  window.scrollTo(0, 0)
     Click element  css=.DV-documentView span.DV-trigger
     Select from list by value  id=form-widgets-original_mail_date-day  6
     Select from list by value  id=form-widgets-original_mail_date-month  6
@@ -1070,7 +1072,7 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
 ia-delib
-    [TAGS]  RUN10
+    [TAGS]  RUN1
     Pass execution  Bypassed due to error
     Enable autologin as  Manager
     Set autologin username  encodeur
