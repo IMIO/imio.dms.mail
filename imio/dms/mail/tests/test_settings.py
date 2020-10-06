@@ -7,8 +7,10 @@ from dexterity.localrolesfield.utils import get_localrole_fields
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.Extensions.demo import activate_group_encoder
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from plone import api
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
@@ -55,8 +57,9 @@ class TestSettings(unittest.TestCase):
                                                u"pour le courrier entrant n'est pas prévu !!")
 
     def test_configure_group_encoder(self):
+        setRoles(self.portal, TEST_USER_ID, ['Manager'])
         # activate imail group encoder
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder', True)
+        activate_group_encoder(self.portal)
         self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
         for portal_type in ('dmsincomingmail', 'dmsincoming_email'):
             fti = getUtility(IDexterityFTI, name=portal_type)
@@ -67,7 +70,7 @@ class TestSettings(unittest.TestCase):
         self.assertIn('c90', crit.keys())
 
         # activate omail group encoder
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder', True)
+        activate_group_encoder(self.portal, typ='omail')
         self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
         for portal_type in ('dmsoutgoingmail', 'dmsoutgoing_email'):
             fti = getUtility(IDexterityFTI, name=portal_type)
@@ -78,7 +81,7 @@ class TestSettings(unittest.TestCase):
         self.assertIn('c90', crit.keys())
 
         # activate contact group encoder
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder', True)
+        activate_group_encoder(self.portal, typ='contact')
         self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
         self.assertIn(CONTACTS_PART_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
         for portal_type in ('organization', 'person', 'held_position', 'contact_list'):
