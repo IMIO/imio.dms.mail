@@ -1069,6 +1069,27 @@ Gestion modèles
     Select Window  url=http://localhost:55001/plone/templates
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
+ia-delib
+    [TAGS]  RUN10
+    Pass execution  Bypassed due to error
+    Enable autologin as  Manager
+    Set autologin username  encodeur
+    Apply profile step  imio.dms.mail:singles  imiodmsmail-configure-wsclient
+    # Unexpected Zope exception: <class 'ZODB.POSException.InvalidObjectReference'> - ('Attempt to store an object from a foreign database connection',  ,  )
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID0} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    ${PERS1} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
+    Set field value  ${UID0}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID0}  treating_groups  ${GRH}  str
+    Set field value  ${UID0}  sender  ['${PERS1}']  references
+    Set field value  ${UID0}  task_description  <p>Fais ceci</p>  text/html
+    Fire transition  ${UID0}  propose_to_n_plus_1
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+
 Configuration
     [TAGS]  RUN1
     Enable autologin as  Manager
