@@ -1122,6 +1122,7 @@ Configuration
     #Wait until element is visible  id=pg-orga-link  10
     #Capture and crop page screenshot  doc/configuration/5-3-config-services.png  id=content
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
+    # suborganizations in 1.31 or templates in 1.30
     Wait until element is visible  css=table.suborganizations-listing  10
     Capture and crop page screenshot  doc/configuration/5-3-config-propre-organisation.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder
