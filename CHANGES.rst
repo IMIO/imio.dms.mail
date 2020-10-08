@@ -140,10 +140,10 @@ Changelog
   [sgeulette]
 
 - Improvements: disable own delete on contacts, block parent portlets on contacts, add local roles for dir_general
-                on contacts, corrected disabled treating_groups bug, updated voc cache, corrected transition batch
-                action, added task parent on task view, added method to test user group membership, ordered css
-                ordered javascript, improved validation criterion, hide dmsincomingmail creator,
-                display again scan information, corrected merging permission problem
+  on contacts, corrected disabled treating_groups bug, updated voc cache, corrected transition batch
+  action, added task parent on task view, added method to test user group membership, ordered css
+  ordered javascript, improved validation criterion, hide dmsincomingmail creator,
+  display again scan information, corrected merging permission problem
   [sgeulette]
 
 
@@ -181,11 +181,11 @@ Changelog
   [sgeulette]
 
 - Some improvements: contact add width, also validateur in assigned user, changed default position types,
-                     actions panel transition configuration, corrected listing, removed adding mainfile from menu,
-                     colorized collection results, removed grok, improved assigned user warning, front page text,
-                     set undo visible, improved state colorization, changed configlet and view permissions, added reorder on mail types,
-                     added link to plonegroup-organization, improved localroles config column width, ckeditor configuration,
-                     original mail date requirement option, revert to previous version only for manager
+  actions panel transition configuration, corrected listing, removed adding mainfile from menu,
+  colorized collection results, removed grok, improved assigned user warning, front page text,
+  set undo visible, improved state colorization, changed configlet and view permissions, added reorder on mail types,
+  added link to plonegroup-organization, improved localroles config column width, ckeditor configuration,
+  original mail date requirement option, revert to previous version only for manager
   [sgeulette]
 
 
