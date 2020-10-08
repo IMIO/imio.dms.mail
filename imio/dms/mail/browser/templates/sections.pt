@@ -4,7 +4,8 @@
     <p class="hiddenStructure" i18n:translate="heading_sections">Navigation</p>
 
     <ul id="portal-globalnav"
-        tal:define="selected_tab python:view.selected_portal_tab"
+        tal:define="selected_tab python:view.selected_portal_tab;
+                    isAnon context/@@plone_portal_state/anonymous;"
         ><tal:tabs tal:repeat="tab portal_tabs"
         ><li tal:define="tid tab/id"
              tal:attributes="id string:portaltab-${tid};
@@ -16,6 +17,6 @@
                                target tab/link_target|nothing;">
             Tab Name
             </a></li></tal:tabs>
-         <li><span class="fa fa-sync-alt" id="collections-count-refresh" alt="Refresh tab count" title="Refresh tab count"
+         <li tal:condition="not:isAnon"><span class="fa fa-sync-alt" id="collections-count-refresh" alt="Refresh tab count" title="Refresh tab count"
                    i18n:domain="imio.dms.mail" i18n:attributes="title; alt" /></li></ul>
 </tal:sections>
