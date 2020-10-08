@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0 (unreleased)
+----------------
+
+- Nothing changed yet.
+
+
 2.3 (2020-10-08)
 ----------------
 
