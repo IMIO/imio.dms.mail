@@ -391,11 +391,11 @@ def configure_group_encoder(portal_types, contacts_part=False):
 
     for portal_type in portal_types:
         # behaviors
-        fti = getUtility(IDexterityFTI, name=portal_type)
-        # try:
-        #     fti = getUtility(IDexterityFTI, name=portal_type)
-        # except ComponentLookupError:
-        #     continue
+        from zope.component.interfaces import ComponentLookupError
+        try:
+            fti = getUtility(IDexterityFTI, name=portal_type)
+        except ComponentLookupError:
+            continue
         if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
             old_bav = tuple(fti.behaviors)
             fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])

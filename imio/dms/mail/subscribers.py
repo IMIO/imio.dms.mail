@@ -476,11 +476,11 @@ def group_deleted(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
 
     def get_query(portal_type, field_p, idx_p, org, suffix):
-        fti = getUtility(IDexterityFTI, name=portal_type)
-        # try:
-        #     fti = getUtility(IDexterityFTI, name=portal_type)
-        # except ComponentLookupError:
-        #     return {}
+        from zope.component.interfaces import ComponentLookupError
+        try:
+            fti = getUtility(IDexterityFTI, name=portal_type)
+        except ComponentLookupError:
+            return {}
         config = getattr(fti, 'localroles', {}).get(field, None)
         if not config:
             return {}

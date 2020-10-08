@@ -61,7 +61,7 @@ class TestSettings(unittest.TestCase):
         # activate imail group encoder
         activate_group_encoder(self.portal)
         self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
-        for portal_type in ('dmsincomingmail', 'dmsincoming_email'):
+        for portal_type in ('dmsincomingmail',):
             fti = getUtility(IDexterityFTI, name=portal_type)
             self.assertIn('imio.dms.mail.content.behaviors.IDmsMailCreatingGroup', fti.behaviors)
             self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)])
@@ -72,7 +72,7 @@ class TestSettings(unittest.TestCase):
         # activate omail group encoder
         activate_group_encoder(self.portal, typ='omail')
         self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
-        for portal_type in ('dmsoutgoingmail', 'dmsoutgoing_email'):
+        for portal_type in ('dmsoutgoingmail',):
             fti = getUtility(IDexterityFTI, name=portal_type)
             self.assertIn('imio.dms.mail.content.behaviors.IDmsMailCreatingGroup', fti.behaviors)
             self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)])
