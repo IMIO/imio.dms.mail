@@ -1,15 +1,6 @@
 Changelog
 =========
 
-3.0 (unreleased)
-----------------
-
-- Added dmsoutgoing_email type
-  [ndemonte]
-
-- Added dmsincoming_email type
-  [sgeulette]
-
 2.3 (2020-10-08)
 ----------------
 
