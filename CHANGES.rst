@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.0 (unreleased)
+2.3 (2020-10-08)
 ----------------
 
 - Added dmsoutgoing_email type
