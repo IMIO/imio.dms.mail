@@ -4,20 +4,14 @@ Changelog
 3.0 (unreleased)
 ----------------
 
-- Nothing changed yet.
-
-
-2.3 (2020-10-08)
-----------------
-
 - Added dmsoutgoing_email type
   [ndemonte]
 
 - Added dmsincoming_email type
   [sgeulette]
 
-2.3 ()
-------
+2.3 (2020-10-08)
+----------------
 
 - Made assigned_user_check more precise and improved transition guard
   [sgeulette]
