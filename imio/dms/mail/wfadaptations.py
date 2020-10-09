@@ -453,7 +453,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         to_states = [st for (st, tr) in wf_from_to['to']]
         # store current level in dms_config
         propose_tr_id = 'propose_to_{}'.format(new_id)
-        # wf_from_to['to'].append((new_state_id, propose_tr_id))
+        # wf_from_to['to'] += [(new_state_id, propose_tr_id)]
         # set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'], wf_from_to)
 
         # add state
