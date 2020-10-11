@@ -205,7 +205,11 @@
 
  <stylesheet id="++resource++collective.contact.plonegroup/plonegroup.css" insert-after="++resource++plone.formwidget.querystring.querywidget.css" />
 
- <stylesheet id="imiodmsmail.css" insert-after="++resource++collective.contact.plonegroup/plonegroup.css" />
+ <stylesheet id="++resource++collective.fontawesome/css/font-awesome.min.css" insert-after="++resource++collective.contact.plonegroup/plonegroup.css" />
+
+ <stylesheet id="++resource++actionsportlet.css" insert-after="++resource++collective.fontawesome/css/font-awesome.min.css" />
+
+ <stylesheet id="imiodmsmail.css" insert-after="++resource++actionsportlet.css" />
 
  <!--stylesheet id="" insert-after="" /-->
 
