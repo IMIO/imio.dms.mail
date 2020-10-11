@@ -9,6 +9,8 @@
     enabled="1" expression="" id="imiodmsmail_print.css" media="print"
     rel="stylesheet" rendering="link" />
 
+ <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" remove="true" />
+
  <stylesheet id="++resource++jquery.css" insert-bottom="" />
 
  <stylesheet id="++resource++jquery.select2uislider.css" insert-after="++resource++jquery.css" />
