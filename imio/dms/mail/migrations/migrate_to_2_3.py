@@ -103,7 +103,14 @@ class Migrate_To_2_3(Migrator):  # noqa
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
-        for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
+        for prod in ['collective.contact.core', 'collective.contact.widget', 'collective.dms.batchimport',
+                     'collective.dms.mailcontent', 'collective.eeafaceted.batchactions',
+                     'collective.eeafaceted.collectionwidget', 'collective.eeafaceted.dashboard',
+                     'collective.eeafaceted.z3ctable', 'collective.fingerpointing', 'collective.messagesviewlet',
+                     'collective.wfadaptations', 'collective.z3cform.datetimewidget', 'communesplone.layout',
+                     'eea.facetednavigation', 'eea.jquery', 'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail',
+                     'imio.history', 'plone.formwidget.autocomplete', 'plone.formwidget.contenttree',
+                     'plonetheme.classic', 'plonetheme.imio.apps']:
             mark_last_version(self.portal, product=prod)
 
         # self.refreshDatabase()
