@@ -319,6 +319,8 @@
 
   <javascript id="++resource++plonetheme.imioapps/skin.js" insert-after="++resource++collective.contact.contactlist/javascript.js" />
 
+  <javascript id="++resource++imio.pm.wsclient.javascripts/popups.js" insert-after="++resource++plonetheme.imioapps/skin.js" />
+
   <!--<javascript id="" insert-after="" />-->
 
 </object>
