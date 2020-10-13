@@ -123,7 +123,7 @@ class PloneSearch(Search):
 
     def filter_query(self, query):
         qr = super(PloneSearch, self).filter_query(query)
-        if 'SearchableText' in qr and not qr['SearchableText'].endswith('*'):
+        if qr and 'SearchableText' in qr and not qr['SearchableText'].endswith('*'):
             qr['SearchableText'] += '*'
         return qr
 
