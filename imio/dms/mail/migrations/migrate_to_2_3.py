@@ -269,7 +269,8 @@ class Migrate_To_2_3(Migrator):  # noqa
 
         # update remark states
         for attr in ('imail_remark_states', 'omail_remark_states'):
-            lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(attr))
+            lst = (api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(attr))
+                   or [])
             if 'proposed_to_service_chief' in lst:
                 lst.remove('proposed_to_service_chief')
                 api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(attr),
