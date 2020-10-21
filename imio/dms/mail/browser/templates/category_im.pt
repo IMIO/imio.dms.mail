@@ -10,13 +10,13 @@
             <img tal:attributes="src string:$portal_url/++resource++dmsincomingmail_icon.png"
               title="create_im" i18n:attributes="title" />
         </a>
-        <!--a id="newIEMCreation" href="#"
+        <a id="newIEMCreation" href="#"
            style="display: inline;"
            tal:condition="python: member.has_permission('collective.dms.mailcontent: Add Incoming Mail', folder)"
            tal:attributes="href string:$portal_url/incoming-mail/++add++dmsincoming_email?no_redirect=1">
             <img tal:attributes="src string:$portal_url/++resource++imio.dms.mail/dmsincoming_email_icon.png"
               title="create_iem" i18n:attributes="title" />
-        </a-->
+        </a>
     </div>
     <div class="title" tal:content="python: context.Rights()">Category title</div>
 </tal:defines>
