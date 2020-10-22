@@ -191,8 +191,8 @@ class DmsOMActionsPanelView(ActionsPanelView):
 
 class DmsTaskActionsPanelView(ActionsPanelView):
 
-    transitions = ['back_in_created', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress', 'back_in_realized',
-                   'do_to_assign', 'do_to_do', 'do_in_progress', 'do_realized', 'do_closed']
+    transitions = ['back_in_created', 'back_in_created2', 'back_in_to_assign', 'back_in_to_do', 'back_in_progress',
+                   'back_in_realized', 'do_to_assign', 'do_to_do', 'do_in_progress', 'do_realized', 'do_closed']
     tr_order = dict((val, i) for (i, val) in enumerate(transitions))
 
     def __init__(self, context, request):
