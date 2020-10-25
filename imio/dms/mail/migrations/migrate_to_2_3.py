@@ -153,7 +153,7 @@ class Migrate_To_2_3(Migrator):  # noqa
             api.content.delete(self.portal['messages-config']['doc'])
         add_message('doc', 'Documentation', u'<p>Vous pouvez consulter la <a href="https://docs.imio.be/'
                     u'imio-doc/ia.docs/" target="_blank">documentation en ligne de la '
-                    u'dernière version</a>, dont <a href="https://docs.imio.be/imio-doc/ia.docs/changelog" '
+                    u'version 2.3</a>, dont <a href="https://docs.imio.be/imio-doc/ia.docs/changelog" '
                     u'target="_blank">les nouvelles fonctionnalités</a> ainsi que d\'autres documentations liées.</p>',
                     msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
         if 'new-version' in self.portal['messages-config']:
