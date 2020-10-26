@@ -389,6 +389,8 @@ class Migrate_To_2_3(Migrator):  # noqa
                 wkf.updateRoleMappingsFor(obj)
                 # update state_group (use dms_config), permissions, state
                 obj.reindexObject(idxs=['allowedRolesAndUsers', 'review_state', 'state_group'])
+                for child in obj.objectValues():
+                    child.reindexObject(idxs=['allowedRolesAndUsers'])
 
         # migrate plone groups
         # First unregister group deletion handlers
