@@ -39,10 +39,13 @@ class Migrate_To_3_0(Migrator):  # noqa
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
 
-        if False and 'new-version' not in self.portal['messages-config']:
-            add_message('new-version', 'Nouvelles fonctionnalités', u'<p>Vous pouvez consulter la <a href="https://'
-                        u'www.imio.be/" target="_blank">liste des nouvelles fonctionnalités</a></p>',
-                        msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
+        if 'doc' in self.portal['messages-config']:
+            api.content.delete(self.portal['messages-config']['doc'])
+        add_message('doc', 'Documentation', u'<p>Vous pouvez consulter la <a href="https://docs.imio.be/'
+                    u'imio-doc/ia.docs/" target="_blank">documentation en ligne de la '
+                    u'version 3.0</a>, dont <a href="https://docs.imio.be/imio-doc/ia.docs/changelog" '
+                    u'target="_blank">les nouvelles fonctionnalités</a> ainsi que d\'autres documentations liées.</p>',
+                    msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
 
     def insert_incoming_emails(self):
         # allowed types
