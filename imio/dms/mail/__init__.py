@@ -43,10 +43,11 @@ BACK_OR_AGAIN_ICONS = {'': False,
                        'again': '++resource++imio.dms.mail/wf_again.png'}
 
 
-def _tr(msgid, domain='imio.dms.mail'):
+def _tr(msgid, domain='imio.dms.mail', mapping=None):
     translation_domain = queryUtility(ITranslationDomain, domain)
     sp = api.portal.get().portal_properties.site_properties
-    return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'))
+    return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'),
+                                        mapping=mapping)
 
 
 def add_path(path):

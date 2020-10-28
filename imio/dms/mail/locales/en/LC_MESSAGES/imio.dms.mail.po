@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-09-17 14:01+0000\n"
+"POT-Creation-Date: 2020-10-28 10:55+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -59,7 +59,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./setuphandlers.py:1960
+#: ./setuphandlers.py:1962
 msgid "All contacts export"
 msgstr ""
 
@@ -91,7 +91,7 @@ msgstr ""
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr ""
 
-#: ./setuphandlers.py:1997
+#: ./setuphandlers.py:1999
 msgid "Base template"
 msgstr ""
 
@@ -229,7 +229,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1981
+#: ./setuphandlers.py:1983
 msgid "Ending template"
 msgstr ""
 
@@ -245,11 +245,11 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1977
+#: ./setuphandlers.py:1979
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1975
+#: ./setuphandlers.py:1977
 msgid "Header template"
 msgstr ""
 
@@ -294,7 +294,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1979
+#: ./setuphandlers.py:1981
 msgid "Intro template"
 msgstr ""
 
@@ -306,7 +306,7 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1953
+#: ./setuphandlers.py:1955
 msgid "Mail listing template"
 msgstr ""
 
@@ -327,7 +327,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:1983
+#: ./setuphandlers.py:1985
 msgid "Mailing template"
 msgstr ""
 
@@ -424,15 +424,19 @@ msgstr ""
 msgid "Pipeline to use to import contacts"
 msgstr ""
 
+#: ./wfadaptations.py:336
+msgid "Please update manually ${type} local roles for creating_group !"
+msgstr ""
+
 #: ./overrides.py:21
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1991
+#: ./setuphandlers.py:1993
 msgid "Print template"
 msgstr "To print"
 
-#: ./setuphandlers.py:2006
+#: ./setuphandlers.py:2008
 msgid "Receipt template"
 msgstr ""
 
@@ -440,7 +444,7 @@ msgstr ""
 msgid "Recipient groups"
 msgstr ""
 
-#: ./browser/templates/sections.pt:19
+#: ./browser/templates/sections.pt:20
 msgid "Refresh tab count"
 msgstr ""
 
@@ -505,7 +509,7 @@ msgstr ""
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1967
+#: ./setuphandlers.py:1969
 msgid "Style template"
 msgstr ""
 
@@ -546,7 +550,7 @@ msgid "Transition"
 msgstr ""
 
 #: ./browser/batchactions.py:43
-#: ./browser/table.py:113
+#: ./browser/table.py:114
 #: ./dmsmail.py:160
 msgid "Treating groups"
 msgstr ""
@@ -657,13 +661,17 @@ msgstr "Create a contact"
 msgid "create_contact_list"
 msgstr "Create a contact list"
 
+#: ./browser/templates/category_im.pt:17
+msgid "create_iem"
+msgstr "Create an incoming email"
+
 #: ./browser/templates/category_im.pt:10
 msgid "create_im"
 msgstr "Create an incoming mail"
 
 #: ./browser/templates/category_om.pt:17
 msgid "create_oem"
-msgstr ""
+msgstr "Create an outgoing email"
 
 #: ./browser/templates/category_om.pt:10
 msgid "create_om"
@@ -679,19 +687,19 @@ msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:211
 #: ./migrations/migrate_to_2_1.py:217
-#: ./migrations/migrate_to_3_0.py:33
+#: ./migrations/migrate_to_2_3.py:143
 msgid "front_page_descr"
 msgstr "Welcome on the mail management application"
 
 #: ./migrations/migrate_to_2_0.py:212
 #: ./migrations/migrate_to_2_1.py:218
-#: ./migrations/migrate_to_3_0.py:34
+#: ./migrations/migrate_to_2_3.py:144
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>The application integrates the management of incoming mail:</p><ul><li>Automatic creation of incoming mail from scanned files with a separator barcode stuck on the first page of every mail</li><li>Completion of incoming mail with preview of the scanned document and drag / drop from the extracted text by OCR</li><li>Without automatic injection from the scanner, the ability to create a mail and manually link the scanned document (for example, if the format is particular)</li><li>Predefined searches following actions to take and state of mails</li><li>Results display in a dynamic table with changeable fields filters, sorting, pagination, actions column, batch actions, etc.</li><li>Contact management (senders, recipients)</li><li>Choice of treating service, copy services and task management (that can be assigned to other services)</li><li>Choice of a responsible user in the treating service or on a task and also a due date</li><li>Mail validation workflow</li><li>Mail treatment workflow</li><li>Possibility to advance element by element from a search results</li><li>etc.</li></ul><p>&nbsp;</p>"
 
 #: ./migrations/migrate_to_2_0.py:210
 #: ./migrations/migrate_to_2_1.py:216
-#: ./migrations/migrate_to_3_0.py:32
+#: ./migrations/migrate_to_2_3.py:142
 msgid "front_page_title"
 msgstr "Mails management"
 
