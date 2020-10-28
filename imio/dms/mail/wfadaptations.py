@@ -224,7 +224,7 @@ class IIMServiceValidationParameters(Interface):
 
     function_title = schema.TextLine(
         title=u'Title of plonegroup function',
-        default=u'',
+        default=u'N+',
         required=True,
     )
 
@@ -332,7 +332,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                  'encodeurs': {'roles': ['Reader']},
                                  'lecteurs_globaux_ce': {'roles': ['Reader']}}
         lrt = lr['treating_groups']
-        # TODO add CREATING_GROUP_SUFFIX
+        if 'creating_group' in lr:
+            api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
+                                      mapping={'type': 'dmsincomingmail'}), portal.REQUEST, type='warning')
         if new_state_id not in lrt:
             lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
             for st in next_states:
@@ -413,7 +415,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             lst.insert(0, new_state_id)
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
                                            lst)
-
+        # TODO reindex all im and files
         return True, ''
 
 
@@ -527,6 +529,9 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
         lr = getattr(fti, 'localroles')
+        if 'creating_group' in lr:
+            api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
+                                      mapping={'type': 'dmsoutgoingmail'}), portal.REQUEST, type='warning')
         lrt = lr['treating_groups']
         if new_state_id not in lrt:
             lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
@@ -613,6 +618,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         if modif:
             col.query = query
 
+        # TODO reindex all om and files
         return True, ''
 
 
@@ -852,4 +858,5 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
+        # TODO reindex all task and ?
         return True, ''
