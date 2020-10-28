@@ -1114,7 +1114,7 @@ Configuration
     # Erreur chargement page, voir https://support.imio.be/browse/DMS-434
     #Go to  ${PLONE_URL}/@@imiodmsmail-settings
     #Wait until element is visible  id=formfield-form-widgets-mail_types  10
-    # TODO MANUALLY
+    # TO DO MANUALLY
     #Capture and crop page screenshot  doc/configuration/5-2-config-courrier-2-ce.png  id=content
     #Capture and crop page screenshot  doc/configuration/5-2-config-courrier-2-cs.png  id=content
     #Capture and crop page screenshot  doc/configuration/5-2-config-courrier-2-contacts.png  id=content
