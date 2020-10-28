@@ -415,7 +415,14 @@ class IMServiceValidation(WorkflowAdaptationBase):
             lst.insert(0, new_state_id)
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
                                            lst)
-        # TODO reindex all im and files
+        if 'doing_migration' not in parameters:
+            # update state_group (use dms_config), permissions
+            for brain in portal.portal_catalog(portal_type='dmsincomingmail'):
+                obj = brain.getObject()
+                obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
+                for child in obj.objectValues():
+                    child.reindexObject(idxs=['allowedRolesAndUsers'])
+
         return True, ''
 
 
@@ -618,7 +625,14 @@ class OMServiceValidation(WorkflowAdaptationBase):
         if modif:
             col.query = query
 
-        # TODO reindex all om and files
+        if 'doing_migration' not in parameters:
+            # update state_group (use dms_config), permissions
+            for brain in portal.portal_catalog(portal_type='dmsoutgoingmail'):
+                obj = brain.getObject()
+                obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
+                for child in obj.objectValues():
+                    child.reindexObject(idxs=['allowedRolesAndUsers'])
+
         return True, ''
 
 
@@ -858,5 +872,10 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
-        # TODO reindex all task and ?
+        for brain in portal.portal_catalog(portal_type='task'):
+            obj = brain.getObject()
+            obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
+            for child in obj.objectValues():
+                child.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
+
         return True, ''
