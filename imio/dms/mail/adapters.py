@@ -609,7 +609,8 @@ class ScanSearchableExtender(object):
             if sid != items[0]:
                 items.append(sid)
             items.append(sid_long)
-            items.append(sid_short)
+            if len(sid_short) >= 4:
+                items.append(sid_short)
         if self.context.description:
             items.append(self.context.description)
         return u" ".join(items)
