@@ -641,10 +641,10 @@ class ScanSearchableExtender(object):
 
 class IdmSearchableExtender(object):
     """
-        Extends SearchableText of dms document.
+        Extends SearchableText of scanned dms document.
         Concatenate the contained dmsmainfiles scan_id infos.
     """
-    adapts(IDmsDocument)
+    adapts(IImioDmsIncomingMail, IImioDmsOutgoingMail)
     implements(IDynamicTextIndexExtender)
 
     def __init__(self, context):
