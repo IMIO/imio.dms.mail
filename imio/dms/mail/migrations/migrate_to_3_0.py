@@ -27,6 +27,59 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     # TODO update searchabletext of all main files to include external id
 
+    def run(self):
+        logger.info('Migrating to imio.dms.mail 3.0...')
+
+        # check if oo port or solr port must be changed
+        update_solr_config()
+        update_oo_config()
+
+        self.cleanRegistries()
+
+        self.correct_actions()
+
+        # self.upgradeProfile('collective.contact.plonegroup:default')
+
+        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
+
+        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo'])
+
+        # Apply workflow adaptations
+        # applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+        # if applied_adaptations:
+        #     success, errors = apply_from_registry()
+        #     if errors:
+        #         logger.error("Problem applying wf adaptations: %d errors" % errors)
+        # if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
+        #     update_task_workflow(self.portal)
+
+        # self.portal.portal_workflow.updateRoleMappings()
+
+        # do various global adaptations
+        self.update_site()
+
+        # do various adaptations for dmsincoming_email and dmsoutgoing_email
+        self.insert_incoming_emails()
+        self.insert_outgoing_emails()
+
+        self.check_previously_migrated_collections()
+
+        # self.catalog.refreshCatalog(clear=1)
+
+        # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
+        self.upgradeAll(omit=['imio.dms.mail:default'])
+
+        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+
+        # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
+        self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+
+        for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
+            mark_last_version(self.portal, product=prod)
+
+        # self.refreshDatabase()
+        self.finish()
+
     def update_site(self):
         # update front-page
         frontpage = self.portal['front-page']
@@ -99,59 +152,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         # check if changes have been persisted from lower migrations
         # TO BE DONE
         pass
-
-    def run(self):
-        logger.info('Migrating to imio.dms.mail 3.0...')
-
-        # check if oo port or solr port must be changed
-        update_solr_config()
-        update_oo_config()
-
-        self.cleanRegistries()
-
-        self.correct_actions()
-
-        # self.upgradeProfile('collective.contact.plonegroup:default')
-
-        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
-
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo'])
-
-        # Apply workflow adaptations
-        # applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
-        # if applied_adaptations:
-        #     success, errors = apply_from_registry()
-        #     if errors:
-        #         logger.error("Problem applying wf adaptations: %d errors" % errors)
-        # if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
-        #     update_task_workflow(self.portal)
-
-        # self.portal.portal_workflow.updateRoleMappings()
-
-        # do various global adaptations
-        self.update_site()
-
-        # do various adaptations for dmsincoming_email and dmsoutgoing_email
-        self.insert_incoming_emails()
-        self.insert_outgoing_emails()
-
-        self.check_previously_migrated_collections()
-
-        # self.catalog.refreshCatalog(clear=1)
-
-        # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
-        self.upgradeAll(omit=['imio.dms.mail:default'])
-
-        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
-
-        # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
-        self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
-
-        for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
-            mark_last_version(self.portal, product=prod)
-
-        # self.refreshDatabase()
-        self.finish()
 
     def correct_actions(self):
         pa = self.portal.portal_actions
