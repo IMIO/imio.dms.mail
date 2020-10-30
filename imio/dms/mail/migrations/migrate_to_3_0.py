@@ -25,6 +25,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
 
+    # TODO update searchabletext of all main files to include external id
+
     def update_site(self):
         # update front-page
         frontpage = self.portal['front-page']
@@ -94,7 +96,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 col.query = new_lst
 
     def check_previously_migrated_collections(self):
-        # check if changes have been persisted
+        # check if changes have been persisted from lower migrations
         # TO BE DONE
         pass
 
@@ -109,23 +111,22 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.correct_actions()
 
-        self.upgradeProfile('collective.contact.plonegroup:default')
-        self.upgradeProfile('collective.dms.mailcontent:default')
+        # self.upgradeProfile('collective.contact.plonegroup:default')
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
 
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo'])
 
         # Apply workflow adaptations
-        applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
-        if applied_adaptations:
-            success, errors = apply_from_registry()
-            if errors:
-                logger.error("Problem applying wf adaptations: %d errors" % errors)
-        if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
-            update_task_workflow(self.portal)
+        # applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+        # if applied_adaptations:
+        #     success, errors = apply_from_registry()
+        #     if errors:
+        #         logger.error("Problem applying wf adaptations: %d errors" % errors)
+        # if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
+        #     update_task_workflow(self.portal)
 
-        self.portal.portal_workflow.updateRoleMappings()
+        # self.portal.portal_workflow.updateRoleMappings()
 
         # do various global adaptations
         self.update_site()
