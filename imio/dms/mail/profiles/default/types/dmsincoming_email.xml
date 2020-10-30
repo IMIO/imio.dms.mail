@@ -3,7 +3,7 @@
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <property name="title" i18n:translate="">Incoming Email</property>
  <property name="description" i18n:translate="">Incoming dms email</property>
- <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/dmsincoming_email_icon.png</property>
+ <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/dmsincoming_email_icon.svg</property>
  <property name="factory">dmsincoming_email</property>
  <property name="add_view_expr">string:${folder_url}/++add++dmsincoming_email</property>
  <property name="link_target"></property>

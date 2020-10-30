@@ -369,6 +369,15 @@ fieldset table.listing td.td_cell_convert img {
     height: 16px;
 }
 
+#newIMCreation img, #newIEMCreation img,
+#newOMCreation img, #newOEMCreation img,
+#parent-fieldname-title .pretty_link_icons img
+{
+    width: 20px;
+    height: 20px;
+}
+
+
 /* columns */
 
 #content .contacts_col {
