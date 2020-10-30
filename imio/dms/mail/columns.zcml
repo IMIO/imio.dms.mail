@@ -123,6 +123,14 @@
      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
      name="pretty_link" />
 
+  <adapter
+     for="imio.dms.mail.interfaces.IOMDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.OMTitleColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="pretty_link" />
+
   <!-- collective.task.browser.table.TasksTable -->
   <adapter
     for="zope.interface.Interface

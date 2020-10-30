@@ -33,6 +33,11 @@ class IMTitleColumn(PrettyLinkColumn):
     params = {'showContentIcon': True, 'display_tag_title': False}
 
 
+class OMTitleColumn(PrettyLinkColumn):
+
+    params = {'showContentIcon': True, 'display_tag_title': False}
+
+
 class TreatingGroupsColumn(VocabularyColumn):
 
     vocabulary = u'collective.dms.basecontent.treating_groups'
