@@ -93,6 +93,18 @@ fullname_forms = SimpleVocabulary(
     ]
 )
 
+iemail_manual_forward_transitions = SimpleVocabulary(
+    [
+        SimpleTerm(value=u'created', title=_(u'A user forwarded email will stay at creation level')),
+        SimpleTerm(value=u'manager', title=_(u'A user forwarded email will go to manager level')),
+        SimpleTerm(value=u'n_plus_h', title=_(u'A user forwarded email will go to highest N+ level, '
+                                              u'otherwise to agent')),
+        SimpleTerm(value=u'n_plus_l', title=_(u'A user forwarded email will go to lowest N+ level, '
+                                              u'otherwise to agent')),
+        SimpleTerm(value=u'agent', title=_(u'A user forwarded email will go to agent level')),
+    ]
+)
+
 
 class IMailTypeSchema(Interface):
     mt_value = schema.TextLine(title=_("Mail type value"), required=True)
@@ -161,6 +173,19 @@ class IImioDmsMailConfig(model.Schema):
                       u"multiple scanners and separated 'encoder' groups. "
                       u"The list of 'encoder' groups, can be generated to be used in 'scanner program'. "),
         default=False
+    )
+
+    model.fieldset(
+        'incoming_email',
+        label=_(u"Incoming email"),
+        fields=['iemail_manual_forward_transition']
+    )
+
+    iemail_manual_forward_transition = schema.Choice(
+        title=_(u'Email manual forward transition'),
+        description=_(u'Choose to which state a manually forwarded email will go.'),
+        vocabulary=iemail_manual_forward_transitions,
+        default=u'agent'
     )
 
     model.fieldset(
