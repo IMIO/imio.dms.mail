@@ -372,6 +372,7 @@ class Migrate_To_2_3(Migrator):  # noqa
                                              'back_to_service_chief': 'back_to_n_plus_1'}}
                   }
         for pt in config:
+            logger.info('Updating history and indexes of {} type'.format(pt))
             for brain in self.catalog(portal_type=pt):
                 obj = brain.getObject()
                 # update history
