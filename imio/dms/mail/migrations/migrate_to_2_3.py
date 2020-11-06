@@ -373,8 +373,10 @@ class Migrate_To_2_3(Migrator):  # noqa
                   }
         for pt in config:
             logger.info('Updating history and indexes of {} type'.format(pt))
-            for brain in self.catalog(portal_type=pt):
+            for i, brain in enumerate(self.catalog(portal_type=pt), 1):
                 obj = brain.getObject()
+                if i % 10000 == 0:
+                    logger.info('On brain {}'.format(i))
                 # update history
                 wfh = []
                 wkf = self.wtool[config[pt]['wf']]
