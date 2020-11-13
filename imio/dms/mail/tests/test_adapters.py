@@ -8,6 +8,7 @@ from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
 from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import IncomingMailValidationCriterion
+from imio.dms.mail.adapters import OdmSearchableExtender
 from imio.dms.mail.adapters import org_sortable_title_index
 from imio.dms.mail.adapters import OutgoingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
@@ -222,6 +223,25 @@ class TestAdapters(unittest.TestCase):
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(index_value, ['e0010', 'my', 'title', 'description', u'010999900000690',
                                            'imio010999900000690', u'690', u'010999900000700', 'imio010999900000700',
+                                           u'700'])
+
+    def test_OdmSearchableExtender(self):
+        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', id='my-id', title='My title',
+                                         description='Description')
+        ext = OdmSearchableExtender(omail)
+        self.assertEqual(ext(), None)
+        createContentInContainer(omail, 'dmsommainfile', id='testid1', scan_id='011999900000690')
+        self.assertEqual(ext(), u'011999900000690 IMIO011999900000690 690')
+        pc = omail.portal_catalog
+        rid = pc(id='my-id')[0].getRID()
+        index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
+        self.assertListEqual(index_value, ['s0010', 'my', 'title', 'description', u'011999900000690',
+                                           'imio011999900000690', u'690'])
+        createContentInContainer(omail, 'dmsommainfile', id='testid2', scan_id='011999900000700')
+        self.assertEqual(ext(), u'011999900000690 IMIO011999900000690 690 011999900000700 IMIO011999900000700 700')
+        index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
+        self.assertListEqual(index_value, ['s0010', 'my', 'title', 'description', u'011999900000690',
+                                           'imio011999900000690', u'690', u'011999900000700', 'imio011999900000700',
                                            u'700'])
 
     def test_org_sortable_title_index(self):

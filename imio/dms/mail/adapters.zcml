@@ -81,6 +81,8 @@
 
     <adapter factory=".adapters.IdmSearchableExtender"
              name="imio.dms.mail.adapters.IdmSearchableExtender" />
+    <adapter factory=".adapters.OdmSearchableExtender"
+             name="imio.dms.mail.adapters.OdmSearchableExtender" />
 
     <adapter name="mail_type" factory=".adapters.mail_type_index" />
     <adapter name="mail_type" factory=".adapters.person_userid_index" />
