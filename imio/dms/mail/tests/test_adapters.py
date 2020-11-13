@@ -203,7 +203,7 @@ class TestAdapters(unittest.TestCase):
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid2', title='title', description='description',
                                        file=file_object, scan_id='010999900000690')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), 'testid2 title 010999900000690 IMIO010999900000690 690 description One word\n')
+        self.assertEqual(ext(), 'testid2 title 010999900000690 IMIO010999900000690 description One word\n')
 
     def test_IdmSearchableExtender(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='my-id', title='My title',
