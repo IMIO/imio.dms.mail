@@ -238,10 +238,10 @@ def updatewidgets_assigned_user_description(the_form):
     """ Set a description if the field must be completed """
     state = api.content.get_state(the_form.context)
     treating_group = the_form.context.treating_groups
-    transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+    transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])  # i_e ok
     if state in transitions_levels and treating_group in transitions_levels[state]:
         transition = transitions_levels[state][treating_group][0]
-        transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+        transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail'])  # i_e ok
         if transition in transitions_auc and not transitions_auc[transition].get(treating_group, False):
             the_form.widgets['ITask.assigned_user'].field = copy.copy(the_form.widgets['ITask.assigned_user'].field)
             the_form.widgets['ITask.assigned_user'].field.description = _(u'You must select an assigned user '
@@ -378,7 +378,7 @@ class IMView(DmsDocumentView):
 
 class CustomAddForm(DefaultAddForm):
 
-    portal_type = 'dmsincomingmail'
+    portal_type = 'dmsincomingmail'  # i_e ok
 
     def updateFields(self):
         super(CustomAddForm, self).updateFields()

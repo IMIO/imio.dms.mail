@@ -62,7 +62,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         msg = self.check_state_in_workflow(wf, new_state_id)
         if not msg:
             return False, 'State %s already in workflow' % new_state_id
-        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
         next_states = [st for (st, tr) in wf_from_to['to']]
 
         # add state
@@ -123,6 +123,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
 
         # ajouter config local roles
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        # TODO add possible dmsincoming_email type
         lr = getattr(fti, 'localroles')
         lrsc = lr['static_config']
         if new_state_id not in lrsc:
@@ -161,14 +162,14 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_proposed_to_manager'))
 
         # update configuration annotation
-        config = get_dms_config(['review_levels', 'dmsincomingmail'])
+        config = get_dms_config(['review_levels', 'dmsincomingmail'])  # i_e ok
         if 'pre_manager' not in config:
             new_value = OrderedDict([('pre_manager', {'st': [new_state_id]})] + config.items())
-            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_value)
-        config = get_dms_config(['review_states', 'dmsincomingmail'])
+            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_value)  # i_e ok
+        config = get_dms_config(['review_states', 'dmsincomingmail'])  # i_e ok
         if new_state_id not in config:
             new_value = OrderedDict([(new_state_id, {'group': 'pre_manager'})] + config.items())
-            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_value)
+            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_value)  # i_e ok
 
         # update state list
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
@@ -187,7 +188,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
 @provider(IContextSourceBinder)
 def im_service_validation_levels(context):
     # must return next possible level only
-    config = get_dms_config(['review_levels', 'dmsincomingmail'])
+    config = get_dms_config(['review_levels', 'dmsincomingmail'])  # i_e ok
     for i in range(1, 6):  # 5 validation levels
         if '_n_plus_{}'.format(i) not in config:
             break
@@ -244,7 +245,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         wf = wtool['incomingmail_workflow']
         new_id = 'n_plus_{}'.format(level)
         new_state_id = 'proposed_to_{}'.format(new_id)
-        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
         transitions = [tr for (st, tr) in wf_from_to['from']]  # back transitions for new state
         transitions += [tr for (st, tr) in wf_from_to['to']]  # agent + previous levels
         next_states = [st for (st, tr) in wf_from_to['to']]
@@ -252,7 +253,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # store current level in dms_config
         propose_tr_id = 'propose_to_{}'.format(new_id)
         wf_from_to['to'] += [(new_state_id, propose_tr_id)]
-        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'], wf_from_to)
+        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'], wf_from_to)  # i_e ok
 
         # add state
         msg = self.check_state_in_workflow(wf, new_state_id)
@@ -323,7 +324,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             set_registry_functions(functions)
 
         # add local roles config
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')  # i_e ok
         lr = getattr(fti, 'localroles')
         lrs = lr['static_config']
         if new_state_id not in lrs:
@@ -334,7 +335,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
         lrt = lr['treating_groups']
         if 'creating_group' in lr:
             api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
-                                      mapping={'type': 'dmsincomingmail'}), portal.REQUEST, type='warning')
+                                    mapping={'type': 'dmsincomingmail, dmsincoming_email'}), portal.REQUEST,
+                                    type='warning')
         if new_state_id not in lrt:
             lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
             for st in next_states:
@@ -384,20 +386,20 @@ class IMServiceValidation(WorkflowAdaptationBase):
             folder['to_treat_in_my_group'].reindexObject()
 
         # update configuration annotation
-        config = get_dms_config(['review_levels', 'dmsincomingmail'])
+        config = get_dms_config(['review_levels', 'dmsincomingmail'])  # i_e ok
         suffix = '_{}'.format(new_id)
         if suffix not in config:
             value = (suffix, {'st': [new_state_id], 'org': 'treating_groups'})
             new_config = insert_in_ordereddict(config, value, after_key='dir_general', at_position=0)
-            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_config)
-        config = get_dms_config(['review_states', 'dmsincomingmail'])
+            set_dms_config(keys=['review_levels', 'dmsincomingmail'], value=new_config)  # i_e ok
+        config = get_dms_config(['review_states', 'dmsincomingmail'])  # i_e ok
         if new_state_id not in config:
             value = (new_state_id, {'group': suffix, 'org': 'treating_groups'})
             new_config = insert_in_ordereddict(config, value, after_key='proposed_to_manager', at_position=0)
-            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)
+            set_dms_config(keys=['review_states', 'dmsincomingmail'], value=new_config)  # i_e ok
         # update dms config
-        update_transitions_auc_config('dmsincomingmail')
-        update_transitions_levels_config(['dmsincomingmail'])
+        update_transitions_auc_config('dmsincomingmail')  # i_e ok
+        update_transitions_levels_config(['dmsincomingmail'])  # i_e ok
 
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
@@ -417,7 +419,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                            lst)
         if 'doing_migration' not in parameters:
             # update state_group (use dms_config), permissions
-            for brain in portal.portal_catalog(portal_type='dmsincomingmail'):
+            for brain in portal.portal_catalog(portal_type=['dmsincomingmail', 'dmsincoming_email']):
                 obj = brain.getObject()
                 obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
                 for child in obj.objectValues():

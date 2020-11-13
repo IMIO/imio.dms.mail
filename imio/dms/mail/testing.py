@@ -104,7 +104,7 @@ class DmsmailLayerNP1(DmsmailLayer):
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                        'outgoingmail_number', 1)
         # Delete im
-        brains = api.content.find(portal_type='dmsincomingmail')
+        brains = api.content.find(portal_type=['dmsincomingmail', 'dmsincoming_email'])
         for brain in brains:
             api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
@@ -151,20 +151,21 @@ DMSMAIL_ROBOT_TESTING = FunctionalTesting(
 
 
 def reset_dms_config():
-    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],  # i_e ok
                    [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
-    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],  # i_e ok
+                   [('proposed_to_agent', 'propose_to_agent')])
     set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
     set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
-    set_dms_config(['review_levels', 'dmsincomingmail'],
+    set_dms_config(['review_levels', 'dmsincomingmail'],  # i_e ok
                    OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
     set_dms_config(['review_levels', 'task'], OrderedDict())
     set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
-    set_dms_config(['review_states', 'dmsincomingmail'],
+    set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
                    OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
     set_dms_config(['review_states', 'task'], OrderedDict())
     set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
-    set_dms_config(['transitions_auc', 'dmsincomingmail'], OrderedDict())
-    set_dms_config(['transitions_levels', 'dmsincomingmail'], OrderedDict())
+    set_dms_config(['transitions_auc', 'dmsincomingmail'], OrderedDict())  # i_e ok
+    set_dms_config(['transitions_levels', 'dmsincomingmail'], OrderedDict())  # i_e ok
     set_dms_config(['transitions_levels', 'dmsoutgoingmail'], OrderedDict())
     set_dms_config(['transitions_levels', 'task'], OrderedDict())

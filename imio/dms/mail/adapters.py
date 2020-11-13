@@ -67,7 +67,8 @@ import time
 # Compound criterions #
 #######################
 
-default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager', 'proposed_to_pre_manager',
+default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager',  # i_e ok
+                                                                    'proposed_to_pre_manager',
                                                                     'proposed_to_n_plus_5', 'proposed_to_n_plus_4',
                                                                     'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
                                                                     'proposed_to_n_plus_1']}},
@@ -80,7 +81,7 @@ def highest_validation_criterion(portal_type):
         NO MORE USED
     """
     if portal_type == 'dmsincoming_email':
-        portal_type = 'dmsincomingmail'
+        portal_type = 'dmsincomingmail'  # i_e ok
     groups = api.group.get_groups(user=api.user.get_current())
     highest_level = highest_review_level(portal_type, str([g.id for g in groups]))
     if highest_level is None:
@@ -110,7 +111,7 @@ class IncomingMailHighestValidationCriterion(object):
 
     @property
     def query(self):
-        return highest_validation_criterion('dmsincomingmail')
+        return highest_validation_criterion('dmsincomingmail')  # i_e ok
 
 
 class TaskHighestValidationCriterion(object):
@@ -130,11 +131,11 @@ class TaskHighestValidationCriterion(object):
 def validation_criterion(context, portal_type):
     """ Return a query criterion corresponding to current user validation level """
     if portal_type == 'dmsincoming_email':
-        portal_type = 'dmsincomingmail'
+        portal_type = 'dmsincomingmail'  # i_e ok
     groups = api.group.get_groups(user=api.user.get_current())
     groups_ids = [g.id for g in groups]
     config = get_dms_config(['review_levels', portal_type])
-    # set_dms_config(['review_levels', 'dmsincomingmail'],
+    # set_dms_config(['review_levels', 'dmsincomingmail'],  # i_e ok
     #            OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
     #                         ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
 
@@ -164,7 +165,7 @@ class IncomingMailValidationCriterion(object):
 
     @property
     def query(self):
-        return validation_criterion(self.context, 'dmsincomingmail')
+        return validation_criterion(self.context, 'dmsincomingmail')  # i_e ok
 
 
 class TaskValidationCriterion(object):
@@ -494,12 +495,12 @@ def om_outgoing_date_index(obj):
 def state_group_index(obj):
     # Index contains state,org when validation is at org level, or state only otherwise
     # No acquisition pb because state_group isn't an attr
-    # set_dms_config(['review_states', 'dmsincomingmail'],
+    # set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})]))
     state = api.content.get_state(obj=obj)
     if obj.portal_type == 'dmsincoming_email':
-        portal_type = 'dmsincomingmail'
+        portal_type = 'dmsincomingmail'  # i_e ok
     elif obj.portal_type == 'dmsoutgoing_email':
         portal_type = 'dmsoutgoingmail'
     else:

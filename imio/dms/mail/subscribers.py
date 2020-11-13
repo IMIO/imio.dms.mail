@@ -290,8 +290,8 @@ def contact_plonegroup_change(event):
         if not s_fcts or not s_orgs:
             return
         # we update dms config
-        update_transitions_auc_config('dmsincomingmail')
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'])
+        update_transitions_auc_config('dmsincomingmail')  # i_e ok
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'])  # i_e ok
         # invalidate vocabularies caches
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
@@ -520,8 +520,8 @@ def group_deleted(event):
 
     # we update dms config
     if 'n_plus_' in group:
-        update_transitions_auc_config('dmsincomingmail', action='delete', group_id=group)
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='delete',
+        update_transitions_auc_config('dmsincomingmail', action='delete', group_id=group)  # i_e ok
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='delete',  # i_e ok
                                          group_id=group)
 
 
@@ -534,8 +534,8 @@ def group_assignment(event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     # we update dms config
     if 'n_plus_' in event.group_id:
-        update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='add',
+        update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)  # i_e ok
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='add',  # i_e ok
                                          group_id=event.group_id)
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
@@ -603,8 +603,8 @@ def group_unassignment(event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     # we update dms config
     if 'n_plus_' in event.group_id:
-        update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='remove',
+        update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)  # i_e ok
+        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='remove',  # i_e ok
                                          group_id=event.group_id)
     # we manage the personnel-folder person and held position
     orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)

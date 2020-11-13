@@ -140,8 +140,8 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
             u_in_g[g_n] = group_has_user(g_n, action=(g_n == g_id and act or None))
         return u_in_g[g_n]
 
-    if 'dmsincomingmail' in ptypes:
-        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+    if 'dmsincomingmail' in ptypes:  # i_e ok
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
         states = []
         max_level = 0
         for i, (st, tr) in enumerate(wf_from_to['to']):
@@ -158,8 +158,8 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
                 start = max_level
             # for states before validation levels, we copy the first one
             if level == 9 and state9:
-                set_dms_config(['transitions_levels', 'dmsincomingmail', state],
-                               get_dms_config(['transitions_levels', 'dmsincomingmail', state9]))
+                set_dms_config(['transitions_levels', 'dmsincomingmail', state],  # i_e ok
+                               get_dms_config(['transitions_levels', 'dmsincomingmail', state9]))  # i_e ok
                 continue
             config = {}
             for org in orgs:
@@ -177,7 +177,7 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
                 if level != 9 and users_in_groups.get('{}_n_plus_{}'.format(org, level), False):
                     orgs_back[org] = 'back_to_n_plus_{}'.format(level)
 
-            set_dms_config(['transitions_levels', 'dmsincomingmail', state], config)
+            set_dms_config(['transitions_levels', 'dmsincomingmail', state], config)  # i_e ok
             if level == 9 and not state9:
                 state9 = state
 
@@ -217,9 +217,9 @@ def update_transitions_auc_config(ptype, action=None, group_id=None):
     :param group_id: new group assignment
     """
     orgs = get_registry_organizations()
-    if ptype == 'dmsincomingmail':
+    if ptype == 'dmsincomingmail':  # i_e ok
         auc = api.portal.get_registry_record(AUC_RECORD)
-        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
         transitions = [tr for (st, tr) in wf_from_to['to']]
         previous_tr = ''
         global_config = {}
@@ -248,7 +248,7 @@ def update_transitions_auc_config(ptype, action=None, group_id=None):
                 config[org] = val
             previous_tr = tr
             global_config[tr] = config
-            set_dms_config(['transitions_auc', 'dmsincomingmail', tr], config)
+            set_dms_config(['transitions_auc', 'dmsincomingmail', tr], config)  # i_e ok
 
 
 def highest_review_level(portal_type, group_ids):
@@ -274,9 +274,10 @@ def list_wf_states(context, portal_type):
         list all portal_type wf states
     """
     ordered_states = {
-        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_n_plus_5',
-                            'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
-                            'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
+        'dmsincomingmail': ['created', 'proposed_to_pre_manager', 'proposed_to_manager',  # i_e ok
+                            'proposed_to_n_plus_5', 'proposed_to_n_plus_4', 'proposed_to_n_plus_3',
+                            'proposed_to_n_plus_2', 'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment',
+                            'closed'],
         'dmsincoming_email': ['created', 'proposed_to_pre_manager', 'proposed_to_manager', 'proposed_to_n_plus_5',
                               'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
                               'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
@@ -529,12 +530,12 @@ class IdmUtilsMethods(UtilsMethods):
             return False
         way_index = transition.startswith('back_to') and 1 or 0
         transition_to_test = transition
-        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
         if transition in [tr for (st, tr) in wf_from_to['from']]:
             transition_to_test = 'from_states'
         # show only the next valid level
         state = api.content.get_state(self.context)
-        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])  # i_e ok
         if state not in transitions_levels or \
                 (transitions_levels[state].get(self.context.treating_groups)
                  and transitions_levels[state][self.context.treating_groups][way_index] != transition_to_test):
@@ -545,7 +546,7 @@ class IdmUtilsMethods(UtilsMethods):
             if self.context.assigned_user is not None:
                 # print "have assigned user: True"
                 return True
-            transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
+            transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])  # i_e ok
             if transitions_auc.get(self.context.treating_groups, False):
                 # print 'auc ok: True'
                 return True

@@ -60,7 +60,7 @@ class IMFieldsVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        return get_pt_fields_voc('dmsincomingmail',
+        return get_pt_fields_voc('dmsincomingmail',  # i_e ok
                                  ['IDublinCore.contributors', 'IDublinCore.creators', 'IDublinCore.effective',
                                   'IDublinCore.expires', 'IDublinCore.language', 'IDublinCore.rights',
                                   'IDublinCore.subjects', 'INameFromTitle.title', 'ITask.assigned_group',
@@ -298,7 +298,7 @@ def imiodmsmail_settings_changed(event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMMailTypesVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')
     if event.record.fieldName == 'assigned_user_check':
-        update_transitions_auc_config('dmsincomingmail')
+        update_transitions_auc_config('dmsincomingmail')  # i_e ok
         n_plus_x = 'imio.dms.mail.wfadaptations.IMServiceValidation' in \
                    [adapt['adaptation'] for adapt in get_applied_adaptations()]
         snoi = False
@@ -363,7 +363,7 @@ def configure_group_encoder(portal_types, contacts_part=False):
 
     # local roles config
     config = {
-        'dmsincomingmail': {
+        'dmsincomingmail': {  # i_e ok
             'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
                                                           'Base Field Writer', 'Treating Group Writer']}},
             #                                                          CREATING_FIELD_ROLE]}},
@@ -397,7 +397,7 @@ def configure_group_encoder(portal_types, contacts_part=False):
 
     # add localroles for possible proposed_to_n_plus_ states
     # only incoming mails
-    if 'dmsincomingmail' in portal_types:
+    if 'dmsincomingmail' in portal_types:  # i_e ok
         for typ in ('dmsincomingmail', 'dmsincoming_email'):
             states = list_wf_states(portal, typ)
             for state in states:
@@ -406,7 +406,7 @@ def configure_group_encoder(portal_types, contacts_part=False):
 
     # criterias config
     criterias = {
-        'dmsincomingmail': ('incoming-mail', 'mail-searches', 'all_mails'),
+        'dmsincomingmail': ('incoming-mail', 'mail-searches', 'all_mails'),  # i_e ok
         'dmsoutgoingmail': ('outgoing-mail', 'mail-searches', 'all_mails'),
         'organization': ('contacts', 'orgs-searches', 'all_orgs'),
         'person': ('contacts', 'persons-searches', 'all_persons'),

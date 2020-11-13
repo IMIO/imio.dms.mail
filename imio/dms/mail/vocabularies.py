@@ -48,7 +48,7 @@ class IMReviewStatesVocabulary(object):
     def __call__(self, context):
         terms = []
         tl = api.portal.get().portal_properties.site_properties.getProperty('default_language', 'fr')
-        for state in list_wf_states(context, 'dmsincomingmail'):
+        for state in list_wf_states(context, 'dmsincomingmail'):  # i_e ok
             terms.append(SimpleVocabulary.createTerm(
                 state.id, state.id, translate(safe_unicode(state.title), domain='plone', target_language=tl)))
         return SimpleVocabulary(terms)

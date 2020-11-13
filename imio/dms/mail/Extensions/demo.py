@@ -29,7 +29,7 @@ import os
 import time
 
 
-def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):
+def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):  # i_e ok
     """
         Import some incoming mail for demo site
     """
@@ -40,7 +40,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):
     contacts = portal.contacts
     intids = getUtility(IIntIds)
     docs = {
-        'dmsincomingmail': {
+        'dmsincomingmail': {  # i_e ok
             '59.PDF':
             {
                 'c': {'mail_type': 'courrier', 'file_title': '010500000000001.pdf', 'recipient_groups': []},
