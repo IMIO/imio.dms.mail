@@ -191,11 +191,11 @@ class TestAdapters(unittest.TestCase):
         obj = createContentInContainer(imail, 'dmsmainfile', id='010999900000690.pdf', title='010999900000690.pdf',
                                        description='description', scan_id='010999900000690')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), '010999900000690 IMIO010999900000690 690 description')
-        obj = createContentInContainer(imail, 'dmsmainfile', id='010999900000691.pdf', title='title',
-                                       description='description', scan_id='010999900000691')
+        self.assertEqual(ext(), '010999900000690 IMIO010999900000690 description')
+        obj = createContentInContainer(imail, 'dmsmainfile', id='010999900001691.pdf', title='title',
+                                       description='description', scan_id='010999900001691')
         ext = ScanSearchableExtender(obj)
-        self.assertEqual(ext(), '010999900000691 title IMIO010999900000691 691 description')
+        self.assertEqual(ext(), '010999900001691 title IMIO010999900001691 1691 description')
         fh = open('testfile.txt', 'w+')
         fh.write("One word\n")
         fh.seek(0)
