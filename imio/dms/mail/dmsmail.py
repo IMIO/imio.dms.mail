@@ -560,7 +560,7 @@ def imio_dmsoutgoingmail_updatewidgets(the_form):
                     default = term.token
                 if not treating_group:  # not a reply
                     break
-                if term.token == '{}_{}'.format(treating_group, current_user.id):
+                if term.token.endswith('_{}_{}'.format(treating_group, current_user.id)):
                     default = term.token
                     break
         the_form.widgets['sender'].value = [default]
