@@ -58,7 +58,6 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):  # i_e ok
             'email1.pdf':
             {
                 'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'email', 'file_title': u'email1.pdf',
-                      'treating_groups': contacts['plonegroup-organization']['evenements'].UID(),
                       'assigned_user': 'agent', 'recipient_groups': []},
                 'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
             },
