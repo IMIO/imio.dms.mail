@@ -42,7 +42,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
 
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'typeinfo'])
+        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo'])
 
         # Apply workflow adaptations
         # applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
