@@ -163,7 +163,7 @@ def postInstall(context):
 
         # blacklistPortletCategory(context, im_folder)
         createIMailCollections(col_folder)
-        createStateCollections(col_folder, 'dmsincomingmail')
+        createStateCollections(col_folder, 'dmsincomingmail')  # i_e ok
         configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
                                  default_UID=col_folder['all_mails'].UID())
 
@@ -303,7 +303,7 @@ def postInstall(context):
 
     # enable portal diff on mails
     pdiff = api.portal.get_tool('portal_diff')
-    pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
+    pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})  # i_e ok
     pdiff.setDiffForPortalType('dmsincoming_email', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('dmsoutgoingmail', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('dmsoutgoing_email', {'any': "Compound Diff for Dexterity types"})
@@ -357,7 +357,7 @@ def createStateCollections(folder, content_type):
         create a collection for each contextual workflow state
     """
     conditions = {
-        'dmsincomingmail': {
+        'dmsincomingmail': {  # i_e ok
             'created': "python: object.restrictedTraverse('idm-utils').created_col_cond()",
             'proposed_to_manager': "python: object.restrictedTraverse('idm-utils').proposed_to_manager_col_cond()",
         },
@@ -366,7 +366,7 @@ def createStateCollections(folder, content_type):
         },
     }
     view_fields = {
-        'dmsincomingmail': {
+        'dmsincomingmail': {  # i_e ok
             '*': (u'select_row', u'pretty_link', u'treating_groups', u'assigned_user', u'due_date', u'mail_type',
                   u'sender', u'reception_date', u'actions'),
         },
@@ -394,11 +394,11 @@ def createStateCollections(folder, content_type):
         },
     }
     showNumberOfItems = {
-        'dmsincomingmail': ('created',),
+        'dmsincomingmail': ('created',),  # i_e ok
         'dmsoutgoingmail': ('scanned',),
     }
     sort_on = {
-        'dmsincomingmail': {
+        'dmsincomingmail': {  # i_e ok
             '*': u"organization_type",
         },
         'task': {'*': u"created"},
@@ -481,7 +481,7 @@ def createIMailCollections(folder):
              'v': ['dmsincomingmail', 'dmsincoming_email']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsincomingmail-validation'}],
-            'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",
+            'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",  # i_e ok
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'mail_type', u'sender', u'reception_date', u'actions'),
@@ -905,18 +905,19 @@ def adaptDefaultPortal(context):
                                    'display_below_content_title_on_views', True)
     # imio.dms.mail configuration annotation
     # if changed, must be updated in testing.py !
-    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],  # i_e ok
                    [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
-    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],  # i_e ok
+                   [('proposed_to_agent', 'propose_to_agent')])
     set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
     set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
     # review levels configuration, used in utils and adapters
-    set_dms_config(['review_levels', 'dmsincomingmail'],
+    set_dms_config(['review_levels', 'dmsincomingmail'],  # i_e ok
                    OrderedDict([('dir_general', {'st': ['proposed_to_manager']})]))
     set_dms_config(['review_levels', 'task'], OrderedDict())
     set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
     # review_states configuration, is the same as review_levels with some key, value inverted
-    set_dms_config(['review_states', 'dmsincomingmail'],
+    set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
                    OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
     set_dms_config(['review_states', 'task'], OrderedDict())
     set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
@@ -984,7 +985,7 @@ def configure_rolefields(context):
     }
     for keyname in roles_config:
         # don't overwrite existing configuration
-        msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)
+        msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)  # i_e ok
         if msg:
             logger.warn(msg)
         msg = add_fti_configuration('dmsincoming_email', roles_config[keyname], keyname=keyname)
@@ -1153,7 +1154,7 @@ def configureBatchImport(context):
             os.path.join(productpath, u'batchimport/toprocess')
     if not registry.get('collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'):
         registry['collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'] = \
-            [{'code': u'in', 'portal_type': u'dmsincomingmail'}]
+            [{'code': u'in', 'portal_type': u'dmsincomingmail'}]  # i_e ok
 
 
 def configureImioDmsMail(context):
@@ -1423,7 +1424,7 @@ def addTestMails(context):
                       'recipient_groups': [],
                       'description': 'Ceci est la description du courrier %d' % i,
                       }
-            ifld.invokeFactory('dmsincomingmail', id='courrier%d' % i, **params)
+            ifld.invokeFactory('dmsincomingmail', id='courrier%d' % i, **params)  # i_e ok
             mail = ifld['courrier%d' % i]
             filename = files_cycle.next()
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
