@@ -213,7 +213,7 @@ class OMSenderVocabulary(object):
             org = hp.get_organization()
             terms.append((person, hp,
                           SimpleVocabulary.createTerm(
-                              brain.UID, "%s_%s" % (org.UID(), brain.mail_type or ''),
+                              brain.UID, '{}_{}_{}'.format(brain.UID, org.UID(), brain.mail_type or ''),
                               hp.get_full_title(first_index=1))))
 
         def sort_terms(t):
