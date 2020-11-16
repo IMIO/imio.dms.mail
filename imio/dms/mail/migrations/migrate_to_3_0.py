@@ -118,7 +118,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             new_lst = []
             change = False
             for dic in col.query:
-                if dic['i'] == 'portal_type' and len(dic['v']) == 1 and dic['v'][0] == 'dmsincomingmail':
+                if dic['i'] == 'portal_type' and len(dic['v']) == 1 and dic['v'][0] == 'dmsincomingmail':  # i_e ok
                     dic['v'] = ['dmsincomingmail', 'dmsincoming_email']
                     change = True
                 new_lst.append(dic)

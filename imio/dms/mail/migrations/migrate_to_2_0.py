@@ -62,7 +62,7 @@ class Migrate_To_2_0(Migrator):
         rpl = {'IM Field Writer': 'Base Field Writer', 'IM Treating Group Writer': 'Treating Group Writer'}
         # add new roles, remove old sharing utilities, add new sharing utilities
         self.runProfileSteps('imio.dms.mail', steps=['rolemap', 'sharing'])
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')  # i_e ok
         lr = getattr(fti, 'localroles')
         changes = False
         if 'IM Field Writer' in self.portal.__ac_roles__:
@@ -290,7 +290,7 @@ class Migrate_To_2_0(Migrator):
         configure_om_rolefields(self.portal)
 
         # refresh some indexes
-        brains = self.catalog.searchResults(portal_type=['dmsincomingmail'])
+        brains = self.catalog.searchResults(portal_type=['dmsincomingmail'])  # i_e ok
         for brain in brains:
             obj = brain.getObject()
             obj.reindexObjectSecurity()

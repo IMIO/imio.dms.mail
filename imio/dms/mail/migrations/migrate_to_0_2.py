@@ -28,7 +28,7 @@ class Migrate_To_0_2(Migrator):
     def _deleteOldLocalRoles(self):
         """ Delete old local roles """
         logger.info("Delete old local roles.")
-        brains = self.portal.portal_catalog(portal_type='dmsincomingmail')
+        brains = self.portal.portal_catalog(portal_type='dmsincomingmail')  # i_e ok
         for brain in brains:
             obj = brain.getObject()
             for groups in (obj.treating_groups, obj.recipient_groups):
@@ -71,7 +71,7 @@ class Migrate_To_0_2(Migrator):
         logger.info("Replace principal ids of localrolefields by organization uids.")
         pcat = self.portal.portal_catalog
 
-        brains = pcat(portal_type='dmsincomingmail')
+        brains = pcat(portal_type='dmsincomingmail')  # i_e ok
 
         def split_principals(principals):
             ret = []
@@ -107,11 +107,11 @@ class Migrate_To_0_2(Migrator):
         from imio.dms.mail.setuphandlers import createTopicView, createStateTopics
         folder = self.portal['incoming-mail']
         folder.setConstrainTypesMode(0)
-        createTopicView(folder, 'dmsincomingmail', _(u'all_incoming_mails'))
-        createStateTopics(self.portal, folder, 'dmsincomingmail')
+        createTopicView(folder, 'dmsincomingmail', _(u'all_incoming_mails'))  # i_e ok
+        createStateTopics(self.portal, folder, 'dmsincomingmail')  # i_e ok
         folder.setConstrainTypesMode(1)
-        folder.setLocallyAllowedTypes(['dmsincomingmail'])
-        folder.setImmediatelyAddableTypes(['dmsincomingmail'])
+        folder.setLocallyAllowedTypes(['dmsincomingmail'])  # i_e ok
+        folder.setImmediatelyAddableTypes(['dmsincomingmail'])  # i_e ok
         self.portal.portal_workflow.doActionFor(folder, "show_internally")
         folder.manage_delObjects(ids=['topic_page'])
         folder = self.portal['outgoing-mail']

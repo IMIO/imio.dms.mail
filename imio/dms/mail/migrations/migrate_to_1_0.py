@@ -76,7 +76,7 @@ class Migrate_To_1_0(Migrator):
 
         # re-create dashboard collections
         createIMailCollections(col_folder)
-        createStateCollections(col_folder, 'dmsincomingmail')
+        createStateCollections(col_folder, 'dmsincomingmail')  # i_e ok
         configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
                                  default_UID=col_folder['all_mails'].UID())
 
@@ -105,7 +105,7 @@ class Migrate_To_1_0(Migrator):
 
     def update_local_roles(self):
         """ Add dexterity local roles config """
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')  # i_e ok
         lr = getattr(fti, 'localroles')
         if 'static_config' in lr:
             lrsc = lr['static_config']
@@ -139,7 +139,7 @@ class Migrate_To_1_0(Migrator):
         # We have to reapply type info before doing other subproducts migration
         self.runProfileSteps('imio.dms.mail', steps=['typeinfo'])
         # We have to update type schema because plone.dexterity doesn't detect schema_policy modification. BUG #44
-        for portal_type in ['dmsincomingmail', 'dmsoutgoingmail']:
+        for portal_type in ['dmsincomingmail', 'dmsoutgoingmail']:  # i_e ok
             schemaName = dxutils.portalTypeToSchemaName(portal_type)
             schema = getattr(plone.dexterity.schema.generated, schemaName)
             fti = getUtility(IDexterityFTI, name=portal_type)
@@ -174,7 +174,7 @@ class Migrate_To_1_0(Migrator):
 
         # moved notes content to task_description
         catalog = api.portal.get_tool('portal_catalog')
-        brains = catalog.searchResults(portal_type='dmsincomingmail')
+        brains = catalog.searchResults(portal_type='dmsincomingmail')  # i_e ok
         for brain in brains:
             obj = brain.getObject()
             if not base_hasattr(obj, 'notes') or not obj.notes:

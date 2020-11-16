@@ -65,7 +65,7 @@ class Migrate_To_0_3_1(Migrator):
         col_folder = im_folder['collections']
         createIMailCollections(col_folder)
         col_folder.setDefaultPage('all_mails')
-        createStateCollections(col_folder, 'dmsincomingmail')
+        createStateCollections(col_folder, 'dmsincomingmail')  # i_e ok
 
     def replaceRoleByGroup(self):
         gp = api.group.get('encodeurs')
@@ -82,7 +82,7 @@ class Migrate_To_0_3_1(Migrator):
             roles.remove('General Manager')
             self.portal.__ac_roles__ = tuple(roles)
         # add localroles config
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')  # i_e ok
         lrc = getattr(fti, 'localroleconfig')
         if 'proposed_to_manager' not in lrc or 'dir_general' not in lrc['proposed_to_manager']:
             for state in ['proposed_to_manager', 'proposed_to_service_chief', 'proposed_to_agent', 'in_treatment',
@@ -125,14 +125,14 @@ class Migrate_To_0_3_1(Migrator):
         self.runProfileSteps('collective.dms.scanbehavior', ['catalog'])
 
         api.portal.get_tool('portal_diff').setDiffForPortalType(
-            'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})
+            'dmsincomingmail', {'any': "Compound Diff for Dexterity types"})  # i_e ok
         self.createNotEncodedPerson()
         self.changeTopicsFolder()
         self.replaceRoleByGroup()
         self.portal.portal_workflow.updateRoleMappings()
 
         catalog = api.portal.get_tool('portal_catalog')
-        brains = catalog.searchResults(portal_type='dmsincomingmail')
+        brains = catalog.searchResults(portal_type='dmsincomingmail')  # i_e ok
         if brains:
             factory = getUtility(IVocabularyFactory, 'collective.dms.basecontent.treating_groups')
             voc = factory(brains[0].getObject())

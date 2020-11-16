@@ -36,7 +36,7 @@ class Migrate_To_1_1(Migrator):
 
     def update_dmsincomingmail(self):
         """ Update searchabletext """
-        brains = self.catalog.searchResults(portal_type='dmsincomingmail')
+        brains = self.catalog.searchResults(portal_type='dmsincomingmail')  # i_e ok
         for brain in brains:
             obj = brain.getObject()
             obj.reindexObject(idxs=['SearchableText'])

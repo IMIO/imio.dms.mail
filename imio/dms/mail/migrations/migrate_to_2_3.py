@@ -59,9 +59,9 @@ class Migrate_To_2_3(Migrator):  # noqa
 
         # add new dms config used in update_transitions_levels_config
         if 'wf_from_to' not in get_dms_config():
-            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],
+            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],  # i_e ok
                            [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
-            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],
+            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],  # i_e ok
                            [('proposed_to_agent', 'propose_to_agent')])
             set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
             set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'],
@@ -170,7 +170,7 @@ class Migrate_To_2_3(Migrator):  # noqa
         if api.group.get('lecteurs_globaux_ce') is None:
             api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
         # change local roles
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        fti = getUtility(IDexterityFTI, name='dmsincomingmail')  # i_e ok
         lr = getattr(fti, 'localroles')
         lrsc = lr['static_config']
         for state in ['proposed_to_manager', 'proposed_to_n_plus_1',
@@ -214,7 +214,7 @@ class Migrate_To_2_3(Migrator):  # noqa
                 api.content.delete(obj=folder['searchfor_proposed_to_service_chief'])
 
         # clean dms config
-        for ptype in ('dmsincomingmail', 'dmsoutgoingmail', 'task'):
+        for ptype in ('dmsincomingmail', 'dmsoutgoingmail', 'task'):  # i_e ok
             config = get_dms_config(['review_levels', ptype])
             if '_validateur' in config:
                 del config['_validateur']
@@ -230,7 +230,7 @@ class Migrate_To_2_3(Migrator):  # noqa
                     del dic1[state1]['validateur']
 
         # clean local roles
-        for ptype in ('dmsincomingmail', 'dmsoutgoingmail'):
+        for ptype in ('dmsincomingmail', 'dmsoutgoingmail'):  # i_e ok
             fti = getUtility(IDexterityFTI, name=ptype)
             lr = getattr(fti, 'localroles')
             lrg = lr['static_config']
@@ -362,7 +362,7 @@ class Migrate_To_2_3(Migrator):  # noqa
                                        'incoming_mail', False, **params)
 
         # update wf history to replace review_state and correct history
-        config = {'dmsincomingmail': {'wf': 'incomingmail_workflow',
+        config = {'dmsincomingmail': {'wf': 'incomingmail_workflow',  # i_e ok
                                       'st': {'proposed_to_service_chief': 'proposed_to_n_plus_1'},
                                       'tr': {'propose_to_service_chief': 'propose_to_n_plus_1',
                                              'back_to_service_chief': 'back_to_n_plus_1'}},

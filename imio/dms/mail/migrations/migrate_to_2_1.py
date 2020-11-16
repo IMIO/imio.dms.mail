@@ -150,7 +150,8 @@ class Migrate_To_2_1(Migrator):
         collections = [
             {}, {}, {}, {}, {}, {}, {},
             {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
-                {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+                {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                 'v': ['dmsincomingmail']},  # i_e ok
                 {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
                  'v': 'dmsincomingmail-in-copy-group-unread'}],
                 'cond': u"", 'bypass': [],
@@ -158,7 +159,8 @@ class Migrate_To_2_1(Migrator):
                          u'due_date', u'mail_type', u'sender', u'reception_date', u'actions'),
                 'sort': u'organization_type', 'rev': True, 'count': True}, {},
             {'id': 'followed', 'tit': _('im_followed'), 'subj': (u'search', ), 'query': [
-                {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['dmsincomingmail']},
+                {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                 'v': ['dmsincomingmail']},  # i_e ok
                 {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
                  'v': 'dmsincomingmail-followed'}],
                 'cond': u"", 'bypass': [],
@@ -369,14 +371,14 @@ class Migrate_To_2_1(Migrator):
             return
         except KeyError:
             pass
-        set_dms_config(['review_levels', 'dmsincomingmail'],
+        set_dms_config(['review_levels', 'dmsincomingmail'],  # i_e ok
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                     ('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
         set_dms_config(['review_levels', 'task'],
                        OrderedDict([('_validateur', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
         set_dms_config(['review_levels', 'dmsoutgoingmail'],
                        OrderedDict([('_validateur', {'st': ['proposed_to_service_chief'], 'org': 'treating_groups'})]))
-        set_dms_config(['review_states', 'dmsincomingmail'],
+        set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
                        OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
                                     ('proposed_to_service_chief', {'group': '_validateur', 'org': 'treating_groups'})]))
         set_dms_config(['review_states', 'task'],
@@ -442,7 +444,7 @@ class Migrate_To_2_1(Migrator):
 
         # self.catalog.refreshCatalog(clear=1)
         # recatalog
-        for brain in self.catalog(portal_type='dmsincomingmail'):
+        for brain in self.catalog(portal_type='dmsincomingmail'):  # i_e ok
             brain.getObject().reindexObject(['get_full_title', 'organization_type'])
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
