@@ -2254,9 +2254,11 @@ def configure_wsclient(context):
         api.portal.set_registry_record('{}.field_mappings'.format(prefix),
                                        [{'field_name': u'title', 'expression': u'context/title'},
                                         {'field_name': u'description',
-                                         'expression': u'context/Description'},
-                                        {'field_name': u'detailedDescription',
-                                         'expression': u'context/@@IncomingmailWSClient/detailed_description'},
+                                         'expression': u"python: u'{}\n{}'.format(context.description, "
+                                                       u"context.restrictedTraverse('@@IncomingmailWSClient')"
+                                                       u".detailed_description())"},
+                                        # {'field_name': u'detailedDescription',
+                                        #  'expression': u'context/@@IncomingmailWSClient/detailed_description'},
                                         {'field_name': u'annexes',
                                          'expression': u'context/@@IncomingmailWSClient/get_main_files'},
                                         ])
