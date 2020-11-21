@@ -75,6 +75,8 @@ class Migrate_To_2_3(Migrator):  # noqa
         self.upgradeProfile('collective.contact.plonegroup:default')
         self.install(['collective.contact.importexport', 'collective.fontawesome'])
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
+        if not self.portal_quickinstaller.isProductInstalled('collective.wfadaptations'):
+            self.install('collective.wfadaptations')
         self.runProfileSteps('imio.dms.mail', steps=['actions', 'plone.app.registry'], run_dependencies=False)
 
         # add new task collection
