@@ -20,6 +20,8 @@ from collective.dms.mailcontent.dmsmail import DmsIncomingMail
 from collective.dms.mailcontent.dmsmail import DmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
 from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
+from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
+from collective.dms.mailcontent.dmsmail import IOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
@@ -503,7 +505,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
 class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
     """ """
     def bases(self, schemaName, tree):  # noqa
-        return (IImioDmsOutgoingMail, )
+        return (IImioDmsOutgoingMail, IFieldsetOutgoingEmail)
 
 
 class ImioDmsOutgoingMail(DmsOutgoingMail):

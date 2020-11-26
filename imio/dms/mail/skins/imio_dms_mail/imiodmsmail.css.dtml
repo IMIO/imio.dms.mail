@@ -79,6 +79,9 @@
     display: None;
 }
 
+.template-dmsdocument-edit.portaltype-dmsoutgoingmail #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs  {
+    display: block;
+}
 
 /* Title 100% */
 
