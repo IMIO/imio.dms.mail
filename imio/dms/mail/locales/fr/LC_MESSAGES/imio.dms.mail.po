@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2020-10-30 14:14+0000\n"
+"POT-Creation-Date: 2020-11-27 12:57+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -81,7 +81,7 @@ msgstr "Éléments à ajouter"
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./setuphandlers.py:1962
+#: ./setuphandlers.py:1963
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -113,7 +113,7 @@ msgstr "Vérification sur l'utilisateur assigné"
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr "Utilisateur obligatoire seulement au niveau n+1"
 
-#: ./setuphandlers.py:1999
+#: ./setuphandlers.py:2000
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -189,16 +189,16 @@ msgstr "Choisir dans quel état un email transféré manuellement par un agent v
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:1909
+#: ./setuphandlers.py:1910
 msgid "Common templates"
 msgstr "Modèles communs"
 
-#: ./migrations/migrate_to_2_1.py:330
+#: ./migrations/migrate_to_2_1.py:332
 #: ./setuphandlers.py:291
 msgid "Contact list searches"
 msgstr "Recherches listes de contact"
 
-#: ./migrations/migrate_to_2_1.py:330
+#: ./migrations/migrate_to_2_1.py:332
 #: ./setuphandlers.py:291
 msgid "Contact lists"
 msgstr "Listes de contact"
@@ -219,7 +219,7 @@ msgstr "Créer depuis modèle"
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:504
+#: ./utils.py:505
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
@@ -259,7 +259,7 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1983
+#: ./setuphandlers.py:1984
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -275,20 +275,20 @@ msgstr "Prénom Nom"
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1979
+#: ./setuphandlers.py:1980
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1977
+#: ./setuphandlers.py:1978
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
-#: ./migrations/migrate_to_2_1.py:312
+#: ./migrations/migrate_to_2_1.py:314
 #: ./setuphandlers.py:273
 msgid "Held positions"
 msgstr "Fonctions occupées"
 
-#: ./migrations/migrate_to_2_1.py:312
+#: ./migrations/migrate_to_2_1.py:314
 #: ./setuphandlers.py:273
 msgid "Held positions searches"
 msgstr "Recherches fonctions occupées"
@@ -328,7 +328,7 @@ msgstr "Courrier entrant"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1981
+#: ./setuphandlers.py:1982
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -340,12 +340,12 @@ msgstr "Nom Prénom"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1955
+#: ./setuphandlers.py:1956
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
 #: ./browser/settings.py:130
-#: ./dmsmail.py:187
+#: ./dmsmail.py:189
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -361,7 +361,7 @@ msgstr "Valeur stockée"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:1985
+#: ./setuphandlers.py:1986
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -405,12 +405,12 @@ msgstr "Une fois créé et utilisé, la zone 'Valeur' ne doit plus être modifi�
 msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
-#: ./migrations/migrate_to_2_1.py:300
+#: ./migrations/migrate_to_2_1.py:302
 #: ./setuphandlers.py:261
 msgid "Organizations"
 msgstr "Organisations"
 
-#: ./migrations/migrate_to_2_1.py:300
+#: ./migrations/migrate_to_2_1.py:302
 #: ./setuphandlers.py:261
 msgid "Organizations searches"
 msgstr "Recherches organisations"
@@ -420,7 +420,7 @@ msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:497
+#: ./dmsmail.py:499
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -444,12 +444,12 @@ msgstr "Courrier sortant"
 msgid "Overwrite"
 msgstr "Écraser le contenu avec les éléments choisis"
 
-#: ./migrations/migrate_to_2_1.py:321
+#: ./migrations/migrate_to_2_1.py:323
 #: ./setuphandlers.py:282
 msgid "Persons"
 msgstr "Personnes"
 
-#: ./migrations/migrate_to_2_1.py:321
+#: ./migrations/migrate_to_2_1.py:323
 #: ./setuphandlers.py:282
 msgid "Persons searches"
 msgstr "Recherches personnes"
@@ -458,7 +458,7 @@ msgstr "Recherches personnes"
 msgid "Pipeline to use to import contacts"
 msgstr "Pipeline pour importer des contacts"
 
-#: ./wfadaptations.py:336
+#: ./wfadaptations.py:337
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la fonction creating_group !"
 
@@ -466,15 +466,15 @@ msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la f
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:1993
+#: ./setuphandlers.py:1994
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:2008
+#: ./setuphandlers.py:2009
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
-#: ./dmsmail.py:179
+#: ./dmsmail.py:181
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -511,7 +511,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./setuphandlers.py:1196
+#: ./setuphandlers.py:1197
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -527,7 +527,7 @@ msgstr "Sélectionner les éléments à ajouter (CTRL+clic)"
 msgid "Select the values to remove (CTRL+click)"
 msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
 
-#: ./dmsmail.py:148
+#: ./dmsmail.py:150
 msgid "Sender"
 msgstr "Expéditeurs"
 
@@ -543,7 +543,7 @@ msgstr "Single steps profile for imio.dms.mail"
 msgid "States for which to display remark icon"
 msgstr "États pour lesquels afficher l'icône de \"remarque\""
 
-#: ./setuphandlers.py:1969
+#: ./setuphandlers.py:1970
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -559,7 +559,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1907
+#: ./setuphandlers.py:1908
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -567,7 +567,7 @@ msgstr "Modèles doc"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:673
+#: ./dmsmail.py:675
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -585,11 +585,11 @@ msgstr "Transition"
 
 #: ./browser/batchactions.py:43
 #: ./browser/table.py:114
-#: ./dmsmail.py:160
+#: ./dmsmail.py:162
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:508
+#: ./utils.py:509
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
@@ -645,7 +645,7 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les gr
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./dmsmail.py:247
+#: ./dmsmail.py:249
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
@@ -720,24 +720,24 @@ msgid "create_person"
 msgstr "Créer une personne"
 
 #: ./migrations/migrate_to_2_0.py:211
-#: ./migrations/migrate_to_2_1.py:217
-#: ./migrations/migrate_to_2_3.py:143
+#: ./migrations/migrate_to_2_1.py:219
+#: ./migrations/migrate_to_2_3.py:145
 msgid "front_page_descr"
 msgstr "Bienvenue sur votre outil de gestion du courrier"
 
 #: ./migrations/migrate_to_2_0.py:212
-#: ./migrations/migrate_to_2_1.py:218
-#: ./migrations/migrate_to_2_3.py:144
+#: ./migrations/migrate_to_2_1.py:220
+#: ./migrations/migrate_to_2_3.py:146
 msgid "front_page_text"
 msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p><ul><li>Création d'une fiche courrier entrant<ul><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier</li><li>manuellement avec la possibilité d'associer ensuite un document scanné</li></ul></li><li>Création d'une fiche courrier sortant<ul><li>en réponse à un courrier entrant avec reprise des données encodées sur l'entrant</li><li>manuellement avec la possibilité d'associer ensuite un document au format bureautique qui peut être généré à partir d’un modèle prédéfini</li><li>automatiquement après avoir scanné les courriers, avec un code barre séparateur collé sur la première page de chaque courrier (par exemple un courrier généré par une autre application, déjà imprimé et signé)</li></ul></li><li>Pour les documents injectés depuis le scanner, la fiche courrier (entrant ou sortant) est complétée en se basant sur la prévisualisation du document scanné et la possibilité de glisser/déplacer depuis le texte océrisé</li><li>Possibilité de configurer des services ''indicateur'' différents (confidentialité) et de présélectionner les services indicateur et traitant depuis le logiciel de scan</li><li>L'utilisation d'un modèle de courrier sortant a comme avantage de gérer automatiquement<ul><li>la fusion de données,</li><li>l'impression en lot,</li><li>l'intégration d'un code-barre</li><li>le publipostage</li></ul></li><li>Le code barre intégré dans le courrier sortant généré permet d’effectuer un scan des documents après signature.&nbsp;Cela automatise les opérations suivantes :<ul><li>la sauvegarde de la version signée du document dans la fiche courrier sortant</li><li>l'enregistrement de la date d'expédition</li><li>la clôture de la fiche courrier sortant</li></ul></li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments ' à traiter '</li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Assignation d'un service traitant, des services en copie et gestion de tâches (qui peuvent aussi être assignées à d'autres services)</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires, liste de contacts)</li><li>Workflow de validation configurable (de n+1 à n+5) et variable suivant les services</li><li>Workflow de traitement du courrier et des tâches</li><li>Lien avec iA.Delib: création d'un point depuis une fiche courrier</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale (facilité de visualisation sur tablette)</li><li>etc.</li></ul>"
 
 #: ./migrations/migrate_to_2_0.py:210
-#: ./migrations/migrate_to_2_1.py:216
-#: ./migrations/migrate_to_2_3.py:142
+#: ./migrations/migrate_to_2_1.py:218
+#: ./migrations/migrate_to_2_3.py:144
 msgid "front_page_title"
 msgstr "Gestion du courrier 3.0"
 
-#: ./migrations/migrate_to_2_1.py:160
+#: ./migrations/migrate_to_2_1.py:161
 #: ./setuphandlers.py:553
 msgid "im_followed"
 msgstr "Étiquette: Suivi"

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-10-30 14:14+0000\n"
+"POT-Creation-Date: 2020-11-27 12:57+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -79,7 +79,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./setuphandlers.py:1962
+#: ./setuphandlers.py:1963
 msgid "All contacts export"
 msgstr ""
 
@@ -111,7 +111,7 @@ msgstr ""
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr ""
 
-#: ./setuphandlers.py:1999
+#: ./setuphandlers.py:2000
 msgid "Base template"
 msgstr ""
 
@@ -187,16 +187,16 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1909
+#: ./setuphandlers.py:1910
 msgid "Common templates"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:330
+#: ./migrations/migrate_to_2_1.py:332
 #: ./setuphandlers.py:291
 msgid "Contact list searches"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:330
+#: ./migrations/migrate_to_2_1.py:332
 #: ./setuphandlers.py:291
 msgid "Contact lists"
 msgstr ""
@@ -217,7 +217,7 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:504
+#: ./utils.py:505
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
@@ -257,7 +257,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1983
+#: ./setuphandlers.py:1984
 msgid "Ending template"
 msgstr ""
 
@@ -273,20 +273,20 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1979
+#: ./setuphandlers.py:1980
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1977
+#: ./setuphandlers.py:1978
 msgid "Header template"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:312
+#: ./migrations/migrate_to_2_1.py:314
 #: ./setuphandlers.py:273
 msgid "Held positions"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:312
+#: ./migrations/migrate_to_2_1.py:314
 #: ./setuphandlers.py:273
 msgid "Held positions searches"
 msgstr ""
@@ -326,7 +326,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1981
+#: ./setuphandlers.py:1982
 msgid "Intro template"
 msgstr ""
 
@@ -338,12 +338,12 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1955
+#: ./setuphandlers.py:1956
 msgid "Mail listing template"
 msgstr ""
 
 #: ./browser/settings.py:130
-#: ./dmsmail.py:187
+#: ./dmsmail.py:189
 msgid "Mail type"
 msgstr ""
 
@@ -359,7 +359,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:1985
+#: ./setuphandlers.py:1986
 msgid "Mailing template"
 msgstr ""
 
@@ -403,12 +403,12 @@ msgstr ""
 msgid "Optional comment to display in history"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:300
+#: ./migrations/migrate_to_2_1.py:302
 #: ./setuphandlers.py:261
 msgid "Organizations"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:300
+#: ./migrations/migrate_to_2_1.py:302
 #: ./setuphandlers.py:261
 msgid "Organizations searches"
 msgstr ""
@@ -418,7 +418,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:497
+#: ./dmsmail.py:499
 msgid "Outgoing Date"
 msgstr ""
 
@@ -442,12 +442,12 @@ msgstr ""
 msgid "Overwrite"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:321
+#: ./migrations/migrate_to_2_1.py:323
 #: ./setuphandlers.py:282
 msgid "Persons"
 msgstr ""
 
-#: ./migrations/migrate_to_2_1.py:321
+#: ./migrations/migrate_to_2_1.py:323
 #: ./setuphandlers.py:282
 msgid "Persons searches"
 msgstr ""
@@ -456,7 +456,7 @@ msgstr ""
 msgid "Pipeline to use to import contacts"
 msgstr ""
 
-#: ./wfadaptations.py:336
+#: ./wfadaptations.py:337
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr ""
 
@@ -464,15 +464,15 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:1993
+#: ./setuphandlers.py:1994
 msgid "Print template"
 msgstr "To print"
 
-#: ./setuphandlers.py:2008
+#: ./setuphandlers.py:2009
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:179
+#: ./dmsmail.py:181
 msgid "Recipient groups"
 msgstr ""
 
@@ -509,7 +509,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./setuphandlers.py:1196
+#: ./setuphandlers.py:1197
 msgid "Response: "
 msgstr ""
 
@@ -525,7 +525,7 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
-#: ./dmsmail.py:148
+#: ./dmsmail.py:150
 msgid "Sender"
 msgstr ""
 
@@ -541,7 +541,7 @@ msgstr ""
 msgid "States for which to display remark icon"
 msgstr ""
 
-#: ./setuphandlers.py:1969
+#: ./setuphandlers.py:1970
 msgid "Style template"
 msgstr ""
 
@@ -557,7 +557,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1907
+#: ./setuphandlers.py:1908
 msgid "Templates"
 msgstr ""
 
@@ -565,7 +565,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:673
+#: ./dmsmail.py:675
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -583,11 +583,11 @@ msgstr ""
 
 #: ./browser/batchactions.py:43
 #: ./browser/table.py:114
-#: ./dmsmail.py:160
+#: ./dmsmail.py:162
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:508
+#: ./utils.py:509
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -643,7 +643,7 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:247
+#: ./dmsmail.py:249
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
@@ -718,24 +718,24 @@ msgid "create_person"
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:211
-#: ./migrations/migrate_to_2_1.py:217
-#: ./migrations/migrate_to_2_3.py:143
+#: ./migrations/migrate_to_2_1.py:219
+#: ./migrations/migrate_to_2_3.py:145
 msgid "front_page_descr"
 msgstr "Welcome on the mail management application"
 
 #: ./migrations/migrate_to_2_0.py:212
-#: ./migrations/migrate_to_2_1.py:218
-#: ./migrations/migrate_to_2_3.py:144
+#: ./migrations/migrate_to_2_1.py:220
+#: ./migrations/migrate_to_2_3.py:146
 msgid "front_page_text"
 msgstr "<p>&nbsp;</p><p>The application integrates the management of incoming mail:</p><ul><li>Automatic creation of incoming mail from scanned files with a separator barcode stuck on the first page of every mail</li><li>Completion of incoming mail with preview of the scanned document and drag / drop from the extracted text by OCR</li><li>Without automatic injection from the scanner, the ability to create a mail and manually link the scanned document (for example, if the format is particular)</li><li>Predefined searches following actions to take and state of mails</li><li>Results display in a dynamic table with changeable fields filters, sorting, pagination, actions column, batch actions, etc.</li><li>Contact management (senders, recipients)</li><li>Choice of treating service, copy services and task management (that can be assigned to other services)</li><li>Choice of a responsible user in the treating service or on a task and also a due date</li><li>Mail validation workflow</li><li>Mail treatment workflow</li><li>Possibility to advance element by element from a search results</li><li>etc.</li></ul><p>&nbsp;</p>"
 
 #: ./migrations/migrate_to_2_0.py:210
-#: ./migrations/migrate_to_2_1.py:216
-#: ./migrations/migrate_to_2_3.py:142
+#: ./migrations/migrate_to_2_1.py:218
+#: ./migrations/migrate_to_2_3.py:144
 msgid "front_page_title"
 msgstr "Mails management"
 
-#: ./migrations/migrate_to_2_1.py:160
+#: ./migrations/migrate_to_2_1.py:161
 #: ./setuphandlers.py:553
 msgid "im_followed"
 msgstr "Label : Followed"
