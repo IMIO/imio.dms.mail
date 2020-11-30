@@ -11,7 +11,7 @@ from imio.dms.mail.vocabularies import AssignedUsersVocabulary
 from imio.dms.mail.vocabularies import CreatingGroupVocabulary
 from imio.dms.mail.vocabularies import EmptyAssignedUsersVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
-from imio.dms.mail.vocabularies import get_mail_types
+from imio.dms.mail.vocabularies import get_settings_vta_table
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
 from imio.dms.mail.vocabularies import LabelsVocabulary
 from imio.dms.mail.vocabularies import OMActiveMailTypesVocabulary
@@ -72,11 +72,24 @@ class TestVocabularies(unittest.TestCase):
                             {(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'), ('chef', 'Michel Chef'),
                              ('agent1', 'Stef Agent')})
 
-    def test_get_mail_types(self):
-        voc_list = [(t.value, t.title) for t in get_mail_types()]
+    def test_get_settings_vta_table(self):
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('mail_types')]
         self.assertEquals(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'), (u'email', u'E-mail'),
                                      (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
                                      (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', choose=True)]
+        self.assertEqual(voc_list[0], (None, "Choose a value !"))
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', active=(False, ))]
+        self.assertTrue(len(voc_list) == 0)
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes',
+                                       [{'value': u'None', 'dtitle': u'Travaille fieu', 'active': True},
+                                        {'value': u'post', 'dtitle': u'Lettre', 'active': False},
+                                        {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
+                                        {'value': u'email', 'dtitle': u'Email', 'active': True},])
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', choose=True)]
+        self.assertEqual(voc_list[0], (None, u"Travaille fieu"))
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', active=(False, ))]
+        self.assertTrue(len(voc_list) == 1)
 
     def test_IMMailTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
@@ -92,7 +105,7 @@ class TestVocabularies(unittest.TestCase):
                                         u'retour-recommande', u'facture'])
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
-        mail_types[0]['mt_active'] = False
+        mail_types[0]['active'] = False
         settings.mail_types = mail_types
         # After a registry change, the vocabulary cache has been cleared
         voc_list = [t.value for t in voc_inst(self.imail)]

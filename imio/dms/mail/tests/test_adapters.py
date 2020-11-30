@@ -260,7 +260,7 @@ class TestAdapters(unittest.TestCase):
         # We deactivate the courrier mail type, the missing value is managed
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
-        mail_types[0]['mt_active'] = False
+        mail_types[0]['active'] = False
         settings.mail_types = mail_types
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMActiveMailTypesVocabulary')
         self.assertNotIn('courrier', [t.value for t in voc_inst(imail)])
@@ -282,7 +282,7 @@ class TestAdapters(unittest.TestCase):
         # We deactivate the courrier mail type, the missing value is managed
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.omail_types
-        mail_types[0]['mt_active'] = False
+        mail_types[0]['active'] = False
         settings.omail_types = mail_types
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.OMActiveMailTypesVocabulary')
         self.assertNotIn('courrier', [t.value for t in voc_inst(omail)])
