@@ -126,7 +126,8 @@ class IImioDmsMailConfig(model.Schema):
 
     mail_types = schema.List(
         title=_(u'Types of incoming mail'),
-        description=_(u"Once created and used, value doesn't be changed anymore."),
+        description=_(u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' "
+                      u"value."),
         value_type=DictRow(title=_("Mail type"),
                            schema=ITableListSchema))
 
@@ -198,7 +199,8 @@ class IImioDmsMailConfig(model.Schema):
 
     omail_types = schema.List(
         title=_(u'Types of outgoing mail'),
-        description=_(u"Once created and used, value doesn't be changed anymore."),
+        description=_(u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' "
+                      u"value."),
         value_type=DictRow(title=_("Mail type"),
                            schema=ITableListSchema))
 
@@ -244,8 +246,8 @@ class IImioDmsMailConfig(model.Schema):
     send_modes = schema.List(
         title=_(u'Send modes'),
         description=_(u"Once created and used, value doesn't be changed anymore. "
-                      u"None can be used for a 'choose' value. First element is the default."),
-        value_type=DictRow(title=_("Send mode"),
+                      u"None can be used for a 'choose' value."),
+        value_type=DictRow(title=_("Send modes"),
                            schema=ITableListSchema))
 
     widget('send_modes', DataGridFieldFactory, allow_reorder=True)
