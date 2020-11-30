@@ -106,10 +106,10 @@ iemail_manual_forward_transitions = SimpleVocabulary(
 )
 
 
-class IMailTypeSchema(Interface):
-    mt_value = schema.TextLine(title=_("Mail type value"), required=True)
-    mt_title = schema.TextLine(title=_("Mail type title"), required=True)
-    mt_active = schema.Bool(title=_("Active"), required=False)
+class ITableListSchema(Interface):
+    value = schema.TextLine(title=_("Stored value/id"), required=True)
+    dtitle = schema.TextLine(title=_("Displayed title"), required=True)
+    active = schema.Bool(title=_("Active"), required=False)
 
 
 class IImioDmsMailConfig(model.Schema):
@@ -128,7 +128,7 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u'Types of incoming mail'),
         description=_(u"Once created and used, value doesn't be changed anymore."),
         value_type=DictRow(title=_("Mail type"),
-                           schema=IMailTypeSchema))
+                           schema=ITableListSchema))
 
     widget('mail_types', DataGridFieldFactory, allow_reorder=True)
 
@@ -200,7 +200,7 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u'Types of outgoing mail'),
         description=_(u"Once created and used, value doesn't be changed anymore."),
         value_type=DictRow(title=_("Mail type"),
-                           schema=IMailTypeSchema))
+                           schema=ITableListSchema))
 
     widget('omail_types', DataGridFieldFactory, allow_reorder=True)
 

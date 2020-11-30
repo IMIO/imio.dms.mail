@@ -1169,13 +1169,13 @@ def configureImioDmsMail(context):
     # IM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'] = [
-            {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
-            {'mt_value': u'recommande', 'mt_title': u'Recommandé', 'mt_active': True},
-            {'mt_value': u'email', 'mt_title': u'E-mail', 'mt_active': True},
-            {'mt_value': u'certificat', 'mt_title': u'Certificat médical', 'mt_active': True},
-            {'mt_value': u'fax', 'mt_title': u'Fax', 'mt_active': True},
-            {'mt_value': u'retour-recommande', 'mt_title': u'Retour recommandé', 'mt_active': True},
-            {'mt_value': u'facture', 'mt_title': u'Facture', 'mt_active': True},
+            {'value': u'courrier', 'dtitle': u'Courrier', 'active': True},
+            {'value': u'recommande', 'dtitle': u'Recommandé', 'active': True},
+            {'value': u'email', 'dtitle': u'E-mail', 'active': True},
+            {'value': u'certificat', 'dtitle': u'Certificat médical', 'active': True},
+            {'value': u'fax', 'dtitle': u'Fax', 'active': True},
+            {'value': u'retour-recommande', 'dtitle': u'Retour recommandé', 'active': True},
+            {'value': u'facture', 'dtitle': u'Facture', 'active': True},
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = ['proposed_to_agent']
@@ -1188,8 +1188,8 @@ def configureImioDmsMail(context):
     # OM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'] = [
-            {'mt_value': u'courrier', 'mt_title': u'Courrier', 'mt_active': True},
-            {'mt_value': u'recommande', 'mt_title': u'Recommandé', 'mt_active': True},
+            {'value': u'courrier', 'dtitle': u'Courrier', 'active': True},
+            {'value': u'recommande', 'dtitle': u'Recommandé', 'active': True},
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True

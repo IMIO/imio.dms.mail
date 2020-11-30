@@ -128,20 +128,23 @@ class EmptyAssignedUsersVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-def get_mail_types(choose=False, active=(True, False), field='mail_types'):
+def get_settings_vta_table(field, active=(True, False), choose=False):
     """
-        Create a vocabulary from registry mail_types variable
+        Create a vocabulary from registry table variable (value, title, active)
     """
     settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
     terms = []
-    if choose:
-        terms.append(SimpleVocabulary.createTerm(None, '', _("Choose a value !")))
     id_utility = queryUtility(IIDNormalizer)
     for mail_type in (getattr(settings, field) or []):
         # value (stored), token (request), title
-        if mail_type['mt_active'] in active:
-            terms.append(SimpleVocabulary.createTerm(mail_type['mt_value'],
-                         id_utility.normalize(mail_type['mt_value']), mail_type['mt_title']))
+        if mail_type['active'] in active:
+            val = mail_type['value']
+            if val == 'None':
+                val = None
+                choose = False
+            terms.append(SimpleTerm(val, id_utility.normalize(mail_type['value']), mail_type['dtitle']))
+    if choose:
+        terms.insert(0, SimpleTerm(None, '', _("Choose a value !")))
     return SimpleVocabulary(terms)
 
 
@@ -151,7 +154,7 @@ class IMMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return get_mail_types()
+        return get_settings_vta_table('mail_types')
 
 
 class IMActiveMailTypesVocabulary(object):
@@ -160,7 +163,7 @@ class IMActiveMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return get_mail_types(choose=True, active=[True])
+        return get_settings_vta_table('mail_types', choose=True, active=[True])
 
 
 class PloneGroupInterfacesVocabulary(object):
@@ -228,7 +231,7 @@ class OMMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return get_mail_types(field='omail_types')
+        return get_settings_vta_table('omail_types')
 
 
 class OMActiveMailTypesVocabulary(object):
@@ -237,7 +240,7 @@ class OMActiveMailTypesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return get_mail_types(active=[True], field='omail_types')
+        return get_settings_vta_table('omail_types', active=[True])
 
 
 def encodeur_active_orgs(context):

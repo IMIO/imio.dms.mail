@@ -24,6 +24,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         Migrator.__init__(self, context)
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
+        self.existing_settings = {}
 
     # TODO update searchabletext of all main files to include external id
 
@@ -37,6 +38,10 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.cleanRegistries()
 
         self.correct_actions()
+
+        for mt in ('mail_types', 'omail_types'):
+            mtr = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(mt)
+            self.existing_settings[mt] = api.portal.get_registry_record(mtr)
 
         # self.upgradeProfile('collective.contact.plonegroup:default')
 
@@ -56,12 +61,12 @@ class Migrate_To_3_0(Migrator):  # noqa
         # self.portal.portal_workflow.updateRoleMappings()
 
         # do various global adaptations
+        self.update_config()
         self.update_site()
 
         # do various adaptations for dmsincoming_email and dmsoutgoing_email
         self.insert_incoming_emails()
         self.insert_outgoing_emails()
-
         self.check_previously_migrated_collections()
 
         # self.catalog.refreshCatalog(clear=1)
@@ -159,6 +164,17 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.content.rename(obj=pa['portlet'], new_id='object_portlet')
             set_portlet(self.portal)
 
+    def update_config(self):
+        # modify settings following new structure
+        for mt in ('mail_types', 'omail_types'):
+            mtr = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(mt)
+            mail_types = self.existing_settings[mt]
+            new_mt = []
+            for dic in mail_types:
+                if 'mt_value' in dic:
+                    new_mt.append({'value': dic['mt_value'], 'dtitle': dic['mt_title'], 'active': dic['mt_active']})
+            if new_mt:
+                api.portal.set_registry_record(mtr, new_mt)
 
 def migrate(context):
     Migrate_To_3_0(context).run()
