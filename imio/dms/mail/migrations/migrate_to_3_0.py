@@ -175,6 +175,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                     new_mt.append({'value': dic['mt_value'], 'dtitle': dic['mt_title'], 'active': dic['mt_active']})
             if new_mt:
                 api.portal.set_registry_record(mtr, new_mt)
+        # add new setting values
+        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes',
+                                              default=False):
+            modes = [
+                {'value': u'post', 'dtitle': u'Lettre', 'active': True},
+                {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
+                {'value': u'email', 'dtitle': u'Email', 'active': True},
+            ]
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes', modes)
+
 
 def migrate(context):
     Migrate_To_3_0(context).run()

@@ -243,6 +243,15 @@ class OMActiveMailTypesVocabulary(object):
         return get_settings_vta_table('omail_types', active=[True])
 
 
+class OMActiveSendModesVocabulary(object):
+    """ Active send modes vocabulary """
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        return get_settings_vta_table('send_modes', active=[True])
+
+
 def encodeur_active_orgs(context):
     current_user = api.user.get_current()
     factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')

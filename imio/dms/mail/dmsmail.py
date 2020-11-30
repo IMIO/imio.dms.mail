@@ -58,6 +58,7 @@ from plone.z3cform.fieldsets.utils import add
 from plone.z3cform.fieldsets.utils import remove
 from vocabularies import encodeur_active_orgs
 from z3c.form import validator
+from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
 from zope.component import getUtility
@@ -495,6 +496,12 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         vocabulary=u'imio.dms.mail.OMActiveMailTypesVocabulary',
         default=None,
     )
+
+    send_mode = schema.List(
+        title=_("Send mode"),
+        value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary'),
+    )
+    directives.widget('send_mode', CheckBoxFieldWidget, multiple='multiple', size=5)
 
     outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
     directives.widget('outgoing_date', DatetimeFieldWidget, show_today_link=True, show_time=True)

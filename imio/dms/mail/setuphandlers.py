@@ -1195,6 +1195,12 @@ def configureImioDmsMail(context):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'] = _(u'Response: ')
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes'] = [
+            {'value': u'post', 'dtitle': u'Lettre', 'active': True},
+            {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
+            {'value': u'email', 'dtitle': u'Email', 'active': True},
+        ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'] = [
             'IDublinCore.title', 'IDublinCore.description', 'recipients', 'treating_groups', 'ITask.assigned_user',

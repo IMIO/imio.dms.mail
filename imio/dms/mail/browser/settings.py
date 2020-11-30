@@ -193,7 +193,7 @@ class IImioDmsMailConfig(model.Schema):
         label=_(u"Outgoing mail"),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
                 'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit', 'omail_fullname_used_form',
-                'omail_fields_order', 'omail_group_encoder']
+                'send_modes', 'omail_fields_order', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -240,6 +240,15 @@ class IImioDmsMailConfig(model.Schema):
         vocabulary=fullname_forms,
         default='firstname',
     )
+
+    send_modes = schema.List(
+        title=_(u'Send modes'),
+        description=_(u"Once created and used, value doesn't be changed anymore. "
+                      u"None can be used for a 'choose' value. First element is the default."),
+        value_type=DictRow(title=_("Send mode"),
+                           schema=ITableListSchema))
+
+    widget('send_modes', DataGridFieldFactory, allow_reorder=True)
 
     omail_group_encoder = schema.Bool(
         title=_(u'Activate group encoder'),

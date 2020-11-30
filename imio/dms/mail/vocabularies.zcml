@@ -45,6 +45,11 @@
         />
 
     <utility
+        name="imio.dms.mail.OMActiveSendModesVocabulary"
+        factory="imio.dms.mail.vocabularies.OMActiveSendModesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.PloneGroupInterfacesVocabulary"
         factory="imio.dms.mail.vocabularies.PloneGroupInterfacesVocabulary"
         />
