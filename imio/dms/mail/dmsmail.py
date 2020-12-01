@@ -501,7 +501,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         title=_("Send modes"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary'),
     )
-    directives.widget('send_mode', CheckBoxFieldWidget, multiple='multiple', size=5)
+    directives.widget('send_modes', CheckBoxFieldWidget, multiple='multiple', size=5)
 
     outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
     directives.widget('outgoing_date', DatetimeFieldWidget, show_today_link=True, show_time=True)
