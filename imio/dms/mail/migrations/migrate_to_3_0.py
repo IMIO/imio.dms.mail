@@ -184,6 +184,18 @@ class Migrate_To_3_0(Migrator):  # noqa
                 {'value': u'email', 'dtitle': u'Email', 'active': True},
             ]
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes', modes)
+        # order send_modes
+        om_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order')
+        if 'send_modes' not in om_fo:
+            try:
+                idx = om_fo.index('mail_type')
+            except ValueError:
+                idx = len(om_fo)
+            om_fo.insert(idx, 'send_modes')
+            email_flds = ['email_subject', 'email_sender', 'email_recipient', 'email_cc', 'email_attachments',
+                          'email_body']
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
+                                           om_fo + email_flds)
 
 
 def migrate(context):

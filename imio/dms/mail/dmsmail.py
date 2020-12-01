@@ -234,7 +234,10 @@ def order_fields(the_form, config_key):
     for field_name in reversed(ordered):
         field = remove(the_form, field_name)
         if field is not None:
-            add(the_form, field, index=0)
+            if field_name.startswith('email_'):
+                add(the_form, field, index=0, group='email')
+            else:
+                add(the_form, field, index=0)
 
 
 def updatewidgets_assigned_user_description(the_form):

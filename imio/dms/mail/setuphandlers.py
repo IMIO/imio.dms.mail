@@ -1204,8 +1204,9 @@ def configureImioDmsMail(context):
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'] = [
             'IDublinCore.title', 'IDublinCore.description', 'recipients', 'treating_groups', 'ITask.assigned_user',
-            'sender', 'recipient_groups', 'mail_type', 'mail_date', 'reply_to', 'ITask.task_description',
-            'ITask.due_date', 'outgoing_date', 'external_reference_no', 'internal_reference_no']
+            'sender', 'recipient_groups', 'send_modes', 'mail_type', 'mail_date', 'reply_to', 'ITask.task_description',
+            'ITask.due_date', 'outgoing_date', 'external_reference_no', 'internal_reference_no',
+            'email_subject', 'email_sender', 'email_recipient', 'email_cc', 'email_attachments', 'email_body']
 
     # mailcontent
     # Hide internal reference for om. Increment number automatically
