@@ -584,6 +584,32 @@ def imio_dmsoutgoingmail_updatewidgets(the_form):
     the_form.request.set('disable_plone.leftcolumn', 1)
 
 
+def manage_email_fields(the_form, action):
+    """
+        Manage email fields
+    """
+    if action == 'add':
+        # we remove email fieldset
+        the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
+        return
+    is_email = bool([val for val in the_form.context.send_modes if val.startswith('email')])
+    if not is_email:
+        # we remove email fieldset
+        the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
+        return
+    if action == 'edit':
+        group = [gr for gr in the_form.groups if gr.__name__ == 'email'][0]
+        # set email field as unrequired
+        for field_name in ('email_subject', 'email_sender', 'email_recipient', 'email_body'):
+            group.fields[field_name].field = copy.copy(group.fields[field_name].field)
+            group.fields[field_name].field.required = False
+        return
+    if action == 'view' and not the_form.context.email_subject:
+        # we remove email fieldset
+        the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
+        return
+
+
 class OMEdit(BaseOMEdit):
     """
         Edit form redefinition to customize fields.
@@ -591,6 +617,7 @@ class OMEdit(BaseOMEdit):
 
     def updateFields(self):
         super(OMEdit, self).updateFields()
+        manage_email_fields(self, 'edit')
         order_fields(self, 'omail_fields_order')
         imio_dmsoutgoingmail_updatefields(self)
 
@@ -623,6 +650,7 @@ class OMCustomAddForm(BaseOMAddForm):
 
     def updateFields(self):
         super(OMCustomAddForm, self).updateFields()
+        manage_email_fields(self, 'add')
         order_fields(self, 'omail_fields_order')
         imio_dmsoutgoingmail_updatefields(self)
 
@@ -653,11 +681,11 @@ class OMView(DmsDocumentView):
 
     def updateFieldsFromSchemata(self):
         super(OMView, self).updateFieldsFromSchemata()
+        manage_email_fields(self, 'view')
         order_fields(self, 'omail_fields_order')
 
     def updateWidgets(self, prefix=None):
         super(OMView, self).updateWidgets()
-
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
 
