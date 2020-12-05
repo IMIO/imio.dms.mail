@@ -13,13 +13,15 @@ from collective.wfadaptations.api import RECORD_NAME
 from eea.facetednavigation.interfaces import ICriteria
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from eea.facetednavigation.widgets.storage import Criterion
-from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import _tr as _
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import wfadaptations
 from imio.dms.mail.setuphandlers import createTaskCollections
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.subscribers import group_assignment
 from imio.dms.mail.subscribers import group_deleted
+from imio.dms.mail.subscribers import group_unassignment
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
@@ -32,6 +34,8 @@ from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.PluggableAuthService.interfaces.events import IGroupDeletedEvent
+from Products.PluggableAuthService.interfaces.events import IPrincipalAddedToGroupEvent
+from Products.PluggableAuthService.interfaces.events import IPrincipalRemovedFromGroupEvent
 from zope.component import getUtility
 from zope.component import globalSiteManager
 from zope.interface import alsoProvides
@@ -402,6 +406,8 @@ class Migrate_To_2_3(Migrator):  # noqa
         # First unregister group deletion handlers
         globalSiteManager.unregisterHandler(pg_group_deleted, (IGroupDeletedEvent,))
         globalSiteManager.unregisterHandler(group_deleted, (IGroupDeletedEvent,))
+        globalSiteManager.unregisterHandler(group_assignment, (IPrincipalAddedToGroupEvent,))
+        globalSiteManager.unregisterHandler(group_unassignment, (IPrincipalRemovedFromGroupEvent,))
         # move users from _validateur to _n_plus_1
         for group in api.group.get_groups():
             if group.id.endswith('_validateur'):
@@ -415,6 +421,8 @@ class Migrate_To_2_3(Migrator):  # noqa
         # register again group deletion handlers
         globalSiteManager.registerHandler(pg_group_deleted, (IGroupDeletedEvent,))
         globalSiteManager.registerHandler(group_deleted, (IGroupDeletedEvent,))
+        globalSiteManager.registerHandler(group_assignment, (IPrincipalAddedToGroupEvent,))
+        globalSiteManager.registerHandler(group_unassignment, (IPrincipalRemovedFromGroupEvent,))
 
         # remove validateur function
         functions = get_registry_functions()
