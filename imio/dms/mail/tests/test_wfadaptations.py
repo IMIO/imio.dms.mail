@@ -36,6 +36,8 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
         self.omw = self.pw['outgoingmail_workflow']
+        api.group.create('abc_group_encoder', 'ABC group encoder')
+        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
@@ -104,6 +106,33 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         res = [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0]
         self.assertIn('to_print', res)
         self.assertIn('proposed_to_n_plus_1', res)
+        # check dms config
+        view = OdmUtilsMethods(self.omail, self.omail.REQUEST)
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
+        # no treating_groups: NOK
+        self.assertIsNone(self.omail.treating_groups)
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        # tg ok, no user in group
+        self.omail.treating_groups = get_registry_organizations()[0]
+        groupname = '{}_n_plus_1'.format(self.omail.treating_groups)
+        api.group.remove_user(groupname=groupname, username='chef')
+        self.assertFalse(group_has_user(groupname))
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        # tg ok, user in group
+        api.group.add_user(groupname=groupname, username='chef')
+        self.assertTrue(group_has_user(groupname))
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        # we do transition
+        api.content.transition(self.omail, transition='propose_to_n_plus_1')
+        api.content.transition(self.omail, transition='set_to_print')
+        self.assertEqual(api.content.get_state(self.omail), 'to_print')
+        # tg ok, user in group
+        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
+        # tg ok, no user in group
+        api.group.remove_user(groupname=groupname, username='chef')
+        self.assertFalse(group_has_user(groupname))
+        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
 
     def test_OMToPrintAdaptationBeforeNp1(self):
         """ Test wf adaptation modifications """

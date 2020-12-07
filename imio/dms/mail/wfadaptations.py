@@ -666,6 +666,8 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         nplus_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'])
         nplus_to.insert(1, (new_state_id, to_tr_id))
         set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
+        # update dms config
+        update_transitions_levels_config(['dmsoutgoingmail'])
 
         # add state
         wf.states.addState(new_state_id)
