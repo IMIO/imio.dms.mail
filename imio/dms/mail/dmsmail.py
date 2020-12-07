@@ -592,7 +592,7 @@ def manage_email_fields(the_form, action):
         # we remove email fieldset
         the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
         return
-    is_email = bool([val for val in the_form.context.send_modes if val.startswith('email')])
+    is_email = bool([val for val in the_form.context.send_modes or [] if val.startswith('email')])
     if not is_email:
         # we remove email fieldset
         the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
