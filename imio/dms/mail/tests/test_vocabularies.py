@@ -77,18 +77,18 @@ class TestVocabularies(unittest.TestCase):
         self.assertEquals(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'), (u'email', u'E-mail'),
                                      (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
                                      (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
-        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', choose=True)]
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', choose=True)]
         self.assertEqual(voc_list[0], (None, "Choose a value !"))
-        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', active=(False, ))]
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', active=(False, ))]
         self.assertTrue(len(voc_list) == 0)
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes',
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes',
                                        [{'value': u'None', 'dtitle': u'Travaille fieu', 'active': True},
                                         {'value': u'post', 'dtitle': u'Lettre', 'active': False},
                                         {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
                                         {'value': u'email', 'dtitle': u'Email', 'active': True},])
-        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', choose=True)]
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', choose=True)]
         self.assertEqual(voc_list[0], (None, u"Travaille fieu"))
-        voc_list = [(t.value, t.title) for t in get_settings_vta_table('send_modes', active=(False, ))]
+        voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', active=(False, ))]
         self.assertTrue(len(voc_list) == 1)
 
     def test_IMMailTypesVocabulary(self):

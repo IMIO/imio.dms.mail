@@ -249,7 +249,7 @@ class OMActiveSendModesVocabulary(object):
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        return get_settings_vta_table('send_modes', active=[True])
+        return get_settings_vta_table('omail_send_modes', active=[True])
 
 
 def encodeur_active_orgs(context):

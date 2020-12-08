@@ -176,14 +176,14 @@ class Migrate_To_3_0(Migrator):  # noqa
             if new_mt:
                 api.portal.set_registry_record(mtr, new_mt)
         # add new setting values
-        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes',
+        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes',
                                               default=False):
             modes = [
                 {'value': u'post', 'dtitle': u'Lettre', 'active': True},
                 {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
                 {'value': u'email', 'dtitle': u'Email', 'active': True},
             ]
-            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.send_modes', modes)
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', modes)
         # order send_modes
         om_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order')
         if 'send_modes' not in om_fo:
