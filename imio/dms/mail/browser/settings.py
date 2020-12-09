@@ -34,6 +34,7 @@ from zope.interface import Interface
 from zope.interface import Invalid
 # from zope.interface import provider
 # from zope.schema.interfaces import IContextSourceBinder
+from zope.interface import invariant
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
@@ -285,6 +286,16 @@ class IImioDmsMailConfig(model.Schema):
         default=False
     )
 
+    @invariant
+    def validate_settings(data):
+        for dic in data.omail_send_modes:
+            if not dic['value'].startswith('email') and not dic['value'].startswith('post'):
+                raise Invalid(_(u"Outgoingmail tab: send_modes field must have values starting with 'post' or 'email'"))
+        for fld in ('imail_group_encoder', 'omail_group_encoder', 'contact_group_encoder'):
+            rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(fld)
+            if api.portal.get_registry_record(rec) and not getattr(data, fld):
+                raise Invalid(_(u'Unchecking the {} setting is not expected !!'.format(fld)))
+
 
 class SettingsEditForm(RegistryEditForm):
     """
@@ -324,17 +335,9 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == 'imail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
             configure_group_encoder(['dmsincomingmail', 'dmsincoming_email'])
-        else:
-            logger.exception('Unchecking the imail_group_encoder setting is not expected !!')
-            from imio.dms.mail import _tr as _
-            raise Invalid(_(u'Unchecking the imail_group_encoder setting is not expected !!'))
     if event.record.fieldName == 'omail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
             configure_group_encoder(['dmsoutgoingmail', 'dmsoutgoing_email'])
-        else:
-            logger.exception('Unchecking the omail_group_encoder setting is not expected !!')
-            from imio.dms.mail import _tr as _
-            raise Invalid(_(u'Unchecking the omail_group_encoder setting is not expected !!'))
     if event.record.fieldName == 'contact_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
             configure_group_encoder(['organization', 'person', 'held_position', 'contact_list'], contacts_part=True)
@@ -342,10 +345,6 @@ def imiodmsmail_settings_changed(event):
             portal = api.portal.get()
             portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
                                                  ('Manager', 'Site Administrator', 'Contributor'), acquire=1)
-        else:
-            logger.exception('Unchecking the contact_group_encoder setting is not expected !!')
-            from imio.dms.mail import _tr as _
-            raise Invalid(_(u'Unchecking the contact_group_encoder setting is not expected !!'))
 
 
 def configure_group_encoder(portal_types, contacts_part=False):
