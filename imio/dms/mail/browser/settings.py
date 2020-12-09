@@ -291,10 +291,12 @@ class IImioDmsMailConfig(model.Schema):
         for dic in data.omail_send_modes:
             if not dic['value'].startswith('email') and not dic['value'].startswith('post'):
                 raise Invalid(_(u"Outgoingmail tab: send_modes field must have values starting with 'post' or 'email'"))
-        for fld in ('imail_group_encoder', 'omail_group_encoder', 'contact_group_encoder'):
+        for tab, fld in (('Incoming mail', 'imail_group_encoder'), ('Outgoing mail', 'omail_group_encoder'),
+                         ('Contacts', 'contact_group_encoder')):
             rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(fld)
             if api.portal.get_registry_record(rec) and not getattr(data, fld):
-                raise Invalid(_(u'Unchecking the {} setting is not expected !!'.format(fld)))
+                raise Invalid(_(u"${tab} tab: unchecking '${field}' setting is not expected !!",
+                                mapping={'tab': _(tab), 'field': _('Activate group encoder')}))
 
 
 class SettingsEditForm(RegistryEditForm):
