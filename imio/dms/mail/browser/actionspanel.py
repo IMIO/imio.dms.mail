@@ -138,6 +138,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = ['delete']
         self.SECTIONS_TO_RENDER += (
             'renderCreateFromTemplateButton',
+            'render_create_new_message',
         )
 
     def sortTransitions(self, lst):
@@ -156,6 +157,17 @@ class DmsOMActionsPanelView(ActionsPanelView):
         if self.mayCreateFromTemplate():
             return ViewPageTemplateFile(
                 "templates/actions_panel_create_from_template.pt")(self)
+        return ''
+
+    def may_create_new_message(self):
+        if self.context.is_email() and not self.isInFacetedNavigation() and \
+                self.member.has_permission('Modify portal content', self.context):
+            return True
+        return False
+
+    def render_create_new_message(self):
+        if self.may_create_new_message():
+            return ViewPageTemplateFile("templates/actions_panel_create_new_message.pt")(self)
         return ''
 
     @ram.cache(actionspanelview_cachekey)

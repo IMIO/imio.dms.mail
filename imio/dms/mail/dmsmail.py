@@ -543,6 +543,9 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     def get_back_or_again_icon(self):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
+    def is_email(self):
+        return bool([val for val in self.send_modes or [] if val.startswith('email')])
+
 
 def imio_dmsoutgoingmail_updatefields(the_form):
     """
@@ -592,8 +595,7 @@ def manage_email_fields(the_form, action):
         # we remove email fieldset
         the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
         return
-    is_email = bool([val for val in the_form.context.send_modes or [] if val.startswith('email')])
-    if not is_email:
+    if not the_form.context.is_email():
         # we remove email fieldset
         the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
         return
