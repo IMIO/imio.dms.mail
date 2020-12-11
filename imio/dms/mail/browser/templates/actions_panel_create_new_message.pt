@@ -1,0 +1,7 @@
+<td class="noPadding" i18n:domain="imio.dms.mail">
+  <a tal:attributes="href string:${context/absolute_url}/edit?sendaction=1#fieldsetlegend-email"
+     target="_parent">
+     <input type="button" value="Write email" class="apButton apButtonAction apButtonAction_wemail" i18n:attributes="value" />
+  </a>
+</td>
+<td class="noPadding">
