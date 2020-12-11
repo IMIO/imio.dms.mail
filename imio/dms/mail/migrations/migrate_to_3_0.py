@@ -131,6 +131,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                 col.query = new_lst
 
     def insert_outgoing_emails(self):
+        # TODO set send_modes on all existing om
+        return
+        # TODO to be removed ! will not use this new type
         # allowed types
         self.omf.setConstrainTypesMode(1)
         self.omf.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
