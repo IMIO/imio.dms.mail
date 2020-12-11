@@ -134,10 +134,10 @@ class DmsOMActionsPanelView(ActionsPanelView):
     def __init__(self, context, request):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
-        #self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
+        # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
         self.ACCEPTABLE_ACTIONS = ['delete']
         self.SECTIONS_TO_RENDER += (
-            'renderCreateFromTemplateButton',
+            'render_create_from_template_button',
             'render_create_new_message',
         )
 
@@ -145,7 +145,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         """ Sort transitions following transitions list order"""
         lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
 
-    def mayCreateFromTemplate(self):
+    def may_create_from_template(self):
         """
           Method that check if special 'create from template' action has to be displayed.
         """
@@ -153,8 +153,8 @@ class DmsOMActionsPanelView(ActionsPanelView):
             return True
         return False
 
-    def renderCreateFromTemplateButton(self):
-        if self.mayCreateFromTemplate():
+    def render_create_from_template_button(self):
+        if self.may_create_from_template():
             return ViewPageTemplateFile(
                 "templates/actions_panel_create_from_template.pt")(self)
         return ''
