@@ -70,6 +70,6 @@ class MultipleReplyForm(BaseReplyForm):
             self.widgets["treating_groups"].value = first and self.brains[0].treating_groups or []
             self.widgets["reply_to"].value = form["form.widgets.reply_to"]
             self.widgets["recipients"].value = form["form.widgets.recipients"]
-            self.widgets["recipient_groups"].value = list(set([uid for b in self.brains for uid in b.recipient_groups
-                                                               if b.recipient_groups]))
+            self.widgets["recipient_groups"].value = list(set([uid for b in self.brains if b.recipient_groups
+                                                               for uid in b.recipient_groups]))
         imio_dmsoutgoingmail_updatewidgets(self)
