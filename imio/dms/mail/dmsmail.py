@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+    This module contains mainly dms types and their view methods.
+"""
+
 from AccessControl import getSecurityManager
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
@@ -21,7 +25,6 @@ from collective.dms.mailcontent.dmsmail import DmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
 from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
-from collective.dms.mailcontent.dmsmail import IOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
@@ -75,7 +78,12 @@ import copy
 
 
 def creating_group_filter(context):
-    """ Return catalog criteria vocabulary to add in contact search """
+    """Catalog criteria vocabulary used in contact search on some Contact fields.
+
+    :param context: the add, edit or view context
+    :return: vocabulary containing a criteria dict
+    :rtype: SimpleVocabulary or None
+    """
     if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
         return None
     factory = getUtility(IVocabularyFactory, 'imio.dms.mail.ActiveCreatingGroupVocabulary')
@@ -93,8 +101,14 @@ alsoProvides(creating_group_filter, IContextSourceBinder)
 
 
 def creating_group_filter_default(context):
-    """ Return default value for sender """
+    """Default value of vocabulary returned by creating_group_filter.
+
+    :param context: the add, edit or view context
+    :return: term value corresponding to the current user (creating group) organization
+    :rtype: unicode or None
+    """
     voc = creating_group_filter(context)
+    """ Return default value for sender """
     if voc is None:
         return None
     current_user = api.user.get_current()
@@ -108,11 +122,15 @@ def creating_group_filter_default(context):
 
 
 class DmsContactSource(ContactSource):
+    """Overrides of ContactSource to set do_post_sort value to False.
+    So results aren't sorted by title.
+    """
 
     do_post_sort = False  # do not sort by title before displaying search results (used in contact.widget)
 
     def __init__(self, context, selectable_filter, navigation_tree_query=None,
                  default=None, defaultFactory=None, **kw):  # noqa
+        """Changes sort_on criteria from list to string."""
         super(DmsContactSource, self).__init__(context, selectable_filter, navigation_tree_query,
                                                default, defaultFactory, **kw)
         # criteria cannot be a list. We correct it
