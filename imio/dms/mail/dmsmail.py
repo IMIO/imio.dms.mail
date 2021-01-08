@@ -533,7 +533,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
 class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
     """ """
     def bases(self, schemaName, tree):  # noqa
-        return (IImioDmsOutgoingMail, IFieldsetOutgoingEmail)
+        return IImioDmsOutgoingMail, IFieldsetOutgoingEmail
 
 
 class ImioDmsOutgoingMail(DmsOutgoingMail):
@@ -562,6 +562,9 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
     def is_email(self):
+        """Check if send_modes is related to email.
+            :return: boolean
+        """
         return bool([val for val in self.send_modes or [] if val.startswith('email')])
 
 
@@ -606,8 +609,10 @@ def imio_dmsoutgoingmail_updatewidgets(the_form):
 
 
 def manage_email_fields(the_form, action):
-    """
-        Manage email fields
+    """Manages email fieldset following add, edit or view.
+
+    :param the_form: the form
+    :param action: 'add', 'edit' or 'view' string
     """
     if action == 'add':
         # we remove email fieldset
@@ -618,11 +623,13 @@ def manage_email_fields(the_form, action):
         the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
         return
     if action == 'edit':
-        group = [gr for gr in the_form.groups if gr.__name__ == 'email'][0]
-        # set email field as unrequired
-        for field_name in ('email_subject', 'email_sender', 'email_recipient', 'email_body'):
-            group.fields[field_name].field = copy.copy(group.fields[field_name].field)
-            group.fields[field_name].field.required = False
+        # if '++widget++' in the_form.request.get('URL', ''):
+        #    return
+        # !! Test on a field value in request must be done in request.form and not in request directly
+        # !! to avoid a WrongType email_subject validation (string <-> unicode problem).
+        if not (the_form.context.email_subject or 'edit-email' in the_form.request or
+                the_form.request.form.get('form.widgets.email_subject')):
+            the_form.groups = [gr for gr in the_form.groups if gr.__name__ != 'email']
         return
     if action == 'view' and not the_form.context.email_subject:
         # we remove email fieldset
