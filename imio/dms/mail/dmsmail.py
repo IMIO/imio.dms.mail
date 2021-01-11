@@ -6,6 +6,7 @@
 
 from AccessControl import getSecurityManager
 from browser.settings import IImioDmsMailConfig
+from collective.contact.core.interfaces import IContactable
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.plonegroup.utils import organizations_with_suffixes
@@ -637,10 +638,74 @@ def manage_email_fields(the_form, action):
         return
 
 
+def get_sender_email(mail):
+    """Returns a sender email address
+
+    :param mail: the outgoing mail that is edited
+    :type mail: ImioDmsOutgoingMail
+    :return: an email address
+    :rtype: unicode
+    """
+    if not mail.sender:
+        return u''
+    brains = mail.portal_catalog(UID=mail.sender)
+    if brains:
+        hp = brains[0].getObject()
+        hpc = IContactable(hp)
+        email = hpc.get_contact_details(keys=['email']).get('email', u'')
+        return email
+        if email:
+            return u'{} {} <{}>'.format(hp.firstname, hp.lastname, email)
+    return u''
+
+
+def get_recipient_email(mail):
+    """Returns a recipient email address
+
+    :param mail: the outgoing mail that is edited
+    :type mail: ImioDmsOutgoingMail
+    :return: an email address
+    :rtype: unicode
+    """
+    if not mail.recipients:
+        return u''
+    rec_rel_val = mail.recipients[0]
+    # we don't use directly relation object to be sure to use the real object
+    brains = mail.portal_catalog(UID=rec_rel_val.to_object.UID())
+    if brains:
+        contact = brains[0].getObject()
+        contactable = IContactable(contact)
+        email = contactable.get_contact_details(keys=['email']).get('email', u'')
+        return email
+        if email:
+            if hasattr(contact, 'firstname'):
+                return u'{} {} <{}>'.format(contact.firstname, contact.lastname, email)
+            else:
+                return email
+    return u''
+
+
 class OMEdit(BaseOMEdit):
     """
         Edit form redefinition to customize fields.
     """
+
+    def update(self):
+        super(OMEdit, self).update()
+        # !! groups are updated outside and after updateWidgets
+        # !! self.groups contains now Group (with widgets) in place of GroupClass
+        email_fs = [gr for gr in self.groups if gr.__name__ == 'email']
+        if email_fs:
+            email_fs = email_fs[0]
+            subject = email_fs.widgets['email_subject']
+            if not subject.value:
+                subject.value = self.context.title
+            sender = email_fs.widgets['email_sender']
+            if not sender.value:
+                sender.value = get_sender_email(self.context)
+            recipient = email_fs.widgets['email_recipient']
+            if not recipient.value:
+                recipient.value = get_recipient_email(self.context)
 
     def updateFields(self):
         super(OMEdit, self).updateFields()
