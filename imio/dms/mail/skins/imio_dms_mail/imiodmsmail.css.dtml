@@ -47,7 +47,11 @@
 .template-dmsdocument-edit #content-core #fieldset-default .field,
 .template-dmsdocument-edit #form-widgets-treating_groups,
 .template-dmsdocument-edit #form_widgets_recipient_groups_select_chzn,
-.template-dmsdocument-edit #form_widgets_sender_select_chzn {
+.template-dmsdocument-edit #form_widgets_sender_select_chzn,
+.template-dmsdocument-edit #form-widgets-email_subject,
+.template-dmsdocument-edit #form-widgets-email_sender,
+.template-dmsdocument-edit #form-widgets-email_recipient,
+.template-dmsdocument-edit #form-widgets-email_cc {
     width: 100% !important;
 }
 
@@ -106,6 +110,11 @@
 .chzn-container {
     font-size: inherit;
 }
+
+.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-email_body div.richTextWidget  #cke_2_contents {
+    height: 20em;
+}
+
 /* Display None */
 
 .template-facetednavigation_view .viewlet_workflowstate{
@@ -243,6 +252,10 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
     display: none;
 }
 
+.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-email_recipient span.formHelp {
+    display: none;
+}
+
 /* Other */
 
 #collections-count-refresh {
@@ -374,8 +387,8 @@ fieldset table.listing td.td_cell_convert img {
 
 #newIMCreation img, #newIEMCreation img,
 #newOMCreation img, #newOEMCreation img,
-#parent-fieldname-title .pretty_link_icons img
-{
+#parent-fieldname-title .pretty_link_icons img,
+div.contactcontent_backrefs img {
     width: 20px;
     height: 20px;
 }
