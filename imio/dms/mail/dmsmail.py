@@ -653,7 +653,6 @@ def get_sender_email(mail):
         hp = brains[0].getObject()
         hpc = IContactable(hp)
         email = hpc.get_contact_details(keys=['email']).get('email', u'')
-        return email
         if email:
             return u'{} {} <{}>'.format(hp.firstname, hp.lastname, email)
     return u''
@@ -667,22 +666,21 @@ def get_recipient_email(mail):
     :return: an email address
     :rtype: unicode
     """
-    if not mail.recipients:
-        return u''
-    rec_rel_val = mail.recipients[0]
+    emails = []
     # we don't use directly relation object to be sure to use the real object
-    brains = mail.portal_catalog(UID=rec_rel_val.to_object.UID())
-    if brains:
-        contact = brains[0].getObject()
+    uids = [rel.to_object.UID() for rel in mail.recipients or []]
+    brains = mail.portal_catalog(UID=uids)
+    # selection order not kept !
+    for brain in brains:
+        contact = brain.getObject()
         contactable = IContactable(contact)
         email = contactable.get_contact_details(keys=['email']).get('email', u'')
-        return email
         if email:
             if hasattr(contact, 'firstname'):
-                return u'{} {} <{}>'.format(contact.firstname, contact.lastname, email)
+                emails.append(u'"{} {}" <{}>'.format(contact.firstname, contact.lastname, email))
             else:
-                return email
-    return u''
+                emails.append(email)
+    return u', '.join(emails)
 
 
 class OMEdit(BaseOMEdit):
