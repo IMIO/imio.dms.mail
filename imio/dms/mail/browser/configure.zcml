@@ -47,6 +47,13 @@
         permission="cmf.ModifyPortalContent"
         />
 
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="send_email"
+        class=".views.SendEmail"
+        permission="cmf.ModifyPortalContent"
+        />
+
     <!-- ACTIONSPANEL -->
     <configure package="imio.actionspanel">
         <!-- common for dmsincomingmail, dmsoutgoingmail and task -->

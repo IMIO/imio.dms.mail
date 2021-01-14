@@ -1,0 +1,6 @@
+<td i18n:domain="imio.dms.mail"
+    tal:define="current_url string:${context/absolute_url};"
+    tal:condition="view/may_send_email">
+    <input type="button" value="Send email" class="apButton apButtonAction apButtonAction_sendemail" i18n:attributes="value"
+        tal:attributes="onclick string:javascript:callViewAndReload(base_url='${current_url}', view_name='@@send_email');"/>
+</td>

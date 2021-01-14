@@ -139,6 +139,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         self.SECTIONS_TO_RENDER += (
             'render_create_from_template_button',
             'render_create_new_message',
+            'render_send_email',
         )
 
     def sortTransitions(self, lst):
@@ -168,6 +169,17 @@ class DmsOMActionsPanelView(ActionsPanelView):
     def render_create_new_message(self):
         if self.may_create_new_message():
             return ViewPageTemplateFile("templates/actions_panel_create_new_message.pt")(self)
+        return ''
+
+    def may_send_email(self):
+        if self.context.email_subject and not self.isInFacetedNavigation() and \
+                self.member.has_permission('Modify portal content', self.context):
+            return True
+        return False
+
+    def render_send_email(self):
+        if self.may_send_email():
+            return ViewPageTemplateFile("templates/actions_panel_send_email.pt")(self)
         return ''
 
     @ram.cache(actionspanelview_cachekey)

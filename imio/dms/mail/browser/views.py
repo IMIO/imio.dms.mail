@@ -181,3 +181,13 @@ class UpdateItem(BrowserView):
         if 'assigned_user' in self.request:
             self.context.assigned_user = self.request.get('assigned_user')
             modified(self.context)
+
+
+class SendEmail(BrowserView):
+    """Send an email."""
+
+    def __call__(self):
+        # TODO
+        # 1 Send email
+        # 2 Update status on omail (add first a status field)
+        pass
