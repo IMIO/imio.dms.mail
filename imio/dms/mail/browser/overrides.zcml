@@ -2,7 +2,10 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
+
+    <include package="z3c.unconfigure" file="meta.zcml" />
 
     <!-- columns -->
     <adapter
@@ -134,5 +137,23 @@
             outgoingmail_folder
         "
         />
+
+    <unconfigure package="collective.solr" zcml:condition="installed collective.solr">
+      <browser:viewlet
+          name="plone.searchbox"
+          manager="plone.app.layout.viewlets.interfaces.IPortalHeader"
+          class="collective.solr.browser.facets.SearchBox"
+          layer="collective.solr.browser.interfaces.IThemeSpecific"
+          permission="zope2.View" />
+      <browser:page
+          name="search"
+          class="collective.solr.browser.p4_search.Search"
+          permission="zope2.View"
+          for="plone.app.layout.navigation.interfaces.INavigationRoot"
+          template="browser/search.pt"
+          layer="collective.solr.browser.interfaces.IThemeSpecific"
+          zcml:condition="not-have plone-5"
+      />
+    </unconfigure>
 
 </configure>
