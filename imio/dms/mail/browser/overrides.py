@@ -164,4 +164,4 @@ class DocsGroupsOverviewControlPanel(BaseOverviewControlPanel, GroupsOverviewCon
 
     @property
     def portal_roles(self):
-        return ['Manager', 'Site Administrator']
+        return ['Manager', 'Member', 'Site Administrator']
