@@ -211,6 +211,8 @@ class OMSenderVocabulary(object):
             hp = brain._unrestrictedGetObject()
             person = hp.get_person()
             org = hp.get_organization()
+            if org is None:
+                continue
             terms.append((person, hp,
                           SimpleVocabulary.createTerm(
                               brain.UID, '{}_{}_{}'.format(brain.UID, org.UID(), brain.mail_type or ''),
