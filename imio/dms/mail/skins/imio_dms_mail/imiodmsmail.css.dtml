@@ -347,16 +347,26 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     font-weight: bold;
 }
 
-.apButtonAction_reply {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/reply_icon.png');
+.apButtonAction_assign {
+    background-image: url('&dtml-portal_url;/user.png');
 }
 
 .apButtonAction_create-from-template {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/models_icon.png');
 }
 
-.apButtonAction_assign {
-    background-image: url('&dtml-portal_url;/user.png');
+.apButtonAction_sendemail {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email.svg');
+    background-size: 18px 18px;
+}
+
+.apButtonAction_wemail {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/arobase.svg');
+    background-size: 18px 18px;
+}
+
+.apButtonAction_reply {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/reply_icon.png');
 }
 
 /* Configure autocomplete widget */
