@@ -144,13 +144,14 @@ class BaseOverviewControlPanel(UsersGroupsControlPanelView):
 
     def doSearch(self, searchString):  # noqa
         results = super(BaseOverviewControlPanel, self).doSearch(searchString)
-        if check_zope_admin:
+        if check_zope_admin():
             return results
         adapted_results = []
         for item in results:
             adapted_item = item.copy()
             for role in self.portal_roles:
                 adapted_item['roles'][role]['canAssign'] = False
+            adapted_item['can_delete'] = False
             adapted_results.append(adapted_item)
         return adapted_results
 
