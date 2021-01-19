@@ -195,8 +195,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             except ValueError:
                 idx = len(om_fo)
             om_fo.insert(idx, 'send_modes')
-            email_flds = ['email_subject', 'email_sender', 'email_recipient', 'email_cc', 'email_attachments',
-                          'email_body']
+            email_flds = ['email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
+                          'email_attachments', 'email_body']
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
                                            om_fo + email_flds)
 

@@ -695,6 +695,7 @@ class OMEdit(BaseOMEdit):
         email_fs = [gr for gr in self.groups if gr.__name__ == 'email']
         if email_fs:
             email_fs = email_fs[0]
+            # default values
             subject = email_fs.widgets['email_subject']
             if not subject.value:
                 subject.value = self.context.title
@@ -704,6 +705,8 @@ class OMEdit(BaseOMEdit):
             recipient = email_fs.widgets['email_recipient']
             if not recipient.value:
                 recipient.value = get_recipient_email(self.context)
+            # hidden mode
+            email_fs.widgets['email_status'].mode = HIDDEN_MODE
 
     def updateFields(self):
         super(OMEdit, self).updateFields()
@@ -768,6 +771,18 @@ class OMView(DmsDocumentView):
     """
         View form redefinition to customize fields.
     """
+
+    def update(self):
+        super(OMView, self).update()
+        # !! groups are updated outside and after updateWidgets
+        # !! self.groups contains now Group (with widgets) in place of GroupClass
+        email_fs = [gr for gr in self.groups if gr.__name__ == 'email']
+        if email_fs:
+            email_fs = email_fs[0]
+            for fldname in email_fs.widgets:
+                wdg = email_fs.widgets[fldname]
+                if not wdg.value:
+                    wdg.mode = HIDDEN_MODE
 
     def updateFieldsFromSchemata(self):
         super(OMView, self).updateFieldsFromSchemata()
