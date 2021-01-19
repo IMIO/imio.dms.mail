@@ -654,7 +654,7 @@ def get_sender_email(mail):
         hpc = IContactable(hp)
         email = hpc.get_contact_details(keys=['email']).get('email', u'')
         if email:
-            return u'{} {} <{}>'.format(hp.firstname, hp.lastname, email)
+            return u'"{} {}" <{}>'.format(hp.firstname, hp.lastname, email)
     return u''
 
 
