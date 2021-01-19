@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2020-12-09 08:54+0000\n"
+"POT-Creation-Date: 2021-01-19 13:58+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr "${tab}: décocher le paramètre '${field}' n'est pas prévu !"
 
-#: ./browser/views.py:25
+#: ./browser/views.py:30
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -85,7 +85,7 @@ msgstr "Éléments à ajouter"
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./setuphandlers.py:1970
+#: ./setuphandlers.py:1971
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -101,7 +101,7 @@ msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Cour
 msgid "Apply"
 msgstr "Appliquer"
 
-#: ./browser/templates/actions_panel_assign_user.pt:7
+#: ./browser/templates/actions_panel_assign_user.pt:8
 msgid "Assign"
 msgstr "Assigner"
 
@@ -117,7 +117,7 @@ msgstr "Vérification sur l'utilisateur assigné"
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr "Utilisateur obligatoire seulement au niveau n+1"
 
-#: ./setuphandlers.py:2007
+#: ./setuphandlers.py:2008
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -181,7 +181,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:30
+#: ./browser/views.py:35
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -193,7 +193,7 @@ msgstr "Choisir dans quel état un email transféré manuellement par un agent v
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:1917
+#: ./setuphandlers.py:1918
 msgid "Common templates"
 msgstr "Modèles communs"
 
@@ -259,6 +259,10 @@ msgstr "Échéance par défaut"
 msgid "Email manual forward transition"
 msgstr "Transition d'un email transféré manuellement"
 
+#: ./browser/views.py:216
+msgid "Email sent at ${date_hour}."
+msgstr "Email envoyé le ${date_hour}."
+
 #: ./vocabularies.py:125
 msgid "Empty value"
 msgstr "Sans valeur"
@@ -267,7 +271,7 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1991
+#: ./setuphandlers.py:1992
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -283,11 +287,11 @@ msgstr "Prénom Nom"
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1987
+#: ./setuphandlers.py:1988
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1985
+#: ./setuphandlers.py:1986
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -336,7 +340,7 @@ msgstr "Courrier entrant"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1989
+#: ./setuphandlers.py:1990
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -348,12 +352,12 @@ msgstr "Nom Prénom"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1963
+#: ./setuphandlers.py:1964
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
 #: ./browser/settings.py:132
-#: ./dmsmail.py:190
+#: ./dmsmail.py:209
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -361,7 +365,7 @@ msgstr "Type de courrier"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:1993
+#: ./setuphandlers.py:1994
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -420,7 +424,7 @@ msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:509
+#: ./dmsmail.py:528
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -470,15 +474,15 @@ msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la f
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:2001
+#: ./setuphandlers.py:2002
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:2016
+#: ./setuphandlers.py:2017
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
-#: ./dmsmail.py:182
+#: ./dmsmail.py:201
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -531,12 +535,16 @@ msgstr "Sélectionner les éléments à ajouter (CTRL+clic)"
 msgid "Select the values to remove (CTRL+click)"
 msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
 
+#: ./browser/templates/actions_panel_send_email.pt:4
+msgid "Send email"
+msgstr "Envoyer email"
+
 #: ./browser/settings.py:248
-#: ./dmsmail.py:504
+#: ./dmsmail.py:523
 msgid "Send modes"
 msgstr "Formes d'envoi"
 
-#: ./dmsmail.py:151
+#: ./dmsmail.py:170
 msgid "Sender"
 msgstr "Expéditeurs"
 
@@ -556,7 +564,7 @@ msgstr "États pour lesquels afficher l'icône de \"remarque\""
 msgid "Stored value/id"
 msgstr "Valeur stockée"
 
-#: ./setuphandlers.py:1977
+#: ./setuphandlers.py:1978
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -572,7 +580,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./setuphandlers.py:1915
+#: ./setuphandlers.py:1916
 msgid "Templates"
 msgstr "Modèles doc"
 
@@ -580,7 +588,7 @@ msgstr "Modèles doc"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:713
+#: ./dmsmail.py:818
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -598,7 +606,7 @@ msgstr "Transition"
 
 #: ./browser/batchactions.py:43
 #: ./browser/table.py:114
-#: ./dmsmail.py:163
+#: ./dmsmail.py:182
 msgid "Treating groups"
 msgstr "Service traitant"
 
@@ -621,6 +629,10 @@ msgstr "Reconstruire la prévisualisation"
 #: ./browser/settings.py:242
 msgid "User fullname used format"
 msgstr "Format du nom complet de l'utilisateur"
+
+#: ./browser/templates/actions_panel_create_new_message.pt:4
+msgid "Write email"
+msgstr "Rédiger email"
 
 #: ./dmsfile.py:31
 msgid "You can only upload \".odt\" file (Libre Office format)"
@@ -646,9 +658,17 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les gr
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./dmsmail.py:253
+#: ./dmsmail.py:272
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
+
+#: ./browser/views.py:208
+msgid "Your email has been sent."
+msgstr "Votre email a été envoyé"
+
+#: ./browser/views.py:210
+msgid "Your email has not been sent. Check log for errors."
+msgstr "Votre email n'a pas été envoyé. Vérifier le log d'erreurs."
 
 #: ./setuphandlers.py:768
 msgid "all_cls"

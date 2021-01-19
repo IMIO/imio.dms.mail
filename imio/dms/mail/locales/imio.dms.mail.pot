@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-12-09 08:54+0000\n"
+"POT-Creation-Date: 2021-01-19 13:58+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr ""
 
-#: ./browser/views.py:25
+#: ./browser/views.py:30
 msgid "${title}: create from template"
 msgstr ""
 
@@ -85,7 +85,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./setuphandlers.py:1970
+#: ./setuphandlers.py:1971
 msgid "All contacts export"
 msgstr ""
 
@@ -101,7 +101,7 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ./browser/templates/actions_panel_assign_user.pt:7
+#: ./browser/templates/actions_panel_assign_user.pt:8
 msgid "Assign"
 msgstr ""
 
@@ -117,7 +117,7 @@ msgstr ""
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr ""
 
-#: ./setuphandlers.py:2007
+#: ./setuphandlers.py:2008
 msgid "Base template"
 msgstr ""
 
@@ -181,7 +181,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:30
+#: ./browser/views.py:35
 msgid "Choose this template"
 msgstr ""
 
@@ -193,7 +193,7 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1917
+#: ./setuphandlers.py:1918
 msgid "Common templates"
 msgstr ""
 
@@ -259,6 +259,10 @@ msgstr ""
 msgid "Email manual forward transition"
 msgstr ""
 
+#: ./browser/views.py:216
+msgid "Email sent at ${date_hour}."
+msgstr ""
+
 #: ./vocabularies.py:125
 msgid "Empty value"
 msgstr ""
@@ -267,7 +271,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1991
+#: ./setuphandlers.py:1992
 msgid "Ending template"
 msgstr ""
 
@@ -283,11 +287,11 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1987
+#: ./setuphandlers.py:1988
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1985
+#: ./setuphandlers.py:1986
 msgid "Header template"
 msgstr ""
 
@@ -336,7 +340,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1989
+#: ./setuphandlers.py:1990
 msgid "Intro template"
 msgstr ""
 
@@ -348,12 +352,12 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1963
+#: ./setuphandlers.py:1964
 msgid "Mail listing template"
 msgstr ""
 
 #: ./browser/settings.py:132
-#: ./dmsmail.py:190
+#: ./dmsmail.py:209
 msgid "Mail type"
 msgstr ""
 
@@ -361,7 +365,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:1993
+#: ./setuphandlers.py:1994
 msgid "Mailing template"
 msgstr ""
 
@@ -420,7 +424,7 @@ msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:509
+#: ./dmsmail.py:528
 msgid "Outgoing Date"
 msgstr ""
 
@@ -470,15 +474,15 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:2001
+#: ./setuphandlers.py:2002
 msgid "Print template"
 msgstr ""
 
-#: ./setuphandlers.py:2016
+#: ./setuphandlers.py:2017
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:182
+#: ./dmsmail.py:201
 msgid "Recipient groups"
 msgstr ""
 
@@ -531,12 +535,16 @@ msgstr ""
 msgid "Select the values to remove (CTRL+click)"
 msgstr ""
 
+#: ./browser/templates/actions_panel_send_email.pt:4
+msgid "Send email"
+msgstr ""
+
 #: ./browser/settings.py:248
-#: ./dmsmail.py:504
+#: ./dmsmail.py:523
 msgid "Send modes"
 msgstr ""
 
-#: ./dmsmail.py:151
+#: ./dmsmail.py:170
 msgid "Sender"
 msgstr ""
 
@@ -556,7 +564,7 @@ msgstr ""
 msgid "Stored value/id"
 msgstr ""
 
-#: ./setuphandlers.py:1977
+#: ./setuphandlers.py:1978
 msgid "Style template"
 msgstr ""
 
@@ -572,7 +580,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./setuphandlers.py:1915
+#: ./setuphandlers.py:1916
 msgid "Templates"
 msgstr ""
 
@@ -580,7 +588,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:713
+#: ./dmsmail.py:818
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -598,7 +606,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:43
 #: ./browser/table.py:114
-#: ./dmsmail.py:163
+#: ./dmsmail.py:182
 msgid "Treating groups"
 msgstr ""
 
@@ -620,6 +628,10 @@ msgstr ""
 
 #: ./browser/settings.py:242
 msgid "User fullname used format"
+msgstr ""
+
+#: ./browser/templates/actions_panel_create_new_message.pt:4
+msgid "Write email"
 msgstr ""
 
 #: ./dmsfile.py:31
@@ -646,8 +658,16 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:253
+#: ./dmsmail.py:272
 msgid "You must select an assigned user before you can propose to an agent !"
+msgstr ""
+
+#: ./browser/views.py:208
+msgid "Your email has been sent."
+msgstr ""
+
+#: ./browser/views.py:210
+msgid "Your email has not been sent. Check log for errors."
 msgstr ""
 
 #: ./setuphandlers.py:768

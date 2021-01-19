@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
+
+from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.helpers.emailer import add_attachment
+from imio.helpers.emailer import create_html_email
+from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from plone import api
 from plone.app.contenttypes.interfaces import IFile
@@ -184,10 +189,33 @@ class UpdateItem(BrowserView):
 
 
 class SendEmail(BrowserView):
-    """Send an email."""
+    """Send an email and update email_status field."""
 
     def __call__(self):
-        # TODO
-        # 1 Send email
-        # 2 Update status on omail (add first a status field)
-        pass
+        # 1 send email
+        body = self.context.email_body
+        msg = create_html_email(body.output)
+        pc = self.context.portal_catalog
+        for a_uid in self.context.email_attachments or []:
+            res = pc(UID=a_uid)
+            if res:
+                a_obj = res[0].getObject()
+                # if no title, a_obj.file.filename
+                add_attachment(msg, a_obj.title, content=a_obj.file.data)
+        ret = send_email(msg, self.context.email_subject, self.context.email_sender, self.context.email_recipient,
+                         self.context.email_cc)
+        if ret:
+            api.portal.show_message(_('Your email has been sent.'), self.request)
+        else:
+            api.portal.show_message(_('Your email has not been sent. Check log for errors.'), self.request,
+                                    type='error')
+            return
+
+        # 2 Update status on omail
+        now = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M')
+        status = _tr(u'Email sent at ${date_hour}.', mapping={'date_hour': now})
+        if not self.context.email_status:
+            self.context.email_status = status
+        else:
+            self.context.email_status += ' {}'.format(status)
+        modified(self.context)
