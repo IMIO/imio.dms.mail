@@ -45,8 +45,8 @@ class IDmsMailCreatingGroup(model.Schema):
         defaultFactory=user_creating_group,
     )
 
-    # directives.write_permission(creating_group='imio.dms.mail: Write creating group field')
-    directives.write_permission(creating_group='imio.dms.mail: Write mail base fields')
+    # directives.write_permission(creating_group='imio.dms.mail.write_creating_group_field')
+    directives.write_permission(creating_group='imio.dms.mail.write_base_fields')
 
 
 alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
