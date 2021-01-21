@@ -200,8 +200,10 @@ class SendEmail(BrowserView):
             res = pc(UID=a_uid)
             if res:
                 a_obj = res[0].getObject()
-                # if no title, a_obj.file.filename
-                add_attachment(msg, a_obj.title, content=a_obj.file.data)
+                title = a_obj.title
+                if a_obj.file.filename:
+                    title = a_obj.file.filename
+                add_attachment(msg, title, content=a_obj.file.data)
         ret = send_email(msg, self.context.email_subject, self.context.email_sender, self.context.email_recipient,
                          self.context.email_cc)
         if ret:
@@ -217,5 +219,5 @@ class SendEmail(BrowserView):
         if not self.context.email_status:
             self.context.email_status = status
         else:
-            self.context.email_status += ' {}'.format(status)
+            self.context.email_status += u' {}'.format(status)
         modified(self.context)
