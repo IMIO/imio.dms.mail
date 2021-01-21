@@ -204,12 +204,12 @@ class SendEmail(BrowserView):
                 if a_obj.file.filename:
                     title = a_obj.file.filename
                 add_attachment(msg, title, content=a_obj.file.data)
-        ret = send_email(msg, self.context.email_subject, self.context.email_sender, self.context.email_recipient,
-                         self.context.email_cc)
+        ret, msg = send_email(msg, self.context.email_subject, self.context.email_sender, self.context.email_recipient,
+                              self.context.email_cc)
         if ret:
             api.portal.show_message(_('Your email has been sent.'), self.request)
         else:
-            api.portal.show_message(_('Your email has not been sent. Check log for errors.'), self.request,
+            api.portal.show_message(_('Your email has not been sent: ${error}.', mapping={'error': msg}), self.request,
                                     type='error')
             return
 

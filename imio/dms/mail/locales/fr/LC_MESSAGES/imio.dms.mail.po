@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-01-19 13:58+0000\n"
+"POT-Creation-Date: 2021-01-21 08:04+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -662,13 +662,13 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./browser/views.py:208
+#: ./browser/views.py:210
 msgid "Your email has been sent."
 msgstr "Votre email a été envoyé"
 
-#: ./browser/views.py:210
-msgid "Your email has not been sent. Check log for errors."
-msgstr "Votre email n'a pas été envoyé. Vérifier le log d'erreurs."
+#: ./browser/views.py:212
+msgid "Your email has not been sent: ${error}."
+msgstr "Votre email n'a pas été envoyé: ${error}."
 
 #: ./setuphandlers.py:768
 msgid "all_cls"

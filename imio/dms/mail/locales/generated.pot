@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-01-19 13:58+0000\n"
+"POT-Creation-Date: 2021-01-21 08:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -598,12 +598,12 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./browser/views.py:208
+#: ./browser/views.py:210
 msgid "Your email has been sent."
 msgstr ""
 
-#: ./browser/views.py:210
-msgid "Your email has not been sent. Check log for errors."
+#: ./browser/views.py:212
+msgid "Your email has not been sent: ${error}."
 msgstr ""
 
 #: ./setuphandlers.py:768
