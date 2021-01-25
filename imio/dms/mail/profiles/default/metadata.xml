@@ -4,6 +4,7 @@
   <dependencies>
     <dependency>profile-Products.PasswordStrength:default</dependency>
     <dependency>profile-collective.behavior.talcondition:default</dependency>
+    <dependency>profile-collective.ckeditortemplates:default</dependency>
     <dependency>profile-collective.dms.basecontent:default</dependency>
     <dependency>profile-collective.dms.mailcontent:default</dependency>
     <dependency>profile-collective.dms.batchimport:default</dependency>

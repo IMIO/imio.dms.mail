@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
+from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from imio.dms.mail import _tr as _
+from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
+from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 
 import logging
@@ -43,7 +46,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             mtr = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(mt)
             self.existing_settings[mt] = api.portal.get_registry_record(mtr)
 
-        # self.upgradeProfile('collective.contact.plonegroup:default')
+        self.install(['collective.ckeditortemplates'])
+        if default_cke_templ_folder in self.portal:
+            api.content.delete(obj=self.portal[default_cke_templ_folder])
+        self.upgradeProfile('collective.documentgenerator:default')
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
 
@@ -106,6 +112,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                     u'version 3.0</a>, dont <a href="https://docs.imio.be/imio-doc/ia.docs/changelog" '
                     u'target="_blank">les nouvelles fonctionnalités</a> ainsi que d\'autres documentations liées.</p>',
                     msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
+        # update ckeditor config
+        ckp = self.portal.portal_properties.ckeditor_properties
+        ckp.manage_changeProperties(toolbar='CustomOld')
+        configure_ckeditor(self.portal, custom='ged')
+        # update layout
+        add_oem_templates(self.portal)
+        self.portal.templates.setLayout('folder_listing')
 
     def insert_incoming_emails(self):
         # allowed types

@@ -34,6 +34,7 @@
     <include package="collective.contact.importexport" />
     <include package="collective.contact.plonegroup" />
     <include package="collective.contact.contactlist" />
+    <include package="collective.ckeditortemplates" />
     <include package="collective.js.fancytree" />
     <include package="collective.task" />
     <include package="collective.externaleditor"/>

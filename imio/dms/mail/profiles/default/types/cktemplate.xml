@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<object name="cktemplate" meta_type="Dexterity FTI" i18n:domain="plone"
+   xmlns:i18n="http://xml.zope.org/namespaces/i18n">
+ <property name="title" i18n:translate="">CK Template</property>
+ <property name="description" i18n:translate="">CKEditor custom template</property>
+ <property name="global_allow">True</property>
+ <property name="behaviors" purge="False">
+  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
+ </property>
+</object>

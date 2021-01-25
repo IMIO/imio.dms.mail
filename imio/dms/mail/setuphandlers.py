@@ -12,6 +12,7 @@ __author__ = """Gauthier BASTIEN <gbastien@imio.be>, Stephan GEULETTE
 __docformat__ = 'plaintext'
 
 from collections import OrderedDict
+from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_groups_mgt
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -337,6 +338,10 @@ def postInstall(context):
 
     site.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                'imiodmsmail-add-icons-to-contact-workflow', run_dependencies=False)
+
+    # remove collective.ckeditortemplates folder
+    if default_cke_templ_folder in site:
+        api.content.delete(obj=site[default_cke_templ_folder])
 
 
 def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
@@ -1933,8 +1938,6 @@ def add_templates(site):
                 alsoProvides(tplt_fld, itf)
             logger.info("'%s' folder created" % path)
 
-    site.templates.setDefaultPage('om')
-
     # adding view for Folder type
     # ptype = site.portal_types.Folder
     # if 'dg-templates-listing' not in ptype.view_methods:
@@ -2047,6 +2050,26 @@ def add_transforms(site):
         if name not in pt.objectIds():
             pt.manage_addTransform(name, module)
             logger.info("Added '%s' transform" % name)
+
+
+def add_oem_templates(site):
+    """Create email templates."""
+    folder_id = 'oem'
+    if folder_id not in site.templates:
+        site.templates.invokeFactory("Folder", id=folder_id, title=_('Outgoing email'))
+        tplt_fld = site.templates[folder_id]
+        tplt_fld.setLocallyAllowedTypes(['Folder', 'cktemplate'])
+        tplt_fld.setImmediatelyAddableTypes(['Folder', 'cktemplate'])
+        tplt_fld.setConstrainTypesMode(1)
+        tplt_fld.setExcludeFromNav(False)
+        api.content.transition(obj=tplt_fld, transition='show_internally')
+        alsoProvides(tplt_fld, IActionsPanelFolderAll)
+        alsoProvides(tplt_fld, INextPrevNotNavigable)
+        for itf in []:
+            alsoProvides(tplt_fld, itf)
+        logger.info("'templates/{}' folder created".format(folder_id))
+
+    # site.templates.oem.layout = 'dg-templates-listing'
 
 
 # Singles steps
