@@ -9,6 +9,7 @@
 
 from Acquisition import aq_inner  # noqa
 from collective.ckeditortemplates.browser.cktemplatelisting import CKTemplateListingView
+from collective.ckeditortemplates.cktemplate import ICKTemplate
 from collective.contact.contactlist.interfaces import IContactList
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.dmsfile import IDmsFile, IDmsAppendixFile
@@ -104,7 +105,8 @@ class Plone(PloneView):
 
     def showEditableBorder(self):
         context = aq_inner(self.context)
-        for interface in (ITask, IContactContent, IContactList, IDmsFile, IATBTreeFolder, IPODTemplate, IStyleTemplate):
+        for interface in (ITask, IContactContent, ICKTemplate, IContactList, IDmsFile, IATBTreeFolder, IPODTemplate,
+                          IStyleTemplate):
             if interface.providedBy(context):
                 return False
         return super(Plone, self).showEditableBorder()
