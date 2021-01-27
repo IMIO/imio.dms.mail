@@ -29,6 +29,14 @@ msgstr ""
 msgid "Active"
 msgstr ""
 
+#: ../profiles/default/types/cktemplate.xml
+msgid "CK Template"
+msgstr ""
+
+#: ../profiles/default/types/cktemplate.xml
+msgid "CKEditor custom template"
+msgstr ""
+
 #: ../profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivate"
 msgstr ""

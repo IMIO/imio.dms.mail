@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2020-07-14 13:34+0000\n"
+"POT-Creation-Date: 2021-01-25 13:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,6 +31,14 @@ msgstr ""
 
 #: profiles/default/rolemap.xml
 msgid "Base Field Writer"
+msgstr ""
+
+#: ../profiles/default/types/cktemplate.xml
+msgid "CK Template"
+msgstr ""
+
+#: ../profiles/default/types/cktemplate.xml
+msgid "CKEditor custom template"
 msgstr ""
 
 #: ../profiles/default/workflows/active_inactive_workflow/definition.xml

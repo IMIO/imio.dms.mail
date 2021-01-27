@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-01-21 08:04+0000\n"
+"POT-Creation-Date: 2021-01-25 13:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,7 +77,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./setuphandlers.py:1971
+#: ./setuphandlers.py:1969
 msgid "All contacts export"
 msgstr ""
 
@@ -101,7 +101,7 @@ msgstr ""
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr ""
 
-#: ./setuphandlers.py:2008
+#: ./setuphandlers.py:2006
 msgid "Base template"
 msgstr ""
 
@@ -235,7 +235,7 @@ msgstr ""
 msgid "Enable edition of service templates for encoder"
 msgstr ""
 
-#: ./setuphandlers.py:1992
+#: ./setuphandlers.py:1990
 msgid "Ending template"
 msgstr ""
 
@@ -251,11 +251,11 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./setuphandlers.py:1988
+#: ./setuphandlers.py:1986
 msgid "Footer template"
 msgstr ""
 
-#: ./setuphandlers.py:1986
+#: ./setuphandlers.py:1984
 msgid "Header template"
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1990
+#: ./setuphandlers.py:1988
 msgid "Intro template"
 msgstr ""
 
@@ -316,7 +316,7 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1964
+#: ./setuphandlers.py:1962
 msgid "Mail listing template"
 msgstr ""
 
@@ -325,7 +325,7 @@ msgstr ""
 msgid "Mail type"
 msgstr ""
 
-#: ./setuphandlers.py:1994
+#: ./setuphandlers.py:1992
 msgid "Mailing template"
 msgstr ""
 
@@ -376,6 +376,10 @@ msgstr ""
 msgid "Outgoing Date"
 msgstr ""
 
+#: ./setuphandlers.py:2054
+msgid "Outgoing email"
+msgstr ""
+
 #: ./browser/settings.py:195
 #: ./migrations/migrate_to_0_2.py:119
 #: ./setuphandlers.py:181
@@ -422,11 +426,11 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
-#: ./setuphandlers.py:2002
+#: ./setuphandlers.py:2000
 msgid "Print template"
 msgstr ""
 
-#: ./setuphandlers.py:2017
+#: ./setuphandlers.py:2015
 msgid "Receipt template"
 msgstr ""
 
@@ -508,7 +512,7 @@ msgstr ""
 msgid "Stored value/id"
 msgstr ""
 
-#: ./setuphandlers.py:1978
+#: ./setuphandlers.py:1976
 msgid "Style template"
 msgstr ""
 

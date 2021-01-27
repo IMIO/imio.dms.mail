@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-01-21 08:04+0000\n"
+"POT-Creation-Date: 2021-01-25 13:17+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -85,7 +85,7 @@ msgstr "Éléments à ajouter"
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./setuphandlers.py:1971
+#: ./setuphandlers.py:1969
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -117,7 +117,7 @@ msgstr "Vérification sur l'utilisateur assigné"
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr "Utilisateur obligatoire seulement au niveau n+1"
 
-#: ./setuphandlers.py:2008
+#: ./setuphandlers.py:2006
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -271,7 +271,7 @@ msgstr "Sans valeur"
 msgid "Enable edition of service templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles de son service."
 
-#: ./setuphandlers.py:1992
+#: ./setuphandlers.py:1990
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -287,11 +287,11 @@ msgstr "Prénom Nom"
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1988
+#: ./setuphandlers.py:1986
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./setuphandlers.py:1986
+#: ./setuphandlers.py:1984
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -340,7 +340,7 @@ msgstr "Courrier entrant"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1990
+#: ./setuphandlers.py:1988
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -352,7 +352,7 @@ msgstr "Nom Prénom"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1964
+#: ./setuphandlers.py:1962
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -365,7 +365,7 @@ msgstr "Type de courrier"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:1994
+#: ./setuphandlers.py:1992
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -428,6 +428,10 @@ msgstr "Obligation d'une date de courrier entrant"
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
+#: ./setuphandlers.py:2054
+msgid "Outgoing email"
+msgstr "Email sortant"
+
 #: ./browser/settings.py:195
 #: ./migrations/migrate_to_0_2.py:119
 #: ./setuphandlers.py:181
@@ -474,11 +478,11 @@ msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la f
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
-#: ./setuphandlers.py:2002
+#: ./setuphandlers.py:2000
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:2017
+#: ./setuphandlers.py:2015
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -564,7 +568,7 @@ msgstr "États pour lesquels afficher l'icône de \"remarque\""
 msgid "Stored value/id"
 msgstr "Valeur stockée"
 
-#: ./setuphandlers.py:1978
+#: ./setuphandlers.py:1976
 msgid "Style template"
 msgstr "Styles de base"
 
