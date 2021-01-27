@@ -194,8 +194,9 @@ class IImioDmsMailConfig(model.Schema):
         'outgoingmail',
         label=_(u"Outgoing mail"),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
-                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit', 'omail_fullname_used_form',
-                'omail_send_modes', 'omail_fields_order', 'omail_group_encoder']
+                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
+                'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',
+                'omail_fields_order', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -228,8 +229,14 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     org_templates_encoder_can_edit = schema.Bool(
-        title=_(u'Enable edition of service templates for encoder'),
-        description=_(u"Check if a service encoder can edit his service templates."),
+        title=_(u'Enable edition of service office templates for encoder'),
+        description=_(u"Check if a service encoder can edit his service office templates."),
+        default=True
+    )
+
+    org_email_templates_encoder_can_edit = schema.Bool(
+        title=_(u'Enable edition of service email templates for encoder'),
+        description=_(u"Check if a service encoder can edit his service email templates."),
         default=True
     )
 

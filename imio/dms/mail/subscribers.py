@@ -336,8 +336,8 @@ def contact_plonegroup_change(event):
                 alsoProvides(folder, IActionsPanelFolder)
                 alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader']
-                #if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
-                #    roles += ['Contributor', 'Editor']
+                if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_email_templates_encoder_can_edit']:
+                    roles += ['Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
                 #if base_model and base_model.has_been_modified():
