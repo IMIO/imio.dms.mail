@@ -145,7 +145,8 @@
 .template-dmsoutgoingmail #fieldsetlegend-categorization, .template-dmsoutgoingmail #fieldsetlegend-dates, .template-dmsoutgoingmail #fieldsetlegend-ownership,
 .template-dmsoutgoing_email #fieldsetlegend-categorization, .template-dmsoutgoing_email #fieldsetlegend-dates, .template-dmsoutgoing_email #fieldsetlegend-ownership,
 .template-reply #fieldsetlegend-categorization, .template-reply #fieldsetlegend-dates, .template-reply #fieldsetlegend-ownership,
-.template-multiple-reply #fieldsetlegend-categorization, .template-multiple-reply #fieldsetlegend-dates, .template-multiple-reply #fieldsetlegend-ownership {
+.template-multiple-reply #fieldsetlegend-categorization, .template-multiple-reply #fieldsetlegend-dates, .template-multiple-reply #fieldsetlegend-ownership,
+.template-edit.portaltype-cktemplate #fieldsetlegend-categorization, .template-edit.portaltype-cktemplate #fieldsetlegend-dates, .template-edit.portaltype-cktemplate #fieldsetlegend-ownership {
     display: none !important;
 }
 
@@ -253,7 +254,13 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
     display: none;
 }
 
-.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-email_recipient span.formHelp {
+.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-email_recipient span.formHelp,
+.template-view.portaltype-cktemplate #formfield-form-widgets-custom_icon span.formHelp,
+.template-view.portaltype-cktemplate #formfield-form-widgets-content span.formHelp {
+    display: none;
+}
+
+.template-edit.portaltype-cktemplate #formfield-form-widgets-IDublinCore-description {
     display: none;
 }
 
