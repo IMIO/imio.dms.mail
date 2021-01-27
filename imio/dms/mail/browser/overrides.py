@@ -8,6 +8,7 @@
 #
 
 from Acquisition import aq_inner  # noqa
+from collective.ckeditortemplates.browser.cktemplatelisting import CKTemplateListingView
 from collective.contact.contactlist.interfaces import IContactList
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.dmsfile import IDmsFile, IDmsAppendixFile
@@ -166,3 +167,9 @@ class DocsGroupsOverviewControlPanel(BaseOverviewControlPanel, GroupsOverviewCon
     @property
     def portal_roles(self):
         return ['Manager', 'Member', 'Site Administrator']
+
+
+class DocsCKTemplateListingView(CKTemplateListingView):
+    """Change enabled_states variable class because we use another workflow to restrict access to cktemplate."""
+
+    enabled_states = ('active', )

@@ -633,4 +633,12 @@
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer" />
     </configure>
 
+    <browser:page
+        for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
+        name="cktemplate-listing.js"
+        class="imio.dms.mail.browser.overrides.DocsCKTemplateListingView"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        permission="zope2.View"
+        />
+
 </configure>

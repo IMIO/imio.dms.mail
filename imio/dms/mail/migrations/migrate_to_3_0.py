@@ -53,18 +53,18 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
 
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo'])
+        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'workflow'])
 
+        # TODO Add close wf adaptation
         # Apply workflow adaptations
-        # applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
-        # if applied_adaptations:
-        #     success, errors = apply_from_registry()
-        #     if errors:
-        #         logger.error("Problem applying wf adaptations: %d errors" % errors)
-        # if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
-        #     update_task_workflow(self.portal)
-
-        # self.portal.portal_workflow.updateRoleMappings()
+        applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+        if applied_adaptations:
+            success, errors = apply_from_registry()
+            if errors:
+                logger.error("Problem applying wf adaptations: %d errors" % errors)
+        if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
+            update_task_workflow(self.portal)
+        self.portal.portal_workflow.updateRoleMappings()
 
         # do various global adaptations
         self.update_config()
