@@ -278,9 +278,13 @@ def dexterity_transition(obj, event):
 # CONFIGURATION
 
 def contact_plonegroup_change(event):
-    """
-        Update local roles for encodeur and group_encoder.
-        Adding directory by organization in templates/om and contacts/contact-lists-folder.
+    """Event handler when contact.plonegroup records are modified.
+
+    * update workflow dms config (new groups).
+    * invalidate vocabulary caches.
+    * set localroles on contacts for _encodeur groups.
+    * add a directory by organization in templates/om, templates/oem and contacts/contact-lists-folder.
+    * set local roles on contacts, incoming-mail for group_encoder.
     """
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface == IContactPlonegroupConfig):
@@ -308,14 +312,15 @@ def contact_plonegroup_change(event):
                 dic["%s_encodeur" % uid] = ['Contributor']
             folder._p_changed = True
         # we add a directory by organization in templates/om
-        base_folder = portal.templates.om
-        base_model = base_folder.get('main', None)
+        om_folder = portal.templates.om
+        oem_folder = portal.templates.oem
+        base_model = om_folder.get('main', None)
         cl_folder = portal.contacts['contact-lists-folder']
         for uid in s_orgs:
             obj = uuidToObject(uid)
             full_title = obj.get_full_title(separator=' - ', first_index=1)
-            if uid not in base_folder:
-                folder = api.content.create(container=base_folder, type='Folder', id=uid, title=full_title)
+            if uid not in om_folder:
+                folder = api.content.create(container=om_folder, type='Folder', id=uid, title=full_title)
                 alsoProvides(folder, IActionsPanelFolder)
                 alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader']
@@ -326,6 +331,18 @@ def contact_plonegroup_change(event):
                 if base_model and base_model.has_been_modified():
                     logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
                     api.content.copy(source=base_model, target=folder)
+            if uid not in oem_folder:
+                folder = api.content.create(container=oem_folder, type='Folder', id=uid, title=full_title)
+                alsoProvides(folder, IActionsPanelFolder)
+                alsoProvides(folder, INextPrevNotNavigable)
+                roles = ['Reader']
+                #if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
+                #    roles += ['Contributor', 'Editor']
+                api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
+                folder.reindexObjectSecurity()
+                #if base_model and base_model.has_been_modified():
+                #    logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
+                #    api.content.copy(source=base_model, target=folder)
             if uid not in cl_folder:
                 folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
                 folder.setLayout('folder_tabular_view')

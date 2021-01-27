@@ -12,8 +12,12 @@ from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
+from plone.registry.events import RecordModifiedEvent
+from plone.registry.interfaces import IRegistry
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
+from zope.component import getUtility
+from zope.event import notify
 
 import logging
 
@@ -116,9 +120,13 @@ class Migrate_To_3_0(Migrator):  # noqa
         ckp = self.portal.portal_properties.ckeditor_properties
         ckp.manage_changeProperties(toolbar='CustomOld')
         configure_ckeditor(self.portal, custom='ged')
-        # update layout
-        add_oem_templates(self.portal)
+        # update templates layout and create oem folders
         self.portal.templates.setLayout('folder_listing')
+        add_oem_templates(self.portal)
+        record = getUtility(IRegistry).records.get('collective.contact.plonegroup.browser.settings.'
+                                                   'IContactPlonegroupConfig.organizations')
+        notify(RecordModifiedEvent(record, [], []))
+
 
     def insert_incoming_emails(self):
         # allowed types
@@ -171,7 +179,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     def check_previously_migrated_collections(self):
         # check if changes have been persisted from lower migrations
-        # TO BE DONE
+        # TODO
         pass
 
     def correct_actions(self):
