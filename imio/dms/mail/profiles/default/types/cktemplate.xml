@@ -6,6 +6,5 @@
  <property name="global_allow">True</property>
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
-  <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
  </property>
 </object>
