@@ -256,11 +256,14 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
 
 .template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-email_recipient span.formHelp,
 .template-view.portaltype-cktemplate #formfield-form-widgets-custom_icon span.formHelp,
-.template-view.portaltype-cktemplate #formfield-form-widgets-content span.formHelp {
+.template-view.portaltype-cktemplate #formfield-form-widgets-content span.formHelp,
+.template-edit.portaltype-cktemplate #formfield-form-widgets-content span.formHelp {
     display: none;
 }
 
-.template-edit.portaltype-cktemplate #formfield-form-widgets-IDublinCore-description {
+.template-edit.portaltype-cktemplate #formfield-form-widgets-IDublinCore-description,
+.template-edit.portaltype-cktemplate #formfield-form-widgets-custom_icon,
+.template-view.portaltype-cktemplate #formfield-form-widgets-custom_icon {
     display: none;
 }
 
@@ -411,6 +414,26 @@ div.contactcontent_backrefs img {
     height: 20px;
 }
 
+/* ckeditor templates cktemplate */
+div.cke_tpl_item {
+    padding: 2px;
+}
+table.cke_tpl_preview td {
+    padding: 0px;
+}
+td.cke_tpl_preview_img img {
+    width: 20px;
+    height: 20px;
+}
+
+/* .template-view.portaltype-cktemplate #form-widgets-content, .template-view.portaltype-dmsoutgoingmail #form-widgets-email_body, */
+.richTextWidget {
+    border: 1px solid #e7e7e7;
+    background-color: #F9F9F9;
+}
+.richTextWidget:empty {
+    border: none;
+}
 
 /* columns */
 
