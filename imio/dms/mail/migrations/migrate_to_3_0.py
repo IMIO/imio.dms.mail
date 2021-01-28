@@ -220,6 +220,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                           'email_attachments', 'email_body']
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
                                            om_fo + email_flds)
+        # update maybe bad local roles (because this record change wasn't handled)
+        record = getUtility(IRegistry).records.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                   'org_templates_encoder_can_edit')
+        notify(RecordModifiedEvent(record, [], []))
 
 
 def migrate(context):
