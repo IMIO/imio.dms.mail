@@ -185,7 +185,7 @@ class TestAdapters(unittest.TestCase):
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid1', title='title.pdf', description='description')
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), 'testid1 title description')
-        obj = createContentInContainer(imail, 'dmsmainfile', id='testid2.pdf', title='testid2.pdf',
+        obj = createContentInContainer(imail, 'dmsmainfile', id='testid2.pdf', title='testid2.PDF',
                                        description='description')
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), 'testid2 description')

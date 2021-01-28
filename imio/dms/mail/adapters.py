@@ -599,12 +599,17 @@ class ScanSearchableExtender(object):
     def __init__(self, context):
         self.context = context
 
+    def remove_extension(self, filename):
+        if filename[-4:-3] == '.':
+            return filename[:-4]
+        return filename
+
     def searchable_text(self):
-        items = [self.context.id.endswith('.pdf') and self.context.id[0:-4] or self.context.id]
-        tit = (self.context.title and self.context.title != self.context.id and
-               (self.context.title.endswith('.pdf') and self.context.title[0:-4] or self.context.title) or u"")
-        if tit:
-            items.append(tit)
+        items = [self.remove_extension(self.context.id)]
+        if self.context.title:
+            tit = self.remove_extension(self.context.title)
+            if tit and tit not in items:
+                items.append(tit)
         (sid, sid_long, sid_short) = get_scan_id(self.context)
         if sid:
             if sid != items[0]:
