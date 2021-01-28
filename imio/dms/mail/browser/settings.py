@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
@@ -18,6 +19,7 @@ from imio.helpers.content import get_schema_fields
 from plone import api
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
+from plone.app.uuid.utils import uuidToObject
 from plone.autoform.directives import widget
 from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
@@ -340,6 +342,22 @@ def imiodmsmail_settings_changed(event):
         if folder['to_treat_in_my_group'].showNumberOfItems != snoi:
             folder['to_treat_in_my_group'].showNumberOfItems = snoi  # noqa
             folder['to_treat_in_my_group'].reindexObject()
+    if event.record.fieldName in ('org_templates_encoder_can_edit', 'org_email_templates_encoder_can_edit'):
+        folder_id = ('email' in event.record.fieldName) and 'oem' or 'om'
+        portal = api.portal.get()
+        main_folder = portal.templates[folder_id]
+        s_orgs = get_registry_organizations()
+        roles = ['Reader']
+        all_roles = ['Reader', 'Contributor', 'Editor']
+        if api.portal.get_registry_record(event.record.__name__):
+            roles = list(all_roles)
+        for uid in s_orgs:
+            if uid not in main_folder:
+                continue
+            folder = main_folder[uid]
+            groupname = '{}_encodeur'.format(uid)
+            api.group.revoke_roles(groupname=groupname, roles=all_roles, obj=folder)
+            api.group.grant_roles(groupname=groupname, roles=roles, obj=folder)
 
     if event.record.fieldName == 'imail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
