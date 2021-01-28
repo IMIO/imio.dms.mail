@@ -321,6 +321,7 @@ def postInstall(context):
     configure_ckeditor(site, custom='ged')
 
     add_templates(site)
+    add_oem_templates(site)
 
     add_transforms(site)
 
