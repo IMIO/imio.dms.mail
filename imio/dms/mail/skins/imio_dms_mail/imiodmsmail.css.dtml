@@ -371,8 +371,18 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-size: 18px 18px;
 }
 
+.apButtonAction_sendemail_ok {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email_3dcc5e.svg');
+    background-size: 18px 18px;
+}
+
 .apButtonAction_wemail {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/arobase.svg');
+    background-size: 18px 18px;
+}
+
+.apButtonAction_wemail_ok {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/arobase_3dcc5e.svg');
     background-size: 18px 18px;
 }
 
@@ -494,6 +504,11 @@ td.cke_tpl_preview_img img {
 .pb-ajax #recipientgroup-batchaction-form .formControls {
     clear: both;
 }
+
+/* svg color */
+/* .svg_green{
+    filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
+}*/
 
 /* colorization for incoming_mail_workflow */
 
