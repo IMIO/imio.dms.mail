@@ -151,9 +151,14 @@ class Migrate_To_3_0(Migrator):  # noqa
                 col.query = new_lst
 
     def insert_outgoing_emails(self):
-        # TODO set send_modes on all existing om
-        return
-        # TODO to be removed ! will not use this new type
+        # Set send_modes on dmsoutgoingmails
+        brains = self.catalog.searchResults(portal_type='dmsoutgoingmail')
+        for brain in brains:
+            obj = brain.getObject()
+            if not getattr(obj, 'send_modes'):
+                obj.send_modes = ['post']
+            # obj.reindexObject(idxs=[''])
+
         # allowed types
         self.omf.setConstrainTypesMode(1)
         self.omf.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
