@@ -33,8 +33,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.omf = self.portal['outgoing-mail']
         self.existing_settings = {}
 
-    # TODO update searchabletext of all main files to include external id
-
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
 
@@ -80,6 +78,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.check_previously_migrated_collections()
 
         # self.catalog.refreshCatalog(clear=1)
+        self.update_catalog()
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
@@ -224,6 +223,13 @@ class Migrate_To_3_0(Migrator):  # noqa
         record = getUtility(IRegistry).records.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                    'org_templates_encoder_can_edit')
         notify(RecordModifiedEvent(record, [], []))
+
+    def update_catalog(self):
+        """ Update searchabletext """
+        brains = self.catalog.searchResults(portal_type=('dmsmainfile', 'dmsommainfile', 'dmsappendixfile'))
+        for brain in brains:
+            obj = brain.getObject()
+            obj.reindexObject(idxs=['SearchableText'])
 
 
 def migrate(context):
