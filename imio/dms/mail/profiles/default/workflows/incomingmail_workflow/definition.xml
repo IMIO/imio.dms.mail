@@ -430,6 +430,7 @@
           category="workflow" i18n:translate="">propose_to_manager</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
+    <guard-expression>python:object.treating_groups</guard-expression>
   </guard>
  </transition>
  <transition transition_id="treat"

@@ -112,9 +112,12 @@ class TestIMServiceValidation1(unittest.TestCase):
         view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         # no treating_group: NOK
+        self.assertTupleEqual(self.pw.getTransitionsFor(self.imail), ())
         self.assertFalse(view.can_do_transition('propose_to_agent'))
         # tg ok, following states
         self.imail.treating_groups = get_registry_organizations()[0]
+        self.assertListEqual([dic['id'] for dic in self.pw.getTransitionsFor(self.imail)],
+                             ['propose_to_manager', 'propose_to_n_plus_1'])
         api.portal.set_registry_record(AUC_RECORD, 'no_check')
         self.assertFalse(view.can_do_transition('propose_to_agent'))  # has higher level
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
