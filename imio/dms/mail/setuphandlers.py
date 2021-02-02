@@ -339,6 +339,8 @@ def postInstall(context):
 
     site.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                'imiodmsmail-add-icons-to-contact-workflow', run_dependencies=False)
+    site.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
+                                               'imiodmsmail-configure-wsclient', run_dependencies=False)
 
     # remove collective.ckeditortemplates folder
     if default_cke_templ_folder in site:
