@@ -52,6 +52,7 @@ setup(
         'Products.CPUtils',
         'Products.PasswordStrength',
         'collective.ckeditor',
+        'collective.ckeditortemplates',
         'collective.contact.core',
         'collective.contact.contactlist',
         'collective.contact.duplicated',
