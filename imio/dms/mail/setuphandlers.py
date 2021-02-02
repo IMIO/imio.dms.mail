@@ -1008,10 +1008,12 @@ def configure_om_rolefields(context):
     roles_config = {'static_config': {
         'to_be_signed': {'expedition': {'roles': ['Editor', 'Reviewer']},
                          'encodeurs': {'roles': ['Reader']},
-                         'dir_general': {'roles': ['Reader']}},
+                         'dir_general': {'roles': ['Reader']},
+                         'lecteurs_globaux_cs': {'roles': ['Reader']}},
         'sent': {'expedition': {'roles': ['Reader', 'Reviewer']},
                  'encodeurs': {'roles': ['Reader']},
-                 'dir_general': {'roles': ['Reader']}},
+                 'dir_general': {'roles': ['Reader']},
+                 'lecteurs_globaux_cs': {'roles': ['Reader']}},
         'scanned': {'expedition': {'roles': ['Contributor', 'Editor', 'Reader', 'Reviewer', 'DmsFile Contributor',
                                              'Base Field Writer', 'Treating Group Writer']},
                     'encodeurs': {'roles': ['Reader']}},
@@ -1555,6 +1557,8 @@ def addTestUsersAndGroups(context):
         api.group.add_user(groupname='expedition', username='encodeur')
     if api.group.get('lecteurs_globaux_ce') is None:
         api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
+    if api.group.get('lecteurs_globaux_cs') is None:
+        api.group.create('lecteurs_globaux_cs', '2 Lecteurs Globaux CS')
 
 
 def addOwnOrganization(context):
@@ -1777,8 +1781,7 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
     users = {}
     groups = api.group.get_groups()
     for group in groups:
-#        if '_' not in group.id and group.id not in ['dir_general', 'encodeurs', 'expedition']:
-        if '_' not in group.id or group.id in ['dir_general', 'lecteurs_globaux_ce']:
+        if '_' not in group.id or group.id in ['dir_general', 'lecteurs_globaux_ce', 'lecteurs_globaux_cs']:
             continue
         parts = group.id.split('_')
         org_uid = function = None

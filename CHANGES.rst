@@ -10,6 +10,8 @@ Changelog
   [sgeulette]
 - Added collective.ckeditortemplates
   [sgeulette]
+- Added lecteurs_globaux_cs group
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

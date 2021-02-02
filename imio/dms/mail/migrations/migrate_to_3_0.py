@@ -12,6 +12,7 @@ from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CPUtils.Extensions.utils import configure_ckeditor
@@ -117,10 +118,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                     u'version 3.0</a>, dont <a href="https://docs.imio.be/imio-doc/ia.docs/changelog" '
                     u'target="_blank">les nouvelles fonctionnalités</a> ainsi que d\'autres documentations liées.</p>',
                     msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
+
         # update ckeditor config
         ckp = self.portal.portal_properties.ckeditor_properties
         ckp.manage_changeProperties(toolbar='CustomOld')
         configure_ckeditor(self.portal, custom='ged')
+
         # update templates layout and create oem folders
         self.portal.templates.setLayout('folder_listing')
         add_oem_templates(self.portal)
@@ -128,6 +131,18 @@ class Migrate_To_3_0(Migrator):  # noqa
                                                    'IContactPlonegroupConfig.organizations')
         notify(RecordModifiedEvent(record, [], []))
 
+        # add group
+        if api.group.get('lecteurs_globaux_cs') is None:
+            api.group.create('lecteurs_globaux_cs', '2 Lecteurs Globaux CS')
+        # change local roles
+        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
+        lr = getattr(fti, 'localroles')
+        lrsc = lr['static_config']
+        for state in ['to_be_signed', 'sent']:
+            if state in lrsc:
+                if 'lecteurs_globaux_cs' not in lrsc[state]:
+                    lrsc[state]['lecteurs_globaux_cs'] = {'roles': ['Reader']}
+        lr._p_changed = True   # We need to indicate that the object has been modified and must be "saved"
 
     def insert_incoming_emails(self):
         # allowed types
