@@ -75,7 +75,9 @@ dmsmail.initialize_fancytree = function () {
     activate: function (event, data) {
       if (!data.node.folder) {
         uidInput.attr('value', data.node.key);
-        submitButton.prop('disabled', false);
+        // submitButton.prop('disabled', false);
+        $("div.overlay div.close").click();
+        $("#tree-form").submit();
       } else {
         submitButton.prop('disabled', true);
       }
