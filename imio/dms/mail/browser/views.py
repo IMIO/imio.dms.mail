@@ -4,6 +4,7 @@ from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.helpers.emailer import add_attachment
 from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import send_email
@@ -12,6 +13,7 @@ from plone import api
 from plone.app.contenttypes.interfaces import IFile
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
+from zope.component import getMultiAdapter
 from zope.i18n import translate
 from zope.interface import implements
 from zope.lifecycleevent import modified
@@ -147,11 +149,10 @@ class SenderSuggest(BrowserView):
 
 
 class ServerSentEvents(BrowserView):
+    """Send SSE for all file in this context that have just finished its documentviewer conversion.
+    See https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events.
 
-    """Send SSE for all file in this context that have just finished its
-    documentviewer conversion.
-
-    See https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events
+    This view is called by javascript every 2 seconds. The javascript is available on dmsoutgooingmail.
     """
 
     def __call__(self):
@@ -160,20 +161,28 @@ class ServerSentEvents(BrowserView):
         self.request.response.setHeader('Pragma', 'no-cache')
         response = u''
         for child in self.context.listFolderContents():
-            if IFile.providedBy(child):
+            if IImioDmsFile.providedBy(child):
+                # conversion_finished is added by event subscriber
                 if getattr(child, 'conversion_finished', False):
+                    # generated is added by creation subscriber, only when file is generated
+                    # generated <= 2: wait to be sure zopedit redirection has been made
+                    # no generated or generated > 3 and locked: wait else: refresh
+                    if hasattr(child, 'generated') and child.generated <= 2:
+                        child.generated += 1
+                        continue
+                    view = getMultiAdapter((child, self.request), name='externalEditorEnabled')
+                    if view.isObjectLocked():
+                        continue
                     info = {
                         u'id': child.getId(),
-                        u'path': u'/'.join(child.getPhysicalPath())
+                        u'path': u'/'.join(child.getPhysicalPath()),
+                        u'refresh': True
                     }
-                    if getattr(child, 'just_added', False):
-                        child.just_added = False
-                        info['justAdded'] = True
-
                     line = u'data: {}\n\n'.format(json.dumps(info))
                     response = u"{}{}".format(response, line)
-                    child.conversion_finished = False
-
+                    delattr(child, 'conversion_finished')
+                    if hasattr(child, 'generated'):
+                        delattr(child, 'generated')
         return response
 
 

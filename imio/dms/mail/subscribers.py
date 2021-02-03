@@ -38,6 +38,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield.event import updateRelations
 from z3c.relationfield.relation import RelationValue
@@ -266,6 +267,14 @@ def dmsmainfile_modified(dmf, event):
     mail = dmf.aq_parent
     if IDmsDocument.providedBy(mail):
         mail.reindexObject(idxs=['SearchableText'])
+
+
+def imiodmsfile_added(obj, event):
+    """when an om file is added
+    """
+    # we check if the file is added manually or generated
+    if obj.scan_id and obj.id == obj.scan_id:  # generated
+        obj.generated = 1
 
 
 def dexterity_transition(obj, event):
@@ -729,10 +738,6 @@ def personnel_contact_removed(del_obj, event):
 def conversion_finished(obj, event):
     # put a flag on the File to know that its conversion is finished
     obj.conversion_finished = True
-
-
-def file_added(obj, event):
-    obj.just_added = True
 
 
 def wsclient_configuration_changed(event):

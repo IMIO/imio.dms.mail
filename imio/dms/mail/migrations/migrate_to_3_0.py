@@ -15,6 +15,7 @@ from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone.utils import base_hasattr
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from zope.component import getUtility
@@ -247,10 +248,15 @@ class Migrate_To_3_0(Migrator):  # noqa
         notify(RecordModifiedEvent(record, [], []))
 
     def update_catalog(self):
-        """ Update searchabletext """
+        """ Update catalog or objects """
         brains = self.catalog.searchResults(portal_type=('dmsmainfile', 'dmsommainfile', 'dmsappendixfile'))
         for brain in brains:
             obj = brain.getObject()
+            # we removed those useless attributes
+            for attr in ('conversion_finished', 'just_added'):
+                if base_hasattr(obj, attr):
+                    delattr(obj, attr)
+            # we update SearchableText to include short relevant scan_id
             obj.reindexObject(idxs=['SearchableText'])
 
 

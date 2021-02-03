@@ -64,15 +64,15 @@
         />
 
     <subscriber
-        for="collective.dms.basecontent.dmsfile.IDmsFile
+        for="imio.dms.mail.dmsfile.IImioDmsFile
              collective.documentviewer.interfaces.IConversionFinishedEvent"
         handler=".subscribers.conversion_finished"
         />
 
     <subscriber
-        for="collective.dms.basecontent.dmsfile.IDmsFile
+        for="imio.dms.mail.dmsfile.IImioDmsFile
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".subscribers.file_added"
+        handler=".subscribers.imiodmsfile_added"
         />
 
     <subscriber

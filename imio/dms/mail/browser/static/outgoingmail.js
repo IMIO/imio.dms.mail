@@ -5,7 +5,7 @@ $(document).ready(function(){
     evtSource.onmessage = function (e) {
       var selectedFileUrl = $('tr.selected').find('.version-link').attr('href');
       var info = JSON.parse(e.data);
-      if (info.justAdded || selectedFileUrl.endsWith(info.path)) {
+      if (info.refresh || selectedFileUrl.endsWith(info.path)) {
         window.location.reload();
       }
     }
