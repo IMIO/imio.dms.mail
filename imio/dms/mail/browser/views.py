@@ -166,12 +166,20 @@ class ServerSentEvents(BrowserView):
                 if getattr(child, 'conversion_finished', False):
                     # generated is added by creation subscriber, only when file is generated
                     # generated <= 2: wait to be sure zopedit redirection has been made
-                    # no generated or generated > 3 and locked: wait else: refresh
+                    # generated > 3 and locked: wait else: refresh
                     if hasattr(child, 'generated') and child.generated <= 2:
                         child.generated += 1
                         continue
                     view = getMultiAdapter((child, self.request), name='externalEditorEnabled')
                     if view.isObjectLocked():
+                        # a manually or generated file is edited a second time: like it was generated
+                        if not hasattr(child, 'generated'):
+                            child.generated = 3
+                        # object is locked we wait
+                        continue
+                    elif not hasattr(child, 'generated'):
+                        # avoid to refresh if file was added manually and we return on the parent
+                        delattr(child, 'conversion_finished')
                         continue
                     info = {
                         u'id': child.getId(),
@@ -181,8 +189,7 @@ class ServerSentEvents(BrowserView):
                     line = u'data: {}\n\n'.format(json.dumps(info))
                     response = u"{}{}".format(response, line)
                     delattr(child, 'conversion_finished')
-                    if hasattr(child, 'generated'):
-                        delattr(child, 'generated')
+                    delattr(child, 'generated')
         return response
 
 

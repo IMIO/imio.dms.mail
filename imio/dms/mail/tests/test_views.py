@@ -128,6 +128,64 @@ class TestContactSuggest(unittest.TestCase):
                           u'id': 'l:%s' % self.pgo['direction-generale']['grh'].UID()})
 
 
+class TestServerSentEvents(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
+
+    def test_call(self):
+        omail1 = self.portal['outgoing-mail']['reponse1']
+        omf = omail1['1']
+        sse_vw = omail1.restrictedTraverse('server_sent_events')
+        eee_vw = omf.restrictedTraverse('@@externalEditorEnabled')
+
+        # a dmsommainfile has been added manually and we go back on the dmsoutgoingmail
+        self.assertEqual(omf.conversion_finished, True)
+        self.assertFalse(hasattr(omf, 'generated'))
+        self.assertEqual(sse_vw(), u'')  # no refresh
+
+        # a dmsommainfile has been generated
+        omf.generated = 1
+        omf.conversion_finished = True
+        self.assertEqual(sse_vw(), u'')  # no refresh
+        self.assertEqual(omf.generated, 2)  # waiting external edition
+        # we lock like zopeedit
+        omf.restrictedTraverse('lock-unlock')()
+        self.assertTrue(eee_vw.isObjectLocked())
+        self.assertEqual(sse_vw(), u'')  # no refresh
+        self.assertEqual(omf.generated, 3)  # was always waiting but will end
+        self.assertEqual(sse_vw(), u'')  # no refresh
+        self.assertEqual(omf.generated, 3)  # no more waiting but locked
+        # we unlock
+        omf.restrictedTraverse('lock-unlock')(unlock=1)
+        self.assertFalse(eee_vw.isObjectLocked())
+        res = sse_vw()
+        # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
+        self.assertIn('"id": "1", "refresh": true', res)  # we refresh
+
+        # a dmsommainfile is edited with zopeedit
+        self.assertFalse(hasattr(omf, 'generated'))
+        self.assertFalse(hasattr(omf, 'conversion_finished'))
+        self.assertEqual(sse_vw(), u'')  # no refresh
+        # we lock like zopeedit
+        omf.restrictedTraverse('lock-unlock')()
+        self.assertTrue(eee_vw.isObjectLocked())
+        self.assertEqual(sse_vw(), u'')  # no refresh
+        # we save the file in the editor but dont close it
+        omf.conversion_finished = True
+        self.assertEqual(sse_vw(), u'')  # no refresh
+        self.assertEqual(omf.generated, 3)  # set as no more waiting
+        # we unlock
+        omf.restrictedTraverse('lock-unlock')(unlock=1)
+        self.assertFalse(eee_vw.isObjectLocked())
+        res = sse_vw()
+        # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
+        self.assertIn('"id": "1", "refresh": true', res)  # we refresh
+
+
 class TestUpdateItem(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
