@@ -161,35 +161,33 @@ class ServerSentEvents(BrowserView):
         self.request.response.setHeader('Pragma', 'no-cache')
         response = u''
         for child in self.context.listFolderContents():
-            if IImioDmsFile.providedBy(child):
-                # conversion_finished is added by event subscriber
-                if getattr(child, 'conversion_finished', False):
-                    # generated is added by creation subscriber, only when file is generated
-                    # generated <= 2: wait to be sure zopedit redirection has been made
-                    # generated > 3 and locked: wait else: refresh
-                    if hasattr(child, 'generated') and child.generated <= 2:
-                        child.generated += 1
-                        continue
-                    view = getMultiAdapter((child, self.request), name='externalEditorEnabled')
-                    if view.isObjectLocked():
-                        # a manually or generated file is edited a second time: like it was generated
-                        if not hasattr(child, 'generated'):
-                            child.generated = 3
-                        # object is locked we wait
-                        continue
-                    elif not hasattr(child, 'generated'):
-                        # avoid to refresh if file was added manually and we return on the parent
-                        delattr(child, 'conversion_finished')
-                        continue
-                    info = {
-                        u'id': child.getId(),
-                        u'path': u'/'.join(child.getPhysicalPath()),
-                        u'refresh': True
-                    }
-                    line = u'data: {}\n\n'.format(json.dumps(info))
-                    response = u"{}{}".format(response, line)
+            if IImioDmsFile.providedBy(child) and getattr(child, 'conversion_finished', False):
+                # generated is added by creation subscriber, only when file is generated
+                # generated <= 2: wait to be sure zopedit redirection has been made
+                # generated > 3 and locked: wait else: refresh
+                if hasattr(child, 'generated') and child.generated <= 2:
+                    child.generated += 1
+                    continue
+                view = getMultiAdapter((child, self.request), name='externalEditorEnabled')
+                if view.isObjectLocked():
+                    # a manually or generated file is edited a second time: like it was generated
+                    if not hasattr(child, 'generated'):
+                        child.generated = 3
+                    # object is locked we wait
+                    continue
+                elif not hasattr(child, 'generated'):
+                    # avoid to refresh if file was added manually and we return on the parent
                     delattr(child, 'conversion_finished')
-                    delattr(child, 'generated')
+                    continue
+                info = {
+                    u'id': child.getId(),
+                    u'path': u'/'.join(child.getPhysicalPath()),
+                    u'refresh': True
+                }
+                line = u'data: {}\n\n'.format(json.dumps(info))
+                response = u"{}{}".format(response, line)
+                delattr(child, 'conversion_finished')
+                delattr(child, 'generated')
         return response
 
 
