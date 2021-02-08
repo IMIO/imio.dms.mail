@@ -185,6 +185,12 @@
         handler=".subscribers.personnel_contact_removed"
         />
 
+    <subscriber
+        for="collective.ckeditortemplates.cktemplate.ICKTemplate
+             zope.lifecycleevent.interfaces.IObjectMovedEvent"
+        handler=".subscribers.cktemplate_moved"
+        />
+
     <!-- imio.pm.wsclient -->
     <unconfigure>
         <subscriber

@@ -45,6 +45,7 @@ from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
+from zope.annotation import IAnnotations
 from zope.component import getAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -349,7 +350,7 @@ def contact_plonegroup_change(event):
                     roles += ['Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
-                #if base_model and base_model.has_been_modified():
+                # if base_model and base_model.has_been_modified():
                 #    logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
                 #    api.content.copy(source=base_model, target=folder)
             if uid not in cl_folder:
@@ -733,6 +734,38 @@ def personnel_contact_removed(del_obj, event):
         storage = ILinkIntegrityInfo(aq_get(del_obj, 'REQUEST', None))
         for brain in catalog.unrestrictedSearchResults(portal_type=['dmsoutgoingmail'], sender_index=[del_obj.UID()]):
             storage.addBreach(brain._unrestrictedGetObject(), del_obj)
+
+
+def cktemplate_moved(obj, event):
+    """Managed the annotation for the Service template.
+
+    Linked to creation, move, rename, delete and copy.
+    """
+    if IObjectRemovedEvent.providedBy(event):
+        return
+    path = '/'.join(obj.getPhysicalPath()[:-1])
+    # skip rename or inplace copy
+    if event.oldParent == event.newParent or \
+            (event.oldParent and path == '/'.join(event.oldParent.getPhysicalPath())):
+        return
+    if '/templates/oem' not in path:
+        return  # oem has been renamed
+    index = path.index('/templates/oem') + 14
+    subpath = path[index + 1:]
+    parts = subpath and subpath.split('/') or []
+    value = u''
+    if parts:
+        pcat = obj.portal_catalog
+        brains = pcat(path='{}/{}'.format(path[:index], parts[0]), sort_on='path', )
+        titles = {br.getPath(): br.Title for br in brains}
+        values = []
+        current_path = path[:index]
+        for part in parts:
+            current_path += '/{}'.format(part)
+            values.append(titles[current_path].decode('utf8'))
+        value = u' - '.join(values)
+    annot = IAnnotations(obj)
+    annot['dmsmail.cke_tpl_tit'] = value
 
 
 def conversion_finished(obj, event):

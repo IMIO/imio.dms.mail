@@ -14,6 +14,7 @@ from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
 from Products.statusmessages.interfaces import IStatusMessage
 from zExceptions import Redirect
+from zope.annotation import IAnnotations
 from zope.interface import Interface
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -189,3 +190,27 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(len(self.omf.get_local_roles()), 14)
         set_registry_organizations(get_registry_organizations()[:3])
         self.assertEqual(len(self.omf.get_local_roles()), 6)
+
+    def test_cktemplate_moved(self):
+        oemf = self.portal['templates']['oem']
+        srvf = self.portal['contacts']['plonegroup-organization']
+        org1 = srvf['direction-generale']
+        org2 = srvf['direction-generale']['secretariat']
+        self.assertIn(org1.UID(), oemf)
+        self.assertIn(org2.UID(), oemf)
+        mod1 = api.content.create(container=oemf, type='cktemplate', id='mod1', title='Modèle 1')
+        annot = IAnnotations(mod1)
+        self.assertEqual(annot['dmsmail.cke_tpl_tit'], u'')
+        mod1 = api.content.move(mod1, oemf[org1.UID()])
+        annot = IAnnotations(mod1)
+        self.assertEqual(annot['dmsmail.cke_tpl_tit'], u'Direction générale')
+        mod2 = api.content.copy(mod1, oemf[org2.UID()], id='mod2')
+        annot = IAnnotations(mod2)
+        self.assertEqual(annot['dmsmail.cke_tpl_tit'], u'Direction générale - Secrétariat')
+        folder = api.content.create(container=oemf, type='Folder', id='fold1', title='héhéhé')
+        mod2 = api.content.move(mod2, folder)
+        annot = IAnnotations(mod2)
+        self.assertEqual(annot['dmsmail.cke_tpl_tit'], u'héhéhé')
+        mod2 = api.content.rename(mod2, 'mod-nextgen')
+        annot = IAnnotations(mod2)
+        self.assertEqual(annot['dmsmail.cke_tpl_tit'], u'héhéhé')
