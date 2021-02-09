@@ -190,6 +190,7 @@ class DocsCKTemplateListingView(CKTemplateListingView):
 
     def render_template(self, template, path):
         """Render each template as a javascript dic."""
+        # TODO do it in ckeditortemplates
         base = u'{{title: "{title}", description: "", html: "{html}"}}'
         # , image: "{image}"
         # icon = u'{}/++resource++imio.dms.mail/arobase.svg'.format(self.portal_path)

@@ -741,6 +741,7 @@ def cktemplate_moved(obj, event):
 
     Linked to creation, move, rename, delete and copy.
     """
+    # TODO move it to ckeditortemplates
     if IObjectRemovedEvent.providedBy(event):
         return
     path = '/'.join(obj.getPhysicalPath()[:-1])
