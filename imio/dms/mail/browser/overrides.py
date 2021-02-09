@@ -36,6 +36,7 @@ from Products.CMFPlone.browser.ploneview import Plone as PloneView
 from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from zope.annotation import IAnnotations
 
 
 class IMRenderCategoryView(RenderCategoryView):
@@ -175,3 +176,24 @@ class DocsCKTemplateListingView(CKTemplateListingView):
     """Change enabled_states variable class because we use another workflow to restrict access to cktemplate."""
 
     enabled_states = ('active', )
+    sort_on = 'path'
+
+    def __init__(self, context, request):
+        super(DocsCKTemplateListingView, self).__init__(context, request)
+        # portal = api.portal.get()
+        # self.portal_path = '/'.join(portal.getPhysicalPath())
+
+    def get_templates(self):
+        templates = super(DocsCKTemplateListingView, self).get_templates()
+        return sorted(templates, key=lambda tup: IAnnotations(tup[0]).get('dmsmail.cke_tpl_tit', u''))
+
+    def render_template(self, template, path):
+        """Render each template as a javascript dic."""
+        base = u'{{title: "{title}", description: "", html: "{html}"}}'
+        # , image: "{image}"
+        # icon = u'{}/++resource++imio.dms.mail/arobase.svg'.format(self.portal_path)
+        title = template.title
+        annot = IAnnotations(template)
+        if 'dmsmail.cke_tpl_tit' in annot and annot['dmsmail.cke_tpl_tit']:
+            title = u'{} | {}'.format(annot['dmsmail.cke_tpl_tit'], title)
+        return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html})
