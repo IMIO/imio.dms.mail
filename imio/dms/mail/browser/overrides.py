@@ -184,6 +184,7 @@ class DocsCKTemplateListingView(CKTemplateListingView):
         # self.portal_path = '/'.join(portal.getPhysicalPath())
 
     def get_templates(self):
+        """Sort templates by full title."""
         templates = super(DocsCKTemplateListingView, self).get_templates()
         return sorted(templates, key=lambda tup: IAnnotations(tup[0]).get('dmsmail.cke_tpl_tit', u''))
 
