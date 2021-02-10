@@ -217,4 +217,50 @@
      name="relative_path"
   />
 
+  <!-- ck-templates-listing columns -->
+  <adapter
+      name="select_row"
+      for="zope.interface.Interface
+           zope.publisher.interfaces.browser.IBrowserRequest
+           imio.dms.mail.browser.table.CKTemplatesTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory="collective.documentgenerator.browser.table.CheckBoxColumn"
+      />
+
+  <adapter
+      name="TitleColumn"
+      for="zope.interface.Interface
+           zope.interface.Interface
+           imio.dms.mail.browser.table.CKTemplatesTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory=".columns.TitleColumn"
+      />
+
+  <adapter
+      name="PathColumn"
+      for="zope.interface.Interface
+           zope.interface.Interface
+           imio.dms.mail.browser.table.CKTemplatesTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory=".columns.PathColumn"
+      />
+
+  <adapter
+      name="ReviewStateColumn"
+      for="zope.interface.Interface
+           zope.interface.Interface
+           imio.dms.mail.browser.table.CKTemplatesTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory="collective.documentgenerator.browser.table.ReviewStateColumn"
+      />
+
+  <adapter
+      name="ActionsColumn"
+      for="zope.interface.Interface
+           zope.interface.Interface
+           imio.dms.mail.browser.table.CKTemplatesTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory=".columns.ActionsColumn"
+      />
+
 </configure>

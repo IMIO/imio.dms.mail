@@ -4,6 +4,7 @@ from AccessControl import getSecurityManager
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
 from collective.dms.basecontent.browser.column import IconColumn
 from collective.dms.basecontent.browser.column import LinkColumn as lc_base
+from collective.documentgenerator.browser.table import ActionsColumn as DGActionsColumn
 from collective.documentviewer.settings import Settings
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.eeafaceted.z3ctable.columns import ActionsColumn
@@ -19,9 +20,11 @@ from collective.task.interfaces import ITaskMethods
 from imio.dms.mail import _
 from plone import api
 from plone.app.uuid.utils import uuidToCatalogBrain
+from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table import column
 from z3c.table.column import LinkColumn
+from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
@@ -382,3 +385,44 @@ class PathColumn(LinkColumn, BaseColumn):
         if rel_path not in self.paths:
             self.rel_path_title(rel_path)
         return self.paths[rel_path]
+
+# ck-templates-listing columns
+
+
+class TitleColumn(LinkColumn):
+    """Column that displays title."""
+
+    header = PMF("Title")
+    weight = 10
+    cssClasses = {'td': 'title-column'}
+
+    def getLinkCSS(self, item):
+        return ' state-%s"' % (api.content.get_state(obj=item))
+
+
+class PathColumn(LinkColumn):
+    """Column that displays relative path."""
+
+    header = _("Path")
+    weight = 20
+    cssClasses = {'td': 'path-column'}
+    linkTarget = '_blank'
+
+    def getLinkURL(self, item):
+        """Setup link url."""
+        return item.__parent__.absolute_url()
+
+    def getLinkContent(self, item):
+        annot = IAnnotations(item)
+        return annot.get('dmsmail.cke_tpl_tit', '-') or '-'
+
+
+class ActionsColumn(DGActionsColumn):
+    """A column displaying available actions of the listed item."""
+
+#    header = _("Actions")
+    weight = 70
+    params = {'useIcons': True, 'showHistory': False, 'showActions': True, 'showOwnDelete': False,
+              'showArrows': False, 'showTransitions': False, 'edit_action_class': 'dg_edit_action',
+              'edit_action_target': '_blank'}
+    cssClasses = {'td': 'actions-column'}
