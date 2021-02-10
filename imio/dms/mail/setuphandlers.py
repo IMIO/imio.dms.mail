@@ -2075,7 +2075,7 @@ def add_oem_templates(site):
             alsoProvides(tplt_fld, itf)
         logger.info("'templates/{}' folder created".format(folder_id))
     site.templates.moveObjectToPosition(folder_id, 1)
-    # site.templates.oem.layout = 'dg-templates-listing'
+    site.templates.oem.layout = 'ck-templates-listing'
 
 
 # Singles steps
