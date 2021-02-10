@@ -126,6 +126,11 @@ class IOMTemplatesFolder(IBatchActionsMarker):
     """Marker interface for folder displaying dg-templates-listing"""
 
 
+class IOMCKTemplatesFolder(IBatchActionsMarker):
+
+    """Marker interface for folder displaying ck-templates-listing"""
+
+
 class IPersonnelContact(Interface):
     """
         Marker interface for personnel contacts.

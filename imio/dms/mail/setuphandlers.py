@@ -45,6 +45,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
 from imio.dms.mail.interfaces import IIMDashboardBatchActions
+from imio.dms.mail.interfaces import IOMCKTemplatesFolder
 from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
@@ -2076,7 +2077,7 @@ def add_oem_templates(site):
         logger.info("'templates/{}' folder created".format(folder_id))
     site.templates.moveObjectToPosition(folder_id, 1)
     site.templates.oem.layout = 'ck-templates-listing'
-
+    alsoProvides(site.templates.oem, IOMCKTemplatesFolder)
 
 # Singles steps
 

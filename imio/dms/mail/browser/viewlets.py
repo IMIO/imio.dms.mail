@@ -2,6 +2,7 @@
 from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
+from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
 from collective.messagesviewlet.browser.messagesviewlet import MessagesViewlet
 from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
@@ -124,3 +125,11 @@ class ContextInformationViewlet(MessagesViewlet):
             ret.append(PseudoMessage(msg_type='significant', text=richtextval(msg),
                        hidden_uid=generate_uid(), can_hide=False))
         return ret
+
+
+class CKBatchActionsViewlet(BatchActionsViewlet):
+    """Made this specific viewlet only available on right view."""
+
+    def available(self):
+        """Global availability of the viewlet."""
+        return self.view.__name__ == 'ck-templates-listing'

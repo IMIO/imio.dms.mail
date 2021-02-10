@@ -597,6 +597,13 @@
         permission="zope2.View"
         />
 
+    <browser:viewlet
+        name="collective.eeafaceted.batchactions"
+        for="imio.dms.mail.interfaces.IOMCKTemplatesFolder"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+        class="imio.dms.mail.browser.viewlets.CKBatchActionsViewlet"
+        permission="zope2.View" />
+
     <!-- vocabulary for the sender autocomplete faceted widget -->
     <browser:view
         for="*"
