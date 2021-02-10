@@ -6,10 +6,13 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task import _ as _task
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from z3c.table.column import LinkColumn
+from z3c.table.table import Table
 from zope.annotation.interfaces import IAnnotations
+from zope.cachedescriptors.property import CachedProperty
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.schema.interfaces import IVocabularyFactory
@@ -130,3 +133,32 @@ class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
     """ Remove some additional infos """
     ai_excluded_fields = ['organization_type']
     ai_extra_fields = []
+
+
+class CKTemplatesTable(Table):
+    """Table that displays templates listing."""
+
+    cssClassEven = u'even'
+    cssClassOdd = u'odd'
+    cssClasses = {'table': 'listing nosort templates-listing icons-on'}
+
+    # ?table-batchSize=10&table-batchStart=30
+    batchSize = 200
+    startBatchingAt = 200
+    sortOn = None
+    results = []
+
+    def __init__(self, context, request):
+        super(CKTemplatesTable, self).__init__(context, request)
+        self.portal = api.portal.getSite()
+        self.context_path = self.context.absolute_url_path()
+        self.context_path_level = len(self.context_path.split('/'))
+        self.paths = {'.': '-'}
+
+    @CachedProperty
+    def wtool(self):
+        return api.portal.get_tool('portal_workflow')
+
+    @CachedProperty
+    def values(self):
+        return self.results

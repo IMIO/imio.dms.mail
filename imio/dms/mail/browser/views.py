@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-
+from collective.ckeditortemplates.cktemplate import ICKTemplate
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.helpers.emailer import add_attachment
 from imio.helpers.emailer import create_html_email
@@ -13,12 +14,14 @@ from plone import api
 from plone.app.contenttypes.interfaces import IFile
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
+from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 from zope.interface import implements
 from zope.lifecycleevent import modified
 
 import json
+import os
 
 
 class CreateFromTemplateForm(BaseRenderFancyTree):
@@ -235,3 +238,55 @@ class SendEmail(BrowserView):
         else:
             self.context.email_status += u' {}'.format(status)
         modified(self.context)
+
+
+class CKTemplatesListing(BrowserView):
+
+    __table__ = CKTemplatesTable
+    provides = [ICKTemplate.__identifier__]
+    depth = None
+    local_search = True
+
+    def __init__(self, context, request):
+        super(CKTemplatesListing, self).__init__(context, request)
+
+    def query_dict(self):
+        crit = {'object_provides': self.provides}
+        if self.local_search:
+            container_path = '/'.join(self.context.getPhysicalPath())
+            crit['path'] = {'query': container_path}
+            if self.depth is not None:
+                crit['path']['depth'] = self.depth
+        # crit['sort_on'] = ['path', 'getObjPositionInParent']
+        # how to sort by parent path
+        # crit['sort_on'] = 'path'
+        return crit
+
+    def update(self):
+        self.table = self.__table__(self.context, self.request)
+        self.table.__name__ = u'ck-templates-listing'
+        catalog = api.portal.get_tool('portal_catalog')
+        brains = catalog.searchResults(**self.query_dict())
+        res = [brain.getObject() for brain in brains]
+
+        self.table.results = [obj for obj in
+                              sorted(res, key=lambda tp: IAnnotations(tp).get('dmsmail.cke_tpl_tit', u''))]
+        self.table.update()
+
+    def __call__(self, local_search=None, search_depth=None):
+        """
+            search_depth = int value (0)
+            local_search = bool value
+        """
+        if search_depth is not None:
+            self.depth = search_depth
+        else:
+            sd = self.request.get('search_depth', '')
+            if sd:
+                self.depth = int(sd)
+        if local_search is not None:
+            self.local_search = local_search
+        else:
+            self.local_search = 'local_search' in self.request or self.local_search
+        self.update()
+        return self.index()

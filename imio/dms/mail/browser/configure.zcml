@@ -655,11 +655,20 @@
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer" />
     </configure>
 
+    <!-- ckeditortemplates related -->
     <browser:page
         for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
         name="cktemplate-listing.js"
         class="imio.dms.mail.browser.overrides.DocsCKTemplateListingView"
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="*"
+        name="ck-templates-listing"
+        class=".views.CKTemplatesListing"
+        template="templates/ck_templates_listing.pt"
         permission="zope2.View"
         />
 
