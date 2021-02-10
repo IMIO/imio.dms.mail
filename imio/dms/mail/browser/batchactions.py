@@ -54,11 +54,11 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
                     data['treating_group'] != brain.treating_groups and
                     brain.assigned_user not in [mb.getUserName() for mb in get_selected_org_suffix_users(
                         data['treating_group'], IM_EDITOR_SERVICE_FUNCTIONS)]):
-                        # self.status not good here because it needs to stay on the same form
-                        api.portal.show_message(_(u'An assigned user is not in this new treating group. '
-                                                  u'Mail "${mail}" !', mapping={'mail': brain.Title.decode('utf8')}),
-                                                self.request, 'error')
-                        break
+                    # self.status not good here because it needs to stay on the same form
+                    api.portal.show_message(_(u'An assigned user is not in this new treating group. '
+                                              u'Mail "${mail}" !', mapping={'mail': brain.Title.decode('utf8')}),
+                                            self.request, 'error')
+                    break
             else:  # here if no break !
                 for brain in self.brains:
                     obj = brain.getObject()
