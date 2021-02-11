@@ -55,7 +55,6 @@ CS nouveau
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
-    Debug
     ${note1}  Add pointy note  id=fieldset-versions  Le courrier généré apparait sur la droite  position=top  color=blue
     Sleep  3
     Remove element  id=${note1}
