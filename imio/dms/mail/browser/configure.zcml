@@ -238,12 +238,6 @@
 
     <!-- BATCH ACTIONS CONTACTS -->
     <browser:page
-        for="imio.dms.mail.interfaces.IOMTemplatesFolder"
-        name="copy-to-batch-action"
-        class=".batchactions.CopyToBatchActionForm"
-        permission="zope2.View" />
-
-    <browser:page
         for="imio.dms.mail.interfaces.IOrganizationsDashboardBatchActions"
         name="duplicated-batch-action"
         class=".batchactions.DuplicatedBatchActionForm"
@@ -354,6 +348,19 @@
         class=".batchactions.TaskAssignedUserBatchActionForm"
         permission="zope2.View"
         />
+
+    <!-- BATCH ACTIONS VARIOUS -->
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMTemplatesFolder"
+        name="copy-to-batch-action"
+        class=".batchactions.CopyToBatchActionForm"
+        permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMCKTemplatesFolder"
+        name="copy-to-batch-action"
+        class=".batchactions.CopyToBatchActionForm"
+        permission="zope2.View" />
 
     <!-- ADD / EDIT FORMS -->
     <browser:page

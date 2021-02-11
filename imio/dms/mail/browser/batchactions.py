@@ -230,12 +230,12 @@ class TaskAssignedUserBatchActionForm(aubaf):
 
 
 class CopyToBatchActionForm(BaseBatchActionForm):
-    """ Button to copy selection to a folder """
+    """ Button to copy selection to sub folders."""
 
     label = _(u"Batch copy to")
     weight = 20
 
-    def getAvailableFoldersVoc(self):
+    def available_folders_voc(self):
         """ Returns available transitions common for all brains """
         terms = []
         brains = api.content.find(context=self.context, depth=1, portal_type='Folder')
@@ -245,7 +245,7 @@ class CopyToBatchActionForm(BaseBatchActionForm):
         return SimpleVocabulary(terms)
 
     def _update(self):
-        self.voc = self.getAvailableFoldersVoc()
+        self.voc = self.available_folders_voc()
         self.do_apply = len(self.voc) > 0
         self.fields += Fields(schema.List(
             __name__='folders',
@@ -260,7 +260,7 @@ class CopyToBatchActionForm(BaseBatchActionForm):
     def _update_widgets(self):
         if self.do_apply:
             self.widgets['folders'].multiple = 'multiple'
-            self.widgets['folders'].size = 5
+            self.widgets['folders'].size = 15
 
     def _apply(self, **data):
         """ """
