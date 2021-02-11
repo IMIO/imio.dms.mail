@@ -522,6 +522,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     send_modes = schema.List(
         title=_("Send modes"),
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary'),
+        min_length=1,
     )
     directives.widget('send_modes', CheckBoxFieldWidget, multiple='multiple', size=5)
 
