@@ -403,7 +403,7 @@ class TitleColumn(LinkColumn):
 class PathColumn(LinkColumn):
     """Column that displays relative path."""
 
-    header = _("Path")
+    header = _("Relative path")
     weight = 20
     cssClasses = {'td': 'path-column'}
     linkTarget = '_blank'
