@@ -197,5 +197,5 @@ class DocsCKTemplateListingView(CKTemplateListingView):
         title = template.title
         annot = IAnnotations(template)
         if 'dmsmail.cke_tpl_tit' in annot and annot['dmsmail.cke_tpl_tit']:
-            title = u'{} | {}'.format(annot['dmsmail.cke_tpl_tit'], title)
+            title = u'{} > {}'.format(annot['dmsmail.cke_tpl_tit'], title)
         return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html})
