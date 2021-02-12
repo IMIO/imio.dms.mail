@@ -58,6 +58,7 @@ from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
+from imio.helpers.content import richtextval
 from imio.helpers.content import transitions
 from imio.helpers.security import generate_password
 from imio.helpers.security import get_environment
@@ -2078,6 +2079,15 @@ def add_oem_templates(site):
     site.templates.moveObjectToPosition(folder_id, 1)
     site.templates.oem.layout = 'ck-templates-listing'
     alsoProvides(site.templates.oem, IOMCKTemplatesFolder)
+
+    templates = [
+        {'cid': 10, 'cont': 'templates/oem', 'type': 'cktemplate', 'id': 'emain', 'title': _(u'Email general template'),
+         'attrs': {'content': richtextval(u'<p>Bonjour,</p><p>en réponse à votre email, vous trouverez ci-dessous les '
+                                          u'infos demandées.</p><p>Cordialement</p><p>&nbsp;</p><p>Administration '
+                                          u'communale</p><p>...</p>')}},
+    ]
+    create(templates, pos=False)
+
 
 # Singles steps
 
