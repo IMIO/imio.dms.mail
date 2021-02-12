@@ -493,6 +493,15 @@ def om_outgoing_date_index(obj):
     return 0
 
 
+@indexer(IImioDmsOutgoingMail)
+def send_modes_index(obj):
+    """We use an existing index 'Subject'."""
+    # No acquisition pb
+    if obj.send_modes:
+        return obj.send_modes
+    return common_marker
+
+
 @indexer(IDmsDocument)
 def state_group_index(obj):
     # Index contains state,org when validation is at org level, or state only otherwise

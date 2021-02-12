@@ -93,6 +93,7 @@
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
     <adapter name="in_out_date" factory=".adapters.om_in_out_date_index" />
     <adapter name="sortable_title" factory=".adapters.org_sortable_title_index" />
+    <adapter name="Subject" factory=".adapters.send_modes_index" />
     <adapter name="state_group" factory=".adapters.state_group_index" />
     <adapter name="state_group" factory=".adapters.task_state_group_index" />
     <adapter name="sender_index" factory=".adapters.sender_index" />
