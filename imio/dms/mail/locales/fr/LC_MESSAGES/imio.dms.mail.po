@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-02-12 09:31+0000\n"
+"POT-Creation-Date: 2021-02-12 12:46+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -506,7 +506,7 @@ msgstr "Services en copie"
 msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
 
-#: ./columns.py:406
+#: ./columns.py:409
 msgid "Relative path"
 msgstr "Chemin relatif"
 

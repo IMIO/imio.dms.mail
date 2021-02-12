@@ -75,6 +75,10 @@ msgstr "Destinataires"
 msgid "Review state"
 msgstr "État"
 
+#: ../faceted_conf/om-faceted:
+msgid "Send modes"
+msgstr "Envoi"
+
 #: ../faceted_conf/im-faceted:
 msgid "Sender"
 msgstr "Expéditeur"

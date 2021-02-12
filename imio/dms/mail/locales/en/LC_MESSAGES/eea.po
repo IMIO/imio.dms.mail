@@ -75,6 +75,10 @@ msgstr ""
 msgid "Review state"
 msgstr ""
 
+#: ../faceted_conf/om-faceted:
+msgid "Send modes"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Sender"
 msgstr ""
