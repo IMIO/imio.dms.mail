@@ -476,6 +476,7 @@ def om_in_out_date_index(obj):
 
 @indexer(IImioDmsIncomingMail)
 def im_reception_date_index(obj):
+    """We use an existing index 'organization_type' to store more precise date."""
     # No acquisition pb because organization_type isn't an attr
     if obj.reception_date:
         return int(time.mktime(obj.reception_date.timetuple()))
@@ -485,6 +486,7 @@ def im_reception_date_index(obj):
 
 @indexer(IImioDmsOutgoingMail)
 def om_outgoing_date_index(obj):
+    """We use an existing index 'organization_type' to store more precise date."""
     # No acquisition pb because organization_type isn't an attr
     if obj.outgoing_date:
         return int(time.mktime(obj.outgoing_date.timetuple()))
