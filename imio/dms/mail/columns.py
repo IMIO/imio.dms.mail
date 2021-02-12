@@ -399,6 +399,9 @@ class TitleColumn(LinkColumn):
     def getLinkCSS(self, item):
         return ' state-%s"' % (api.content.get_state(obj=item))
 
+    def getLinkContent(self, item):
+        return item.title
+
 
 class PathColumn(LinkColumn):
     """Column that displays relative path."""
