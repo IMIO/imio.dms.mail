@@ -175,7 +175,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             obj = brain.getObject()
             if not getattr(obj, 'send_modes'):
                 obj.send_modes = ['post']
-            # obj.reindexObject(idxs=[''])
+            obj.reindexObject(idxs=['Subject'])
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
