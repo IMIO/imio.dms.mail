@@ -12,6 +12,8 @@ Changelog
   [sgeulette]
 - Added lecteurs_globaux_cs group
   [sgeulette]
+- Added send_modes
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

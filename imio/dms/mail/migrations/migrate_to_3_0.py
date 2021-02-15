@@ -9,6 +9,7 @@ from imio.dms.mail import _tr as _
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -242,6 +243,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                           'email_attachments', 'email_body']
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
                                            om_fo + email_flds)
+        # reimport faceted
+        import ipdb; ipdb.set_trace()
+        reimport_faceted_config(self.omf['mail-searches'], xml='om-mail-searches.xml',
+                                default_UID=self.omf['mail-searches']['all_mails'].UID())
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
+            reimport_faceted_config(self.omf['mail-searches'], xml='mail-searches-group-encoder.xml',
+                                    default_UID=self.omf['mail-searches']['all_mails'].UID())
         # update maybe bad local roles (because this record change wasn't handled)
         record = getUtility(IRegistry).records.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                    'org_templates_encoder_can_edit')
