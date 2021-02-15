@@ -244,7 +244,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
                                            om_fo + email_flds)
         # reimport faceted
-        import ipdb; ipdb.set_trace()
         reimport_faceted_config(self.omf['mail-searches'], xml='om-mail-searches.xml',
                                 default_UID=self.omf['mail-searches']['all_mails'].UID())
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
