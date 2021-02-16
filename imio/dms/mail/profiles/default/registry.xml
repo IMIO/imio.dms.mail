@@ -29,6 +29,7 @@
 pipeline =
     initialization
     csv_disk_source
+#    csv_ssh_source
     csv_reader
     common_input_checks
     plonegrouporganizationpath
@@ -48,6 +49,7 @@ pipeline =
     breakpoint
     short_log
 #    logger
+    lastsection
 
 # mandatory section !
 [config]
@@ -77,6 +79,14 @@ blueprint = collective.contact.importexport.csv_disk_source
 organizations_filename = ${config:organizations_filename}
 persons_filename = ${config:persons_filename}
 held_positions_filename = ${config:held_positions_filename}
+
+[csv_ssh_source]
+blueprint = collective.contact.importexport.csv_ssh_source
+servername = sftp-client.imio.be
+username =
+server_files_path = .../upload_success
+registry_filename = 0_registry.dump
+transfer_path = imports/copied
 
 [csv_reader]
 blueprint = collective.contact.importexport.csv_reader
@@ -131,6 +141,7 @@ blueprint = imio.transmogrifier.contact.iadocs_userid_inserter
 
 [iadocs_creating_group]
 blueprint = imio.transmogrifier.contact.iadocs_creating_group_inserter
+creating_group = ${config:creating_group}
 
 [schemaupdater]
 blueprint = transmogrify.dexterity.schemaupdater
@@ -146,6 +157,9 @@ blueprint = plone.app.transmogrifier.workflowupdater
 
 [short_log]
 blueprint = collective.contact.importexport.short_log
+
+[lastsection]
+blueprint = collective.contact.importexport.lastsection
 
 [logger]
 blueprint = collective.transmogrifier.sections.logger
