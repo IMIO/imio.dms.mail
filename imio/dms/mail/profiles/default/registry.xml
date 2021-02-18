@@ -122,10 +122,10 @@ blueprint = collective.contact.importexport.relationsinserter
 
 [updatepathinserter]
 blueprint = collective.contact.importexport.updatepathinserter
-# list of ('column' 'index name' 'condition') tuples used to search in catalog for an existing object
-organization_uniques = _uid UID python:True
-person_uniques = _uid UID python:True internal_number mail_type python:item['_ic'] internal_number internal_number python:options['cbin']=='True'
-held_position_uniques = _uid UID python:True
+# list of 'column' 'index name' 'item condition' 'must-exist' quartets used to search in catalog for an existing object
+organization_uniques = _uid UID python:True python:True
+person_uniques = _uid UID python:True python:True internal_number mail_type python:item['_ic'] python:False internal_number internal_number python:options['cbin']=='True' python:False
+held_position_uniques = _uid UID python:True python:True
 
 [pathinserter]
 blueprint = collective.contact.importexport.pathinserter
