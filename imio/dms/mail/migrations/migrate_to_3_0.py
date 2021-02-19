@@ -55,6 +55,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         if default_cke_templ_folder in self.portal:
             api.content.delete(obj=self.portal[default_cke_templ_folder])
         self.upgradeProfile('collective.documentgenerator:default')
+        self.upgradeProfile('collective.contact.core:default')
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
