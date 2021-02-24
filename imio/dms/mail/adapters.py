@@ -404,37 +404,69 @@ class TaskPrettyLinkAdapter(PrettyLinkAdapter):
 # Indexes adapters #
 ####################
 
-@indexer(IContentish)
-def mail_type_index(obj):
-    """Indexer of 'mail_type' for IContentish."""
-    if base_hasattr(obj, 'mail_type') and obj.mail_type:
-        return obj.mail_type
+@indexer(IDmsMailCreatingGroup)
+def creating_group_index(obj):
+    """Indexer of 'assigned_group' for IDmsMailCreatingGroup. Stores creating_group !"""
+    if base_hasattr(obj, 'creating_group') and obj.creating_group:
+        return obj.creating_group
     return common_marker
 
 
-@indexer(IDmsPerson)
-def person_userid_index(obj):
-    """Indexer of 'mail_type' for IDmsPerson. Stores userid !"""
-    if base_hasattr(obj, 'userid') and obj.userid:
-        return obj.userid
+@indexer(IImioDmsIncomingMail)
+def get_full_title_index(obj):
+    """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""
+    # No acquisition pb because get_full_title isn't an attr
+    if obj.title:
+        return obj.title.encode('utf8')
     return common_marker
 
 
-@indexer(IHeldPosition)
-def heldposition_userid_index(obj):
-    """Indexer of 'mail_type' for IHeldPosition. Stores parent userid !"""
-    parent = obj.aq_parent
-    if base_hasattr(parent, 'userid') and parent.userid:
-        return parent.userid
-    return common_marker
+# See getObjSize_file method from plone/app/contenttypes/indexers.py
+# See Products/CMFPlone/skins/plone_scripts/getObjSize.py
+def get_obj_size(obj):
+    try:
+        primary_field_info = IPrimaryFieldInfo(obj)
+    except TypeError:
+        logger.warn(u'Lookup of PrimaryField failed for %s' % obj.absolute_url())
+        return
+    const = {'KB': 1024, 'MB': 1048576, 'GB': 1073741824}
+    order = ('GB', 'MB', 'KB')
+    size = primary_field_info.value.size
+    if size < 1024:
+        return '1 KB'
+    for c in order:
+        if size / const[c] > 0:
+            break
+    return '%.1f %s' % (float(size / float(const[c])), c)  # noqa
 
 
-@indexer(ITaskContent)
-def task_enquirer_index(obj):
-    """Indexer of 'mail_type' for ITaskContent. Stores enquirer !"""
-    if base_hasattr(obj, 'enquirer') and obj.enquirer:
-        return obj.enquirer
-    return common_marker
+@indexer(IDmsAppendixFile)
+def get_obj_size_af_index(obj):
+    return get_obj_size(obj)
+
+
+@indexer(IDmsFile)
+def get_obj_size_df_index(obj):
+    return get_obj_size(obj)
+
+
+@indexer(IImioDmsIncomingMail)
+def in_out_date_index(obj):
+    """Indexer of 'in_out_date' for IImioDmsIncomingMail. Stores reception_date !"""
+    # No acquisition pb because in_out_date isn't an attr
+    if obj.reception_date:
+        return obj.reception_date
+    return EMPTY_DATE
+
+
+@indexer(IImioDmsOutgoingMail)
+def om_in_out_date_index(obj):
+    """Indexer of 'in_out_date' for IImioDmsOutgoingMail. Stores outgoing_date !"""
+    # No acquisition pb because in_out_date isn't an attr
+    if obj.outgoing_date:
+        return obj.outgoing_date
+    else:
+        return EMPTY_DATE
 
 
 @indexer(IImioDmsIncomingMail)
@@ -459,23 +491,37 @@ def om_mail_date_index(obj):
     return common_marker
 
 
-@indexer(IImioDmsIncomingMail)
-def in_out_date_index(obj):
-    """Indexer of 'in_out_date' for IImioDmsIncomingMail. Stores reception_date !"""
-    # No acquisition pb because in_out_date isn't an attr
-    if obj.reception_date:
-        return obj.reception_date
-    return EMPTY_DATE
+@indexer(IContentish)
+def mail_type_index(obj):
+    """Indexer of 'mail_type' for IContentish."""
+    if base_hasattr(obj, 'mail_type') and obj.mail_type:
+        return obj.mail_type
+    return common_marker
 
 
-@indexer(IImioDmsOutgoingMail)
-def om_in_out_date_index(obj):
-    """Indexer of 'in_out_date' for IImioDmsOutgoingMail. Stores outgoing_date !"""
-    # No acquisition pb because in_out_date isn't an attr
-    if obj.outgoing_date:
-        return obj.outgoing_date
-    else:
-        return EMPTY_DATE
+@indexer(IHeldPosition)
+def heldposition_userid_index(obj):
+    """Indexer of 'mail_type' for IHeldPosition. Stores parent userid !"""
+    parent = obj.aq_parent
+    if base_hasattr(parent, 'userid') and parent.userid:
+        return parent.userid
+    return common_marker
+
+
+@indexer(IDmsPerson)
+def person_userid_index(obj):
+    """Indexer of 'mail_type' for IDmsPerson. Stores userid !"""
+    if base_hasattr(obj, 'userid') and obj.userid:
+        return obj.userid
+    return common_marker
+
+
+@indexer(ITaskContent)
+def task_enquirer_index(obj):
+    """Indexer of 'mail_type' for ITaskContent. Stores enquirer !"""
+    if base_hasattr(obj, 'enquirer') and obj.enquirer:
+        return obj.enquirer
+    return common_marker
 
 
 @indexer(IImioDmsIncomingMail)
@@ -498,12 +544,28 @@ def om_outgoing_date_index(obj):
 
 
 @indexer(IImioDmsOutgoingMail)
-def send_modes_index(obj):
-    """Indexer of 'Subject' for IImioDmsOutgoingMail. Stores send_modes !"""
-    # No acquisition pb
-    if obj.send_modes:
-        return obj.send_modes
-    return common_marker
+def sender_index(obj):
+    """Indexer of 'sender_index' for IImioDmsOutgoingMail.
+
+    Stores:
+        * the sender UID
+        * the organizations chain UIDs if the sender is held position, prefixed by 'l:'
+    """
+    if not obj.sender:
+        return common_marker
+    index = [obj.sender]
+
+    add_parent_organizations(uuidToObject(obj.sender).get_organization(), index)
+    return index
+
+
+@indexer(IOrganization)
+def org_sortable_title_index(obj):
+    """Indexer of 'sortable_title' for IOrganization. Stores organization chain concatenated by | !"""
+    # sortable_title(org) returns <plone.indexer.delegate.DelegatingIndexer object> that must be called
+    parts = [sortable_title(org)() for org in obj.get_organizations_chain() if org.title]
+    parts and parts.append('')
+    return '|'.join(parts)
 
 
 @indexer(IDmsDocument)
@@ -537,45 +599,12 @@ def task_state_group_index(obj):
     return state_group_index(obj)
 
 
-@indexer(IOrganization)
-def org_sortable_title_index(obj):
-    """Indexer of 'sortable_title' for IOrganization. Stores organization chain concatenated by | !"""
-    # sortable_title(org) returns <plone.indexer.delegate.DelegatingIndexer object> that must be called
-    parts = [sortable_title(org)() for org in obj.get_organizations_chain() if org.title]
-    parts and parts.append('')
-    return '|'.join(parts)
-
-
 @indexer(IImioDmsOutgoingMail)
-def sender_index(obj):
-    """Indexer of 'sender_index' for IImioDmsOutgoingMail.
-
-    Stores:
-        * the sender UID
-        * the organizations chain UIDs if the sender is held position, prefixed by 'l:'
-    """
-    if not obj.sender:
-        return common_marker
-    index = [obj.sender]
-
-    add_parent_organizations(uuidToObject(obj.sender).get_organization(), index)
-    return index
-
-
-@indexer(IImioDmsIncomingMail)
-def get_full_title_index(obj):
-    """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""
-    # No acquisition pb because get_full_title isn't an attr
-    if obj.title:
-        return obj.title.encode('utf8')
-    return common_marker
-
-
-@indexer(IDmsMailCreatingGroup)
-def creating_group_index(obj):
-    """Indexer of 'assigned_group' for IDmsMailCreatingGroup. Stores creating_group !"""
-    if base_hasattr(obj, 'creating_group') and obj.creating_group:
-        return obj.creating_group
+def send_modes_index(obj):
+    """Indexer of 'Subject' for IImioDmsOutgoingMail. Stores send_modes !"""
+    # No acquisition pb
+    if obj.send_modes:
+        return obj.send_modes
     return common_marker
 
 
@@ -585,35 +614,6 @@ def imio_contact_source(contact):
     # we get first a <plone.indexer.delegate.DelegatingIndexer object>
     value = contact_source(contact)().strip()
     return value.replace(', ,', '').replace('  ,', '').replace(',  ', '')
-
-
-# See getObjSize_file method from plone/app/contenttypes/indexers.py
-# See Products/CMFPlone/skins/plone_scripts/getObjSize.py
-def get_obj_size(obj):
-    try:
-        primary_field_info = IPrimaryFieldInfo(obj)
-    except TypeError:
-        logger.warn(u'Lookup of PrimaryField failed for %s' % obj.absolute_url())
-        return
-    const = {'KB': 1024, 'MB': 1048576, 'GB': 1073741824}
-    order = ('GB', 'MB', 'KB')
-    size = primary_field_info.value.size
-    if size < 1024:
-        return '1 KB'
-    for c in order:
-        if size / const[c] > 0:
-            break
-    return '%.1f %s' % (float(size / float(const[c])), c)  # noqa
-
-
-@indexer(IDmsAppendixFile)
-def get_obj_size_af_index(obj):
-    return get_obj_size(obj)
-
-
-@indexer(IDmsFile)
-def get_obj_size_df_index(obj):
-    return get_obj_size(obj)
 
 
 class ScanSearchableExtender(object):
