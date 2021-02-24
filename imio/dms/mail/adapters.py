@@ -406,7 +406,7 @@ class TaskPrettyLinkAdapter(PrettyLinkAdapter):
 
 @indexer(IContentish)
 def mail_type_index(obj):
-    """ Index method escaping acquisition """
+    """Indexer of 'mail_type' for IContentish."""
     if base_hasattr(obj, 'mail_type') and obj.mail_type:
         return obj.mail_type
     return common_marker
@@ -414,7 +414,7 @@ def mail_type_index(obj):
 
 @indexer(IDmsPerson)
 def person_userid_index(obj):
-    """ Index method escaping acquisition. We use an existing index 'mail_type' to store person userid """
+    """Indexer of 'mail_type' for IDmsPerson. Stores userid !"""
     if base_hasattr(obj, 'userid') and obj.userid:
         return obj.userid
     return common_marker
@@ -422,7 +422,7 @@ def person_userid_index(obj):
 
 @indexer(IHeldPosition)
 def heldposition_userid_index(obj):
-    """ Index method escaping acquisition. We use an existing index 'mail_type' to store heldposition userid """
+    """Indexer of 'mail_type' for IHeldPosition. Stores parent userid !"""
     parent = obj.aq_parent
     if base_hasattr(parent, 'userid') and parent.userid:
         return parent.userid
@@ -431,7 +431,7 @@ def heldposition_userid_index(obj):
 
 @indexer(ITaskContent)
 def task_enquirer_index(obj):
-    """ Index method escaping acquisition. We use an existing index 'mail_type' to store task enquirer """
+    """Indexer of 'mail_type' for ITaskContent. Stores enquirer !"""
     if base_hasattr(obj, 'enquirer') and obj.enquirer:
         return obj.enquirer
     return common_marker
@@ -439,6 +439,7 @@ def task_enquirer_index(obj):
 
 @indexer(IImioDmsIncomingMail)
 def mail_date_index(obj):
+    """Indexer of 'mail_date' for IImioDmsIncomingMail. Stores original_mail_date !"""
     # No acquisition pb because mail_date isn't an attr but cannot store None
     if obj.original_mail_date:
         return obj.original_mail_date
@@ -449,6 +450,7 @@ def mail_date_index(obj):
 
 @indexer(IImioDmsOutgoingMail)
 def om_mail_date_index(obj):
+    """Indexer of 'mail_date' for IImioDmsOutgoingMail."""
     if base_hasattr(obj, 'mail_date'):
         if obj.mail_date:
             return obj.mail_date
@@ -459,6 +461,7 @@ def om_mail_date_index(obj):
 
 @indexer(IImioDmsIncomingMail)
 def in_out_date_index(obj):
+    """Indexer of 'in_out_date' for IImioDmsIncomingMail. Stores reception_date !"""
     # No acquisition pb because in_out_date isn't an attr
     if obj.reception_date:
         return obj.reception_date
@@ -467,6 +470,7 @@ def in_out_date_index(obj):
 
 @indexer(IImioDmsOutgoingMail)
 def om_in_out_date_index(obj):
+    """Indexer of 'in_out_date' for IImioDmsOutgoingMail. Stores outgoing_date !"""
     # No acquisition pb because in_out_date isn't an attr
     if obj.outgoing_date:
         return obj.outgoing_date
@@ -476,7 +480,7 @@ def om_in_out_date_index(obj):
 
 @indexer(IImioDmsIncomingMail)
 def im_reception_date_index(obj):
-    """We use an existing index 'organization_type' to store more precise date."""
+    """Indexer of 'organization_type' for IImioDmsIncomingMail. Stores reception_date (in seconds) !"""
     # No acquisition pb because organization_type isn't an attr
     if obj.reception_date:
         return int(time.mktime(obj.reception_date.timetuple()))
@@ -486,7 +490,7 @@ def im_reception_date_index(obj):
 
 @indexer(IImioDmsOutgoingMail)
 def om_outgoing_date_index(obj):
-    """We use an existing index 'organization_type' to store more precise date."""
+    """Indexer of 'organization_type' for IImioDmsOutgoingMail. Stores outgoing_date (in seconds) !"""
     # No acquisition pb because organization_type isn't an attr
     if obj.outgoing_date:
         return int(time.mktime(obj.outgoing_date.timetuple()))
@@ -495,7 +499,7 @@ def om_outgoing_date_index(obj):
 
 @indexer(IImioDmsOutgoingMail)
 def send_modes_index(obj):
-    """We use an existing index 'Subject'."""
+    """Indexer of 'Subject' for IImioDmsOutgoingMail. Stores send_modes !"""
     # No acquisition pb
     if obj.send_modes:
         return obj.send_modes
@@ -504,18 +508,22 @@ def send_modes_index(obj):
 
 @indexer(IDmsDocument)
 def state_group_index(obj):
-    # Index contains state,org when validation is at org level, or state only otherwise
+    """Indexer of 'state_group' for IDmsDocument.
+
+    Stores:
+        * state,org_uid when validation is at org level
+        * state only otherwise
+    """
     # No acquisition pb because state_group isn't an attr
+    state = api.content.get_state(obj=obj)
+    portal_type = obj.portal_type
+    if portal_type == 'dmsincoming_email':
+        portal_type = 'dmsincomingmail'  # i_e ok
+    elif portal_type == 'dmsoutgoing_email':
+        portal_type = 'dmsoutgoingmail'
     # set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})]))
-    state = api.content.get_state(obj=obj)
-    if obj.portal_type == 'dmsincoming_email':
-        portal_type = 'dmsincomingmail'  # i_e ok
-    elif obj.portal_type == 'dmsoutgoing_email':
-        portal_type = 'dmsoutgoingmail'
-    else:
-        portal_type = obj.portal_type
     config = get_dms_config(['review_states', portal_type])
     if state not in config or not config[state]['group'].startswith('_'):
         return state
@@ -525,12 +533,13 @@ def state_group_index(obj):
 
 @indexer(ITaskContent)
 def task_state_group_index(obj):
+    """Indexer of 'state_group' for ITaskContent."""
     return state_group_index(obj)
 
 
 @indexer(IOrganization)
 def org_sortable_title_index(obj):
-    """ Return organization chain concatenated by | """
+    """Indexer of 'sortable_title' for IOrganization. Stores organization chain concatenated by | !"""
     # sortable_title(org) returns <plone.indexer.delegate.DelegatingIndexer object> that must be called
     parts = [sortable_title(org)() for org in obj.get_organizations_chain() if org.title]
     parts and parts.append('')
@@ -539,8 +548,9 @@ def org_sortable_title_index(obj):
 
 @indexer(IImioDmsOutgoingMail)
 def sender_index(obj):
-    """
-        return an index containing:
+    """Indexer of 'sender_index' for IImioDmsOutgoingMail.
+
+    Stores:
         * the sender UID
         * the organizations chain UIDs if the sender is held position, prefixed by 'l:'
     """
@@ -554,6 +564,7 @@ def sender_index(obj):
 
 @indexer(IImioDmsIncomingMail)
 def get_full_title_index(obj):
+    """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""
     # No acquisition pb because get_full_title isn't an attr
     if obj.title:
         return obj.title.encode('utf8')
@@ -562,6 +573,7 @@ def get_full_title_index(obj):
 
 @indexer(IDmsMailCreatingGroup)
 def creating_group_index(obj):
+    """Indexer of 'assigned_group' for IDmsMailCreatingGroup. Stores creating_group !"""
     if base_hasattr(obj, 'creating_group') and obj.creating_group:
         return obj.creating_group
     return common_marker
@@ -569,6 +581,7 @@ def creating_group_index(obj):
 
 @indexer(IContactContent)
 def imio_contact_source(contact):
+    """Metadata of 'contact_source' for IContactContent. Cleans value !"""
     # we get first a <plone.indexer.delegate.DelegatingIndexer object>
     value = contact_source(contact)().strip()
     return value.replace(', ,', '').replace('  ,', '').replace(',  ', '')
