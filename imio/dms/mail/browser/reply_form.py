@@ -6,6 +6,8 @@ from collective.eeafaceted.batchactions.browser.views import brains_from_uids
 from imio.dms.mail import _
 from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatefields
 from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatewidgets
+from imio.dms.mail.dmsmail import manage_email_fields
+from imio.dms.mail.dmsmail import order_fields
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 
@@ -15,8 +17,9 @@ class ReplyForm(BaseReplyForm):
     """Form to reply to an incoming mail."""
 
     def updateFields(self):
-
         super(ReplyForm, self).updateFields()
+        manage_email_fields(self, 'add')
+        order_fields(self, 'omail_fields_order')
         imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
