@@ -261,6 +261,7 @@
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_mark_as_sent.png" i18n:translate="">om_mark_as_sent</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
+   <guard-expression>python:object.treating_groups</guard-expression>
   </guard>
  </transition>
  <transition transition_id="propose_to_be_signed" title="om_propose_to_be_signed" new_state="to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
