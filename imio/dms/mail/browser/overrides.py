@@ -175,7 +175,7 @@ class DocsGroupsOverviewControlPanel(BaseOverviewControlPanel, GroupsOverviewCon
 class DocsCKTemplateListingView(CKTemplateListingView):
     """Change enabled_states variable class because we use another workflow to restrict access to cktemplate."""
 
-    enabled_states = ('active', )
+    enabled_states = ()
     sort_on = 'path'
 
     def __init__(self, context, request):
