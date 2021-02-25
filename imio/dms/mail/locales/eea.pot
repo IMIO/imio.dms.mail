@@ -15,51 +15,11 @@ msgstr ""
 "Domain: eea\n"
 
 #: ../faceted_conf/im-faceted:
-msgid "Base collections"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Per page"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Treating groups"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Review state"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
 msgid "Assigned user"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
-msgid "Recipient groups"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Mail type"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Original mail date"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Reception date"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Title only"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Due date"
-msgstr ""
-
-#: ../faceted_conf/im-faceted:
-msgid "Modified"
+msgid "Base collections"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
@@ -67,29 +27,69 @@ msgid "Created"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
-msgid "Sender"
+msgid "Creating group"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
-msgid "Creating group"
+msgid "Due date"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Mail type"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Modified"
+msgstr ""
+
+#: ../faceted_conf/organizations-searches:
+msgid "Organization types"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Original mail date"
 msgstr ""
 
 #: ../faceted_conf/om-faceted:
 msgid "Outgoing Date"
 msgstr ""
 
+#: ../faceted_conf/im-faceted:
+msgid "Per page"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Reception date"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Recipient groups"
+msgstr ""
+
 #: ../faceted_conf/om-faceted:
 msgid "Recipients"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Review state"
 msgstr ""
 
 #: ../faceted_conf/om-faceted:
 msgid "Send modes"
 msgstr ""
 
-#: ../faceted_conf/om-faceted:
-msgid "Unread"
+#: ../faceted_conf/im-faceted:
+msgid "Sender"
 msgstr ""
 
-#: ../faceted_conf/organizations-searches:
-msgid "Organization types"
+#: ../faceted_conf/im-faceted:
+msgid "Title only"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+msgid "Treating groups"
+msgstr ""
+
+#: ../faceted_conf/om-faceted:
+msgid "Unread"
 msgstr ""
