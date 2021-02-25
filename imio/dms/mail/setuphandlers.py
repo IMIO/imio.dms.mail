@@ -2082,6 +2082,7 @@ def add_oem_templates(site):
 
     templates = [
         {'cid': 10, 'cont': 'templates/oem', 'type': 'cktemplate', 'id': 'emain', 'title': _(u'Email general template'),
+         'trans': ['show_internally'],
          'attrs': {'content': richtextval(u'<p>Bonjour,</p><p>en réponse à votre email, vous trouverez ci-dessous les '
                                           u'infos demandées.</p><p>Cordialement</p><p>&nbsp;</p><p>Administration '
                                           u'communale</p><p>...</p>')}},
