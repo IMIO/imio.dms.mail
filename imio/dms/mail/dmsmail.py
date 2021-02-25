@@ -338,26 +338,30 @@ class IMEdit(DmsDocumentEdit):
         behaviors = incomingmail_fti.behaviors
         display_fields = []
         if not sm.checkPermission('imio.dms.mail: Write mail base fields', self.context):
-            if IDublinCore.__identifier__ in behaviors:
-                display_fields = [
-                    'IDublinCore.title',
-                    'IDublinCore.description']
-            elif IBasic.__identifier__ in behaviors:
-                display_fields = [
-                    'IBasic.title',
-                    'IBasic.description']
+            # for dmsincoming_email, a user can change base fields if this was a manual transfert with
+            # automatic transitions applied
+            if not getattr(self.context, '_iem_agent', False):
+                if IDublinCore.__identifier__ in behaviors:
+                    display_fields = [
+                        'IDublinCore.title',
+                        'IDublinCore.description']
+                elif IBasic.__identifier__ in behaviors:
+                    display_fields = [
+                        'IBasic.title',
+                        'IBasic.description']
 
-            display_fields.extend([
-                'sender',
-                'mail_type',
-                'reception_date',
-                'original_mail_date',
-            ])
+                display_fields.extend([
+                    'sender',
+                    'mail_type',
+                    'reception_date',
+                    'original_mail_date',
+                ])
 
         for field in display_fields:
             self.widgets[field].mode = 'display'
 
-        if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
+        if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context) and \
+                not getattr(self.context, '_iem_agent', False):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
             # self.widgets['treating_groups'].__dict__['disabled'] = True
             self.widgets['treating_groups'].terms.terms = SimpleVocabulary(
