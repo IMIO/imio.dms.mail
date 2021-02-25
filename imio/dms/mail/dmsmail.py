@@ -711,7 +711,8 @@ class OMEdit(BaseOMEdit):
             if not recipient.value:
                 recipient.value = get_recipient_email(self.context)
             # hidden mode
-            email_fs.widgets['email_status'].mode = HIDDEN_MODE
+            if 'email_status' in email_fs.widgets:
+                email_fs.widgets['email_status'].mode = HIDDEN_MODE
 
     def updateFields(self):
         super(OMEdit, self).updateFields()
