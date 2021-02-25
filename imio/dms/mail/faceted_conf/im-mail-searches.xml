@@ -244,6 +244,32 @@
       name="default">python:context.restrictedTraverse('various-utils').unread_criteria()</property>
   </criterion>
 
+  <!--criterion name="c16" i18n:attributes="title">
+   <property name="widget">text</property>
+   <property name="title">Internal reference</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">internal_reference_number</property>
+   <property name="default"/>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">False</property>
+   <property name="placeholder">Entire string, case sensitive</property>
+  </criterion-->
+
+  <criterion name="c17" i18n:attributes="title">
+   <property name="widget">text</property>
+   <property name="title">External reference</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">external_reference_number</property>
+   <property name="default"/>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">False</property>
+   <property name="placeholder">Entire string, case sensitive</property>
+  </criterion>
+
   <!--criterion name="c15" i18n:attributes="title">
    <property name="widget">checkbox</property>
    <property name="title">Labels</property>

@@ -266,5 +266,29 @@
    <property name="wildcard">True</property>
   </criterion>
 
+  <criterion name="c16" i18n:attributes="title">
+   <property name="widget">text</property>
+   <property name="title">Internal reference</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">internal_reference_number</property>
+   <property name="default"/>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">False</property>
+  </criterion>
+
+  <criterion name="c17" i18n:attributes="title">
+   <property name="widget">text</property>
+   <property name="title">External reference</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">external_reference_number</property>
+   <property name="default"/>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">False</property>
+  </criterion>
+
  </criteria>
 </object>

@@ -36,6 +36,21 @@ msgid "Due date"
 msgstr "Échéance"
 
 #: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Entire string, case sensitive"
+msgstr "Texte entier avec la casse"
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "External reference"
+msgstr "Référence externe"
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Internal reference"
+msgstr "Référence interne"
+
+#: ../faceted_conf/im-faceted:
 msgid "Mail type"
 msgstr "Type de courrier"
 

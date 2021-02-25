@@ -14,6 +14,8 @@ Changelog
   [sgeulette]
 - Added send_modes
   [sgeulette]
+- Added external reference number criteria in dashboards
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

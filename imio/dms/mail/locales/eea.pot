@@ -35,6 +35,21 @@ msgid "Due date"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Entire string, case sensitive"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "External reference"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Internal reference"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
 msgid "Mail type"
 msgstr ""
 
