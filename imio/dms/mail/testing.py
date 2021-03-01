@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-
 from imio.dms.mail.utils import set_dms_config
 from imio.pyutils.system import runCommand
 from plone import api
@@ -78,6 +77,7 @@ class DmsmailLayer(PloneWithPackageLayer):
 
     def tearDownZope(self, app):
         """Tear down Zope."""
+        super(DmsmailLayer, self).tearDownZope(app)
         (stdout, stderr, st) = runCommand('%s/bin/soffice.sh stop' % os.getenv('PWD'))
 
 
@@ -162,7 +162,7 @@ def reset_dms_config():
     set_dms_config(['review_levels', 'task'], OrderedDict())
     set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
     set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
-                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
+                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'})]))
     set_dms_config(['review_states', 'task'], OrderedDict())
     set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
     set_dms_config(['transitions_auc', 'dmsincomingmail'], OrderedDict())  # i_e ok
