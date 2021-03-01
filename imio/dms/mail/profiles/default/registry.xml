@@ -36,6 +36,7 @@ pipeline =
     plonegroupinternalparent
 #    iadocs_inbw_subtitle
     dependencysorter
+#    stop
     relationsinserter
     updatepathinserter
     pathinserter
@@ -207,6 +208,10 @@ delete =
 [breakpoint]
 blueprint = collective.contact.importexport.breakpoint
 condition = python:item.get('_id', u'') == u'0'
+
+[stop]
+blueprint = collective.contact.importexport.stop
+condition = python:True
 </value>
   </record>
 
