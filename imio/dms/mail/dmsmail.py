@@ -115,7 +115,8 @@ def creating_group_filter_default(context):
     current_user = api.user.get_current()
     if current_user.getId() is None:
         return None
-    orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), [CREATING_GROUP_SUFFIX])
+    orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), [CREATING_GROUP_SUFFIX,
+                                                                                 CONTACTS_PART_SUFFIX])
     for term in voc:
         if term.__org__ in orgs:
             return term.value
