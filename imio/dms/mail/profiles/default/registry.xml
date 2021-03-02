@@ -40,6 +40,7 @@ pipeline =
     relationsinserter
     updatepathinserter
     pathinserter
+#    iadocs_inbw_merger
     constructor
     iadocs_userid
 #    iadocs_creating_group
@@ -133,6 +134,10 @@ blueprint = collective.contact.importexport.pathinserter
 organization_id_keys = title
 person_id_keys = firstname lastname
 held_position_id_keys = label
+
+[iadocs_inbw_merger]
+blueprint = imio.transmogrifier.contact.iadocs_inbw_merger
+raise = 1
 
 [constructor]
 blueprint = collective.transmogrifier.sections.constructor
