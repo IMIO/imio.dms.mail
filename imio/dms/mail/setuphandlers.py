@@ -86,14 +86,14 @@ from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
 import logging
 import os
 import pkg_resources
 
-from zope.schema.vocabulary import SimpleTerm
-from zope.schema.vocabulary import SimpleVocabulary
 
 logger = logging.getLogger('imio.dms.mail: setuphandlers')
 
