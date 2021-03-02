@@ -68,6 +68,7 @@ persons_filename =
 persons_fieldnames = _id lastname firstname gender person_title birthday use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country internal_number _uid _ic
 held_positions_filename =
 held_positions_fieldnames = _id _pid _oid _fid label start_date end_date use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country _uid _ic
+raise_on_error = 1
 
 [initialization]
 blueprint = collective.contact.importexport.init
@@ -94,6 +95,7 @@ transfer_path = imports/copied
 blueprint = collective.contact.importexport.csv_reader
 fmtparam-strict = python:True
 csv_headers = python:True
+raise_on_error = ${config:raise_on_error}
 
 [common_input_checks]
 blueprint = collective.contact.importexport.common_input_checks
@@ -105,6 +107,7 @@ person_uniques = _uid internal_number
 person_booleans = use_parent_address _ic _inactive
 held_position_uniques = _uid
 held_position_booleans = use_parent_address _ic _inactive
+raise_on_error = ${config:raise_on_error}
 
 [plonegrouporganizationpath]
 blueprint = imio.transmogrifier.contact.plonegrouporganizationpath
@@ -121,6 +124,7 @@ blueprint = collective.contact.importexport.dependencysorter
 
 [relationsinserter]
 blueprint = collective.contact.importexport.relationsinserter
+raise_on_error = ${config:raise_on_error}
 
 [updatepathinserter]
 blueprint = collective.contact.importexport.updatepathinserter
@@ -128,22 +132,25 @@ blueprint = collective.contact.importexport.updatepathinserter
 organization_uniques = _uid UID python:True python:True internal_number internal_number python:True python:False
 person_uniques = _uid UID python:True python:True internal_number mail_type python:item['_ic'] python:False internal_number internal_number python:True python:False
 held_position_uniques = _uid UID python:True python:True
+raise_on_error = ${config:raise_on_error}
 
 [pathinserter]
 blueprint = collective.contact.importexport.pathinserter
 organization_id_keys = title
 person_id_keys = firstname lastname
 held_position_id_keys = label
+raise_on_error = ${config:raise_on_error}
 
 [iadocs_inbw_merger]
 blueprint = imio.transmogrifier.contact.iadocs_inbw_merger
-raise = 1
+raise_on_error = ${config:raise_on_error}
 
 [constructor]
 blueprint = collective.transmogrifier.sections.constructor
 
 [iadocs_userid]
 blueprint = imio.transmogrifier.contact.iadocs_userid_inserter
+raise_on_error = ${config:raise_on_error}
 
 [iadocs_creating_group]
 blueprint = imio.transmogrifier.contact.iadocs_creating_group_inserter
