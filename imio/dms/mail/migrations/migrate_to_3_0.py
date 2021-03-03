@@ -64,6 +64,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'])
 
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
 
         # TODO Add close wf adaptation
         # Apply workflow adaptations

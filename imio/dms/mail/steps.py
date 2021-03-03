@@ -312,3 +312,212 @@ def configure_wsclient(context):
         gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent, ))
     [logger.info(msg) for msg in log]
     return '\n'.join(log)
+
+
+def contact_import_pipeline(context):
+    """Set contact import pipeline record."""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    site = context.getSite()
+    logger.info('Set contact import pipeline')
+    api.portal.set_registry_record(
+        'collective.contact.importexport.interfaces.IPipelineConfiguration.pipeline', u"""[transmogrifier]
+pipeline =
+    initialization
+    csv_disk_source
+#    csv_ssh_source
+    csv_reader
+    common_input_checks
+    plonegrouporganizationpath
+    plonegroupinternalparent
+#    iadocs_inbw_subtitle
+    dependencysorter
+#    stop
+    relationsinserter
+    updatepathinserter
+    pathinserter
+#    iadocs_inbw_merger
+    constructor
+    iadocs_userid
+#    iadocs_creating_group
+    schemaupdater
+    reindexobject
+    transitions_inserter
+    workflowupdater
+    breakpoint
+    short_log
+#    logger
+    lastsection
+
+# mandatory section !
+[config]
+# needed if contact encoding group is enabled in Plone
+creating_group =
+# if empty, first found directory is used. Else relative path in portal
+directory_path =
+csv_encoding = utf8
+# needed if plone-group organization is imported
+plonegroup_org_title =
+organizations_filename =
+organizations_fieldnames = _id _oid title description organization_type use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country enterprise_number internal_number _uid _ic
+persons_filename =
+persons_fieldnames = _id lastname firstname gender person_title birthday use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country internal_number _uid _ic
+held_positions_filename =
+held_positions_fieldnames = _id _pid _oid _fid label start_date end_date use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country _uid _ic
+raise_on_error = 1
+
+[initialization]
+blueprint = collective.contact.importexport.init
+# basepath is an absolute directory. If empty, buildout dir will be used
+basepath =
+# if subpath, it will be appended to basepath
+subpath = imports
+
+[csv_disk_source]
+blueprint = collective.contact.importexport.csv_disk_source
+organizations_filename = ${config:organizations_filename}
+persons_filename = ${config:persons_filename}
+held_positions_filename = ${config:held_positions_filename}
+
+[csv_ssh_source]
+blueprint = collective.contact.importexport.csv_ssh_source
+servername = sftp-client.imio.be
+username =
+server_files_path = .../upload_success
+registry_filename = 0_registry.dump
+transfer_path = imports/copied
+
+[csv_reader]
+blueprint = collective.contact.importexport.csv_reader
+fmtparam-strict = python:True
+csv_headers = python:True
+raise_on_error = ${config:raise_on_error}
+
+[common_input_checks]
+blueprint = collective.contact.importexport.common_input_checks
+phone_country = BE
+language = fr
+organization_uniques = _uid internal_number
+organization_booleans = use_parent_address _ic _inactive
+person_uniques = _uid internal_number
+person_booleans = use_parent_address _ic _inactive
+held_position_uniques = _uid
+held_position_booleans = use_parent_address _ic _inactive
+raise_on_error = ${config:raise_on_error}
+
+[plonegrouporganizationpath]
+blueprint = imio.transmogrifier.contact.plonegrouporganizationpath
+plonegroup_org_title = ${config:plonegroup_org_title}
+
+[plonegroupinternalparent]
+blueprint = imio.transmogrifier.contact.plonegroupinternalparent
+
+[iadocs_inbw_subtitle]
+blueprint = imio.transmogrifier.contact.iadocs_inbw_subtitle_updater
+
+[dependencysorter]
+blueprint = collective.contact.importexport.dependencysorter
+
+[relationsinserter]
+blueprint = collective.contact.importexport.relationsinserter
+raise_on_error = ${config:raise_on_error}
+
+[updatepathinserter]
+blueprint = collective.contact.importexport.updatepathinserter
+# list of 'column' 'index name' 'item condition' 'must-exist' quartets used to search in catalog for an existing object
+organization_uniques = _uid UID python:True python:True internal_number internal_number python:True python:False
+person_uniques = _uid UID python:True python:True internal_number mail_type python:item['_ic'] python:False internal_number internal_number python:True python:False
+held_position_uniques = _uid UID python:True python:True
+raise_on_error = ${config:raise_on_error}
+
+[pathinserter]
+blueprint = collective.contact.importexport.pathinserter
+organization_id_keys = title
+person_id_keys = firstname lastname
+held_position_id_keys = label
+raise_on_error = ${config:raise_on_error}
+
+[iadocs_inbw_merger]
+blueprint = imio.transmogrifier.contact.iadocs_inbw_merger
+raise_on_error = ${config:raise_on_error}
+
+[constructor]
+blueprint = collective.transmogrifier.sections.constructor
+
+[iadocs_userid]
+blueprint = imio.transmogrifier.contact.iadocs_userid_inserter
+raise_on_error = ${config:raise_on_error}
+
+[iadocs_creating_group]
+blueprint = imio.transmogrifier.contact.iadocs_creating_group_inserter
+creating_group = ${config:creating_group}
+
+[schemaupdater]
+blueprint = transmogrify.dexterity.schemaupdater
+
+[reindexobject]
+blueprint = plone.app.transmogrifier.reindexobject
+
+[transitions_inserter]
+blueprint = collective.contact.importexport.transitions_inserter
+
+[workflowupdater]
+blueprint = plone.app.transmogrifier.workflowupdater
+
+[short_log]
+blueprint = collective.contact.importexport.short_log
+
+[lastsection]
+blueprint = collective.contact.importexport.lastsection
+
+[logger]
+blueprint = collective.transmogrifier.sections.logger
+name = logger
+level = INFO
+delete =
+    _oid
+    title
+    description
+    organization_type
+    use_parent_address
+    street
+    number
+    additional_address_details
+    zip_code
+    city
+    phone
+    cell_phone
+    fax
+    email
+    website
+    region
+    country
+    internal_number
+    _uid
+    _ic
+    lastname
+    firstname
+    gender
+    person_title
+    birthday
+    _pid
+    _fid
+    label
+    start_date
+    end_date
+    position
+    userid
+    _files
+    _level
+    _ln
+    _parent
+    _typ
+
+[breakpoint]
+blueprint = collective.contact.importexport.breakpoint
+condition = python:item.get('_id', u'') == u'0'
+
+[stop]
+blueprint = collective.contact.importexport.stop
+condition = python:True
+""")  # noqa: E501
