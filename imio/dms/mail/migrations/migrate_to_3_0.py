@@ -61,6 +61,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
+        self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'])
 
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'workflow'])
 
