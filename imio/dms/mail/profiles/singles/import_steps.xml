@@ -3,7 +3,7 @@
 
  <import-step
     id="imiodmsmail-create-templates"
-    handler="imio.dms.mail.setuphandlers.create_templates_step"
+    handler="imio.dms.mail.steps.create_templates_step"
     title="Templates creation step for imio.dms.mail"
     version="2017-06-22">
     Create templates. If it already exists, just apply the transition and set at right place.
@@ -11,7 +11,7 @@
 
  <import-step
     id="imiodmsmail-update-templates"
-    handler="imio.dms.mail.setuphandlers.update_templates_step"
+    handler="imio.dms.mail.steps.update_templates_step"
     title="Templates update step for imio.dms.mail"
     version="2017-06-22">
     Update template files from the os. Don't replace a modified template !
@@ -19,7 +19,7 @@
 
  <import-step
     id="imiodmsmail-override-templates"
-    handler="imio.dms.mail.setuphandlers.override_templates_step"
+    handler="imio.dms.mail.steps.override_templates_step"
     title="Templates override step for imio.dms.mail"
     version="2017-06-22">
     Update and override template files from the os. Replace a modified template !
@@ -27,7 +27,7 @@
 
  <import-step
     id="imiodmsmail-create-persons-from-users"
-    handler="imio.dms.mail.setuphandlers.create_persons_from_users_step"
+    handler="imio.dms.mail.steps.create_persons_from_users_step"
     title="Create persons from users"
     version="2017-06-22">
     For internal people. Create persons and held positions in own personal folder.
@@ -35,7 +35,7 @@
 
  <import-step
     id="imiodmsmail-create-persons-from-users-inverted"
-    handler="imio.dms.mail.setuphandlers.create_persons_from_users_step_inverted"
+    handler="imio.dms.mail.steps.create_persons_from_users_step_inverted"
     title="Create persons from users, fullname starting with lastname"
     version="2017-06-22">
     For internal people. Create persons and held positions in own personal folder.
@@ -43,7 +43,7 @@
 
  <import-step
     id="imiodmsmail-add-icons-to-contact-workflow"
-    handler="imio.dms.mail.setuphandlers.add_icons_to_contact_workflow"
+    handler="imio.dms.mail.steps.add_icons_to_contact_workflow"
     title="Add transition icons to collective_contact_core_workflow."
     version="2018-05-17">
     Add transition icons to collective_contact_core_workflow.
@@ -51,7 +51,7 @@
 
  <import-step
     id="imiodmsmail-mark-copy-im-as-read"
-    handler="imio.dms.mail.setuphandlers.mark_copy_im_as_read"
+    handler="imio.dms.mail.steps.mark_copy_im_as_read"
     title="Mark old mails in copy as read."
     version="2018-05-17">
     Mark old mails in copy as read.
@@ -59,7 +59,7 @@
 
  <import-step
     id="imiodmsmail-im_n_plus_1_wfadaptation"
-    handler="imio.dms.mail.setuphandlers.im_n_plus_1_wfadaptation"
+    handler="imio.dms.mail.steps.im_n_plus_1_wfadaptation"
     title="Add n_plus_1 level in incomingmail_workflow from imio.dms.mail"
     version="2020-07-13T15:00:00.00000">
     Add n_plus_1 level in incomingmail_workflow from imio.dms.mail
@@ -67,7 +67,7 @@
 
  <import-step
     id="imiodmsmail-om_n_plus_1_wfadaptation"
-    handler="imio.dms.mail.setuphandlers.om_n_plus_1_wfadaptation"
+    handler="imio.dms.mail.steps.om_n_plus_1_wfadaptation"
     title="Add n_plus_1 level in outgoingmail_workflow from imio.dms.mail"
     version="2020-07-13T15:00:00.00000">
     Add n_plus_1 level in outgoingmail_workflow from imio.dms.mail
@@ -75,7 +75,7 @@
 
  <import-step
     id="imiodmsmail-task_n_plus_1_wfadaptation"
-    handler="imio.dms.mail.setuphandlers.task_n_plus_1_wfadaptation"
+    handler="imio.dms.mail.steps.task_n_plus_1_wfadaptation"
     title="Add n_plus_1 level in task_workflow from imio.dms.mail"
     version="2020-07-13T15:00:00.00000">
     Add n_plus_1 level in task_workflow from imio.dms.mail
@@ -83,7 +83,7 @@
 
  <import-step
     id="imiodmsmail-configure-wsclient"
-    handler="imio.dms.mail.setuphandlers.configure_wsclient"
+    handler="imio.dms.mail.steps.configure_wsclient"
     title="imio.pm.wsclient configure step for imio.dms.mail"
     version="2020-09-09T11:00:00.00000">
     imio.pm.wsclient configure step for imio.dms.mail

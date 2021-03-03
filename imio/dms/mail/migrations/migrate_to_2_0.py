@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-#from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 from collective.documentgenerator.config import set_oo_port
 from collective.documentgenerator.config import set_uno_path
@@ -16,11 +15,11 @@ from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_om_rolefields
 from imio.dms.mail.setuphandlers import configure_task_config
 from imio.dms.mail.setuphandlers import configure_task_rolefields
-from imio.dms.mail.setuphandlers import create_persons_from_users
 from imio.dms.mail.setuphandlers import createIMailCollections
 from imio.dms.mail.setuphandlers import createOMailCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import createTaskCollections
+from imio.dms.mail.steps import create_persons_from_users
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.helpers.catalog import addOrUpdateColumns
 from imio.helpers.content import transitions

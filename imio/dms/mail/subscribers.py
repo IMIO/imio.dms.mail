@@ -22,7 +22,7 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IPersonnelContact
-from imio.dms.mail.setuphandlers import separate_fullname
+from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
@@ -38,7 +38,6 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield.event import updateRelations
 from z3c.relationfield.relation import RelationValue

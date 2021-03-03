@@ -20,6 +20,7 @@ from plone.api.exc import GroupNotFoundError
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
+from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five import BrowserView
 from zope.annotation.interfaces import IAnnotations
@@ -354,6 +355,26 @@ def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
         import_file=open(os.path.dirname(__file__) + '/faceted_conf/%s' % xml))
     if default_UID:
         _updateDefaultCollectionFor(folder, default_UID)
+
+
+def separate_fullname(user, start='firstname'):
+    """ Separate firstname and lastname from fullname """
+    fullname = safe_unicode(user.getProperty('fullname'))
+    lastname = firstname = u''
+    if fullname:
+        parts = fullname.split()
+        if len(parts) == 1:
+            lastname = parts[0]
+        elif len(parts) > 1:
+            if start == 'firstname':
+                firstname = parts[0]
+                lastname = ' '.join(parts[1:])
+            else:
+                lastname = parts[0]
+                firstname = ' '.join(parts[1:])
+    else:
+        lastname = safe_unicode(user.id)
+    return firstname, lastname
 
 
 # views
