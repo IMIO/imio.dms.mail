@@ -469,6 +469,7 @@ blueprint = collective.contact.importexport.short_log
 
 [lastsection]
 blueprint = collective.contact.importexport.lastsection
+send_mail = 1
 
 [logger]
 blueprint = collective.transmogrifier.sections.logger
