@@ -16,6 +16,8 @@ Changelog
   [sgeulette]
 - Added external reference number criteria in dashboards
   [sgeulette]
+- Guarded close and mark_as_sent transitions
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

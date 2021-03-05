@@ -9,6 +9,7 @@ from datetime import timedelta
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from interfaces import IIMDashboard
@@ -406,7 +407,7 @@ class UtilsMethods(BrowserView):
         else:  # pragma: no cover
             return 'No scan id'
 
-    def is_in_user_groups(self, groups=(), admin=True, test='any', suffixes=()):
+    def is_in_user_groups(self, groups=(), admin=True, test='any', suffixes=(), org_uid=''):
         """
             Test if one or all of a given group list is part of the current user groups
             Test if one or all of a suffix list is part of the current user groups
@@ -415,7 +416,15 @@ class UtilsMethods(BrowserView):
         if admin and self.user_is_admin():
             return True
         u_groups = self.current_user_groups_ids(api.user.get_current())
-        u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
+        # u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
+        u_suffixes = []
+        for sfx in suffixes:
+            for grp in u_groups:
+                if org_uid:
+                    if grp == '{}_{}'.format(org_uid, sfx):
+                        u_suffixes.append(sfx)
+                elif grp.endswith('_{}'.format(sfx)):
+                    u_suffixes.append(sfx)
         if test == 'any':
             return any(x in u_groups for x in groups) or any(sfx in u_suffixes for sfx in suffixes)
         elif test == 'all':
@@ -574,6 +583,22 @@ class IdmUtilsMethods(UtilsMethods):
         else:
             return True  # state ok, back ok
         return False
+
+    def can_close(self):
+        """Check if idm can be closed.
+
+        A user can close if:
+            * a sender, a mail_type are recorded
+            * the closing agent is in the service (an event will set it)
+
+        Used in guard expression for propose_to_agent transition.
+        """
+        if self.context.sender is None or self.context.treating_groups is None or self.context.mail_type is None:
+            # TODO must check if mail_type field is activated
+            return False
+        # A user that can be an assigned_user can close. An event will set the value...
+        return self.is_in_user_groups(admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
+                                      org_uid=self.context.treating_groups)
 
     def created_col_cond(self):
         """ Condition for searchfor_created collection """

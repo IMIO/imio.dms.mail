@@ -2,7 +2,6 @@
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail import AUC_RECORD
-from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
@@ -21,14 +20,17 @@ from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.app.testing import login
+from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
-from plone.registry.interfaces import IRegistry
+from z3c.relationfield import RelationValue
 from zope.annotation.interfaces import IAnnotations
-from zope.component import getUtility
 
 import unittest
+
+from zope.component import getUtility
+from zope.intid import IIntIds
 
 
 class TestUtils(unittest.TestCase):
@@ -264,15 +266,30 @@ class TestUtils(unittest.TestCase):
         login(self.portal, 'dirg')
         self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
                             {'AuthenticatedUsers', 'dir_general'})
+        # with groups
         self.assertFalse(view.is_in_user_groups(groups=['abc']))
         self.assertTrue(view.is_in_user_groups(groups=['abc', 'dir_general']))
         self.assertFalse(view.is_in_user_groups(groups=['abc', 'dir_general'], test='all'))
         self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers', 'dir_general'], test='all'))
         self.assertFalse(view.is_in_user_groups(groups=['dir_general'], test='other'))
+        # with suffixes
         self.assertTrue(view.is_in_user_groups(suffixes=['general']))
         self.assertTrue(view.is_in_user_groups(groups=['abc'], suffixes=['general']))
         self.assertFalse(view.is_in_user_groups(groups=['abc'], suffixes=['general'], test='all'))
         self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers'], suffixes=['general'], test='all'))
+        # with org_uid, but without suffixes: not considered
+        self.assertFalse(view.is_in_user_groups(groups=['abc'], org_uid='dir'))
+        self.assertTrue(view.is_in_user_groups(groups=['abc', 'dir_general'], org_uid='dir'))
+        self.assertFalse(view.is_in_user_groups(groups=['abc', 'dir_general'], test='all', org_uid='dir'))
+        self.assertFalse(view.is_in_user_groups(groups=['dir_general'], test='other', org_uid='dir'))
+        # with org_uid and suffixes
+        self.assertTrue(view.is_in_user_groups(suffixes=['general'], org_uid='dir'))
+        self.assertFalse(view.is_in_user_groups(suffixes=['general'], org_uid='wrong'))
+        self.assertTrue(view.is_in_user_groups(groups=['abc'], suffixes=['general'], org_uid='dir'))
+        self.assertFalse(view.is_in_user_groups(groups=['abc'], suffixes=['general'], org_uid='wrong'))
+        self.assertTrue(view.is_in_user_groups(groups=['dir_general'], suffixes=['general'], org_uid='wrong'))
+        self.assertFalse(view.is_in_user_groups(groups=['abc'], test='all', suffixes=['general'], org_uid='dir'))
+        self.assertTrue(view.is_in_user_groups(groups=['dir_general'], test='all', suffixes=['general'], org_uid='dir'))
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
@@ -323,6 +340,24 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.can_do_transition('back_to_creation'))
         self.assertTrue(view.can_do_transition('back_to_manager'))
         self.assertFalse(view.can_do_transition('unknown'))
+
+    def test_IdmUtilsMethods_can_close(self):
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.assertEqual(api.content.get_state(imail), 'created')
+        view = IdmUtilsMethods(imail, imail.REQUEST)
+        imail.treating_groups = get_registry_organizations()[0]  # direction-generale
+        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        api.content.transition(imail, 'propose_to_agent')
+        login(self.portal, 'agent')
+        self.assertIsNone(imail.sender)
+        self.assertIsNone(imail.mail_type)
+        self.assertFalse(view.can_close())
+        intids = getUtility(IIntIds)
+        imail.sender = [RelationValue(intids.getId(self.portal.contacts['electrabel']))]
+        imail.mail_type = u'courrier'
+        self.assertFalse(view.can_close())  # not part of treating group editors
+        api.group.add_user(groupname='{}_editeur'.format(imail.treating_groups), username='agent')
+        self.assertTrue(view.can_close())
 
     def test_IdmUtilsMethods_created_col_cond(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
