@@ -6,9 +6,11 @@ from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from imio.dms.mail import _tr as _
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_solr_config
 from imio.migrator.migrator import Migrator
@@ -81,9 +83,13 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.update_config()
         self.update_site()
 
+        # update dmsincomingmails
+        self.update_dmsincomingmails()
+
         # do various adaptations for dmsincoming_email and dmsoutgoing_email
         self.insert_incoming_emails()
         self.insert_outgoing_emails()
+
         self.check_previously_migrated_collections()
 
         # self.catalog.refreshCatalog(clear=1)
@@ -263,11 +269,30 @@ class Migrate_To_3_0(Migrator):  # noqa
                                                    'org_templates_encoder_can_edit')
         notify(RecordModifiedEvent(record, [], []))
 
+    def update_dmsincomingmails(self):
+        for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', review_state='closed'), 1):
+            obj = brain.getObject()
+            if i == 1:
+                view = IdmUtilsMethods(obj, obj.REQUEST)
+            if obj.assigned_user is None:
+                for status in obj.workflow_history['incomingmail_workflow']:
+                    if status['action'] == 'close':
+                        username = status['actor']
+                        if view.is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=obj.treating_groups,
+                                                  user=api.user.get(username)):
+                            obj.assigned_user = username
+                            obj.reindexObject(['assigned_user'])
+                        break
+
+
+
     def update_catalog(self):
         """ Update catalog or objects """
         brains = self.catalog.searchResults(portal_type=('dmsmainfile', 'dmsommainfile', 'dmsappendixfile'))
-        for brain in brains:
+        for i, brain in enumerate(brains, 1):
             obj = brain.getObject()
+            if i % 10000 == 0:
+                logger.info('On file brain {}'.format(i))
             # we removed those useless attributes
             for attr in ('conversion_finished', 'just_added'):
                 if base_hasattr(obj, attr):

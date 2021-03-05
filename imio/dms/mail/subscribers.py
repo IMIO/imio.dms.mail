@@ -207,7 +207,7 @@ def dmsincomingmail_transition(mail, event):
         if view.is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=mail.treating_groups,
                                   user=api.user.get(username)):
             mail.assigned_user = username
-            mail.reindexObject()
+            mail.reindexObject(['assigned_user'])
 
 
 def reference_document_removed(obj, event):
