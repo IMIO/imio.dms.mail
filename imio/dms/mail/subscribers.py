@@ -17,11 +17,13 @@ from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -195,6 +197,17 @@ def dmsdocument_transition(mail, event):
         update indexes after a transition
     """
     mail.reindexObject(['state_group'])
+
+
+def dmsincomingmail_transition(mail, event):
+    """When closing an incoming mail, add the assigned_user if necessary."""
+    if event.transition and event.transition.id == 'close' and mail.assigned_user is None:
+        username = event.status['actor']
+        view = IdmUtilsMethods(mail, mail.REQUEST)
+        if view.is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=mail.treating_groups,
+                                  user=api.user.get(username)):
+            mail.assigned_user = username
+            mail.reindexObject()
 
 
 def reference_document_removed(obj, event):

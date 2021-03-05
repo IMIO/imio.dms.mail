@@ -290,6 +290,10 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.is_in_user_groups(groups=['dir_general'], suffixes=['general'], org_uid='wrong'))
         self.assertFalse(view.is_in_user_groups(groups=['abc'], test='all', suffixes=['general'], org_uid='dir'))
         self.assertTrue(view.is_in_user_groups(groups=['dir_general'], test='all', suffixes=['general'], org_uid='dir'))
+        logout()
+        login(self.portal, 'agent')
+        self.assertFalse(view.is_in_user_groups(suffixes=['general'], org_uid='dir'))
+        self.assertTrue(view.is_in_user_groups(suffixes=['general'], org_uid='dir', user=api.user.get('dirg')))
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

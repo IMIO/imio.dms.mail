@@ -4,18 +4,23 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.vocabularies import AssignedUsersVocabulary
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
+from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
 from Products.statusmessages.interfaces import IStatusMessage
+from z3c.relationfield import RelationValue
 from zExceptions import Redirect
 from zope.annotation import IAnnotations
+from zope.component import getUtility
 from zope.interface import Interface
+from zope.intid import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
 
@@ -30,7 +35,10 @@ class TestDmsmail(unittest.TestCase):
     def setUp(self):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='c1')
+        intids = getUtility(IIntIds)
+        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='c1',
+                                              sender=[RelationValue(intids.getId(self.portal.contacts['electrabel']))],
+                                              mail_type=u'courrier', )
         self.omf = self.portal['outgoing-mail']
 
     def test_dmsdocument_modified(self):
@@ -66,6 +74,15 @@ class TestDmsmail(unittest.TestCase):
         zope.event.notify(ObjectModifiedEvent(imail, Attributes(Interface, 'treating_groups')))
         self.assertListEqual(task1.parents_assigned_groups, [orgs[4]])
         self.assertListEqual(task2.parents_assigned_groups, [orgs[4], orgs[1]])
+
+    def test_dmsincomingmail_transition(self):
+        self.assertEqual(api.content.get_state(self.imail), 'created')
+        self.imail.treating_groups = get_registry_organizations()[1]  # direction-generale secretariat
+        api.content.transition(self.imail, 'propose_to_agent')
+        login(self.portal, 'agent')
+        self.assertIsNone(self.imail.assigned_user)
+        api.content.transition(self.imail, 'close')
+        self.assertEqual(self.imail.assigned_user, 'agent')
 
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')

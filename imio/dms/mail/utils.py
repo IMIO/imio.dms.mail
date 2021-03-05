@@ -3,7 +3,6 @@
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
-from collective.wfadaptations.api import get_applied_adaptations
 from datetime import date
 from datetime import timedelta
 from imio.dms.mail import _tr as _
@@ -407,7 +406,7 @@ class UtilsMethods(BrowserView):
         else:  # pragma: no cover
             return 'No scan id'
 
-    def is_in_user_groups(self, groups=(), admin=True, test='any', suffixes=(), org_uid=''):
+    def is_in_user_groups(self, groups=(), admin=True, test='any', suffixes=(), org_uid='', user=None):
         """
             Test if one or all of a given group list is part of the current user groups
             Test if one or all of a suffix list is part of the current user groups
@@ -415,7 +414,9 @@ class UtilsMethods(BrowserView):
         # for admin, we bypass the check
         if admin and self.user_is_admin():
             return True
-        u_groups = self.current_user_groups_ids(api.user.get_current())
+        if user is None:
+            user = api.user.get_current()
+        u_groups = self.current_user_groups_ids(user)
         # u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
         u_suffixes = []
         for sfx in suffixes:

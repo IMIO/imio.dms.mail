@@ -25,6 +25,12 @@
       />
 
     <subscriber
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail
+             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+        handler=".subscribers.dmsincomingmail_transition"
+      />
+
+    <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
              OFS.interfaces.IObjectWillBeRemovedEvent"
         handler=".subscribers.reference_document_removed" />

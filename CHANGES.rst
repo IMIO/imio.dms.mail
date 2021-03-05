@@ -18,6 +18,8 @@ Changelog
   [sgeulette]
 - Guarded close and mark_as_sent transitions
   [sgeulette]
+- An event sets assigned_user when empty on closing
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------
