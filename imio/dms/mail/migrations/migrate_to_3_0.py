@@ -284,8 +284,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                             obj.reindexObject(['assigned_user'])
                         break
 
-
-
     def update_catalog(self):
         """ Update catalog or objects """
         brains = self.catalog.searchResults(portal_type=('dmsmainfile', 'dmsommainfile', 'dmsappendixfile'))
