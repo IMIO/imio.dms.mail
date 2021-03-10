@@ -668,6 +668,19 @@ class OdmUtilsMethods(UtilsMethods):
                                                                        path='/'.join(self.context.getPhysicalPath()))
         return bool(brains)
 
+    def can_be_sent(self):
+        """Used in guard expression for sent transitions."""
+        # Protect from scanned state
+        if not self.context.treating_groups:
+            return False
+        # email, is sent ?
+        if self.context.is_email():
+            if self.context.email_status:  # has been sent
+                return True
+            return False  # consumer will not can "close": ok
+        else:
+            return self.can_be_handsigned()
+
     def scanned_col_cond(self):
         """ Condition for searchfor_scanned collection """
         return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])

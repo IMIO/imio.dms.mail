@@ -421,3 +421,23 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.can_be_handsigned())
         createContentInContainer(omail, 'dmsommainfile')
         self.assertTrue(view.can_be_handsigned())
+
+    def test_OdmUtilsMethods_can_be_sent(self):
+        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        self.assertEqual(api.content.get_state(omail), 'created')
+        view = OdmUtilsMethods(omail, omail.REQUEST)
+        # no treating_groups
+        self.assertFalse(view.can_be_sent())
+        omail.treating_groups = get_registry_organizations()[0]  # direction-generale
+        # define as email
+        omail.send_modes = [u'email']
+        self.assertTrue(omail.is_email())
+        self.assertFalse(view.can_be_sent())
+        omail.email_status = u'sent at ...'
+        self.assertTrue(view.can_be_sent())
+        # define as normal mail
+        omail.send_modes = [u'post']
+        self.assertFalse(omail.is_email())
+        self.assertFalse(view.can_be_sent())
+        createContentInContainer(omail, 'dmsommainfile')
+        self.assertTrue(view.can_be_sent())

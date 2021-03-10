@@ -260,6 +260,7 @@
         permission="zope2.View"
         allowed_attributes="
             can_be_handsigned
+            can_be_sent
             can_do_transition
             get_om_folder
             highest_scan_id
