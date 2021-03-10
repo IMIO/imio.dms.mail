@@ -305,7 +305,7 @@ def postInstall(context):
 
     configure_actions_panel(site)
 
-    configure_ckeditor(site, custom='ged')
+    configure_ckeditor(site, custom='ged', filtering='disabled')
 
     add_templates(site)
     add_oem_templates(site)

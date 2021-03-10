@@ -134,7 +134,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         # update ckeditor config
         ckp = self.portal.portal_properties.ckeditor_properties
         ckp.manage_changeProperties(toolbar='CustomOld')
-        configure_ckeditor(self.portal, custom='ged')
+        configure_ckeditor(self.portal, custom='ged', filtering='disabled')
 
         # update templates layout and create oem folders
         self.portal.templates.setLayout('folder_listing')
