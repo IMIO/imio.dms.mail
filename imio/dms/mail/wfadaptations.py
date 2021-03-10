@@ -304,6 +304,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # modify existing states
         # add new back_to transition on next states
         for next_state_id in next_states:
+            if next_state_id not in wf.states:
+                continue
             next_state = wf.states[next_state_id]
             transitions = list(next_state.transitions)
             transitions.append(back_tr_id)
@@ -311,6 +313,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
 
         # add new propose_to transition on previous states
         for st in [st for (st, tr) in wf_from_to['from']]:
+            if st not in wf.states:
+                continue
             previous_state = wf.states[st]
             transitions = list(previous_state.transitions)
             transitions.append(propose_tr_id)
@@ -516,6 +520,8 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # modify existing states
         # add new back_to transition on next states
         for next_state_id in to_states:
+            if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
+                continue
             next_state = wf.states[next_state_id]
             transitions = list(next_state.transitions)
             transitions.append(back_tr_id)
@@ -523,6 +529,8 @@ class OMServiceValidation(WorkflowAdaptationBase):
 
         # add new propose_to transition on previous states
         for st in [st for (st, tr) in wf_from_to['from']]:
+            if st not in wf.states:
+                continue
             previous_state = wf.states[st]
             transitions = list(previous_state.transitions)
             transitions.append(propose_tr_id)
@@ -706,7 +714,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             props={'guard_permissions': 'Review portal content'})
 
         # proposed_to_n_plus_1 transitions
-        if has_n_plus_1:
+        if has_n_plus_1 and 'proposed_to_n_plus_1' in wf.states:
             transitions = list(wf.states['proposed_to_n_plus_1'].transitions)
             transitions.append(to_tr_id)
             wf.states['proposed_to_n_plus_1'].transitions = tuple(transitions)
