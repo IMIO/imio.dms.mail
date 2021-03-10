@@ -11,6 +11,7 @@
  <permission>imio.dms.mail: Write treating group field</permission>
  <state state_id="created" title="om_created" i18n:attributes="title">
   <exit-transition transition_id="propose_to_be_signed"/>
+  <exit-transition transition_id="mark_as_sent"/>
   <exit-transition transition_id="set_scanned"/>
   <permission-map name="Access contents information" acquired="False">
    <permission-role>Editor</permission-role>
@@ -126,6 +127,7 @@
   </permission-map>
  </state>
  <state state_id="sent" title="om_sent" i18n:attributes="title">
+  <exit-transition transition_id="back_to_creation"/>
   <exit-transition transition_id="back_to_be_signed"/>
   <exit-transition transition_id="back_to_scanned"/>
   <permission-map name="Access contents information" acquired="False">
