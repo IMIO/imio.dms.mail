@@ -126,6 +126,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
         # we do transition
         api.content.transition(self.omail, transition='propose_to_n_plus_1')
+        createContentInContainer(self.omail, 'dmsommainfile')  # add a file so it's possible to do transition
         api.content.transition(self.omail, transition='set_to_print')
         self.assertEqual(api.content.get_state(self.omail), 'to_print')
         # tg ok, user in group

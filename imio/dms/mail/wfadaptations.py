@@ -704,14 +704,16 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             new_state_id=new_state_id, trigger_type=1, script_name='',
             actbox_name='om_set_to_print', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_set_to_print.png', actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_handsigned()"})
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
             title='om_back_to_print',
             new_state_id=new_state_id, trigger_type=1, script_name='',
             actbox_name='om_back_to_print', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_print.png', actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content'})
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_handsigned()"})
 
         # proposed_to_n_plus_1 transitions
         if has_n_plus_1 and 'proposed_to_n_plus_1' in wf.states:
