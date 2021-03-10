@@ -662,6 +662,12 @@ class OdmUtilsMethods(UtilsMethods):
             return True
         return False
 
+    def can_be_handsigned(self):
+        """Used in guard expression for to_be_signed and to_print transitions."""
+        brains = self.context.portal_catalog.unrestrictedSearchResults(portal_type='dmsommainfile',
+                                                                       path='/'.join(self.context.getPhysicalPath()))
+        return bool(brains)
+
     def scanned_col_cond(self):
         """ Condition for searchfor_scanned collection """
         return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])

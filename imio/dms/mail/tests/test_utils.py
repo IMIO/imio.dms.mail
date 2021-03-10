@@ -11,6 +11,7 @@ from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
@@ -26,11 +27,10 @@ from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from z3c.relationfield import RelationValue
 from zope.annotation.interfaces import IAnnotations
-
-import unittest
-
 from zope.component import getUtility
 from zope.intid import IIntIds
+
+import unittest
 
 
 class TestUtils(unittest.TestCase):
@@ -409,3 +409,15 @@ class TestUtils(unittest.TestCase):
         im_folder = self.portal['incoming-mail']['mail-searches']
         self.assertFalse('searchfor_proposed_to_n_plus_1' in im_folder)
         self.assertTrue('See test_wfadaptations_imservicevalidation.py')
+
+    def test_OdmUtilsMethods_can_be_handsigned(self):
+        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        self.assertEqual(api.content.get_state(omail), 'created')
+        view = OdmUtilsMethods(omail, omail.REQUEST)
+        self.assertFalse(view.can_be_handsigned())
+        createContentInContainer(omail, 'task')
+        self.assertFalse(view.can_be_handsigned())
+        createContentInContainer(omail, 'dmsappendixfile')
+        self.assertFalse(view.can_be_handsigned())
+        createContentInContainer(omail, 'dmsommainfile')
+        self.assertTrue(view.can_be_handsigned())
