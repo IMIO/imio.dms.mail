@@ -252,6 +252,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(edit.widgets['internal_reference_no'].mode, 'input')  # not hidden
         self.clean_request()
         # is a response, workflow and not initial state
+        createContentInContainer(om, 'dmsommainfile')  # add a file so it's possible to do transition
         api.content.transition(om, 'propose_to_be_signed')
         edit.update()
         self.assertEquals(api.content.get_state(om), 'to_be_signed')
