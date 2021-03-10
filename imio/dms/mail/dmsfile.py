@@ -20,6 +20,7 @@ class RestrictedNamedBlobFile(NamedBlobFile):
         super(RestrictedNamedBlobFile, self)._validate(value)
         if value is not None:
             registry = getUtility(IRegistry)
+            # TODO add an option to permit pdf file
             if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile']:
                 if (self.context.portal_type == 'dmsommainfile' and
                         self.context.file.contentType != 'application/vnd.oasis.opendocument.text'):
