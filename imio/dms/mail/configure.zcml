@@ -226,6 +226,7 @@
             kofax_orgs
             pg_organizations
             unread_criteria
+            user_usages
         "
     />
 

@@ -11,6 +11,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
+from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
 from natsort import natsorted
 from persistent.dict import PersistentDict
@@ -22,6 +23,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
+from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
@@ -541,6 +543,74 @@ class VariousUtilsMethods(UtilsMethods):
         ret.append('')
         ret.append('\r\n'.join(get_voc_values('collective.dms.basecontent.treating_groups')))
         return '\r\n'.join(ret)
+
+    def user_usages(self, userid=''):
+        """Checks user usages"""
+        if not check_zope_admin():
+            return "You must be a zope manager to run this script"
+        if not userid:
+            return "You must give a parameter named 'userid'"
+        user = api.user.get(userid=userid)
+        if user is None:
+            return "Cannot find a user with userid='{}'".format(userid)
+        out = [u"<h1>Usages of user name '{}'</h1>".format(userid)]
+        portal = api.portal.getSite()
+        log_list(out, u"<p>Fullname='{}'. Email='{}'</p>".format(user.getProperty('fullname'),
+                                                                 user.getProperty('email')))
+        # get groups
+        log_list(out, u"<h2>In groups ?</h2>")
+        groups = [group for group in api.group.get_groups(user=user) if group.id != 'AuthenticatedUsers']
+        if groups:
+            log_list(out, u'<p>=> in {} {}.</p>'.format(len(groups),
+                     object_link(portal, view='@@usergroup-usermembership?userid={}'.format(userid), content='groups',
+                                 target='_blank')))
+        else:
+            log_list(out, u'<p>none</p>')
+
+        log_list(out, u"<h2>In personnel folder ?</h2>")
+        pc = portal.portal_catalog
+        brains = pc(mail_type=userid, portal_type='held_position', sort_on='path')
+        if brains:
+            persons = {}
+            for brain in brains:
+                hp = brain.getObject()
+                hps = persons.setdefault(hp.__parent__, [])
+                hps.append(hp)
+            for person in persons:
+                log_list(out, u"<p>=> Found a person {}.</p>".format(object_link(person, target='_blank')))
+                # TODO display links number
+                for hp in persons[person]:
+                    log_list(out, u"<p>.. in HP {}.</p>".format(object_link(hp, target='_blank')))
+                    # TODO display links number
+        else:
+            log_list(out, u'<p>none</p>')
+
+        log_list(out, u"<h2>Is an assigned user ?</h2>")
+        brains = pc(assigned_user=userid, sort_on='path')
+        if brains:
+            tasks = {}
+            config = {'dmsincomingmail': 'incoming-mail/mail-searches#c6={}'.format(userid),
+                      'dmsoutgoingmail': 'outgoing-mail/mail-searches#c13={}'.format(userid)}
+            # TODO to be continued to link to dashboards
+            for brain in brains:
+                obj = brain.getObject()
+                lst = tasks.setdefault(brain.portal_type, [])
+                lst.append(obj)
+            for tp in tasks:
+                log_list(out, "<p>=> Found {} {}.</p>".format(len(tasks[tp]), tp))
+        else:
+            log_list(out, u'<p>none</p>')
+
+        log_list(out, u"<h2>Is a creator ?</h2>")
+        brains = pc(Creator=userid, sort_on='path')
+        if brains:
+            log_list(out, "<p>=> Found {} items.</p>".format(len(brains)))
+            for brain in brains:
+                obj = brain.getObject()
+                log_list(out, u"<p>* {}</p>".format(object_link(obj, target='_blank')))
+        else:
+            log_list(out, u'<p>none</p>')
+        return u'\n'.join(out)
 
 
 class IdmUtilsMethods(UtilsMethods):
