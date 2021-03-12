@@ -68,7 +68,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
         self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'])
 
-        self.update_dms_config()
+        self.do_prior_updates()
 
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'workflow'])
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
@@ -114,13 +114,17 @@ class Migrate_To_3_0(Migrator):  # noqa
         # self.refreshDatabase()
         self.finish()
 
-    def update_dms_config(self):
+    def do_prior_updates(self):
+        # update dms config
         nplus_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'])
         if ('sent', 'mark_as_sent') not in nplus_to:
             nplus_to.insert(0, ('sent', 'mark_as_sent'))
             set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
             update_transitions_levels_config(['dmsoutgoingmail'])
         # TODO remove doing_migration from wfadaptations parameters
+        # TODO clean dmsconfig to avoid repetitions in wf_from_to
+        # in im ('proposed_to_n_plus_1', 'propose_to_n_plus_1')
+        # in om ('to_print', 'set_to_print')
 
     def update_site(self):
         # update front-page

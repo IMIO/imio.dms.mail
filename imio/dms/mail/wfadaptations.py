@@ -252,8 +252,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
 
         # store current level in dms_config
         propose_tr_id = 'propose_to_{}'.format(new_id)
-        wf_from_to['to'] += [(new_state_id, propose_tr_id)]
-        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'], wf_from_to)  # i_e ok
+        if (new_state_id, propose_tr_id) not in wf_from_to['to']:
+            wf_from_to['to'] += [(new_state_id, propose_tr_id)]
+            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'], wf_from_to)  # i_e ok
 
         # add state
         msg = self.check_state_in_workflow(wf, new_state_id)
@@ -672,8 +673,9 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
 
         # modify wf_from_to
         nplus_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'])
-        nplus_to.append((new_state_id, to_tr_id))
-        set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
+        if (new_state_id, to_tr_id) not in nplus_to:
+            nplus_to.append((new_state_id, to_tr_id))
+            set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
         # update dms config
         update_transitions_levels_config(['dmsoutgoingmail'])
 
