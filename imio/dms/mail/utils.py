@@ -555,8 +555,9 @@ class VariousUtilsMethods(UtilsMethods):
             return "Cannot find a user with userid='{}'".format(userid)
         out = [u"<h1>Usages of user name '{}'</h1>".format(userid)]
         portal = api.portal.getSite()
-        log_list(out, u"<p>Fullname='{}'. Email='{}'</p>".format(user.getProperty('fullname'),
-                                                                 user.getProperty('email')))
+        log_list(out, u"<p>Fullname='{}'. Email='{}'</p>".format(
+            object_link(portal, view='@@usergroup-userprefs?searchstring={}'.format(userid),
+                        content=user.getProperty('fullname'), target='_blank'), user.getProperty('email')))
         # get groups
         log_list(out, u"<h2>In groups ?</h2>")
         groups = [group for group in api.group.get_groups(user=user) if group.id != 'AuthenticatedUsers']
