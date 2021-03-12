@@ -92,13 +92,13 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertSetEqual(set(self.omw.states['scanned'].transitions),
                             {'back_to_agent', 'mark_as_sent'})
         self.assertSetEqual(set(self.omw.states['proposed_to_n_plus_1'].transitions),
-                            {'back_to_creation', 'set_to_print', 'propose_to_be_signed'})
+                            {'back_to_creation', 'set_to_print', 'propose_to_be_signed', 'mark_as_sent'})
         self.assertSetEqual(set(self.omw.states['to_print'].transitions),
                             {'back_to_creation', 'back_to_n_plus_1', 'propose_to_be_signed'})
         self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
                             {'back_to_creation', 'back_to_n_plus_1', 'back_to_print', 'mark_as_sent'})
         self.assertSetEqual(set(self.omw.states['sent'].transitions),
-                            {'back_to_be_signed', 'back_to_scanned', 'back_to_creation'})
+                            {'back_to_be_signed', 'back_to_scanned', 'back_to_creation', 'back_to_n_plus_1'})
         # check collection position
         folder = self.portal['outgoing-mail']['mail-searches']
         self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 11)
@@ -187,11 +187,11 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertSetEqual(set(self.omw.states['scanned'].transitions),
                             {'mark_as_sent', 'back_to_agent'})
         self.assertSetEqual(set(self.omw.states['proposed_to_n_plus_1'].transitions),
-                            {'back_to_creation', 'propose_to_be_signed'})
+                            {'back_to_creation', 'propose_to_be_signed', 'mark_as_sent'})
         self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
                             {'mark_as_sent', 'back_to_n_plus_1', 'back_to_creation'})
         self.assertSetEqual(set(self.omw.states['sent'].transitions),
-                            {'back_to_be_signed', 'back_to_scanned', 'back_to_creation'})
+                            {'back_to_be_signed', 'back_to_scanned', 'back_to_creation', 'back_to_n_plus_1'})
 
     def test_OMServiceValidation1(self):
         """

@@ -463,7 +463,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         new_state_id = 'proposed_to_{}'.format(new_id)
         wf_from_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'])
         # from: ('created', 'back_to_creation')
-        # to: ('to_be_signed', 'propose_to_be_signed'), ('to_print', 'set_to_print')
+        # to: ('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed'), ('to_print', 'set_to_print')
         transitions = [tr for (st, tr) in wf_from_to['from']] + [tr for (st, tr) in wf_from_to['to']]
         to_states = [st for (st, tr) in wf_from_to['to']]
         # store current level in dms_config
@@ -672,7 +672,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
 
         # modify wf_from_to
         nplus_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'])
-        nplus_to.insert(1, (new_state_id, to_tr_id))
+        nplus_to.append((new_state_id, to_tr_id))
         set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
         # update dms config
         update_transitions_levels_config(['dmsoutgoingmail'])

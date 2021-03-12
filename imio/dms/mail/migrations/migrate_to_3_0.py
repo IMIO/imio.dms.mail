@@ -10,9 +10,12 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import reimport_faceted_config
+from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
+from imio.dms.mail.utils import update_transitions_levels_config
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -65,6 +68,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
         self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'])
 
+        self.update_dms_config()
+
         self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'workflow'])
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
 
@@ -72,7 +77,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         # Apply workflow adaptations
         applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
         if applied_adaptations:
-            success, errors = apply_from_registry()
+            success, errors = apply_from_registry(reapply=True)
             if errors:
                 logger.error("Problem applying wf adaptations: %d errors" % errors)
         if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
@@ -108,6 +113,14 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # self.refreshDatabase()
         self.finish()
+
+    def update_dms_config(self):
+        nplus_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'])
+        if ('sent', 'mark_as_sent') not in nplus_to:
+            nplus_to.insert(0, ('sent', 'mark_as_sent'))
+            set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
+            update_transitions_levels_config(['dmsoutgoingmail'])
+        # TODO remove doing_migration from wfadaptations parameters
 
     def update_site(self):
         # update front-page

@@ -101,7 +101,7 @@ class TestUtils(unittest.TestCase):
 
         # dmsoutgoingmail #
         config = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
-        self.assertSetEqual(set(config.keys()), {'created', 'to_be_signed'})
+        self.assertSetEqual(set(config.keys()), {'created', 'to_be_signed', 'sent'})
         self.assertEqual(config['created'], config['to_be_signed'])
         for state in config:
             for org in config[state]:

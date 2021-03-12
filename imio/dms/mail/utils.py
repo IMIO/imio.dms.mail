@@ -48,7 +48,7 @@ dms_config
                                                ('proposed_to_manager', 'back_to_manager')]
     * ['dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
     * ['dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
-    * ['dmsoutgoingmail', 'n_plus', 'to'], [('to_be_signed', 'propose_to_be_signed')])
+    * ['dmsoutgoingmail', 'n_plus', 'to'], [('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed')])
 * ['review_levels'] : sert à déterminer le niveau de validation d'un utilisateur suivant son groupe
     * ['dmsincomingmail'] = OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                          ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})])
