@@ -300,8 +300,7 @@ class Migrate_To_2_3(Migrator):  # noqa
         n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
                            'forward_transition_title': u'Proposer au chef de service',
                            'backward_transition_title': u'Renvoyer au chef de service',
-                           'function_title': u'N+1',
-                           'doing_migration': True}
+                           'function_title': u'N+1'}
         task_adapt = True
         for wkf, acr in (('incomingmail_workflow', 'IM'), ('outgoingmail_workflow', 'OM')):
             if u'imio.dms.mail.wfadaptations.{}SkipProposeToServiceChief'.format(acr) in applied_wfa:
@@ -315,6 +314,7 @@ class Migrate_To_2_3(Migrator):  # noqa
             else:
                 logger.info('Applying {}ServiceValidation wf adaptation'.format(acr))
                 sva = getattr(wfadaptations, '{}ServiceValidation'.format(acr))()
+                sva.reapply = True
                 adapt_is_applied = sva.patch_workflow(wkf, **n_plus_1_params)
                 if adapt_is_applied:
                     add_applied_adaptation('imio.dms.mail.wfadaptations.{}ServiceValidation'.format(acr),

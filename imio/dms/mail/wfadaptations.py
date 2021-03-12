@@ -421,7 +421,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             lst.insert(0, new_state_id)
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states',
                                            lst)
-        if 'doing_migration' not in parameters:
+        if not self.reapply:
             # update state_group (use dms_config), permissions
             for brain in portal.portal_catalog(portal_type=['dmsincomingmail', 'dmsincoming_email']):
                 obj = brain.getObject()
@@ -635,7 +635,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         if modif:
             col.query = query
 
-        if 'doing_migration' not in parameters:
+        if not self.reapply:
             # update state_group (use dms_config), permissions
             for brain in portal.portal_catalog(portal_type='dmsoutgoingmail'):
                 obj = brain.getObject()
