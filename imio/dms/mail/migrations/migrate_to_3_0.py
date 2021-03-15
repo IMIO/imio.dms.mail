@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
+from collective.wfadaptations.api import RECORD_NAME
 from imio.dms.mail import _tr as _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_oem_templates
@@ -27,6 +27,7 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from zope.component import getUtility
 from zope.event import notify
 
+import json
 import logging
 
 
@@ -132,7 +133,17 @@ class Migrate_To_3_0(Migrator):  # noqa
             nplus_to.insert(0, ('sent', 'mark_as_sent'))
             set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
             update_transitions_levels_config(['dmsoutgoingmail'])
-        # TODO remove doing_migration from wfadaptations parameters
+        # remove doing_migration from wfadaptations parameters (added by 2.3 migration)
+        change = False
+        record = []
+        for info in get_applied_adaptations():
+            if 'doing_migration' in info['parameters']:
+                del info['parameters']['doing_migration']
+                change = True
+            info['parameters'] = json.dumps(info['parameters'], sort_keys=True).decode('utf8')
+            record.append(info)
+        if change:
+            api.portal.set_registry_record(RECORD_NAME, record)
 
     def update_site(self):
         # update front-page
