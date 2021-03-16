@@ -54,6 +54,13 @@
         permission="cmf.ModifyPortalContent"
         />
 
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="render_email_signature"
+        class=".views.RenderEmailSignature"
+        permission="cmf.ModifyPortalContent"
+        />
+
     <!-- ACTIONSPANEL -->
     <configure package="imio.actionspanel">
         <!-- common for dmsincomingmail, dmsoutgoingmail and task -->

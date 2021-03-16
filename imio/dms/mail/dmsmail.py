@@ -45,7 +45,6 @@ from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
-from imio.helpers.content import richtextval
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
@@ -66,6 +65,7 @@ from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
 from zope.interface import implements
@@ -718,10 +718,8 @@ class OMEdit(BaseOMEdit):
             # email_body signature
             email_body = email_fs.widgets['email_body']
             if not email_body.value:
-                model = api.portal.get_registry_record(
-                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature')
-                if model:
-                    email_body.value = richtextval(model)
+                res_view = getMultiAdapter((self.context, self.request), name='render_email_signature')
+                email_body.value = res_view()
 
     def updateFields(self):
         super(OMEdit, self).updateFields()

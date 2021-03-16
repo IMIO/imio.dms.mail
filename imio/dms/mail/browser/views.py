@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from AccessControl import getSecurityManager
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
@@ -6,6 +7,7 @@ from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
+from imio.helpers.content import richtextval
 from imio.helpers.emailer import add_attachment
 from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import send_email
@@ -14,11 +16,13 @@ from plone import api
 from plone.app.contenttypes.interfaces import IFile
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
+from Products.PageTemplates.Expressions import SecureModuleImporter
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 from zope.interface import implements
 from zope.lifecycleevent import modified
+from zope.pagetemplate.pagetemplate import PageTemplate
 
 import json
 import os
@@ -290,3 +294,21 @@ class CKTemplatesListing(BrowserView):
             self.local_search = 'local_search' in self.request or self.local_search
         self.update()
         return self.index()
+
+
+class RenderEmailSignature(BrowserView):
+    """Render an email signature."""
+
+    def __init__(self, context, request):
+        super(RenderEmailSignature, self).__init__(context, request)
+        model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature')
+        self.pt = PageTemplate()
+        self.pt.pt_source_file = lambda: 'none'
+        self.pt.write(model)
+        self.namespace = self.pt.pt_getContext()
+        self.namespace.update({'request': self.request, 'view': self, 'context': self.context,
+                               'user': getSecurityManager().getUser(), 'modules': SecureModuleImporter})
+
+    def __call__(self):
+        rendered = self.pt.pt_render(self.namespace)
+        return richtextval(rendered)
