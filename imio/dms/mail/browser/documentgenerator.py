@@ -49,24 +49,10 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             return {}
 
     def get_sender(self):
-        om = self.real_context
-        sender = uuidToObject(om.sender)
-        if not sender:
-            return {}
-        ret = {}
-        #ret['label'] = sender.label
-        ret['hp'] = sender
-        # sender.get_full_title(), sender.get_person_title()
-        person = sender.get_person()
-        ret['person'] = person
-        #ret['person_title'] = person.person_title
-        #ret['get_title'] = person.get_title()
-        # get contactable informations
-        #ret.update(self.get_ctct_det(sender))
-        org = sender.get_organization()
-        ret['org'] = org
-        ret['org_full_title'] = org.get_full_title(separator=' - ', first_index=1)
-        return ret
+        dic = self.real_context.get_sender_info()
+        if 'org' in dic:
+            dic['org_full_title'] = dic['org'].get_full_title(separator=' - ', first_index=1)
+        return dic
 
     def mailing_list(self, gen_context=None):
         om = self.real_context
