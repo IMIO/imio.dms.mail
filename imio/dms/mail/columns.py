@@ -170,6 +170,12 @@ class OutgoingDateColumn(DateColumn):
     # long_format = True
 
 
+class SendModesColumn(VocabularyColumn):
+
+    attrName = 'Subject'
+    vocabulary = u'imio.dms.mail.OMActiveSendModesVocabulary'
+
+
 class ReviewStateColumn(I18nColumn):
 
     i18n_domain = 'plone'

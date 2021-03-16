@@ -48,6 +48,9 @@ msgstr "Recipients"
 msgid "header_relative_path"
 msgstr "Relative path"
 
+msgid "header_send_modes"
+msgstr "Send modes"
+
 msgid "header_sender"
 msgstr "Sender"
 
@@ -71,6 +74,9 @@ msgstr "Recipients"
 
 msgid "relative_path"
 msgstr "Relative path"
+
+msgid "send_modes"
+msgstr "Send modes"
 
 msgid "sender"
 msgstr "Sender"

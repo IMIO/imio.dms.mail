@@ -48,6 +48,9 @@ msgstr "Destinataires"
 msgid "header_relative_path"
 msgstr "Chemin relatif"
 
+msgid "header_send_modes"
+msgstr "Formes d'envoi"
+
 msgid "header_sender"
 msgstr "Expéditeur"
 
@@ -71,6 +74,9 @@ msgstr "Destinataires"
 
 msgid "relative_path"
 msgstr "Chemin relatif"
+
+msgid "send_modes"
+msgstr "Formes d'envoi"
 
 msgid "sender"
 msgstr "Expéditeur"
