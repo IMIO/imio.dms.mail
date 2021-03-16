@@ -48,6 +48,7 @@ from imio.dms.mail.utils import object_modified_cachekey
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
+from plone.app.uuid.utils import uuidToObject
 from plone.autoform import directives
 # from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.browser.add import DefaultAddForm
@@ -575,6 +576,58 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         """
         return bool([val for val in self.send_modes or [] if val.startswith('email')])
 
+    def get_sender_info(self):
+        """Returns related sender information:
+
+        * the held_position, in 'hp' key
+        * the related person, in 'person' key
+        * the related organization, in 'org' key
+        :return: dict containing 3 keys
+        """
+        if not self.sender:
+            return {}
+        sender = uuidToObject(self.sender)
+        if not sender:
+            return {}
+        return {'hp': sender, 'person': sender.get_person(), 'org': sender.get_organization()}
+
+    def get_sender_email(self, sender_i={}):
+        """Returns a sender email address
+
+        :param sender_i: a dict containing sender information (as returned by `get_sender_info`)
+        :return: an email address
+        :rtype: unicode
+        """
+        if not sender_i:
+            sender_i = self.get_sender_info()
+        hpc = IContactable(sender_i['hp'])
+        email = hpc.get_contact_details(keys=['email']).get('email', u'')
+        if email:
+            return u'"{} {}" <{}>'.format(sender_i['hp'].firstname, sender_i['hp'].lastname, email)
+        return u''
+
+    def get_recipient_emails(self):
+        """Returns a recipient email address
+
+        :return: an email address
+        :rtype: unicode
+        """
+        emails = []
+        # we don't use directly relation object to be sure to use the real object
+        uids = [rel.to_object.UID() for rel in self.recipients or []]
+        brains = self.portal_catalog(UID=uids)
+        # selection order not kept !
+        for brain in brains:
+            contact = brain.getObject()
+            contactable = IContactable(contact)
+            email = contactable.get_contact_details(keys=['email']).get('email', u'')
+            if email:
+                if hasattr(contact, 'firstname'):
+                    emails.append(u'"{} {}" <{}>'.format(contact.firstname, contact.lastname, email))
+                else:
+                    emails.append(email)
+        return u', '.join(emails)
+
 
 def imio_dmsoutgoingmail_updatefields(the_form):
     """
@@ -645,51 +698,6 @@ def manage_email_fields(the_form, action):
         return
 
 
-def get_sender_email(mail):
-    """Returns a sender email address
-
-    :param mail: the outgoing mail that is edited
-    :type mail: ImioDmsOutgoingMail
-    :return: an email address
-    :rtype: unicode
-    """
-    if not mail.sender:
-        return u''
-    brains = mail.portal_catalog(UID=mail.sender)
-    if brains:
-        hp = brains[0].getObject()
-        hpc = IContactable(hp)
-        email = hpc.get_contact_details(keys=['email']).get('email', u'')
-        if email:
-            return u'"{} {}" <{}>'.format(hp.firstname, hp.lastname, email)
-    return u''
-
-
-def get_recipient_email(mail):
-    """Returns a recipient email address
-
-    :param mail: the outgoing mail that is edited
-    :type mail: ImioDmsOutgoingMail
-    :return: an email address
-    :rtype: unicode
-    """
-    emails = []
-    # we don't use directly relation object to be sure to use the real object
-    uids = [rel.to_object.UID() for rel in mail.recipients or []]
-    brains = mail.portal_catalog(UID=uids)
-    # selection order not kept !
-    for brain in brains:
-        contact = brain.getObject()
-        contactable = IContactable(contact)
-        email = contactable.get_contact_details(keys=['email']).get('email', u'')
-        if email:
-            if hasattr(contact, 'firstname'):
-                emails.append(u'"{} {}" <{}>'.format(contact.firstname, contact.lastname, email))
-            else:
-                emails.append(email)
-    return u', '.join(emails)
-
-
 class OMEdit(BaseOMEdit):
     """
         Edit form redefinition to customize fields.
@@ -708,10 +716,10 @@ class OMEdit(BaseOMEdit):
                 subject.value = self.context.title
             sender = email_fs.widgets['email_sender']
             if not sender.value:
-                sender.value = get_sender_email(self.context)
+                sender.value = self.context.get_sender_email()
             recipient = email_fs.widgets['email_recipient']
             if not recipient.value:
-                recipient.value = get_recipient_email(self.context)
+                recipient.value = self.context.get_recipient_emails()
             # hidden mode
             if 'email_status' in email_fs.widgets:
                 email_fs.widgets['email_status'].mode = HIDDEN_MODE
