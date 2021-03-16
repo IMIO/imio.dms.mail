@@ -45,6 +45,7 @@ from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
+from imio.helpers.content import richtextval
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
@@ -714,6 +715,13 @@ class OMEdit(BaseOMEdit):
             # hidden mode
             if 'email_status' in email_fs.widgets:
                 email_fs.widgets['email_status'].mode = HIDDEN_MODE
+            # email_body signature
+            email_body = email_fs.widgets['email_body']
+            if not email_body.value:
+                model = api.portal.get_registry_record(
+                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature')
+                if model:
+                    email_body.value = richtextval(model)
 
     def updateFields(self):
         super(OMEdit, self).updateFields()
@@ -801,8 +809,8 @@ class OMView(DmsDocumentView):
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
 
-# Validators
 
+# Validators
 
 class AssignedUserValidator(validator.SimpleFieldValidator):
 

@@ -20,6 +20,7 @@ from plone import api
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.uuid.utils import uuidToObject
+from plone.app.z3cform.wysiwyg import WysiwygFieldWidget
 from plone.autoform.directives import widget
 from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
@@ -182,7 +183,7 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'incoming_email',
         label=_(u"Incoming email"),
-        fields=['iemail_manual_forward_transition']
+        fields=['iemail_manual_forward_transition', 'iemail_signature']
     )
 
     iemail_manual_forward_transition = schema.Choice(
@@ -190,6 +191,13 @@ class IImioDmsMailConfig(model.Schema):
         description=_(u'Choose to which state a manually forwarded email will go.'),
         vocabulary=iemail_manual_forward_transitions,
         default=u'agent'
+    )
+
+    widget('iemail_signature', WysiwygFieldWidget)  # widget('iemail_signature', klass='pat-tinymce') in plone 5 ?
+    iemail_signature = schema.Text(
+        title=_(u'Email signature model'),
+        description=_(u'Can contains TAL syntax.'),
+        required=False,
     )
 
     model.fieldset(

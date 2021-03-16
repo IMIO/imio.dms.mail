@@ -12,13 +12,15 @@ Changelog
   [sgeulette]
 - Added lecteurs_globaux_cs group
   [sgeulette]
-- Added send_modes
+- Added send_modes (attribute, column, criteria)
   [sgeulette]
 - Added external reference number criteria in dashboards
   [sgeulette]
 - Guarded close and mark_as_sent transitions
   [sgeulette]
 - An event sets assigned_user when empty on closing
+  [sgeulette]
+- Added email signature template
   [sgeulette]
 
 2.3 (2020-10-08)
