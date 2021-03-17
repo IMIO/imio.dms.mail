@@ -110,6 +110,19 @@ class TestDocumentGenerator(unittest.TestCase):
         mock.replay()
         self.assertFalse(view1.is_first_doc())
 
+        # Test separate_treating_group
+        self.assertListEqual(view1.separate_treating_groups(None), [u'', u''])
+        self.assertListEqual(view1.separate_treating_groups(u''), [u'', u''])
+        self.assertListEqual(view1.separate_treating_groups(u'Direction générale'),
+                             [u'Direction générale', u''])
+        self.assertListEqual(view1.separate_treating_groups(u'Direction générale - Secrétariat'),
+                             [u'Direction générale', u'Secrétariat'])
+        self.assertListEqual(view1.separate_treating_groups(u'Direction générale - Secrétariat - Michèle'),
+                             [u'Direction générale', u'Secrétariat - Michèle'])
+        self.assertListEqual(view1.separate_treating_groups(u'Direction générale - Secrétariat - Michèle', nb=3),
+                             [u'Direction générale', u'Secrétariat', u'Michèle'])
+        self.assertRaises(IndexError, view1.separate_treating_groups, u'Direction', nb=0)
+
     def test_DocumentGenerationOMDashboardHelper(self):
         """
             Test all methods of DocumentGenerationOMDashboardHelper view

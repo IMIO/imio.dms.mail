@@ -26,7 +26,7 @@ from zope.annotation.interfaces import IAnnotations
 from zope.i18n import translate
 
 
-### HELPERS ###
+# # # HELPERS # # #
 
 class OMDGHelper(DXDocumentGenerationHelperView):
     """
@@ -45,7 +45,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             # {'website': '', 'fax': '', 'phone': '', 'address': {'city': u'Eghez\xe9e', 'country': '', 'region': '',
             # 'additional_address_details': '', 'number': u'8', 'street': u'Grande Ruelle', 'zip_code': u'5310'},
             # 'im_handle': '', 'cell_phone': '', 'email': ''}
-        except:
+        except Exception:
             return {}
 
     def get_sender(self):
@@ -130,7 +130,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         """ in mailing context """
         ctx = self.appy_renderer.contentParser.env.context
         if 'loop' in ctx and hasattr(ctx['loop'], 'mailed_data') and not ctx['loop'].mailed_data.first:
-                return False
+            return False
         return True
 
     def get_treating_groups(self):
@@ -139,8 +139,21 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             return None
         return uuidToObject(om.treating_groups)
 
+    def separate_treating_groups(self, tg=u'', nb=2, sep=u' - '):
+        """Separates a treating group name in different parts.
+        Returns always the good number of parts, fulled with empty strings."""
+        ret = [u'' for i in range(0, nb)]
+        if not tg:
+            return ret
+        parts = tg.split(sep)
+        for i in range(0, nb-1):
+            ret[i] = parts[i]
+        if len(parts) >= nb:
+            ret[-1] = sep.join(parts[nb-1:])
+        return ret
 
-class DashboardDGBaseHelper():
+
+class DashboardDGBaseHelper():  # noqa
     """
         Common methods
     """
@@ -176,7 +189,7 @@ class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, Dash
             obj = brain.getObject()
             tg = brain.treating_groups
             if tg:
-                if not tg in results:
+                if tg not in results:
                     results[tg] = {'mails': []}
                     title = tg
                     tgroup = uuidToObject(tg)
@@ -204,7 +217,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         if not self.is_dashboard():
             return files
         catalog = self.portal.portal_catalog
-        #self.uids_to_objs(self.context_var('brains'))
+        # self.uids_to_objs(self.context_var('brains'))
         for brain in self.context_var('brains'):
             brains = catalog(portal_type='dmsommainfile', path=brain.getPath(), sort_on='getObjPositionInParent',
                              sort_order='descending', sort_limit=limit)
@@ -320,7 +333,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
         return not INotPloneGroupContact.providedBy(contact)
 
 
-### GENERATION VIEW ###
+# # # GENERATION VIEW # # #
 
 class DbDocumentGenerationView(DashboardDocumentGenerationView):
     """
@@ -362,7 +375,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         """
         self._set_header_response(persisted_doc.file.filename)
         response = self.request.response
-        #return response.redirect(self.context.absolute_url())
+        # return response.redirect(self.context.absolute_url())
         return response.redirect(persisted_doc.absolute_url() + '/external_edit')
 
     def _get_generation_context(self, helper_view, pod_template):
@@ -395,7 +408,7 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
     def _get_title(self, doc_name, gen_context, generated_doc_title):
         return u"%s, %s" % (self.pod_template.title, self.document.title)
 
-### VIEWLETS ###
+# # # VIEWLETS # # #
 
 
 class OutgoingMailLinksViewlet(DocumentGeneratorLinksViewlet):
