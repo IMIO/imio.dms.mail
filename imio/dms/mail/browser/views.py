@@ -309,7 +309,7 @@ class RenderEmailSignature(BrowserView):
         self.namespace.update({'request': self.request, 'view': self, 'context': self.context,
                                'user': getSecurityManager().getUser(), 'modules': SecureModuleImporter})
         dg_helper = getMultiAdapter((self.context, self.request), name='document_generation_helper_view')
-        self.namespace['h_view'] = dg_helper
+        self.namespace['dghv'] = dg_helper
         self.namespace['sender'] = dg_helper.get_sender()
 
     def __call__(self):
