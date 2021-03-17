@@ -424,6 +424,11 @@ div.contactcontent_backrefs img {
     height: 20px;
 }
 
+body.template-folder_factories #content-core dt label img {
+    max-width: 18px;
+    max-height: 18px;
+}
+
 /* ckeditor templates cktemplate */
 div.cke_tpl_item {
     padding: 2px;
