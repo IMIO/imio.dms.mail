@@ -38,7 +38,7 @@ class TestDmsmail(unittest.TestCase):
         intids = getUtility(IIntIds)
         self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='c1',
                                               sender=[RelationValue(intids.getId(self.portal.contacts['electrabel']))],
-                                              mail_type=u'courrier', )
+                                              mail_type=u'courrier', title=u'title')
         self.omf = self.portal['outgoing-mail']
 
     def test_dmsdocument_modified(self):
@@ -113,16 +113,16 @@ class TestDmsmail(unittest.TestCase):
         rid = pc(id='c1')[0].getRID()
         # before mainfile creation
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
-        self.assertListEqual(index_value, ['e0010'])
+        self.assertListEqual(index_value, ['e0010', 'title'])
         # after mainfile creation
         f1 = createContentInContainer(self.imail, 'dmsmainfile', id='f1', scan_id='010999900000690')
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
-        self.assertListEqual(index_value, ['e0010', u'010999900000690', 'imio010999900000690', u'690'])
+        self.assertListEqual(index_value, ['e0010', 'title', u'010999900000690', 'imio010999900000690', u'690'])
         # after mainfile modification
         f1.scan_id = '010999900000691'
         zope.event.notify(ObjectModifiedEvent(f1, Attributes(IScanFields, 'IScanFields.scan_id')))
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
-        self.assertListEqual(index_value, ['e0010', u'010999900000691', 'imio010999900000691', u'691'])
+        self.assertListEqual(index_value, ['e0010', 'title', u'010999900000691', 'imio010999900000691', u'691'])
         # event without scan_id attribute
         zope.event.notify(ObjectModifiedEvent(f1))
 

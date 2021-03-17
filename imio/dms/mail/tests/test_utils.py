@@ -321,8 +321,9 @@ class TestUtils(unittest.TestCase):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IdmUtilsMethods(imail, imail.REQUEST)
-        # no treating_group: NOK
+        # no treating_group nor title: NOK
         self.assertFalse(view.can_do_transition('propose_to_agent'))
+        imail.title = u'test'
         # tg ok, state ok, assigner_user nok but auc ok: OK
         imail.treating_groups = get_registry_organizations()[0]
         self.assertTrue(view.can_do_transition('propose_to_agent'))
@@ -347,7 +348,7 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.can_do_transition('unknown'))
 
     def test_IdmUtilsMethods_can_close(self):
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', title=u'test')
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         imail.treating_groups = get_registry_organizations()[0]  # direction-generale
@@ -424,7 +425,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.can_be_handsigned())
 
     def test_OdmUtilsMethods_can_be_sent(self):
-        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', title=u'test')
         self.assertEqual(api.content.get_state(omail), 'created')
         view = OdmUtilsMethods(omail, omail.REQUEST)
         # no treating_groups

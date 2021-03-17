@@ -37,7 +37,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.pw = self.portal.portal_workflow
         self.omw = self.pw['outgoingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
-        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', title=u'Test')
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
@@ -168,7 +168,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                           'imiodmsmail-om_n_plus_1_wfadaptation',
                                                           run_dependencies=False)
-        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', title=u'test')
 
     def tearDown(self):
         # the modified dmsconfig is kept globally

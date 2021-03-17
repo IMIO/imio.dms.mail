@@ -623,11 +623,12 @@ class IdmUtilsMethods(UtilsMethods):
         return portal['incoming-mail']
 
     def can_do_transition(self, transition):
+        """Check if N+ transitions and "around" transitions can be done, following N+ users and
+        assigned_user configuration. Used in guard expression for some transitions.
+        :param transition: transition name to do
+        :return: bool
         """
-            Check if assigned_user is set or if the test is required or if the user is admin.
-            Used in guard expression for propose_to_agent transition
-        """
-        if self.context.treating_groups is None:
+        if self.context.treating_groups is None or not self.context.title:
             # print "no tg: False"
             return False
         way_index = transition.startswith('back_to') and 1 or 0
@@ -720,7 +721,7 @@ class OdmUtilsMethods(UtilsMethods):
 
     def can_do_transition(self, transition):
         """ Used in guard expression for n_plus_1 transitions """
-        if self.context.treating_groups is None:
+        if self.context.treating_groups is None or not self.context.title:
             # print "no tg: False"
             return False
         way_index = transition.startswith('back_to') and 1 or 0
@@ -742,7 +743,7 @@ class OdmUtilsMethods(UtilsMethods):
     def can_be_sent(self):
         """Used in guard expression for sent transitions."""
         # Protect from scanned state
-        if not self.context.treating_groups:
+        if not self.context.treating_groups or not self.context.title:
             return False
         # email, is sent ?
         if self.context.is_email():
