@@ -156,7 +156,7 @@ class TestAdapters(unittest.TestCase):
 
     def test_state_group_index(self):
         dguid = self.pgof['direction-generale'].UID()
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', title='test',
                                          treating_groups=dguid, assigned_user='chef')
         indexer = state_group_index(imail)
         self.assertEqual(indexer(), 'created')

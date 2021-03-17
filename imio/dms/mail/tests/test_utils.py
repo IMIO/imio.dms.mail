@@ -221,7 +221,8 @@ class TestUtils(unittest.TestCase):
 
     def test_back_or_again_state(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', assigned_user='agent',
-                                         treating_groups=self.pgof['direction-generale']['secretariat'].UID())
+                                         treating_groups=self.pgof['direction-generale']['secretariat'].UID(),
+                                         title='test')
         self.assertEqual(back_or_again_state(imail), '')  # initial state: no action
         api.content.transition(obj=imail, transition='propose_to_manager')
         self.assertEqual(back_or_again_state(imail), '')  # second state: empty
