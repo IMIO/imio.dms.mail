@@ -205,3 +205,37 @@ class TestUpdateItem(unittest.TestCase):
         form['assigned_user'] = 'chef'
         view()
         self.assertEqual(imail1.assigned_user, 'chef')
+
+
+class RenderEmailSignature(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        self.pgo = self.portal.contacts['plonegroup-organization']
+        self.pgo.use_parent_address = False
+        self.pgo.street = u'Rue Léon Morel'
+        self.pgo.number = u'1'
+        self.pgo.zip_code = u'5032'
+        self.pgo.city = u'Isnes'
+        self.pgo.email = u'contakt@mio.be'
+
+    def test_call(self):
+        model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature')
+        self.assertIn('http://localhost:8081/', model)  # $url well replaced by PUBLIC_URL
+        omail1 = self.portal['outgoing-mail']['reponse1']
+        view = omail1.unrestrictedTraverse('@@render_email_signature')
+        self.assertIn('sender', view.namespace)
+        self.assertEqual(view.namespace['sender']['org_full_title'], u'Direction générale - GRH')
+        self.assertEqual(view.namespace['sender']['person'].title, u'Monsieur Michel Chef')
+        # ctct_det = view.namespace['dghv'].get_ctct_det(view.namespace['sender']['hp'])
+        rendered = view().output
+        self.assertIn(u'>Michel Chef<', rendered)
+        self.assertIn(u'>Responsable GRH<', rendered)
+        self.assertIn(u'>Direction générale<', rendered)
+        self.assertIn(u'>GRH<', rendered)
+        self.assertIn(u'>michel.chef@macommune.be<', rendered)
+        self.assertIn(u'>012/34.56.79<', rendered)
+        self.assertIn(u'>Rue Léon Morel, 1<', rendered)
+        self.assertIn(u'>5032 Isnes<', rendered)
