@@ -207,6 +207,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(len(self.omf.get_local_roles()), 14)
         set_registry_organizations(get_registry_organizations()[:3])
         self.assertEqual(len(self.omf.get_local_roles()), 6)
+        # TODO tests other changes !!
 
     def test_cktemplate_moved(self):
         oemf = self.portal['templates']['oem']

@@ -374,23 +374,26 @@ def contact_plonegroup_change(event):
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
         # we manage local roles to give needed permissions related to group_encoder
-        options_config = {'imail_group_encoder': [portal['incoming-mail']],
-                          'contact_group_encoder': [portal['contacts'],
-                                                    portal['contacts']['contact-lists-folder']['common']]}
+        options_config = {portal['incoming-mail']: ['imail_group_encoder'],
+                          portal['outgoing-mail']: ['omail_group_encoder'],
+                          portal['contacts']: ['imail_group_encoder', 'omail_group_encoder', 'contact_group_encoder'],
+                          portal['contacts']['contact-lists-folder']['common']: ['imail_group_encoder',
+                                                                                 'omail_group_encoder',
+                                                                                 'contact_group_encoder']}
+        ge_config = {opt: api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(
+            opt), default=False) for opt in ('imail_group_encoder', 'omail_group_encoder', 'contact_group_encoder')}
+
         group_encoder_config = [dic for dic in s_fcts if dic['fct_id'] == CREATING_GROUP_SUFFIX]  # noqa F812
         if group_encoder_config:
             orgs = group_encoder_config[0]['fct_orgs']
-            for option in options_config:
-                option_value = api.portal.get_registry_record('imio.dms.mail.browser.settings.'
-                                                              'IImioDmsMailConfig.{}'.format(option), default=False)
-                for folder in options_config[option]:
+            for folder in options_config:
+                if any([ge_config[opt] for opt in options_config[folder]]):
                     dic = folder.__ac_local_roles__
                     for principal in dic.keys():
                         if principal.endswith(CREATING_GROUP_SUFFIX):
                             del dic[principal]
-                    if option_value:
-                        for uid in orgs:
-                            dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
+                    for uid in orgs:
+                        dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
                     folder._p_changed = True
 
 
