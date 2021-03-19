@@ -1219,6 +1219,7 @@ u"""
 <tal:global define="ctct_det python: dghv.get_ctct_det(sender['hp']);
                     label python: sender['hp'].label;
                     services python: dghv.separate_full_title(sender['org_full_title']);">
+<p style="font-weight: bold;" tal:condition="nothing">!! Attention: ne pas modifier ceci directement mais passer par "Source" !!</p>
 <br />
 <p><span style="font-size:large;font-family:Quicksand,Arial" 
 tal:content="python:u'{} {}'.format(sender['person'].firstname, sender['person'].lastname)">Prénom Nom</span></p>
@@ -1248,8 +1249,7 @@ tal:content="python:u'{}, {}'.format(ctct_det['address']['street'], ctct_det['ad
 <div style="font-size: x-small;color:#424242;clear:both"><br />
 Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.
 </div>
-</tal:global>
-""")  # noqa
+</tal:global>""")  # noqa
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature'] = template.substitute(url=GEDURL)
 
     # mailcontent
