@@ -196,7 +196,7 @@ class IImioDmsMailConfig(model.Schema):
     widget('iemail_signature', WysiwygFieldWidget)  # widget('iemail_signature', klass='pat-tinymce') in plone 5 ?
     iemail_signature = schema.Text(
         title=_(u'Email signature model'),
-        description=_(u'Can contains TAL syntax.'),
+        description=_(u'TAL compliant with variables: view, context, user, dghv, sender, request and modules'),
         required=False,
     )
 
