@@ -176,7 +176,7 @@ class IImioDmsMailConfig(model.Schema):
                       u"to the selected creating group. Mails are then separately handled following the creating "
                       u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
                       u"multiple scanners and separated 'encoder' groups. "
-                      u"The list of 'encoder' groups, can be generated to be used in 'scanner program'. "),
+                      u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."),
         default=False
     )
 
@@ -196,7 +196,7 @@ class IImioDmsMailConfig(model.Schema):
     widget('iemail_signature', WysiwygFieldWidget)  # widget('iemail_signature', klass='pat-tinymce') in plone 5 ?
     iemail_signature = schema.Text(
         title=_(u'Email signature model'),
-        description=_(u'TAL compliant with variables: view, context, user, dghv, sender, request and modules'),
+        description=_(u'TAL compliant with variables: view, context, user, dghv, sender, request and modules.'),
         required=False,
     )
 
@@ -278,7 +278,7 @@ class IImioDmsMailConfig(model.Schema):
                       u"to the selected creating group. Mails are then separately handled following the creating "
                       u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
                       u"multiple scanners and separated 'encoder' groups. "
-                      u"The list of 'encoder' groups, can be generated to be used in 'scanner program'. "),
+                      u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."),
         default=False
     )
 
