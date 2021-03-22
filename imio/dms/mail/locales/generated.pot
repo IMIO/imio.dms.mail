@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-03-19 12:36+0000\n"
+"POT-Creation-Date: 2021-03-22 07:50+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
 
-#: ./browser/settings.py:315
+#: ./browser/settings.py:320
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr ""
 
-#: ./browser/views.py:39
+#: ./browser/views.py:40
 msgid "${title}: create from template"
 msgstr ""
 
@@ -29,7 +29,7 @@ msgstr ""
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
-#: ./browser/settings.py:292
+#: ./browser/settings.py:297
 msgid "A user can see all mail titles linked to a contact."
 msgstr ""
 
@@ -141,11 +141,11 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/settings.py:249
+#: ./browser/settings.py:254
 msgid "Check if a service encoder can edit his service email templates."
 msgstr ""
 
-#: ./browser/settings.py:243
+#: ./browser/settings.py:248
 msgid "Check if a service encoder can edit his service office templates."
 msgstr ""
 
@@ -161,12 +161,16 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:44
+#: ./browser/views.py:45
 msgid "Choose this template"
 msgstr ""
 
 #: ./browser/settings.py:191
 msgid "Choose to which state a manually forwarded email will go."
+msgstr ""
+
+#: ./browser/settings.py:204
+msgid "Close outgoing mail on email send"
 msgstr ""
 
 #: ./setuphandlers.py:1877
@@ -183,7 +187,7 @@ msgstr ""
 msgid "Contact lists"
 msgstr ""
 
-#: ./browser/settings.py:287
+#: ./browser/settings.py:292
 msgid "Contacts"
 msgstr ""
 
@@ -215,7 +219,7 @@ msgstr ""
 msgid "Dms Mail Creating Group"
 msgstr ""
 
-#: ./browser/settings.py:232
+#: ./browser/settings.py:237
 msgid "Dms file must be an odt format"
 msgstr ""
 
@@ -243,11 +247,11 @@ msgstr ""
 msgid "Empty value"
 msgstr ""
 
-#: ./browser/settings.py:248
+#: ./browser/settings.py:253
 msgid "Enable edition of service email templates for encoder"
 msgstr ""
 
-#: ./browser/settings.py:242
+#: ./browser/settings.py:247
 msgid "Enable edition of service office templates for encoder"
 msgstr ""
 
@@ -361,7 +365,7 @@ msgstr ""
 msgid "No incoming mail !"
 msgstr ""
 
-#: ./browser/settings.py:298
+#: ./browser/settings.py:303
 msgid "ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />When activating this option, a group encoder function is added in the configuration, a new field is added to the contact form to choose the creating group and permissions are given to the selected creating group. Contacts are then separately handled following the creating groups. <br />This option can be combined with the mail creating group option."
 msgstr ""
 
@@ -396,7 +400,7 @@ msgstr ""
 msgid "Outgoing email"
 msgstr ""
 
-#: ./browser/settings.py:205
+#: ./browser/settings.py:210
 #: ./migrations/migrate_to_0_2.py:119
 #: ./setuphandlers.py:170
 msgid "Outgoing mail"
@@ -412,7 +416,7 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/settings.py:310
+#: ./browser/settings.py:315
 msgid "Outgoingmail tab: send_modes field must have values starting with 'post' or 'email'"
 msgstr ""
 
@@ -479,7 +483,7 @@ msgstr ""
 msgid "Reply to ${ref}"
 msgstr ""
 
-#: ./browser/settings.py:227
+#: ./browser/settings.py:232
 msgid "Response prefix"
 msgstr ""
 
@@ -503,7 +507,7 @@ msgstr ""
 msgid "Send email"
 msgstr ""
 
-#: ./browser/settings.py:265
+#: ./browser/settings.py:270
 #: ./dmsmail.py:530
 msgid "Send modes"
 msgstr ""
@@ -512,7 +516,7 @@ msgstr ""
 msgid "Sender"
 msgstr ""
 
-#: ./browser/settings.py:237
+#: ./browser/settings.py:242
 msgid "Sender list is sorted on firstname"
 msgstr ""
 
@@ -578,7 +582,7 @@ msgstr ""
 msgid "Types of incoming mail"
 msgstr ""
 
-#: ./browser/settings.py:213
+#: ./browser/settings.py:218
 msgid "Types of outgoing mail"
 msgstr ""
 
@@ -586,7 +590,7 @@ msgstr ""
 msgid "Update preview"
 msgstr ""
 
-#: ./browser/settings.py:259
+#: ./browser/settings.py:264
 msgid "User fullname used format"
 msgstr ""
 
@@ -622,11 +626,11 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./browser/views.py:231
+#: ./browser/views.py:232
 msgid "Your email has been sent."
 msgstr ""
 
-#: ./browser/views.py:233
+#: ./browser/views.py:234
 msgid "Your email has not been sent: ${error}."
 msgstr ""
 

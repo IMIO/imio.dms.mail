@@ -8,6 +8,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.helpers.content import richtextval
+from imio.helpers.content import transitions
 from imio.helpers.emailer import add_attachment
 from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import send_email
@@ -242,6 +243,23 @@ class SendEmail(BrowserView):
         else:
             self.context.email_status += u' {}'.format(status)
         modified(self.context)
+
+        # 3 Close if necessary
+        close = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                               'omail_close_on_email_send')
+        if close:
+            trans = {
+                'created': ['mark_as_sent', 'propose_to_be_signed', 'set_to_print', 'propose_to_n_plus_1'],
+                'scanned': ['mark_as_sent'],
+                'proposed_to_n_plus_1': ['mark_as_sent', 'propose_to_be_signed', 'set_to_print'],
+                'to_be_signed': ['mark_as_sent'], 'to_print': ['propose_to_be_signed', 'mark_as_sent']
+            }
+            state = api.content.get_state(self.context)
+            i = 0
+            while state != 'sent' and i < 10:
+                transitions(self.context, trans.get(state, []))
+                state = api.content.get_state(self.context)
+                i += 1
 
 
 class CKTemplatesListing(BrowserView):

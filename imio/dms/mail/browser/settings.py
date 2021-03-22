@@ -206,7 +206,7 @@ class IImioDmsMailConfig(model.Schema):
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
                 'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
                 'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',
-                'omail_fields_order', 'omail_group_encoder']
+                'omail_close_on_email_send', 'omail_fields_order', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -269,6 +269,11 @@ class IImioDmsMailConfig(model.Schema):
                            schema=ITableListSchema))
 
     widget('omail_send_modes', DataGridFieldFactory, allow_reorder=True)
+
+    omail_close_on_email_send = schema.Bool(
+        title=_(u'Close outgoing mail on email send'),
+        default=True
+    )
 
     omail_group_encoder = schema.Bool(
         title=_(u'Activate group encoder'),

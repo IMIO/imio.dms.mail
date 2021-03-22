@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-03-19 12:36+0000\n"
+"POT-Creation-Date: 2021-03-22 07:50+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,11 +17,11 @@ msgstr ""
 "Language: fr\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: ./browser/settings.py:315
+#: ./browser/settings.py:320
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr "${tab}: décocher le paramètre '${field}' n'est pas prévu !"
 
-#: ./browser/views.py:39
+#: ./browser/views.py:40
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -37,7 +37,7 @@ msgstr "Cet élément est revenu en arrière dans le workflow."
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
-#: ./browser/settings.py:292
+#: ./browser/settings.py:297
 msgid "A user can see all mail titles linked to a contact."
 msgstr "Un utilisateur peut voir les intitulés de tous les courriers liés à un contact, même ceux d'autres services."
 
@@ -165,11 +165,11 @@ msgstr "Changement d'état par lot"
 msgid "Batch treating group change"
 msgstr "Changement de service traitant par lot"
 
-#: ./browser/settings.py:249
+#: ./browser/settings.py:254
 msgid "Check if a service encoder can edit his service email templates."
 msgstr "Cocher si les encodeurs d'un service peuvent modifier les modèles d'email sortant."
 
-#: ./browser/settings.py:243
+#: ./browser/settings.py:248
 msgid "Check if a service encoder can edit his service office templates."
 msgstr "Cocher si les encodeurs d'un service peuvent modifier les modèles bureautiques de courrier sortant."
 
@@ -185,13 +185,17 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:44
+#: ./browser/views.py:45
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
 #: ./browser/settings.py:191
 msgid "Choose to which state a manually forwarded email will go."
 msgstr "Choisir dans quel état un email, transféré manuellement par un agent, va aller."
+
+#: ./browser/settings.py:204
+msgid "Close outgoing mail on email send"
+msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 
 #: ./browser/batchactions.py:148
 msgid "Comment"
@@ -211,7 +215,7 @@ msgstr "Recherches listes de contact"
 msgid "Contact lists"
 msgstr "Listes de contact"
 
-#: ./browser/settings.py:287
+#: ./browser/settings.py:292
 msgid "Contacts"
 msgstr "Contacts"
 
@@ -247,7 +251,7 @@ msgstr "Libellé"
 msgid "Dms Mail Creating Group"
 msgstr "Champ 'Groupe indicateur' pour la gestion de courrier"
 
-#: ./browser/settings.py:232
+#: ./browser/settings.py:237
 msgid "Dms file must be an odt format"
 msgstr "Le fichier ged doit être au format odt (Libre Office)"
 
@@ -279,11 +283,11 @@ msgstr "Modèle de signature email"
 msgid "Empty value"
 msgstr "Sans valeur"
 
-#: ./browser/settings.py:248
+#: ./browser/settings.py:253
 msgid "Enable edition of service email templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles d'email sortant de son service."
 
-#: ./browser/settings.py:242
+#: ./browser/settings.py:247
 msgid "Enable edition of service office templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles bureautiques de son service."
 
@@ -409,7 +413,7 @@ msgstr "Il n'y a aucun dossier où vous pouvez ajouter des modèles."
 msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
-#: ./browser/settings.py:298
+#: ./browser/settings.py:303
 msgid "ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />When activating this option, a group encoder function is added in the configuration, a new field is added to the contact form to choose the creating group and permissions are given to the selected creating group. Contacts are then separately handled following the creating groups. <br />This option can be combined with the mail creating group option."
 msgstr "UNE FOIS ACTIVÉE, CETTE OPTION NE PEUT PAS ÊTRE ANNULÉE FACILEMENT !! <br />En activant cette option, une nouvelle fonction est ajoutée dans la configuration, ainsi qu'un nouveau champ dans le formulaire d'un contact pour choisir le groupe indicateur. Des permissions spécifiques en découlent pour le groupe indicateur sélectionné. Les contacts sont alors gérés séparément en fonction du nouveau champ.<br />Cette option peut être combinée avec celles de même nom définie sur les courriers entrant et/ou sortant."
 
@@ -448,7 +452,7 @@ msgstr "Date d'expédition"
 msgid "Outgoing email"
 msgstr "Email sortant"
 
-#: ./browser/settings.py:205
+#: ./browser/settings.py:210
 #: ./migrations/migrate_to_0_2.py:119
 #: ./setuphandlers.py:170
 msgid "Outgoing mail"
@@ -464,7 +468,7 @@ msgstr "Recherches courriers sortants"
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
-#: ./browser/settings.py:310
+#: ./browser/settings.py:315
 msgid "Outgoingmail tab: send_modes field must have values starting with 'post' or 'email'"
 msgstr "Courrier sortant: le champ 'Formes d'envoi' doit uniquement contenir des 'valeurs stockées' commencant par 'post' ou 'email'"
 
@@ -539,7 +543,7 @@ msgstr "Répondre"
 msgid "Reply to ${ref}"
 msgstr "Répondre à ${ref}"
 
-#: ./browser/settings.py:227
+#: ./browser/settings.py:232
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
@@ -563,7 +567,7 @@ msgstr "Sélectionner les éléments à retirer (CTRL+clic)"
 msgid "Send email"
 msgstr "Envoyer email"
 
-#: ./browser/settings.py:265
+#: ./browser/settings.py:270
 #: ./dmsmail.py:530
 msgid "Send modes"
 msgstr "Formes d'envoi"
@@ -572,7 +576,7 @@ msgstr "Formes d'envoi"
 msgid "Sender"
 msgstr "Expéditeurs"
 
-#: ./browser/settings.py:237
+#: ./browser/settings.py:242
 msgid "Sender list is sorted on firstname"
 msgstr "La liste des expéditeurs est triée selon le prénom"
 
@@ -646,7 +650,7 @@ msgstr "Services traitant : à coller dans l'index de Kofax"
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
-#: ./browser/settings.py:213
+#: ./browser/settings.py:218
 msgid "Types of outgoing mail"
 msgstr "Types de courrier sortant"
 
@@ -654,7 +658,7 @@ msgstr "Types de courrier sortant"
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 
-#: ./browser/settings.py:259
+#: ./browser/settings.py:264
 msgid "User fullname used format"
 msgstr "Format du nom complet de l'utilisateur"
 
@@ -690,11 +694,11 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./browser/views.py:231
+#: ./browser/views.py:232
 msgid "Your email has been sent."
 msgstr "Votre email a été envoyé"
 
-#: ./browser/views.py:233
+#: ./browser/views.py:234
 msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
