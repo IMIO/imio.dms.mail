@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """Test views."""
+from collective.MockMailHost.MockMailHost import MockMailHost
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import richtextval
+from imio.helpers.emailer import get_mail_host
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -205,6 +208,36 @@ class TestUpdateItem(unittest.TestCase):
         form['assigned_user'] = 'chef'
         view()
         self.assertEqual(imail1.assigned_user, 'chef')
+
+
+class TestSendEmail(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer['portal']
+        setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
+
+    def test_call(self):
+        omail1 = self.portal['outgoing-mail']['reponse1']
+        omail1.send_modes = [u'email']
+        omail1.email_subject = u'Email subject'
+        omail1.email_sender = u'sender@mio.be'
+        omail1.email_recipient = u'contakt@mio.be'
+        omail1.email_body = richtextval(u'My email content.')
+        view = omail1.unrestrictedTraverse('@@send_email')
+        # Status before call
+        self.assertEqual(api.content.get_state(omail1), 'created')
+        self.assertIsNone(omail1.email_status)
+        MockMailHost.secureSend = MockMailHost.send
+        mail_host = get_mail_host()
+        mail_host.reset()
+        # view call
+        view()
+        self.assertIn('Subject: =?utf-8?q?Email_subject?=\n', mail_host.messages[0])
+        self.assertIn('My email content.', mail_host.messages[0])
+        self.assertEqual(api.content.get_state(omail1), 'sent')
+        self.assertIsNotNone(omail1.email_status)
 
 
 class TestRenderEmailSignature(unittest.TestCase):

@@ -4,6 +4,7 @@ from imio.dms.mail.utils import set_dms_config
 from imio.pyutils.system import runCommand
 from plone import api
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
+from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
 from plone.app.testing import setRoles
@@ -50,6 +51,7 @@ class DmsmailLayer(PloneWithPackageLayer):
 
         # install dmsmail (apply profile)
         super(DmsmailLayer, self).setUpPloneSite(portal)
+        applyProfile(portal, 'collective.MockMailHost:default')
         api.content.transition(obj=members, transition='show_internally')
 
         # copy template
