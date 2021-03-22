@@ -8,7 +8,7 @@ from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 
-import mocker
+import mocker  # must be replaced in Plone 5 with python 3 unittest.mock
 import unittest
 
 
