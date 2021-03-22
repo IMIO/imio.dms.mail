@@ -207,7 +207,7 @@ class TestUpdateItem(unittest.TestCase):
         self.assertEqual(imail1.assigned_user, 'chef')
 
 
-class RenderEmailSignature(unittest.TestCase):
+class TestRenderEmailSignature(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
