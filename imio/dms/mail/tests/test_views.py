@@ -255,7 +255,8 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.pgo.email = u'contakt@mio.be'
 
     def test_call(self):
-        model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature')
+        model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                               'omail_email_signature')
         self.assertIn('http://localhost:8081/', model)  # $url well replaced by PUBLIC_URL
         omail1 = self.portal['outgoing-mail']['reponse1']
         view = omail1.unrestrictedTraverse('@@render_email_signature')

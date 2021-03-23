@@ -60,7 +60,7 @@ from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone import PloneMessageFactory as pmf
+# from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
@@ -1211,7 +1211,7 @@ def configureImioDmsMail(context):
             'email_body']
 
     # IEM
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature'):
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'):
         from string import Template
         template = Template(
 u"""
@@ -1250,7 +1250,7 @@ tal:content="python:u'{}, {}'.format(ctct_det['address']['street'], ctct_det['ad
 Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.
 </div>
 </tal:global>""")  # noqa
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature'] = template.substitute(url=GEDURL)
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'] = template.substitute(url=GEDURL)
 
     # mailcontent
     # Hide internal reference for om. Increment number automatically
@@ -1520,7 +1520,7 @@ def addTestMails(context):
                       'mail_type': 'courrier',
                       'sender': senders_cycle.next(),
                       'assigned_user': users_cycle.next(),
-                      #temporary in comment because it doesn't pass in test and case probably errors when deleting site
+                      # temporary in comment because it doesn't pass in test and case probably errors when deleting site
                       #'in_reply_to': [RelationValue(intids.getId(inmail))],
                       'recipients': [RelationValue(recipients_cycle.next())],
                       }
@@ -1911,7 +1911,7 @@ def add_templates(site):
                 parts = ppath.split('/')
                 dic['id'] = parts[-1]
                 dic['cont'] = '/'.join(parts[0:-1])
-                if not 'attrs' in dic:
+                if 'attrs' not in dic:
                     dic['attrs'] = {}
                 dic['attrs']['odt_file'] = create_NamedBlob(ospath)
                 ret.append(dic)

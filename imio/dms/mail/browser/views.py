@@ -14,7 +14,6 @@ from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from plone import api
-from plone.app.contenttypes.interfaces import IFile
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.PageTemplates.Expressions import SecureModuleImporter
@@ -26,7 +25,6 @@ from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
 import json
-import os
 
 
 class CreateFromTemplateForm(BaseRenderFancyTree):
@@ -319,7 +317,8 @@ class RenderEmailSignature(BrowserView):
 
     def __init__(self, context, request):
         super(RenderEmailSignature, self).__init__(context, request)
-        model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_signature')
+        model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                               'omail_email_signature')
         self.pt = PageTemplate()
         self.pt.pt_source_file = lambda: 'none'
         self.pt.write(model)

@@ -19,7 +19,6 @@ from imio.helpers.content import get_schema_fields
 from plone import api
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
-from plone.app.uuid.utils import uuidToObject
 from plone.app.z3cform.wysiwyg import WysiwygFieldWidget
 from plone.autoform.directives import widget
 from plone.dexterity.fti import DexterityFTIModificationDescription
@@ -183,7 +182,7 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'incoming_email',
         label=_(u"Incoming email"),
-        fields=['iemail_manual_forward_transition', 'iemail_signature']
+        fields=['iemail_manual_forward_transition']
     )
 
     iemail_manual_forward_transition = schema.Choice(
@@ -193,20 +192,13 @@ class IImioDmsMailConfig(model.Schema):
         default=u'agent'
     )
 
-    widget('iemail_signature', WysiwygFieldWidget)  # widget('iemail_signature', klass='pat-tinymce') in plone 5 ?
-    iemail_signature = schema.Text(
-        title=_(u'Email signature model'),
-        description=_(u'TAL compliant with variables: view, context, user, dghv, sender, request and modules.'),
-        required=False,
-    )
-
     model.fieldset(
         'outgoingmail',
         label=_(u"Outgoing mail"),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
                 'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
                 'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',
-                'omail_close_on_email_send', 'omail_fields_order', 'omail_group_encoder']
+                'omail_close_on_email_send', 'omail_email_signature', 'omail_fields_order', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -273,6 +265,14 @@ class IImioDmsMailConfig(model.Schema):
     omail_close_on_email_send = schema.Bool(
         title=_(u'Close outgoing mail on email send'),
         default=True
+    )
+
+    widget('omail_email_signature', WysiwygFieldWidget)
+    # widget('omail_email_signature', klass='pat-tinymce') in plone 5 ?
+    omail_email_signature = schema.Text(
+        title=_(u'Email signature model'),
+        description=_(u'TAL compliant with variables: view, context, user, dghv, sender, request and modules.'),
+        required=False,
     )
 
     omail_group_encoder = schema.Bool(
