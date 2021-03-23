@@ -349,10 +349,10 @@ class DbDocumentGenerationView(DashboardDocumentGenerationView):
 
 class OMPDGenerationView(PersistentDocumentGenerationView):
 
-    def _get_title(self, doc_name, gen_context, generated_doc_title):
+    def _get_title(self, doc_name, gen_context):
         return self.pod_template.title
 
-    def generate_persistent_doc(self, pod_template, output_format, generated_doc_title):
+    def generate_persistent_doc(self, pod_template, output_format):
         """ Create a dmsmainfile from the generated document """
         doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
         file_object = NamedBlobFile(doc, filename=safe_unicode(doc_name))
@@ -362,7 +362,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         scan_user = (scan_params and '|'.join(scan_params) or None)
         with api.env.adopt_roles(['Manager']):
             persisted_doc = createContentInContainer(self.context, 'dmsommainfile',
-                                                     title=self._get_title(doc_name, gen_context, ''),
+                                                     title=self._get_title(doc_name, gen_context),
                                                      id=scan_id, scan_id=scan_id, scan_user=scan_user, file=file_object)
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
@@ -405,7 +405,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGenerationView):
     """ Inherits from 2 classes """
 
-    def _get_title(self, doc_name, gen_context, generated_doc_title):
+    def _get_title(self, doc_name, gen_context):
         return u"%s, %s" % (self.pod_template.title, self.document.title)
 
 # # # VIEWLETS # # #

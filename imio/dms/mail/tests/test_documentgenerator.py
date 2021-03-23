@@ -222,10 +222,10 @@ class TestDocumentGenerator(unittest.TestCase):
         #view(template_uid=template.UID(), output_format='odt')
 
         # Test title
-        self.assertEqual(view._get_title('', '', ''), u'Modèle de base')
+        self.assertEqual(view._get_title('', ''), u'Modèle de base')
 
         # Test generate_persistent_doc
-        doc = view.generate_persistent_doc(view.pod_template, 'odt', '')
+        doc = view.generate_persistent_doc(view.pod_template, 'odt')
         self.assertEqual(doc.portal_type, 'dmsommainfile')
         self.assertIsNone(doc.scan_user)
 
@@ -250,7 +250,7 @@ class TestDocumentGenerator(unittest.TestCase):
         view.document = self.omf['reponse1']['1']
         view.document.title = u'Modèle de base'
         # Test title
-        self.assertEqual(view._get_title('', '', ''), u'Publipostage, Modèle de base')
+        self.assertEqual(view._get_title('', ''), u'Publipostage, Modèle de base')
 
     def test_OutgoingMailLinksViewlet(self):
         """
