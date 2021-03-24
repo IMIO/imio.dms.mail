@@ -335,6 +335,8 @@ pipeline =
 #    stop
     relationsinserter
     updatepathinserter
+    parentpathinserter
+    moveobject
     pathinserter
 #    iadocs_inbw_merger
     constructor
@@ -428,6 +430,14 @@ blueprint = collective.contact.importexport.updatepathinserter
 organization_uniques = _uid UID python:True python:True internal_number internal_number python:True python:False
 person_uniques = _uid UID python:True python:True internal_number mail_type python:item['_ic'] python:False internal_number internal_number python:True python:False
 held_position_uniques = _uid UID python:True python:True
+raise_on_error = ${config:raise_on_error}
+
+[parentpathinserter]
+blueprint = collective.contact.importexport.parentpathinserter
+raise_on_error = ${config:raise_on_error}
+
+[moveobject]
+blueprint = collective.contact.importexport.moveobject
 raise_on_error = ${config:raise_on_error}
 
 [pathinserter]
