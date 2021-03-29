@@ -6,11 +6,14 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.documentgenerator.utils import update_templates
 from collective.wfadaptations.api import add_applied_adaptation
+from collective.wfadaptations.api import apply_from_registry
+from collective.wfadaptations.api import get_applied_adaptations
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import list_templates
+from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
@@ -251,6 +254,33 @@ def task_n_plus_1_wfadaptation(context):
     if 'chef' in [u.id for u in api.user.get_users()]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
+
+
+def reset_workflows(context):
+    """Reset workflows and reapply wf adaptations."""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    site = context.getSite()
+    # TODO
+    # find what's deleted (with local roles config or collection ?)
+    # reset dms_config
+    # clean local roles
+    # delete collection
+    # clean registry with prefix prefix:imio.actionspanel.browser.registry.IImioActionsPanelConfig
+    # clean remark config
+    # clean function if all removed ?
+    # reindex
+
+    site.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:default', 'workflow', run_dependencies=False)
+    applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+    if applied_adaptations:
+        success, errors = apply_from_registry(reapply=True)
+        if errors:
+            logger.error("Problem applying wf adaptations: %d errors" % errors)
+    if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
+        update_task_workflow(site)
+    site.portal_workflow.updateRoleMappings()
+    logger.info("Workflow reset done")
 
 
 def configure_wsclient(context):

@@ -82,6 +82,14 @@
  </import-step>
 
  <import-step
+    id="imiodmsmail-reset_workflows"
+    handler="imio.dms.mail.steps.reset_workflows"
+    title="Reset workflows from imio.dms.mail"
+    version="2021-03-28T12:00:00.00000">
+    Reset workflows from imio.dms.mail
+ </import-step>
+
+ <import-step
     id="imiodmsmail-configure-wsclient"
     handler="imio.dms.mail.steps.configure_wsclient"
     title="imio.pm.wsclient configure step for imio.dms.mail"
