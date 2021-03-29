@@ -46,13 +46,14 @@ class TestDmsmail(unittest.TestCase):
         self.assertIsNone(creating_group_filter_default(self.portal))
         # we activate contact group encoder
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder', True)
-        self.assertEqual(len(creating_group_filter(self.portal)), 0)
+        self.assertEqual(len(creating_group_filter(self.portal)), 1)
+        self.assertEqual(creating_group_filter(self.portal)._terms[0].value, None)
         self.assertIsNone(creating_group_filter_default(self.portal))
         # we add a user in groups
         selected_orgs = get_registry_organizations()[0:2]
         api.group.add_user(groupname='{}_{}'.format(selected_orgs[0], CREATING_GROUP_SUFFIX), username='chef')
         api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='chef')
-        self.assertEqual(creating_group_filter(self.portal)._terms[0].value,
+        self.assertEqual(creating_group_filter(self.portal)._terms[1].value,
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[0]))
         self.assertIsNone(creating_group_filter_default(self.portal))
         # we add the connected user in group

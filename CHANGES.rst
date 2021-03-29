@@ -22,6 +22,8 @@ Changelog
   [sgeulette]
 - Added email signature template
   [sgeulette]
+- Can filter on all contacts when filtering
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

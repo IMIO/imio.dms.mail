@@ -91,7 +91,9 @@ def creating_group_filter(context):
         return None
     factory = getUtility(IVocabularyFactory, 'imio.dms.mail.ActiveCreatingGroupVocabulary')
     voc = factory(context)
-    terms = []
+    new_term = SimpleTerm(None, token='all', title=_('All'))
+    setattr(new_term, '__org__', None)
+    terms = [new_term]
     for term in voc:
         # beware to enclose dic content with " to be loaded correctly with json.loads
         new_term = SimpleTerm(u'{{"assigned_group": "{}"}}'.format(term.value), token=term.token, title=term.title)
