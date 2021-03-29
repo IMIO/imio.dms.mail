@@ -515,6 +515,12 @@ td.cke_tpl_preview_img img {
     filter: invert(48%) sepia(79%) saturate(2476%) hue-rotate(86deg) brightness(118%) contrast(119%);
 }*/
 
+#portal-footer {
+    background-color: inherit;
+    padding: 0;
+    margin-bottom: 0;
+}
+
 /* colorization for incoming_mail_workflow */
 
 .state-created {

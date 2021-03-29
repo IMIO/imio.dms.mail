@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-01-25 13:17+0000\n"
+"POT-Creation-Date: 2021-03-29 13:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -115,6 +115,14 @@ msgstr "Clôturé"
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "created"
 msgstr "En création"
+
+#: plone/app/layout/viewlets/footer.pt
+msgid "description_copyright"
+msgstr "iA.docs - Version <a href='https://docs.imio.be/imio-doc/ia.docs/changelog/index.html#version-2-3-10-2020' target='_blank'>3.0</a>"
+
+#: plone/app/layout/viewlets/footer.pt
+msgid "description_license"
+msgstr " - Documentation <a href='https://docs.imio.be/imio-doc/ia.docs/index.html' target='_blank'>en ligne (dont vidéos)</a>"
 
 #: configure.zcml
 msgid "dmsincomingmail-in-copy-group"

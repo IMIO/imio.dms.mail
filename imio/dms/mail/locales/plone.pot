@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-01-25 13:17+0000\n"
+"POT-Creation-Date: 2021-03-29 13:35+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -116,6 +116,14 @@ msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "created"
+msgstr ""
+
+#: plone/app/layout/viewlets/footer.pt
+msgid "description_copyright"
+msgstr ""
+
+#: plone/app/layout/viewlets/footer.pt
+msgid "description_license"
 msgstr ""
 
 #: configure.zcml

@@ -65,13 +65,15 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.upgradeProfile('collective.dms.mailcontent:default')
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
+        self.runProfileSteps('plonetheme.imioapps', profile='dmsmailskin', steps=['viewlets'])  # to hide colophon
         if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
         self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'])
 
         self.do_prior_updates()
 
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'viewlets',
+                                                     'workflow'])
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
 

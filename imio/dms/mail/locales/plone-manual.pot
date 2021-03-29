@@ -77,6 +77,14 @@ msgstr ""
 msgid "Internal Reference Number"
 msgstr ""
 
+#: plone/app/layout/viewlets/footer.pt
+msgid "description_copyright"
+msgstr ""
+
+#: plone/app/layout/viewlets/footer.pt
+msgid "description_license"
+msgstr ""
+
 #: configure.zcml
 msgid "dmsincomingmail-validation"
 msgstr ""
