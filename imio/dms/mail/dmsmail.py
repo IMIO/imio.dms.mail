@@ -584,6 +584,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         * the held_position, in 'hp' key
         * the related person, in 'person' key
         * the related organization, in 'org' key
+
         :return: dict containing 3 keys
         """
         if not self.sender:
