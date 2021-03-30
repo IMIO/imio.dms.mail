@@ -122,21 +122,22 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
                                                                             ['Contributor', 'Editor', 'Reader'])
 
         # ajouter config local roles
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        # TODO add possible dmsincoming_email type
-        lr = getattr(fti, 'localroles')
-        lrsc = lr['static_config']
-        if new_state_id not in lrsc:
-            lrsc[new_state_id] = {'pre_manager': {'roles': ['Editor', 'Reviewer']},
-                                  'encodeurs': {'roles': ['Reader']},
-                                  'dir_general': {'roles': ['Reader']}}
-            lrsc['proposed_to_manager'].update({'pre_manager': {'roles': ['Reader']}})
-            for st in next_states:
-                lrsc[st].update({'pre_manager': {'roles': ['Reader']}})
-            lrsc['in_treatment'].update({'pre_manager': {'roles': ['Reader']}})
-            lrsc['closed'].update({'pre_manager': {'roles': ['Reader']}})
-        # We need to indicate that the object has been modified and must be 'saved'
-        lr._p_changed = True
+        for ptype in ('dmsincomingmail', 'dmsincoming_email'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            # TODO add possible dmsincoming_email type
+            lr = getattr(fti, 'localroles')
+            lrsc = lr['static_config']
+            if new_state_id not in lrsc:
+                lrsc[new_state_id] = {'pre_manager': {'roles': ['Editor', 'Reviewer']},
+                                      'encodeurs': {'roles': ['Reader']},
+                                      'dir_general': {'roles': ['Reader']}}
+                lrsc['proposed_to_manager'].update({'pre_manager': {'roles': ['Reader']}})
+                for st in next_states:
+                    lrsc[st].update({'pre_manager': {'roles': ['Reader']}})
+                lrsc['in_treatment'].update({'pre_manager': {'roles': ['Reader']}})
+                lrsc['closed'].update({'pre_manager': {'roles': ['Reader']}})
+            # We need to indicate that the object has been modified and must be 'saved'
+            lr._p_changed = True
 
         # add collection
         folder = portal['incoming-mail']['mail-searches']
@@ -329,34 +330,35 @@ class IMServiceValidation(WorkflowAdaptationBase):
             set_registry_functions(functions)
 
         # add local roles config
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')  # i_e ok
-        lr = getattr(fti, 'localroles')
-        lrs = lr['static_config']
-        if new_state_id not in lrs:
-            lrs[new_state_id] = {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                           'Base Field Writer', 'Treating Group Writer']},
-                                 'encodeurs': {'roles': ['Reader']},
-                                 'lecteurs_globaux_ce': {'roles': ['Reader']}}
-        lrt = lr['treating_groups']
-        if 'creating_group' in lr:
-            api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
-                                    mapping={'type': 'dmsincomingmail, dmsincoming_email'}), portal.REQUEST,
-                                    type='warning')
-        if new_state_id not in lrt:
-            lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
-            for st in next_states:
-                lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
-            lrt['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
-            lrt['closed'].update({new_id: {'roles': ['Reviewer']}})
-        lrr = lr['recipient_groups']
-        if new_state_id not in lrr:
-            lrr[new_state_id] = {new_id: {'roles': ['Reader']}}
-            for st in next_states:
-                lrr[st].update({new_id: {'roles': ['Reader']}})
-            lrr['in_treatment'].update({new_id: {'roles': ['Reader']}})
-            lrr['closed'].update({new_id: {'roles': ['Reader']}})
-        # We need to indicate that the object has been modified and must be 'saved'
-        lr._p_changed = True
+        for ptype in ('dmsincomingmail', 'dmsincoming_email'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            lrs = lr['static_config']
+            if new_state_id not in lrs:
+                lrs[new_state_id] = {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
+                                                               'Base Field Writer', 'Treating Group Writer']},
+                                     'encodeurs': {'roles': ['Reader']},
+                                     'lecteurs_globaux_ce': {'roles': ['Reader']}}
+            lrt = lr['treating_groups']
+            if 'creating_group' in lr:
+                api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
+                                        mapping={'type': 'dmsincomingmail, dmsincoming_email'}), portal.REQUEST,
+                                        type='warning')
+            if new_state_id not in lrt:
+                lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
+                for st in next_states:
+                    lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+                lrt['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+                lrt['closed'].update({new_id: {'roles': ['Reviewer']}})
+            lrr = lr['recipient_groups']
+            if new_state_id not in lrr:
+                lrr[new_state_id] = {new_id: {'roles': ['Reader']}}
+                for st in next_states:
+                    lrr[st].update({new_id: {'roles': ['Reader']}})
+                lrr['in_treatment'].update({new_id: {'roles': ['Reader']}})
+                lrr['closed'].update({new_id: {'roles': ['Reader']}})
+            # We need to indicate that the object has been modified and must be 'saved'
+            lr._p_changed = True
 
         # add collection
         folder = portal['incoming-mail']['mail-searches']

@@ -70,11 +70,12 @@ class TestIMServiceValidation1(unittest.TestCase):
         # is function added
         self.assertIn('n_plus_1', [fct['fct_id'] for fct in get_registry_functions()])
         # is local roles modified
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        self.assertIn('proposed_to_n_plus_1', lr['static_config'])
-        self.assertIn('proposed_to_n_plus_1', lr['treating_groups'])
-        self.assertIn('proposed_to_n_plus_1', lr['recipient_groups'])
+        for ptype in ('dmsincomingmail', 'dmsincoming_email'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            self.assertIn('proposed_to_n_plus_1', lr['static_config'], ptype)
+            self.assertIn('proposed_to_n_plus_1', lr['treating_groups'], ptype)
+            self.assertIn('proposed_to_n_plus_1', lr['recipient_groups'], ptype)
         # check collection
         folder = self.portal['incoming-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_n_plus_1', folder)
@@ -242,11 +243,12 @@ class TestIMServiceValidation2(unittest.TestCase):
         # is function added
         self.assertIn('n_plus_2', [fct['fct_id'] for fct in get_registry_functions()])
         # is local roles modified
-        fti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(fti, 'localroles')
-        self.assertIn('proposed_to_n_plus_2', lr['static_config'])
-        self.assertIn('proposed_to_n_plus_2', lr['treating_groups'])
-        self.assertIn('proposed_to_n_plus_2', lr['recipient_groups'])
+        for ptype in ('dmsincomingmail', 'dmsincoming_email'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            self.assertIn('proposed_to_n_plus_2', lr['static_config'], ptype)
+            self.assertIn('proposed_to_n_plus_2', lr['treating_groups'], ptype)
+            self.assertIn('proposed_to_n_plus_2', lr['recipient_groups'], ptype)
         # check collection
         folder = self.portal['incoming-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_n_plus_2', folder)
