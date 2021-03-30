@@ -255,9 +255,12 @@ class Migrate_To_3_0(Migrator):  # noqa
             if change:
                 col.query = new_lst
             # add send_modes column
-            if 'mail_type' in col.customViewFields:
-                buf = list(col.customViewFields)
-                buf.insert(buf.index('mail_type'), u'send_modes')
+            buf = list(col.customViewFields)
+            if u'send_modes' not in buf:
+                if 'mail_type' in buf:
+                    buf.insert(buf.index('mail_type'), u'send_modes')
+                else:
+                    buf.append(u'send_modes')
                 col.customViewFields = tuple(buf)
 
     def check_previously_migrated_collections(self):
