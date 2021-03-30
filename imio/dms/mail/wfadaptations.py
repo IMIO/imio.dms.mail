@@ -124,7 +124,6 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # ajouter config local roles
         for ptype in ('dmsincomingmail', 'dmsincoming_email'):
             fti = getUtility(IDexterityFTI, name=ptype)
-            # TODO add possible dmsincoming_email type
             lr = getattr(fti, 'localroles')
             lrsc = lr['static_config']
             if new_state_id not in lrsc:
