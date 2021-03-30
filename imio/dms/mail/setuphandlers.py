@@ -188,8 +188,10 @@ def postInstall(context):
                                  default_UID=col_folder['all_mails'].UID())
 
         om_folder.setConstrainTypesMode(1)
-        om_folder.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
-        om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        # om_folder.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
+        # om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
         site.portal_workflow.doActionFor(om_folder, "show_internally")
         logger.info('outgoing-mail folder created')
 
@@ -295,7 +297,7 @@ def postInstall(context):
     pdiff.setDiffForPortalType('dmsincomingmail', {'any': "Compound Diff for Dexterity types"})  # i_e ok
     pdiff.setDiffForPortalType('dmsincoming_email', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('dmsoutgoingmail', {'any': "Compound Diff for Dexterity types"})
-    pdiff.setDiffForPortalType('dmsoutgoing_email', {'any': "Compound Diff for Dexterity types"})
+    # pdiff.setDiffForPortalType('dmsoutgoing_email', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('task', {'any': "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType('dmsommainfile', {'any': "Compound Diff for Dexterity types"})
 
@@ -659,14 +661,15 @@ def createOMailCollections(folder):
     collections = [
         {'id': 'all_mails', 'tit': _('all_outgoing_mails'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-             'v': ['dmsoutgoingmail', 'dmsoutgoing_email']}],
+             # 'v': ['dmsoutgoingmail', 'dmsoutgoing_email']}], the same for all under
+             'v': ['dmsoutgoingmail']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
                      u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('om_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-             'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+             'v': ['dmsoutgoingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsoutgoingmail-validation'}],
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsoutgoingmail')",
@@ -676,7 +679,7 @@ def createOMailCollections(folder):
             'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
         {'id': 'to_treat', 'tit': _('om_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-             'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+             'v': ['dmsoutgoingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['created']}],
             'cond': u"", 'bypass': [],
@@ -685,7 +688,7 @@ def createOMailCollections(folder):
             'sort': u'created', 'rev': True, 'count': True},
         {'id': 'om_treating', 'tit': _('om_im_treating'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-             'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+             'v': ['dmsoutgoingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v':
                 ['to_be_signed']}],
@@ -695,7 +698,7 @@ def createOMailCollections(folder):
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'have_treated', 'tit': _('om_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-             'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+             'v': ['dmsoutgoingmail']},
             {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['sent']}],
             'cond': u"", 'bypass': [],
@@ -704,7 +707,7 @@ def createOMailCollections(folder):
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'in_my_group', 'tit': _('om_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-             'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+             'v': ['dmsoutgoingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsoutgoingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
@@ -713,7 +716,7 @@ def createOMailCollections(folder):
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'in_copy', 'tit': _('om_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-             'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+             'v': ['dmsoutgoingmail']},
             {'i': 'CompoundCriterion', 'o': 'plone.app.querystring.operation.compound.is',
              'v': 'dmsoutgoingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
@@ -1031,9 +1034,9 @@ def configure_om_rolefields(context):
         msg = add_fti_configuration('dmsoutgoingmail', roles_config[keyname], keyname=keyname)
         if msg:
             logger.warn(msg)
-        msg = add_fti_configuration('dmsoutgoing_email', roles_config[keyname], keyname=keyname)
-        if msg:
-            logger.warn(msg)
+        # msg = add_fti_configuration('dmsoutgoing_email', roles_config[keyname], keyname=keyname)
+        # if msg:
+        #     logger.warn(msg)
 
 
 def configure_task_rolefields(context, force=False):

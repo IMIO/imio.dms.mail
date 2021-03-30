@@ -377,7 +377,8 @@ def imiodmsmail_settings_changed(event):
             configure_group_encoder(['dmsincomingmail', 'dmsincoming_email'])
     if event.record.fieldName == 'omail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
-            configure_group_encoder(['dmsoutgoingmail', 'dmsoutgoing_email'])
+            # configure_group_encoder(['dmsoutgoingmail', 'dmsoutgoing_email'])
+            configure_group_encoder(['dmsoutgoingmail'])
     if event.record.fieldName == 'contact_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
             configure_group_encoder(['organization', 'person', 'held_position', 'contact_list'], contacts_part=True)
@@ -437,12 +438,12 @@ def configure_group_encoder(portal_types, contacts_part=False):
             'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
                                                           'Base Field Writer', 'Treating Group Writer']}},
         },
-        'dmsoutgoing_email': {
-            'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
-            'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
-            'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-        },
+        # 'dmsoutgoing_email': {
+        #     'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
+        #     'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
+        #     'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+        #                                                   'Base Field Writer', 'Treating Group Writer']}},
+        # },
     }
 
     # add localroles for possible proposed_to_n_plus_ states

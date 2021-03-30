@@ -581,8 +581,8 @@ def state_group_index(obj):
     portal_type = obj.portal_type
     if portal_type == 'dmsincoming_email':
         portal_type = 'dmsincomingmail'  # i_e ok
-    elif portal_type == 'dmsoutgoing_email':
-        portal_type = 'dmsoutgoingmail'
+    # elif portal_type == 'dmsoutgoing_email':
+    #     portal_type = 'dmsoutgoingmail'
     # set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})]))

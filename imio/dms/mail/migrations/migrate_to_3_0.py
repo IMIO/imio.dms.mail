@@ -225,6 +225,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 col.query = new_lst
 
     def insert_outgoing_emails(self):
+        """The partially added dmsoutgoing_email is not used... We clean what's configured..."""
         # Set send_modes on dmsoutgoingmails
         brains = self.catalog.searchResults(portal_type='dmsoutgoingmail')
         for brain in brains:
@@ -235,11 +236,15 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
-        self.omf.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
-        self.omf.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        # self.omf.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        self.omf.setLocallyAllowedTypes(['dmsoutgoingmail'])
+        # self.omf.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        self.omf.setImmediatelyAddableTypes(['dmsoutgoingmail'])
         # diff
         pdiff = api.portal.get_tool('portal_diff')
-        pdiff.setDiffForPortalType('dmsoutgoing_email', {'any': "Compound Diff for Dexterity types"})
+        # pdiff.setDiffForPortalType('dmsoutgoing_email', {'any': "Compound Diff for Dexterity types"})
+        del pdiff._pt_diffs['dmsoutgoing_email']
+        pdiff._p_changed = 1
         # collections
         brains = self.catalog.searchResults(portal_type='DashboardCollection',
                                             path='/'.join(self.omf.getPhysicalPath()))
@@ -248,8 +253,11 @@ class Migrate_To_3_0(Migrator):  # noqa
             new_lst = []
             change = False
             for dic in col.query:
-                if dic['i'] == 'portal_type' and len(dic['v']) == 1 and dic['v'][0] == 'dmsoutgoingmail':
-                    dic['v'] = ['dmsoutgoingmail', 'dmsoutgoing_email']
+                # if dic['i'] == 'portal_type' and len(dic['v']) == 1 and dic['v'][0] == 'dmsoutgoingmail':
+                #     dic['v'] = ['dmsoutgoingmail', 'dmsoutgoing_email']
+                #     change = True
+                if dic['i'] == 'portal_type' and len(dic['v']) == 2 and 'dmsoutgoing_email' in dic['v']:
+                    dic['v'] = ['dmsoutgoingmail']
                     change = True
                 new_lst.append(dic)
             if change:

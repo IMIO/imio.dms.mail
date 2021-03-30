@@ -535,13 +535,14 @@ def group_deleted(event):
     for (idx, field, pts, domain) in (
             ('assigned_group', 'assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
             ('treating_groups', 'treating_groups',
-             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'],
+             # ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'], here under too
+             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
              'collective.eeafaceted.z3ctable'),
             ('recipient_groups', 'recipient_groups',
-             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'],
+             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
              'collective.eeafaceted.z3ctable'),
             ('assigned_group', 'creating_group',
-             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'],
+             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
              'collective.eeafaceted.z3ctable')):
         for pt in pts:
             query = get_query(pt, field, idx, parts[0], group_suffix)

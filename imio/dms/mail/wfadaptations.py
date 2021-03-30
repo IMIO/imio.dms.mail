@@ -577,7 +577,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             next_col = folder['searchfor_{}'.format(to_states[-1])]
             folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+                                         'v': ['dmsoutgoingmail']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [new_state_id]}],
                                  customViewFields=tuple(next_col.customViewFields),
@@ -767,7 +767,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             next_col = folder['searchfor_to_be_signed']
             folder.invokeFactory('DashboardCollection', id=col_id, title=_(col_id),
                                  query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': ['dmsoutgoingmail', 'dmsoutgoing_email']},
+                                         'v': ['dmsoutgoingmail']},
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [new_state_id]}],
                                  customViewFields=tuple(next_col.customViewFields),

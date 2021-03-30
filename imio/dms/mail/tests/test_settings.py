@@ -94,11 +94,12 @@ class TestSettings(unittest.TestCase):
         # activate omail group encoder
         activate_group_encoder(self.portal, typ='omail')
         self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])
-        for portal_type in ('dmsoutgoingmail', 'dmsoutgoing_email'):
+        # for portal_type in ('dmsoutgoingmail', 'dmsoutgoing_email'):
+        for portal_type in ('dmsoutgoingmail', ):
             fti = getUtility(IDexterityFTI, name=portal_type)
-            self.assertIn('imio.dms.mail.content.behaviors.IDmsMailCreatingGroup', fti.behaviors)
-            self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)])
-            self.assertTrue(fti.localroles.get('creating_group'))  # config dic not empty
+            self.assertIn('imio.dms.mail.content.behaviors.IDmsMailCreatingGroup', fti.behaviors, portal_type)
+            self.assertIn('creating_group', [tup[0] for tup in get_localrole_fields(fti)], portal_type)
+            self.assertTrue(fti.localroles.get('creating_group'), portal_type)  # config dic not empty
         crit = ICriteria(self.portal['outgoing-mail']['mail-searches'])
         self.assertIn('c90', crit.keys())
 
