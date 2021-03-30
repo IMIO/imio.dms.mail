@@ -984,7 +984,7 @@ def configure_rolefields(context):
     }
     for keyname in roles_config:
         # don't overwrite existing configuration
-        msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)  # i_e ok
+        msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)
         if msg:
             logger.warn(msg)
         msg = add_fti_configuration('dmsincoming_email', roles_config[keyname], keyname=keyname)
