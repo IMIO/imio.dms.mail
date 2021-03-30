@@ -5,6 +5,7 @@ from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
+from copy import deepcopy
 from imio.dms.mail import _tr as _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_oem_templates
@@ -147,6 +148,11 @@ class Migrate_To_3_0(Migrator):  # noqa
             record.append(info)
         if change:
             api.portal.set_registry_record(RECORD_NAME, record)
+        # copy localroles from dmsincomingmail to dmsincoming_email
+        imfti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(imfti, 'localroles')
+        iemfti = getUtility(IDexterityFTI, name='dmsincoming_email')
+        setattr(iemfti, 'localroles', deepcopy(lr))
 
     def update_site(self):
         # update front-page
