@@ -1526,6 +1526,7 @@ def addTestMails(context):
                       # temporary in comment because it doesn't pass in test and case probably errors when deleting site
                       #'in_reply_to': [RelationValue(intids.getId(inmail))],
                       'recipients': [RelationValue(recipients_cycle.next())],
+                      'send_modes': ['post'],
                       }
             ofld.invokeFactory('dmsoutgoingmail', id='reponse%d' % i, **params)
             mail = ofld['reponse%d' % i]
