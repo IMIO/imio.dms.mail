@@ -243,8 +243,9 @@ class Migrate_To_3_0(Migrator):  # noqa
         # diff
         pdiff = api.portal.get_tool('portal_diff')
         # pdiff.setDiffForPortalType('dmsoutgoing_email', {'any': "Compound Diff for Dexterity types"})
-        del pdiff._pt_diffs['dmsoutgoing_email']
-        pdiff._p_changed = 1
+        if 'dmsoutgoing_email' in pdiff._pt_diffs:
+            del pdiff._pt_diffs['dmsoutgoing_email']
+            pdiff._p_changed = 1
         # collections
         brains = self.catalog.searchResults(portal_type='DashboardCollection',
                                             path='/'.join(self.omf.getPhysicalPath()))
