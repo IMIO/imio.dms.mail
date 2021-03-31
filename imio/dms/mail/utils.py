@@ -25,9 +25,11 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
+from zc.relation.interfaces import ICatalog
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.component.hooks import getSite
+from zope.intid import IIntIds
 from zope.schema.interfaces import IVocabularyFactory
 
 import logging
@@ -544,6 +546,10 @@ class VariousUtilsMethods(UtilsMethods):
         ret.append('\r\n'.join(get_voc_values('collective.dms.basecontent.treating_groups')))
         return '\r\n'.join(ret)
 
+    def all_collection_uid(self, main_path='', subpath='mail-searches', col='all_mails'):
+        portal = api.portal.get()
+        return portal[main_path][subpath][col].UID()
+
     def user_usages(self, userid=''):
         """Checks user usages"""
         if not check_zope_admin():
@@ -568,7 +574,16 @@ class VariousUtilsMethods(UtilsMethods):
         else:
             log_list(out, u'<p>none</p>')
 
+        config = {
+            'dmsincomingmail': '{}/incoming-mail/mail-searches#c1={}&{{}}'.format(
+                portal.absolute_url(), self.all_collection_uid('incoming-mail')),
+            'dmsoutgoingmail': '{}/outgoing-mail/mail-searches#c1={}&{{}}'.format(
+                portal.absolute_url(), self.all_collection_uid('outgoing-mail')),
+            'task': '{}/tasks/task-searches#c1={}&{{}}'.format(
+                portal.absolute_url(), self.all_collection_uid('tasks', 'task-searches', 'all_tasks'))}
         log_list(out, u"<h2>In personnel folder ?</h2>")
+        intids = getUtility(IIntIds)
+        catalog = getUtility(ICatalog)
         pc = portal.portal_catalog
         brains = pc(mail_type=userid, portal_type='held_position', sort_on='path')
         if brains:
@@ -578,11 +593,18 @@ class VariousUtilsMethods(UtilsMethods):
                 hps = persons.setdefault(hp.__parent__, [])
                 hps.append(hp)
             for person in persons:
-                log_list(out, u"<p>=> Found a person {}.</p>".format(object_link(person, target='_blank')))
-                # TODO display links number
+                rels = list(catalog.findRelations({'to_id': intids.getId(person)}))
+                log_list(out, u"<p>=> Found a person {}, with {} relations.</p>".format(
+                    object_link(person, target='_blank'), len(rels)))
                 for hp in persons[person]:
-                    log_list(out, u"<p>.. in HP {}.</p>".format(object_link(hp, target='_blank')))
-                    # TODO display links number
+                    rels = list(catalog.findRelations({'to_id': intids.getId(hp)}))
+                    oms = pc(sender_index=hp.UID(), portal_type='dmsoutgoingmail')
+                    oms_l = len(oms)
+                    if oms_l:
+                        oms_l = '<a href="{}">{}</a>'.format(config["dmsoutgoingmail"].format('c7={}'.format(hp.UID())),
+                                                             oms_l)
+                    log_list(out, u"<p>.. in HP {}, with {} relations and {} om sended.</p>".format(
+                        object_link(hp, target='_blank'), len(rels), oms_l))
         else:
             log_list(out, u'<p>none</p>')
 
@@ -590,15 +612,14 @@ class VariousUtilsMethods(UtilsMethods):
         brains = pc(assigned_user=userid, sort_on='path')
         if brains:
             tasks = {}
-            config = {'dmsincomingmail': 'incoming-mail/mail-searches#c6={}'.format(userid),
-                      'dmsoutgoingmail': 'outgoing-mail/mail-searches#c13={}'.format(userid)}
-            # TODO to be continued to link to dashboards
             for brain in brains:
                 obj = brain.getObject()
                 lst = tasks.setdefault(brain.portal_type, [])
                 lst.append(obj)
+            crit = {'dmsincomingmail': 'c6', 'dmsoutgoingmail': 'c13', 'task': 'c6'}
             for tp in tasks:
-                log_list(out, "<p>=> Found {} {}.</p>".format(len(tasks[tp]), tp))
+                tp_l = '<a href="{}">{}</a>'.format(config[tp].format('{}={}'.format(crit[tp], userid)), len(tasks[tp]))
+                log_list(out, "<p>=> Found {} {}.</p>".format(tp_l, tp))
         else:
             log_list(out, u'<p>none</p>')
 
