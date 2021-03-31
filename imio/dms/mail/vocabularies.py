@@ -10,6 +10,7 @@ from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
 from imio.dms.mail import ALL_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
@@ -311,7 +312,7 @@ class CreatingGroupVocabulary(object):
         vocab = factory(context)
 
         # we get all orgs where there are plone groups with the creating group suffix
-        to_keep = organizations_with_suffixes(api.group.get_groups(), [CREATING_GROUP_SUFFIX])
+        to_keep = organizations_with_suffixes(api.group.get_groups(), [CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX])
         for term in vocab:
             if term.value in to_keep:
                 terms.append(term)
@@ -329,8 +330,10 @@ class ActiveCreatingGroupVocabulary(object):
         vocab = factory(context)
 
         # we get all orgs where there are plone groups with the creating group suffix and with users
-        to_keep = get_organizations(not_empty_suffix=CREATING_GROUP_SUFFIX, only_selected=False, the_objects=False,
-                                    caching=False)
+        to_keep = set(get_organizations(not_empty_suffix=CREATING_GROUP_SUFFIX, only_selected=False, the_objects=False,
+                                        caching=False))
+        to_keep |= set(get_organizations(not_empty_suffix=CONTACTS_PART_SUFFIX, only_selected=False, the_objects=False,
+                                         caching=False))
         for term in vocab:
             if term.value in to_keep:
                 terms.append(term)
