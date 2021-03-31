@@ -102,7 +102,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.check_previously_migrated_collections()
 
-        # self.catalog.refreshCatalog(clear=1)
+        # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
         self.update_catalog()
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
@@ -357,7 +357,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if base_hasattr(obj, attr):
                     delattr(obj, attr)
             # we update SearchableText to include short relevant scan_id
-            obj.reindexObject(idxs=['SearchableText'])
+            # we update sender_index that can be empty after a clear and rebuild !!
+            obj.reindexObject(idxs=['SearchableText', 'sender_index'])
 
 
 def migrate(context):

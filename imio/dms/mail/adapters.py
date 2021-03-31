@@ -554,8 +554,10 @@ def sender_index(obj):
     if not obj.sender:
         return common_marker
     index = [obj.sender]
-
-    add_parent_organizations(uuidToObject(obj.sender).get_organization(), index)
+    sender = uuidToObject(obj.sender)
+    # during a clear and rebuild, the sender is maybe not yet indexed...
+    if sender:
+        add_parent_organizations(sender.get_organization(), index)
     return index
 
 
