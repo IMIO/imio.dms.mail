@@ -250,7 +250,7 @@
            zope.interface.Interface
            imio.dms.mail.browser.table.CKTemplatesTable"
       provides="z3c.table.interfaces.IColumn"
-      factory=".columns.PathColumn"
+      factory=".columns.CKPathColumn"
       />
 
   <adapter

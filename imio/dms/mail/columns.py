@@ -409,7 +409,7 @@ class TitleColumn(LinkColumn):
         return item.title
 
 
-class PathColumn(LinkColumn):
+class CKPathColumn(LinkColumn):
     """Column that displays relative path."""
 
     header = _("Relative path")
