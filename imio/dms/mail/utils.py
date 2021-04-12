@@ -384,24 +384,24 @@ def separate_fullname(user, start='firstname'):
 # views
 
 class UtilsMethods(BrowserView):
-    """ View containing utils methods """
+    """Base view containing utils methods, not directly callable."""
     mainfile_type = 'dmsmainfile'
 
     def user_is_admin(self):
-        """ Test if current user is admin """
+        """Test if current user is admin."""
         user = api.user.get_current()
         return user.has_role(['Manager', 'Site Administrator'])
 
     def current_user_groups(self, user):
-        """ Return current user groups """
+        """Return current user groups."""
         return api.group.get_groups(user=user)
 
     def current_user_groups_ids(self, user):
-        """ Return current user groups ids """
+        """Return current user groups ids."""
         return [g.id for g in self.current_user_groups(user)]
 
     def highest_scan_id(self):
-        """ Return highest scan id """
+        """Return highest scan id."""
         pc = getToolByName(self.context, 'portal_catalog')
         brains = pc.unrestrictedSearchResults(portal_type=self.mainfile_type, sort_on='scan_id',
                                               sort_order='descending')
@@ -411,9 +411,8 @@ class UtilsMethods(BrowserView):
             return 'No scan id'
 
     def is_in_user_groups(self, groups=(), admin=True, test='any', suffixes=(), org_uid='', user=None):
-        """
-            Test if one or all of a given group list is part of the current user groups
-            Test if one or all of a suffix list is part of the current user groups
+        """Test if one or all of a given group list is part of the current user groups.
+        Test if one or all of a suffix list is part of the current user groups.
         """
         # for admin, we bypass the check
         if admin and self.user_is_admin():
@@ -444,7 +443,7 @@ class UtilsMethods(BrowserView):
 
 
 class VariousUtilsMethods(UtilsMethods):
-    """ View containing various utils methods """
+    """View containing various utils methods. It can be used with `various-utils` name on all types."""
 
     def initialize_service_folder(self):
         """ """
