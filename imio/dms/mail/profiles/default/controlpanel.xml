@@ -17,4 +17,11 @@
         <permission>Plone Site Setup: Site</permission>
     </configlet>
 
+    <configlet remove="true"
+            action_id="CKEditor templates"
+            appId="collective.ckeditortemplates"
+            category="Products"
+            visible="True">
+    </configlet>
+
 </object>

@@ -73,8 +73,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.do_prior_updates()
 
-        self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry', 'repositorytool', 'typeinfo', 'viewlets',
-                                                     'workflow'])
+        self.runProfileSteps('imio.dms.mail', steps=['controlpanel', 'plone.app.registry', 'repositorytool', 'typeinfo',
+                                                     'viewlets', 'workflow'])
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
 
