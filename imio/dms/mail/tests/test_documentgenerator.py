@@ -50,6 +50,11 @@ class TestDocumentGenerator(unittest.TestCase):
                'website': '', 'fax': '', 'phone': u'012345678', 'im_handle': '',
                'cell_phone': '', 'email': u'jean.courant@electrabel.be'}
         self.assertDictEqual(view1.get_ctct_det(self.jc), det)
+        import ipdb; ipdb.set_trace()
+        det = view1.get_ctct_det(self.resp_grh)  # get address from plonegroup-organization
+        self.assertDictEqual(det['address'], {'city': u'Ma ville', 'country': '', 'region': '',
+                                              'additional_address_details': '', 'number': u'1',
+                                              'street': u'Rue de la commune', 'zip_code': u'0010'})
 
         # Test get_sender method
         sender = {'person': self.chef, 'hp': self.resp_grh, 'org_full_title': u'Direction générale - GRH',
