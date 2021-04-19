@@ -1618,6 +1618,7 @@ def addOwnOrganization(context):
               'city': u'Ma ville',
               'street': u'Rue de la commune',
               'number': u'1',
+              'use_parent_address': False,
               }
     contacts.invokeFactory('organization', 'plonegroup-organization', **params)
     contacts.moveObjectToPosition('plonegroup-organization', 5)
