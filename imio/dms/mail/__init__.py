@@ -1,6 +1,7 @@
 from AccessControl.Permissions import delete_objects
 from collective.dms.basecontent import dmsfile
 from datetime import date
+from Globals import DevelopmentMode
 from plone import api
 from plone.dexterity.content import Container
 from Products.Archetypes.BaseFolder import BaseFolder
@@ -72,3 +73,8 @@ for klass in (BaseFolder, BasePloneFolder, Container):
         new.append(perm)
     klass.__ac_permissions__ = tuple(new)
     klass.manage_delObjects__roles__ = ('Authenticated', 'Member')
+
+pmh = os.environ.get('ENABLE_PRINTING_MAILHOST', None)
+PMH_ENABLED = False
+if (pmh is not None and pmh.lower() in ('yes', 'y', 'true', 'on')) or (pmh is None and DevelopmentMode is True):
+    PMH_ENABLED = True

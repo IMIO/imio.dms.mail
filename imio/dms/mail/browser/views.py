@@ -5,6 +5,7 @@ from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.helpers.content import richtextval
@@ -17,6 +18,7 @@ from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.PageTemplates.Expressions import SecureModuleImporter
+from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
@@ -223,6 +225,8 @@ class SendEmail(BrowserView):
                 title = a_obj.title
                 if a_obj.file.filename:
                     title = a_obj.file.filename
+                if PMH_ENABLED:
+                    title = unidecode(title)
                 add_attachment(msg, title, content=a_obj.file.data)
         ret, error = send_email(msg, self.context.email_subject, self.context.email_sender,
                                 self.context.email_recipient, self.context.email_cc)
