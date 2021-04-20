@@ -214,7 +214,7 @@ class SendEmail(BrowserView):
     def __call__(self):
         # 1 send email
         body = self.context.email_body
-        msg = create_html_email(body.output)
+        msg = create_html_email(body.raw)
         pc = self.context.portal_catalog
         for a_uid in self.context.email_attachments or []:
             res = pc(UID=a_uid)
