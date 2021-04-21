@@ -602,9 +602,9 @@ class VariousUtilsMethods(UtilsMethods):
                     oms = pc(sender_index=hp.UID(), portal_type='dmsoutgoingmail')
                     oms_l = len(oms)
                     if oms_l:
-                        oms_l = '<a href="{}">{}</a>'.format(config["dmsoutgoingmail"].format('c7={}'.format(hp.UID())),
-                                                             oms_l)
-                    log_list(out, u"<p>.. in HP {}, with {} relations and {} om sent.</p>".format(
+                        oms_l = '<a href="{}" target="_blank">{}</a>'.format(
+                            config["dmsoutgoingmail"].format('c7={}'.format(hp.UID())), oms_l)
+                    log_list(out, u"<p>.. in HP {}, with {} relations and {} om sender.</p>".format(
                         object_link(hp, target='_blank'), len(rels), oms_l))
         else:
             log_list(out, u'<p>none</p>')
@@ -619,7 +619,8 @@ class VariousUtilsMethods(UtilsMethods):
                 lst.append(obj)
             crit = {'dmsincomingmail': 'c6', 'dmsincoming_email': 'c6', 'dmsoutgoingmail': 'c13', 'task': 'c6'}
             for tp in tasks:
-                tp_l = '<a href="{}">{}</a>'.format(config[tp].format('{}={}'.format(crit[tp], userid)), len(tasks[tp]))
+                tp_l = '<a href="{}" target="_blank">{}</a>'.format(
+                    config[tp].format('{}={}'.format(crit[tp], userid)), len(tasks[tp]))
                 log_list(out, "<p>=> Found {} {}.</p>".format(tp_l, tp))
         else:
             log_list(out, u'<p>none</p>')
