@@ -576,6 +576,8 @@ class VariousUtilsMethods(UtilsMethods):
         config = {
             'dmsincomingmail': '{}/incoming-mail/mail-searches#c1={}&{{}}'.format(
                 portal.absolute_url(), self.all_collection_uid('incoming-mail')),
+            'dmsincoming_email': '{}/incoming-mail/mail-searches#c1={}&{{}}'.format(
+                portal.absolute_url(), self.all_collection_uid('incoming-mail')),
             'dmsoutgoingmail': '{}/outgoing-mail/mail-searches#c1={}&{{}}'.format(
                 portal.absolute_url(), self.all_collection_uid('outgoing-mail')),
             'task': '{}/tasks/task-searches#c1={}&{{}}'.format(
@@ -615,7 +617,7 @@ class VariousUtilsMethods(UtilsMethods):
                 obj = brain.getObject()
                 lst = tasks.setdefault(brain.portal_type, [])
                 lst.append(obj)
-            crit = {'dmsincomingmail': 'c6', 'dmsoutgoingmail': 'c13', 'task': 'c6'}
+            crit = {'dmsincomingmail': 'c6', 'dmsincoming_email': 'c6', 'dmsoutgoingmail': 'c13', 'task': 'c6'}
             for tp in tasks:
                 tp_l = '<a href="{}">{}</a>'.format(config[tp].format('{}={}'.format(crit[tp], userid)), len(tasks[tp]))
                 log_list(out, "<p>=> Found {} {}.</p>".format(tp_l, tp))
