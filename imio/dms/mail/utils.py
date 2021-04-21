@@ -604,7 +604,7 @@ class VariousUtilsMethods(UtilsMethods):
                     if oms_l:
                         oms_l = '<a href="{}">{}</a>'.format(config["dmsoutgoingmail"].format('c7={}'.format(hp.UID())),
                                                              oms_l)
-                    log_list(out, u"<p>.. in HP {}, with {} relations and {} om sended.</p>".format(
+                    log_list(out, u"<p>.. in HP {}, with {} relations and {} om sent.</p>".format(
                         object_link(hp, target='_blank'), len(rels), oms_l))
         else:
             log_list(out, u'<p>none</p>')
