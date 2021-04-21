@@ -279,8 +279,6 @@ CS en réponse
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  treating_groups  ${GRH}  str
-    Fire transition  ${UID}  propose_to_n_plus_1
-    Enable autologin as  dirg
     ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
     ${DF} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-financiere
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -288,6 +286,10 @@ CS en réponse
     Set field value  ${UID}  recipient_groups  ['${DF}']  list
     Set field value  ${UID}  assigned_user  agent  str
     Set field value  ${UID}  external_reference_no  2017/ESB/00123  str
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Click button  id=form-buttons-save
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  dirg
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
@@ -300,6 +302,7 @@ CS en réponse
     Wait until element is visible  css=.template-reply #formfield-form-widgets-ITask-due_date  10
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse.png  id=content
+    Select checkbox  id=form-widgets-send_modes-0
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse-finie.png  id=content
@@ -320,7 +323,6 @@ CS en réponse
     Click element  css=div.pb-ajax #tree-form span.fancytree-title
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-selection-modele.png  css=div.pb-ajax
-    Click element  xpath=//input[@value='Choisir ce modèle']
     Sleep  5
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Sleep  1
@@ -346,8 +348,6 @@ CS en réponse
     Wait until element is visible  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
     Sleep  0.5
     Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
-    Sleep  0.5
-    Click element  xpath=//input[@value='Choisir ce modèle']
     Sleep  5
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Sleep  1
@@ -413,6 +413,7 @@ CS nouveau
     Input text  name=form.widgets.recipients.widgets.query  Non encod
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li
+    Select checkbox  id=form-widgets-send_modes-0
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-internal_reference_no
@@ -462,6 +463,7 @@ CS depuis le scanner
     Click element  css=.ac_results:not([style*="display: none"]) li:first-of-type
     Sleep  0.5
     Click element  css=input#form-widgets-external_reference_no
+    Select checkbox  id=form-widgets-send_modes-0
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Sleep  0.5
@@ -743,7 +745,7 @@ Workflow ce
     Fire transition  ${UID}  propose_to_manager
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-2-transition-vers-dg.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-2-transition-vers-dg.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Enable autologin as  dirg
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Sleep  0.5
@@ -839,27 +841,27 @@ Workflow cs
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  id=content-core
     Enable autologin as  chef
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-chef.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Fire transition  ${UID}  propose_to_be_signed
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-signature.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-signature.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-a-la-signature.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-a-la-signature.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Fire transition  ${UID}  mark_as_sent
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-envoye.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
+    Capture and crop page screenshot  doc/utilisation/2-8-3-etat-envoye.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
 
 Workflow tâche
 # partie 2.8.4 Tâches
@@ -1019,6 +1021,7 @@ Contacts 3
     Click element  css=.ac_results:not([style*="display: none"]) li:first-child
     Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-utilisation.png  id=formfield-form-widgets-recipients  id=formfield-form-widgets-IDublinCore-description
     Click element  css=#formfield-form-widgets-mail_date label
+    Select checkbox  id=form-widgets-send_modes-0
     Click button  form-buttons-save
     Sleep  1
     Wait until element is visible  css=#form-widgets-recipients li:nth-child(2)  20
@@ -1029,7 +1032,7 @@ Gestion modèles
     [TAGS]  RUN1
 	## 2.10.1 Tableau
     Enable autologin as  Manager
-    Go to  ${PLONE_URL}/templates
+    Go to  ${PLONE_URL}/templates/om
     # Wait until element is visible  css=#content-core  10
     # Capture and crop page screenshot  doc/utilisation/2-10-1-modeles-docs.png  css=#content
     # Click element  css=.contenttype-folder.state-internally_published.url
@@ -1059,7 +1062,7 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-editer-sous-document.png  css=#content
     Remove element  id=${note42}
     Close window
-    Select window  url=http://localhost:55001/plone/templates
+    Select window  url=http://localhost:55001/plone/templates/om
     Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:nth-child(8) td:nth-last-child(2) table tbody tr td:first-child a
     Select window  url=http://localhost:55001/plone/templates/om/main/edit
     ${note43}  Add pointy note  css=#form-widgets-merge_templates tbody tr:first-child td:nth-last-child(2)  Ajouter ou supprimer des sous-modèles  position=left  color=blue
@@ -1068,7 +1071,7 @@ Gestion modèles
 	Remove element  id=${note43}
 	Remove element  id=${note44}
     Close window
-    Select Window  url=http://localhost:55001/plone/templates
+    Select Window  url=http://localhost:55001/plone/templates/om
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
 ia-delib
