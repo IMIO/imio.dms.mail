@@ -75,6 +75,13 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.runProfileSteps('imio.dms.mail', steps=['controlpanel', 'plone.app.registry', 'repositorytool', 'typeinfo',
                                                      'viewlets', 'workflow'])
+
+        # copy localroles from dmsincomingmail to dmsincoming_email
+        imfti = getUtility(IDexterityFTI, name='dmsincomingmail')
+        lr = getattr(imfti, 'localroles')
+        iemfti = getUtility(IDexterityFTI, name='dmsincoming_email')
+        setattr(iemfti, 'localroles', deepcopy(lr))
+
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
 
@@ -148,11 +155,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             record.append(info)
         if change:
             api.portal.set_registry_record(RECORD_NAME, record)
-        # copy localroles from dmsincomingmail to dmsincoming_email
-        imfti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(imfti, 'localroles')
-        iemfti = getUtility(IDexterityFTI, name='dmsincoming_email')
-        setattr(iemfti, 'localroles', deepcopy(lr))
 
     def update_site(self):
         # update front-page
