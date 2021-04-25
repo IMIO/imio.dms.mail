@@ -1253,7 +1253,8 @@ tal:content="python:u'{}, {}'.format(ctct_det['address']['street'], ctct_det['ad
 Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.
 </div>
 </tal:global>""")  # noqa
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'] = template.substitute(url=GEDURL)
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'] = template.substitute(
+            url=GEDURL)
 
     # mailcontent
     # Hide internal reference for om. Increment number automatically
