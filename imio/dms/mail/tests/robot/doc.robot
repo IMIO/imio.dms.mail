@@ -28,11 +28,11 @@ Premiers pas
     Capture and crop page screenshot  doc/utilisation/2-1-page-daccueil.png  css=.site-plone  id=portal-footer-wrapper
     Capture and crop page screenshot  doc/utilisation/2-1-fil-dariane.png  id=breadcrumbs-you-are-here  id=breadcrumbs-home
 
-CE depuis le scanner
-# partie 2.2.1 Envoi par le scanner
+CE numerisation
+# partie 2.2.1 Numérisation d'un document
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  0.5
@@ -197,8 +197,41 @@ CE depuis le scanner
     Click button  id=form-buttons-save
     Sleep  2
 
+CE transfert email
+# partie 2.2.2 Transfert d'un email
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned?number=1&redirect=
+    sleep  1
+    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&redirect=
+    sleep  1
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/searchfor_created
+    sleep  0.5
+    Capture and crop page screenshot  doc/utilisation/2-2-2-recherche-en-creation-1.png  css=.eea-preview-items
+    Delete content  /${PLONE_SITE_ID}/incoming-mail/ou-se-situe-votre-entite-par-rapport-aux-objectifs-de-developpement-durable
+    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=2&redirect=
+    sleep  1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
+    ${EVEN} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/evenements
+    Set field value  ${UID}  treating_groups  ${EVEN}  str
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID}  propose_to_agent
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/utilisation/2-2-2-recherche-en-creation-2.png  css=.eea-preview-items
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail/reservation-de-la-salle-le-foyer
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    debug
+    Capture and crop page screenshot  doc/utilisation/2-2-2-email-a-traiter.png  id=content
+
 CE manuel
-# partie 2.2.2 Ajout manuel d'une fiche
+# partie 2.2.3 Ajout manuel d'une fiche
     [TAGS]  RUN
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
@@ -473,7 +506,7 @@ Menu courrier
 # partie 2.4.1 Menu de recherches prédéfinies
     [TAGS]  RUN
     Enable autologin as  scanner
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     Go to  ${PLONE_URL}/import_scanned2
     Enable autologin as  Manager
     Set autologin username  dirg
@@ -492,7 +525,7 @@ Tableaux de bord
 # partie 2.4.2 Tableaux de bord
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?number=25
+    Go to  ${PLONE_URL}/import_scanned?number=25&redirect=
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
     ${UID0} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh

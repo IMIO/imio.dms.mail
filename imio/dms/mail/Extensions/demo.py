@@ -29,7 +29,7 @@ import os
 import time
 
 
-def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):  # i_e ok
+def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1'):  # i_e ok
     """
         Import some incoming mail for demo site
     """
@@ -100,7 +100,8 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail'):  # i_e ok
         # change has been done in IdmSearchableExtender to avoid using catalog
         document.reindexObject(idxs=('SearchableText', ))
         count += 1
-    return portal.REQUEST.response.redirect(folder.absolute_url())
+    if redirect:
+        return portal.REQUEST.response.redirect(folder.absolute_url())
 
 
 def import_scanned2(self, number=2):
