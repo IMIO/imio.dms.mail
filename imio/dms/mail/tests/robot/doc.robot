@@ -206,12 +206,12 @@ CE manuel
 
     ### Create incomingmail
     ${note10}  Add pointy note  css=#newIMCreation  Lien d'ajout  position=bottom  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-2-2-courrier-1-lien-ajout.png  id=portal-column-one  ${note10}
+    Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-1-lien-ajout.png  id=portal-column-one  ${note10}
     Remove element  id=${note10}
     Click element  newIMCreation
     Wait until element is visible  css=.template-dmsincomingmail #formfield-form-widgets-sender  10
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-2-2-courrier-1-creation.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-1-creation.png  id=content
     Input text  name=form.widgets.IDublinCore.title  Lettre de demande de stage
     Input text  name=form.widgets.sender.widgets.query  Non encod
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
@@ -220,33 +220,33 @@ CE manuel
     Select from list by index  id=form-widgets-treating_groups  2
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
-    Capture and crop page screenshot  doc/utilisation/2-2-2-courrier-1-creation-finie.png  id=content  id=viewlet-below-content
+    Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-1-creation-finie.png  id=content  id=viewlet-below-content
 
     ### Create mainfile
     Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
     ${note11}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
     Click element  name=Add element
     # La capture du menu ouvert ne fonctionne pas
-    Capture and crop page screenshot  doc/utilisation/2-2-2-ged-1-lien-ajout.png  id=breadcrumbs-you-are-here  ${note11}  css=#parent-fieldname-title span.pretty_link_content
+    Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-lien-ajout.png  id=breadcrumbs-you-are-here  ${note11}  css=#parent-fieldname-title span.pretty_link_content
     Remove element  id=${note11}
     Click element  css=#formfield-form-widgets-sender label
     Select from list by label  name=Add element  Fichier ged
     Wait until element is visible  id=formfield-form-widgets-file  10
-    Capture and crop page screenshot  doc/utilisation/2-2-2-ged-1-creation.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation.png  id=content
     Click element  id=fieldsetlegend-scan
     Wait until element is visible  id=formfield-form-widgets-IScanFields-scan_id  10
-    Capture and crop page screenshot  doc/utilisation/2-2-2-ged-1-creation-scan.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-scan.png  id=content
     Click button  id=form-buttons-cancel
     Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage/create_main_file?filename=60.PDF
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note12}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-2-2-ged-1-creation-finie.png  id=portal-column-content  ${note12}
+    Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-finie.png  id=portal-column-content  ${note12}
     Remove element  id=${note12}
     Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-2-2-courrier-2-visualisation.png  id=content
+    Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-2-visualisation.png  id=content
 
 CE multi-indicatage
     [TAGS]  RUN
