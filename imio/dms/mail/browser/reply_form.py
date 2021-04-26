@@ -15,6 +15,7 @@ from Products.CMFPlone.utils import safe_unicode
 class ReplyForm(BaseReplyForm):
 
     """Form to reply to an incoming mail."""
+    IMMODES = {'dmsincomingmail': u'post', 'dmsincoming_email': u'email'}
 
     def updateFields(self):
         super(ReplyForm, self).updateFields()
@@ -26,8 +27,14 @@ class ReplyForm(BaseReplyForm):
         super(ReplyForm, self).updateWidgets()
         prefix = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                 'omail_response_prefix', default='') or ''
-        self.widgets["IDublinCore.title"].value = u"%s%s" % (prefix, safe_unicode(self.context.title))
+        self.widgets['IDublinCore.title'].value = u"%s%s" % (prefix, safe_unicode(self.context.title))
+        self.widgets['send_modes'].value = self.get_send_modes()
         imio_dmsoutgoingmail_updatewidgets(self)
+
+    def get_send_modes(self):
+        immode = self.IMMODES[self.context.portal_type]
+        res = [term.value for term in self.widgets['send_modes'].terms if term.value.startswith(immode)]
+        return res[0:1]
 
 
 class MultipleReplyForm(BaseReplyForm):
