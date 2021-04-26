@@ -1830,6 +1830,7 @@ def configure_actions_panel(portal):
     logger.info('Configure actions panel registry')
     registry = getUtility(IRegistry)
 
+    # TODO add dmsincoming_email !!
     if not registry.get('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'):
         registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] = \
             ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
