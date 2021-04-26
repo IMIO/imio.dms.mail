@@ -354,8 +354,8 @@ CS en réponse
     # Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
     Click element  css=div.pb-ajax #tree-form span.fancytree-title
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-selection-modele.png  css=div.pb-ajax
-    Sleep  5
+    # Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-selection-modele.png  css=div.pb-ajax
+    # Sleep  5
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
