@@ -227,7 +227,6 @@ CE transfert email
     Go to  ${PLONE_URL}/incoming-mail/reservation-de-la-salle-le-foyer
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    debug
     Capture and crop page screenshot  doc/utilisation/2-2-2-email-a-traiter.png  id=content
 
 CE manuel
