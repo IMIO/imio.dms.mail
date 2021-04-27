@@ -12,6 +12,7 @@ from imio.helpers.content import richtextval
 from imio.helpers.content import transitions
 from imio.helpers.emailer import add_attachment
 from imio.helpers.emailer import create_html_email
+from imio.helpers.emailer import get_mail_host
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from plone import api
@@ -228,8 +229,13 @@ class SendEmail(BrowserView):
                 if PMH_ENABLED:
                     title = unidecode(title)
                 add_attachment(msg, title, content=a_obj.file.data)
-        ret, error = send_email(msg, self.context.email_subject, self.context.email_sender,
-                                self.context.email_recipient, self.context.email_cc)
+        mailhost = get_mail_host(check=False)
+        if mailhost.smtp_host == u'smtp.office365.com':
+            ret, error = send_email(msg, self.context.email_subject, mailhost.smtp_uid, self.context.email_recipient,
+                                    self.context.email_cc, replyto=self.context.email_sender)
+        else:
+            ret, error = send_email(msg, self.context.email_subject, self.context.email_sender,
+                                    self.context.email_recipient, self.context.email_cc)
         if ret:
             api.portal.show_message(_('Your email has been sent.'), self.request)
         else:
