@@ -428,6 +428,7 @@ CS en réponse
 
 CS nouveau
 # partie 2.3.2 Nouveau courrier sortant
+# partie 2.3.4 Envoi d'un email sortant
     [TAGS]  RUN
     Enable autologin as  agent
     Go to  ${PLONE_URL}/outgoing-mail
@@ -442,11 +443,18 @@ CS nouveau
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation.png  id=content
     Input text  name=form.widgets.IDublinCore.title  Annonce de la réfection des trottoirs Rue Moyenne
-    Input text  name=form.widgets.recipients.widgets.query  Non encod
+    Input text  name=form.widgets.recipients.widgets.query  swde
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li
     Select checkbox  id=form-widgets-send_modes-0
     Click button  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    ${VOIRIES} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-technique/voiries
+    Set field value  ${UID}  treating_groups  ${VOIRIES}  str
+    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-voiries
+    Set field value  ${UID}  sender  ${SENDER}  str
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-internal_reference_no
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
@@ -456,6 +464,23 @@ CS nouveau
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-2-visualisation.png  css=table.actionspanel-no-style-table  id=fieldset-versions
+
+    ## Chande send_modes to email
+    Set field value  ${UID}  send_modes  ['post', 'email']  list
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    Capture and crop page screenshot  doc/utilisation/2-3-4-cs-mode-email.png  css=table.actionspanel-no-style-table  id=formfield-form-widgets-send_modes
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/edit?edit-email=1#fieldsetlegend-email
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-3-4-cs-edit-email.png  css=h1.documentFirstHeading  id=content-core
+    Click element  form-widgets-email_attachments-0
+    Click button  id=form-buttons-save
+    # Set field value  ${UID}  email_body  <meta charset="UTF-8"><p>Bonjour Monsieur,</p><p>Vous trouverez en pièce jointe un document concernant la réfection des trottoirs dans votre rue.</p><p>Cordialement</p><p>&nbsp;</p><p><span style="font-size:large;font-family:Quicksand,Arial">Fred Agent</span></p><p>&nbsp;</p><div style="float:left;"><div style="font-size:small; float:left;clear:both;width:350px"><span>Agent Voiries</span><br /><span>Direction technique</span><br /><span>Voiries</span><br /><a href="mailto:fred.agent@macommune.be" style="display: inline-block; padding-top: 1em;" target="_blank">fred.agent@macommune.be</a><br /><span>012/34.56.70</span><br /><span style="display: inline-block; padding-top: 0.5em;">Rue de la commune, 1</span><br /><span>0010 Ma ville</span><br /></div><div style="float:left;display: inline-grid;"><a href="" target="_blank"><img alt="" src="/++resource++imio.dms.mail/belleville.png" /></a><br /><span style="font-size:small;text-align: center;">Administration communale de Belleville</span></div><p>&nbsp;</p><div style="font-size: x-small;color:#424242;clear:both"><br />Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.</div>  text/html
+    # Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    Capture and crop page screenshot  doc/utilisation/2-3-4-cs-email-visualisation.png  css=table.actionspanel-no-style-table  id=fieldset-versions  id=form-groups-email
+    # Click element  css=input.apButtonAction_sendemail # not working on test env
 
 CS depuis le scanner
 # partie 2.3.3 Envoi par le scanner
