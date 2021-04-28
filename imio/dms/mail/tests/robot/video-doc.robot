@@ -16,6 +16,66 @@ ${SELENIUM_RUN_ON_FAILURE} =  Debug
 
 *** Test Cases ***
 
+Naviguer
+# partie guide utilisation : naviguer dans l'interface
+    [TAGS]  RUN
+    Enable autologin as  agent
+    ${note1}  Add pointy note  id=portaltab-tasks  Bandeau principal des fonctionnalités  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  Cliquer pour rentrer dans le courrier entrant  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    Go to  ${PLONE_URL}/incoming-mail
+    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Tableaux de bords  position=right  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    Pause
+
+Traiter un courrier
+# partie guide utilisation : traiter un courrier
+
+
+Répondre à un courrier
+# partie guide utilisation : Répondre à un courrier
+
+
+Créer un courrier sortant
+# partie guide utilisation : Créer un courrier sortant
+
+
+Créer un courrier bureautique
+# partie guide utilisation : Créer un courrier bureautique
+
+
+Transférer un email
+# partie guide utilisation : Transférer un email
+
+
+Valider un courrier entrant
+# partie guide utilisation : Valider un courrier entrant
+
+
+Ajouter un contact
+# partie guide utilisation : Ajouter un contact
+
+
+Ajouter une annexe
+# partie guide utilisation : Ajouter une annexe
+
+
+Ajouter une tâche
+# partie guide utilisation : Ajouter une tâche
+
+
+Utiliser les recherches
+# partie guide utilisation : Utiliser les recherches
+
+
+Gérer les modèles
+# partie guide utilisation : Gérer les modèles
+
+
 CS nouveau
 # partie 2.3.2 Nouveau courrier sortant
     [TAGS]  RUN
