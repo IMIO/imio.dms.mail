@@ -34,7 +34,133 @@ Naviguer
 
 Traiter un courrier
 # partie guide utilisation : traiter un courrier
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    Wait until element is visible  css=.faceted-table-results  10
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID1}  description  Candidature spontanée  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Set field value  ${UID1}  original_mail_date  20170314  date
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID1}  propose_to_agent
+    Fire transition  ${UID}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+# start video
+    pause
+# visualisation
+    sleep  1
+    ${note1}  Add pointy note  css=div.category li:nth-child(3)
+    ...  Il faut cliquer sur une recherche, afin d'afficher un tableau de résultats.  position=top  color=blue  width=250
+    sleep  3
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  css=table.faceted-table-results td.pretty_link
+    ...  On va cliquer sur l'intitulé d'un courrier pour l'ouvrir.  position=top  color=blue
+    sleep  3
+    ${pt1}  Add pointer  css=table.faceted-table-results td.pretty_link
+    sleep  1.5
+    Remove element  id=${pt1}
+    Remove element  id=${note1}
 
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Wait until element is visible  css=.DV-pageImage  10
+    ${note1}  Add pointy note  id=content-core
+    ...  Lorsqu'on visualise un courrier, on peut trouver, dans la partie principale de la page, les éléments suivants (en partant de haut en bas).  position=center  color=blue  width=300
+    sleep  5
+    Remove element  id=${note1}
+
+    Highlight  css=table.actionspanel-no-style-table
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table
+    ...  Une barre de boutons de gestion. Egalement affichée en bas de page.  position=top  color=blue  width=300
+    sleep  3
+    Clear Highlight  css=table.actionspanel-no-style-table
+    Remove element  id=${note1}
+
+    Highlight  id=querynextprev-navigation
+    ${note1}  Add pointy note  id=querynextprev-navigation
+    ...  Des liens pour passer au courrier précédent/suivant de la recherche en cours.  position=left  color=blue  width=300
+    sleep  3
+    Clear Highlight  id=querynextprev-navigation
+    Remove element  id=${note1}
+
+    Highlight  css=h1 span.pretty_link_content
+    ${note1}  Add pointy note  css=h1 span.pretty_link_content
+    ...  L’intitulé du courrier, commençant par son numéro de référence interne.  position=top  color=blue  width=300
+    sleep  3
+    Clear Highlight  css=h1 span.pretty_link_content
+    Remove element  id=${note1}
+
+    Highlight  id=plone-document-byline
+    ${note1}  Add pointy note  id=plone-document-byline
+    ...  Une ligne d’information indiquant la date de dernière modification, ainsi qu’un lien vers l’historique (coloré en rouge quand une note s’y trouve).  position=top  color=blue  width=300
+    sleep  3
+    Clear Highlight  id=plone-document-byline
+    Remove element  id=${note1}
+
+    Highlight  css=div.viewlet_workflowstate
+    ${note1}  Add pointy note  css=div.viewlet_workflowstate
+    ...  L’état de l’élément sur un fond de couleur spécifique.  position=left  color=blue  width=300
+    sleep  5
+    Clear Highlight  css=div.viewlet_workflowstate
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=#labeling-viewlet ul
+    ...  Des boutons permettant d’associer un libellé: « lu » (utile pour les courriers en copie), « suivi » pour marquer des courriers à suivre.  position=left  color=blue
+    sleep  5
+    Remove element  id=${note1}
+
+    Highlight  id=parent-fieldname-description
+    ${note1}  Add pointy note  id=parent-fieldname-description
+    ...  La description plus complète du courrier (s'il y en a une).  position=left  color=blue
+    sleep  3
+    Clear Highlight  id=parent-fieldname-description
+    Remove element  id=${note1}
+
+    Highlight  id=fields
+    ${note1}  Add pointy note  id=fields
+    ...  Les champs du courrier: ce sont les informations encodées dans la fiche.  position=top  color=blue  width=300
+    sleep  3
+    Clear Highlight  id=fields
+    Remove element  id=${note1}
+
+    Highlight  id=fieldset-versions
+    ${note1}  Add pointy note  id=fieldset-versions
+    ...  La prévisualisation du ficher ged (fichier principal).  position=top  color=blue  width=300
+    sleep  3
+    Clear Highlight  id=fieldset-versions
+    Remove element  id=${note1}
+
+#    ${note1}  Add pointy note  css=#fieldset-versions table.listing td:nth-child(1)
+#    ...  Cette icône permet de télécharger le fichier ged au format pdf.  position=top  color=blue  width=300
+#    sleep  3
+#    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(1)
+    ...  On va cliquer sur cette icône pour modifier les données de la fiche.  position=top  color=blue  width=300
+    sleep  3
+    ${pointer1}  Add pointer  css=table.actionspanel-no-style-table td:nth-child(1)
+    sleep  1.5
+    Remove element  id=${pointer1}
+    Remove element  id=${note1}
+
+# modification
+# changement état
 
 Répondre à un courrier
 # partie guide utilisation : Répondre à un courrier
