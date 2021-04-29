@@ -16,3 +16,9 @@ ScrollUp
 
 ScrollDown
     Execute JavaScript  window.scrollTo(0, document.body.scrollHeight)
+
+Add main note
+    [Documentation]  Add a note under the portal top
+    [Arguments]  ${text}
+    ${id}  Add note  id=portal-top  ${text}  position=bottom  color=blue  width=400  border=groove
+    [return]  ${id}
