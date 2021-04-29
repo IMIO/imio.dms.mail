@@ -297,48 +297,139 @@ Ajouter une tâche
 
 Utiliser les recherches
 # partie guide utilisation : Utiliser les recherches
-
-    # Recherche globale
-    [TAGS]  RUN
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID1}  description  Candidature spontanée  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Set field value  ${UID1}  original_mail_date  20170314  date
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID1}  propose_to_agent
+    Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
-    Sleep  3
-    ${note1}  Add pointy note  id=portal-globalnav  Bandeau des fonctionnalités principales  position=bottom  color=blue
-    Sleep  3
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+# start video
+    pause
+    GO to  ${PLONE_URL}/
+# Recherche globale
+    Sleep  ${S_S}
+    ${note1}  Add pointy note  id=portal-globalnav  
+    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
+    sleep  ${N_S}
     Remove element  id=${note1}
-    ${note1}  Add pointy note  id=livesearch0  Champ de recherche globale  position=bottom  color=blue
-    Sleep  3
+    ${note1}  Add pointy note  id=portal-globalnav  
+    ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
+    sleep  ${N_S}
     Remove element  id=${note1}
+    ${note1}  Add pointy note  id=livesearch0  
+    ...  Voici le champ de recherche globale  position=bottom  color=blue  width=200
+    sleep  ${S_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  id=livesearch0  
+    ...  Il vous permet de faire une recherche fulltext sur les documents scannés  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
     Click element  livesearch0
-    Sleep  3
-    Input text  name=SearchableText  Recherche globale
-    Sleep  3
-    Clear Element Text  SearchableText
-    GO to  ${PLONE_URL}
-    Sleep  1
+    sleep  ${S_S}
+    ${note1}  Add pointy note  id=searchGadget  
+    ...  On entre l'objet de sa recherche  position=left  color=blue  width=200
+    sleep  ${N_S}
+    Input text  name=SearchableText  Candidature
+    Remove element  id=${note1}
+    Wait until element is visible  css=.LSRow  20
 
-    # Recherche contextuelle
-    Enable autologin as  agent
-    Sleep  3
-    ${note1}  Add pointy note  id=portal-globalnav  Bandeau des fonctionnalités principales  position=bottom  color=blue
-    Sleep  3
+    ${note1}  Add pointy note  css=.LSRow 
+    ...  La recherche globale trouve toutes les fiches contenant les termes recherchés  position=left  color=blue  width=300
+    sleep  ${N_S}
     Remove element  id=${note1}
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  Cliquez sur courrier entrant ou sortant position=bottom  color=blue
-    Sleep  3
+    ${note1}  Add pointy note  css=.LSRow 
+    ...  Il suffit de cliquer dessus pour y accéder  position=left  color=blue  width=300
+    sleep  ${S_S}
     Remove element  id=${note1}
+
+    Click element  css=.LSRow
+    sleep  ${N_S}
+    ${note1}  Add pointy note  css=.pretty_link_content
+    ...  Voilà, nous sommes bien sur la fiche courrier recherchée  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    sleep  ${L_S}
+
+    
+    GO to  ${PLONE_URL}/
+
+    sleep  ${S_S}
+
+# Recherche contextuelle
+    Sleep  ${S_S}
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  
+    ...  Pour la recherche contextuelle maintenant  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  
+    ...  Cliquez sur courrier entrant ou sortant  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    
+
     Wait until element is visible  id=portaltab-incoming-mail  20
+
     GO to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  id=c2  20
-    Sleep  3
-    ${note1}  Add pointy note  id=c2  Champ de recherche contextuelle  position=bottom  color=blue
-    Sleep  3
-    Remove element  id=${note1}
-    Sleep  3
-    Input text  id=c2  Recherche contextuelle
-    Sleep  3
-    Clear Element Text  id=c2
-    Sleep  3
-    GO to  ${PLONE_URL}
+    sleep  ${S_S}
 
+    ${note1}  Add pointy note  id=c2 
+    ...  Voici le champ de recherche contextuelle  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  id=c2 
+    ...  Il permet de faire une recherche sur les informations encodées dans les fiches  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Input text  id=c2  agent administratif
+    ${note1}  Add pointy note  id=c2_button 
+    ...  Si je clique sur la loupe de recherche  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Input text  id=c2  agent administratif
+    Click element  c2_button
+    sleep  ${S_S}
+    ${note1}  Add pointy note  css=.pretty_link 
+    ...  Il me trouve bien la fiche recherchée  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    sleep  ${N_S}
+      ${note1}  Add pointy note  id=c2
+    ...  Si j'efface le champ  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Clear Element Text  id=c2
+    Wait until element is visible  id=faceted_table  10
+
+    ${note1}  Add pointy note  id=faceted_table
+    ...  J'ai de nouveau accès à tout le courrier  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    sleep  ${L_S}
 
 Gérer les modèles
 # partie guide utilisation : Gérer les modèles
