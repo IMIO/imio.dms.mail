@@ -16,6 +16,8 @@ ${SELENIUM_RUN_ON_FAILURE} =  Debug
 ${S_S} =  2  # short sleep
 ${N_S} =  4  # normal sleep
 ${L_S} =  6  # longer sleep
+${W_WIDTH} =  1680  # width 1200 1260 1280
+${W_HEIGHT} =  1050  # height 1920 2880 720
 
 *** Test Cases ***
 
@@ -40,6 +42,7 @@ Traiter un courrier
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
@@ -110,7 +113,7 @@ Traiter un courrier
 
     Highlight  id=plone-document-byline
     ${note1}  Add pointy note  id=plone-document-byline
-    ...  Une ligne d’information indiquant la date de dernière modification, ainsi qu’un lien vers l’historique (coloré en rouge quand une note s’y trouve).  position=top  color=blue  width=300
+    ...  Une ligne d’information indiquant la date de dernière modification, ainsi qu’un lien vers l’historique.  position=top  color=blue  width=300
     sleep  ${N_S}
     Clear Highlight  id=plone-document-byline
     Remove element  id=${note1}
@@ -207,6 +210,7 @@ Traiter un courrier
     ...  Il faut sauvegarder (si modifications) ou annuler pour sortir du mode « édition ».  position=right  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+    Add clic  id=form-buttons-cancel
     Click element  id=form-buttons-cancel
 
 # changement état
@@ -223,12 +227,12 @@ Traiter un courrier
 
     ${note1}  Add pointy note  css=div.faceted-tagscloud-collection-widget-portlet li:nth-child(12)
     ...  Les états visibles par l'utilisateur sont montrés dans les recherches commençant par "État".  position=top  color=blue  width=250
-    sleep  ${N_S}
+    sleep  ${L_S}
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  css=div.viewlet_workflowstate
     ...  L'état actuel est affiché avec sa couleur.  position=left  color=blue  width=250
-    sleep  ${L_S}
+    sleep  ${N_S}
     Remove element  id=${note1}
 
     ${main1}  Add main note  Les droits de l'utilisateur varient d'un état à l'autre. Par exemple, un agent ne pourra plus modifier un courrier quand il est dans l'état « Clôturé ».
@@ -251,7 +255,7 @@ Traiter un courrier
 
     ${note1}  Add pointy note  css=div.viewlet_workflowstate
     ...  L'état a changé.  position=left  color=blue
-    sleep  ${L_S}
+    sleep  ${N_S}
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(2)
@@ -263,7 +267,7 @@ Traiter un courrier
     Wait until element is visible  css=#confirmTransitionForm
 
     ${note1}  Add pointy note  css=#confirmTransitionForm
-    ...  Quand on revient en arrière, on peut laisser un commentaire.  position=bottom  color=blue  width=300
+    ...  Quand on revient en arrière, on peut laisser un commentaire.  position=left  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
     Input text  name=comment  Je vais et je viens...
@@ -290,7 +294,20 @@ Traiter un courrier
     Remove element  id=${note1}
     Click element  css=div.overlay-history div.close
 
-    Add main note  Merci pour votre attention.
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(3)
+    ...  Si on clique à nouveau sur « Traiter ».  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(3)
+    Remove element  id=${note1}
+    Click element  css=table.actionspanel-no-style-table td:nth-child(3)
+    Wait until element is visible  css=.DV-pageImage  10
+
+    ${note1}  Add pointy note  css=#parent-fieldname-title span.pretty_link_icons img:nth-child(1)
+    ...  Une icône spécifique indique qu'on revient à un état déjà rencontré.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Add title  Merci pour votre attention.
     sleep  ${L_S}
 
 Répondre à un courrier
@@ -648,10 +665,7 @@ CS nouveau
 *** Keywords ***
 Suite Setup
     Open test browser
-#    Set Window Size  1200  1920
-#    Set Window Size  1260  2880
-#    Set Window Size  1280  720
-    Set Window Size  1400  1050
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
     Set Selenium Speed  0.2
