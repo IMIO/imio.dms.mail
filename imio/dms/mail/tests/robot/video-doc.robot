@@ -123,13 +123,13 @@ Traiter un courrier
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  css=#labeling-viewlet ul
-    ...  Des boutons permettant d’associer un libellé: « lu » (utile pour les courriers en copie), « suivi » pour marquer des courriers à suivre.  position=left  color=blue
+    ...  Des boutons permettant d’associer un libellé: « lu » (pour les courriers en copie), « suivi » (pour suivre des courriers).  position=left  color=blue  width=200
     sleep  ${L_S}
     Remove element  id=${note1}
 
     Highlight  id=parent-fieldname-description
     ${note1}  Add pointy note  id=parent-fieldname-description
-    ...  La description plus complète du courrier (s'il y en a une).  position=left  color=blue
+    ...  La description plus complète du courrier (s'il y en a une).  position=left  color=blue  width=200
     sleep  ${N_S}
     Clear Highlight  id=parent-fieldname-description
     Remove element  id=${note1}
@@ -154,7 +154,7 @@ Traiter un courrier
 #    Remove element  id=${note1}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(1)
-    ...  On va cliquer sur cette icône pour modifier les données de la fiche.  position=top  color=blue  width=300
+    ...  On peut cliquer sur cette icône pour modifier les données de la fiche.  position=top  color=blue  width=300
     sleep  ${N_S}
     ${pointer1}  Add pointer  css=table.actionspanel-no-style-table td:nth-child(1)
     sleep  1.5
@@ -162,6 +162,56 @@ Traiter un courrier
     Remove element  id=${note1}
 
 # modification
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/edit
+    Wait until element is visible  css=.DV-pageImage  10
+
+#    ${note1}  Add pointy note  id=content-core
+#    ...  Lorsqu'on modifie un courrier, on peut changer certains champs de la fiche.  position=center  color=blue  width=300
+#    sleep  ${L_S}
+#    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-IDublinCore-description
+    ...  Parfois, certains champs ne sont pas modifiables: tout dépend de votre rôle et de l'état de l'élément. C'est le cas ici du titre, de la description, des expéditeurs, etc.  position=right  color=blue  width=400
+    sleep  8
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-ITask-assigned_user
+    ...  On peut reprendre le travail d'un autre, au besoin.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-recipient_groups
+    ...  On peut ajouter des services en copie.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-ITask-due_date
+    ...  On peut mettre une échéance pour pouvoir trier les courriers dans les tableaux de bord.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-reply_to
+    ...  On peut ajouter des courriers liés à cette fiche, en cherchant sur une référence interne ou un mot du titre.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ScrollDown
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-ITask-task_description
+    ...  On peut laisser des notes dans cette zone (le chef de service, l'agent traitant).  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-external_reference_no
+    ...  On peut ajouter la référence de l'expéditeur qui servira lors d'une réponse.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=form-buttons-cancel
+    ...  Il faut sauvegarder (si modifications) ou annuler pour sortir du mode « édition ».  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
 # changement état
 
 Répondre à un courrier
@@ -252,10 +302,10 @@ CS nouveau
 *** Keywords ***
 Suite Setup
     Open test browser
-#    Set Window Size  1024  768
 #    Set Window Size  1200  1920
 #    Set Window Size  1260  2880
-    Set Window Size  1280  720
+#    Set Window Size  1280  720
+    Set Window Size  1400  1050
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
     Set Selenium Speed  0.2
