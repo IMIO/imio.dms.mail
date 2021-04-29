@@ -70,7 +70,7 @@ Traiter un courrier
 # start video
     pause
 # visualisation
-    ${main1}  Add title  Comment traiter un courrier entrant...
+    ${main1}  Add title  iA.docs : comment traiter un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -207,7 +207,7 @@ Traiter un courrier
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  id=form-buttons-cancel
-    ...  Il faut sauvegarder (si modifications) ou annuler pour sortir du mode « édition ».  position=right  color=blue  width=300
+    ...  Il faut sauvegarder (si des modifications ont été apportées) ou annuler pour sortir du mode « édition ».  position=right  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
     Add clic  id=form-buttons-cancel
@@ -308,7 +308,7 @@ Traiter un courrier
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    Add title  Merci pour votre attention.
+    Add title  Ce tutoriel vidéo est fini ;-)
     sleep  ${L_S}
 
 Répondre à un courrier
@@ -336,7 +336,7 @@ Ajouter un contact
 
 
 Ajouter une annexe
-# partie guide utilisation : Ajouter une annexe
+# ATTENTION: le pointeur souris doit être hors de la fenêtre !!
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
@@ -366,58 +366,72 @@ Ajouter une annexe
     Select collection  incoming-mail/mail-searches/to_treat
 # start video
     pause
-    GO to  ${PLONE_URL}/
-#Ajouter une annexe
-    ${note1}  Add main note  Bonjour et bienvenue dans ce tutorial sur: Comment ajouter une annexe dans iA.Docs
-    Sleep  ${N_S}
-    Remove element  id=${note1}
+# Ajouter une annexe
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Wait until element is visible  css=.DV-pageImage  10
 
-    ${note1}  Add pointy note  id=portal-globalnav
-    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add pointy note  id=portal-globalnav
-    ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add main note  Pour la démonstration, nous allons faire la démarche à partir de courrier entrant.
+    ${note1}  Add title  iA.docs : comment ajouter une annexe...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add main note  Mais nous aurions tout aussi bien pu la faire en partant de courrier sortant.
+    ${note1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une annexe.
     Sleep  ${L_S}
     Remove element  id=${note1}
+    log to console  ${CURDIR}
 
-    ${note1}  Add pointy note  id=portaltab-incoming-mail
-    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
+#    ${note1}  Add pointy note  id=portal-globalnav
+#    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
+#    sleep  ${N_S}
+#    Remove element  id=${note1}
+#
+#    ${note1}  Add pointy note  id=portal-globalnav
+#    ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
+#    sleep  ${N_S}
+#    Remove element  id=${note1}
+#
+#    ${note1}  Add main note  Pour la démonstration, nous allons faire la démarche à partir de courrier entrant.
+#    Sleep  ${L_S}
+#    Remove element  id=${note1}
+#
+#    ${note1}  Add main note  Mais nous aurions tout aussi bien pu la faire en partant de courrier sortant.
+#    Sleep  ${L_S}
+#    Remove element  id=${note1}
+#
+#    ${note1}  Add pointy note  id=portaltab-incoming-mail
+#    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
+#    sleep  ${N_S}
+#    Remove element  id=${note1}
+#
+#    GO to  ${PLONE_URL}/incoming-mail
+#
+#    # View courrier entrant
+#    ${note1}  Add main note  Vous voici sur la page des courriers entrants
+#    Sleep  ${N_S}
+#    Remove element  id=${note1}
+#
+#    Wait until element is visible  css=.pretty_link a:first-child  10
+#    ${note1}  Add pointy note  css=.pretty_link a:first-child
+#    ...  Choisissez le courrier entrant sur lequel vous voulez ajouter une annexe  position=bottom  color=blue  width=300
+#    sleep  ${N_S}
+#    Remove element  id=${note1}
+#
+#    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+#    sleep  ${S_S}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
+    ...  On va passer par le menu "Ajouter"  position=bottom  color=blue  width=200
     sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(5)
     Remove element  id=${note1}
-
-    GO to  ${PLONE_URL}/incoming-mail
-
-    # View courrier entrant
-    ${note1}  Add main note  Vous voici sur la page des courriers entrants
-    Sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Wait until element is visible  css=.pretty_link a:first-child  10
-    ${note1}  Add pointy note  css=.pretty_link a:first-child
-    ...  Choisissez le courrier entrant sur lequel vous voulez ajouter une annexe  position=bottom  color=blue  width=300
+    Click element  css=table.actionspanel-no-style-table td:nth-child(5)
     sleep  ${N_S}
-    Remove element  id=${note1}
 
-    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
-    sleep  ${S_S}
-
-    # View courrier sélectionné
-    ${note1}  Add pointy note  css=tr td:nth-child(5)
-    ...  Ajoutez une annexe  position=bottom  color=blue  width=200
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
+    ...  Et ensuite sélectionner "Annexe"  position=left  color=blue  width=200
     sleep  ${N_S}
-    Remove element  id=${note1}
 
-    # Informations de la tâche
+    # Vue d'ajout
     GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/++add++dmsappendixfile
 
     ${note1}  Add pointy note  css=#form-widgets-IBasic-title  Ajoutez le titre de l'annexe  position=left  color=blue
@@ -430,50 +444,38 @@ Ajouter une annexe
     sleep  ${S_S}
     Remove element  id=${note1}
 
-    Choose File  id=form-widgets-file-input  /srv/instances/docSprint/img/2-1-acces-a-lapplication.png
+    Choose File  id=form-widgets-file-input  ${CURDIR}/annexe.pdf
 
-    ${note1}  Add pointy note  css=#form-buttons-save  Sauvegardez  position=left  color=blue
-    sleep  ${S_S}
+    ${note1}  Add pointy note  id=form-buttons-save
+    ...  Il reste à sauvegarder.  position=right  color=top  width=300
+    sleep  ${N_S}
     Remove element  id=${note1}
-
+    Add clic  id=form-buttons-save
     Click element  form-buttons-save
 
-    ${note1}  Add main note  Vous voici à présent sur la page de votre annexe
+    ${note1}  Add main note  L'annexe ajoutée est affichée.
     Sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add main note  Pour vérifier que votre annexe est bien liée à une fiche courrier entrant
-    Sleep  ${S_S}
+    ${note1}  Add pointy note  css=#portal-breadcrumbs #breadcrumbs-2
+    ...  Pour remonter à la fiche, on va utiliser le fil d'ariane et cliquer sur le nom de la fiche  position=bottom  color=blue  width=200
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Add clic  css=#portal-breadcrumbs #breadcrumbs-2
+    Click element  css=#portal-breadcrumbs #breadcrumbs-2
+    Wait until element is visible  css=.DV-pageImage  10
+
+    ScrollDown
+
+    ${note1}  Add pointy note  css=#content-core>fieldset
+    ...  L'annexe ajoutée à la fiche courrier est listée dans un tableau en bas de la fiche  position=top  color=blue  width=300
+    sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portaltab-incoming-mail
-    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
-    sleep  ${S_S}
-    Remove element  id=${note1}
+    ScrollUp
 
-    GO to  ${PLONE_URL}/incoming-mail
-
-    ${note1}  Add main note  Vous voici sur la page des courriers entrants
-    Sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Wait until element is visible  css=.pretty_link a:first-child  10
-    ${note1}  Add pointy note  css=.pretty_link a:first-child
-    ...  Choisissez le courrier entrant sur lequel vous avez ajouté votre annexe  position=bottom  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
-    sleep  ${S_S}
-
-    ${note1}  Add pointy note  css=#content fieldset .even .version-link:not(.selected)
-    ...  Votre annexe a bien été ajoutée à la fiche courrier  position=top  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Pause
-
-
+    Add title  Ce tutoriel vidéo est fini ;-)
+    sleep  ${L_S}
 
 Ajouter une tâche
 # partie guide utilisation : Ajouter une tâche
