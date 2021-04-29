@@ -354,50 +354,95 @@ Ajouter une tâche
     pause
     GO to  ${PLONE_URL}/
 # Ajouter une tache
-    ${note1}  Add pointy note  id=portal-globalnav  Bandeau des fonctionnalités principales  position=bottom  color=blue
-    Sleep  3
+    ${note1}  Add main note  Bonjour et bienvenue dans ce tutorial sur: Comment ajouter une tâche dans iA.Docs
+    Sleep  ${N_S}
     Remove element  id=${note1}
-    Go to  ${PLONE_URL}/import_scanned?redirect=
-    Go to  ${PLONE_URL}/incoming-mail
+
+    ${note1}  Add pointy note  id=portal-globalnav  
+    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=portal-globalnav  
+    ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Pour la démonstration, nous allons faire la démarche à partir de courrier entrant.
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Mais nous aurions tout aussi bien pu la faire en partant de courrier sortant.
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  
+    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    GO to  ${PLONE_URL}/incoming-mail
+
+    ${note1}  Add main note  Vous voici sur la page des courriers entrants
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+
     Wait until element is visible  css=.pretty_link a:first-child  10
-    ${note1}  Add pointy note  css=.pretty_link a:first-child  On choisit le courrier entrant sur lequel on veut ajouter une tâche  position=bottom  color=blue
-    Sleep  3
+    ${note1}  Add pointy note  css=.pretty_link a:first-child  
+    ...  Choisissez le courrier entrant sur lequel vous voulez ajouter une tâche  position=bottom  color=blue  width=300
+    sleep  ${N_S}
     Remove element  id=${note1}
+
     GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
-    Sleep  2
+    sleep  ${S_S}
+
     # Sélectionner l'entrée "tâche"
-    ${note1}  Add pointy note  css=tr td:nth-child(3)  Ajouter une tâche  position=bottom  color=blue
-    Sleep  3
+    ${note1}  Add pointy note  css=tr td:nth-child(5)  
+    ...  Ajoutez une tâche  position=bottom  color=blue  width=200
+    sleep  ${N_S}
     Remove element  id=${note1}
+
     GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/++add++task
-    ${note1}  Add pointy note  css=#form-widgets-title  On ajoute un titre  position=bottom  color=blue
-    Sleep  2
+    ${note1}  Add pointy note  css=#form-widgets-title  Ajoutez le titre de la tâche  position=left  color=blue
+    sleep  ${S_S}
     Remove element  id=${note1}
+
     Input text  id=form-widgets-title  A faire: Tâche très importante
-    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_group  On choisit un service  position=right  color=blue
-    Sleep  2
+
+    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_group  Choisissez un service  position=left  color=blue
+    sleep  ${N_S}
     Remove element  id=${note1}
+
     Select From List By Index  id=form-widgets-ITask-assigned_group  2
-    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_user  On assigne Fred Agent  position=right  color=blue
-    Sleep  2
+
+    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_user  Assignez quelqu'un comme par exemple: Fred Agent  position=left  color=blue
+    sleep  ${S_S}
     Remove element  id=${note1}
+
     Select From List By Index  id=form-widgets-ITask-assigned_user  1
-    ${note1}  Add pointy note  css=#form-buttons-save  On sauvegarde  position=right  color=blue
-    Sleep  3
+
+    ${note1}  Add pointy note  css=#form-buttons-save  Sauvegardez  position=left  color=blue
+    sleep  ${N_S}
     Remove element  id=${note1}
+
     Click element  form-buttons-save
-    Sleep  2
-    ${note1}  Add pointy note  css=.portalMessage.info.success  La tâche a bien été créée  position=bottom  color=blue
-    Sleep  3
+    sleep  ${S_S}
+
+    ${note1}  Add pointy note  css=.portalMessage.info.success  Votre tâche a bien été créée  position=bottom  color=blue
+    sleep  ${N_S}
     Remove element  id=${note1}
+
     GO to  ${PLONE_URL}/
-    ${note1}  Add pointy note  id=portaltab-tasks  On vérifie si la tâche est bien assignée à Fred Agent  position=bottom  color=blue
-    Sleep  3
+
+    ${note1}  Add pointy note  id=portaltab-tasks  Vérifions si la tâche est bien assignée à Fred Agent  position=bottom  color=blue
+    sleep  ${N_S}
     Remove element  id=${note1}
+
     GO to  ${PLONE_URL}/tasks/task-searches
+
     Wait until element is visible  class=td_cell_assigned_user  20
     ${note1}  Add pointy note  css=.td_cell_assigned_user  Oui, elle lui est bien assignée  position=bottom  color=blue
-    Sleep  3
+    sleep  ${N_S}
     Remove element  id=${note1}
 
 Utiliser les recherches
@@ -433,19 +478,25 @@ Utiliser les recherches
     pause
     GO to  ${PLONE_URL}/
 # Recherche globale
+    ${note1}  Add main note  Bonjour et bienvenue dans ce tutorial sur: L'utilisation des recherches d'iA.Docs
     Sleep  ${S_S}
+    Remove element  id=${note1}
+
     ${note1}  Add pointy note  id=portal-globalnav  
     ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
+
     ${note1}  Add pointy note  id=portal-globalnav  
     ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+
     ${note1}  Add pointy note  id=livesearch0  
     ...  Voici le champ de recherche globale  position=bottom  color=blue  width=200
     sleep  ${S_S}
     Remove element  id=${note1}
+
     ${note1}  Add pointy note  id=livesearch0  
     ...  Il vous permet de faire une recherche fulltext sur les documents scannés  position=bottom  color=blue  width=300
     sleep  ${N_S}
@@ -453,38 +504,41 @@ Utiliser les recherches
 
     Click element  livesearch0
     sleep  ${S_S}
+
     ${note1}  Add pointy note  id=searchGadget  
-    ...  On entre l'objet de sa recherche  position=left  color=blue  width=200
+    ...  Entrez l'objet de votre recherche  position=left  color=blue  width=200
     sleep  ${N_S}
     Input text  name=SearchableText  Candidature
     Remove element  id=${note1}
-    Wait until element is visible  css=.LSRow  20
 
+    Wait until element is visible  css=.LSRow  20
     ${note1}  Add pointy note  css=.LSRow 
     ...  La recherche globale trouve toutes les fiches contenant les termes recherchés  position=left  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+
     ${note1}  Add pointy note  css=.LSRow 
-    ...  Il suffit de cliquer dessus pour y accéder  position=left  color=blue  width=300
+    ...  Cliquez dessus pour y accéder  position=left  color=blue  width=300
     sleep  ${S_S}
     Remove element  id=${note1}
 
     Click element  css=.LSRow
     sleep  ${N_S}
+
     ${note1}  Add pointy note  css=.pretty_link_content
-    ...  Voilà, nous sommes bien sur la fiche courrier recherchée  position=bottom  color=blue  width=300
+    ...  Voilà, vous êtes bien sur la fiche courrier recherchée  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+
     sleep  ${L_S}
     
     GO to  ${PLONE_URL}/
-
     sleep  ${S_S}
 
 # Recherche contextuelle
     Sleep  ${S_S}
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  
-    ...  Pour la recherche contextuelle maintenant  position=bottom  color=blue  width=200
+
+    ${note1}  Add main note  Pour la recherche contextuelle maintenant  
     sleep  ${N_S}
     Remove element  id=${note1}
 
@@ -492,9 +546,6 @@ Utiliser les recherches
     ...  Cliquez sur courrier entrant ou sortant  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
-    
-
-    Wait until element is visible  id=portaltab-incoming-mail  20
 
     GO to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  id=c2  20
@@ -502,37 +553,47 @@ Utiliser les recherches
 
     ${note1}  Add pointy note  id=c2 
     ...  Voici le champ de recherche contextuelle  position=bottom  color=blue  width=200
-    sleep  ${N_S}
+    sleep  ${S_S}
     Remove element  id=${note1}
+
     ${note1}  Add pointy note  id=c2 
-    ...  Il permet de faire une recherche sur les informations encodées dans les fiches  position=bottom  color=blue  width=300
+    ...  Il vous permet de faire une recherche sur les informations encodées dans les fiches  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+
     Input text  id=c2  agent administratif
+
     ${note1}  Add pointy note  id=c2_button 
-    ...  Si je clique sur la loupe de recherche  position=bottom  color=blue  width=200
+    ...  Cliquez sur la loupe de recherche  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
+
     Input text  id=c2  agent administratif
+
+    Add clic  css=#c2_button
     Click element  c2_button
     sleep  ${S_S}
+
     ${note1}  Add pointy note  css=.pretty_link 
-    ...  Il me trouve bien la fiche recherchée  position=bottom  color=blue  width=200
+    ...  Il trouve bien la fiche recherchée  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
 
     sleep  ${N_S}
-      ${note1}  Add pointy note  id=c2
-    ...  Si j'efface le champ  position=bottom  color=blue  width=200
+
+    ${note1}  Add pointy note  id=c2
+    ...  Effaçons le champ  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
+
     Clear Element Text  id=c2
-    Wait until element is visible  id=faceted_table  10
 
+    Wait until element is visible  id=faceted_table  10
     ${note1}  Add pointy note  id=faceted_table
-    ...  J'ai de nouveau accès à tout le courrier  position=bottom  color=blue  width=300
+    ...  Nous avons de nouveau accès à tout le courrier  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+
     sleep  ${L_S}
 
 Gérer les modèles
