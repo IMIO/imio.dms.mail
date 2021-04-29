@@ -20,13 +20,13 @@ ScrollDown
 Add main note
     [Documentation]  Add a note under the portal top
     [Arguments]  ${text}
-    ${id}  Add note  id=portal-top  ${text}  position=bottom  color=blue  width=400  border=groove
+    ${id}  Add note  id=portal-top  ${text}  position=bottom  background=#ffc700  color=black  width=400  border=groove
     [return]  ${id}
 
 Add title
     [Documentation]  Add a note under the portal top
     [Arguments]  ${text}
-    ${id}  Add note  id=portal-top  ${text}  position=bottom  color=blue  width=400  border=groove
+    ${id}  Add note  id=portal-top  ${text}  position=bottom  background=#de007b  color=white  width=400  border=groove
     [return]  ${id}
 
 Add clic

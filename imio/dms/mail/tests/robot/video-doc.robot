@@ -378,7 +378,6 @@ Ajouter une annexe
     ${note1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une annexe.
     Sleep  ${L_S}
     Remove element  id=${note1}
-    log to console  ${CURDIR}
 
 #    ${note1}  Add pointy note  id=portal-globalnav
 #    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
