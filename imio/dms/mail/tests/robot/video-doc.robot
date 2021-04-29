@@ -15,7 +15,7 @@ Suite Teardown  Close all browsers
 ${SELENIUM_RUN_ON_FAILURE} =  Debug
 ${S_S} =  2  # short sleep
 ${N_S} =  4  # normal sleep
-${L_S} =  3  # longer sleep
+${L_S} =  6  # longer sleep
 
 *** Test Cases ***
 
@@ -244,9 +244,37 @@ Ajouter une annexe
 
 Ajouter une tâche
 # partie guide utilisation : Ajouter une tâche
-
+# setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID1}  description  Candidature spontanée  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Set field value  ${UID1}  original_mail_date  20170314  date
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID1}  propose_to_agent
+    Fire transition  ${UID}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+# start video
+    pause
+    GO to  ${PLONE_URL}/
+# Ajouter une tache
     ${note1}  Add pointy note  id=portal-globalnav  Bandeau des fonctionnalités principales  position=bottom  color=blue
     Sleep  3
     Remove element  id=${note1}
@@ -292,8 +320,6 @@ Ajouter une tâche
     ${note1}  Add pointy note  css=.td_cell_assigned_user  Oui, elle lui est bien assignée  position=bottom  color=blue
     Sleep  3
     Remove element  id=${note1}
-
-    
 
 Utiliser les recherches
 # partie guide utilisation : Utiliser les recherches
@@ -371,7 +397,6 @@ Utiliser les recherches
     sleep  ${N_S}
     Remove element  id=${note1}
     sleep  ${L_S}
-
     
     GO to  ${PLONE_URL}/
 
