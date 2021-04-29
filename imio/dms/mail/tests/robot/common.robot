@@ -10,3 +10,9 @@ Select collection
     Run keyword if  '${results}'=='1'  Wait until element is visible  css=.faceted-table-results  10  ELSE  Wait until element is visible  css=.table_faceted_no_results  10
     Sleep  0.5
 #    [Return]  ${UID}
+
+ScrollUp
+    Execute javascript  window.scrollTo(0, 0)
+
+ScrollDown
+    Execute JavaScript  window.scrollTo(0, document.body.scrollHeight)
