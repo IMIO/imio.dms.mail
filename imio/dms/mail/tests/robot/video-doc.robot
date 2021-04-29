@@ -67,9 +67,99 @@ Ajouter une annexe
 Ajouter une tâche
 # partie guide utilisation : Ajouter une tâche
 
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    ${note1}  Add pointy note  id=portal-globalnav  Bandeau des fonctionnalités principales  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.pretty_link a:first-child  10
+    ${note1}  Add pointy note  css=.pretty_link a:first-child  On choisit le courrier entrant sur lequel on veut ajouter une tâche  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Sleep  2
+    # Sélectionner l'entrée "tâche"
+    ${note1}  Add pointy note  css=tr td:nth-child(3)  Ajouter une tâche  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/++add++task
+    ${note1}  Add pointy note  css=#form-widgets-title  On ajoute un titre  position=bottom  color=blue
+    Sleep  2
+    Remove element  id=${note1}
+    Input text  id=form-widgets-title  A faire: Tâche très importante
+    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_group  On choisit un service  position=right  color=blue
+    Sleep  2
+    Remove element  id=${note1}
+    Select From List By Index  id=form-widgets-ITask-assigned_group  2
+    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_user  On assigne Fred Agent  position=right  color=blue
+    Sleep  2
+    Remove element  id=${note1}
+    Select From List By Index  id=form-widgets-ITask-assigned_user  1
+    ${note1}  Add pointy note  css=#form-buttons-save  On sauvegarde  position=right  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    Click element  form-buttons-save
+    Sleep  2
+    ${note1}  Add pointy note  css=.portalMessage.info.success  La tâche a bien été créée  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    GO to  ${PLONE_URL}/
+    ${note1}  Add pointy note  id=portaltab-tasks  On vérifie si la tâche est bien assignée à Fred Agent  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    GO to  ${PLONE_URL}/tasks/task-searches
+    Wait until element is visible  class=td_cell_assigned_user  20
+    ${note1}  Add pointy note  css=.td_cell_assigned_user  Oui, elle lui est bien assignée  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+
+    
 
 Utiliser les recherches
 # partie guide utilisation : Utiliser les recherches
+
+    # Recherche globale
+    [TAGS]  RUN
+    Enable autologin as  agent
+    Sleep  3
+    ${note1}  Add pointy note  id=portal-globalnav  Bandeau des fonctionnalités principales  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  id=livesearch0  Champ de recherche globale  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    Click element  livesearch0
+    Sleep  3
+    Input text  name=SearchableText  Recherche globale
+    Sleep  3
+    Clear Element Text  SearchableText
+    GO to  ${PLONE_URL}
+    Sleep  1
+
+    # Recherche contextuelle
+    Enable autologin as  agent
+    Sleep  3
+    ${note1}  Add pointy note  id=portal-globalnav  Bandeau des fonctionnalités principales  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  Cliquez sur courrier entrant ou sortant position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    Wait until element is visible  id=portaltab-incoming-mail  20
+    GO to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  id=c2  20
+    Sleep  3
+    ${note1}  Add pointy note  id=c2  Champ de recherche contextuelle  position=bottom  color=blue
+    Sleep  3
+    Remove element  id=${note1}
+    Sleep  3
+    Input text  id=c2  Recherche contextuelle
+    Sleep  3
+    Clear Element Text  id=c2
+    Sleep  3
+    GO to  ${PLONE_URL}
 
 
 Gérer les modèles
@@ -77,7 +167,7 @@ Gérer les modèles
 
 
 CS nouveau
-# partie 2.3.2 Nouveau courrier sortant
+# partie 2.3.2 Nouveau courrier sortant 
     [TAGS]  RUN
     Enable autologin as  agent
     Go to  ${PLONE_URL}/outgoing-mail
