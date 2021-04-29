@@ -15,7 +15,7 @@ Suite Teardown  Close all browsers
 ${SELENIUM_RUN_ON_FAILURE} =  Debug
 ${S_S} =  2  # short sleep
 ${N_S} =  4  # normal sleep
-${L_S} =  3  # longer sleep
+${L_S} =  6  # longer sleep
 
 *** Test Cases ***
 
