@@ -67,7 +67,10 @@ Traiter un courrier
 # start video
     pause
 # visualisation
-    sleep  1
+    ${main1}  Add title  Comment traiter un courrier entrant...
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
     ${note1}  Add pointy note  css=div.category li:nth-child(3)
     ...  Il faut cliquer sur une recherche, afin d'afficher un tableau de résultats.  position=top  color=blue  width=250
     sleep  ${N_S}
@@ -75,17 +78,14 @@ Traiter un courrier
     ${note1}  Add pointy note  css=table.faceted-table-results td.pretty_link
     ...  On va cliquer sur l'intitulé d'un courrier pour l'ouvrir.  position=top  color=blue
     sleep  ${N_S}
-    ${pt1}  Add pointer  css=table.faceted-table-results td.pretty_link
-    sleep  1.5
-    Remove element  id=${pt1}
+    Add clic  css=table.faceted-table-results td.pretty_link
     Remove element  id=${note1}
 
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
     Wait until element is visible  css=.DV-pageImage  10
-    ${note1}  Add pointy note  id=content-core
-    ...  Lorsqu'on visualise un courrier, on peut trouver, dans la partie principale de la page, les éléments suivants (en partant de haut en bas).  position=center  color=blue  width=300
+    ${main1}  Add main note  Lorsqu'on visualise un courrier, on peut trouver, dans la partie principale de la page, les éléments suivants (en partant de haut en bas).
     sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     Highlight  css=table.actionspanel-no-style-table
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table
@@ -156,24 +156,20 @@ Traiter un courrier
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(1)
     ...  On peut cliquer sur cette icône pour modifier les données de la fiche.  position=top  color=blue  width=300
     sleep  ${N_S}
-    ${pointer1}  Add pointer  css=table.actionspanel-no-style-table td:nth-child(1)
-    sleep  1.5
-    Remove element  id=${pointer1}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(1)
     Remove element  id=${note1}
 
 # modification
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/edit
     Wait until element is visible  css=.DV-pageImage  10
 
-#    ${note1}  Add pointy note  id=content-core
-#    ...  Lorsqu'on modifie un courrier, on peut changer certains champs de la fiche.  position=center  color=blue  width=300
+#    ${main1}  Add main note  Lorsqu'on modifie un courrier, on peut changer certains champs de la fiche.
 #    sleep  ${L_S}
-#    Remove element  id=${note1}
+#    Remove element  id=${main1}
 
-    ${note1}  Add pointy note  id=formfield-form-widgets-IDublinCore-description
-    ...  Parfois, certains champs ne sont pas modifiables: tout dépend de votre rôle et de l'état de l'élément. C'est le cas ici du titre, de la description, des expéditeurs, etc.  position=right  color=blue  width=400
+    ${main1}  Add main note  Parfois, certains champs ne sont pas modifiables: tout dépend de votre rôle et de l'état de l'élément. C'est le cas ici du titre, de la description, des expéditeurs, etc.
     sleep  8
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     ${note1}  Add pointy note  id=formfield-form-widgets-ITask-assigned_user
     ...  On peut reprendre le travail d'un autre, au besoin.  position=top  color=blue  width=300
@@ -211,8 +207,91 @@ Traiter un courrier
     ...  Il faut sauvegarder (si modifications) ou annuler pour sortir du mode « édition ».  position=right  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+    Click element  id=form-buttons-cancel
 
 # changement état
+    # Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Wait until element is visible  css=.DV-pageImage  10
+
+    ${main1}  Add main note  Le cycle de vie d’un élément (courrier, tâche) est constitué de différents états par lesquels l’élément transite depuis sa création, jusqu’à sa clôture.
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Les états d'un courrier entrant sont par exemple: « En création », « À valider par le N+1 », « À traiter », « En traitement » et « Clôturé ».
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=div.faceted-tagscloud-collection-widget-portlet li:nth-child(12)
+    ...  Les états visibles par l'utilisateur sont montrés dans les recherches commençant par "État".  position=top  color=blue  width=250
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=div.viewlet_workflowstate
+    ...  L'état actuel est affiché avec sa couleur.  position=left  color=blue  width=250
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${main1}  Add main note  Les droits de l'utilisateur varient d'un état à l'autre. Par exemple, un agent ne pourra plus modifier un courrier quand il est dans l'état « Clôturé ».
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Une transition sert à changer d'état. Elle peut être effectuée suivant les droits de l'utilisateur et des conditions spécifiques.
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(3)
+    ...  Les boutons en bleu permettent d'effectuer une transition.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(3)
+    Remove element  id=${note1}
+
+    Fire transition  ${UID1}  treat
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Wait until element is visible  css=.DV-pageImage  10
+
+    ${note1}  Add pointy note  css=div.viewlet_workflowstate
+    ...  L'état a changé.  position=left  color=blue
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(2)
+    ...  Ainsi que les transitions possibles. On peut revenir en arrière.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(2)
+    Remove element  id=${note1}
+    Click element  css=table.actionspanel-no-style-table td:nth-child(2)
+    Wait until element is visible  css=#confirmTransitionForm
+
+    ${note1}  Add pointy note  css=#confirmTransitionForm
+    ...  Quand on revient en arrière, on peut laisser un commentaire.  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Input text  name=comment  Je vais et je viens...
+    Sleep  ${S_S}
+    Click element  css=#confirmTransitionForm input:nth-child(1)
+
+    ${note1}  Add pointy note  css=#parent-fieldname-title span.pretty_link_icons img:nth-child(1)
+    ...  Une icône spécifique indique ce retour en arrière.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=#content-history a
+    ...  L'historique s'affiche en rouge quand il y a un commentaire. On peut cliquer pour le consulter.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Add clic  css=#content-history a
+    Remove element  id=${note1}
+
+    Click element  css=#content-history a
+    Wait until element is visible  css=div.overlay-history
+
+    ${note1}  Add pointy note  css=div.overlay-history
+    ...  On peut consulter l'historique de l'élément...  position=bottom  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Click element  css=div.overlay-history div.close
+
+    Add main note  Merci pour votre attention.
+    sleep  ${L_S}
 
 Répondre à un courrier
 # partie guide utilisation : Répondre à un courrier
