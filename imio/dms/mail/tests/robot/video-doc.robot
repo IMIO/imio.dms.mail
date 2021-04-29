@@ -288,10 +288,11 @@ Traiter un courrier
     Click element  css=#content-history a
     Wait until element is visible  css=div.overlay-history
 
-    ${note1}  Add pointy note  css=div.overlay-history
-    ...  On peut consulter l'historique de l'élément...  position=bottom  color=blue  width=300
-    sleep  ${L_S}
-    Remove element  id=${note1}
+#    ${note1}  Add pointy note  css=div.overlay-history
+#    ...  On peut consulter l'historique de l'élément...  position=bottom  color=blue  width=300
+#    sleep  ${L_S}
+#    Remove element  id=${note1}
+    Add clic  css=div.overlay-history div.close
     Click element  css=div.overlay-history div.close
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(3)
@@ -375,12 +376,12 @@ Ajouter une tâche
     Sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portal-globalnav  
+    ${note1}  Add pointy note  id=portal-globalnav
     ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portal-globalnav  
+    ${note1}  Add pointy note  id=portal-globalnav
     ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -393,7 +394,7 @@ Ajouter une tâche
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  
+    ${note1}  Add pointy note  id=portaltab-incoming-mail
     ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -405,7 +406,7 @@ Ajouter une tâche
     Remove element  id=${note1}
 
     Wait until element is visible  css=.pretty_link a:first-child  10
-    ${note1}  Add pointy note  css=.pretty_link a:first-child  
+    ${note1}  Add pointy note  css=.pretty_link a:first-child
     ...  Choisissez le courrier entrant sur lequel vous voulez ajouter une tâche  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -414,7 +415,7 @@ Ajouter une tâche
     sleep  ${S_S}
 
     # Sélectionner l'entrée "tâche"
-    ${note1}  Add pointy note  css=tr td:nth-child(5)  
+    ${note1}  Add pointy note  css=tr td:nth-child(5)
     ...  Ajoutez une tâche  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -499,22 +500,22 @@ Utiliser les recherches
     Sleep  ${S_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portal-globalnav  
+    ${note1}  Add pointy note  id=portal-globalnav
     ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portal-globalnav  
+    ${note1}  Add pointy note  id=portal-globalnav
     ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=livesearch0  
+    ${note1}  Add pointy note  id=livesearch0
     ...  Voici le champ de recherche globale  position=bottom  color=blue  width=200
     sleep  ${S_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=livesearch0  
+    ${note1}  Add pointy note  id=livesearch0
     ...  Il vous permet de faire une recherche fulltext sur les documents scannés  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -522,19 +523,19 @@ Utiliser les recherches
     Click element  livesearch0
     sleep  ${S_S}
 
-    ${note1}  Add pointy note  id=searchGadget  
+    ${note1}  Add pointy note  id=searchGadget
     ...  Entrez l'objet de votre recherche  position=left  color=blue  width=200
     sleep  ${N_S}
     Input text  name=SearchableText  Candidature
     Remove element  id=${note1}
 
     Wait until element is visible  css=.LSRow  20
-    ${note1}  Add pointy note  css=.LSRow 
+    ${note1}  Add pointy note  css=.LSRow
     ...  La recherche globale trouve toutes les fiches contenant les termes recherchés  position=left  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  css=.LSRow 
+    ${note1}  Add pointy note  css=.LSRow
     ...  Cliquez dessus pour y accéder  position=left  color=blue  width=300
     sleep  ${S_S}
     Remove element  id=${note1}
@@ -548,18 +549,18 @@ Utiliser les recherches
     Remove element  id=${note1}
 
     sleep  ${L_S}
-    
+
     GO to  ${PLONE_URL}/
     sleep  ${S_S}
 
 # Recherche contextuelle
     Sleep  ${S_S}
 
-    ${note1}  Add main note  Pour la recherche contextuelle maintenant  
+    ${note1}  Add main note  Pour la recherche contextuelle maintenant
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  
+    ${note1}  Add pointy note  id=portaltab-incoming-mail
     ...  Cliquez sur courrier entrant ou sortant  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -568,19 +569,19 @@ Utiliser les recherches
     Wait until element is visible  id=c2  20
     sleep  ${S_S}
 
-    ${note1}  Add pointy note  id=c2 
+    ${note1}  Add pointy note  id=c2
     ...  Voici le champ de recherche contextuelle  position=bottom  color=blue  width=200
     sleep  ${S_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=c2 
+    ${note1}  Add pointy note  id=c2
     ...  Il vous permet de faire une recherche sur les informations encodées dans les fiches  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
 
     Input text  id=c2  agent administratif
 
-    ${note1}  Add pointy note  id=c2_button 
+    ${note1}  Add pointy note  id=c2_button
     ...  Cliquez sur la loupe de recherche  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -591,7 +592,7 @@ Utiliser les recherches
     Click element  c2_button
     sleep  ${S_S}
 
-    ${note1}  Add pointy note  css=.pretty_link 
+    ${note1}  Add pointy note  css=.pretty_link
     ...  Il trouve bien la fiche recherchée  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -618,7 +619,7 @@ Gérer les modèles
 
 
 CS nouveau
-# partie 2.3.2 Nouveau courrier sortant 
+# partie 2.3.2 Nouveau courrier sortant
     [TAGS]  RUN
     Enable autologin as  agent
     Go to  ${PLONE_URL}/outgoing-mail
