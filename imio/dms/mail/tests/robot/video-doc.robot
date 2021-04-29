@@ -337,6 +337,142 @@ Ajouter un contact
 
 Ajouter une annexe
 # partie guide utilisation : Ajouter une annexe
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID1}  description  Candidature spontanée  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Set field value  ${UID1}  original_mail_date  20170314  date
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID1}  propose_to_agent
+    Fire transition  ${UID}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+# start video
+    pause
+    GO to  ${PLONE_URL}/
+#Ajouter une annexe
+    ${note1}  Add main note  Bonjour et bienvenue dans ce tutorial sur: Comment ajouter une annexe dans iA.Docs
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=portal-globalnav
+    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=portal-globalnav
+    ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Pour la démonstration, nous allons faire la démarche à partir de courrier entrant.
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Mais nous aurions tout aussi bien pu la faire en partant de courrier sortant.
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=portaltab-incoming-mail
+    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    GO to  ${PLONE_URL}/incoming-mail
+
+    # View courrier entrant
+    ${note1}  Add main note  Vous voici sur la page des courriers entrants
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Wait until element is visible  css=.pretty_link a:first-child  10
+    ${note1}  Add pointy note  css=.pretty_link a:first-child
+    ...  Choisissez le courrier entrant sur lequel vous voulez ajouter une annexe  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    sleep  ${S_S}
+
+    # View courrier sélectionné
+    ${note1}  Add pointy note  css=tr td:nth-child(5)
+    ...  Ajoutez une annexe  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    # Informations de la tâche
+    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/++add++dmsappendixfile
+
+    ${note1}  Add pointy note  css=#form-widgets-IBasic-title  Ajoutez le titre de l'annexe  position=left  color=blue
+    sleep  ${S_S}
+    Remove element  id=${note1}
+
+    Input text  id=form-widgets-IBasic-title  Annexe au dossier de Mr. Dupont Jean-Marc
+
+    ${note1}  Add pointy note  css=#form-widgets-file-input  Ajoutez votre fichier à annexer  position=left  color=blue
+    sleep  ${S_S}
+    Remove element  id=${note1}
+
+    Choose File  id=form-widgets-file-input  /srv/instances/docSprint/img/2-1-acces-a-lapplication.png
+
+    ${note1}  Add pointy note  css=#form-buttons-save  Sauvegardez  position=left  color=blue
+    sleep  ${S_S}
+    Remove element  id=${note1}
+
+    Click element  form-buttons-save
+
+    ${note1}  Add main note  Vous voici à présent sur la page de votre annexe
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Pour vérifier que votre annexe est bien liée à une fiche courrier entrant
+    Sleep  ${S_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=portaltab-incoming-mail
+    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
+    sleep  ${S_S}
+    Remove element  id=${note1}
+
+    GO to  ${PLONE_URL}/incoming-mail
+
+    ${note1}  Add main note  Vous voici sur la page des courriers entrants
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Wait until element is visible  css=.pretty_link a:first-child  10
+    ${note1}  Add pointy note  css=.pretty_link a:first-child
+    ...  Choisissez le courrier entrant sur lequel vous avez ajouté votre annexe  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    sleep  ${S_S}
+
+    ${note1}  Add pointy note  css=#content fieldset .even .version-link:not(.selected)
+    ...  Votre annexe a bien été ajoutée à la fiche courrier  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Pause
+
 
 
 Ajouter une tâche
@@ -401,6 +537,7 @@ Ajouter une tâche
 
     GO to  ${PLONE_URL}/incoming-mail
 
+    # View courrier entrant
     ${note1}  Add main note  Vous voici sur la page des courriers entrants
     Sleep  ${N_S}
     Remove element  id=${note1}
@@ -420,6 +557,7 @@ Ajouter une tâche
     sleep  ${N_S}
     Remove element  id=${note1}
 
+    # Informations de la tâche
     GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/++add++task
     ${note1}  Add pointy note  css=#form-widgets-title  Ajoutez le titre de la tâche  position=left  color=blue
     sleep  ${S_S}
@@ -446,12 +584,14 @@ Ajouter une tâche
     Click element  form-buttons-save
     sleep  ${S_S}
 
+    # Fin création de la tâche
     ${note1}  Add pointy note  css=.portalMessage.info.success  Votre tâche a bien été créée  position=bottom  color=blue
     sleep  ${N_S}
     Remove element  id=${note1}
 
     GO to  ${PLONE_URL}/
 
+    # View tâches
     ${note1}  Add pointy note  id=portaltab-tasks  Vérifions si la tâche est bien assignée à Fred Agent  position=bottom  color=blue
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -510,6 +650,7 @@ Utiliser les recherches
     sleep  ${N_S}
     Remove element  id=${note1}
 
+    # Champ recherche fulltext
     ${note1}  Add pointy note  id=livesearch0
     ...  Voici le champ de recherche globale  position=bottom  color=blue  width=200
     sleep  ${S_S}
@@ -523,6 +664,7 @@ Utiliser les recherches
     Click element  livesearch0
     sleep  ${S_S}
 
+    # Input text
     ${note1}  Add pointy note  id=searchGadget
     ...  Entrez l'objet de votre recherche  position=left  color=blue  width=200
     sleep  ${N_S}
@@ -543,6 +685,7 @@ Utiliser les recherches
     Click element  css=.LSRow
     sleep  ${N_S}
 
+    # View fiche courrier
     ${note1}  Add pointy note  css=.pretty_link_content
     ...  Voilà, vous êtes bien sur la fiche courrier recherchée  position=bottom  color=blue  width=300
     sleep  ${N_S}
@@ -565,6 +708,7 @@ Utiliser les recherches
     sleep  ${N_S}
     Remove element  id=${note1}
 
+    #View courrier entrant
     GO to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  id=c2  20
     sleep  ${S_S}
@@ -592,6 +736,7 @@ Utiliser les recherches
     Click element  c2_button
     sleep  ${S_S}
 
+    # Fiche trouvée
     ${note1}  Add pointy note  css=.pretty_link
     ...  Il trouve bien la fiche recherchée  position=bottom  color=blue  width=200
     sleep  ${N_S}
