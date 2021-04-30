@@ -65,6 +65,7 @@ Naviguer
     ${note1}  Add pointy note  id=portaltab-incoming-mail  Afficher le courrier entrant.  position=bottom  color=blue
     sleep  ${N_S}
     Remove element  id=${note1}
+    Add clic  id=portaltab-incoming-mail
 # interface courrier entrant
     Click element  id=portaltab-incoming-mail
     Highlight  css=.portlet.portletWidgetCollection
@@ -89,31 +90,31 @@ Naviguer
     Remove element  id=${note2}
 
     Highlight  css=.th_header_actions
-    ${note2}  Add pointy note  css=.th_header_actions  La colonne Actions permet un accès rapide aux actions d'une fiche courrier.  position=top  color=blue
+    ${note2}  Add pointy note  css=.th_header_actions  La colonne "Actions" permet un accès rapide aux actions d'une fiche courrier.  position=top  color=blue
     sleep  ${N_S}
     Clear Highlight  css=.th_header_actions
     Remove element  id=${note2}
 
     Highlight  id=batch-actions
-    ${note2}  Add pointy note  id=batch-actions  Les Actions par lot effectuent des actions sur tous les courriers sélectionnés au préalable.  position=top  color=blue
-    sleep  ${N_S}
+    ${note2}  Add pointy note  id=batch-actions  Les actions par lot effectuent des actions sur tous les courriers sélectionnés dans la première colonne au préalable.  position=top  color=blue
+    sleep  ${L_S}
     Clear Highlight  id=batch-actions
     Remove element  id=${note2}
 
     Highlight  id=faceted-center-column
-    ${note2}  Add pointy note  id=faceted-center-column  La zone de recherche permet de retrouver les courriers sur base des informations clés  position=bottom  color=blue
+    ${note2}  Add pointy note  id=faceted-center-column  La zone de recherche permet de retrouver les courriers du tableau de bord.  position=bottom  color=blue
     sleep  ${N_S}
     Clear Highlight  id=faceted-center-column
     Remove element  id=${note2}
 
     Highlight  css=.LSBox
-    ${note2}  Add pointy note  css=.LSBox  Une deuxième recherche permet de rechercher dans le texte océrisé des courriers  position=bottom  color=blue
+    ${note2}  Add pointy note  css=.LSBox  Une recherche plus globale permet de rechercher dans le texte océrisé des courriers.  position=bottom  color=blue
     sleep  ${N_S}
     Clear Highlight  css=.LSBox
     Remove element  id=${note2}
 
-    ${note1}  Add main note  Les recherches sont expliquées en détail dans une vidéo suivante
-    sleep  ${N_S}
+    ${note1}  Add main note  Les recherches sont expliquées plus en détail dans le guide "Comment utiliser les recherches".
+    sleep  ${L_S}
     Remove element  id=${note1}
 
     Highlight  id=breadcrumbs-you-are-here
