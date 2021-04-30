@@ -196,7 +196,7 @@ Traiter un courrier
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  css=#labeling-viewlet ul
-    ...  Des boutons permettant d’associer un libellé: « lu » (pour les courriers en copie), « suivi » (pour suivre des courriers).  position=left  color=blue  width=200
+    ...  Des boutons permettant d’associer un libellé: "lu" (pour les courriers en copie), "suivi" (pour suivre des courriers).  position=left  color=blue  width=200
     sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -277,7 +277,7 @@ Traiter un courrier
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  id=form-buttons-cancel
-    ...  Il faut sauvegarder (si des modifications ont été apportées) ou annuler pour sortir du mode « édition ».  position=right  color=blue  width=300
+    ...  Il faut sauvegarder (si des modifications ont été apportées) ou annuler pour sortir du mode "édition".  position=right  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
     Add clic  id=form-buttons-cancel
@@ -291,7 +291,7 @@ Traiter un courrier
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    ${main1}  Add main note  Les états d'un courrier entrant sont par exemple: « En création », « À valider par le N+1 », « À traiter », « En traitement » et « Clôturé ».
+    ${main1}  Add main note  Les états d'un courrier entrant sont par exemple: "En création", "À valider par le N+1" (ici nommé chef de service), "À traiter", "En traitement" et "Clôturé".
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -305,7 +305,7 @@ Traiter un courrier
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${main1}  Add main note  Les droits de l'utilisateur varient d'un état à l'autre. Par exemple, un agent ne pourra plus modifier un courrier quand il est dans l'état « Clôturé ».
+    ${main1}  Add main note  Les droits de l'utilisateur varient d'un état à l'autre. Par exemple, un agent ne pourra plus modifier un courrier quand il est dans l'état "Clôturé".
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -367,7 +367,7 @@ Traiter un courrier
     Click element  css=div.overlay-history div.close
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(3)
-    ...  Si on clique à nouveau sur « Traiter ».  position=top  color=blue  width=300
+    ...  Si on clique à nouveau sur "Traiter".  position=top  color=blue  width=300
     sleep  ${N_S}
     Add clic  css=table.actionspanel-no-style-table td:nth-child(3)
     Remove element  id=${note1}
@@ -416,10 +416,14 @@ Répondre à un courrier
     Wait until element is visible  css=.DV-pageImage  10
 
 # start video
-#    pause
+    pause
 # visualisation répondre
 
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Considérant qu'on est sur la vue d'un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -456,6 +460,7 @@ Répondre à un courrier
     Remove element  id=${note1}
 
     ScrollDown
+    sleep  ${N_S}
 
     ${note1}  Add pointy note  id=form-buttons-cancel
     ...  Il faut sauvegarder pour confirmer la réponse.  position=right  color=blue  width=300
@@ -488,7 +493,21 @@ Répondre à un courrier
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    debug
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(2)
+    ...  Si le service a un N+1, il est possible de lui envoyer le courrier pour validation.  position=top  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(3)
+    ...  Sinon, quand il y a bien un fichier ged dans la fiche, on peut mettre le courrier à la signature manuscrite.  position=top  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(4)
+    ...  On peut également l'indiquer comme ayant été expédié.  position=top  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
     Add end message
 
 Créer un courrier sortant

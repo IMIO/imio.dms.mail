@@ -31,7 +31,7 @@ Add title
 
 Add end message
     [Documentation]  Add a note under the portal top
-    Add title  Ce tutoriel vidéo est fini ;-) Retrouvez notre documentation complète à l'adresse "docs.imio.be".
+    Add title  Ce tutoriel vidéo est fini ;-) Retrouvez notre documentation complète à l'adresse "https://docs.imio.be".
     sleep  8
 
 Add clic
