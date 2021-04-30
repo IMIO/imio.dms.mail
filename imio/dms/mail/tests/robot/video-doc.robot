@@ -284,8 +284,8 @@ Traiter un courrier
     Click element  id=form-buttons-cancel
 
 # changement état
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
+#    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+#    Wait until element is visible  css=.DV-pageImage  10
 
     ${main1}  Add main note  Le cycle de vie d’un élément (courrier, tâche) est constitué de différents états par lesquels l’élément transite depuis sa création, jusqu’à sa clôture.
     sleep  ${L_S}
@@ -424,7 +424,7 @@ Répondre à un courrier
     Remove element  id=${main1}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(6)
-    ...  On va passer par le bouton "Répondre"  position=bottom  color=blue  width=200
+    ...  On va passer par le bouton "Répondre"  position=top  color=blue  width=200
     sleep  ${N_S}
     Add clic  css=table.actionspanel-no-style-table td:nth-child(6)
     Remove element  id=${note1}
@@ -435,11 +435,60 @@ Répondre à un courrier
     sleep  ${L_S}
     Remove element  id=${main1}
 
+    ${main1}  Add main note  Passons en revue quelques particularités de certains champs.
+    sleep  ${N_S}
+    Remove element  id=${main1}
+
     ${note1}  Add pointy note  id=formfield-form-widgets-IDublinCore-title
-    ...  Le titre peut être préfixé par une valeur configurée (ici "Réponse: ").  position=top  color=blue  width=500
+    ...  Le titre peut être préfixé par une valeur configurée (ici "Réponse: ").  position=right  color=blue  width=600
     sleep  ${N_S}
     Remove element  id=${note1}
 
+    ${note1}  Add pointy note  id=formfield-form-widgets-sender
+    ...  L'expéditeur est déduit de l'utilisateur connecté. Il correspondra aux données d'expédition renseignées dans le courrier généré ou l'email.  position=right  color=blue  width=800
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-send_modes
+    ...  Le champ "Formes d'envoi" est important car il va déterminer la méthode d'envoi du courrier. Si une valeur avec email est sélectionnée, alors des boutons complémentaires vont apparaître pour gérer l'email. Cet aspect est expliqué dans le guide "Envoi d'un email sortant".  position=right  color=blue  width=1000
+    sleep  ${N_S}
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ScrollDown
+
+    ${note1}  Add pointy note  id=form-buttons-cancel
+    ...  Il faut sauvegarder pour confirmer la réponse.  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  id=form-buttons-save
+    Click element  id=form-buttons-save
+    Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
+
+    ${main1}  Add main note  Une fiche "courrier sortant" a été créée, dans l'état initial "en création".
+    sleep  ${N_S}
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=div.faceted-tagscloud-collection-widget-portlet li:nth-child(9)
+    ...  Les états possibles pour le courrier sortant sont montrés dans les recherches commençant par "État".  position=top  color=blue  width=250
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
+    ...  On va pouvoir générer un document bureautique depuis un modèle. Cet aspect est expliqué plus en détails dans le guide "Créer un document bureautique...".  position=top  color=blue  width=600
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
+
+    ${main1}  Add main note  Une fois le document ajouté, la fiche se présente comme ci-dessous.
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    debug
     Add end message
 
 Créer un courrier sortant
