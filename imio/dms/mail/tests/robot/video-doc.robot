@@ -340,9 +340,14 @@ Répondre à un courrier
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/to_treat
+
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+
 # start video
 #    pause
 # visualisation répondre
+
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -404,13 +409,13 @@ Ajouter une annexe
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/to_treat
-# start video
-    pause
-# Ajouter une annexe
+
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-
+# start video
+    pause
+# Ajouter une annexe
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe...
     Sleep  ${L_S}
     Remove element  id=${note1}
