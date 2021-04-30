@@ -106,8 +106,7 @@ Naviguer
     Clear Highlight  id=breadcrumbs-you-are-here
     Remove element  id=${note2}
 
-    Add title  Ce tutoriel vidéo est fini ;-)
-    sleep  ${L_S}
+    Add end message
 
 Traiter un courrier
 # setup
@@ -380,8 +379,7 @@ Traiter un courrier
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    Add title  Ce tutoriel vidéo est fini ;-)
-    sleep  ${L_S}
+    Add end message
 
 Répondre à un courrier
 # setup
@@ -442,7 +440,7 @@ Répondre à un courrier
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    debug
+    Add end message
 
 Créer un courrier sortant
 # partie guide utilisation : Créer un courrier sortant
@@ -603,8 +601,7 @@ Ajouter une annexe
 
     ScrollUp
 
-    Add title  Ce tutoriel vidéo est fini ;-)
-    sleep  ${L_S}
+    Add end message
 
 Ajouter une tâche
 # partie guide utilisation : Ajouter une tâche
@@ -734,6 +731,8 @@ Ajouter une tâche
     sleep  ${N_S}
     Remove element  id=${note1}
 
+    Add end message
+
 Utiliser les recherches
 # partie guide utilisation : Utiliser les recherches
 # setup
@@ -827,6 +826,8 @@ Utiliser les recherches
     GO to  ${PLONE_URL}/
     sleep  ${S_S}
 
+    Add end message
+
 # Recherche contextuelle
     Sleep  ${S_S}
 
@@ -888,7 +889,7 @@ Utiliser les recherches
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    sleep  ${L_S}
+    Add end message
 
 Gérer les modèles
 # partie guide utilisation : Gérer les modèles
@@ -938,6 +939,8 @@ CS nouveau
     Remove element  id=${note1}
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-2-visualisation.png  css=table.actionspanel-no-style-table  id=fieldset-versions
     Pause
+
+    Add end message
 
 *** Keywords ***
 Suite Setup

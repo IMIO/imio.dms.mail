@@ -29,6 +29,11 @@ Add title
     ${id}  Add note  id=portal-top  ${text}  position=bottom  background=#de007b  color=white  width=400  border=groove
     [return]  ${id}
 
+Add end message
+    [Documentation]  Add a note under the portal top
+    Add title  Ce tutoriel vidéo est fini ;-) Retrouvez notre documentation complète à l'adresse "docs.imio.be".
+    sleep  8
+
 Add clic
     [Documentation]  Add a pointer clic on given locator
     [Arguments]  ${locator}
