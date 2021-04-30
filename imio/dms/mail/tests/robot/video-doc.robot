@@ -32,85 +32,82 @@ Naviguer
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
-    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
-    Set field value  ${UID1}  description  Candidature spontanée  str
-    Set field value  ${UID1}  sender  ['${SENDER}']  references
-    Set field value  ${UID1}  treating_groups  ${GRH}  str
-    Set field value  ${UID1}  assigned_user  agent  str
-    Set field value  ${UID1}  original_mail_date  20170314  date
-    Fire transition  ${UID1}  propose_to_n_plus_1
-    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
     Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
     Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Fire transition  ${UID1}  propose_to_n_plus_1
     Enable autologin as  dirg
-    Fire transition  ${UID1}  propose_to_agent
     Fire transition  ${UID}  propose_to_agent
+    Fire transition  ${UID1}  propose_to_agent
     Enable autologin as  agent
-    Go to  ${PLONE_URL}/incoming-mail
-    Wait until element is visible  css=.faceted-table-results  10
-    Select collection  incoming-mail/mail-searches/to_treat
+
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/
 # start video
     Pause
 # bandeau principal
-    ${main1}  Add title  iA.docs : Naviguer dans l'interface
+    ${main1}  Add title  Tutoriel vidéo iA.docs : Naviguer dans l'interface...
     sleep  ${N_S}
     Remove element  ${main1}
     Highlight  id=portal-globalnav
-    ${note1}  Add main note  Le bandeau principal permet un accès rapide aux fonctionnalités : entrant, sortant, gestion des tâches, annuaire de contact et gestion des modèles sortants
+    ${note1}  Add main note  Le bandeau principal permet un accès rapide aux fonctionnalités : entrant, sortant, gestion des tâches, annuaire de contact et gestion des modèles sortants.
     sleep  ${L_S}
     Remove element  id=${note1}
     Clear Highlight  id=portal-globalnav
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  Afficher le courrier entrant  position=bottom  color=blue
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  Afficher le courrier entrant.  position=bottom  color=blue
     sleep  ${N_S}
     Remove element  id=${note1}
 # interface courrier entrant
     Click element  id=portaltab-incoming-mail
     Highlight  css=.portlet.portletWidgetCollection
-    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Les tableaux de bords affichent les courriers par catégorie  position=right  color=blue
+    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Les tableaux de bords affichent les courriers par catégorie.  position=right  color=blue
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Il est possible de filtrer sur les courriers à traiter, en cours, dans le service, en copie, ...  position=right  color=blue
+    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Il est possible de filtrer sur les courriers à traiter, en cours, dans le service, en copie, etc.  position=right  color=blue
     sleep  ${N_S}
     Remove element  id=${note1}
     Clear Highlight  css=.portlet.portletWidgetCollection
     Highlight  id=faceted_table
-    ${note2}  Add pointy note  id=faceted_table  Les courriers sont affichés ligne par ligne, avec les informations clés  position=top  color=blue
+    ${note2}  Add pointy note  id=faceted_table  Les courriers sont affichés ligne par ligne, avec les informations clés.  position=top  color=blue
     sleep  ${N_S}
     Clear Highlight  id=faceted_table
     Remove element  id=${note2}
 
     Highlight  css=.th_header_due_date
-    ${note2}  Add pointy note  css=.th_header_due_date  Il est possible de trier par colonne, par exemple avec la date d'échéance  position=top  color=blue
+    ${note2}  Add pointy note  css=.th_header_due_date  Il est possible de trier par colonne, par exemple avec la date d'échéance.  position=top  color=blue
     sleep  ${N_S}
     Clear Highlight  css=.th_header_due_date
     Remove element  id=${note2}
 
     Highlight  css=.th_header_actions
-    ${note2}  Add pointy note  css=.th_header_actions  La colonne Actions permet un accès rapide aux actions d'une fiche courrier  position=top  color=blue
+    ${note2}  Add pointy note  css=.th_header_actions  La colonne Actions permet un accès rapide aux actions d'une fiche courrier.  position=top  color=blue
     sleep  ${N_S}
     Clear Highlight  css=.th_header_actions
     Remove element  id=${note2}
 
     Highlight  id=batch-actions
-    ${note2}  Add pointy note  id=batch-actions  Les Actions par lot effectuent des actions sur tous les courriers sélectionnés au préalable  position=top  color=blue
+    ${note2}  Add pointy note  id=batch-actions  Les Actions par lot effectuent des actions sur tous les courriers sélectionnés au préalable.  position=top  color=blue
     sleep  ${N_S}
-    Pause
     Clear Highlight  id=batch-actions
     Remove element  id=${note2}
 
     Highlight  id=breadcrumbs-you-are-here
-    ${note2}  Add pointy note  id=breadcrumbs-you-are-here  Le fil d'ariane permet de se situer et de revenir au niveau du dessus à tout moment  position=bottom  color=blue
+    ${note2}  Add pointy note  id=breadcrumbs-you-are-here  Le fil d'ariane permet de se situer et de revenir au niveau du dessus à tout moment.  position=bottom  color=blue
     sleep  ${N_S}
     Clear Highlight  id=breadcrumbs-you-are-here
     Remove element  id=${note2}
 
     Add title  Ce tutoriel vidéo est fini ;-)
     sleep  ${L_S}
-    Pause
 
 Traiter un courrier
 # setup
@@ -416,6 +413,7 @@ Répondre à un courrier
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/to_treat
 
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
@@ -427,11 +425,23 @@ Répondre à un courrier
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-    ${main1}  Add main note  Lorsqu'on visualise un courrier, on peut trouver, dans la partie principale de la page, les éléments suivants (en partant de haut en bas).
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(6)
+    ...  On va passer par le bouton "Répondre"  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(6)
+    Remove element  id=${note1}
+    Click element  css=table.actionspanel-no-style-table td:nth-child(6)
+    Wait until element is visible  css:body.template-reply #formfield-form-widgets-external_reference_no  10
+
+    ${main1}  Add main note  Le formulaire proposé est complété par défaut avec les données du courrier entrant. Tous les champs peuvent cependant être modifiés.
     sleep  ${L_S}
     Remove element  id=${main1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-IDublinCore-title
+    ...  Le titre peut être préfixé par une valeur configurée (ici "Réponse: ").  position=top  color=blue  width=500
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
     debug
 
 Créer un courrier sortant
