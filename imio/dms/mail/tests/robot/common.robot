@@ -37,6 +37,7 @@ Add end message
 Add clic
     [Documentation]  Add a pointer clic on given locator
     [Arguments]  ${locator}
-    ${pt1}  Add pointer  ${locator}
+    ${pt1}  Add dot  ${locator}  background=#de007b  size=15
     sleep  1.5
     Remove element  id=${pt1}
+    # 4dfc02 green

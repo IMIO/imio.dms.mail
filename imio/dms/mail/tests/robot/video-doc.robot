@@ -433,8 +433,7 @@ Répondre à un courrier
 
 # start video
     pause
-# visualisation répondre
-
+# répondre
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -486,6 +485,7 @@ Répondre à un courrier
     Click element  id=form-buttons-save
     Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
 
+# fiche créée
     ${main1}  Add main note  Une fiche "courrier sortant" a été créée, dans l'état initial "en création".
     sleep  ${N_S}
     sleep  ${L_S}
