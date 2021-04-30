@@ -22,7 +22,6 @@ ${W_HEIGHT} =  1050  # height 1920 2880 720
 *** Test Cases ***
 
 Naviguer
-# partie guide utilisation : naviguer dans l'interface
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
@@ -678,52 +677,12 @@ Ajouter une annexe
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-#    ${note1}  Add pointy note  id=portal-globalnav
-#    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
-#    sleep  ${N_S}
-#    Remove element  id=${note1}
-#
-#    ${note1}  Add pointy note  id=portal-globalnav
-#    ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
-#    sleep  ${N_S}
-#    Remove element  id=${note1}
-#
-#    ${note1}  Add main note  Pour la démonstration, nous allons faire la démarche à partir de courrier entrant.
-#    Sleep  ${L_S}
-#    Remove element  id=${note1}
-#
-#    ${note1}  Add main note  Mais nous aurions tout aussi bien pu la faire en partant de courrier sortant.
-#    Sleep  ${L_S}
-#    Remove element  id=${note1}
-#
-#    ${note1}  Add pointy note  id=portaltab-incoming-mail
-#    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
-#    sleep  ${N_S}
-#    Remove element  id=${note1}
-#
-#    GO to  ${PLONE_URL}/incoming-mail
-#
-#    # View courrier entrant
-#    ${note1}  Add main note  Vous voici sur la page des courriers entrants
-#    Sleep  ${N_S}
-#    Remove element  id=${note1}
-#
-#    Wait until element is visible  css=.pretty_link a:first-child  10
-#    ${note1}  Add pointy note  css=.pretty_link a:first-child
-#    ...  Choisissez le courrier entrant sur lequel vous voulez ajouter une annexe  position=bottom  color=blue  width=300
-#    sleep  ${N_S}
-#    Remove element  id=${note1}
-#
-#    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-#    sleep  ${S_S}
-
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
     ...  On va passer par le menu "Ajouter"  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Add clic  css=table.actionspanel-no-style-table td:nth-child(5)
     Remove element  id=${note1}
     Click element  css=table.actionspanel-no-style-table td:nth-child(5)
-    sleep  ${N_S}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
     ...  Et ensuite sélectionner "Annexe"  position=left  color=blue  width=200
@@ -775,131 +734,152 @@ Ajouter une annexe
     Add end message
 
 Ajouter une tâche
-# partie guide utilisation : Ajouter une tâche
+# ATTENTION: le pointeur souris doit être hors de la fenêtre !!
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
-    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
-    Set field value  ${UID1}  description  Candidature spontanée  str
-    Set field value  ${UID1}  sender  ['${SENDER}']  references
-    Set field value  ${UID1}  treating_groups  ${GRH}  str
-    Set field value  ${UID1}  assigned_user  agent  str
-    Set field value  ${UID1}  original_mail_date  20170314  date
-    Fire transition  ${UID1}  propose_to_n_plus_1
-    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
     Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
     Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Fire transition  ${UID1}  propose_to_n_plus_1
     Enable autologin as  dirg
-    Fire transition  ${UID1}  propose_to_agent
     Fire transition  ${UID}  propose_to_agent
+    Fire transition  ${UID1}  propose_to_agent
     Enable autologin as  agent
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/to_treat
-# start video
+
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    # start video
     pause
-    GO to  ${PLONE_URL}/
-# Ajouter une tache
-    ${note1}  Add main note  Bonjour et bienvenue dans ce tutorial sur: Comment ajouter une tâche dans iA.Docs
-    Sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add pointy note  id=portal-globalnav
-    ...  Ceci est le bandeau des fonctionnalités  position=bottom  color=blue  width=200
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add pointy note  id=portal-globalnav
-    ...  C'est par ici que vous accédez aux différentes parties d'iA.Docs  position=bottom  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add main note  Pour la démonstration, nous allons faire la démarche à partir de courrier entrant.
+    # Ajouter une tache
+    ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une tâche...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add main note  Mais nous aurions tout aussi bien pu la faire en partant de courrier sortant.
+    ${note1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une tâche elle-même.
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  id=portaltab-incoming-mail
-    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
+    ...  On va passer par le menu "Ajouter"  position=bottom  color=blue  width=200
     sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(5)
     Remove element  id=${note1}
+    Click element  css=table.actionspanel-no-style-table td:nth-child(5)
 
-    GO to  ${PLONE_URL}/incoming-mail
-
-    # View courrier entrant
-    ${note1}  Add main note  Vous voici sur la page des courriers entrants
-    Sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Wait until element is visible  css=.pretty_link a:first-child  10
-    ${note1}  Add pointy note  css=.pretty_link a:first-child
-    ...  Choisissez le courrier entrant sur lequel vous voulez ajouter une tâche  position=bottom  color=blue  width=300
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
+    ...  Et ensuite sélectionner "Tâche"  position=left  color=blue  width=200
     sleep  ${N_S}
+
+    # Vue d'ajout
+    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail/++add++task
+    Wait until element is visible  css=body.template-task #formfield-form-widgets-ITask-enquirer  10
+
+    ${note1}  Add main note  On peut compléter le formulaire. Les champs marqués d'un carré rouge sont obligatoires.
+    Sleep  ${L_S}
     Remove element  id=${note1}
 
-    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
-    sleep  ${S_S}
+    Input text  id=form-widgets-title  Ajouter la candidature dans la base de recrutement
+    sleep  1
 
-    # Sélectionner l'entrée "tâche"
-    ${note1}  Add pointy note  css=tr td:nth-child(5)
-    ...  Ajoutez une tâche  position=bottom  color=blue  width=200
-    sleep  ${N_S}
+    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_group  Par défaut, le "groupe assigné" est le même que celui du parent (courrier ou tâche). Il est évidemment possible d'assigner une tâche à un autre service.  position=right  color=blue  width=500
+    sleep  ${L_S}
     Remove element  id=${note1}
+    # Select From List By Index  id=form-widgets-ITask-assigned_group  2
 
-    # Informations de la tâche
-    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/++add++task
-    ${note1}  Add pointy note  css=#form-widgets-title  Ajoutez le titre de la tâche  position=left  color=blue
-    sleep  ${S_S}
-    Remove element  id=${note1}
-
-    Input text  id=form-widgets-title  A faire: Tâche très importante
-
-    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_group  Choisissez un service  position=left  color=blue
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Select From List By Index  id=form-widgets-ITask-assigned_group  2
-
-    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_user  Assignez quelqu'un comme par exemple: Fred Agent  position=left  color=blue
-    sleep  ${S_S}
+    ${note1}  Add pointy note  css=#form-widgets-ITask-assigned_user  Si on connaît l'agent traitant, on peut le choisir. Dans le cas contraire, c'est le N+1 qui attribuera (surtout si c'est un autre service).  position=right  color=blue  width=500
+    sleep  ${L_S}
     Remove element  id=${note1}
 
     Select From List By Index  id=form-widgets-ITask-assigned_user  1
 
-    ${note1}  Add pointy note  css=#form-buttons-save  Sauvegardez  position=left  color=blue
+    ${note1}  Add pointy note  id=form-buttons-cancel
+    ...  Il reste à sauvegarder.  position=right  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
-
+    Add clic  id=form-buttons-save
     Click element  form-buttons-save
+    Wait until element is visible  css=body.template-item_view #formfield-form-widgets-ITask-enquirer  10
+
+    ${note1}  Add main note  La tâche est créée dans la fiche courrier (dans notre exemple) mais pourrait l'être aussi dans une autre tâche.
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=div.viewlet_workflowstate
+    ...  L'état actuel est "En création". La tâche reste "privée" donc seulement visible par le groupe proposant actuellement.  position=left  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+
+    ${note1}  Add pointy note  css=div.faceted-tagscloud-collection-widget-portlet li:nth-child(12)
+    ...  Les états possibles pour les tâches sont montrés dans les recherches commençant par "État".  position=top  color=blue  width=250
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(2)
+    ...  On va "Mettre à faire" pour proposer la tâche.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(2)
+    Remove element  id=${note1}
+    Click element  css=table.actionspanel-no-style-table td:nth-child(2)
+
+    ${note1}  Add main note  L'état est maintenant "À faire". Si un utilisateur n'avait pas été sélectionné, l'état serait resté "À assigner" et le N+1 aurait dû intervenir. Sans N+1, la tâche arrive dans le service et les agents doivent choisir de la gérer.
+    sleep  ${N_S}
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=#portal-breadcrumbs #breadcrumbs-2
+    ...  Pour remonter au parent, on va utiliser le fil d'ariane et cliquer sur le nom du courrier  position=bottom  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Add clic  css=#portal-breadcrumbs #breadcrumbs-2
+    Click element  css=#portal-breadcrumbs #breadcrumbs-2
+    Wait until element is visible  css=.DV-pageImage  10
     sleep  ${S_S}
 
-    # Fin création de la tâche
-    ${note1}  Add pointy note  css=.portalMessage.info.success  Votre tâche a bien été créée  position=bottom  color=blue
-    sleep  ${N_S}
+    ScrollDown
+
+    ${note1}  Add pointy note  css=#viewlet-below-content-body>fieldset
+    ...  La tâche ajoutée à la fiche courrier est listée dans un tableau en bas de la fiche  position=top  color=blue  width=300
+    sleep  ${L_S}
     Remove element  id=${note1}
 
-    GO to  ${PLONE_URL}/
+    ScrollUp
+
+    ${note1}  Add main note  Si une tâche est assignée à un service qui n'avait pas encore de droit sur la fiche (pas service traitant ou pas en copie), ce service obtient automatiquement un droit de visualisation de la fiche courrier, afin de voir le contexte de traitement de sa tâche.
+    sleep  ${N_S}
+    Sleep  ${L_S}
+    Remove element  id=${note1}
 
     # View tâches
-    ${note1}  Add pointy note  id=portaltab-tasks  Vérifions si la tâche est bien assignée à Fred Agent  position=bottom  color=blue
+    ${note1}  Add pointy note  id=portaltab-tasks  Un onglet spécifique permet également de lister toutes les tâches.  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
+    Add clic  id=portaltab-tasks
+    Click element  id=portaltab-tasks
+    Wait until element is visible  css=.faceted-table-results  10
 
-    GO to  ${PLONE_URL}/tasks/task-searches
-
-    Wait until element is visible  class=td_cell_assigned_user  20
-    ${note1}  Add pointy note  css=.td_cell_assigned_user  Oui, elle lui est bien assignée  position=bottom  color=blue
+    ${note1}  Add main note  Le tableau de bord des tâches se présente comme celui des courriers entrants ou sortants. Il contient les mêmes fonctionnalités qui sont présentées dans le guide "Naviguer dans l'interface" et dans le guide "Utiliser les recherches".
     sleep  ${N_S}
+    Sleep  ${L_S}
     Remove element  id=${note1}
 
     Add end message
