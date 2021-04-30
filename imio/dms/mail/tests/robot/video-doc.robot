@@ -511,16 +511,102 @@ Répondre à un courrier
     Add end message
 
 Créer un courrier sortant
-# partie guide utilisation : Créer un courrier sortant
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID}  propose_to_agent
+    Fire transition  ${UID1}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
 
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+
+# start video
+#    pause
+# visualisation répondre
+
+    ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    debug
+    Add end message
 
 Créer un courrier bureautique
 # partie guide utilisation : Créer un courrier bureautique
 
 
-Transférer un email
-# partie guide utilisation : Transférer un email
+Transférer un email entrant
+# partie guide utilisation : Transférer un email entrant
 
+
+Envoyer un email sortant
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID}  propose_to_agent
+    Fire transition  ${UID1}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+
+# start video
+#    pause
+# visualisation répondre
+
+    ${main1}  Add title  Tutoriel vidéo iA.docs : comment envoyer un email sortant...
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    debug
+    Add end message
 
 Valider un courrier entrant
 # partie guide utilisation : Valider un courrier entrant
