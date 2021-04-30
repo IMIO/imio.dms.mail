@@ -38,7 +38,6 @@ Naviguer
     Pause
 
 Traiter un courrier
-# partie guide utilisation : traiter un courrier
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
@@ -48,21 +47,21 @@ Traiter un courrier
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
-    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
-    Set field value  ${UID1}  description  Candidature spontanée  str
-    Set field value  ${UID1}  sender  ['${SENDER}']  references
-    Set field value  ${UID1}  treating_groups  ${GRH}  str
-    Set field value  ${UID1}  assigned_user  agent  str
-    Set field value  ${UID1}  original_mail_date  20170314  date
-    Fire transition  ${UID1}  propose_to_n_plus_1
-    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
     Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
     Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Fire transition  ${UID1}  propose_to_n_plus_1
     Enable autologin as  dirg
-    Fire transition  ${UID1}  propose_to_agent
     Fire transition  ${UID}  propose_to_agent
+    Fire transition  ${UID1}  propose_to_agent
     Enable autologin as  agent
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
@@ -70,7 +69,7 @@ Traiter un courrier
 # start video
     pause
 # visualisation
-    ${main1}  Add title  iA.docs : comment traiter un courrier entrant...
+    ${main1}  Add title  Tutoriel vidéo iA.docs : comment traiter un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -78,13 +77,13 @@ Traiter un courrier
     ...  Il faut cliquer sur une recherche, afin d'afficher un tableau de résultats.  position=top  color=blue  width=250
     sleep  ${N_S}
     Remove element  id=${note1}
-    ${note1}  Add pointy note  css=table.faceted-table-results td.pretty_link
+    ${note1}  Add pointy note  css=#faceted_table tr:nth-child(2) td.pretty_link
     ...  On va cliquer sur l'intitulé d'un courrier pour l'ouvrir.  position=top  color=blue
     sleep  ${N_S}
-    Add clic  css=table.faceted-table-results td.pretty_link
+    Add clic  css=#faceted_table tr:nth-child(2) td.pretty_link
     Remove element  id=${note1}
 
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     ${main1}  Add main note  Lorsqu'on visualise un courrier, on peut trouver, dans la partie principale de la page, les éléments suivants (en partant de haut en bas).
     sleep  ${L_S}
@@ -163,7 +162,7 @@ Traiter un courrier
     Remove element  id=${note1}
 
 # modification
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/edit
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Wait until element is visible  css=.DV-pageImage  10
 
 #    ${main1}  Add main note  Lorsqu'on modifie un courrier, on peut changer certains champs de la fiche.
@@ -214,7 +213,7 @@ Traiter un courrier
     Click element  id=form-buttons-cancel
 
 # changement état
-    # Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
     ${main1}  Add main note  Le cycle de vie d’un élément (courrier, tâche) est constitué de différents états par lesquels l’élément transite depuis sa création, jusqu’à sa clôture.
@@ -249,8 +248,8 @@ Traiter un courrier
     Add clic  css=table.actionspanel-no-style-table td:nth-child(3)
     Remove element  id=${note1}
 
-    Fire transition  ${UID1}  treat
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Fire transition  ${UID}  treat
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
     ${note1}  Add pointy note  css=div.viewlet_workflowstate
@@ -273,6 +272,7 @@ Traiter un courrier
     Input text  name=comment  Je vais et je viens...
     Sleep  ${S_S}
     Click element  css=#confirmTransitionForm input:nth-child(1)
+    Wait until element is visible  css=.DV-pageImage  10
 
     ${note1}  Add pointy note  css=#parent-fieldname-title span.pretty_link_icons img:nth-child(1)
     ...  Une icône spécifique indique ce retour en arrière.  position=top  color=blue  width=300
@@ -312,8 +312,47 @@ Traiter un courrier
     sleep  ${L_S}
 
 Répondre à un courrier
-# partie guide utilisation : Répondre à un courrier
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID}  propose_to_agent
+    Fire transition  ${UID1}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+# start video
+#    pause
+# visualisation répondre
+    ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
+    sleep  ${L_S}
+    Remove element  id=${main1}
 
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Wait until element is visible  css=.DV-pageImage  10
+    ${main1}  Add main note  Lorsqu'on visualise un courrier, on peut trouver, dans la partie principale de la page, les éléments suivants (en partant de haut en bas).
+    sleep  ${L_S}
+    Remove element  id=${main1}
+    debug
 
 Créer un courrier sortant
 # partie guide utilisation : Créer un courrier sortant
@@ -368,10 +407,10 @@ Ajouter une annexe
     pause
 # Ajouter une annexe
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
-    ${note1}  Add title  iA.docs : comment ajouter une annexe...
+    ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -415,7 +454,7 @@ Ajouter une annexe
 #    sleep  ${N_S}
 #    Remove element  id=${note1}
 #
-#    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+#    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail
 #    sleep  ${S_S}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
@@ -431,7 +470,7 @@ Ajouter une annexe
     sleep  ${N_S}
 
     # Vue d'ajout
-    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1/++add++dmsappendixfile
+    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail/++add++dmsappendixfile
 
     ${note1}  Add pointy note  css=#form-widgets-IBasic-title  Ajoutez le titre de l'annexe  position=left  color=blue
     sleep  ${S_S}
