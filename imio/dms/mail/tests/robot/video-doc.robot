@@ -23,18 +23,93 @@ ${W_HEIGHT} =  1050  # height 1920 2880 720
 
 Naviguer
 # partie guide utilisation : naviguer dans l'interface
-    [TAGS]  RUN
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID1}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID1}  description  Candidature spontanée  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Set field value  ${UID1}  original_mail_date  20170314  date
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Set field value  ${UID}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID1}  propose_to_agent
+    Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
-    ${note1}  Add pointy note  id=portaltab-tasks  Bandeau principal des fonctionnalités  position=bottom  color=blue
-    Sleep  3
-    Remove element  id=${note1}
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  Cliquer pour rentrer dans le courrier entrant  position=bottom  color=blue
-    Sleep  3
-    Remove element  id=${note1}
     Go to  ${PLONE_URL}/incoming-mail
-    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Tableaux de bords  position=right  color=blue
-    Sleep  3
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+    Go to  ${PLONE_URL}/
+# start video
+    Pause
+# bandeau principal
+    ${main1}  Add title  iA.docs : Naviguer dans l'interface
+    sleep  ${N_S}
+    Remove element  ${main1}
+    Highlight  id=portal-globalnav
+    ${note1}  Add main note  Le bandeau principal permet un accès rapide aux fonctionnalités : entrant, sortant, gestion des tâches, annuaire de contact et gestion des modèles sortants
+    sleep  ${L_S}
     Remove element  id=${note1}
+    Clear Highlight  id=portal-globalnav
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  Afficher le courrier entrant  position=bottom  color=blue
+    sleep  ${N_S}
+    Remove element  id=${note1}
+# interface courrier entrant
+    Click element  id=portaltab-incoming-mail
+    Highlight  css=.portlet.portletWidgetCollection
+    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Les tableaux de bords affichent les courriers par catégorie  position=right  color=blue
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Il est possible de filtrer sur les courriers à traiter, en cours, dans le service, en copie, ...  position=right  color=blue
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Clear Highlight  css=.portlet.portletWidgetCollection
+    Highlight  id=faceted_table
+    ${note2}  Add pointy note  id=faceted_table  Les courriers sont affichés ligne par ligne, avec les informations clés  position=top  color=blue
+    sleep  ${N_S}
+    Clear Highlight  id=faceted_table
+    Remove element  id=${note2}
+
+    Highlight  css=.th_header_due_date
+    ${note2}  Add pointy note  css=.th_header_due_date  Il est possible de trier par colonne, par exemple avec la date d'échéance  position=top  color=blue
+    sleep  ${N_S}
+    Clear Highlight  css=.th_header_due_date
+    Remove element  id=${note2}
+
+    Highlight  css=.th_header_actions
+    ${note2}  Add pointy note  css=.th_header_actions  La colonne Actions permet un accès rapide aux actions d'une fiche courrier  position=top  color=blue
+    sleep  ${N_S}
+    Clear Highlight  css=.th_header_actions
+    Remove element  id=${note2}
+
+    Highlight  id=batch-actions
+    ${note2}  Add pointy note  id=batch-actions  Les Actions par lot effectuent des actions sur tous les courriers sélectionnés au préalable  position=top  color=blue
+    sleep  ${N_S}
+    Pause
+    Clear Highlight  id=batch-actions
+    Remove element  id=${note2}
+
+    Highlight  id=breadcrumbs-you-are-here
+    ${note2}  Add pointy note  id=breadcrumbs-you-are-here  Le fil d'ariane permet de se situer et de revenir au niveau du dessus à tout moment  position=bottom  color=blue
+    sleep  ${N_S}
+    Clear Highlight  id=breadcrumbs-you-are-here
+    Remove element  id=${note2}
+
+    Add title  Ce tutoriel vidéo est fini ;-)
+    sleep  ${L_S}
     Pause
 
 Traiter un courrier
