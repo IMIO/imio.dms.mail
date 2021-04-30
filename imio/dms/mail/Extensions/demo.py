@@ -166,7 +166,7 @@ def import_scanned2(self, number=2):
     return portal.REQUEST.response.redirect(folder.absolute_url())
 
 
-def create_main_file(self, filename='', title='1', mainfile_type='dmsmainfile'):
+def create_main_file(self, filename='', title='1', mainfile_type='dmsmainfile', redirect='1'):
     """
         Create a main file on context
     """
@@ -180,7 +180,8 @@ def create_main_file(self, filename='', title='1', mainfile_type='dmsmainfile'):
     with open(filepath, 'rb') as fo:
         file_object = NamedBlobFile(fo.read(), filename=safe_unicode(filename))
         obj = createContentInContainer(self, mainfile_type, title=safe_unicode(title), file=file_object)
-    return obj.REQUEST.response.redirect('%s/view' % obj.absolute_url())
+    if redirect:
+        return obj.REQUEST.response.redirect('%s/view' % obj.absolute_url())
 
 
 def clean_examples(self):
