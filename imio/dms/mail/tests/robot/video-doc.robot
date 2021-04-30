@@ -100,6 +100,22 @@ Naviguer
     Clear Highlight  id=batch-actions
     Remove element  id=${note2}
 
+    Highlight  id=faceted-center-column
+    ${note2}  Add pointy note  id=faceted-center-column  La zone de recherche permet de retrouver les courriers sur base des informations clés  position=bottom  color=blue
+    sleep  ${N_S}
+    Clear Highlight  id=faceted-center-column
+    Remove element  id=${note2}
+
+    Highlight  css=.LSBox
+    ${note2}  Add pointy note  css=.LSBox  Une deuxième recherche permet de rechercher dans le texte océrisé des courriers  position=bottom  color=blue
+    sleep  ${N_S}
+    Clear Highlight  css=.LSBox
+    Remove element  id=${note2}
+
+    ${note1}  Add main note  Les recherches sont expliquées en détail dans une vidéo suivante
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
     Highlight  id=breadcrumbs-you-are-here
     ${note2}  Add pointy note  id=breadcrumbs-you-are-here  Le fil d'ariane permet de se situer et de revenir au niveau du dessus à tout moment.  position=bottom  color=blue
     sleep  ${N_S}
