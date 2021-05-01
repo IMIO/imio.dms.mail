@@ -210,6 +210,13 @@ def dmsincomingmail_transition(mail, event):
             mail.reindexObject(['assigned_user'])
 
 
+def dmsoutgoingmail_transition(mail, event):
+    """When closing an outgoing mail, add the outgoing_date if necessary."""
+    if event.transition and event.transition.id == 'mark_as_sent' and mail.outgoing_date is None:
+        mail.outgoing_date = datetime.datetime.now()
+        mail.reindexObject(idxs=('in_out_date',))
+
+
 def reference_document_removed(obj, event):
     """
         Check if there is a relation with another Document.
