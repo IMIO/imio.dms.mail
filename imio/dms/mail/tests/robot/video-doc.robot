@@ -25,7 +25,6 @@ Naviguer
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
@@ -401,7 +400,6 @@ Répondre à un courrier
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
@@ -529,49 +527,127 @@ Répondre à un courrier
 Créer un courrier sortant
 # setup
     [TAGS]  RUN1
-    Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
-    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
-    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
-    Set field value  ${UID}  description  Candidature spontanée  str
-    Set field value  ${UID}  sender  ['${SENDER}']  references
-    Set field value  ${UID}  treating_groups  ${GRH}  str
-    Set field value  ${UID}  assigned_user  agent  str
-    Set field value  ${UID}  original_mail_date  20170314  date
-    Fire transition  ${UID}  propose_to_n_plus_1
-    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
-    Set field value  ${UID1}  sender  ['${SENDER}']  references
-    Set field value  ${UID1}  treating_groups  ${GRH}  str
-    Set field value  ${UID1}  assigned_user  agent  str
-    Fire transition  ${UID1}  propose_to_n_plus_1
-    Enable autologin as  dirg
-    Fire transition  ${UID}  propose_to_agent
-    Fire transition  ${UID1}  propose_to_agent
     Enable autologin as  agent
-    Go to  ${PLONE_URL}/incoming-mail
-    Wait until element is visible  css=.faceted-table-results  10
-    Select collection  incoming-mail/mail-searches/to_treat
-
-    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-
-# start video
-#    pause
-# visualisation répondre
-
-    ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    Go to  ${PLONE_URL}/outgoing-mail
+    Wait until element is visible  css=div.table_faceted_results  10
+    # start video
+    pause
+    # créer cs
+    ${main1}  Add title  Tutoriel vidéo iA.docs : comment créer un courrier sortant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    debug
+    ${main1}  Add main note  Considérant qu'on est dans l'onglet "courrier sortant"...
+    sleep  ${N_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  id=newOMCreation
+    ...  On peut créer un nouveau courrier sortant en cliquant sur cette icône.  position=right  color=blue  width=300
+    sleep  ${L_S}
+    Add clic  id=newOMCreation
+    Remove element  id=${note1}
+    Click element  id=newOMCreation
+    Wait until element is visible  css=.template-dmsoutgoingmail #formfield-form-widgets-sender  10
+
+    Input text  name=form.widgets.IDublinCore.title  Annonce de la réfection des trottoirs Rue des Papillons
+    sleep  ${S_S}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-recipients
+    ...  On peut chercher un contact dans l'annuaire en tapant le début des mots composant son titre. Si le bon contact n'est pas trouvé, il est possible de le rajouter. Cet aspect est expliqué plus en détails dans le guide "Ajouter un contact...".  position=right  color=blue  width=1000
+    sleep  ${S_S}
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Input text  name=form.widgets.recipients.widgets.query  leduc
+    Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
+    sleep  ${N_S}
+    Click element  css=.ac_results:not([style*="display: none"]) li
+    sleep  ${S_S}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-treating_groups
+    ...  Le service traitant est le service de gestion du courrier.  position=right  color=blue  width=800
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Click element  id=form-widgets-treating_groups
+    Select From List By Index  id=form-widgets-treating_groups  6
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-ITask-assigned_user
+    ...  Seuls les utilisateurs du service traitant choisi sont considérés. L'utilisateur courant est présélectionné.  position=right  color=blue  width=800
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-sender
+    ...  L'expéditeur est déduit de l'utilisateur connecté. Il correspondra aux données d'expédition renseignées dans le courrier généré ou l'email.  position=right  color=blue  width=800
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Click element  id=form_widgets_sender_select_chzn
+    sleep  ${S_S}
+    Input text  css=.chzn-search input  voiries
+    sleep  ${S_S}
+    Click element  css=#form_widgets_sender_select_chzn ul.chzn-results li[class=active-result]
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-send_modes
+    ...  Le champ "Formes d'envoi" est important car il va déterminer la méthode d'envoi du courrier. Si une valeur avec email est sélectionnée, alors des boutons complémentaires vont apparaître pour gérer l'email. Cet aspect est expliqué dans le guide "Envoi d'un email sortant".  position=right  color=blue  width=1000
+    sleep  ${N_S}
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Select checkbox  id=form-widgets-send_modes-0
+    sleep  ${S_S}
+
+    ScrollDown
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  id=form-buttons-cancel
+    ...  Il faut sauvegarder pour confirmer la réponse.  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  id=form-buttons-save
+    Click element  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+
+    # fiche créée
+    ${main1}  Add main note  Une fiche "courrier sortant" a été créée, dans l'état initial "en création".
+    sleep  ${N_S}
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=div.faceted-tagscloud-collection-widget-portlet li:nth-child(9)
+    ...  Les états possibles pour le courrier sortant sont montrés dans les recherches commençant par "État".  position=top  color=blue  width=250
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
+    ...  On va pouvoir générer un document bureautique depuis un modèle. Cet aspect est expliqué plus en détails dans le guide "Créer un document bureautique...".  position=top  color=blue  width=600
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
+
+    ${main1}  Add main note  Une fois le document ajouté, la fiche se présente comme ci-dessous.
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(2)
+    ...  Si le service a un N+1, il est possible de lui envoyer le courrier pour validation.  position=top  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(3)
+    ...  Sinon, quand il y a bien un fichier ged dans la fiche, on peut mettre le courrier à la signature manuscrite.  position=top  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(4)
+    ...  On peut également l'indiquer comme ayant été expédié.  position=top  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
     Add end message
 
-Créer un courrier bureautique
+Créer un document bureautique
 # partie guide utilisation : Créer un courrier bureautique
 
 
@@ -583,7 +659,6 @@ Envoyer un email sortant
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
@@ -637,7 +712,6 @@ Ajouter une annexe
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
