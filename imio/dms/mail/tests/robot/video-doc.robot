@@ -1120,53 +1120,6 @@ Gérer les modèles
 # partie guide utilisation : Gérer les modèles
 
 
-CS nouveau
-# partie 2.3.2 Nouveau courrier sortant
-    [TAGS]  RUN
-    Enable autologin as  agent
-    Go to  ${PLONE_URL}/outgoing-mail
-    Wait until element is visible  css=.table_faceted_no_results  10
-
-    ### Create outgoingmail
-    Pause
-    ${note1}  Add pointy note  id=newOMCreation  Créer un nouveau courrier  position=bottom  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-lien-ajout.png  id=portal-column-one  ${note1}
-    Sleep  3
-    Remove element  id=${note1}
-    Click element  newOMCreation
-    Wait until element is visible  css=.template-dmsoutgoingmail #formfield-form-widgets-sender  10
-    Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation.png  id=content
-    Input text  name=form.widgets.IDublinCore.title  Annonce de la réfection des trottoirs Rue Moyenne
-    ${note1}  Add pointy note  id=form-widgets-IDublinCore-title  Encoder l'objet du courrier  position=bottom  color=blue
-    Sleep  3
-    Remove element  id=${note1}
-    Input text  name=form.widgets.recipients.widgets.query  Non encod
-    ${note1}  Add pointy note  id=form-widgets-recipients-widgets-query  Rechercher le contact dans l'annuaire et le sélectionner  position=top  color=blue
-    Sleep  3
-    Remove element  id=${note1}
-    Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
-    Click element  css=.ac_results:not([style*="display: none"]) li
-    Click button  id=form-buttons-save
-    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
-    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-internal_reference_no
-    ${note1}  Add pointy note  css=.apButtonAction_create-from-template  Générer le courrier à partir d'un modèle  position=bottom  color=blue
-    Sleep  3
-    Remove element  id=${note1}
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
-    Sleep  2
-    Wait until element is visible  css=.DV-pageImage  10
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
-    Sleep  2
-    Wait until element is visible  css=.DV-pageImage  10
-    ${note1}  Add pointy note  id=fieldset-versions  Le courrier généré apparait sur la droite  position=top  color=blue
-    Sleep  3
-    Remove element  id=${note1}
-    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-2-visualisation.png  css=table.actionspanel-no-style-table  id=fieldset-versions
-    Pause
-
-    Add end message
-
 *** Keywords ***
 Suite Setup
     Open test browser
