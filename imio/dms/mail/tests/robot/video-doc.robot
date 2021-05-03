@@ -66,6 +66,16 @@ Naviguer
     Add clic  id=portaltab-incoming-mail
 # interface courrier entrant
     Click element  id=portaltab-incoming-mail
+
+    ${note1}  Add pointy note  id=collections-count-refresh  Actualiser le menu principal permet de voir le nombre de courriers en attente de traitement  position=bottom  color=blue
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  id=collections-count-refresh
+    Click element  id=collections-count-refresh
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  Le nombre de courriers à traiter s'affiche  position=bottom  color=blue
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
     Highlight  css=.portlet.portletWidgetCollection
     ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Les tableaux de bords affichent les courriers par catégorie.  position=right  color=blue
     sleep  ${N_S}
@@ -75,6 +85,12 @@ Naviguer
     sleep  ${N_S}
     Remove element  id=${note1}
     Clear Highlight  css=.portlet.portletWidgetCollection
+    Highlight  id=c133f0fe768f4f4aa3b5553acbf5d1e545
+    ${note1}  Add pointy note  id=c133f0fe768f4f4aa3b5553acbf5d1e545  Un compteur indique le nombre de courriers en attente d'un traitement par catégorie  position=right  color=blue
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Clear Highlight  id=c133f0fe768f4f4aa3b5553acbf5d1e545
+
     Highlight  id=faceted_table
     ${note2}  Add pointy note  id=faceted_table  Les courriers sont affichés ligne par ligne, avec les informations clés.  position=top  color=blue
     sleep  ${N_S}
