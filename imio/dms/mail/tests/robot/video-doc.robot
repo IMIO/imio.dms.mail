@@ -49,93 +49,99 @@ Naviguer
 
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/
-# start video
+    # start video
     Pause
-# bandeau principal
-    ${main1}  Add title  Tutoriel vidéo iA.docs : Naviguer dans l'interface...
-    sleep  ${N_S}
-    Remove element  ${main1}
-    Highlight  id=portal-globalnav
-    ${note1}  Add main note  Le bandeau principal permet un accès rapide aux fonctionnalités : entrant, sortant, gestion des tâches, annuaire de contact et gestion des modèles sortants.
+    # bandeau principal
+    ${tit1}  Add title  Tutoriel vidéo iA.docs : Naviguer dans l'interface...
     sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  ${tit1}
+    Highlight  id=portal-globalnav
+    ${main1}  Add main note  Le bandeau principal permet un accès rapide aux différentes parties de l'application : courrier entrant, courrier sortant, tâches, annuaire de contacts et modèles de courriers.
+    sleep  ${L_S}
+    Remove element  id=${main1}
     Clear Highlight  id=portal-globalnav
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  Afficher le courrier entrant.  position=bottom  color=blue
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  On entre dans la partie "courrier entrant" en cliquant sur l'onglet.  position=bottom  color=blue  width=300
     sleep  ${N_S}
-    Remove element  id=${note1}
     Add clic  id=portaltab-incoming-mail
-# interface courrier entrant
+    Remove element  id=${note1}
+    # interface courrier entrant
     Click element  id=portaltab-incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    sleep  ${S_S}
 
-    ${note1}  Add pointy note  id=collections-count-refresh  Actualiser le menu principal permet de voir le nombre de courriers en attente de traitement  position=bottom  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  id=collections-count-refresh  Une fois dans un des 3 premiers onglets, cette icône permet d'afficher le nombre d'éléments à gérer. On peut donc cliquer de temps en temps dessus afin de vérifier s'il y a des choses à gérer.  position=bottom  color=blue  width=400
+    sleep  ${L_S}
     Remove element  id=${note1}
     Add clic  id=collections-count-refresh
     Click element  id=collections-count-refresh
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  Le nombre de courriers à traiter s'affiche  position=bottom  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  Le nombre de courriers entrants à gérer est à 2. On voit qu'il y a quelque chose à faire dans cette partie.  position=bottom  color=blue
+    sleep  ${L_S}
     Remove element  id=${note1}
 
     Highlight  css=.portlet.portletWidgetCollection
-    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Les tableaux de bords affichent les courriers par catégorie.  position=right  color=blue
+    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Le menu de gauche affiche des filtres prédéfinis, utiles à chaque utilisateur.  position=right  color=blue  width=400
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Il est possible de filtrer sur les courriers à traiter, en cours, dans le service, en copie, etc.  position=right  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  css=.portlet.portletWidgetCollection  Il est possible de filtrer sur les courriers à traiter, en cours, dans le service, en copie, etc. Suivant le filtre sélectionné, le tableau de bord central se met à jour.  position=right  color=blue  width=400
+    sleep  ${L_S}
     Remove element  id=${note1}
     Clear Highlight  css=.portlet.portletWidgetCollection
-    Highlight  id=c133f0fe768f4f4aa3b5553acbf5d1e545
-    ${note1}  Add pointy note  id=c133f0fe768f4f4aa3b5553acbf5d1e545  Un compteur indique le nombre de courriers en attente d'un traitement par catégorie  position=right  color=blue
-    sleep  ${N_S}
+
+    Highlight  css=div.faceted-tagscloud-collection-widget li:nth-child(4)
+    ${note1}  Add pointy note  css=div.faceted-tagscloud-collection-widget li:nth-child(4)  Un compteur indique le nombre de courriers en attente d'un traitement...  position=right  color=blue  width=400
+    sleep  ${L_S}
     Remove element  id=${note1}
-    Clear Highlight  id=c133f0fe768f4f4aa3b5553acbf5d1e545
+    Clear Highlight  css=div.faceted-tagscloud-collection-widget li:nth-child(4)
+    Add clic  css=div.faceted-tagscloud-collection-widget li:nth-child(4)
+    Select collection  incoming-mail/mail-searches/to_treat
+    sleep  ${S_S}
 
     Highlight  id=faceted_table
-    ${note2}  Add pointy note  id=faceted_table  Les courriers sont affichés ligne par ligne, avec les informations clés.  position=top  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  id=faceted_table  Suivant la recherche sélectionnée (en gras), les éléments correspondants sont affichés ligne par ligne, avec les informations clés.  position=top  color=blue  width=400
+    sleep  ${L_S}
     Clear Highlight  id=faceted_table
-    Remove element  id=${note2}
+    Remove element  id=${note1}
 
     Highlight  css=.th_header_due_date
-    ${note2}  Add pointy note  css=.th_header_due_date  Il est possible de trier par colonne, par exemple avec la date d'échéance.  position=top  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  css=.th_header_due_date  Il est possible de trier par colonne, par exemple avec la date d'échéance.  position=top  color=blue  width=400
+    sleep  ${L_S}
     Clear Highlight  css=.th_header_due_date
-    Remove element  id=${note2}
+    Remove element  id=${note1}
 
     Highlight  css=.th_header_actions
-    ${note2}  Add pointy note  css=.th_header_actions  La colonne "Actions" permet un accès rapide aux actions d'une fiche courrier.  position=top  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  css=.th_header_actions  La colonne "Actions" permet un accès rapide à des actions sur l'élément. En positionnant sa souris sur l'icône, on peut lire ce à quoi elle correspond.  position=top  color=blue  width=300
+    sleep  ${L_S}
     Clear Highlight  css=.th_header_actions
-    Remove element  id=${note2}
+    Remove element  id=${note1}
 
     Highlight  id=batch-actions
-    ${note2}  Add pointy note  id=batch-actions  Les actions par lot effectuent des actions sur tous les courriers sélectionnés dans la première colonne au préalable.  position=top  color=blue
+    ${note1}  Add pointy note  id=batch-actions  Les actions par lot permettent d'effectuer une action commune (si possible) sur tous les courriers sélectionnés dans la première colonne.  position=top  color=blue  width=400
     sleep  ${L_S}
     Clear Highlight  id=batch-actions
-    Remove element  id=${note2}
+    Remove element  id=${note1}
 
     Highlight  id=faceted-center-column
-    ${note2}  Add pointy note  id=faceted-center-column  La zone de recherche permet de retrouver les courriers du tableau de bord.  position=bottom  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  id=faceted-center-column  Le filtre de recherche permet de trouver des éléments spécifique du tableau de bord.  position=bottom  color=blue  width=400
+    sleep  ${L_S}
     Clear Highlight  id=faceted-center-column
-    Remove element  id=${note2}
+    Remove element  id=${note1}
 
     Highlight  css=.LSBox
-    ${note2}  Add pointy note  css=.LSBox  Une recherche plus globale permet de rechercher dans le texte océrisé des courriers.  position=bottom  color=blue
-    sleep  ${N_S}
+    ${note1}  Add pointy note  css=.LSBox  Une recherche plus globale permet de rechercher dans le texte océrisé des courriers, au cas où un élément ne serait pas trouvé par un tableau de bord.  position=bottom  color=blue  width=400
+    sleep  ${L_S}
     Clear Highlight  css=.LSBox
-    Remove element  id=${note2}
+    Remove element  id=${note1}
 
-    ${note1}  Add main note  Les recherches sont expliquées plus en détail dans le guide "Comment utiliser les recherches".
+    ${note1}  Add main note  Les recherches sont expliquées plus en détail dans le guide "Utiliser les recherches".
     sleep  ${L_S}
     Remove element  id=${note1}
 
-    Highlight  id=breadcrumbs-you-are-here
-    ${note2}  Add pointy note  id=breadcrumbs-you-are-here  Le fil d'ariane permet de se situer et de revenir au niveau du dessus à tout moment.  position=bottom  color=blue
-    sleep  ${N_S}
-    Clear Highlight  id=breadcrumbs-you-are-here
-    Remove element  id=${note2}
+    Highlight  id=portal-breadcrumbs
+    ${note1}  Add pointy note  id=breadcrumbs-1  Le fil d'ariane (présent sur chaque page) permet de se situer et de revenir au niveau du dessus à tout moment.  position=bottom  color=blue  width=400
+    sleep  ${L_S}
+    Clear Highlight  id=portal-breadcrumbs
+    Remove element  id=${note1}
 
     Add end message
 
@@ -1002,12 +1008,8 @@ Utiliser les recherches
     Fire transition  ${UID1}  propose_to_agent
     Enable autologin as  agent
     GO to  ${PLONE_URL}/
-#    Go to  ${PLONE_URL}/incoming-mail
-#    Wait until element is visible  css=.faceted-table-results  10
-#    Select collection  incoming-mail/mail-searches/to_treat
-# start video
+    # start video
     #pause
-# Recherche globale
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment utiliser les recherches...
     Sleep  ${L_S}
     Remove element  id=${note1}
@@ -1016,9 +1018,9 @@ Utiliser les recherches
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    # Recherche par tableau de bord
+    # Filtre simple tableau de bord
     ${note1}  Add pointy note  id=portaltab-incoming-mail
-    ...  Par exemple dans les courriers entrants...  position=bottom  color=blue  width=200
+    ...  Par exemple dans les courriers entrants...  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
     Add clic  id=portaltab-incoming-mail
@@ -1026,50 +1028,99 @@ Utiliser les recherches
     Wait until element is visible  css=.faceted-table-results  10
     sleep  ${N_S}
 
-    ${note1}  Add pointy note  id=c2
-    ...  Voici le champ de recherche contextuelle  position=bottom  color=blue  width=200
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  Ce filtre permet de rechercher une fiche après avoir tapé le début d'un ou plusieurs mots. La recherche s'effectue dans le code-barre, l'intitulé et la description.  position=bottom  color=blue  width=500
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    Input text  id=c2  candid
     sleep  ${S_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add pointy note  id=c2
-    ...  Il vous permet de faire une recherche sur les informations encodées dans les fiches  position=bottom  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Input text  id=c2  agent administratif
 
     ${note1}  Add pointy note  id=c2_button
-    ...  Cliquez sur la loupe de recherche  position=bottom  color=blue  width=200
+    ...  Après avoir entré une valeur, il faut soit appuyer sur "Enter", soit cliquer sur la loupe.  position=right  color=blue  width=600
     sleep  ${N_S}
+    Add clic  id=c2_button
     Remove element  id=${note1}
-
-    Input text  id=c2  agent administratif
-
-    Add clic  css=#c2_button
-    Click element  c2_button
+    Click element  id=c2_button
     sleep  ${S_S}
 
-    # Fiche trouvée
-    ${note1}  Add pointy note  css=.pretty_link
-    ...  Il trouve bien la fiche recherchée  position=bottom  color=blue  width=200
+    ${main1}  Add main note  Le tableau de bord est alors adapté avec les résultats correspondants.
     sleep  ${N_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  Pour affiner le résultat, on peut filtrer sur plusieurs mots de la manière suivante. Les premiers mots (non complets) doivent être suffixés avec une astérisque "*". Pour le dernier mot, elle est implicite.  position=bottom  color=blue  width=500
+    Input text  id=c2  candid* post* ouvri
+    sleep  ${L_S}
+    Add clic  id=c2_button
     Remove element  id=${note1}
-
+    Click element  id=c2_button
     sleep  ${N_S}
 
-    ${note1}  Add pointy note  id=c2
-    ...  Effaçons le champ  position=bottom  color=blue  width=200
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  Pour enlever le filtre, il faut effacer la valeur et soumettre à nouveau.  position=bottom  color=blue  width=300
     sleep  ${N_S}
-    Remove element  id=${note1}
-
     Clear Element Text  id=c2
-
-    Wait until element is visible  id=faceted_table  10
-    ${note1}  Add pointy note  id=faceted_table
-    ...  Nous avons de nouveau accès à tout le courrier  position=bottom  color=blue  width=300
-    sleep  ${N_S}
+    Add clic  id=c2_button
     Remove element  id=${note1}
+    sleep  ${N_S}
 
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  Il est possible de filtrer sur plusieurs mots de manière exacte en les entourant par des guillemets.  position=bottom  color=blue  width=300
+    Input text  id=c2  "offre d'emploi"
+    sleep  ${L_S}
+    Add clic  id=c2_button
+    Remove element  id=${note1}
+    Click element  id=c2_button
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  Il est possible aussi de filtrer sur un mot OU un autre en ajoutant le mot "OR" entre les mots.  position=bottom  color=blue  width=300
+    Input text  id=c2  offr* OR candidatu
+    sleep  ${L_S}
+    Add clic  id=c2_button
+    Remove element  id=${note1}
+    Click element  id=c2_button
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  De manière plus élaborée encore, on peut regrouper entre parenthèse plusieurs mots en utilisant OR.  position=bottom  color=blue  width=300
+    Input text  id=c2  (offr* emploi) OR candidatu
+    sleep  ${L_S}
+    Add clic  id=c2_button
+    Remove element  id=${note1}
+    Click element  id=c2_button
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  Le filtre sur un code-barre est particulier: on peut entrer le code complet (préfixé par IMIO ou non).  position=bottom  color=blue  width=300
+    Input text  id=c2  010500000000001
+    sleep  ${L_S}
+    Add clic  id=c2_button
+    Remove element  id=${note1}
+    Click element  id=c2_button
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  css=#c2_widget form
+    ...  Ou, par facilité, uniquement les chiffres après les zéros...  position=bottom  color=blue  width=300
+    Input text  id=c2  1
+    sleep  ${N_S}
+    Add clic  id=c2_button
+    Remove element  id=${note1}
+    Click element  id=c2_button
+    sleep  ${N_S}
+
+    # filtre avancés
+    Clear Element Text  id=c2
+    ${note1}  Add pointy note  css=.faceted-sections-buttons-more
+    ...  Il est possible d'afficher des filtres avancés.  position=left  color=blue  width=300
+    sleep  ${N_S}
+    Add clic  css=.faceted-sections-buttons-more
+    Remove element  id=${note1}
+    Click element  css=.faceted-sections-buttons-more
+    sleep  ${N_S}
+
+    debug
     # Champ recherche fulltext
     ${note1}  Add pointy note  id=livesearch0
     ...  Voici le champ de recherche globale  position=bottom  color=blue  width=200
