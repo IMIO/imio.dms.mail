@@ -1010,7 +1010,7 @@ Utiliser les recherches
     Enable autologin as  agent
     GO to  ${PLONE_URL}/
     # start video
-    #pause
+    pause
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment utiliser les recherches...
     Sleep  ${L_S}
     Remove element  id=${note1}
@@ -1126,7 +1126,7 @@ Utiliser les recherches
     Remove element  id=${main1}
 
     ${note1}  Add pointy note  id=c4_widget
-    ...  Des listes de sélection. À chaque sélection le résultat s'adapte.  position=bottom  color=blue  width=300
+    ...  Des filtres "liste de sélection". À chaque sélection le résultat s'adapte.  position=bottom  color=blue  width=300
     sleep  ${L_S}
     Add clic  id=c4_proposed_to_agent
     Click element  id=c4_proposed_to_agent
@@ -1134,7 +1134,7 @@ Utiliser les recherches
     sleep  ${N_S}
 
     ${note1}  Add pointy note  id=c10_widget
-    ...  Des intervalles de temps. Le résultat s'adapte quand les 2 dates sont sélectionnées.  position=bottom  color=blue  width=300
+    ...  Des filtres "intervalles de temps". Le résultat s'adapte quand les 2 dates sont sélectionnées.  position=bottom  color=blue  width=300
     sleep  ${L_S}
     ${date}=  Get Current Date  local  exclude_millis=yes
     ${convert}=      Convert Date      ${date}      result_format=%d/%m/%Y
@@ -1145,7 +1145,7 @@ Utiliser les recherches
     sleep  ${N_S}
 
     ${note1}  Add pointy note  id=c12_widget
-    ...  Un filtre via un contact de l'annuaire. On cherche le contact, on le sélectionne et on clique sur la loupe. Le terme [TOUT] permet de sélectionner une organisation, ses sous-niveaux et les fonctions occupées associées.  position=right  color=blue  width=400
+    ...  Des filtres "contact". On cherche le contact, on le sélectionne et on clique sur la loupe. Le terme [TOUT] permet de sélectionner une organisation, ses sous-niveaux et les fonctions occupées associées.  position=right  color=blue  width=400
     sleep  ${L_S}
     Input text  s2id_autogen1  swde
     sleep  ${N_S}
@@ -1158,7 +1158,7 @@ Utiliser les recherches
     sleep  ${N_S}
 
     ${note1}  Add pointy note  id=c17_widget
-    ...  Un filtre texte semblable au premier filtre texte vu précédemment.  position=bottom  color=blue  width=400
+    ...  Des filtres "texte" semblable au premier filtre texte vu précédemment.  position=bottom  color=blue  width=400
     sleep  ${L_S}
 
     # livesearch
@@ -1166,13 +1166,12 @@ Utiliser les recherches
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    ${note1}  Add pointy note  id=portaltab-incoming-mail
-    ...  On se remet dans une partie de l'outil, comme les courriers entrants.  position=bottom  color=blue  width=300
+    ${note1}  Add pointy note  id=portal-logo
+    ...  On se remet à la racine de l'outil, juste pour montrer ce lien ;-)  position=right  color=blue  width=500
     sleep  ${N_S}
     Remove element  id=${note1}
-    Add clic  id=portaltab-incoming-mail
-    Click element  id=portaltab-incoming-mail
-    Wait until element is visible  css=.faceted-table-results  10
+    Add clic  id=portal-logo
+    Click element  id=portal-logo
     sleep  ${N_S}
 
     ${note1}  Add pointy note  id=livesearch0
@@ -1183,37 +1182,27 @@ Utiliser les recherches
     sleep  ${N_S}
 
     ${note1}  Add pointy note  id=LSResult
-    ...  Une recherche rapide affiche les premiers résultats. On trouve à la fois une fiche courrier entrant mais aussi un fichier. On peut cliquer sur un résultat pour visualiser l'élément.  position=left  color=blue  width=400
+    ...  Une recherche instantanée affiche les premiers résultats. On trouve à la fois une fiche courrier entrant mais aussi un fichier. On peut cliquer sur un résultat pour visualiser l'élément.  position=left  color=blue  width=400
     sleep  ${L_S}
     Remove element  id=${note1}
-    Click element  css=.LSRow
-
-
-    debug
-    Wait until element is visible  css=.LSRow  20
-    ${note1}  Add pointy note  css=.LSRow
-    ...  La recherche globale trouve toutes les fiches contenant les termes recherchés  position=left  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add pointy note  css=.LSRow
-    ...  Cliquez dessus pour y accéder  position=left  color=blue  width=300
-    sleep  ${S_S}
-    Remove element  id=${note1}
-
-    Click element  css=.LSRow
+    Add clic  css=#LSResult li.LSRow:nth-child(2)
+    Click element  css=#LSResult li.LSRow:nth-child(2)
+    Wait until element is visible  form-groups-scan  10
     sleep  ${N_S}
 
-    # View fiche courrier
-    ${note1}  Add pointy note  css=.pretty_link_content
-    ...  Voilà, vous êtes bien sur la fiche courrier recherchée  position=bottom  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
+    ${note1}  Add pointy note  id=livesearch0
+    ...  Dans la même recherche, si on clique sur la loupe, on arrive sur une vue contextuelle.  position=bottom  color=blue  width=300
+    Input text  searchGadget  Candidature
     sleep  ${L_S}
+    Remove element  id=${note1}
+    Add clic  css=input.searchButton
+    Click element  css=input.searchButton
+    Wait until element is visible  css=form.searchPage  10
+    sleep  ${N_S}
 
-    GO to  ${PLONE_URL}/
-    sleep  ${S_S}
+    ${main1}  Add main note  On retrouve le fichier, contextualisé par la fiche auquel il est rattaché.
+    sleep  ${L_S}
+    Remove element  id=${main1}
 
     Add end message
 
