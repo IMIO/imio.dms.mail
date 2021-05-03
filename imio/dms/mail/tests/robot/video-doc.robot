@@ -5,6 +5,7 @@ Resource  common.robot
 
 Library  Remote  ${PLONE_URL}/RobotRemote
 Library  Selenium2Screenshots
+Library  robot.libraries.DateTime
 
 Suite Setup  Suite Setup
 Suite Teardown  Close all browsers
@@ -133,9 +134,9 @@ Naviguer
     Clear Highlight  css=.LSBox
     Remove element  id=${note1}
 
-    ${note1}  Add main note  Les recherches sont expliquées plus en détail dans le guide "Utiliser les recherches".
+    ${main1}  Add main note  Les recherches sont expliquées plus en détail dans le guide "Utiliser les recherches".
     sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     Highlight  id=portal-breadcrumbs
     ${note1}  Add pointy note  id=breadcrumbs-1  Le fil d'ariane (présent sur chaque page) permet de se situer et de revenir au niveau du dessus à tout moment.  position=bottom  color=blue  width=400
@@ -769,9 +770,9 @@ Ajouter une annexe
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une annexe.
+    ${main1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une annexe.
     Sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
     ...  On va passer par le menu "Ajouter"  position=bottom  color=blue  width=200
@@ -806,9 +807,9 @@ Ajouter une annexe
     Add clic  id=form-buttons-save
     Click element  form-buttons-save
 
-    ${note1}  Add main note  L'annexe ajoutée est affichée.
+    ${main1}  Add main note  L'annexe ajoutée est affichée.
     Sleep  ${N_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     ${note1}  Add pointy note  css=#portal-breadcrumbs #breadcrumbs-2
     ...  Pour remonter à la fiche, on va utiliser le fil d'ariane et cliquer sur le nom de la fiche  position=bottom  color=blue  width=200
@@ -870,9 +871,9 @@ Ajouter une tâche
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une tâche elle-même.
+    ${main1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une tâche elle-même.
     Sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(5)
     ...  On va passer par le menu "Ajouter"  position=bottom  color=blue  width=200
@@ -889,9 +890,9 @@ Ajouter une tâche
     GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail/++add++task
     Wait until element is visible  css=body.template-task #formfield-form-widgets-ITask-enquirer  10
 
-    ${note1}  Add main note  On peut compléter le formulaire. Les champs marqués d'un carré rouge sont obligatoires.
+    ${main1}  Add main note  On peut compléter le formulaire. Les champs marqués d'un carré rouge sont obligatoires.
     Sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     Input text  id=form-widgets-title  Ajouter la candidature dans la base de recrutement
     sleep  1
@@ -915,9 +916,9 @@ Ajouter une tâche
     Click element  form-buttons-save
     Wait until element is visible  css=body.template-item_view #formfield-form-widgets-ITask-enquirer  10
 
-    ${note1}  Add main note  La tâche est créée dans la fiche courrier (dans notre exemple) mais pourrait l'être aussi dans une autre tâche.
+    ${main1}  Add main note  La tâche est créée dans la fiche courrier (dans notre exemple) mais pourrait l'être aussi dans une autre tâche.
     Sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     ${note1}  Add pointy note  css=div.viewlet_workflowstate
     ...  L'état actuel est "En création". La tâche reste "privée" donc seulement visible par le groupe proposant actuellement.  position=left  color=blue  width=400
@@ -937,10 +938,10 @@ Ajouter une tâche
     Remove element  id=${note1}
     Click element  css=table.actionspanel-no-style-table td:nth-child(2)
 
-    ${note1}  Add main note  L'état est maintenant "À faire". Si un utilisateur n'avait pas été sélectionné, l'état serait resté "À assigner" et le N+1 aurait dû intervenir. Sans N+1, la tâche arrive dans le service et les agents doivent choisir de la gérer.
+    ${main1}  Add main note  L'état est maintenant "À faire". Si un utilisateur n'avait pas été sélectionné, l'état serait resté "À assigner" et le N+1 aurait dû intervenir. Sans N+1, la tâche arrive dans le service et les agents doivent choisir de la gérer.
     sleep  ${N_S}
     Sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     ${note1}  Add pointy note  css=#portal-breadcrumbs #breadcrumbs-2
     ...  Pour remonter au parent, on va utiliser le fil d'ariane et cliquer sur le nom du courrier  position=bottom  color=blue  width=300
@@ -960,10 +961,10 @@ Ajouter une tâche
 
     ScrollUp
 
-    ${note1}  Add main note  Si une tâche est assignée à un service qui n'avait pas encore de droit sur la fiche (pas service traitant ou pas en copie), ce service obtient automatiquement un droit de visualisation de la fiche courrier, afin de voir le contexte de traitement de sa tâche.
+    ${main1}  Add main note  Si une tâche est assignée à un service qui n'avait pas encore de droit sur la fiche (pas service traitant ou pas en copie), ce service obtient automatiquement un droit de visualisation de la fiche courrier, afin de voir le contexte de traitement de sa tâche.
     sleep  ${N_S}
     Sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     # View tâches
     ${note1}  Add pointy note  id=portaltab-tasks  Un onglet spécifique permet également de lister toutes les tâches.  position=bottom  color=blue  width=300
@@ -973,10 +974,10 @@ Ajouter une tâche
     Click element  id=portaltab-tasks
     Wait until element is visible  css=.faceted-table-results  10
 
-    ${note1}  Add main note  Le tableau de bord des tâches se présente comme celui des courriers entrants ou sortants. Il contient les mêmes fonctionnalités qui sont présentées dans le guide "Naviguer dans l'interface" et dans le guide "Utiliser les recherches".
+    ${main1}  Add main note  Le tableau de bord des tâches se présente comme celui des courriers entrants ou sortants. Il contient les mêmes fonctionnalités qui sont présentées dans le guide "Naviguer dans l'interface" et dans le guide "Utiliser les recherches".
     sleep  ${N_S}
     Sleep  ${L_S}
-    Remove element  id=${note1}
+    Remove element  id=${main1}
 
     Add end message
 
@@ -1060,7 +1061,7 @@ Utiliser les recherches
     ${note1}  Add pointy note  css=#c2_widget form
     ...  Pour enlever le filtre, il faut effacer la valeur et soumettre à nouveau.  position=bottom  color=blue  width=300
     sleep  ${N_S}
-    Clear Element Text  id=c2
+    Input Text  id=c2  ${EMPTY}
     Add clic  id=c2_button
     Remove element  id=${note1}
     sleep  ${N_S}
@@ -1084,7 +1085,7 @@ Utiliser les recherches
     sleep  ${N_S}
 
     ${note1}  Add pointy note  css=#c2_widget form
-    ...  De manière plus élaborée encore, on peut regrouper entre parenthèse plusieurs mots en utilisant OR.  position=bottom  color=blue  width=300
+    ...  De manière plus élaborée encore, on peut regrouper entre parenthèse plusieurs termes pour les regrouper logiquement.  position=bottom  color=blue  width=300
     Input text  id=c2  (offr* emploi) OR candidatu
     sleep  ${L_S}
     Add clic  id=c2_button
@@ -1120,28 +1121,75 @@ Utiliser les recherches
     Click element  css=.faceted-sections-buttons-more
     sleep  ${N_S}
 
+    ${main1}  Add main note  Les filtres utilisés s'ajoutent toujours à ceux déjà utilisés précédemment. Il y a plusieurs types de filtres:
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  id=c4_widget
+    ...  Des listes de sélection. À chaque sélection le résultat s'adapte.  position=bottom  color=blue  width=300
+    sleep  ${L_S}
+    Add clic  id=c4_proposed_to_agent
+    Click element  id=c4_proposed_to_agent
+    Remove element  id=${note1}
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  id=c10_widget
+    ...  Des intervalles de temps. Le résultat s'adapte quand les 2 dates sont sélectionnées.  position=bottom  color=blue  width=300
+    sleep  ${L_S}
+    ${date}=  Get Current Date  local  exclude_millis=yes
+    ${convert}=      Convert Date      ${date}      result_format=%d/%m/%Y
+    input text  id=c10-start-input  ${convert}
+    input text  id=c10-end-input  ${convert}
+    Click element  css=#c4_widget fieldset legend
+    Remove element  id=${note1}
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  id=c12_widget
+    ...  Un filtre via un contact de l'annuaire. On cherche le contact, on le sélectionne et on clique sur la loupe. Le terme [TOUT] permet de sélectionner une organisation, ses sous-niveaux et les fonctions occupées associées.  position=right  color=blue  width=400
+    sleep  ${L_S}
+    Input text  s2id_autogen1  swde
+    sleep  ${N_S}
+    Input text  s2id_autogen1  leduc
+    Add clic  css=#select2-drop li.select2-result.select2-highlighted
+    Click element  css=#select2-drop li.select2-result.select2-highlighted
+    Add clic  id=c12_button
+    # Click element  id=c12_button  deactivated because bug show uid
+    Remove element  id=${note1}
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  id=c17_widget
+    ...  Un filtre texte semblable au premier filtre texte vu précédemment.  position=bottom  color=blue  width=400
+    sleep  ${L_S}
+
+    # livesearch
+    ${main1}  Add main note  Si on ne trouve pas via un tableau de bord, il est possible de rechercher plus largement en cherchant dans le texte océrisé des courriers scannés, générés ou des emails.
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  id=portaltab-incoming-mail
+    ...  On se remet dans une partie de l'outil, comme les courriers entrants.  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  id=portaltab-incoming-mail
+    Click element  id=portaltab-incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  id=livesearch0
+    ...  On va utiliser le champ de recherche plus global qui cherche aussi dans les fichiers.  position=bottom  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Input text  searchGadget  Candidature
+    sleep  ${N_S}
+
+    ${note1}  Add pointy note  id=LSResult
+    ...  Une recherche rapide affiche les premiers résultats. On trouve à la fois une fiche courrier entrant mais aussi un fichier. On peut cliquer sur un résultat pour visualiser l'élément.  position=left  color=blue  width=400
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Click element  css=.LSRow
+
+
     debug
-    # Champ recherche fulltext
-    ${note1}  Add pointy note  id=livesearch0
-    ...  Voici le champ de recherche globale  position=bottom  color=blue  width=200
-    sleep  ${S_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add pointy note  id=livesearch0
-    ...  Il vous permet de faire une recherche fulltext sur les documents scannés  position=bottom  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Click element  livesearch0
-    sleep  ${S_S}
-
-    # Input text
-    ${note1}  Add pointy note  id=searchGadget
-    ...  Entrez l'objet de votre recherche  position=left  color=blue  width=200
-    sleep  ${N_S}
-    Input text  name=SearchableText  Candidature
-    Remove element  id=${note1}
-
     Wait until element is visible  css=.LSRow  20
     ${note1}  Add pointy note  css=.LSRow
     ...  La recherche globale trouve toutes les fiches contenant les termes recherchés  position=left  color=blue  width=300
