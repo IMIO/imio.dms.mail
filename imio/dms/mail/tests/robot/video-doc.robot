@@ -725,8 +725,9 @@ Transférer un email entrant
 
     Go to  ${PLONE_URL}/outlook-ruban.jpg/view
 
-    ${main1}  Add main note  Dans Outlook, par exemple, le transfert "en tant que pièce jointe" se trouve dans le ruban. On y voit aussi le raccourci (Ctrl + Alt + F).
+    ${main1}  Add main note  Dans Outlook, par exemple, le transfert "en tant que pièce jointe" se trouve dans le ruban (comme montré dans l'image ci-dessous). On y voit aussi le raccourci (Ctrl + Alt + F).
     sleep  ${L_S}
+    sleep  ${S_S}
     Remove element  id=${main1}
 
     ${main1}  Add main note  Une fois le transfert effectué, l'email va initier la création d'une nouvelle fiche... (dans les 3 minutes maximum)
