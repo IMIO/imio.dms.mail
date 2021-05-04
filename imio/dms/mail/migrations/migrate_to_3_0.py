@@ -9,6 +9,7 @@ from copy import deepcopy
 from imio.dms.mail import _tr as _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_oem_templates
+from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import get_dms_config
@@ -81,6 +82,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         lr = getattr(imfti, 'localroles')
         iemfti = getUtility(IDexterityFTI, name='dmsincoming_email')
         setattr(iemfti, 'localroles', deepcopy(lr))
+        configure_iem_rolefields(self.portal)
 
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])

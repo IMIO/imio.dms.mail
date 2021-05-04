@@ -329,7 +329,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             set_registry_functions(functions)
 
         # add local roles config
-        for ptype in ('dmsincomingmail', 'dmsincoming_email'):
+        for i, ptype in enumerate(('dmsincomingmail', 'dmsincoming_email')):
             fti = getUtility(IDexterityFTI, name=ptype)
             lr = getattr(fti, 'localroles')
             lrs = lr['static_config']
@@ -344,9 +344,18 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                         mapping={'type': 'dmsincomingmail, dmsincoming_email'}), portal.REQUEST,
                                         type='warning')
             if new_state_id not in lrt:
-                lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
+                if i:
+                    lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                                            'Treating Group Writer']}}
+                else:
+                    lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer',
+                                                            'Treating Group Writer']}}
                 for st in next_states:
-                    lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
+                    if i:
+                        lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                                           'Treating Group Writer']}})
+                    else:
+                        lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
                 lrt['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
                 lrt['closed'].update({new_id: {'roles': ['Reviewer']}})
             lrr = lr['recipient_groups']

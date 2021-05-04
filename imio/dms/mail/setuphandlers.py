@@ -55,6 +55,7 @@ from imio.helpers.security import get_environment
 from itertools import cycle
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
@@ -120,6 +121,7 @@ def postInstall(context):
 
     # we configure rolefields
     configure_rolefields(context)
+    configure_iem_rolefields(context)
     configure_om_rolefields(context)
 
     if (base_hasattr(site.portal_types.task, 'localroles') and
@@ -946,7 +948,7 @@ def changeSearchedTypes(site):
 
 def configure_rolefields(context):
     """
-        Configure the rolefields on types
+        Configure the rolefields for dmsincomingmail
     """
 
     roles_config = {'static_config': {
@@ -995,9 +997,26 @@ def configure_rolefields(context):
             logger.warn(msg)
 
 
+def configure_iem_rolefields(context):
+    """
+        Configure the rolefields for dmsincoming_email
+    """
+    fti = getUtility(IDexterityFTI, name='dmsincoming_email')
+    lr = getattr(fti, 'localroles')
+    lrs = lr['static_config']
+    if 'Base Field Writer' not in lrs['proposed_to_agent']['encodeurs']['roles']:
+        lrs['proposed_to_agent']['encodeurs']['roles'] = ['Contributor', 'Editor', 'Base Field Writer',
+                                                        'Treating Group Writer']
+    lrt = lr['treating_groups']
+    if 'Base Field Writer' not in lrt['proposed_to_agent']['editeur']['roles']:
+        lrt['proposed_to_agent']['editeur']['roles'] = ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                                        'Treating Group Writer']
+    lr._p_changed = True
+
+
 def configure_om_rolefields(context):
     """
-        Configure the rolefields on types
+        Configure the rolefields for dmsoutgoingmail
     """
     roles_config = {'static_config': {
         'to_be_signed': {'expedition': {'roles': ['Editor', 'Reviewer']},
