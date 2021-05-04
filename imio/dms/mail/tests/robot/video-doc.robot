@@ -186,6 +186,7 @@ Traiter un courrier
     ...  Il faut cliquer sur une recherche, afin d'afficher un tableau de résultats.  position=top  color=blue  width=250
     sleep  ${N_S}
     Remove element  id=${note1}
+
     ${note1}  Add pointy note  css=#faceted_table tr:nth-child(2) td.pretty_link
     ...  On va cliquer sur l'intitulé d'un courrier pour l'ouvrir.  position=top  color=blue
     sleep  ${N_S}
@@ -680,6 +681,7 @@ Transférer un email entrant
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&redirect=&only=email1.pdf
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
@@ -696,11 +698,17 @@ Transférer un email entrant
     Set field value  ${UID1}  treating_groups  ${GRH}  str
     Set field value  ${UID1}  assigned_user  agent  str
     Fire transition  ${UID1}  propose_to_n_plus_1
+    ${UID2} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
+    ${EVEN} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/evenements
+    Set field value  ${UID2}  treating_groups  ${EVEN}  str
+    Fire transition  ${UID2}  propose_to_n_plus_1
     Enable autologin as  dirg
     Fire transition  ${UID}  propose_to_agent
     Fire transition  ${UID1}  propose_to_agent
     Enable autologin as  agent
-    GO to  ${PLONE_URL}/
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
     # start video
     pause
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment transférer un email entrant...
@@ -712,6 +720,88 @@ Transférer un email entrant
     Remove element  id=${main1}
 
     ${main1}  Add main note  Attention: la façon de transférer l'email est différente. Ce n'est pas un transfert "simple". Il est nécessaire de transférer l'email "en tant que pièce jointe".
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    Go to  ${PLONE_URL}/outlook-ruban.jpg/view
+
+    ${main1}  Add main note  Dans Outlook, par exemple, le transfert "en tant que pièce jointe" se trouve dans le ruban. On y voit aussi le raccourci (Ctrl + Alt + F).
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Une fois le transfert effectué, l'email va initier la création d'une nouvelle fiche... (dans les 3 minutes maximum)
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Revenons dans le tableau de bord "rafraichi" de l'agent, afin de visualiser la fiche créée.
+    sleep  ${N_S}
+    Remove element  id=${main1}
+
+    Enable autologin as  dirg
+    Fire transition  ${UID2}  propose_to_agent
+    Enable autologin as  agent
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Select collection  incoming-mail/mail-searches/to_treat
+
+    ${note1}  Add pointy note  css=#faceted_table tr:nth-child(1) td.pretty_link
+    ...  On peut voir la nouvelle fiche (avec une icône spécifique), directement visible par l'agent. On va cliquer sur son intitulé pour l'ouvrir.  position=top  color=blue  width=300
+    sleep  ${L_S}
+    Add clic  css=#faceted_table tr:nth-child(1) td.pretty_link
+    Remove element  id=${note1}
+    Click element  css=#faceted_table tr:nth-child(1) td.pretty_link
+    Wait until element is visible  css=.DV-pageImage  10
+
+    ${main1}  Add main note  Les données de la fiche ont été préremplies avec les données de l'email. Si l'agent qui a transféré est bien défini dans iA.docs, le service traitant est sélectionné et la fiche est mise "À traiter" (suivant la configuration). Sinon la fiche reste en création.
+    sleep  ${L_S}
+    sleep  ${S_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Si l'expéditeur d'origine a été trouvé dans l'annuaire (via son adresse email), il est sélectionné. Ce n'est pas le cas ici, on va modifier la fiche.
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(1)
+    ...  On va cliquer sur cette icône pour modifier les données de la fiche.  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(1)
+    Remove element  id=${note1}
+    Click element  css=table.actionspanel-no-style-table td:nth-child(1)
+    Wait until element is visible  css:body.template-dmsdocument-edit #formfield-form-widgets-external_reference_no  10
+
+    ${main1}  Add main note  On peut modifier les champs qui nécessitent un changement...
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  id=formfield-form-widgets-sender
+    ...  On peut chercher un contact dans l'annuaire en tapant le début des mots composant son titre. Si le bon contact n'est pas trouvé, il est possible de le rajouter.  position=right  color=blue  width=800
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Input text  name=form.widgets.sender.widgets.query  geulett
+    Wait until element is visible  css=#formfield-form-widgets-sender div.addnew-block a.addnew  10
+    ${note1}  Add pointy note  css=#formfield-form-widgets-sender div.addnew-block a.addnew
+    ...  Aucun contact de ce nom trouvé! Imaginons qu'on crée un nouveau contact via le lien "Créer Contact"... Cet aspect est expliqué plus en détails dans le guide "Ajouter un contact".   position=right  color=blue  width=800
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Stéphan  lastname=Geulette  zip_code=5032  city=Isnes  street=Rue Léon Morel  number=1  email=stephan.geulette@email.be
+    Input text  name=form.widgets.sender.widgets.query  geulette
+    Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
+    sleep  ${S_S}
+    Add clic  css=.ac_results:not([style*="display: none"]) li
+    Click element  css=.ac_results:not([style*="display: none"]) li
+    sleep  ${N_S}
+
+    ScrollDown
+
+    ${note1}  Add pointy note  id=form-buttons-cancel
+    ...  Il faut sauvegarder (si des modifications ont été apportées) ou annuler pour sortir du mode "édition".  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  id=form-buttons-save
+    Click element  id=form-buttons-save
+    Wait until element is visible  css=.DV-pageImage  10
+
+    ${main1}  Add main note  Une fois les données nécessaires ajoutées, le traitement peut continuer en modifiant l'état de la fiche via les boutons bleus de la barre...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -781,7 +871,7 @@ Ajouter un contact
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     GO to  ${PLONE_URL}
-    
+
 # Start Video
     # Pause
 
@@ -867,7 +957,7 @@ Ajouter un contact
     ...  L'autocomplétion ne trouve pas cette organisation  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
-    ${note1}  Add pointy note  css=#oform-widgets-organization-autocomplete .addnew  
+    ${note1}  Add pointy note  css=#oform-widgets-organization-autocomplete .addnew
     ...  Nous allons donc la créer  position=bottom  color=blue  width=200
     sleep  ${N_S}
     Remove element  id=${note1}
@@ -905,7 +995,7 @@ Ajouter un contact
     Click button  css=#pb_2 #form-buttons-save
     sleep  ${S_S}
     Update element style  css=#oform-widgets-organization-1-wrapper > label  padding-right  1em
-    ${note1}  Add pointy note  css=#oform-widgets-organization-1-wrapper > label  
+    ${note1}  Add pointy note  css=#oform-widgets-organization-1-wrapper > label
     ...  L'organisation est bien créée et sélectionnée  position=right  color=blue  width=200
     sleep  ${N_S}
     Remove elements  ${note1}
@@ -947,7 +1037,7 @@ Ajouter un contact
     sleep  ${S_S}
 
     ### Create person
-    ${note1}  Add pointy note  css=#oform-widgets-organization-2-wrapper > label 
+    ${note1}  Add pointy note  css=#oform-widgets-organization-2-wrapper > label
     ...  Le sous niveau est créé, on peut maintenant ajouter une personne à l'annuaire  position=right  color=blue  width=300
     sleep  ${N_S}
     Remove element  ${note1}
@@ -1533,4 +1623,5 @@ Suite Setup
     Enable autologin as  Manager
     Set autologin username  dirg
     Go to  ${PLONE_URL}/robot_init
+    Go to  ${PLONE_URL}/video_doc_init?pdb=
     Disable autologin
