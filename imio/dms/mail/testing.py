@@ -34,6 +34,7 @@ class DmsmailLayer(PloneWithPackageLayer):
                                  'activate_group_encoder')
         manage_addExternalMethod(portal, 'lock-unlock', '', 'imio.dms.mail.robot', 'lock')
         manage_addExternalMethod(portal, 'robot_init', '', 'imio.dms.mail.robot', 'robot_init')
+        manage_addExternalMethod(portal, 'video_doc_init', '', 'imio.dms.mail.robot', 'video_doc_init')
 
         sp = portal.portal_properties.site_properties
         sp.default_language = 'fr'

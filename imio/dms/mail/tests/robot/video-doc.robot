@@ -675,8 +675,47 @@ Créer un document bureautique
 
 
 Transférer un email entrant
-# partie guide utilisation : Transférer un email entrant
+    # setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    Enable autologin as  dirg
+    Fire transition  ${UID}  propose_to_agent
+    Fire transition  ${UID1}  propose_to_agent
+    Enable autologin as  agent
+    GO to  ${PLONE_URL}/
+    # start video
+    pause
+    ${note1}  Add title  Tutoriel vidéo iA.docs : comment transférer un email entrant...
+    Sleep  ${L_S}
+    Remove element  id=${note1}
 
+    ${main1}  Add main note  Depuis votre client mail, vous allez pouvoir transférer un email sélectionné vers l'application iA.docs pour en faire une fiche courrier entrant.
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Attention: la façon de transférer l'email est différente. Ce n'est pas un transfert "simple". Il est nécessaire de transférer l'email "en tant que pièce jointe".
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    Add end message
 
 Envoyer un email sortant
 # setup
@@ -1257,7 +1296,6 @@ Ajouter une tâche
     Add end message
 
 Utiliser les recherches
-# partie guide utilisation : Utiliser les recherches
 # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
