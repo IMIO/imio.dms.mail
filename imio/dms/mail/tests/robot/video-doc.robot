@@ -23,7 +23,7 @@ ${W_HEIGHT} =  1050  # height 1920 2880 720
 *** Test Cases ***
 
 Naviguer
-# setup
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -147,7 +147,7 @@ Naviguer
     Add end message
 
 Traiter un courrier
-# setup
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
@@ -175,9 +175,9 @@ Traiter un courrier
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/to_treat
-# start video
+    # start video
     pause
-# visualisation
+    # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment traiter un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -322,10 +322,7 @@ Traiter un courrier
     Add clic  id=form-buttons-cancel
     Click element  id=form-buttons-cancel
 
-# changement état
-#    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-#    Wait until element is visible  css=.DV-pageImage  10
-
+    # changement état
     ${main1}  Add main note  Le cycle de vie d’un élément (courrier, tâche) est constitué de différents états par lesquels l’élément transite depuis sa création, jusqu’à sa clôture.
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -421,7 +418,7 @@ Traiter un courrier
     Add end message
 
 Répondre à un courrier
-# setup
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -453,9 +450,9 @@ Répondre à un courrier
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
-# start video
+    # start video
     pause
-# répondre
+    # répondre
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -507,7 +504,7 @@ Répondre à un courrier
     Click element  id=form-buttons-save
     Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
 
-# fiche créée
+    # fiche créée
     ${main1}  Add main note  Une fiche "courrier sortant" a été créée, dans l'état initial "en création".
     sleep  ${N_S}
     sleep  ${L_S}
@@ -549,7 +546,7 @@ Répondre à un courrier
     Add end message
 
 Créer un courrier sortant
-# setup
+    # setup
     [TAGS]  RUN1
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
@@ -809,7 +806,7 @@ Transférer un email entrant
     Add end message
 
 Envoyer un email sortant
-# setup
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -841,9 +838,9 @@ Envoyer un email sortant
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
-# start video
-#    pause
-# visualisation répondre
+    # start video
+    #    pause
+    # visualisation répondre
 
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment envoyer un email sortant...
     sleep  ${L_S}
@@ -857,8 +854,7 @@ Valider un courrier entrant
 
 
 Ajouter un contact
-# partie guide utilisation : Ajouter un contact
-# setup
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
@@ -873,10 +869,10 @@ Ajouter un contact
     Wait until element is visible  css=.DV-pageImage  10
     GO to  ${PLONE_URL}
 
-# Start Video
+    # Start Video
     # Pause
 
-# Ajouter un contact
+    # Ajouter un contact
     ${main1}  Add title  Tutoriel vidéo iA.docs : Comment ajouter un contact
     Sleep  ${N_S}
     Remove element  id=${main1}
@@ -1136,8 +1132,8 @@ Ajouter un contact
 
 
 Ajouter une annexe
-# ATTENTION: le pointeur souris doit être hors de la fenêtre !!
-# setup
+    # ATTENTION: le pointeur souris doit être hors de la fenêtre !!
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -1168,9 +1164,9 @@ Ajouter une annexe
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
-# start video
+    # start video
     pause
-# Ajouter une annexe
+    # Ajouter une annexe
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe...
     Sleep  ${L_S}
     Remove element  id=${note1}
@@ -1236,8 +1232,8 @@ Ajouter une annexe
     Add end message
 
 Ajouter une tâche
-# ATTENTION: le pointeur souris doit être hors de la fenêtre !!
-# setup
+    # ATTENTION: le pointeur souris doit être hors de la fenêtre !!
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
@@ -1387,7 +1383,7 @@ Ajouter une tâche
     Add end message
 
 Utiliser les recherches
-# setup
+    # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
