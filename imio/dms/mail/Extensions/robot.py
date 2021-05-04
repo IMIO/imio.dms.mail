@@ -19,7 +19,7 @@ def lock(self, unlock=None):
 
 
 def robot_init(self):
-    portal = api.portal.get()
+    portal = self
     for msg in portal['messages-config'].objectValues():
         if api.content.get_state(obj=msg) == 'activated':
             api.content.transition(obj=msg, transition='deactivate')
@@ -30,9 +30,19 @@ def robot_init(self):
     return self.REQUEST.response.redirect(self.absolute_url())
 
 
-def video_doc_init(self):
-    portal = api.portal.get()
+def video_doc_init(self, pdb=''):
+    portal = self
+    if pdb:
+        import ipdb; ipdb.set_trace()
     filename = 'outlook-ruban.jpg'
+    if filename in portal:
+        return self.REQUEST.response.redirect(self.absolute_url())
+    iprops = portal.portal_properties.imaging_properties
+    orig_sizes = iprops.allowed_sizes
+    new_sizes = [size for size in orig_sizes if not size.startswith('preview')]
+    new_sizes.append('preview 768:768')
+    iprops.manage_changeProperties(allowed_sizes=new_sizes)
     filepath = add_path('tests/robot/outlook-ruban-1.jpg')
     with open(filepath, 'rb') as fo:
         portal.invokeFactory('Image', id=filename, title=safe_unicode(filename), file=fo.read(), excludeFromNav=True)
+    return self.REQUEST.response.redirect(self.absolute_url())
