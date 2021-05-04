@@ -105,6 +105,14 @@ def add_db_col_folder(folder, id, title, displayed=''):
     return col_folder
 
 
+def setup_classification(site):
+    if not base_hasattr(site, 'classification'):
+        folderid = site.invokeFactory("Folder", id='classification', title=_(u"Classification"))
+        classification_folder = getattr(site, folderid)
+        classification_folder.invokeFactory("ClassificationContainer", id='tree', title=_(u"Tree"))
+        classification_folder.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
+
+
 def postInstall(context):
     """Called as at the end of the setup process. """
     # the right place for your custom code
@@ -293,6 +301,8 @@ def postInstall(context):
         site.portal_types.directory.filter_content_types = True
         site.portal_workflow.doActionFor(contacts, "show_internally")
         logger.info('contacts folder created')
+
+    setup_classification(site)
 
     # enable portal diff on mails
     pdiff = api.portal.get_tool('portal_diff')

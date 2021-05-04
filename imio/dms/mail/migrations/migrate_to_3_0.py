@@ -15,6 +15,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import set_portlet
+from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import IdmUtilsMethods
@@ -81,6 +82,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.do_prior_updates()
 
+        self.install(['collective.classification.folder'])
+
         self.runProfileSteps('imio.dms.mail', steps=['controlpanel', 'plone.app.registry', 'repositorytool', 'typeinfo',
                                                      'viewlets'])
 
@@ -93,6 +96,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         iemfti = getUtility(IDexterityFTI, name='dmsincoming_email')
         setattr(iemfti, 'localroles', deepcopy(lr))
         configure_iem_rolefields(self.portal)
+
+        setup_classification(self.context)
 
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])

@@ -28,6 +28,7 @@
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
     <include package="collective.dms.scanbehavior" />
+    <include package="collective.classification.folder" />
     <include package="collective.contact.core" />
     <include package="collective.contact.duplicated" />
     <include package="collective.contact.facetednav" />

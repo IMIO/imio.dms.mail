@@ -8,6 +8,8 @@
   <element value="plone.app.dexterity.behaviors.metadata.IDublinCore"/>
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
+  <element value="collective.classification.folder.behaviors.classification_folder.IClassificationFolder" />
+  <element value="collective.classification.tree.behaviors.classification.IClassificationCategory" />
   <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
   <element value="collective.task.behaviors.ITaskContainer" />
   <element value="collective.task.behaviors.ITask" />
