@@ -728,6 +728,281 @@ Valider un courrier entrant
 
 Ajouter un contact
 # partie guide utilisation : Ajouter un contact
+# setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/incoming-mail
+    Wait until element is visible  css=.faceted-table-results  10
+    Sleep  0.5
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
+    Wait until element is visible  css=.DV-pageImage  10
+    Select collection  incoming-mail/mail-searches/searchfor_created
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
+    Sleep  1
+    Wait until element is visible  css=.DV-pageImage  10
+    GO to  ${PLONE_URL}
+    
+# Start Video
+    # Pause
+
+# Ajouter un contact
+    ${main1}  Add title  Tutoriel vidéo iA.docs : Comment ajouter un contact
+    Sleep  ${N_S}
+    Remove element  id=${main1}
+    ${note1}  Add main note  Dans ce tutoriel nous allons présenter le scénario suivant:
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+    ${note1}  Add main note  Une fiche courrier est créée automatiquement dans courrier entrant suite au scannage du courrier du jour
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    ${note1}  Add main note  Nous allons lui ajouter un expéditeur inconnu de notre annuaire
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    ${note1}  Add main note  La démarche sera faite à partir de courrier entrant
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+    ${note1}  Add main note  Mais nous aurions tout aussi bien pu la faire en partant de courrier sortant
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  id=portaltab-incoming-mail
+    ...  Cliquez sur courrier entrant  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Go to  ${PLONE_URL}/incoming-mail/
+    ${note1}  Add main note  Nous voilà sur la page du courrier entrant
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  css=tbody>tr:first-child
+    ...  Ajoutons un nouveau contact à cette fiche de courrier scanné  position=bottom  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/
+    ${note1}  Add pointy note  css=.apButtonAction_edit
+    ...  Modifier pour lui ajouter un expéditeur  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  css=.apButtonAction_edit
+    Click element  css=.apButtonAction_edit
+    sleep  ${N_S}
+
+    ### Edit mail
+    Wait until element is visible  css=.DV-pageImage  10
+    ${note1}  Add pointy note  css=#form-widgets-IDublinCore-title
+    ...  On entre les informations du courrier scanné  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Input text  name=form.widgets.IDublinCore.title  Candidature à un poste d'ouvrier communal
+    Input text  name=form.widgets.IDublinCore.description  Lettre de candidature spontanée
+
+    ### Sender field
+    Input text  name=form.widgets.sender.widgets.query  leduc
+    ${note1}  Add pointy note  css=#form-widgets-sender-widgets-query
+    ...  L'autocomplétion de l'annuaire de contacts ne trouve rien  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ### Create contact
+    ${note1}  Add pointy note  css=.addnew
+    ...  On crée donc un nouveau contact à partir de ce lien  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  css=.addnew
+    Click element  css=.addnew
+    Wait until element is visible  css=.overlay-contact-addnew  10
+    sleep  ${S_S}
+
+    ### Create organization
+    ${note1}  Add pointy note  css=#oform-widgets-organization-widgets-query
+    ...  On commence par encoder l'organisation du contact  position=right  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  css=#oform-widgets-organization-widgets-query
+    ...  Mais nous aurions très bien pu créer un citoyen lambda ne dépendant pas d'une organisation  position=right  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    Input text  name=oform.widgets.organization.widgets.query  IMIO
+    Wait until element is visible  css=#oform-widgets-organization-autocomplete .addnew  10
+    Update element style  css=#oform-widgets-organization-autocomplete .addnew  padding-right  1em
+    ${note1}  Add pointy note  css=#oform-widgets-organization-widgets-query
+    ...  L'autocomplétion ne trouve pas cette organisation  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  css=#oform-widgets-organization-autocomplete .addnew  
+    ...  Nous allons donc la créer  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Click element  css=#oform-widgets-organization-autocomplete .addnew
+    Wait until element is visible  id=pb_2  10
+    Update element style  id=formfield-form-widgets-activity  display  none
+    ${note1}  Add main note  On remplit la fiche contact de l'organisation
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+    Select from list by value  id=form-widgets-organization_type  sa
+    sleep  ${S_S}
+    Add clic  css=#fieldsetlegend-contact_details
+    Click element  id=fieldsetlegend-contact_details
+    Wait until element is visible  id=formfield-form-widgets-IContactDetails-phone  10
+    Input text  name=form.widgets.IContactDetails.phone  081586100
+    Input text  name=form.widgets.IContactDetails.email  contact@imio.be
+    Input text  name=form.widgets.IContactDetails.website  www.imio.be
+    sleep  ${S_S}
+    Add clic  css=#fieldsetlegend-address
+    Click element  id=fieldsetlegend-address
+    Wait until element is visible  id=formfield-form-widgets-IContactDetails-city  10
+    Input text  name=form.widgets.IContactDetails.number  1
+    Input text  name=form.widgets.IContactDetails.street  Rue Léon Morel
+    Input text  name=form.widgets.IContactDetails.zip_code  5032
+    Input text  name=form.widgets.IContactDetails.city  Isnes
+    sleep  ${S_S}
+    ${note1}  Add pointy note  css=#pb_2 .formControls #form-buttons-save
+    ...  On sauvegarde  position=right  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  css=#pb_2 #form-buttons-save
+    ${note1}  Add main note  On sauvegarde
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    Click button  css=#pb_2 #form-buttons-save
+    sleep  ${S_S}
+    Update element style  css=#oform-widgets-organization-1-wrapper > label  padding-right  1em
+    ${note1}  Add pointy note  css=#oform-widgets-organization-1-wrapper > label  
+    ...  L'organisation est bien créée et sélectionnée  position=right  color=blue  width=200
+    sleep  ${N_S}
+    Remove elements  ${note1}
+
+    ### Create sub level
+    ${note1}  Add main note  On va maintenant créer un département à cette organisation
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  css=#oform-widgets-organization-autocomplete .addnew
+    ...  On clique ici  position=right  color=blue  width=200
+    sleep  ${N_S}
+    Remove elements  ${note1}
+    Click element  css=#oform-widgets-organization-autocomplete .addnew
+    Wait until element is visible  css=#pb_2 #form-widgets-IBasic-title  10
+    ${note1}  Add main note  On crée la fiche contact du département
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    Input text  css=#pb_2 #form-widgets-IBasic-title  Département logiciels libres
+    Add clic  css=#fieldsetlegend-contact_details
+    Click element  id=fieldsetlegend-contact_details
+    Wait until element is visible  id=formfield-form-widgets-IContactDetails-phone  10
+    Input text  name=form.widgets.IContactDetails.phone  081586114
+    Input text  name=form.widgets.IContactDetails.email  dll@imio.be
+    Input text  name=form.widgets.IContactDetails.website  www.imio.be
+    Add clic  id=fieldsetlegend-address
+    Click element  id=fieldsetlegend-address
+    Wait until element is visible  id=form-widgets-IContactDetails-use_parent_address-0  10
+    Unselect checkbox  id=form-widgets-IContactDetails-use_parent_address-0
+    Input text  name=form.widgets.IContactDetails.number  2
+    Input text  name=form.widgets.IContactDetails.street  Rue Léon Morel
+    Input text  name=form.widgets.IContactDetails.zip_code  5032
+    Input text  name=form.widgets.IContactDetails.city  Isnes
+    sleep  ${S_S}
+    ${note1}  Add main note  On sauvegarde
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  css=#pb_2 #form-buttons-save
+    Click button  css=#pb_2 #form-buttons-save
+    sleep  ${S_S}
+
+    ### Create person
+    ${note1}  Add pointy note  css=#oform-widgets-organization-2-wrapper > label 
+    ...  Le sous niveau est créé, on peut maintenant ajouter une personne à l'annuaire  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  ${note1}
+    Click element  css=#pb_1 .close
+    Wait until element is visible  css=.addnew  10
+    sleep  ${N_S}
+    Add clic  css=.addnew
+    Click element  css=.addnew
+    sleep  ${N_S}
+    Input text  name=oform.widgets.person.widgets.query  Marc Leduc
+    Wait until element is visible  css=#oform-widgets-person-autocomplete .addnew  10
+    ${note1}  Add pointy note  css= #oform-widgets-person-widgets-query
+    ...  On a maintenant créé l'organisation et son département. Faisons de même pour la personne  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  css=#oform-widgets-person-autocomplete .addnew
+    Click element  css=#oform-widgets-person-autocomplete .addnew
+    ${note1}  Add main note  On crée la fiche contact de la personne
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    Wait until element is visible  id=pb_6  10
+    ${note1}  Add pointy note  css=#form-widgets-lastname
+    ...  On entre les informations du contact  position=right  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  id=form-widgets-gender-0
+    Click element  id=form-widgets-gender-0
+    sleep  ${N_S}
+    Add clic  id=fieldsetlegend-contact_details
+    Click element  id=fieldsetlegend-contact_details
+    Wait until element is visible  id=formfield-form-widgets-IContactDetails-cell_phone  10
+    Input text  name=form.widgets.IContactDetails.cell_phone  0472452345
+    Input text  name=form.widgets.IContactDetails.email  marcleduc@hotmail.com
+    Add clic  id=fieldsetlegend-address
+    Click element  id=fieldsetlegend-address
+    Wait until element is visible  id=form-widgets-IContactDetails-number  10
+    Input text  name=form.widgets.IContactDetails.number  25
+    Input text  name=form.widgets.IContactDetails.additional_address_details  41
+    Input text  name=form.widgets.IContactDetails.street  Rue des Papillons
+    Input text  name=form.widgets.IContactDetails.zip_code  4020
+    Input text  name=form.widgets.IContactDetails.city  Liège
+    ${note1}  Add main note  On sauvegarde
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    Add clic  css=#pb_6 #form-buttons-save
+    Click button  css=#pb_6 #form-buttons-save
+    Wait until element is visible  css=#oform-widgets-person-1-wrapper  20
+    ${note1}  Add pointy note  css=#oform-widgets-person-1-wrapper
+    ...  Marc Leduc a bien été créé  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ### Create function
+    ${note1}  Add pointy note  css=#oform-widgets-organization-widgets-query
+    ...  Une fois la personne créée, on lui ajoute son organisation puis le rôle qu'elle y occupe  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Input text  name=oform.widgets.organization.widgets.query  IMIO
+    Click element  css=#oform-widgets-organization-widgets-query
+    Wait until element is visible  css=.ac_results:not([style*="display: none"])  20
+    sleep  ${N_S}
+    Click element  css=.ac_results:not([style*="display: none"]) li:nth-child(2)
+    Wait until element is visible  css=#oform-widgets-plone_0_held_position-label  20
+    ${note1}  Add pointy note  css=#oform-widgets-plone_0_held_position-label
+    ...  On ajoute la fonction du contact  position=right  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+    Input text  name=oform.widgets.plone_0_held_position.label  Directeur
+    sleep  ${N_S}
+    ${note1}  Add main note  On sauvegarde en cliquant sur ajouter
+    Sleep  ${N_S}
+    Remove element  id=${note1}
+    Click button  id=oform-buttons-save
+    sleep  ${N_S}
+
+    ### Choose person
+    Input text  name=form.widgets.sender.widgets.query  ledu
+    ${note1}  Add pointy note  css=#form-widgets-sender-widgets-query
+    ...  Voilà, le contact est bien créé. L'autocomplétion nous montre qu'il est bien ajouté à l'annuaire de contacts  position=top  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    ${note1}  Add pointy note  css=#form-widgets-sender-widgets-query
+    ...  Les détails de son intitulé nous montrent bien qu'il fait partie de l'organisation IMIO et qu'il appartient au département de logiciels libres  position=top  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    ${note1}  Add main note  Evidement, cette démarche n'est à faire qu'en cas de création de contact
+    sleep  ${L_S}
+    Remove element  id=${note1}
+    ${note1}  Add main note      Si l'organisation ou la personne existe, la procédure s'en voit simplifiée par l'utilisation de l'autocomplétion
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    Add end message
+
 
 
 Ajouter une annexe
