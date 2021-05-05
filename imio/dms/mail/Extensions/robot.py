@@ -28,6 +28,7 @@ def robot_init(self):
     portal.portal_javascripts.updateScript('++resource++imio.dms.mail/outgoingmail.js', enabled=False)
 
     return self.REQUEST.response.redirect(self.absolute_url())
+    # must always return a redirect in robot...
 
 
 def video_doc_init(self, pdb=''):
@@ -46,3 +47,4 @@ def video_doc_init(self, pdb=''):
     with open(filepath, 'rb') as fo:
         portal.invokeFactory('Image', id=filename, title=safe_unicode(filename), file=fo.read(), excludeFromNav=True)
     return self.REQUEST.response.redirect(self.absolute_url())
+    # must always return a redirect in robot...
