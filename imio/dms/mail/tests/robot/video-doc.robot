@@ -13,7 +13,6 @@ Suite Teardown  Close all browsers
 *** Variables ***
 
 #${BROWSER} =  GoogleChrome
-#${SELENIUM_RUN_ON_FAILURE} =  Debug
 ${S_S} =  2  # short sleep
 ${N_S} =  4  # normal sleep
 ${L_S} =  6  # longer sleep
@@ -1993,4 +1992,4 @@ Suite Setup
     Go to  ${PLONE_URL}/robot_init
     Go to  ${PLONE_URL}/video_doc_init?pdb=
     Disable autologin
-    Register Keyword To Run On Failure  debug
+    # Register Keyword To Run On Failure  debug
