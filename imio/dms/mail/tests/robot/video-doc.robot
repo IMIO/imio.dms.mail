@@ -550,7 +550,7 @@ Créer un courrier sortant
     [TAGS]  RUN1
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    # ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
     Go to  ${PLONE_URL}/outgoing-mail
     Wait until element is visible  css=div.table_faceted_results  10
     # start video
@@ -808,40 +808,27 @@ Transférer un email entrant
 Envoyer un email sortant
     # setup
     [TAGS]  RUN1
-    Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
-    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
-    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
-    Set field value  ${UID}  description  Candidature spontanée  str
-    Set field value  ${UID}  sender  ['${SENDER}']  references
-    Set field value  ${UID}  treating_groups  ${GRH}  str
-    Set field value  ${UID}  assigned_user  agent  str
-    Set field value  ${UID}  original_mail_date  20170314  date
-    Fire transition  ${UID}  propose_to_n_plus_1
-    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
-    Set field value  ${UID1}  sender  ['${SENDER}']  references
-    Set field value  ${UID1}  treating_groups  ${GRH}  str
-    Set field value  ${UID1}  assigned_user  agent  str
-    Fire transition  ${UID1}  propose_to_n_plus_1
-    Enable autologin as  dirg
-    Fire transition  ${UID}  propose_to_agent
-    Fire transition  ${UID1}  propose_to_agent
-    Enable autologin as  agent
-    Go to  ${PLONE_URL}/incoming-mail
-    Wait until element is visible  css=.faceted-table-results  10
-    Select collection  incoming-mail/mail-searches/to_treat
-
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
-    Wait until element is visible  css=.DV-pageImage  10
-
+    Enable autologin as  agent
+    ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-voiries
+    ${VOIRIES} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-technique/voiries
+    ${UID} =  Create content  type=dmsoutgoingmail  container=/${PLONE_SITE_ID}/outgoing-mail  id=annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    ...  title=Annonce de la réfection des trottoirs Rue des Papillons  internal_reference_number=S0001
+    Set field value  ${UID}  send_modes  ['post', 'email']  list
+    Set field value  ${UID}  treating_groups  ${VOIRIES}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  sender  ${SENDER}  str
+    Set field value  ${UID}  recipients  ['${RECIPIENT}']  references
+    Set field value  ${UID}  mail_type  courrier  str
+    ${date}=  Get Current Date  local  exclude_millis=yes
+    ${convert}=  Convert Date  ${date}  result_format=%d/%m/%Y
+    Set field value  ${UID}  mail_date  ${convert}  date%d/%m/%Y
+    # Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
     # start video
     #    pause
-    # visualisation répondre
-
+    # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment envoyer un email sortant...
     sleep  ${L_S}
     Remove element  id=${main1}
