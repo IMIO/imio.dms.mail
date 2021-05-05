@@ -851,7 +851,248 @@ Envoyer un email sortant
 
 Valider un courrier entrant
 # partie guide utilisation : Valider un courrier entrant
+# Setup
+    [TAGS]  RUN1
+    Enable autologin as  encodeur
+    Go to  ${PLONE_URL}/import_scanned
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
+    Set field value  ${UID}  description  Candidature spontanée  str
+    Set field value  ${UID}  sender  ['${SENDER}']  references
+    Set field value  ${UID}  treating_groups  ${GRH}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  original_mail_date  20170314  date
+    # Fire transition  ${UID}  propose_to_n_plus_1
+    Set field value  ${UID1}  title  Votre offre d'emploi d'agent administratif  str
+    Set field value  ${UID1}  sender  ['${SENDER}']  references
+    Set field value  ${UID1}  treating_groups  ${GRH}  str
+    Set field value  ${UID1}  assigned_user  agent  str
+    # Fire transition  ${UID1}  propose_to_n_plus_1
+    Enable autologin as  encodeur
+    GO to  ${PLONE_URL}/incoming-mail/
 
+# Start Video
+    Pause
+
+# Valider un courrier entrant
+    ${main1}  Add title  Tutoriel vidéo iA.docs : Comment valider un courrier
+    sleep  ${L_S}
+    Remove element  id=${main1}
+    ${main1}  Add main note  Pour ce tutoriel, nous allons explorer le scénario suivant:
+    sleep  ${N_S}
+    Remove element  id=${main1}
+    ${main1}  Add main note  Après avoir importé le courrier du jour dans iA.Docs via le scanner, un agent complète la fiche courrier
+    sleep  ${N_S}
+    Remove element  id=${main1}
+    ${main1}  Add main note  Une fois la fiche encodée, il demande la validation de son suppérieur hiérarchique 
+    sleep  ${N_S}
+    Remove element  id=${main1}
+    ${main1}  Add main note  Nous allons donc nous connecter en tant que chef de service pour valider un courrier entrant
+    sleep  ${N_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  id=user-name
+    ...  On est actuellement connecté en tant qu'encodeur  position=left  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.td_cell_review_state
+    ...  La fiche courrier est en état "En création"  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Pour plus d'informations sur les états et les workflows, veuillez consulter l'article de la documentation "2.8 - Workflow des éléments"
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Changeons maintenant l'état du courrier pour le faire valider par un chef de service
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Fire transition  ${UID1}  propose_to_n_plus_1
+    GO to  ${PLONE_URL}/incoming-mail/
+
+    Wait until element is visible  css=.td_cell_review_state  10
+    ${note1}  Add pointy note  css=.td_cell_review_state
+    ...  La fiche courrier est en état "A valider par le chef de service"  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Wait until element is visible  css=.pretty_link  20
+    ${note1}  Add pointy note  css=.pretty_link
+    ...  Elle a d'ailleurs changé de couleur  position=top  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  id=user-name
+    ...  Connectons nous maintenant en tant que chef de service  position=left  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Enable autologin as  chef
+    GO to  ${PLONE_URL}/incoming-mail/
+
+    ${note1}  Add pointy note  id=user-name
+    ...  Nous sommes bien connectés en tant que chef de service  position=left  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=ul .category li  
+    ...  On peut remarquer que le chef de service a 2 courriers à valider  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Validons à présent un courrier
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.pretty_link
+    ...  On sélectionne le courrier à valider  position=top  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Add clic  css=.pretty_link
+    Click element  css=.pretty_link
+
+    ${note1}  Add pointy note  css=.apButton.apButtonWF.apButtonWF_back_to_creation
+    ...  Ce bouton permet de renvoyer le courrier en création  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.apButton.apButtonWF.apButtonWF_back_to_creation
+    ...  Il peut être utile si vous remarquez une erreur dans la fiche courrier ou qu'il faut ajouter une annexe  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.apButton.apButtonWF.apButtonWF_back_to_manager
+    ...  Ce bouton permet de demander la validation du DG avant de continuer le workflow  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.apButton.apButtonWF.apButtonWF_propose_to_agent
+    ...  Ce bouton permet de renvoyer la fiche validée vers l'agent afin qu'il la traite  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.apButton.apButtonWF.apButtonWF_propose_to_agent
+    ...  Validons ce courrier en le proposant à l'agent  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Add clic  css=.apButton.apButtonWF.apButtonWF_propose_to_agent
+    Click element  css=.apButton.apButtonWF.apButtonWF_propose_to_agent
+
+    Wait until element is visible  css=.viewlet_workflowstate  10
+    ${note1}  Add pointy note  css=.viewlet_workflowstate
+    ...  L'état de la fiche a bien été modifié  position=left  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    GO to  ${PLONE_URL}/incoming-mail/
+
+    Wait until element is visible  css=.td_cell_review_state  10
+    ${note1}  Add pointy note  css=.td_cell_review_state
+    ...  L'état est passé de "A valider par le chef de service" à "A traiter"  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Wait until element is visible  css=.pretty_link  10
+    ${note1}  Add pointy note  css=.pretty_link
+    ...  Le changement de couleur reflète la modification de l'état de la fiche  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Une autre façon de faire aurait été de sélectionner les courriers à valider
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Et de les valider en tant que lot de la manière suivante
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Réinitialisons l'état des fiches courrier afin de procéder à une validation par lot
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    Fire transition  ${UID}  back_to_n_plus_1
+    GO to  ${PLONE_URL}/incoming-mail/
+
+    ${note1}  Add pointy note  id=user-name
+    ...  Nous sommes toujours connectés en tant que chef de service  position=left  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Wait until element is visible  css=.td_cell_review_state  10
+    ${note1}  Add pointy note  css=.td_cell_review_state
+    ...  L'état est bien réinitialisé à "Valider par le chef de service"  position=right  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Wait until element is visible  css=.select-item-label  10
+    ${note1}  Add pointy note  css=.select-item-label
+    ...  Dans un premier temps, on sélectionne les courriers  position=bottom  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Click element  css=tbody :nth-child(1n) .select-item-label
+    Click element  css=tbody :nth-child(1n) .select-item-label
+
+    ${note1}  Add pointy note  css=#transition-batch-action-but
+    ...  Ensuite on change l'état du lot  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=#transition-batch-action-but
+    ...  Dans notre exemple, deux courriers changeront d'état  position=bottom  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}  
+
+    Wait until element is visible  css=#transition-batch-action-but  20
+    Add clic  css=#transition-batch-action-but
+    Click element  css=#transition-batch-action-but
+
+    Wait until element is visible  css=#form-widgets-transition  10
+    ${note1}  Add main note  On sélectionne "Proposer à l'agent" qui valide le courrier
+    sleep  ${N_S}
+    Remove element  id=${note1}    
+
+    Click element  id=form-widgets-transition
+    sleep  ${N_S}
+    Select From List By Value  id=form-widgets-transition  propose_to_agent
+
+    ${note1}  Add main note  Et on applique les modifications faites aux courriers
+    sleep  ${N_S}
+    Remove element  id=${note1}    
+
+    Add clic  id=form-buttons-apply
+    Click element  id=form-buttons-apply
+
+    GO to  ${PLONE_URL}/incoming-mail/
+
+    ${note1}  Add main note  Connectons nous maintenant en tant qu'agent pour vérifier que le courrier a bien été validé
+    Sleep  ${L_S}
+    Remove element  id=${note1}
+
+    Enable autologin as  agent
+    GO to  ${PLONE_URL}/incoming-mail/
+
+    ${note1}  Add pointy note  id=user-name
+    ...  Nous sommes bien connectés en tant qu'agent  position=left  color=blue  width=200
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Wait until element is visible  css=.td_cell_review_state  10
+    ${note1}  Add pointy note  css=.td_cell_review_state
+    ...  On voit bien que le courrier a été validé et est maintenant en attente de traitement par l'agent  position=bottom  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+    Add end message
 
 Ajouter un contact
     # setup
