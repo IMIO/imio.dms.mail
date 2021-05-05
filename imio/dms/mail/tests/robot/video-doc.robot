@@ -26,10 +26,10 @@ Naviguer
     # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
@@ -151,10 +151,10 @@ Traiter un courrier
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
@@ -421,10 +421,10 @@ Répondre à un courrier
     # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
@@ -550,7 +550,7 @@ Créer un courrier sortant
     [TAGS]  RUN1
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
-    # ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    # ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     Go to  ${PLONE_URL}/outgoing-mail
     Wait until element is visible  css=div.table_faceted_results  10
     # start video
@@ -677,11 +677,11 @@ Transférer un email entrant
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&redirect=&only=email1.pdf
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
@@ -810,7 +810,7 @@ Envoyer un email sortant
     [TAGS]  RUN1
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
-    ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-voiries
     ${VOIRIES} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-technique/voiries
     ${UID} =  Create content  type=dmsoutgoingmail  container=/${PLONE_SITE_ID}/outgoing-mail  id=annonce-de-la-refection-des-trottoirs-rue-des-papillons
@@ -1422,8 +1422,7 @@ Ajouter un contact
     Add clic  id=fieldsetlegend-address
     Click element  id=fieldsetlegend-address
     Wait until element is visible  id=form-widgets-IContactDetails-number  10
-    Input text  name=form.widgets.IContactDetails.number  25
-    Input text  name=form.widgets.IContactDetails.additional_address_details  41
+    Input text  name=form.widgets.IContactDetails.number  25/41
     Input text  name=form.widgets.IContactDetails.street  Rue des Papillons
     Input text  name=form.widgets.IContactDetails.zip_code  4020
     Input text  name=form.widgets.IContactDetails.city  Liège
@@ -1480,17 +1479,15 @@ Ajouter un contact
 
     Add end message
 
-
-
 Ajouter une annexe
     # ATTENTION: le pointeur souris doit être hors de la fenêtre !!
     # setup
     [TAGS]  RUN1
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
@@ -1588,10 +1585,10 @@ Ajouter une tâche
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
@@ -1738,10 +1735,10 @@ Utiliser les recherches
     [TAGS]  RUN1
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
