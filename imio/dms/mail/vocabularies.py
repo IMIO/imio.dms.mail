@@ -402,3 +402,8 @@ class ActionCategoriesVocabularyFactory(object):
         return SimpleVocabulary(
             [SimpleTerm(cat, title=cat) for cat in categories]
         )
+
+
+def classification_services_vocabulary(context=None):
+    factory = getUtility(IVocabularyFactory, "collective.dms.basecontent.treating_groups")
+    return factory

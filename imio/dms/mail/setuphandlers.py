@@ -112,6 +112,26 @@ def setup_classification(site):
         classification_folder.invokeFactory("ClassificationContainer", id='tree', title=_(u"Tree"))
         classification_folder.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
 
+    roles_config = {
+        'service_in_charge': {
+            'internally_published': {'editeur': {'roles': ['Editor']},
+                                     'lecteur': {'roles': ['Reader']}},
+            'private': {'editeur': {'roles': ['Editor']},
+                        'lecteur': {'roles': ['Reader']}},
+        }, 'services_in_copy': {
+            'internally_published': {'lecteur': {'roles': ['Reader']}},
+            'private': {'lecteur': {'roles': ['Reader']}},
+        },
+    }
+
+    for keyname in roles_config:
+        msg = add_fti_configuration('ClassificationFolder', roles_config[keyname], keyname=keyname)
+        if msg:
+            logger.warn(msg)
+        msg = add_fti_configuration('ClassificationSubfolder', roles_config[keyname], keyname=keyname)
+        if msg:
+            logger.warn(msg)
+
 
 def postInstall(context):
     """Called as at the end of the setup process. """
