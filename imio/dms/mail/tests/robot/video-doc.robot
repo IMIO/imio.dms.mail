@@ -669,7 +669,129 @@ Créer un courrier sortant
 
 Créer un document bureautique
 # partie guide utilisation : Créer un courrier bureautique
+# Setup
+    [TAGS]  RUN1
+    Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
+    Enable autologin as  agent
+    ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-voiries
+    ${VOIRIES} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-technique/voiries
+    ${UID} =  Create content  type=dmsoutgoingmail  container=/${PLONE_SITE_ID}/outgoing-mail  id=annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    ...  title=Annonce de la réfection des trottoirs Rue des Papillons  internal_reference_number=S0001
+    Set field value  ${UID}  send_modes  ['post', 'email']  list
+    Set field value  ${UID}  treating_groups  ${VOIRIES}  str
+    Set field value  ${UID}  assigned_user  agent  str
+    Set field value  ${UID}  sender  ${SENDER}  str
+    Set field value  ${UID}  recipients  ['${RECIPIENT}']  references
+    Set field value  ${UID}  mail_type  courrier  str
+    ${date}=  Get Current Date  local  exclude_millis=yes
+    ${convert}=  Convert Date  ${date}  result_format=%d/%m/%Y
+    Set field value  ${UID}  mail_date  ${convert}  date%d/%m/%Y
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+# start video
+    #pause
+# visualisation
+    ${main1}  Add title  Tutoriel vidéo iA.docs : Comment créer un document bureautique
+    sleep  ${L_S}
+    Remove element  id=${main1}
 
+    ${main1}  Add main note  Repartons de l'exemple du courrier sortant créé dans le guide "Créer un courrier sortant"
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add pointy note  css=table a.version-link:first-child
+    ...  On constate qu'un document est déjà présent sur la fiche: Modèle de base  position=left  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.DV-pageCollection
+    ...  Le document bureautique généré est prérempli avec les données déjà encodées dans la fiche. Celles-ci peuvent être modifiées ou complétées.  position=left  color=blue  width=300
+    sleep  ${L_S}
+    Remove element  id=${note1}
+
+   ${note1}  Add pointy note  css=#formfield-form-widgets-send_modes label
+    ...  Pour pouvoir créer un document bureautique à partir d'un modèle, il faut que le champ "Formes d'envoi" contienne une entrée "lettre".  position=top  color=blue  width=400
+    Highlight  css=#form-widgets-send_modes label
+    sleep  ${L_S}
+    Clear Highlight  css=#form-widgets-send_modes label
+    Remove element  id=${note1}
+
+    ${note1}  Add pointy note  css=.apButton.apButtonAction.apButtonAction_create-from-template
+    ...  Il faut ensuite sélectionner le bouton "Créer depuis modèle"  position=bottom  color=blue  width=400
+    Highlight  css=.apButton.apButtonAction.apButtonAction_create-from-template
+    sleep  ${L_S}
+    Clear Highlight  css=.apButton.apButtonAction.apButtonAction_create-from-template
+    Remove element  id=${note1}
+
+    Add clic  css=.apButton.apButtonAction.apButtonAction_create-from-template
+    Click element  css=.apButton.apButtonAction.apButtonAction_create-from-template
+
+    ${main1}  Add main note  Les modèles sont communs ou spécifiques à des services. On en choisit un
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    Pause
+
+    Add clic  css=.fancytree-exp-cl span.fancytree-expander
+    Click element  css=.fancytree-exp-cl span.fancytree-expander
+
+    ${note1}  Add main note  On choisit "Modèle type"
+    sleep  ${S_S}
+    Remove element  id=${note1}
+    
+    Add clic  css=.fancytree-exp-nl span:nth-child(2)
+    Click element  css=.fancytree-exp-nl span:nth-child(2)
+
+    GO to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    
+    ${main1}  Add main note  Le document bureautique s'ouvre maintenant dans LibreOffice
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  La partie édition du document dans LibreOffice ne sera pas détaillée dans cette vidéo
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Mais votre document sera généré selon le template sélectionné
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Il vous suffira de remplacer la ligne "Texte" dans LibreOffice par le contenu de votre document et de sauvegarder
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Le document sera ajouté à la fiche courrier
+    sleep  ${L_S}
+    Remove element  id=${main1}
+
+    # Wait until element is visible  css=table a.version-link:first-child  10
+    # ${note1}  Add pointy note  css=table a.version-link:first-child
+    # ...  On voit bien qu'un nouveau document est apparu dans la liste des documents de la fiche courrier et que c'est un "Modèle type"  position=left  color=blue  width=300
+    # sleep  ${N_S}
+    # Remove element  id=${note1}
+    Wait until element is visible  css=table tbody tr:first-child  10
+    ${note1}  Add pointy note  css=table tbody tr:first-child
+    ...  On voit bien qu'un nouveau document est apparu dans la liste des documents de la fiche courrier et que c'est un "Modèle type"  position=left  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Pause
+
+    ${note1}  Add pointy note  css=.DV-cover
+    ...  La visualisation du document bureautique nous montre qu'un document a bien été créé à partir d'un template  position=left  color=blue  width=300
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Pour en savoir plus sur la création et la modification de templates, veuillez vous reporter au point "2.10 - Gestion des modèles" de la documentation écrite
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    ${note1}  Add main note  Ou rendez-vous sur la vidéo "Gérer les modèles"
+    sleep  ${N_S}
+    Remove element  id=${note1}
+
+    Add end message
 
 Transférer un email entrant
     # setup
