@@ -113,12 +113,17 @@ class IContactListsDashboardBatchActions(IContactListsDashboard, IBatchActionsMa
 
 class IActionsPanelFolder(Interface):
 
-    """Marker interface for folder displaying actions panel viewlet."""
+    """Marker interface for folder displaying actions panel viewlet, without transitions."""
 
 
 class IActionsPanelFolderAll(Interface):
 
-    """Marker interface for folder displaying actions panel viewlet."""
+    """Marker interface for folder displaying actions panel viewlet, with transitions."""
+
+
+class IActionsPanelFolderOnlyAdd(Interface):
+
+    """Marker interface for folder displaying actions panel viewlet, without transitions and actions."""
 
 
 class IOMTemplatesFolder(IBatchActionsMarker):

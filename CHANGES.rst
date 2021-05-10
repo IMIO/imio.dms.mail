@@ -24,6 +24,8 @@ Changelog
   [sgeulette]
 - Can filter on all contacts when filtering
   [sgeulette]
+- Set IActionsPanelFolderOnlyAdd on templates and contactlist subfolders
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

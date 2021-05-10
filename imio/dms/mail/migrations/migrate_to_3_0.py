@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
@@ -8,6 +9,9 @@ from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
 from imio.dms.mail import _tr as _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail.interfaces import IActionsPanelFolder
+from imio.dms.mail.interfaces import IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import set_portlet
@@ -28,10 +32,12 @@ from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from zope.component import getUtility
 from zope.event import notify
+from zope.interface import alsoProvides
 
 import json
 import logging
 
+from zope.interface import noLongerProvides
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -204,6 +210,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if 'lecteurs_globaux_cs' not in lrsc[state]:
                     lrsc[state]['lecteurs_globaux_cs'] = {'roles': ['Reader']}
         lr._p_changed = True   # We need to indicate that the object has been modified and must be "saved"
+        # update IActionsPanelFolderOnlyAdd interface
+        s_orgs = get_registry_organizations()
+        for fld in (self.portal['templates']['om'], self.portal['templates']['oem'],
+                    self.portal['contacts']['contact-lists-folder']):
+            for uid in s_orgs:
+                if uid in fld:
+                    uidf = fld[uid]
+                    alsoProvides(uidf, IActionsPanelFolderOnlyAdd)
+                    noLongerProvides(uidf, IActionsPanelFolder)
+                    noLongerProvides(uidf, IActionsPanelFolderAll)
 
     def insert_incoming_emails(self):
         # allowed types

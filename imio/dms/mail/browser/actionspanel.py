@@ -269,6 +269,15 @@ class BasicActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete', 'rename']
 
 
+class OnlyAddActionsPanelView(ActionsPanelView):
+    """This manage the view displaying actions on some folder."""
+
+    def __init__(self, context, request):
+        super(OnlyAddActionsPanelView, self).__init__(context, request)
+        # portal_actions.object_buttons action ids to keep
+        self.ACCEPTABLE_ACTIONS = ['paste']
+
+
 class CPODTActionsPanelView(BasicActionsPanelView, ConfigurablePODTemplateActionsPanelView):
     """
         This manage the view on ConfigurablePODTemplate
@@ -315,6 +324,21 @@ class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
         'showOwnDelete': False,
         'showAddContent': True,
         'showActions': True,
+    }
+
+
+class ActionsPanelViewletOnlyAdd(ActionsPanelViewlet):
+    """
+        Override render method for IActionsPanelFolder
+    """
+
+    params = {
+        'useIcons': False,
+        'showEdit': False,
+        'showOwnDelete': False,
+        'showAddContent': True,
+        'showActions': True,  # filtered in view to keep paste
+        'showTransitions': False,
     }
 
 
