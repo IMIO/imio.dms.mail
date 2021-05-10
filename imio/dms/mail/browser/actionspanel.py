@@ -51,7 +51,15 @@ class DmsIMActionsPanelView(ActionsPanelView):
         """
           Method that check if special 'reply' action has to be displayed.
         """
-        return self.member.has_permission('Add portal content', self.ogm)
+        if not self.member.has_permission('Add portal content', self.ogm):
+            return False
+        if api.content.get_state(self.context) == 'created':
+            return False
+        # check fields
+        for attr in ('title', 'sender'):
+            if getattr(self.context, attr) is None:
+                return False
+        return True
 
     def renderReplyButton(self):
         if self.mayReply():

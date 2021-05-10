@@ -2,6 +2,8 @@
 """Test views."""
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
+from plone.app.testing import login
+from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 
@@ -19,7 +21,27 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.im1 = self.portal['incoming-mail']['courrier2']
         self.view = self.im1.unrestrictedTraverse('@@actions_panel')
 
+    def test_mayReply(self):
+        self.assertEqual(api.content.get_state(self.im1), 'created')
+        self.assertFalse(self.view.mayReply())
+        # change state
+        api.content.transition(self.im1, 'propose_to_manager')
+        self.assertEqual(api.content.get_state(self.im1), 'proposed_to_manager')
+        self.assertTrue(self.view.mayReply())
+        # change title
+        self.im1.title = None
+        self.assertFalse(self.view.mayReply())
+        self.im1.title = u'title'
+        # removed permission
+        api.content.transition(self.im1, to_state='proposed_to_agent')
+        setRoles(self.portal, TEST_USER_ID, ['Member'])
+        logout()
+        login(self.portal, 'lecteur')
+        self.view.member = api.user.get_current()
+        self.assertFalse(self.view.mayReply())
+
     def test_renderReplyButton(self):
+        api.content.transition(self.im1, 'propose_to_manager')
         self.view.useIcons = True
         self.assertEqual(self.view.renderReplyButton(),
                          '<td class="noPadding">\n  <a target="_parent" href="http://nohost/plone/incoming-mail/'
