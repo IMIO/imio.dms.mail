@@ -48,9 +48,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
         self.ogm = api.portal.get()['outgoing-mail']
 
     def mayReply(self):
-        """
-          Method that check if special 'reply' action has to be displayed.
-        """
+        """Method that check if special 'reply' action has to be displayed."""
         if not self.member.has_permission('Add portal content', self.ogm):
             return False
         if api.content.get_state(self.context) == 'created':
