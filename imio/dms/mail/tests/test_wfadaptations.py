@@ -177,21 +177,23 @@ class TestOMServiceValidation1(unittest.TestCase):
     def test_om_workflow1(self):
         """ Check workflow """
         self.assertSetEqual(set(self.omw.states),
-                            {'created', 'scanned', 'proposed_to_n_plus_1', 'to_be_signed', 'sent'})
+                            {'created', 'scanned', 'proposed_to_n_plus_1', 'validated', 'to_be_signed', 'sent'})
         self.assertSetEqual(set(self.omw.transitions),
                             {'back_to_creation', 'back_to_agent', 'back_to_scanned', 'back_to_n_plus_1',
-                             'back_to_be_signed', 'propose_to_n_plus_1', 'set_scanned', 'propose_to_be_signed',
-                             'mark_as_sent'})
+                             'back_to_validated', 'back_to_be_signed', 'propose_to_n_plus_1', 'set_scanned',
+                             'set_validated', 'propose_to_be_signed', 'mark_as_sent'})
         self.assertSetEqual(set(self.omw.states['created'].transitions),
-                            {'set_scanned', 'propose_to_n_plus_1', 'propose_to_be_signed', 'mark_as_sent'})
+                            {'set_scanned', 'propose_to_n_plus_1', 'set_validated', 'propose_to_be_signed',
+                             'mark_as_sent'})
         self.assertSetEqual(set(self.omw.states['scanned'].transitions),
                             {'mark_as_sent', 'back_to_agent'})
         self.assertSetEqual(set(self.omw.states['proposed_to_n_plus_1'].transitions),
-                            {'back_to_creation', 'propose_to_be_signed', 'mark_as_sent'})
+                            {'back_to_creation', 'set_validated', 'propose_to_be_signed', 'mark_as_sent'})
         self.assertSetEqual(set(self.omw.states['to_be_signed'].transitions),
-                            {'mark_as_sent', 'back_to_n_plus_1', 'back_to_creation'})
+                            {'mark_as_sent', 'back_to_validated', 'back_to_n_plus_1', 'back_to_creation'})
         self.assertSetEqual(set(self.omw.states['sent'].transitions),
-                            {'back_to_be_signed', 'back_to_scanned', 'back_to_creation', 'back_to_n_plus_1'})
+                            {'back_to_be_signed', 'back_to_scanned', 'back_to_creation', 'back_to_n_plus_1',
+                             'back_to_validated'})
 
     def test_OMServiceValidation1(self):
         """
@@ -204,12 +206,18 @@ class TestOMServiceValidation1(unittest.TestCase):
         lr = getattr(fti, 'localroles')
         self.assertIn('proposed_to_n_plus_1', lr['treating_groups'])
         self.assertIn('proposed_to_n_plus_1', lr['recipient_groups'])
+        self.assertIn('validated', lr['treating_groups'])
+        self.assertIn('validated', lr['recipient_groups'])
         # check collection
         folder = self.portal['outgoing-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_n_plus_1', folder)
-        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 10)
+        self.assertIn('searchfor_validated', folder)
         self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
+        self.assertEqual(folder.getObjectPosition('searchfor_validated'), 10)
+        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 11)
         self.assertIn('proposed_to_n_plus_1',
+                      [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
+        self.assertIn('validated',
                       [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
         self.assertTrue(folder['to_validate'].enabled)
         # check annotations
@@ -219,14 +227,16 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertIn('proposed_to_n_plus_1', config)
         # check vocabularies
         factory = getUtility(IVocabularyFactory, u'collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
-        self.assertEqual(len(factory(folder, folder)), 12)
+        self.assertEqual(len(factory(folder, folder)), 13)
         factory = getUtility(IVocabularyFactory, u'imio.dms.mail.OMReviewStatesVocabulary')
-        self.assertEqual(len(factory(folder)), 5)
+        self.assertEqual(len(factory(folder)), 6)
         # check configuration
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
         self.assertIn('dmsoutgoingmail.back_to_n_plus_1|', lst)
+        self.assertIn('dmsoutgoingmail.back_to_validated|', lst)
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states')
         self.assertIn('proposed_to_n_plus_1', lst)
+        self.assertIn('validated', lst)
 
     def test_OdmUtilsMethods_can_do_transition1(self):
         # self.assertEqual(api.content.get_state(self.omail), 'created')
