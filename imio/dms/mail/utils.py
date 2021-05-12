@@ -287,8 +287,8 @@ def list_wf_states(context, portal_type):
                               'proposed_to_n_plus_4', 'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
                               'proposed_to_n_plus_1', 'proposed_to_agent', 'in_treatment', 'closed'],
         'task': ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'],
-        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'],
-        'dmsoutgoing_email': ['scanned', 'created', 'proposed_to_n_plus_1', 'to_print', 'to_be_signed', 'sent'],
+        'dmsoutgoingmail': ['scanned', 'created', 'proposed_to_n_plus_1', 'validated', 'to_be_signed', 'sent'],
+        'dmsoutgoing_email': ['scanned', 'created', 'proposed_to_n_plus_1', 'validated', 'to_be_signed', 'sent'],
         'organization': ['active', 'deactivated'],
         'person': ['active', 'deactivated'],
         'held_position': ['active', 'deactivated'],
@@ -757,8 +757,12 @@ class OdmUtilsMethods(UtilsMethods):
             return True
         return False
 
+    def can_be_validated(self):
+        """Used in guard expression for validated transitions."""
+        return True
+
     def can_be_handsigned(self):
-        """Used in guard expression for to_be_signed and to_print transitions."""
+        """Used in guard expression for to_be_signed transitions."""
         brains = self.context.portal_catalog.unrestrictedSearchResults(portal_type='dmsommainfile',
                                                                        path='/'.join(self.context.getPhysicalPath()))
         return bool(brains)

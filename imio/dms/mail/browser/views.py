@@ -257,10 +257,10 @@ class SendEmail(BrowserView):
                                                'omail_close_on_email_send')
         if close:
             trans = {
-                'created': ['mark_as_sent', 'propose_to_be_signed', 'set_to_print', 'propose_to_n_plus_1'],
+                'created': ['mark_as_sent', 'propose_to_be_signed', 'set_validated', 'propose_to_n_plus_1'],
                 'scanned': ['mark_as_sent'],
-                'proposed_to_n_plus_1': ['mark_as_sent', 'propose_to_be_signed', 'set_to_print'],
-                'to_be_signed': ['mark_as_sent'], 'to_print': ['propose_to_be_signed', 'mark_as_sent']
+                'proposed_to_n_plus_1': ['mark_as_sent', 'propose_to_be_signed', 'set_validated'],
+                'to_be_signed': ['mark_as_sent'], 'validated': ['propose_to_be_signed', 'mark_as_sent']
             }
             state = api.content.get_state(self.context)
             i = 0

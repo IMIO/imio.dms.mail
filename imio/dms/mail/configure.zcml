@@ -297,10 +297,10 @@
         factory=".wfadaptations.OMServiceValidation"
     />
 
-    <utility
+    <!--utility
         name="imio.dms.mail.wfadaptations.OMToPrint"
         factory=".wfadaptations.OMToPrintAdaptation"
-    />
+    /-->
 
     <utility
         name="imio.dms.mail.wfadaptations.TaskServiceValidation"

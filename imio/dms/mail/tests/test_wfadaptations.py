@@ -43,7 +43,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         # the modified dmsconfig is kept globally
         reset_dms_config()
 
-    def test_OMToPrintAdaptation(self):
+    def old_test_OMToPrintAdaptation(self):
         """ Test wf adaptation modifications """
         tpa = OMToPrintAdaptation()
         tpa.patch_workflow('outgoingmail_workflow')
@@ -136,7 +136,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertFalse(group_has_user(groupname))
         self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
 
-    def test_OMToPrintAdaptationBeforeNp1(self):
+    def old_test_OMToPrintAdaptationBeforeNp1(self):
         """ Test wf adaptation modifications """
         tpa = OMToPrintAdaptation()
         tpa.patch_workflow('outgoingmail_workflow')
@@ -145,7 +145,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
                                                           run_dependencies=False)
         self.common_tests()
 
-    def test_OMToPrintAdaptationAfterNp1(self):
+    def old_test_OMToPrintAdaptationAfterNp1(self):
         """ Test wf adaptation modifications """
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                           'imiodmsmail-om_n_plus_1_wfadaptation',

@@ -131,13 +131,13 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-msgid "om_back_to_print"
+msgid "om_back_to_validated"
 msgstr ""
 
-msgid "om_set_to_print"
+msgid "om_set_validated"
 msgstr ""
 
-msgid "om_to_print"
+msgid "om_validated"
 msgstr ""
 
 msgid "back_to_pre_manager"

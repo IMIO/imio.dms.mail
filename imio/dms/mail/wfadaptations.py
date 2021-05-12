@@ -470,19 +470,26 @@ class OMServiceValidation(WorkflowAdaptationBase):
         wtool = portal.portal_workflow
         level = parameters['validation_level']
         wf = wtool['outgoingmail_workflow']
-        new_id = 'n_plus_{}'.format(level)
-        new_state_id = 'proposed_to_{}'.format(new_id)
         wf_from_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'])
         # from: ('created', 'back_to_creation')
-        # to: ('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed'), ('to_print', 'set_to_print')
+        # to: ('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed')
+        # n+ ids
+        new_id = 'n_plus_{}'.format(level)
+        new_state_id = 'proposed_to_{}'.format(new_id)
+        propose_tr_id = 'propose_to_{}'.format(new_id)
+        back_tr_id = 'back_to_{}'.format(new_id)
+        # validated ids
+        val_state_id = 'validated'
+        val_set_tr_id = 'set_validated'
+        val_back_tr_id = 'back_to_validated'
+
         transitions = [tr for (st, tr) in wf_from_to['from']] + [tr for (st, tr) in wf_from_to['to']]
         to_states = [st for (st, tr) in wf_from_to['to']]
         # store current level in dms_config
-        propose_tr_id = 'propose_to_{}'.format(new_id)
         # wf_from_to['to'] += [(new_state_id, propose_tr_id)]
         # set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'], wf_from_to)
 
-        # add state
+        # add n+ state
         msg = self.check_state_in_workflow(wf, new_state_id)
         if not msg:
             return False, 'State {} already in workflow'.format(new_state_id)
@@ -490,7 +497,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         state = wf.states[new_state_id]
         state.setProperties(
             title=parameters['state_title'].encode('utf8'), description='',
-            transitions=transitions)
+            transitions=transitions+[val_set_tr_id])
         # permissions
         perms = {
             'Access contents information': ('Editor', 'Manager', 'Owner', 'Reader', 'Reviewer', 'Site Administrator'),
@@ -504,8 +511,16 @@ class OMServiceValidation(WorkflowAdaptationBase):
             'imio.dms.mail: Write treating group field': ('Manager', 'Site Administrator', 'Treating Group Writer'),
         }
         state.permission_roles = perms
+        # add validated state
+        wf.states.addState(val_state_id)
+        val_state = wf.states[val_state_id]
+        val_state.setProperties(
+            title='om_validated', description='',
+            transitions=transitions+[back_tr_id])
+        # permissions
+        val_state.permission_roles = perms
 
-        # add transitions
+        # add N+ transitions
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
             title=parameters['forward_transition_title'].encode('utf8'),
@@ -516,7 +531,6 @@ class OMServiceValidation(WorkflowAdaptationBase):
             props={'guard_permissions': 'Review portal content',
                    'guard_expr': "python:object.restrictedTraverse('odm-utils')."
                                  "can_do_transition('{}')".format(propose_tr_id)})
-        back_tr_id = 'back_to_{}'.format(new_id)
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
             title=parameters['backward_transition_title'].encode('utf8'),
@@ -527,6 +541,23 @@ class OMServiceValidation(WorkflowAdaptationBase):
             props={'guard_permissions': 'Review portal content',
                    'guard_expr': "python:object.restrictedTraverse('odm-utils')."
                                  "can_do_transition('{}')".format(back_tr_id)})
+        # add validated transitions
+        wf.transitions.addTransition(val_set_tr_id)
+        wf.transitions[val_set_tr_id].setProperties(
+            title='om_set_validated',
+            new_state_id=val_state_id, trigger_type=1, script_name='',
+            actbox_name='om_set_validated', actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_set_validated.png', actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
+        wf.transitions.addTransition(val_back_tr_id)
+        wf.transitions[val_back_tr_id].setProperties(
+            title='om_back_to_validated',
+            new_state_id=val_state_id, trigger_type=1, script_name='',
+            actbox_name='om_back_to_validated', actbox_url='',
+            actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_validated.png', actbox_category='workflow',
+            props={'guard_permissions': 'Review portal content',
+                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
 
         # modify existing states
         # add new back_to transition on next states
@@ -535,7 +566,10 @@ class OMServiceValidation(WorkflowAdaptationBase):
                 continue
             next_state = wf.states[next_state_id]
             transitions = list(next_state.transitions)
-            transitions.append(back_tr_id)
+            if back_tr_id not in transitions:
+                transitions.append(back_tr_id)
+            if val_back_tr_id not in transitions:
+                transitions.append(val_back_tr_id)
             next_state.transitions = tuple(transitions)
 
         # add new propose_to transition on previous states
@@ -544,7 +578,10 @@ class OMServiceValidation(WorkflowAdaptationBase):
                 continue
             previous_state = wf.states[st]
             transitions = list(previous_state.transitions)
-            transitions.append(propose_tr_id)
+            if propose_tr_id not in transitions:
+                transitions.append(propose_tr_id)
+            if val_set_tr_id not in transitions:
+                transitions.append(val_set_tr_id)
             previous_state.transitions = tuple(transitions)
 
         # add function
@@ -560,6 +597,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
         if 'creating_group' in lr:
             api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
                                       mapping={'type': 'dmsoutgoingmail'}), portal.REQUEST, type='warning')
+        lrsc = lr['static_config']
+        if val_state_id not in lrsc:
+            lrsc[val_state_id] = {'expedition': {'roles': ['Editor', 'Reviewer']},
+                                  'encodeurs': {'roles': ['Reader']},
+                                  'dir_general': {'roles': ['Reader']}}
         lrt = lr['treating_groups']
         if new_state_id not in lrt:
             lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
@@ -567,39 +609,68 @@ class OMServiceValidation(WorkflowAdaptationBase):
                                  'encodeur': {'roles': ['Reader']}}
             for st in to_states:
                 lrt[st].update({new_id: {'roles': ['Reader']}})
-            lrt['sent'].update({new_id: {'roles': ['Reader']}})
+        if val_state_id not in lrt:
+            dic = {'editeur': {'roles': ['Reader']},
+                   'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                          'Base Field Writer', 'Treating Group Writer']},
+                   'lecteur': {'roles': ['Reader']},
+                   new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                      'Base Field Writer', 'Treating Group Writer']}}
+            lrt[val_state_id] = dic
         lrr = lr['recipient_groups']
         if new_state_id not in lrr:
             lrr[new_state_id] = {new_id: {'roles': ['Reader']}}
             for st in to_states:
                 lrr[st].update({new_id: {'roles': ['Reader']}})
-            lrr['sent'].update({new_id: {'roles': ['Reader']}})
+        if val_state_id not in lrr:
+            dic = {'editeur': {'roles': ['Reader']},
+                   'encodeur': {'roles': ['Reader']},
+                   'lecteur': {'roles': ['Reader']},
+                   new_id: {'roles': ['Reader']}}
+            lrr[val_state_id] = dic
         # We need to indicate that the object has been modified and must be 'saved'
         lr._p_changed = True
 
-        # add collection
+        # update dms config
+        if (val_state_id, val_set_tr_id) not in wf_from_to['to']:
+            wf_from_to['to'].append((val_state_id, val_set_tr_id))
+            set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], wf_from_to['to'])
+        update_transitions_levels_config(['dmsoutgoingmail'])
+
+        # add collections
         folder = portal['outgoing-mail']['mail-searches']
-        col_id = 'searchfor_{}'.format(new_state_id)
-        col_title = u'État: {}'.format(parameters['state_title'])
-        if col_id not in folder:
-            next_col = folder['searchfor_{}'.format(to_states[-1])]
-            folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
-                                 query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': ['dmsoutgoingmail']},
-                                        {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
-                                         'v': [new_state_id]}],
-                                 customViewFields=tuple(next_col.customViewFields),
-                                 showNumberOfItems=False,
-                                 sort_on=u'sortable_title', sort_reversed=True, b_size=30, limit=0)
-            col = folder[col_id]
-            col.setSubject((u'search', ))
-            col.reindexObject(['Subject'])
-            col.setLayout('tabular_view')
-            folder.moveObjectToPosition(col_id, folder.getObjectPosition('searchfor_{}'.format(to_states[-1])))
+        for state_id, state_tit, next_col in (
+                (new_state_id, parameters['state_title'], to_states[-1]),
+                (val_state_id, _(val_state_id, domain='plone'), 'to_be_signed')):
+            col_id = 'searchfor_{}'.format(state_id)
+            col_title = _(u'searchfor: ${state}', mapping={'state': state_tit.lower()})
+            if col_id not in folder:
+                next_col_id = 'searchfor_{}'.format(next_col)
+                folder.invokeFactory('DashboardCollection', id=col_id, title=col_title, enabled=True,
+                                     query=[{'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+                                             'v': ['dmsoutgoingmail']},
+                                            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
+                                             'v': [state_id]}],
+                                     customViewFields=tuple(folder[next_col_id].customViewFields),
+                                     showNumberOfItems=True,
+                                     sort_on=u'sortable_title', sort_reversed=True, b_size=30, limit=0)
+                col = folder[col_id]
+                col.setSubject((u'search', ))
+                col.reindexObject(['Subject'])
+                col.setLayout('tabular_view')
+                folder.moveObjectToPosition(col_id, folder.getObjectPosition(next_col_id))
 
         if not folder['to_validate'].enabled:
             folder['to_validate'].enabled = True
             folder['to_validate'].reindexObject()
+
+        # Add template to folder
+        tmpl = portal['templates']['om']['d-print']
+        cols = tmpl.dashboard_collections
+        col = folder['searchfor_{}'.format(val_state_id)]
+        if col.UID() not in cols:
+            cols.append(col.UID())
+            tmpl.dashboard_collections = cols
 
         # update configuration annotation
         config = get_dms_config(['review_levels', 'dmsoutgoingmail'])
@@ -638,11 +709,10 @@ class OMServiceValidation(WorkflowAdaptationBase):
         query = list(col.query)
         modif = False
         for dic in query:
-            if dic['i'] == 'review_state' and new_state_id not in dic['v']:
-                modif = True
-                if 'proposed_to_service_chief' in dic['v']:
-                    dic['v'].remove('proposed_to_service_chief')
-                dic['v'] += [new_state_id]
+            for st_id in (new_state_id, val_state_id):
+                if dic['i'] == 'review_state' and st_id not in dic['v']:
+                    modif = True
+                    dic['v'] += [st_id]
         if modif:
             col.query = query
 

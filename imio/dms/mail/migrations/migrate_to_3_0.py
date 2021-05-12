@@ -80,6 +80,10 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.do_prior_updates()
 
+        # remove to print
+        # save to_print local roles
+        # update dmsconfig ?
+
         self.runProfileSteps('imio.dms.mail', steps=['controlpanel', 'plone.app.registry', 'repositorytool', 'typeinfo',
                                                      'viewlets', 'workflow'])
 

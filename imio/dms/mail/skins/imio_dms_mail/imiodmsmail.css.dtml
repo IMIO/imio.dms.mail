@@ -616,10 +616,10 @@ td.cke_tpl_preview_img img {
     border-color: dimgrey;
 }
 
-.state-to_print {
+.state-validated {
  color: cornflowerBlue !important;
 }
-.viewlet_workflowstate span.state-to_print {
+.viewlet_workflowstate span.state-validated {
     background-color: cornflowerBlue;
     border-color: cornflowerBlue;
 }
