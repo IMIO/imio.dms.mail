@@ -594,6 +594,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
         lr = getattr(fti, 'localroles')
+        # TODO replace with om option check
         if 'creating_group' in lr:
             api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
                                       mapping={'type': 'dmsoutgoingmail'}), portal.REQUEST, type='warning')
@@ -700,10 +701,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # update remark states
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
                                              default=False) or []
-        if new_state_id not in lst:
-            lst.insert(0, new_state_id)
-            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
-                                           lst)
+        for st_id in (new_state_id, val_state_id):
+            if st_id not in lst:
+                lst.insert(0, st_id)
+                api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
+                                               lst)
 
         col = folder['om_treating']
         query = list(col.query)
