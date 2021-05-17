@@ -219,6 +219,11 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         default=None,
     )
 
+    original_email_sender = schema.TextLine(
+        title=_(u"Original email sender"),
+#        constraint=validate_email_address,
+    )
+
     directives.omitted('related_docs', 'recipients', 'notes')
     # directives.widget(recipient_groups=SelectFieldWidget)
 
@@ -381,6 +386,9 @@ class IMEdit(DmsDocumentEdit):
                 due_date = datetime.today() + timedelta(days=due_date_extension)
                 self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
 
+        if not self.widgets['original_email_sender'].value:
+            self.widgets['original_email_sender'].mode = HIDDEN_MODE
+
     # def applyChanges(self, data):
     #    """ We need to remove a disabled field from data """
     #    sm = getSecurityManager()
@@ -405,6 +413,8 @@ class IMView(DmsDocumentView):
         #    return
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
+        if not self.widgets['original_email_sender'].value:
+            self.widgets['original_email_sender'].mode = HIDDEN_MODE
 
         if self.context.treating_groups and self.context.assigned_user is None:
             updatewidgets_assigned_user_description(self)
@@ -422,6 +432,7 @@ class CustomAddForm(DefaultAddForm):
     def updateWidgets(self, prefix=None):
         super(CustomAddForm, self).updateWidgets()
         imio_dmsincomingmail_updatewidgets(self)
+        self.widgets['original_email_sender'].mode = HIDDEN_MODE
         # Set a due date by default if it was set in the configuration
         due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
         if due_date_extension > 0:

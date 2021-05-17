@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-05-17 12:01+0000\n"
+"POT-Creation-Date: 2021-05-17 15:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -391,12 +391,16 @@ msgstr ""
 msgid "Organizations searches"
 msgstr ""
 
+#: ./dmsmail.py:223
+msgid "Original email sender"
+msgstr ""
+
 #: ./browser/settings.py:147
 msgid "Original mail date requirement"
 msgstr ""
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:538
+#: ./dmsmail.py:549
 msgid "Outgoing Date"
 msgstr ""
 
@@ -512,7 +516,7 @@ msgid "Send email"
 msgstr ""
 
 #: ./browser/settings.py:257
-#: ./dmsmail.py:532
+#: ./dmsmail.py:543
 msgid "Send modes"
 msgstr ""
 
@@ -564,7 +568,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:842
+#: ./dmsmail.py:853
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -626,7 +630,7 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:277
+#: ./dmsmail.py:282
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
