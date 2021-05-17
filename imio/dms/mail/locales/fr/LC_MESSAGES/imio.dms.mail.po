@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-05-12 08:20+0000\n"
+"POT-Creation-Date: 2021-05-17 12:01+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -906,7 +906,7 @@ msgstr "Tri sur l'ordre de scan"
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
-#: ./wfadaptations.py:646
+#: ./wfadaptations.py:655
 msgid "searchfor: ${state}"
 msgstr "État: ${state}"
 
