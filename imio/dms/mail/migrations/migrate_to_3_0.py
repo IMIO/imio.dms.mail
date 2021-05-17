@@ -80,10 +80,6 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.do_prior_updates()
 
-        # remove to print
-        # save to_print local roles
-        # update dmsconfig ?
-
         self.runProfileSteps('imio.dms.mail', steps=['controlpanel', 'plone.app.registry', 'repositorytool', 'typeinfo',
                                                      'viewlets'])
 
@@ -162,9 +158,15 @@ class Migrate_To_3_0(Migrator):  # noqa
         # remove doing_migration from wfadaptations parameters (added by 2.3 migration)
         change = False
         record = []
-        for info in get_applied_adaptations():
+        adaptations = get_applied_adaptations()
+        for info in adaptations:
             if 'doing_migration' in info['parameters']:
                 del info['parameters']['doing_migration']
+                change = True
+            if (info['adaptation'] == u'imio.dms.mail.wfadaptations.OMServiceValidation' and 'validated_from_created'
+                    not in info['parameters']):
+                value = u'imio.dms.mail.wfadaptations.OMToPrint' in [dic['adaptation'] for dic in adaptations]
+                info['parameters']['validated_from_created'] = value
                 change = True
             info['parameters'] = json.dumps(info['parameters'], sort_keys=True).decode('utf8')
             record.append(info)
@@ -327,13 +329,13 @@ class Migrate_To_3_0(Migrator):  # noqa
         lr = getattr(fti, 'localroles')
         lrg = lr['static_config']
         if 'to_print' in lrg:
-            del lrg['to_print']
+            logger.info("static to_print: '{}'".format(lrg.pop('to_print')))
         lrg = lr['treating_groups']
         if 'to_print' in lrg:
-            del lrg['to_print']
+            logger.info("treating_groups to_print: '{}'".format(lrg.pop('to_print')))
         lrg = lr['recipient_groups']
         if 'to_print' in lrg:
-            del lrg['to_print']
+            logger.info("recipient_groups to_print: '{}'".format(lrg.pop('to_print')))
         lr._p_changed = True
 
         # remove collection

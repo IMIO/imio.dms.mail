@@ -225,7 +225,8 @@ def om_n_plus_1_wfadaptation(context):
     n_plus_1_params = {'validation_level': 1, 'state_title': u'À valider par le chef de service',
                        'forward_transition_title': u'Proposer au chef de service',
                        'backward_transition_title': u'Renvoyer au chef de service',
-                       'function_title': u'N+1'}
+                       'function_title': u'N+1',
+                       'validated_from_created': False}
     sva = OMServiceValidation()
     adapt_is_applied = sva.patch_workflow('outgoingmail_workflow', **n_plus_1_params)
     if adapt_is_applied:

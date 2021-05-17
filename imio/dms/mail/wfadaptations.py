@@ -451,6 +451,11 @@ class IOMServiceValidationParameters(IIMServiceValidationParameters):
         vocabulary=SimpleVocabulary([SimpleTerm(value=1)]),
     )
 
+    validated_from_created = schema.Bool(
+        title=u'Can set validated from created state',
+        required=False,
+        default=False,
+    )
 
 """
     outgoingmail_workflow adaptation
@@ -514,9 +519,12 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # add validated state
         wf.states.addState(val_state_id)
         val_state = wf.states[val_state_id]
+        val_transitions = list(transitions) + [back_tr_id]
+        if not parameters['validated_from_created']:
+            val_transitions.remove('back_to_creation')
         val_state.setProperties(
             title='om_validated', description='',
-            transitions=transitions+[back_tr_id])
+            transitions=val_transitions)
         # permissions
         val_state.permission_roles = perms
 
@@ -548,16 +556,16 @@ class OMServiceValidation(WorkflowAdaptationBase):
             new_state_id=val_state_id, trigger_type=1, script_name='',
             actbox_name='om_set_validated', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_set_validated.png', actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
+            props={'guard_permissions': 'Review portal content', })
+#                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
         wf.transitions.addTransition(val_back_tr_id)
         wf.transitions[val_back_tr_id].setProperties(
             title='om_back_to_validated',
             new_state_id=val_state_id, trigger_type=1, script_name='',
             actbox_name='om_back_to_validated', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_validated.png', actbox_category='workflow',
-            props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
+            props={'guard_permissions': 'Review portal content', })
+#                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
 
         # modify existing states
         # add new back_to transition on next states
@@ -580,7 +588,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             transitions = list(previous_state.transitions)
             if propose_tr_id not in transitions:
                 transitions.append(propose_tr_id)
-            if val_set_tr_id not in transitions:
+            if (st != 'created' or parameters['validated_from_created']) and val_set_tr_id not in transitions:
                 transitions.append(val_set_tr_id)
             previous_state.transitions = tuple(transitions)
 
