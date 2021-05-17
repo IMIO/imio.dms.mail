@@ -26,6 +26,8 @@ Changelog
   [sgeulette]
 - Set IActionsPanelFolderOnlyAdd on templates and contactlist subfolders
   [sgeulette]
+- Replaced to_print adaptation with validated state from n+1 adaptation
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

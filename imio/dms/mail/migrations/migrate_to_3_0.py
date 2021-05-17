@@ -85,7 +85,10 @@ class Migrate_To_3_0(Migrator):  # noqa
         # update dmsconfig ?
 
         self.runProfileSteps('imio.dms.mail', steps=['controlpanel', 'plone.app.registry', 'repositorytool', 'typeinfo',
-                                                     'viewlets', 'workflow'])
+                                                     'viewlets'])
+
+        # remove to_print related. Call 'workflow' step !!
+        self.remove_to_print()
 
         # copy localroles from dmsincomingmail to dmsincoming_email
         imfti = getUtility(IDexterityFTI, name='dmsincomingmail')
@@ -306,6 +309,83 @@ class Migrate_To_3_0(Migrator):  # noqa
         if 'portlet' in pa:
             api.content.rename(obj=pa['portlet'], new_id='object_portlet')
             set_portlet(self.portal)
+
+    def remove_to_print(self):
+        applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+        if u'imio.dms.mail.wfadaptations.OMToPrint' not in applied_adaptations:
+            return
+        logger.info('Removing to_print')
+        # clean dms config
+        config = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'])
+        if ('to_print', 'set_to_print') in config:
+            config.remove(('to_print', 'set_to_print'))
+            set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], value=config)
+            update_transitions_levels_config(['dmsoutgoingmail'])
+
+        # clean local roles
+        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
+        lr = getattr(fti, 'localroles')
+        lrg = lr['static_config']
+        if 'to_print' in lrg:
+            del lrg['to_print']
+        lrg = lr['treating_groups']
+        if 'to_print' in lrg:
+            del lrg['to_print']
+        lrg = lr['recipient_groups']
+        if 'to_print' in lrg:
+            del lrg['to_print']
+        lr._p_changed = True
+
+        # remove collection
+        folder = self.omf['mail-searches']
+        if 'searchfor_to_print' in folder:
+            api.content.delete(obj=folder['searchfor_to_print'])
+        col = folder['om_treating']
+        query = list(col.query)
+        modif = False
+        for dic in query:
+            if dic['i'] == 'review_state' and 'to_print' in dic['v']:
+                modif = True
+                dic['v'].remove('to_print')
+        if modif:
+            col.query = query
+
+        # update remark states
+        lst = (api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states')
+               or [])
+        if 'to_print' in lst:
+            lst.remove('to_print')
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
+                                           lst)
+
+        # reset workflow
+        self.runProfileSteps('imio.dms.mail', steps=['workflow'])
+
+        trs = {'set_to_print': 'set_validated', 'back_to_print': 'back_to_validated'}
+        wkf = self.wfTool['outgoingmail_workflow']
+        for i, brain in enumerate(self.catalog(portal_type='dmsoutgoingmail'), 1):
+            obj = brain.getObject()
+            # update history
+            wfh = []
+            for status in obj.workflow_history.get('outgoingmail_workflow'):
+                # replace old state by new one
+                if status['review_state'] == 'to_print':
+                    status['review_state'] = 'validated'
+                # replace old transition by new one
+                if status['action'] in trs:
+                    status['action'] = trs[status['action']]
+                wfh.append(status)
+            obj.workflow_history['outgoingmail_workflow'] = tuple(wfh)
+            # update permissions and roles
+            wkf.updateRoleMappingsFor(obj)
+            # update state_group (use dms_config), permissions, state
+            obj.reindexObject(idxs=['allowedRolesAndUsers', 'review_state', 'state_group'])
+            for child in obj.objectValues():
+                child.reindexObject(idxs=['allowedRolesAndUsers'])
+
+        record = api.portal.get_registry_record(RECORD_NAME)
+        api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
+                                                     u'imio.dms.mail.wfadaptations.OMToPrint'])
 
     def update_config(self):
         # modify settings following new structure
