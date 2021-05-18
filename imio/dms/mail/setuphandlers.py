@@ -44,7 +44,7 @@ from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
-from imio.dms.mail.utils import Dummy
+from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
@@ -1485,7 +1485,7 @@ def addTestMails(context):
 
     # incoming mails
     ifld = site['incoming-mail']
-    data = Dummy(site, site.REQUEST)
+    data = DummyView(site, site.REQUEST)
     for i in range(1, 10):
         if not 'courrier%d' % i in ifld:
             scan_date = receptionDateDefaultValue(data)

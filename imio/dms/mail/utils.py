@@ -812,9 +812,22 @@ class TaskUtilsMethods(UtilsMethods):
 
 
 class Dummy(object):
-    def __init__(self, context, request):
-        self.context = context
-        self.request = request
+    """dummy class that allows setting attributes """
+
+    def __init__(self, **kw):
+        self.__dict__.update(kw)
+
+
+class DummyView(object):
+    def __init__(self, context=None, request=None):
+        if context is not None:
+            self.context = context
+        else:
+            self.context = Dummy()
+        if request is not None:
+            self.request = request
+        else:
+            self.request = {}
 
 
 def update_solr_config():

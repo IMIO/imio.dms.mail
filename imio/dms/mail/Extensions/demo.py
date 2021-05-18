@@ -9,7 +9,7 @@ from datetime import date
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail.utils import Dummy
+from imio.dms.mail.utils import DummyView
 from itertools import cycle
 from plone import api
 from plone.dexterity.utils import createContentInContainer
@@ -82,11 +82,11 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         with open(add_path('Extensions/%s' % doc), 'rb') as fo:
             file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
 
-        irn = internalReferenceIncomingMailDefaultValue(Dummy(portal, portal.REQUEST))
+        irn = internalReferenceIncomingMailDefaultValue(DummyView(portal, portal.REQUEST))
         doc_metadata = copy.copy(docs[ptype][doc]['c'])
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
-            Dummy(portal, portal.REQUEST),
+            DummyView(portal, portal.REQUEST),
             folder,
             ptype,
             '',
@@ -124,12 +124,6 @@ def import_scanned2(self, number=2):
         },
     }
     docs_cycle = cycle(docs)
-
-    class Dummy(object):
-        def __init__(self, context, request):
-            self.context = context
-            self.request = request
-
     portal = getToolByName(self, "portal_url").getPortalObject()
     folder = portal['outgoing-mail']
     count = 1
@@ -140,11 +134,11 @@ def import_scanned2(self, number=2):
         with open(add_path('Extensions/%s' % doc), 'rb') as fo:
             file_object = NamedBlobFile(fo.read(), filename=doc)
         count += 1
-        irn = internalReferenceOutgoingMailDefaultValue(Dummy(portal, portal.REQUEST))
+        irn = internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST))
         doc_metadata = copy.copy(docs[doc]['c'])
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
-            Dummy(portal, portal.REQUEST),
+            DummyView(portal, portal.REQUEST),
             folder,
             'dmsoutgoingmail',
             '',
@@ -202,7 +196,7 @@ def clean_examples(self):
 
     # Create test om
     params = {'title': u'Courrier test pour création de modèles (ne pas effacer)',
-              'internal_reference_no': internalReferenceOutgoingMailDefaultValue(Dummy(portal, portal.REQUEST)),
+              'internal_reference_no': internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
               'mail_date': date.today(),
               'mail_type': 'courrier',
               }
