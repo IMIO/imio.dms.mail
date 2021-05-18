@@ -1584,7 +1584,7 @@ def addTestUsersAndGroups(context):
         try:
             member = site.portal_registration.addMember(id=uid, password=password,
                                                         roles=['Member'] + users[(uid, fullname)])
-            member.setMemberProperties({'fullname': fullname, 'email': 'test@macommune.be'})
+            member.setMemberProperties({'fullname': fullname, 'email': '{}@macommune.be'.format(uid)})
         except ValueError, exc:
             if str(exc).startswith('The login name you selected is already in use'):
                 continue
