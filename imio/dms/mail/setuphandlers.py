@@ -1226,11 +1226,11 @@ def configureImioDmsMail(context):
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'] = [
-            'IDublinCore.title', 'IDublinCore.description', 'recipients', 'treating_groups', 'ITask.assigned_user',
-            'sender', 'recipient_groups', 'send_modes', 'mail_type', 'mail_date', 'reply_to', 'ITask.task_description',
-            'ITask.due_date', 'outgoing_date', 'external_reference_no', 'internal_reference_no',
-            'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc', 'email_attachments',
-            'email_body']
+            'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
+            'ITask.assigned_user', 'sender', 'recipient_groups', 'send_modes', 'mail_type', 'mail_date', 'reply_to',
+            'ITask.task_description', 'ITask.due_date', 'outgoing_date', 'external_reference_no',
+            'internal_reference_no', 'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
+            'email_attachments', 'email_body']
 
     # IEM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'):
@@ -1856,8 +1856,9 @@ def configure_actions_panel(portal):
              'dmsincomingmail.back_to_treatment|',
              'dmsincomingmail.back_to_agent|', 'task.back_in_created|', 'task.back_in_to_assign|',
              'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|',
-             'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|', 'dmsoutgoingmail.back_to_validated|',
-             'dmsoutgoingmail.back_to_be_signed|', 'dmsoutgoingmail.back_to_scanned|']
+             'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|',
+             'dmsoutgoingmail.back_to_validated|', 'dmsoutgoingmail.back_to_be_signed|',
+             'dmsoutgoingmail.back_to_scanned|']
 
 
 def configure_faceted_folder(folder, xml=None, default_UID=None):

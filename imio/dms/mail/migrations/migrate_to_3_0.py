@@ -417,16 +417,20 @@ class Migrate_To_3_0(Migrator):  # noqa
                                            im_fo)
         # order send_modes
         om_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order')
+        om_fo_len = len(om_fo)
         if 'send_modes' not in om_fo:
             try:
                 idx = om_fo.index('mail_type')
             except ValueError:
                 idx = len(om_fo)
             om_fo.insert(idx, 'send_modes')
-            email_flds = ['email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
-                          'email_attachments', 'email_body']
+            om_fo += ['email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
+                      'email_attachments', 'email_body']
+        if 'orig_sender_email' not in om_fo:
+            om_fo.insert(om_fo.index('recipients'), 'orig_sender_email')
+        if om_fo_len != len(om_fo):
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
-                                           om_fo + email_flds)
+                                           om_fo)
         # reimport faceted
         reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
                                 default_UID=self.imf['mail-searches']['all_mails'].UID())
