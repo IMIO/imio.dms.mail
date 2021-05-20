@@ -29,6 +29,8 @@ class ReplyForm(BaseReplyForm):
                                                 'omail_response_prefix', default='') or ''
         self.widgets['IDublinCore.title'].value = u"%s%s" % (prefix, safe_unicode(self.context.title))
         self.widgets['send_modes'].value = self.get_send_modes()
+        if self.context.orig_sender_email:
+            self.widgets['orig_sender_email'].value = self.context.orig_sender_email
         imio_dmsoutgoingmail_updatewidgets(self)
 
     def get_send_modes(self):
