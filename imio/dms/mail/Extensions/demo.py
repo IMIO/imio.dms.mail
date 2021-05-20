@@ -58,14 +58,14 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
             'email1.pdf':
             {
                 'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'email', 'file_title': u'email1.pdf',
-                      'assigned_user': 'agent', 'recipient_groups': []},
+                      'assigned_user': 'agent', 'recipient_groups': [], 'original_sender_email': u's.geul@mail.com'},
                 'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
             },
             'email2.pdf':
             {
                 'c': {'title': u'Où se situe votre entité par rapport aux Objectifs de développement durable ?',
                       'mail_type': u'email', 'file_title': u'email2.pdf',
-                      'recipient_groups': []},
+                      'recipient_groups': [], 'original_sender_email': u'm.bou@rw.be'},
                 'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
             },
         }
