@@ -1204,8 +1204,8 @@ def configureImioDmsMail(context):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = ['proposed_to_agent']
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'] = [
-            'IDublinCore.title', 'IDublinCore.description', 'sender', 'treating_groups', 'ITask.assigned_user',
-            'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
+            'IDublinCore.title', 'IDublinCore.description', 'original_sender_email', 'sender', 'treating_groups',
+            'ITask.assigned_user', 'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
             'ITask.task_description', 'external_reference_no', 'original_mail_date', 'internal_reference_no']
 
     # OM
