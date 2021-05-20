@@ -45,6 +45,7 @@ from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
+from imio.helpers.emailer import validate_email_address
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
@@ -626,12 +627,16 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return u''
 
     def get_recipient_emails(self):
-        """Returns a recipient email address
+        """Returns recipient email addresses
 
         :return: an email address
         :rtype: unicode
         """
         emails = []
+        uniques = []
+        if self.orig_sender_email:
+            uniques.append(validate_email_address(self.orig_sender_email)[1])
+            emails.append(self.orig_sender_email)
         # we don't use directly relation object to be sure to use the real object
         uids = [rel.to_object.UID() for rel in self.recipients or []]
         brains = self.portal_catalog(UID=uids)
@@ -640,8 +645,9 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
             contact = brain.getObject()
             contactable = IContactable(contact)
             email = contactable.get_contact_details(keys=['email']).get('email', u'')
-            if email:
-                if hasattr(contact, 'firstname'):
+            if email and email not in uniques:
+                uniques.append(email)
+                if hasattr(contact, 'firstname'):  # for person or held_position
                     emails.append(u'"{} {}" <{}>'.format(contact.firstname, contact.lastname, email))
                 else:
                     emails.append(email)

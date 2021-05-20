@@ -39,6 +39,7 @@ class TestDmsmail(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pgof = self.portal['contacts']['plonegroup-organization']
+        self.intids = getUtility(IIntIds)
 
     def test_creating_group_filter(self):
         login(self.portal, 'encodeur')
@@ -78,7 +79,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertEquals(len([t for t in voc]), 11)
         self.assertNotEqual(len(voc), 11)  # len = full vocabulary with hidden terms
 
-    def test_Title(self):
+    def test_IM_Title(self):
         imail1 = self.portal['incoming-mail']['courrier1']
         self.assertEquals(imail1.Title(), 'E0001 - Courrier 1')
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
@@ -87,19 +88,18 @@ class TestDmsmail(unittest.TestCase):
 
     def test_reply_to(self):
         catalog = getUtility(ICatalog)
-        intids = getUtility(IIntIds)
         imail1 = self.portal['incoming-mail']['courrier1']
         imail2 = self.portal['incoming-mail']['courrier2']
         omail1 = self.portal['outgoing-mail']['reponse1']
         omail2 = self.portal['outgoing-mail']['reponse2']
         omail1.reply_to = [
-            RelationValue(intids.getId(imail1)),
-            RelationValue(intids.getId(imail2)),
-            RelationValue(intids.getId(omail2)),
+            RelationValue(self.intids.getId(imail1)),
+            RelationValue(self.intids.getId(imail2)),
+            RelationValue(self.intids.getId(omail2)),
         ]
         modified(omail1)
         self.assertEqual(len(omail1.reply_to), 3)
-        omail_intid = intids.queryId(omail1)
+        omail_intid = self.intids.queryId(omail1)
         query = {
             'from_id': omail_intid,
             'from_attribute': 'reply_to'
@@ -264,11 +264,10 @@ class TestDmsmail(unittest.TestCase):
         self.clean_request()
 
         # Testing reply view
-        intids = getUtility(IIntIds)
         swde = self.portal.contacts['swde']
         tg = get_registry_organizations()[0]
         im = api.content.create(container=self.portal['incoming-mail'], type='dmsincomingmail', id='im',
-                                title=u'I mail', sender=[RelationValue(intids.getId(swde))],
+                                title=u'I mail', sender=[RelationValue(self.intids.getId(swde))],
                                 external_reference_no=u'xx/1', treating_groups=tg)
         api.portal.set_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                        'outgoingmail_edit_irn', u'show')
@@ -379,6 +378,25 @@ class TestDmsmail(unittest.TestCase):
         api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CONTACTS_PART_SUFFIX), username='agent')
         self.assertEqual(recipients_filter_default(self.portal),
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
+
+    def test_OM_get_recipient_emails(self):
+        om = self.portal['outgoing-mail']['reponse1']
+        self.assertIsNone(om.orig_sender_email)
+        recip1 = self.portal.unrestrictedTraverse(om.recipients[0].to_path)
+        # recip1 is electrabel org
+        self.assertEqual(recip1.email, u'contak@electrabel.eb')
+        self.assertEqual(om.get_recipient_emails(), u'contak@electrabel.eb')
+        # we add an orig_email_sender
+        om.orig_sender_email = u'"Dexter Morgan" <dexter.morgan@mpd.am>'
+        self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <dexter.morgan@mpd.am>, contak@electrabel.eb')
+        # we use the same email
+        om.orig_sender_email = u'"Dexter Morgan" <contak@electrabel.eb>'
+        self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <contak@electrabel.eb>')
+        # we add a recipient
+        hp = self.portal['contacts']['jeancourant']['agent-electrabel']
+        om.recipients.append(RelationValue(self.intids.getId(hp)))
+        self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <contak@electrabel.eb>, '
+                                                    u'"Jean Courant" <jean.courant@electrabel.eb>')
 
     def test_AssignedUserValidator(self):
         # im
