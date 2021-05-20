@@ -521,6 +521,11 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     )
     directives.widget('sender', AjaxChosenFieldWidget, populate_select=True)
 
+    orig_sender_email = schema.TextLine(
+        title=_(u"Original sender email"),
+        # constraint=validate_email_address,
+    )
+
     recipients = ContactList(
         title=_cdmsm(u'Recipients'),
         required=True,
@@ -763,9 +768,11 @@ class OMEdit(BaseOMEdit):
                 'reply_to',
                 'external_reference_no',
             ]
-
         for field in display_fields:
             self.widgets[field].mode = 'display'
+
+        if not self.widgets['orig_sender_email'].value:
+            self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
             # cannot do disabled = True because ConstraintNotSatisfied: (True, 'disabled')
@@ -785,6 +792,7 @@ class OMCustomAddForm(BaseOMAddForm):
     def updateWidgets(self):
         super(OMCustomAddForm, self).updateWidgets()
         imio_dmsoutgoingmail_updatewidgets(self)
+        self.widgets['orig_sender_email'].mode = HIDDEN_MODE
         # the following doesn't work
         # self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
 
@@ -828,6 +836,8 @@ class OMView(DmsDocumentView):
         super(OMView, self).updateWidgets()
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
+        if not self.widgets['orig_sender_email'].value:
+            self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
 
 # Validators

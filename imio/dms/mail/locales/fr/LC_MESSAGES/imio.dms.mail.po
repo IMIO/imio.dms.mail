@@ -449,7 +449,7 @@ msgstr "Obligation d'une date de courrier entrant"
 
 #: ./dmsmail.py:175
 msgid "Original sender email"
-msgstr "Email de l'expéditeur"
+msgstr "Email de l'expéditeur original"
 
 #: ./browser/batchactions.py:186
 #: ./dmsmail.py:549
