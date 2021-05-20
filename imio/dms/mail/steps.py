@@ -418,7 +418,7 @@ servername = sftp-client.imio.be
 username =
 server_files_path = .../upload_success
 registry_filename = 0_registry.dump
-transfer_path = imports/copied
+transfer_path = copied
 
 [csv_reader]
 blueprint = collective.contact.importexport.csv_reader
