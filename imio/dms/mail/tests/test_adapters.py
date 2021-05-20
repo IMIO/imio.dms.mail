@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
-
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import IdmSearchableExtender
@@ -14,6 +13,7 @@ from imio.dms.mail.adapters import OutgoingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailValidationCriterion
 from imio.dms.mail.adapters import ScanSearchableExtender
+from imio.dms.mail.adapters import sender_email_index
 from imio.dms.mail.adapters import state_group_index
 from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
@@ -153,6 +153,14 @@ class TestAdapters(unittest.TestCase):
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
         self.assertEqual(crit.query, {'mail_type': {'query': ['111']}})
+
+    def test_sender_email_index(self):
+        dguid = self.pgof['direction-generale'].UID()
+        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', title='test',
+                                         treating_groups=dguid, assigned_user='chef',
+                                         orig_sender_email=u'"Dexter Morgan" <dexter.morgan@mpd.am>')
+        indexer = sender_email_index(imail)
+        self.assertEqual(indexer(), u'dexter.morgan@mpd.am')
 
     def test_state_group_index(self):
         dguid = self.pgof['direction-generale'].UID()

@@ -411,8 +411,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', modes)
         # order
         im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order')
-        if 'original_sender_email' not in im_fo:
-            im_fo.insert(im_fo.index('sender'), 'original_sender_email')
+        if 'orig_sender_email' not in im_fo:
+            im_fo.insert(im_fo.index('sender'), 'orig_sender_email')
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
                                            im_fo)
         # order send_modes

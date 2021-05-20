@@ -171,7 +171,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         Extended schema for mail type field
     """
 
-    original_sender_email = schema.TextLine(
+    orig_sender_email = schema.TextLine(
         title=_(u"Original sender email"),
         # constraint=validate_email_address,
     )
@@ -386,8 +386,8 @@ class IMEdit(DmsDocumentEdit):
                 due_date = datetime.today() + timedelta(days=due_date_extension)
                 self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
 
-        if not self.widgets['original_sender_email'].value:
-            self.widgets['original_sender_email'].mode = HIDDEN_MODE
+        if not self.widgets['orig_sender_email'].value:
+            self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
     # def applyChanges(self, data):
     #    """ We need to remove a disabled field from data """
@@ -413,8 +413,8 @@ class IMView(DmsDocumentView):
         #    return
         for field in ['ITask.assigned_group', 'ITask.enquirer']:
             self.widgets[field].mode = HIDDEN_MODE
-        if not self.widgets['original_sender_email'].value:
-            self.widgets['original_sender_email'].mode = HIDDEN_MODE
+        if not self.widgets['orig_sender_email'].value:
+            self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
         if self.context.treating_groups and self.context.assigned_user is None:
             updatewidgets_assigned_user_description(self)
@@ -432,7 +432,7 @@ class CustomAddForm(DefaultAddForm):
     def updateWidgets(self, prefix=None):
         super(CustomAddForm, self).updateWidgets()
         imio_dmsincomingmail_updatewidgets(self)
-        self.widgets['original_sender_email'].mode = HIDDEN_MODE
+        self.widgets['orig_sender_email'].mode = HIDDEN_MODE
         # Set a due date by default if it was set in the configuration
         due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
         if due_date_extension > 0:

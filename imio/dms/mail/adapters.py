@@ -27,6 +27,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import logger
+from imio.helpers.emailer import validate_email_address
 from imio.prettylink.adapters import PrettyLinkAdapter
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
@@ -409,6 +410,14 @@ def creating_group_index(obj):
     """Indexer of 'assigned_group' for IDmsMailCreatingGroup. Stores creating_group !"""
     if base_hasattr(obj, 'creating_group') and obj.creating_group:
         return obj.creating_group
+    return common_marker
+
+
+@indexer(IImioDmsIncomingMail)
+def sender_email_index(obj):
+    """Indexer of 'email' for IImioDmsIncomingMail. Stores orig_sender_email !"""
+    if obj.orig_sender_email:
+        return validate_email_address(obj.orig_sender_email)[1]
     return common_marker
 
 
