@@ -44,16 +44,14 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # Test get_ctct_det method
         self.assertDictEqual(view1.get_ctct_det(''), {})
-        det = {'address': {'city': u'E-ville', 'country': '', 'region': '',
-                           'additional_address_details': '', 'number': u'1',
-                           'street': u"Rue de l'électron", 'zip_code': u'0020'},
-               'website': '', 'fax': '', 'phone': u'012345678', 'im_handle': '',
-               'cell_phone': '', 'email': u'jean.courant@electrabel.be'}
+        det = {'address': {}, 'website': '', 'fax': '', 'phone': '', 'im_handle': '', 'cell_phone': '', 'email': ''}
         self.assertDictEqual(view1.get_ctct_det(self.jc), det)
-        det = view1.get_ctct_det(self.resp_grh)  # get address from plonegroup-organization
-        self.assertDictEqual(det['address'], {'city': u'Ma ville', 'country': '', 'region': '',
-                                              'additional_address_details': '', 'number': u'1',
-                                              'street': u'Rue de la commune', 'zip_code': u'0010'})
+        # get address from linked organization
+        det = {'address': {'city': u'E-ville', 'country': '', 'region': '', 'additional_address_details': '',
+                           'number': u'1', 'street': u"Rue de l'électron", 'zip_code': u'0020'},
+               'im_handle': '', 'cell_phone': '', 'email': u'jean.courant@electrabel.eb', 'website': '', 'fax': '',
+               'phone': u'012345678'}
+        self.assertDictEqual(view1.get_ctct_det(self.jc['agent-electrabel']), det)
 
         # Test get_sender method
         sender = {'person': self.chef, 'hp': self.resp_grh, 'org_full_title': u'Direction générale - GRH',

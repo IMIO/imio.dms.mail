@@ -62,7 +62,7 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         self.assertTrue(self.elec['travaux'].use_parent_address)
         self.assertListEqual(sorg_v.getAllMessages(), [])
         pers_v = ContextInformationViewlet(self.jean, self.elec.REQUEST, None)
-        self.assertListEqual(pers_v.getAllMessages(), [])
+        self.assertEqual(len(pers_v.getAllMessages()), 1)  # no address
         hp_v = ContextInformationViewlet(self.jean['agent-electrabel'], self.elec.REQUEST, None)
         self.assertTrue(self.jean['agent-electrabel'].use_parent_address)
         self.assertListEqual(hp_v.getAllMessages(), [])
@@ -75,6 +75,5 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         self.assertTrue(isinstance(msgs[0], PseudoMessage))
         self.assertIn('missing address fields: street', msgs[0].text.output)
         self.assertEqual(len(sorg_v.getAllMessages()), 1)  # suborganization has missing street too
-        self.assertListEqual(pers_v.getAllMessages(), [])
         self.assertEqual(len(hp_v.getAllMessages()), 1)  # held position has missing street too
         self.assertEqual(len(om_v.getAllMessages()), 1)  # outgoing mail has missing street too
