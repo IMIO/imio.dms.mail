@@ -270,6 +270,19 @@
    <property name="placeholder">Entire string, case sensitive</property>
   </criterion>
 
+  <criterion name="c18" i18n:attributes="title">
+   <property name="widget">text</property>
+   <property name="title">Original sender email</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">email</property>
+   <property name="default"/>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">False</property>
+   <property name="placeholder">Entire string, in lowercase</property>
+  </criterion>
+
   <!--criterion name="c15" i18n:attributes="title">
    <property name="widget">checkbox</property>
    <property name="title">Labels</property>
