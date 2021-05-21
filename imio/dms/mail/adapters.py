@@ -421,6 +421,14 @@ def sender_email_index(obj):
     return common_marker
 
 
+@indexer(IImioDmsOutgoingMail)
+def sender_email_index(obj):
+    """Indexer of 'email' for IImioDmsOutgoingMail. Stores orig_sender_email !"""
+    if obj.orig_sender_email:
+        return validate_email_address(obj.orig_sender_email)[1]
+    return common_marker
+
+
 @indexer(IImioDmsIncomingMail)
 def get_full_title_index(obj):
     """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""
