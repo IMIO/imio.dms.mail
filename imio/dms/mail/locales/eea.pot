@@ -26,6 +26,12 @@ msgstr ""
 msgid "Created"
 msgstr ""
 
+#: ../faceted_conf/organizations-searches:
+#: ../faceted_conf/persons-searches:
+#: ../faceted_conf/held-positions-searches:
+msgid "Contact email"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Creating group"
 msgstr ""
@@ -37,6 +43,14 @@ msgstr ""
 #: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
 msgid "Entire string, case sensitive"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+#: ../faceted_conf/organizations-searches:
+#: ../faceted_conf/persons-searches:
+#: ../faceted_conf/held-positions-searches:
+msgid "Entire string, in lowercase"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
@@ -63,6 +77,11 @@ msgstr ""
 
 #: ../faceted_conf/im-faceted:
 msgid "Original mail date"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Original sender email"
 msgstr ""
 
 #: ../faceted_conf/om-faceted:

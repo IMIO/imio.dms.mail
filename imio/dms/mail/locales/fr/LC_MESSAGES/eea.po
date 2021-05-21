@@ -23,6 +23,12 @@ msgstr "Utilisateur assigné"
 msgid "Base collections"
 msgstr "Tableau de Bord"
 
+#: ../faceted_conf/held-positions-searches:
+#: ../faceted_conf/organizations-searches:
+#: ../faceted_conf/persons-searches:
+msgid "Contact email"
+msgstr "Email du contact"
+
 #: ../faceted_conf/im-faceted:
 msgid "Created"
 msgstr "Créé le"
@@ -39,6 +45,12 @@ msgstr "Échéance"
 #: ../faceted_conf/om-faceted:
 msgid "Entire string, case sensitive"
 msgstr "Texte entier avec la casse"
+
+#: ../faceted_conf/held-positions-searches:
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Entire string, in lowercase"
+msgstr "Texte entier en minuscule"
 
 #: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
@@ -65,6 +77,11 @@ msgstr "Types d'organisation"
 #: ../faceted_conf/im-faceted:
 msgid "Original mail date"
 msgstr "Date du courrier"
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Original sender email"
+msgstr "Email de l'expéditeur original"
 
 #: ../faceted_conf/om-faceted:
 msgid "Outgoing Date"

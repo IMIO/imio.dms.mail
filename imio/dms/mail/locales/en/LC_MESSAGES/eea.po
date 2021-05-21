@@ -23,6 +23,12 @@ msgstr ""
 msgid "Base collections"
 msgstr ""
 
+#: ../faceted_conf/held-positions-searches:
+#: ../faceted_conf/organizations-searches:
+#: ../faceted_conf/persons-searches:
+msgid "Contact email"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Created"
 msgstr ""
@@ -38,6 +44,12 @@ msgstr ""
 #: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
 msgid "Entire string, case sensitive"
+msgstr ""
+
+#: ../faceted_conf/held-positions-searches:
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Entire string, in lowercase"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
@@ -64,6 +76,11 @@ msgstr ""
 
 #: ../faceted_conf/im-faceted:
 msgid "Original mail date"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Original sender email"
 msgstr ""
 
 #: ../faceted_conf/om-faceted:
