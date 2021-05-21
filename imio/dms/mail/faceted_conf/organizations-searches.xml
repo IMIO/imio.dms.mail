@@ -153,5 +153,18 @@
    <property name="wildcard">True</property>
   </criterion>
 
+  <criterion name="c18" i18n:attributes="title">
+   <property name="widget">text</property>
+   <property name="title">Contact email</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">email</property>
+   <property name="default"/>
+   <property name="onlyallelements">True</property>
+   <property name="wildcard">False</property>
+   <property name="placeholder">Entire string, in lowercase</property>
+  </criterion>
+
  </criteria>
 </object>

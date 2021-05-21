@@ -48,6 +48,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         Migrator.__init__(self, context)
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
+        self.contacts = self.portal['contacts']
         self.existing_settings = {}
 
     def run(self):
@@ -222,7 +223,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         # update IActionsPanelFolderOnlyAdd interface
         s_orgs = get_registry_organizations()
         for fld in (self.portal['templates']['om'], self.portal['templates']['oem'],
-                    self.portal['contacts']['contact-lists-folder']):
+                    self.contacts['contact-lists-folder']):
             for uid in s_orgs:
                 if uid in fld:
                     uidf = fld[uid]
@@ -432,16 +433,21 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
                                            om_fo)
         # reimport faceted
-        reimport_faceted_config(self.imf['mail-searches'], xml='im-mail-searches.xml',
-                                default_UID=self.imf['mail-searches']['all_mails'].UID())
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
-            reimport_faceted_config(self.imf['mail-searches'], xml='mail-searches-group-encoder.xml',
-                                    default_UID=self.imf['mail-searches']['all_mails'].UID())
-        reimport_faceted_config(self.omf['mail-searches'], xml='om-mail-searches.xml',
-                                default_UID=self.omf['mail-searches']['all_mails'].UID())
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
-            reimport_faceted_config(self.omf['mail-searches'], xml='mail-searches-group-encoder.xml',
-                                    default_UID=self.omf['mail-searches']['all_mails'].UID())
+        criterias = (
+            (self.imf['mail-searches'], 'im-mail', 'all_mails', 'imail_group_encoder'),
+            (self.omf['mail-searches'], 'om-mail', 'all_mails', 'omail_group_encoder'),
+            (self.contacts['orgs-searches'], 'organizations', 'all_orgs', 'contact_group_encoder'),
+            (self.contacts['persons-searches'], 'persons', 'all_persons', 'contact_group_encoder'),
+            (self.contacts['hps-searches'], 'held-positions', 'all_hps', 'contact_group_encoder'),
+            (self.contacts['cls-searches'], 'contact-lists', 'all_cls', 'contact_group_encoder'),
+        )
+        for folder, xml_start, default_id, ge_config in criterias:
+            reimport_faceted_config(folder, xml='{}-searches.xml'.format(xml_start),
+                                    default_UID=folder[default_id].UID())
+            if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(ge_config)):
+                reimport_faceted_config(folder, xml='mail-searches-group-encoder.xml',
+                                        default_UID=folder[default_id].UID())
+
         # update maybe bad local roles (because this record change wasn't handled)
         record = getUtility(IRegistry).records.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                    'org_templates_encoder_can_edit')
