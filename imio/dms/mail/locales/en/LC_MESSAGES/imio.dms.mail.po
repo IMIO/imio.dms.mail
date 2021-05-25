@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-05-21 07:51+0000\n"
+"POT-Creation-Date: 2021-05-25 14:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -379,7 +379,7 @@ msgid "Mail listing template"
 msgstr ""
 
 #: ./browser/settings.py:134
-#: ./dmsmail.py:220
+#: ./dmsmail.py:221
 msgid "Mail type"
 msgstr ""
 
@@ -450,7 +450,7 @@ msgid "Original sender email"
 msgstr ""
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:555
+#: ./dmsmail.py:556
 msgid "Outgoing Date"
 msgstr ""
 
@@ -504,6 +504,10 @@ msgstr ""
 msgid "Plone user"
 msgstr ""
 
+#: ./profiles/default/registry.xml
+msgid "Precise scan date"
+msgstr ""
+
 #: ./setuphandlers.py:1972
 msgid "Print template"
 msgstr "To print"
@@ -512,7 +516,7 @@ msgstr "To print"
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:212
+#: ./dmsmail.py:213
 msgid "Recipient groups"
 msgstr ""
 
@@ -574,11 +578,11 @@ msgid "Send email"
 msgstr ""
 
 #: ./browser/settings.py:257
-#: ./dmsmail.py:549
+#: ./dmsmail.py:550
 msgid "Send modes"
 msgstr ""
 
-#: ./dmsmail.py:181
+#: ./dmsmail.py:182
 msgid "Sender"
 msgstr ""
 
@@ -626,7 +630,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:869
+#: ./dmsmail.py:870
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -644,7 +648,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:43
 #: ./browser/table.py:117
-#: ./dmsmail.py:193
+#: ./dmsmail.py:194
 msgid "Treating groups"
 msgstr ""
 
@@ -696,7 +700,7 @@ msgstr ""
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./dmsmail.py:283
+#: ./dmsmail.py:284
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
@@ -897,10 +901,6 @@ msgstr "To treat"
 #: ./setuphandlers.py:672
 msgid "om_to_validate"
 msgstr "To validate"
-
-#: ./profiles/default/registry.xml
-msgid "organization_type_query_field"
-msgstr "Sort on scan order"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
 #: ./browser/tabular_view.py:58
