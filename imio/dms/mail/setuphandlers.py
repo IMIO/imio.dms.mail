@@ -112,6 +112,8 @@ def setup_classification(site):
         classification_folder.invokeFactory("ClassificationContainer", id='tree', title=_(u"Tree"))
         classification_folder.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
 
+    blacklistPortletCategory(site, site["classification"])
+
     roles_config = {
         'service_in_charge': {
             'internally_published': {'editeur': {'roles': ['Editor']},
