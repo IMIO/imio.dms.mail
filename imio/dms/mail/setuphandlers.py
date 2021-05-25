@@ -109,7 +109,7 @@ def setup_classification(site):
     if not base_hasattr(site, 'classification'):
         folderid = site.invokeFactory("Folder", id='classification', title=_(u"Classification"))
         classification_folder = getattr(site, folderid)
-        classification_folder.invokeFactory("ClassificationContainer", id='tree', title=_(u"Tree"))
+        classification_folder.invokeFactory("ClassificationContainer", id='tree', title=_(u"Classification Tree"))
         classification_folder.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
 
     blacklistPortletCategory(site, site["classification"])
