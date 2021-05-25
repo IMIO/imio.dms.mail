@@ -180,4 +180,15 @@
              dexterity.localrolesfield.interfaces.ILocalRoleField"
         factory=".adapters.AssignedUserDataManager" />
 
+    <!-- collective.classification -->
+
+    <adapter
+        factory=".adapters.ServiceInChargeAdapter"
+        />
+
+    <adapter
+        factory=".adapters.ServiceInCopyAdapter"
+        />
+
+
 </configure>

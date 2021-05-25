@@ -35,11 +35,6 @@
         class=".adapters.WorkflowMenu"
     />
 
-    <utility
-        provides="zope.schema.interfaces.IVocabularyFactory"
-        factory="imio.dms.mail.vocabularies.classification_services_vocabulary"
-        name="collective.classification.folder.vocabularies.services" />
-
     <unconfigure>
         <adapter factory="collective.contact.contactlist.browser.excelexport.ContactListDataSource"
             provides="collective.excelexport.interfaces.IDataSource" />
