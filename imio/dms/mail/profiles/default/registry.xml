@@ -6,7 +6,7 @@
 
     <records interface="plone.app.querystring.interfaces.IQueryField"
              prefix="plone.app.querystring.field.organization_type">
-       <value key="title" i18n:translate="">organization_type_query_field</value>
+       <value key="title" i18n:translate="">Precise scan date</value>
        <value key="description" i18n:translate=""></value>
        <value key="enabled">True</value>
        <value key="sortable">True</value>
