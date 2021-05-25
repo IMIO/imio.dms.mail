@@ -174,6 +174,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
 
     orig_sender_email = schema.TextLine(
         title=_(u"Original sender email"),
+        required=False,
         # constraint=validate_email_address,
     )
 
