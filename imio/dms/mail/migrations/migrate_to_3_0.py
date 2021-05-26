@@ -81,8 +81,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.do_prior_updates()
 
-        self.runProfileSteps('imio.dms.mail', steps=['controlpanel', 'plone.app.registry', 'repositorytool', 'typeinfo',
-                                                     'viewlets'])
+        self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'controlpanel', 'plone.app.registry', 'repositorytool',
+                                                     'typeinfo', 'viewlets'])
 
         # remove to_print related. Call 'workflow' step !!
         self.remove_to_print()
