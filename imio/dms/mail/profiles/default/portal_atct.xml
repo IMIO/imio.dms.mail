@@ -3,9 +3,7 @@
  <topic_metadata i18n:domain="plone">
   <metadata
     name="internal_reference_number"
-        description=""
-        enabled="True"
-        friendlyName="Internal Reference Number"
-        i18n:attributes="friendlyName"/>
+    remove="true"
+  />
  </topic_metadata>
 </atcttool>
