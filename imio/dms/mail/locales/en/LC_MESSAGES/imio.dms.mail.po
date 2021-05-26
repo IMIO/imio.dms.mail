@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-05-25 18:55+0000\n"
+"POT-Creation-Date: 2021-05-26 13:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -459,7 +459,7 @@ msgid "Original sender email"
 msgstr ""
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:556
+#: ./dmsmail.py:557
 msgid "Outgoing Date"
 msgstr ""
 
@@ -511,6 +511,10 @@ msgstr ""
 
 #: ./overrides.py:21
 msgid "Plone user"
+msgstr ""
+
+#: ./profiles/default/registry.xml
+msgid "Precise scan date"
 msgstr ""
 
 #: ./setuphandlers.py:2004
@@ -583,11 +587,12 @@ msgid "Send email"
 msgstr ""
 
 #: ./browser/settings.py:257
-#: ./dmsmail.py:550
+#: ./dmsmail.py:551
 msgid "Send modes"
 msgstr ""
 
 #: ./dmsmail.py:182
+#: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr ""
 
@@ -635,7 +640,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:870
+#: ./dmsmail.py:871
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 

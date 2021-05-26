@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-05-25 18:55+0000\n"
+"POT-Creation-Date: 2021-05-26 13:54+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -199,7 +199,7 @@ msgstr "Choisir dans quel état un email, transféré manuellement par un agent,
 
 #: ./setuphandlers.py:110
 msgid "Classification"
-msgstr ""
+msgstr "Classification"
 
 #: ./setuphandlers.py:112
 msgid "Classification Tree"
@@ -461,7 +461,7 @@ msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:556
+#: ./dmsmail.py:557
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -514,6 +514,10 @@ msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la f
 #: ./overrides.py:21
 msgid "Plone user"
 msgstr "Identifiant Plone"
+
+#: ./profiles/default/registry.xml
+msgid "Precise scan date"
+msgstr "Date précise de scan"
 
 #: ./setuphandlers.py:2004
 msgid "Print template"
@@ -585,11 +589,12 @@ msgid "Send email"
 msgstr "Envoyer email"
 
 #: ./browser/settings.py:257
-#: ./dmsmail.py:550
+#: ./dmsmail.py:551
 msgid "Send modes"
 msgstr "Formes d'envoi"
 
 #: ./dmsmail.py:182
+#: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr "Expéditeurs"
 
@@ -637,7 +642,7 @@ msgstr "Modèles doc"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:870
+#: ./dmsmail.py:871
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -662,10 +667,6 @@ msgstr "Service traitant"
 #: ./utils.py:543
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
-
-#: ./setuphandlers.py:112
-msgid "Tree"
-msgstr ""
 
 #: ./browser/settings.py:131
 msgid "Types of incoming mail"
