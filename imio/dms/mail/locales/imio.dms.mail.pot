@@ -668,10 +668,6 @@ msgstr ""
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
-#: ./setuphandlers.py:112
-msgid "Tree"
-msgstr ""
-
 #: ./browser/settings.py:131
 msgid "Types of incoming mail"
 msgstr ""
