@@ -7,7 +7,6 @@
     <records interface="plone.app.querystring.interfaces.IQueryField"
              prefix="plone.app.querystring.field.organization_type">
        <value key="title" i18n:translate="">Precise scan date</value>
-       <value key="description" i18n:translate=""></value>
        <value key="enabled">True</value>
        <value key="sortable">True</value>
        <value key="operations">
@@ -16,6 +15,17 @@
            <element>plone.app.querystring.operation.int.largerThan</element>
        </value>
        <value key="group" i18n:domain="plone" i18n:translate="">Dates</value>
+    </records>
+
+    <records interface="plone.app.querystring.interfaces.IQueryField"
+             prefix="plone.app.querystring.field.sender_index">
+       <value key="title" i18n:translate="">Sender</value>
+       <value key="enabled">True</value>
+       <value key="sortable">False</value>
+       <value key="operations">
+           <element>plone.app.querystring.operation.string.is</element>
+       </value>
+       <value key="group" i18n:domain="plone" i18n:translate="">Metadata</value>
     </records>
 
 </registry>
