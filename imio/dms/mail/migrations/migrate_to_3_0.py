@@ -71,6 +71,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.content.delete(obj=self.portal[default_cke_templ_folder])
         self.upgradeProfile('collective.documentgenerator:default')
         self.upgradeProfile('collective.contact.core:default')
+        self.upgradeProfile('collective.task:default')
         self.upgradeProfile('collective.dms.mailcontent:default')
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
