@@ -98,7 +98,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         setattr(iemfti, 'localroles', deepcopy(lr))
         configure_iem_rolefields(self.portal)
 
-        setup_classification(self.context)
+        setup_classification(self.portal)
 
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
