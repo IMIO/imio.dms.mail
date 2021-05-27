@@ -105,6 +105,13 @@ def add_db_col_folder(folder, id, title, displayed=''):
     return col_folder
 
 
+def order_1st_level(site):
+    """Order 1st level folders."""
+    ordered = ['incoming-mail', 'outgoing-mail', 'folders', 'tasks', 'contacts', 'templates', 'tree']
+    for i, oid in enumerate(ordered):
+        site.moveObjectToPosition(oid, i)
+
+
 def setup_classification(site):
     if not base_hasattr(site, 'folders'):
         site.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
@@ -350,6 +357,8 @@ def postInstall(context):
     add_transforms(site)
 
     set_portlet(site)
+
+    order_1st_level(site)
 
     # add usefull methods
     try:

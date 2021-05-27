@@ -14,6 +14,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
+from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
@@ -99,6 +100,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         configure_iem_rolefields(self.portal)
 
         setup_classification(self.portal)
+        order_1st_level(self.portal)
 
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
