@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-05-26 13:54+0000\n"
+"POT-Creation-Date: 2021-05-27 10:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -197,11 +197,7 @@ msgstr ""
 msgid "Choose to which state a manually forwarded email will go."
 msgstr ""
 
-#: ./setuphandlers.py:110
-msgid "Classification"
-msgstr ""
-
-#: ./setuphandlers.py:112
+#: ./setuphandlers.py:114
 msgid "Classification Tree"
 msgstr ""
 
@@ -316,7 +312,7 @@ msgid "Firstname Lastname"
 msgstr ""
 
 #: ./browser/batchactions.py:252
-#: ./setuphandlers.py:113
+#: ./setuphandlers.py:110
 msgid "Folders"
 msgstr ""
 

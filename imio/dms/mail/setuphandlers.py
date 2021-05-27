@@ -106,13 +106,13 @@ def add_db_col_folder(folder, id, title, displayed=''):
 
 
 def setup_classification(site):
-    if not base_hasattr(site, 'classification'):
-        folderid = site.invokeFactory("Folder", id='classification', title=_(u"Classification"))
-        classification_folder = getattr(site, folderid)
-        classification_folder.invokeFactory("ClassificationContainer", id='tree', title=_(u"Classification Tree"))
-        classification_folder.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
+    if not base_hasattr(site, 'folders'):
+        site.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
+        blacklistPortletCategory(site, site['folders'])
 
-    blacklistPortletCategory(site, site["classification"])
+    if not base_hasattr(site, 'tree'):
+        site.invokeFactory("ClassificationContainer", id='tree', title=_(u"Classification Tree"))
+        blacklistPortletCategory(site, site['tree'])
 
     roles_config = {
         'service_in_charge': {
