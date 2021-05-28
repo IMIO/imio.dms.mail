@@ -134,6 +134,11 @@
     display: None;
 }
 
+.template-view #formfield-form-widgets-IClassificationFolder-classification_categories .formHelp,
+.template-view #formfield-form-widgets-IClassificationFolder-classification_folders .formHelp {
+    display: None;
+}
+
 .portaltype-dmsincomingmail #formfield-form-widgets-signed,
 .portaltype-dmsincoming_email #formfield-form-widgets-signed {
     display: None;
