@@ -320,6 +320,12 @@
         permission="zope2.View"
         />
 
+    <!--browser:page
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
+        name="im-delete-batch-action"
+        class="collective.eeafaceted.batchactions.browser.views.DeleteBatchActionForm"
+        permission="zope2.View" TESTER LINK INTEGRITY/-->
+
     <!-- BATCH ACTIONS OM MAILS -->
     <browser:page
         for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
