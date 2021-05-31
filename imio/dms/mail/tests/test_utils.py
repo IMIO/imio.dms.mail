@@ -431,6 +431,9 @@ class TestUtils(unittest.TestCase):
         # no treating_groups
         self.assertFalse(view.can_be_sent())
         omail.treating_groups = get_registry_organizations()[0]  # direction-generale
+        # admin
+        self.assertTrue(view.can_be_sent())
+        setRoles(self.portal, TEST_USER_ID, ['Member'])
         # define as email
         omail.send_modes = [u'email']
         self.assertTrue(omail.is_email())

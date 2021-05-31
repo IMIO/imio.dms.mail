@@ -772,6 +772,9 @@ class OdmUtilsMethods(UtilsMethods):
         # Protect from scanned state
         if not self.context.treating_groups or not self.context.title:
             return False
+        # expedition can always sent
+        if self.is_in_user_groups(['expedition'], admin=True):
+            return True
         # email, is sent ?
         if self.context.is_email():
             if self.context.email_status:  # has been sent
