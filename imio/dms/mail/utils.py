@@ -499,6 +499,31 @@ class VariousUtilsMethods(UtilsMethods):
                 out.append('<a href="%s" target="_blank">%s</a>, %s' % (res[flow][nb][0], nb, res[flow][nb][1]))
         return '<br/>\n'.join(out)
 
+    def list_last_scan(self, typ='im', nb='100'):
+        """List last scan of type."""
+        if not check_zope_admin():
+            return
+        out = [u'<p>list_last_scan</h1>', u"-> typ='' : im, iem, om. Default=im",
+               u"-> nb='' : get ... last. Default=100", u"ie. list_last_scan?typ=im", '']
+        pc = self.context.portal_catalog
+        limit = int(nb)
+        criterias = {'portal_type': 'dmsmainfile', 'sort_on': 'scan_id', 'sort_order': 'descending',
+                     'sort_limit': limit}
+        if typ == 'im':
+            criterias['id'] = {'not': 'email.pdf'}
+        elif typ == 'iem':
+            criterias['id'] = 'email.pdf'
+        elif typ == 'om':
+            criterias['portal_type'] = 'dmsommainfile'
+        brains = pc(**criterias)[:limit]
+        for brain in brains:
+            obj = brain.getObject()
+            mail = obj.getParentNode()
+            out.append(u"{} ({}) in {} ({})".format(brain.scan_id, obj.version, mail.internal_reference_no,
+                                                    object_link(mail)))
+        sep = u'\n<br />'
+        return sep.join(out)
+
     def pg_organizations(self, only_activated='1', output='csv', with_status=''):
         """ Return a list of tuples with plonegroup organizations """
         if not self.user_is_admin() and not check_zope_admin():

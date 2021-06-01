@@ -224,6 +224,7 @@
             check_scan_id
             initialize_service_folder
             kofax_orgs
+            list_last_scan
             pg_organizations
             unread_criteria
             user_usages
