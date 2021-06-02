@@ -48,7 +48,7 @@ dms_config
 * ['wf_from_to'] : états précédant/suivant un autre et transitions pour y accéder
     * ['dmsincomingmail', 'n_plus', 'from'] = [('created', 'back_to_creation'),
                                                ('proposed_to_manager', 'back_to_manager')]
-    * ['dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+    * ['dmsincomingmail', 'n_plus', 'to'], [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent')])
     * ['dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
     * ['dmsoutgoingmail', 'n_plus', 'to'], [('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed')])
 * ['review_levels'] : sert à déterminer le niveau de validation d'un utilisateur suivant son groupe
@@ -64,7 +64,7 @@ dms_config
                                 ('realized', {'group': '_n_plus_1', 'org': 'assigned_group'})])
     * ['dmsoutgoingmail'] = OrderedDict([('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})])
 * ['transitions_auc'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées en
-                        fonction du paramètre assigned_user_check
+                        fonction du paramètre assigned_user_check. (close toujours)
     * ['dmsincomingmail'][transition] = {'org1': True, 'org2': False}
 * ['transitions_levels'] : indique les transitions valides par état en fonction de la présence des validateurs
     * ['dmsincomingmail'][state] = {'org1': ('propose_to_n_plus_1', 'from_states'), 'org2': (...) }
@@ -149,17 +149,18 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
         states = []
         max_level = 0
-        for i, (st, tr) in enumerate(wf_from_to['to']):
+        for i, (st, tr) in enumerate(wf_from_to['to'], start=-1):  # 2 values before n+
             states.append((st, i))
             max_level = i
         states += [(st, 9) for (st, tr) in wf_from_to['from']]
         states.reverse()
+        # [('proposed_to_manager', 9), ('created', 9), ('proposed_to_n_plus_1', 1), ('proposed_to_agent', 0)]
         state9 = ''
         orgs_back = {}  # last valid back transition by org
 
         for state, level in states:
             start = level - 1
-            if level == 9:
+            if level == 9:  # from states
                 start = max_level
             # for states before validation levels, we copy the first one
             if level == 9 and state9:
@@ -228,11 +229,13 @@ def update_transitions_auc_config(ptype, action=None, group_id=None):
         transitions = [tr for (st, tr) in wf_from_to['to']]
         previous_tr = ''
         global_config = {}
-        for i, tr in enumerate(transitions):
+        for i, tr in enumerate(transitions, start=-1):  # -1 because close has been added in transitions
             config = {}
             for org in orgs:
                 val = False
-                if auc == u'no_check':
+                if tr == 'close':  # we can always close. assigned_user is set in subscriber
+                    val = True
+                elif auc == u'no_check':
                     val = True
                 elif auc == u'mandatory':
                     # propose_to_agent: previous_tr is empty => val will be False
@@ -248,10 +251,11 @@ def update_transitions_auc_config(ptype, action=None, group_id=None):
                     # propose_to_agent: n+1 level doesn't have user => val is True
                     groupname = '{}_n_plus_1'.format(org)
                     act = (groupname == group_id and action or None)
-                    if len(transitions) == 1 or previous_tr or not group_has_user(groupname, action=act):
+                    if len(transitions) == 2 or previous_tr or not group_has_user(groupname, action=act):
                         val = True
                 config[org] = val
-            previous_tr = tr
+            if tr != 'close':
+                previous_tr = tr
             global_config[tr] = config
             set_dms_config(['transitions_auc', 'dmsincomingmail', tr], config)  # i_e ok
 

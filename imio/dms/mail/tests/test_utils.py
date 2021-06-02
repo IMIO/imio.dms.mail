@@ -73,9 +73,10 @@ class TestUtils(unittest.TestCase):
     def test_update_transitions_levels_config(self):
         # dmsincomingmail #
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), {'created', 'proposed_to_manager', 'proposed_to_agent'})
+        self.assertSetEqual(set(config.keys()), {'created', 'proposed_to_manager', 'proposed_to_agent', 'closed'})
         self.assertEqual(config['created'], config['proposed_to_manager'])
         self.assertEqual(config['created'], config['proposed_to_agent'])
+        self.assertEqual(config['created'], config['closed'])
         for state in config:
             for org in config[state]:
                 self.assertEqual(config[state][org], ('propose_to_agent', 'from_states'))
@@ -83,13 +84,15 @@ class TestUtils(unittest.TestCase):
         # we simulate the adding of a level without user
         api.group.create('{}_n_plus_1'.format(org1), 'N+1')
         set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],
-                       [('proposed_to_agent', 'propose_to_agent'), ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
+                       [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent'),
+                        ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
         update_transitions_levels_config(['dmsincomingmail'])
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
         self.assertEqual(config['proposed_to_n_plus_1'][org1], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_manager'][org1], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_manager'][org2], ('propose_to_agent', 'from_states'))
         self.assertEqual(config['proposed_to_agent'][org1], ('propose_to_agent', 'from_states'))
+        self.assertEqual(config['closed'][org1], ('propose_to_agent', 'from_states'))
         # we simulate the adding of a level and a user
         update_transitions_levels_config(['dmsincomingmail'], 'add', '{}_n_plus_1'.format(org1))
         config = get_dms_config(['transitions_levels', 'dmsincomingmail'])
@@ -148,24 +151,28 @@ class TestUtils(unittest.TestCase):
         api.portal.set_registry_record(AUC_RECORD, u'no_check')
         # no check
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), {'propose_to_agent'})
+        self.assertSetEqual(set(config.keys()), {'close', 'propose_to_agent'})
         self.assertTrue(all(config['propose_to_agent'].values()))  # can always do transition
+        self.assertTrue(all(config['close'].values()))  # can always do transition
         # n_plus_1
         api.portal.set_registry_record(AUC_RECORD, u'n_plus_1')
         # only one transition
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), {'propose_to_agent'})
+        self.assertSetEqual(set(config.keys()), {'close', 'propose_to_agent'})
         self.assertTrue(all(config['propose_to_agent'].values()))
+        self.assertTrue(all(config['close'].values()))
         # we simulate the adding of a level without user
         org1, org2 = get_registry_organizations()[0:2]
         api.group.create('{}_n_plus_1'.format(org1), 'N+1')
         set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],
-                       [('proposed_to_agent', 'propose_to_agent'), ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
+                       [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent'),
+                        ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
         update_transitions_auc_config('dmsincomingmail')
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), {'propose_to_n_plus_1', 'propose_to_agent'})
+        self.assertSetEqual(set(config.keys()), {'close', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertTrue(all(config['propose_to_n_plus_1'].values()))
         self.assertTrue(all(config['propose_to_agent'].values()))
+        self.assertTrue(all(config['close'].values()))
         # we simulate the adding of a level and a user
         update_transitions_auc_config('dmsincomingmail', 'add', '{}_n_plus_1'.format(org1))
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
@@ -175,18 +182,22 @@ class TestUtils(unittest.TestCase):
         # mandatory
         # reset config
         set_dms_config(['transitions_auc', 'dmsincomingmail'], value='dict')
-        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('proposed_to_agent', 'propose_to_agent')])
+        set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], [('closed', 'close'),
+                                                                           ('proposed_to_agent', 'propose_to_agent')])
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
         self.assertFalse(any(config['propose_to_agent'].values()))  # all is False
+        self.assertTrue(all(config['close'].values()))
         # we simulate the adding of a level without user
         set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],
-                       [('proposed_to_agent', 'propose_to_agent'), ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
+                       [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent'),
+                        ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
         update_transitions_auc_config('dmsincomingmail')
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
-        self.assertSetEqual(set(config.keys()), {'propose_to_n_plus_1', 'propose_to_agent'})
+        self.assertSetEqual(set(config.keys()), {'close', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertFalse(any(config['propose_to_n_plus_1'].values()))  # all is False
         self.assertFalse(any(config['propose_to_agent'].values()))  # all is False
+        self.assertTrue(all(config['close'].values()))
         # we simulate the adding of a level and a user
         update_transitions_auc_config('dmsincomingmail', 'add', '{}_n_plus_1'.format(org1))
         config = get_dms_config(['transitions_auc', 'dmsincomingmail'])

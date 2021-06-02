@@ -952,7 +952,7 @@ def adaptDefaultPortal(context):
     set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],  # i_e ok
                    [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
     set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'],  # i_e ok
-                   [('proposed_to_agent', 'propose_to_agent')])
+                   [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent')])
     set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'from'], [('created', 'back_to_creation')])
     set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'],
                    [('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed')])
