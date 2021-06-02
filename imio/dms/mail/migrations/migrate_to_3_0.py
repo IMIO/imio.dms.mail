@@ -86,7 +86,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'controlpanel', 'plone.app.registry', 'repositorytool',
                                                      'typeinfo', 'viewlets'])
 
-        # remove to_print related. Call 'workflow' step !!
+        # remove to_print related.
         self.remove_to_print()
 
         # copy localroles from dmsincomingmail to dmsincoming_email
@@ -99,7 +99,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
 
-        # TODO Add close wf adaptation
+        # reset workflow
+        self.runProfileSteps('imio.dms.mail', steps=['workflow'])
         # Apply workflow adaptations
         applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
         if applied_adaptations:
@@ -108,7 +109,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 logger.error("Problem applying wf adaptations: %d errors" % errors)
         if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
             update_task_workflow(self.portal)
-        self.portal.portal_workflow.updateRoleMappings()
+
+        self.portal.portal_workflow.updateRoleMappings()  # update permissions, roles and reindex allowedRolesAndUsers
 
         # do various global adaptations
         self.update_config()
@@ -370,9 +372,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
                                            lst)
 
-        # reset workflow
-        self.runProfileSteps('imio.dms.mail', steps=['workflow'])
-
         trs = {'set_to_print': 'set_validated', 'back_to_print': 'back_to_validated'}
         wkf = self.wfTool['outgoingmail_workflow']
         for i, brain in enumerate(self.catalog(portal_type='dmsoutgoingmail'), 1):
@@ -388,12 +387,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                     status['action'] = trs[status['action']]
                 wfh.append(status)
             obj.workflow_history['outgoingmail_workflow'] = tuple(wfh)
-            # update permissions and roles
-            wkf.updateRoleMappingsFor(obj)
-            # update state_group (use dms_config), permissions, state
-            obj.reindexObject(idxs=['allowedRolesAndUsers', 'review_state', 'state_group'])
-            for child in obj.objectValues():
-                child.reindexObject(idxs=['allowedRolesAndUsers'])
+            # update state_group (use dms_config), state
+            if brain.review_state == 'to_print':
+                obj.reindexObject(idxs=['review_state', 'state_group'])
 
         record = api.portal.get_registry_record(RECORD_NAME)
         api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
