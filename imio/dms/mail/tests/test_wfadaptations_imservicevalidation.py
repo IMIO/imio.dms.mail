@@ -55,13 +55,13 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertSetEqual(set(self.imw.states['proposed_to_manager'].transitions),
                             {'back_to_creation', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_n_plus_1'].transitions),
-                            {'back_to_creation', 'back_to_manager', 'propose_to_agent'})
+                            {'back_to_creation', 'back_to_manager', 'propose_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['proposed_to_agent'].transitions),
                             {'back_to_creation', 'back_to_manager', 'back_to_n_plus_1', 'treat', 'close'})
         self.assertSetEqual(set(self.imw.states['in_treatment'].transitions),
                             {'back_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['closed'].transitions),
-                            {'back_to_treatment', 'back_to_agent'})
+                            {'back_to_n_plus_1', 'back_to_treatment', 'back_to_agent'})
 
     def test_IMServiceValidation1(self):
         """
@@ -93,7 +93,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertEqual(config['proposed_to_manager'].values()[0][0], 'propose_to_n_plus_1')
         self.assertEqual(config['proposed_to_agent'].values()[0][1], 'back_to_n_plus_1')
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
-        self.assertListEqual(wf_from_to['to'], [('proposed_to_agent', 'propose_to_agent'),
+        self.assertListEqual(wf_from_to['to'], [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent'),
                                                 ('proposed_to_n_plus_1', 'propose_to_n_plus_1')])
         # check vocabularies
         factory = getUtility(IVocabularyFactory, u'collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
@@ -225,16 +225,16 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertSetEqual(set(self.imw.states['proposed_to_manager'].transitions),
                             {'back_to_creation', 'propose_to_n_plus_2', 'propose_to_n_plus_1', 'propose_to_agent'})
         self.assertSetEqual(set(self.imw.states['proposed_to_n_plus_2'].transitions),
-                            {'back_to_creation', 'back_to_manager', 'propose_to_n_plus_1', 'propose_to_agent'})
+                            {'back_to_creation', 'back_to_manager', 'propose_to_n_plus_1', 'propose_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['proposed_to_n_plus_1'].transitions),
-                            {'back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'propose_to_agent'})
+                            {'back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'propose_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['proposed_to_agent'].transitions),
                             {'back_to_creation', 'back_to_manager', 'back_to_n_plus_2', 'back_to_n_plus_1', 'treat',
                              'close'})
         self.assertSetEqual(set(self.imw.states['in_treatment'].transitions),
                             {'back_to_agent', 'close'})
         self.assertSetEqual(set(self.imw.states['closed'].transitions),
-                            {'back_to_treatment', 'back_to_agent'})
+                            {'back_to_n_plus_2', 'back_to_n_plus_1', 'back_to_treatment', 'back_to_agent'})
 
     def test_IMServiceValidation2(self):
         """
@@ -272,7 +272,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertEqual(config['proposed_to_n_plus_1'].values()[0][1], 'back_to_n_plus_2')
         self.assertEqual(config['proposed_to_agent'].values()[0][1], 'back_to_n_plus_1')
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
-        self.assertListEqual(wf_from_to['to'], [('proposed_to_agent', 'propose_to_agent'),
+        self.assertListEqual(wf_from_to['to'], [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent'),
                                                 ('proposed_to_n_plus_1', 'propose_to_n_plus_1'),
                                                 ('proposed_to_n_plus_2', 'propose_to_n_plus_2')])
         # check vocabularies

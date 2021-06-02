@@ -37,7 +37,7 @@ class TestWorkflows(unittest.TestCase):
                             {'back_to_treatment', 'back_to_agent'})
         # default annotations
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])
-        self.assertListEqual(wf_from_to['to'], [('proposed_to_agent', 'propose_to_agent')])
+        self.assertSetEqual(set(wf_from_to['to']), {('closed', 'close'), ('proposed_to_agent', 'propose_to_agent')})
 
     def test_om_workflow0(self):
         """ Check workflow """

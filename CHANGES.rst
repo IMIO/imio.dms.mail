@@ -28,6 +28,8 @@ Changelog
   [sgeulette]
 - Replaced to_print adaptation with validated state from n+1 adaptation
   [sgeulette]
+- Added close transition to n+ states
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------
