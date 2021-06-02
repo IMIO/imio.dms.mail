@@ -23,6 +23,7 @@ from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
+from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.migrator.migrator import Migrator
 from plone import api
@@ -164,6 +165,13 @@ class Migrate_To_3_0(Migrator):  # noqa
             nplus_to.insert(0, ('sent', 'mark_as_sent'))
             set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
             update_transitions_levels_config(['dmsoutgoingmail'])
+        # update dms config wf_from_to with close transition
+        nplus_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'])
+        if ('closed', 'close') not in nplus_to:
+            nplus_to.insert(0, ('closed', 'close'))
+            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], nplus_to)
+            update_transitions_levels_config(['dmsincomingmail'])
+            update_transitions_auc_config(['dmsincomingmail'])
         # remove doing_migration from wfadaptations parameters (added by 2.3 migration)
         change = False
         record = []
