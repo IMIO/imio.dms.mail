@@ -103,6 +103,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         # check configuration
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
         self.assertIn('dmsincomingmail.back_to_n_plus_1|', lst)
+        self.assertIn('dmsincoming_email.back_to_n_plus_1|', lst)
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         self.assertIn('proposed_to_n_plus_1', lst)
 
@@ -283,6 +284,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         # check configuration
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
         self.assertIn('dmsincomingmail.back_to_n_plus_2|', lst)
+        self.assertIn('dmsincoming_email.back_to_n_plus_2|', lst)
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         self.assertIn('proposed_to_n_plus_2', lst)
 
