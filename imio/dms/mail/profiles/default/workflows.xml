@@ -33,5 +33,14 @@
   <type type_id="cktemplate">
    <bound-workflow workflow_id="(Default)"/>
   </type>
+  <type type_id="ClassificationCategory">
+   <bound-workflow workflow_id="active_inactive_workflow"/>
+  </type>
+  <type type_id="ClassificationFolder">
+   <bound-workflow workflow_id="active_inactive_workflow"/>
+  </type>
+  <type type_id="ClassificationSubfolder">
+   <bound-workflow workflow_id="active_inactive_workflow"/>
+  </type>
  </bindings>
 </object>
