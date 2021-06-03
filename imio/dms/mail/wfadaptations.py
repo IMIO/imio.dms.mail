@@ -422,8 +422,11 @@ class IMServiceValidation(WorkflowAdaptationBase):
 
         # update actionspanel back transitions registry
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
-        if 'dmsincomingmail.{}|'.format(back_tr_id) not in lst:
-            lst.append('dmsincomingmail.{}|'.format(back_tr_id))
+        lst_len = len(lst)
+        for typ in ('dmsincomingmail', 'dmsincoming_email'):
+            if '{}.{}|'.format(typ, back_tr_id) not in lst:
+                lst.append('{}.{}|'.format(typ, back_tr_id))
+        if len(lst) != lst_len:
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
                                            lst)
         # update remark states
@@ -456,6 +459,7 @@ class IOMServiceValidationParameters(IIMServiceValidationParameters):
         required=False,
         default=False,
     )
+
 
 """
     outgoingmail_workflow adaptation
@@ -702,8 +706,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
 
         # update actionspanel back transitions registry
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
-        if 'dmsoutgoingmail.{}|'.format(back_tr_id) not in lst:
-            lst.append('dmsoutgoingmail.{}|'.format(back_tr_id))
+        lst_len = len(lst)
+        for tr_id in (back_tr_id, val_back_tr_id):
+            if 'dmsoutgoingmail.{}|'.format(tr_id) not in lst:
+                lst.append('dmsoutgoingmail.{}|'.format(tr_id))
+        if len(lst) != lst_len:
             api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
                                            lst)
         # update remark states

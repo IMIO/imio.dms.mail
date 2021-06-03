@@ -1876,16 +1876,16 @@ def configure_actions_panel(portal):
     logger.info('Configure actions panel registry')
     registry = getUtility(IRegistry)
 
-    # TODO add dmsincoming_email !!
     if not registry.get('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'):
         registry['imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'] = \
             ['dmsincomingmail.back_to_creation|', 'dmsincomingmail.back_to_manager|',
-             'dmsincomingmail.back_to_treatment|',
-             'dmsincomingmail.back_to_agent|', 'task.back_in_created|', 'task.back_in_to_assign|',
+             'dmsincomingmail.back_to_treatment|', 'dmsincomingmail.back_to_agent|',
+             'dmsincoming_email.back_to_creation|', 'dmsincoming_email.back_to_manager|',
+             'dmsincoming_email.back_to_treatment|', 'dmsincoming_email.back_to_agent|',
+             'task.back_in_created|', 'task.back_in_to_assign|',
              'task.back_in_to_do|', 'task.back_in_progress|', 'task.back_in_realized|',
              'dmsoutgoingmail.back_to_agent|', 'dmsoutgoingmail.back_to_creation|',
-             'dmsoutgoingmail.back_to_validated|', 'dmsoutgoingmail.back_to_be_signed|',
-             'dmsoutgoingmail.back_to_scanned|']
+             'dmsoutgoingmail.back_to_be_signed|', 'dmsoutgoingmail.back_to_scanned|']
 
 
 def configure_faceted_folder(folder, xml=None, default_UID=None):
