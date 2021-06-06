@@ -275,6 +275,16 @@ class BasicActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete', 'rename']
 
 
+class ClassificationActionsPanelView(ActionsPanelView):
+    def __init__(self, context, request):
+        super(ClassificationActionsPanelView, self).__init__(context, request)
+        # portal_actions.object_buttons action ids to keep
+        self.ACCEPTABLE_ACTIONS = [
+            'cut', 'copy', 'paste', 'delete', 'rename',
+            'classification.import', 'classification.tree.add',
+        ]
+
+
 class OnlyAddActionsPanelView(ActionsPanelView):
     """This manage the view displaying actions on some folder."""
 

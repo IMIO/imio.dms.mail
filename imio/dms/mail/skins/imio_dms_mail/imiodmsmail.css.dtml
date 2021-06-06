@@ -212,7 +212,10 @@ body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.kee
 body.template-view.portaltype-dmsincoming_email h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsoutgoing_email h1#parent-fieldname-title:not(.keep-it),
-body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it) {
+body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it),
+body.portaltype-classificationfolders h1.documentFirstHeading:not(.keep-it),
+body.portaltype-classificationfolder h1.documentFirstHeading:not(.keep-it),
+body.portaltype-classificationsubfolder h1.documentFirstHeading:not(.keep-it) {
     display: none;
 }  /* Hide original title */
 
