@@ -411,7 +411,7 @@ def createStateCollections(folder, content_type):
     view_fields = {
         'dmsincomingmail': {  # i_e ok
             '*': (u'select_row', u'pretty_link', u'treating_groups', u'assigned_user', u'due_date', u'mail_type',
-                  u'sender', u'reception_date', u'actions'),
+                  u'sender', u'reception_date', u'classification_folders', u'actions'),
         },
         'task': {
             '*': (u'select_row', u'pretty_link', u'task_parent', u'assigned_group', u'assigned_user', u'due_date',
@@ -419,9 +419,10 @@ def createStateCollections(folder, content_type):
         },
         'dmsoutgoingmail': {
             '*': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'recipients', u'send_modes',
-                  u'mail_type', u'assigned_user', u'CreationDate', u'actions'),
+                  u'mail_type', u'assigned_user', u'CreationDate', u'classification_folders', u'actions'),
             'sent': (u'select_row', u'pretty_link', u'treating_groups', u'sender', u'recipients', u'send_modes',
-                     u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date', u'actions')
+                     u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date',
+                     u'classification_folders', u'actions')
         },
         'organization': {
             '*': (u'select_row', u'pretty_link', u'CreationDate', u'actions'),
