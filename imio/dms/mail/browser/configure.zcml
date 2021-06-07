@@ -271,14 +271,14 @@
             for="collective.classification.tree.contents.category.IClassificationCategory"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
-            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButTransitions"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButOwnDelete"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View"
             />
         <browser:page
             name="actions_panel"
             for="collective.classification.tree.contents.container.IClassificationContainer"
-            class="imio.dms.mail.browser.actionspanel.ClassificationActionsPanelView"
+            class="imio.dms.mail.browser.actionspanel.ClassificationContainersActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View"
@@ -306,14 +306,14 @@
             for="collective.classification.folder.content.classification_folder.IClassificationFolder"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
-            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButTransitions"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButOwnDelete"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View"
             />
         <browser:page
             name="actions_panel"
             for="collective.classification.folder.content.classification_folders.IClassificationFolders"
-            class="imio.dms.mail.browser.actionspanel.ClassificationActionsPanelView"
+            class="imio.dms.mail.browser.actionspanel.ClassificationContainersActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View"
