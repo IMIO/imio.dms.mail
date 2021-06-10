@@ -1102,6 +1102,8 @@ def adaptDefaultPortal(context):
 
     # registry
     api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
+                                        'allowed', value=False)
+    api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
                                         'search_rss_enabled', value=False)
     api.portal.set_registry_record('collective.contact.core.interfaces.IContactCoreParameters.'
                                    'contact_source_metadata_content',
