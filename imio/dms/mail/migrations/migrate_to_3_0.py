@@ -198,6 +198,9 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
+        # registry
+        api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
+                                            'allowed', value=False)
 
         if 'doc' in self.portal['messages-config']:
             api.content.delete(self.portal['messages-config']['doc'])
