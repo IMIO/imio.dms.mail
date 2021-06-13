@@ -875,3 +875,17 @@ class ServiceInCopyAdapter(object):
             IVocabularyFactory,
             "collective.dms.basecontent.recipient_groups",
         )(self.context)
+
+
+class ClassificationFolderInCopyGroupCriterion(object):
+    """Return catalog criteria following recipient group member"""
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        # if orgs is empty list, nothing is returned => ok
+        return {'services_in_copy': {'query': orgs}}

@@ -35,9 +35,11 @@ from ftw.labels.interfaces import ILabelRoot
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
 from imio.dms.mail.interfaces import IIMDashboardBatchActions
+from imio.dms.mail.interfaces import IImioDmsMailLayer
 from imio.dms.mail.interfaces import IOMCKTemplatesFolder
 from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
@@ -75,6 +77,7 @@ from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 
+import copy
 import datetime
 import logging
 import os
@@ -113,9 +116,11 @@ def order_1st_level(site):
 
 
 def setup_classification(site):
+    # Layer is required to ensure that faceted is correctly configured
+    alsoProvides(site.REQUEST, IImioDmsMailLayer)
+
     if not base_hasattr(site, 'folders'):
         site.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
-        blacklistPortletCategory(site, site['folders'])
 
     if not base_hasattr(site, 'tree'):
         site.invokeFactory("ClassificationContainer", id='tree', title=_(u"Classification Tree"))
@@ -140,6 +145,29 @@ def setup_classification(site):
         msg = add_fti_configuration('ClassificationSubfolder', roles_config[keyname], keyname=keyname)
         if msg:
             logger.warn(msg)
+
+    fti = getUtility(IDexterityFTI, name=site["folders"].portal_type)
+    original_allowed = copy.deepcopy(fti.allowed_content_types)
+    fti.allowed_content_types += ("Folder", )
+
+    # Setup dashboard collections
+    collection_folder = add_db_col_folder(
+        site["folders"],
+        "folder-searches",
+        _("Folders searches"),
+        _("Folders"),
+    )
+    alsoProvides(collection_folder, INextPrevNotNavigable)
+    alsoProvides(collection_folder, IClassificationFoldersDashboard)
+    create_classification_folders_collections(collection_folder)
+
+    fti.allowed_content_types = original_allowed
+    configure_faceted_folder(
+        collection_folder,
+        xml="classificationfolders-searches.xml",
+        default_UID=collection_folder["all_folders"].UID(),
+    )
+    site["folders"].setDefaultPage("folder-searches")
 
 
 def postInstall(context):
@@ -518,7 +546,7 @@ def createIMailCollections(folder):
              'v': ['dmsincomingmail', 'dmsincoming_email']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('im_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -528,7 +556,7 @@ def createIMailCollections(folder):
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",  # i_e ok
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'to_treat', 'tit': _('im_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -537,7 +565,7 @@ def createIMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['proposed_to_agent']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'im_treating', 'tit': _('im_im_treating'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -546,7 +574,7 @@ def createIMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['in_treatment']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'have_treated', 'tit': _('im_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -555,7 +583,7 @@ def createIMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['closed']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'to_treat_in_my_group', 'tit': _('im_to_treat_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -565,7 +593,7 @@ def createIMailCollections(folder):
              'v': 'dmsincomingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'in_my_group', 'tit': _('im_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -574,7 +602,7 @@ def createIMailCollections(folder):
              'v': 'dmsincomingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'in_copy_unread', 'tit': _('im_in_copy_unread'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -583,7 +611,7 @@ def createIMailCollections(folder):
              'v': 'dmsincomingmail-in-copy-group-unread'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': True},
         {'id': 'in_copy', 'tit': _('im_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -592,7 +620,7 @@ def createIMailCollections(folder):
              'v': 'dmsincomingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
         {'id': 'followed', 'tit': _('im_followed'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -601,7 +629,7 @@ def createIMailCollections(folder):
              'v': 'dmsincomingmail-followed'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'mail_type', u'sender', u'reception_date', u'actions'),
+                     u'mail_type', u'sender', u'reception_date', u'classification_folders', u'actions'),
             'sort': u'organization_type', 'rev': True, 'count': False},
     ]
     createDashboardCollections(folder, collections)
@@ -709,7 +737,8 @@ def createOMailCollections(folder):
              'v': ['dmsoutgoingmail']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date', u'actions'),
+                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date',
+                     u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'to_validate', 'tit': _('om_to_validate'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -719,7 +748,8 @@ def createOMailCollections(folder):
             'cond': u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsoutgoingmail')",
             'bypass': ['Manager', 'Site Administrator'],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'actions'),
+                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate',
+                     u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': True, 'enabled': False},
         {'id': 'to_treat', 'tit': _('om_to_treat'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -728,7 +758,7 @@ def createOMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['created']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'send_modes', u'mail_type', u'CreationDate', u'actions'),
+                     u'send_modes', u'mail_type', u'CreationDate', u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': True},
         {'id': 'om_treating', 'tit': _('om_im_treating'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -738,7 +768,7 @@ def createOMailCollections(folder):
                 ['to_be_signed']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'send_modes', u'mail_type', u'sender', u'CreationDate', u'actions'),
+                     u'send_modes', u'mail_type', u'sender', u'CreationDate', u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'have_treated', 'tit': _('om_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -747,7 +777,7 @@ def createOMailCollections(folder):
             {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v': ['sent']}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
-                     u'send_modes', u'mail_type', u'sender', u'CreationDate', u'actions'),
+                     u'send_modes', u'mail_type', u'sender', u'CreationDate', u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'in_my_group', 'tit': _('om_in_my_group'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -756,7 +786,8 @@ def createOMailCollections(folder):
              'v': 'dmsoutgoingmail-in-treating-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date', u'actions'),
+                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date',
+                     u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
         {'id': 'in_copy', 'tit': _('om_in_copy'), 'subj': (u'todo', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
@@ -765,7 +796,8 @@ def createOMailCollections(folder):
              'v': 'dmsoutgoingmail-in-copy-group'}],
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'sender', u'recipients',
-                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date', u'actions'),
+                     u'send_modes', u'mail_type', u'assigned_user', u'CreationDate', u'outgoing_date',
+                     u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
     ]
     createDashboardCollections(folder, collections)
@@ -815,6 +847,77 @@ def createContactListsCollections(folder):
             'cond': u"", 'bypass': [],
             'flds': (u'select_row', u'pretty_link', u'relative_path', u'review_state', u'CreationDate', u'actions'),
             'sort': u'sortable_title', 'rev': False, 'count': False},
+    ]
+    createDashboardCollections(folder, collections)
+
+
+def create_classification_folders_collections(folder):
+    """Create classification folders default collections"""
+    collections = [
+        {
+            "id": "all_folders",
+            "tit": _("all_folders"),
+            "subj": (u"search", ),
+            "query": [
+                {
+                    "i": "portal_type",
+                    "o": "plone.app.querystring.operation.selection.is",
+                    "v": ["ClassificationFolder", "ClassificationSubfolder"],
+                },
+            ],
+            'cond': u"",
+            'bypass': [],
+            "flds": (u"pretty_link", ),
+            "sort": u"sortable_title",
+            "rev": False,
+            "count": False,
+        },
+        {
+            "id": "in_my_group",
+            "tit": _("in_my_group"),
+            "subj": (u"search", ),
+            "query": [
+                {
+                    "i": "portal_type",
+                    "o": "plone.app.querystring.operation.selection.is",
+                    "v": ["ClassificationFolder", "ClassificationSubfolder"],
+                },
+                {
+                    'i': 'CompoundCriterion',
+                    'o': 'plone.app.querystring.operation.compound.is',
+                    'v': 'classificationfolder-in-copy-group',
+                },
+            ],
+            'cond': u"",
+            'bypass': [],
+            "flds": (u"pretty_link", ),
+            "sort": u"sortable_title",
+            "rev": False,
+            "count": False,
+        },
+        {
+            "id": "in_copy",
+            "tit": _("in_copy"),
+            "subj": (u"todo", ),
+            "query": [
+                {
+                    "i": "portal_type",
+                    "o": "plone.app.querystring.operation.selection.is",
+                    "v": ["ClassificationFolder", "ClassificationSubfolder"],
+                },
+                {
+                    'i': 'CompoundCriterion',
+                    'o': 'plone.app.querystring.operation.compound.is',
+                    'v': 'dmsincomingmail-followed',
+                },
+            ],
+            'cond': u"",
+            'bypass': [],
+            "flds": (u"pretty_link", ),
+            "sort": u"sortable_title",
+            "rev": False,
+            "count": False,
+        },
     ]
     createDashboardCollections(folder, collections)
 

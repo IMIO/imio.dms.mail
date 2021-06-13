@@ -309,6 +309,16 @@
         factory=".wfadaptations.TaskServiceValidation"
     />
 
+    <!-- faceted config override -->
+
+    <browser:page
+        for="eea.facetednavigation.interfaces.IPossibleFacetedNavigable"
+        name="classification-folders-faceted.xml"
+        template="faceted_conf/classificationfolders-searches.xml"
+        permission="eea.faceted.configure"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />

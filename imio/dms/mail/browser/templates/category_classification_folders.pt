@@ -1,0 +1,20 @@
+<tal:defines define="member context/plone_portal_state/member;
+                     folder python:view.portal['folders'];
+                     portal_url view/portal_url"
+             i18n:domain="imio.dms.mail">
+    <div class="portlet_add_icons">
+        <a class="pretty_link_icons" href="#"
+           style="display: inline;"
+           tal:condition="python: member.has_permission('collective.classification.folder: Add ClassificationFolder', folder)"
+           tal:attributes="href string:$portal_url/folders/++add++ClassificationFolder?no_redirect=1">
+            <img tal:attributes="src string:$portal_url/++resource++collective.classification.folder/ClassificationFolder.svg" title="create_classification_folder" i18n:attributes="title" width="16" height="16" />
+        </a>
+        <a class="pretty_link_icons" href="#"
+           style="display: inline;"
+           tal:condition="python: member.has_permission('collective.classification.folder: Add ClassificationFolder', folder)"
+           tal:attributes="href string:$portal_url/folders/@@import?no_redirect=1">
+            <img tal:attributes="src string:$portal_url/++resource++collective.classification.folder/import.svg" title="import_folders" i18n:attributes="title" width="16" height="16" />
+        </a>
+    </div>
+    <div class="title" tal:content="python: context.Rights()">Category title</div>
+</tal:defines>

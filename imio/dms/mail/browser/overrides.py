@@ -26,6 +26,7 @@ from collective.task.behaviors import ITask
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
+from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.history.browser.views import IHDocumentBylineViewlet
 from plone import api
 from plone.app.controlpanel.usergroups import GroupsOverviewControlPanel
@@ -66,6 +67,8 @@ class IMRenderCategoryView(RenderCategoryView):
             return ViewPageTemplateFile('templates/category_om.pt')
         elif IContactsDashboard.providedBy(self.context):
             return ViewPageTemplateFile('templates/category_contact.pt')
+        elif IClassificationFoldersDashboard.providedBy(self.context):
+            return ViewPageTemplateFile('templates/category_classification_folders.pt')
         return ViewPageTemplateFile('templates/category.pt')
 
 
