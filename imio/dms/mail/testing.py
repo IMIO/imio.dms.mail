@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.utils import set_dms_config
+from imio.helpers.content import transitions as do_transitions
 from imio.pyutils.system import runCommand
+from itertools import cycle
 from plone import api
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
@@ -10,14 +13,21 @@ from plone.app.testing import IntegrationTesting
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing.helpers import PloneWithPackageLayer
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from plone.testing import z2
 from Products.CMFPlone.utils import _createObjectByType
 from Products.CMFPlone.utils import base_hasattr
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from profilehooks import timecall
 from Testing import ZopeTestCase as ztc
+from z3c.relationfield import RelationValue
+from zope.component import getUtility
 from zope.globalrequest.local import setLocal
 from zope.i18n import translate
+from zope.intid import IIntIds
 
+import datetime
 import imio.dms.mail
 import os
 
@@ -172,3 +182,43 @@ def reset_dms_config():
     set_dms_config(['transitions_levels', 'dmsincomingmail'], OrderedDict())  # i_e ok
     set_dms_config(['transitions_levels', 'dmsoutgoingmail'], OrderedDict())
     set_dms_config(['transitions_levels', 'task'], OrderedDict())
+
+
+@timecall
+def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
+    """Create nb im"""
+    import imio.dms.mail as imiodmsmail
+    filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
+    files = [unicode(name) for name in os.listdir(filespath)
+             if os.path.splitext(name)[1][1:] in ('pdf', 'doc', 'jpg')]
+    files_cycle = cycle(files)
+
+    intids = getUtility(IIntIds)
+    isenders = [intids.getId(ct) for ct in senders]
+    senders_cycle = cycle(isenders)
+
+    services = get_registry_organizations()
+    selected_orgs = [org for i, org in enumerate(services) if i in (0, 1, 2, 4, 5, 6)]
+    orgas_cycle = cycle(selected_orgs)
+
+    ifld = tc.layer['portal']['incoming-mail']
+    for i in range(start, nb+1):
+        if not 'im1%d' % i in ifld:
+            scan_date = datetime.datetime.now()
+            params = {'title': 'Courrier %d' % i,
+                      'mail_type': 'courrier',
+                      'internal_reference_no': 'E{:04d}'.format(i),
+                      'reception_date': scan_date,
+                      # 'sender': [RelationValue(senders_cycle.next())],
+                      'treating_groups': orgas_cycle.next(),
+                      'recipient_groups': [services[3]],  # Direction générale, communication
+                      'description': 'Ceci est la description du courrier %d' % i,
+                      }
+            ifld.invokeFactory('dmsincomingmail', id='im{}'.format(i), **params)  # i_e ok
+            mail = ifld['im{}'.format(i)]
+            filename = files_cycle.next()
+            with open("%s/%s" % (filespath, filename), 'rb') as fo:
+                file_object = NamedBlobFile(fo.read(), filename=filename)
+                createContentInContainer(mail, 'dmsmainfile', title='', file=file_object,
+                                         scan_id='0509999{:08d}'.format(i), scan_date=scan_date)
+            do_transitions(mail, transitions)
