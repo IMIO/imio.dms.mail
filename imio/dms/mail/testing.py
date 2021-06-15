@@ -184,6 +184,21 @@ def reset_dms_config():
     set_dms_config(['transitions_levels', 'task'], OrderedDict())
 
 
+def add_user_in_groups(tc, userid, nb, start=1):
+    """Add a user in groups"""
+    for i in range(start, nb+1):
+        gid = 'group_{}'.format(i)
+        api.group.add_user(groupname=gid, username=userid)
+
+
+def create_groups(tc, nb, start=1):
+    """Create groups"""
+    for i in range(start, nb+1):
+        gid = 'group_{}'.format(i)
+        if not api.group.get(gid):
+            api.group.create(gid, 'Group {}'.format(i))
+
+
 @timecall
 def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
     """Create nb im"""
@@ -203,7 +218,8 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
 
     ifld = tc.layer['portal']['incoming-mail']
     for i in range(start, nb+1):
-        if not 'im1%d' % i in ifld:
+        mid = 'im{}'.format(i)
+        if mid not in ifld:
             scan_date = datetime.datetime.now()
             params = {'title': 'Courrier %d' % i,
                       'mail_type': 'courrier',
@@ -214,8 +230,8 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
                       'recipient_groups': [services[3]],  # Direction générale, communication
                       'description': 'Ceci est la description du courrier %d' % i,
                       }
-            ifld.invokeFactory('dmsincomingmail', id='im{}'.format(i), **params)  # i_e ok
-            mail = ifld['im{}'.format(i)]
+            ifld.invokeFactory('dmsincomingmail', id=mid, **params)  # i_e ok
+            mail = ifld[mid]
             filename = files_cycle.next()
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
