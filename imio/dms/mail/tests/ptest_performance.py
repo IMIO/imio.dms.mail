@@ -26,32 +26,35 @@ def timed(f, nb=100):
 
 # Commons
 
-def check_catalog_following_groups(self):
-    user = api.user.create('test@test.be', 'newuser', 'Password#1')
-    nb = 100
+def check_catalog_following_groups(self, init=False, nb=100):
+    login(self.portal, TEST_USER_NAME)
+    if init:
+        user = api.user.create('test@test.be', 'newuser', 'Password#1')
+    user = self.portal.acl_users.getUserById('newuser')
     pc = self.portal.portal_catalog
     criterias = {'portal_type': 'dmsincomingmail'}
     # starting with normal groups
-    groups_nb = len(api.group.get_groups(user=user))
+    groups_nb = len(api.group.get_groups(username='newuser'))
     login(self.portal, 'newuser')
     print(u'catalog._listAllowedRolesAndUsers ({}): {} groups, in {}'.format(
         nb, groups_nb, timed(lambda: pc._listAllowedRolesAndUsers(user), nb)))
     print(u'catalog.searchResults ({}): {} groups, in {}'.format(
         nb, groups_nb, timed(lambda: pc.searchResults(criterias), nb)))
-    login(self.portal, TEST_USER_NAME)
     # adding new groups
-    create_groups(self, 500)
+    if init:
+        create_groups(self, 500)
     for j in range(0, 10):
-        login(self.portal, TEST_USER_NAME)
-        add_user_in_groups(self, 'newuser', (10*j)+10, (10*j)+1)
+        if init:
+            add_user_in_groups(self, 'newuser', 10*(j+1), (10*j)+1)
         # groups_nb = len(api.group.get_groups(user=user))
         groups_nb = (j+1)*10+1
-        login(self.portal, 'newuser')
         user = self.portal.acl_users.getUserById('newuser')
         print(u'catalog._listAllowedRolesAndUsers ({}): {} groups, in {}'.format(
             nb, groups_nb, timed(lambda: pc._listAllowedRolesAndUsers(user), nb)[0]))
         print(u'catalog.searchResults ({}): {} groups, in {}'.format(
             nb, groups_nb, timed(lambda: pc.searchResults(criterias), nb)[0]))
+    self.assertTrue(self.portal.portal_catalog._listAllowedRolesAndUsers(
+        self.portal.acl_users.getUserById('newuser')) > 100)
 
 
 class TestPerformance(unittest.TestCase):
@@ -86,4 +89,4 @@ class TestPerformance(unittest.TestCase):
             nb, timed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True), nb)))
 
     def test_catalog_following_groups(self):
-        check_catalog_following_groups(self)
+        check_catalog_following_groups(self, init=True)

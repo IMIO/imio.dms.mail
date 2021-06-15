@@ -186,22 +186,25 @@ def reset_dms_config():
 
 def add_user_in_groups(tc, userid, nb, start=1):
     """Add a user in groups"""
-    for i in range(start, nb+1):
-        gid = 'group_{}'.format(i)
-        api.group.add_user(groupname=gid, username=userid)
+    with api.env.adopt_roles(['Manager']):
+        for i in range(start, nb+1):
+            gid = 'group_{}'.format(i)
+            api.group.add_user(groupname=gid, username=userid)
 
 
 def create_groups(tc, nb, start=1):
     """Create groups"""
-    for i in range(start, nb+1):
-        gid = 'group_{}'.format(i)
-        if not api.group.get(gid):
-            api.group.create(gid, 'Group {}'.format(i))
+    with api.env.adopt_roles(['Manager']):
+        for i in range(start, nb+1):
+            gid = 'group_{}'.format(i)
+            if not api.group.get(gid):
+                api.group.create(gid, 'Group {}'.format(i))
 
 
 @timecall
 def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
     """Create nb im"""
+    print('Creating {} incoming mails'.format(nb-start+1))
     import imio.dms.mail as imiodmsmail
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
     files = [unicode(name) for name in os.listdir(filespath)
@@ -217,24 +220,25 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
     orgas_cycle = cycle(selected_orgs)
 
     ifld = tc.layer['portal']['incoming-mail']
-    for i in range(start, nb+1):
-        mid = 'im{}'.format(i)
-        if mid not in ifld:
-            scan_date = datetime.datetime.now()
-            params = {'title': 'Courrier %d' % i,
-                      'mail_type': 'courrier',
-                      'internal_reference_no': 'E{:04d}'.format(i),
-                      'reception_date': scan_date,
-                      # 'sender': [RelationValue(senders_cycle.next())],
-                      'treating_groups': orgas_cycle.next(),
-                      'recipient_groups': [services[3]],  # Direction générale, communication
-                      'description': 'Ceci est la description du courrier %d' % i,
-                      }
-            ifld.invokeFactory('dmsincomingmail', id=mid, **params)  # i_e ok
-            mail = ifld[mid]
-            filename = files_cycle.next()
-            with open("%s/%s" % (filespath, filename), 'rb') as fo:
-                file_object = NamedBlobFile(fo.read(), filename=filename)
-                createContentInContainer(mail, 'dmsmainfile', title='', file=file_object,
-                                         scan_id='0509999{:08d}'.format(i), scan_date=scan_date)
-            do_transitions(mail, transitions)
+    with api.env.adopt_user(username='encodeur'):
+        for i in range(start, nb+1):
+            mid = 'im{}'.format(i)
+            if mid not in ifld:
+                scan_date = datetime.datetime.now()
+                params = {'title': 'Courrier %d' % i,
+                          'mail_type': 'courrier',
+                          'internal_reference_no': 'E{:04d}'.format(i),
+                          'reception_date': scan_date,
+                          # 'sender': [RelationValue(senders_cycle.next())],
+                          'treating_groups': orgas_cycle.next(),
+                          'recipient_groups': [services[3]],  # Direction générale, communication
+                          'description': 'Ceci est la description du courrier %d' % i,
+                          }
+                ifld.invokeFactory('dmsincomingmail', id=mid, **params)  # i_e ok
+                mail = ifld[mid]
+                filename = files_cycle.next()
+                with open("%s/%s" % (filespath, filename), 'rb') as fo:
+                    file_object = NamedBlobFile(fo.read(), filename=filename)
+                    createContentInContainer(mail, 'dmsmainfile', title='', file=file_object,
+                                             scan_id='0509999{:08d}'.format(i), scan_date=scan_date)
+                do_transitions(mail, transitions)
