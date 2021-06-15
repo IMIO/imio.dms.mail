@@ -888,4 +888,18 @@ class ClassificationFolderInCopyGroupCriterion(object):
         groups = api.group.get_groups(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
         # if orgs is empty list, nothing is returned => ok
-        return {'services_in_copy': {'query': orgs}}
+        return {'recipient_groups': {'query': orgs}}
+
+
+class ClassificationFolderInTreatingGroupCriterion(object):
+    """Return catalog criteria following treating group member"""
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        # if orgs is empty list, nothing is returned => ok
+        return {'treating_groups': {'query': orgs}}

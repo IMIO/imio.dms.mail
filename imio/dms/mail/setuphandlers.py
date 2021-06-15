@@ -121,6 +121,11 @@ def setup_classification(site):
 
     if not base_hasattr(site, 'folders'):
         site.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
+        folders = site["folders"]
+        alsoProvides(folders, ILabelRoot)
+        adapted = ILabelJar(folders)
+        adapted.add("Lu", "green", True)  # label_id = lu
+        adapted.add("Suivi", "yellow", True)  # label_id = suivi
 
     if not base_hasattr(site, 'tree'):
         site.invokeFactory("ClassificationContainer", id='tree', title=_(u"Classification Tree"))
@@ -168,6 +173,8 @@ def setup_classification(site):
         default_UID=collection_folder["all_folders"].UID(),
     )
     site["folders"].setDefaultPage("folder-searches")
+
+    logger.info("Classification configured")
 
 
 def postInstall(context):
@@ -867,8 +874,15 @@ def create_classification_folders_collections(folder):
             ],
             'cond': u"",
             'bypass': [],
-            "flds": (u"pretty_link", ),
-            "sort": u"sortable_title",
+            "flds": (
+                u"pretty_link",
+                u"internal_reference_no",
+                u"classification_tree_identifiers",
+                u"classification_treating_group",
+                u"ModificationDate",
+                u"CreationDate",
+            ),
+            "sort": u"ClassificationFolderSort",
             "rev": False,
             "count": False,
         },
@@ -885,13 +899,20 @@ def create_classification_folders_collections(folder):
                 {
                     'i': 'CompoundCriterion',
                     'o': 'plone.app.querystring.operation.compound.is',
-                    'v': 'classificationfolder-in-copy-group',
+                    'v': 'classificationfolder-in-treating-group',
                 },
             ],
             'cond': u"",
             'bypass': [],
-            "flds": (u"pretty_link", ),
-            "sort": u"sortable_title",
+            "flds": (
+                u"pretty_link",
+                u"internal_reference_no",
+                u"classification_tree_identifiers",
+                u"classification_treating_group",
+                u"ModificationDate",
+                u"CreationDate",
+            ),
+            "sort": u"ClassificationFolderSort",
             "rev": False,
             "count": False,
         },
@@ -908,13 +929,50 @@ def create_classification_folders_collections(folder):
                 {
                     'i': 'CompoundCriterion',
                     'o': 'plone.app.querystring.operation.compound.is',
+                    'v': 'classificationfolder-in-copy-group',
+                },
+            ],
+            'cond': u"",
+            'bypass': [],
+            "flds": (
+                u"pretty_link",
+                u"internal_reference_no",
+                u"classification_tree_identifiers",
+                u"classification_treating_group",
+                u"ModificationDate",
+                u"CreationDate",
+            ),
+            "sort": u"ClassificationFolderSort",
+            "rev": False,
+            "count": False,
+        },
+        {
+            "id": "followed",
+            "tit": _("followed"),
+            "subj": (u"search", ),
+            "query": [
+                {
+                    "i": "portal_type",
+                    "o": "plone.app.querystring.operation.selection.is",
+                    "v": ["ClassificationFolder", "ClassificationSubfolder"],
+                },
+                {
+                    'i': 'CompoundCriterion',
+                    'o': 'plone.app.querystring.operation.compound.is',
                     'v': 'dmsincomingmail-followed',
                 },
             ],
             'cond': u"",
             'bypass': [],
-            "flds": (u"pretty_link", ),
-            "sort": u"sortable_title",
+            "flds": (
+                u"pretty_link",
+                u"internal_reference_no",
+                u"classification_tree_identifiers",
+                u"classification_treating_group",
+                u"ModificationDate",
+                u"CreationDate",
+            ),
+            "sort": u"ClassificationFolderSort",
             "rev": False,
             "count": False,
         },

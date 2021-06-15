@@ -289,4 +289,16 @@
       factory=".columns.ActionsColumn"
       />
 
+  <!-- collective.classification columns -->
+
+  <adapter
+    for="imio.dms.mail.interfaces.IClassificationFoldersDashboard
+         zope.publisher.interfaces.browser.IBrowserRequest
+         collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+    factory="collective.classification.folder.browser.faceted.FolderTitleColumn"
+    provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+    name="pretty_link"
+    />
+
+
 </configure>

@@ -214,6 +214,14 @@
         <implements interface="ftw.labels.interfaces.ILabelSupport" />
     </class>
 
+    <class class="collective.classification.folder.content.classification_folder.ClassificationFolder">
+        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+    </class>
+
+    <class class="collective.classification.folder.content.classification_subfolder.ClassificationSubfolder">
+        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+    </class>
+
     <!-- UTILS METHODS -->
 
     <browser:page

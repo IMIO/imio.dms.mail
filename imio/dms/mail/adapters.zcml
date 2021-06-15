@@ -63,6 +63,11 @@
              name="task-in-proposing-group" />
 
     <adapter for="*"
+             factory=".adapters.ClassificationFolderInTreatingGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="classificationfolder-in-treating-group" />
+
+    <adapter for="*"
              factory=".adapters.ClassificationFolderInCopyGroupCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="classificationfolder-in-copy-group" />
