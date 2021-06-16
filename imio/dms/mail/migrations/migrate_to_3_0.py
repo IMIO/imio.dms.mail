@@ -136,7 +136,12 @@ class Migrate_To_3_0(Migrator):  # noqa
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
-        for prod in ['eea.facetednavigation', 'plonetheme.imio.apps']:
+        for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
+                     'collective.contact.facetednav', 'collective.contact.importexport', 'collective.dms.basecontent',
+                     'collective.eeafaceted.batchactions', 'collective.eeafaceted.dashboard',
+                     'collective.eeafaceted.z3ctable', 'collective.wfadaptations', 'collective.z3cform.chosen',
+                     'eea.facetednavigation', 'imio.actionspanel', 'imio.dms.mail', 'imio.history', 'imio.pm.wsclient',
+                     'plonetheme.imioapps']:
             mark_last_version(self.portal, product=prod)
 
         # self.refreshDatabase()
