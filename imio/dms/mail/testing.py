@@ -204,7 +204,7 @@ def create_groups(tc, nb, start=1):
 @timecall
 def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
     """Create nb im"""
-    print('Creating {} incoming mails'.format(nb-start+1))
+    print('Creating {} incoming mails'.format(nb))
     import imio.dms.mail as imiodmsmail
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
     files = [unicode(name) for name in os.listdir(filespath)
