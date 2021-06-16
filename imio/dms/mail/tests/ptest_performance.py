@@ -46,9 +46,8 @@ def check_catalog_following_groups(self, init=False, nb=100):
     for j in range(0, 10):
         if init:
             add_user_in_groups(self, 'newuser', 10*(j+1), (10*j)+1)
-        # groups_nb = len(api.group.get_groups(user=user))
-        groups_nb = (j+1)*10+1
         user = self.portal.acl_users.getUserById('newuser')
+        groups_nb = len(api.group.get_groups(user=user))
         print(u'catalog._listAllowedRolesAndUsers ({}): {} groups, in {}'.format(
             nb, groups_nb, timed(lambda: pc._listAllowedRolesAndUsers(user), nb)[0]))
         print(u'catalog.searchResults ({}): {} groups, in {}'.format(

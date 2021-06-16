@@ -26,8 +26,4 @@ class TestMass(unittest.TestCase):
         for j in range(0, 10):
             nb = 1000
             create_im_mails(self, nb*(j+1), start=nb*j+1, senders=[], transitions=['propose_to_agent'])
-            check_catalog_following_groups(self, init=True)
-            create_im_mails(self, 2000, start=1001, senders=[], transitions=['propose_to_agent'])
-            check_catalog_following_groups(self)
-            create_im_mails(self, 3000, start=2001, senders=[], transitions=['propose_to_agent'])
-            check_catalog_following_groups(self)
+            check_catalog_following_groups(self, init=(j == 0))
