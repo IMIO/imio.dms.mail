@@ -124,7 +124,6 @@ def setup_classification(site):
         folders = site["folders"]
         alsoProvides(folders, ILabelRoot)
         adapted = ILabelJar(folders)
-        adapted.add("Lu", "green", True)  # label_id = lu
         adapted.add("Suivi", "yellow", True)  # label_id = suivi
 
     if not base_hasattr(site, 'tree'):
