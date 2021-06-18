@@ -340,6 +340,9 @@ def postInstall(context):
     if default_cke_templ_folder in site:
         api.content.delete(obj=site[default_cke_templ_folder])
 
+    # hide plone.portalheader message viewlet
+    site.portal_setup.runImportStepFromProfile('profile-plonetheme.imioapps:default', 'viewlets')
+
 
 def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
     """
