@@ -283,6 +283,11 @@ body.template-import-process.portaltype-classificationfolders #portal-column-one
 
 /* Other */
 
+body.template-facetednavigation_view.portaltype-classificationfolder #content-core table.no-style-table ul,
+body.template-facetednavigation_view.portaltype-classificationsubfolder #content-core table.no-style-table ul {
+    margin-left: 1em;
+}
+
 #collections-count-refresh {
     vertical-align: middle;
     margin-left: 1em;
