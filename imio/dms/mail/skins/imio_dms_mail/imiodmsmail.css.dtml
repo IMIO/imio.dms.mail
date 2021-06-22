@@ -275,7 +275,8 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
     display: none;
 }
 
-body.template-classificationfolder.portaltype-classificationfolders #portal-column-one div.portletWrapper:nth-child(2) {
+body.template-classificationfolder.portaltype-classificationfolders #portal-column-one div.portletWrapper:nth-child(2),
+body.template-import.portaltype-classificationfolders #portal-column-one div.portletWrapper:nth-child(2) {
     display: none;
 }  /* labelJarPortlet when adding a folder */
 
