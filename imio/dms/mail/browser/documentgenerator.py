@@ -152,6 +152,16 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             ret[-1] = sep.join(parts[nb-1:])
         return ret
 
+    def get_classification_folders(self):
+        om = self.real_context
+        if not om.classification_folders:
+            return []
+        ret = []
+        for fld in om.classification_folders:
+            obj = uuidToObject(fld)
+            ret.append(obj.internal_reference_no)
+        return ret
+
 
 class DashboardDGBaseHelper():  # noqa
     """
