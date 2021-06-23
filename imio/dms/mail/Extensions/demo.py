@@ -11,6 +11,8 @@ from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import DummyView
 from itertools import cycle
+
+from imio.helpers.content import transitions
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -39,6 +41,10 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
     portal = getToolByName(self, "portal_url").getPortalObject()
     contacts = portal.contacts
     intids = getUtility(IIntIds)
+    try:
+        secretariat = contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
+    except:
+        secretariat = None
     docs = {
         'dmsincomingmail': {  # i_e ok
             '59.PDF':
@@ -58,7 +64,8 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
             'email1.pdf':
             {
                 'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'email', 'file_title': u'email.pdf',
-                      'assigned_user': 'agent', 'recipient_groups': [], 'orig_sender_email': u's.geul@mail.com'},
+                      'treating_groups': secretariat, 'assigned_user': 'agent', 'recipient_groups': [],
+                      'orig_sender_email': u's.geul@mail.com'},
                 'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
             },
             'email2.pdf':
@@ -99,6 +106,16 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         # transaction.commit()  # commit here to be sure to index preceding when using collective.indexing
         # change has been done in IdmSearchableExtender to avoid using catalog
         document.reindexObject(idxs=('SearchableText', ))
+        to_state = 'proposed_to_agent'
+        state = api.content.get_state(document)
+        i = 0
+        if doc == 'email1.pdf':
+            while state != to_state and i < 10:
+                transitions(document, ['propose_to_agent', 'propose_to_n_plus_1', 'propose_to_n_plus_2',
+                                       'propose_to_n_plus_3', 'propose_to_n_plus_4', 'propose_to_n_plus_5',
+                                       'propose_to_manager', 'propose_to_pre_manager'])
+                state = api.content.get_state(document)
+                i += 1
         count += 1
     if redirect:
         return portal.REQUEST.response.redirect(folder.absolute_url())
