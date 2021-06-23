@@ -152,7 +152,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             ret[-1] = sep.join(parts[nb-1:])
         return ret
 
-    def get_classification_folders(self):
+    def get_classification_folders(self, sep=u', '):
         om = self.real_context
         if not om.classification_folders:
             return []
@@ -160,6 +160,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         for fld in om.classification_folders:
             obj = uuidToObject(fld)
             ret.append(obj.internal_reference_no)
+        ret = sep.join(ret)
         return ret
 
 
