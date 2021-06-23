@@ -72,6 +72,7 @@ for klass in (BaseFolder, BasePloneFolder, Container):
                 continue
         new.append(perm)
     klass.__ac_permissions__ = tuple(new)
+    # original value ('Manager', 'Site Administrator', 'Editor', 'Contributor', '_Delete_objects_Permission')
     klass.manage_delObjects__roles__ = ('Authenticated', 'Member')
 
 pmh = os.environ.get('ENABLE_PRINTING_MAILHOST', None)
