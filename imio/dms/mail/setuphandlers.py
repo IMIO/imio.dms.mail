@@ -1026,11 +1026,11 @@ def configure_om_rolefields(context):
     roles_config = {'static_config': {
         'to_be_signed': {'expedition': {'roles': ['Editor', 'Reviewer']},
                          'encodeurs': {'roles': ['Reader']},
-                         'dir_general': {'roles': ['Reader']},
+                         'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor']},
                          'lecteurs_globaux_cs': {'roles': ['Reader']}},
         'sent': {'expedition': {'roles': ['Reader', 'Reviewer']},
                  'encodeurs': {'roles': ['Reader']},
-                 'dir_general': {'roles': ['Reader']},
+                 'dir_general': {'roles': ['Reader', 'Reviewer']},
                  'lecteurs_globaux_cs': {'roles': ['Reader']}},
         'scanned': {'expedition': {'roles': ['Contributor', 'Editor', 'Reader', 'Reviewer', 'DmsFile Contributor',
                                              'Base Field Writer', 'Treating Group Writer']},
