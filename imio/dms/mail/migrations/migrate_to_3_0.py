@@ -7,6 +7,7 @@ from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
+from dexterity.localroles.utils import add_roles_in_fti
 from imio.dms.mail import _tr as _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
@@ -238,14 +239,13 @@ class Migrate_To_3_0(Migrator):  # noqa
         if api.group.get('lecteurs_globaux_cs') is None:
             api.group.create('lecteurs_globaux_cs', '2 Lecteurs Globaux CS')
         # change local roles
-        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
-        lr = getattr(fti, 'localroles')
-        lrsc = lr['static_config']
-        for state in ['to_be_signed', 'sent']:
-            if state in lrsc:
-                if 'lecteurs_globaux_cs' not in lrsc[state]:
-                    lrsc[state]['lecteurs_globaux_cs'] = {'roles': ['Reader']}
-        lr._p_changed = True   # We need to indicate that the object has been modified and must be "saved"
+        to_add = {
+            'to_be_signed': {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor']},
+                             'lecteurs_globaux_cs': {'roles': ['Reader']}},
+            'sent': {'dir_general': {'roles': ['Reader', 'Reviewer']},
+                     'lecteurs_globaux_cs': {'roles': ['Reader']}},
+        }
+        add_roles_in_fti('dmsoutgoingmail', to_add)
         # update IActionsPanelFolderOnlyAdd interface
         s_orgs = get_registry_organizations()
         for fld in (self.portal['templates']['om'], self.portal['templates']['oem'],
