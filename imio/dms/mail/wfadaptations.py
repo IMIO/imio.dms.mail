@@ -328,17 +328,21 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         for i, ptype in enumerate(('dmsincomingmail', 'dmsincoming_email')):
             fti = getUtility(IDexterityFTI, name=ptype)
+            # TODO replace with im option check
             if 'creating_group' in fti.localroles:
                 api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
                                         mapping={'type': 'dmsincomingmail, dmsincoming_email'}), portal.REQUEST,
                                         type='warning')
+            # static_config local roles
             updates = {
                 new_state_id: {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
                                                          'Base Field Writer', 'Treating Group Writer']},
                                'encodeurs': {'roles': ['Reader']},
                                'lecteurs_globaux_ce': {'roles': ['Reader']}}
             }
+            import ipdb; ipdb.set_trace()
             update_roles_in_fti(ptype, updates)
+            # treating_groups local roles
             updates = {
                 'in_treatment': {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}},
                 'closed': {new_id: {'roles': ['Reviewer']}},
@@ -353,6 +357,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                 else:
                     updates.update({st: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}}})
             update_roles_in_fti(ptype, updates, keyname='treating_groups')
+            # recipient_groups local roles
             updates = {
                 new_state_id: {new_id: {'roles': ['Reader']}},
                 'in_treatment': {new_id: {'roles': ['Reader']}},
@@ -604,39 +609,37 @@ class OMServiceValidation(WorkflowAdaptationBase):
         if 'creating_group' in lr:
             api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
                                       mapping={'type': 'dmsoutgoingmail'}), portal.REQUEST, type='warning')
-        lrsc = lr['static_config']
-        if val_state_id not in lrsc:
-            lrsc[val_state_id] = {'expedition': {'roles': ['Editor', 'Reviewer']},
+        # static_config local roles
+        updates = {val_state_id: {'expedition': {'roles': ['Editor', 'Reviewer']},
                                   'encodeurs': {'roles': ['Reader']},
-                                  'dir_general': {'roles': ['Reader']}}
-        lrt = lr['treating_groups']
-        if new_state_id not in lrt:
-            lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                                    'Base Field Writer', 'Treating Group Writer']},
-                                 'encodeur': {'roles': ['Reader']}}
-            for st in to_states:
-                lrt[st].update({new_id: {'roles': ['Reader']}})
-        if val_state_id not in lrt:
-            dic = {'editeur': {'roles': ['Reader']},
-                   'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                          'Base Field Writer', 'Treating Group Writer']},
-                   'lecteur': {'roles': ['Reader']},
-                   new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                      'Base Field Writer', 'Treating Group Writer']}}
-            lrt[val_state_id] = dic
-        lrr = lr['recipient_groups']
-        if new_state_id not in lrr:
-            lrr[new_state_id] = {new_id: {'roles': ['Reader']}}
-            for st in to_states:
-                lrr[st].update({new_id: {'roles': ['Reader']}})
-        if val_state_id not in lrr:
-            dic = {'editeur': {'roles': ['Reader']},
-                   'encodeur': {'roles': ['Reader']},
-                   'lecteur': {'roles': ['Reader']},
-                   new_id: {'roles': ['Reader']}}
-            lrr[val_state_id] = dic
-        # We need to indicate that the object has been modified and must be 'saved'
-        lr._p_changed = True
+                                  'dir_general': {'roles': ['Reader']}}}
+        update_roles_in_fti('dmsoutgoingmail', updates)
+        # treating_groups local roles
+        updates = {
+            new_state_id: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                              'Base Field Writer', 'Treating Group Writer']},
+                           'encodeur': {'roles': ['Reader']}},
+            val_state_id: {'editeur': {'roles': ['Reader']},
+                           'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                                  'Base Field Writer', 'Treating Group Writer']},
+                           'lecteur': {'roles': ['Reader']},
+                           new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
+                                              'Base Field Writer', 'Treating Group Writer']}}
+        }
+        for st in to_states:
+            updates.update({tr: {new_id: {'roles': ['Reader']}}})
+        update_roles_in_fti('dmsoutgoingmail', updates, keyname='treating_groups')
+        # recipient_groups local roles
+        updates = {
+            new_state_id: {new_id: {'roles': ['Reader']}},
+            val_state_id: {'editeur': {'roles': ['Reader']},
+                           'encodeur': {'roles': ['Reader']},
+                           'lecteur': {'roles': ['Reader']},
+                           new_id: {'roles': ['Reader']}}
+        }
+        for st in to_states:
+            updates.update({st: {new_id: {'roles': ['Reader']}}})
+        update_roles_in_fti('dmsoutgoingmail', updates, keyname='recipient_groups')
 
         # update dms config
         if (val_state_id, val_set_tr_id) not in wf_from_to['to']:
