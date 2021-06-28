@@ -328,42 +328,39 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         for i, ptype in enumerate(('dmsincomingmail', 'dmsincoming_email')):
             fti = getUtility(IDexterityFTI, name=ptype)
-            lr = getattr(fti, 'localroles')
-            lrs = lr['static_config']
-            if new_state_id not in lrs:
-                lrs[new_state_id] = {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                               'Base Field Writer', 'Treating Group Writer']},
-                                     'encodeurs': {'roles': ['Reader']},
-                                     'lecteurs_globaux_ce': {'roles': ['Reader']}}
-            lrt = lr['treating_groups']
-            if 'creating_group' in lr:
+            if 'creating_group' in fti.localroles:
                 api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
                                         mapping={'type': 'dmsincomingmail, dmsincoming_email'}), portal.REQUEST,
                                         type='warning')
-            if new_state_id not in lrt:
+            updates = {
+                new_state_id: {'dir_general': {'roles': ['Contributor', 'Editor', 'Reviewer',
+                                                         'Base Field Writer', 'Treating Group Writer']},
+                               'encodeurs': {'roles': ['Reader']},
+                               'lecteurs_globaux_ce': {'roles': ['Reader']}}
+            }
+            update_roles_in_fti(ptype, updates)
+            updates = {
+                'in_treatment': {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}},
+                'closed': {new_id: {'roles': ['Reviewer']}},
+                new_state_id: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Treating Group Writer']}}
+            }
+            if i:
+                updates[new_state_id][new_id]['roles'].append('Base Field Writer')
+            for st in next_states:
                 if i:
-                    lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                                            'Treating Group Writer']}}
+                    updates.update({st: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
+                                                            'Treating Group Writer']}}})
                 else:
-                    lrt[new_state_id] = {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer',
-                                                            'Treating Group Writer']}}
-                for st in next_states:
-                    if i:
-                        lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                                           'Treating Group Writer']}})
-                    else:
-                        lrt[st].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
-                lrt['in_treatment'].update({new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}})
-                lrt['closed'].update({new_id: {'roles': ['Reviewer']}})
-            lrr = lr['recipient_groups']
-            if new_state_id not in lrr:
-                lrr[new_state_id] = {new_id: {'roles': ['Reader']}}
-                for st in next_states:
-                    lrr[st].update({new_id: {'roles': ['Reader']}})
-                lrr['in_treatment'].update({new_id: {'roles': ['Reader']}})
-                lrr['closed'].update({new_id: {'roles': ['Reader']}})
-            # We need to indicate that the object has been modified and must be 'saved'
-            lr._p_changed = True
+                    updates.update({st: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}}})
+            update_roles_in_fti(ptype, updates, keyname='treating_groups')
+            updates = {
+                new_state_id: {new_id: {'roles': ['Reader']}},
+                'in_treatment': {new_id: {'roles': ['Reader']}},
+                'closed': {new_id: {'roles': ['Reader']}},
+            }
+            for st in next_states:
+                updates.update({st: {new_id: {'roles': ['Reader']}}})
+            update_roles_in_fti(ptype, updates, keyname='recipient_groups')
 
         # add collection
         folder = portal['incoming-mail']['mail-searches']
