@@ -5,6 +5,7 @@ from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
+from dexterity.localroles.utils import update_roles_in_fti
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.utils import get_dms_config
@@ -121,22 +122,18 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             portal['contacts']['contact-lists-folder'].manage_addLocalRoles('pre_manager',
                                                                             ['Contributor', 'Editor', 'Reader'])
 
+        # TODO : include n+ levels if necessary
         # ajouter config local roles
         for ptype in ('dmsincomingmail', 'dmsincoming_email'):
-            fti = getUtility(IDexterityFTI, name=ptype)
-            lr = getattr(fti, 'localroles')
-            lrsc = lr['static_config']
-            if new_state_id not in lrsc:
-                lrsc[new_state_id] = {'pre_manager': {'roles': ['Editor', 'Reviewer']},
+            updates = {new_state_id: {'pre_manager': {'roles': ['Editor', 'Reviewer']},
                                       'encodeurs': {'roles': ['Reader']},
-                                      'dir_general': {'roles': ['Reader']}}
-                lrsc['proposed_to_manager'].update({'pre_manager': {'roles': ['Reader']}})
-                for st in next_states:
-                    lrsc[st].update({'pre_manager': {'roles': ['Reader']}})
-                lrsc['in_treatment'].update({'pre_manager': {'roles': ['Reader']}})
-                lrsc['closed'].update({'pre_manager': {'roles': ['Reader']}})
-            # We need to indicate that the object has been modified and must be 'saved'
-            lr._p_changed = True
+                                      'dir_general': {'roles': ['Reader']}},
+                       'proposed_to_manager': {'pre_manager': {'roles': ['Reader']}},
+                       'in_treatment': {'pre_manager': {'roles': ['Reader']}},
+                       'closed': {'pre_manager': {'roles': ['Reader']}}}
+            for st in next_states:
+                updates.update({st: {'pre_manager': {'roles': ['Reader']}}})
+            update_roles_in_fti(ptype, updates)
 
         # add collection
         folder = portal['incoming-mail']['mail-searches']
