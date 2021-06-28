@@ -329,6 +329,8 @@ class TestIMPreManagerValidation(unittest.TestCase):
         fti = getUtility(IDexterityFTI, name='dmsincomingmail')
         lr = getattr(fti, 'localroles')
         self.assertIn('proposed_to_pre_manager', lr['static_config'])
+        self.assertIn('pre_manager', lr['static_config']['proposed_to_manager'])
+        self.assertIn('pre_manager', lr['static_config']['proposed_to_agent'])
         # check collection
         folder = self.portal['incoming-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_pre_manager', folder)
