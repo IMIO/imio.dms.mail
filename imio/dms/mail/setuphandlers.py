@@ -1011,7 +1011,7 @@ def configure_iem_rolefields(context):
     lrs = lr['static_config']
     if 'Base Field Writer' not in lrs['proposed_to_agent']['encodeurs']['roles']:
         lrs['proposed_to_agent']['encodeurs']['roles'] = ['Contributor', 'Editor', 'Base Field Writer',
-                                                        'Treating Group Writer']
+                                                          'Treating Group Writer']
     lrt = lr['treating_groups']
     if 'Base Field Writer' not in lrt['proposed_to_agent']['editeur']['roles']:
         lrt['proposed_to_agent']['editeur']['roles'] = ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
@@ -1039,10 +1039,10 @@ def configure_om_rolefields(context):
         'created': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
                                            'Base Field Writer', 'Treating Group Writer']}},
         'to_be_signed': {'editeur': {'roles': ['Reader']},
-                         'encodeur': {'roles': ['Reader']},
+                         'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer']},
                          'lecteur': {'roles': ['Reader']}},
         'sent': {'editeur': {'roles': ['Reader']},
-                 'encodeur': {'roles': ['Reader']},
+                 'encodeur': {'roles': ['Reader', 'Reviewer']},
                  'lecteur': {'roles': ['Reader']}},
     }, 'recipient_groups': {
         'to_be_signed': {'editeur': {'roles': ['Reader']},
