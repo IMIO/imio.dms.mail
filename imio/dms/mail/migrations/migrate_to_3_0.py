@@ -7,7 +7,7 @@ from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
-from dexterity.localroles.utils import add_roles_in_fti
+from dexterity.localroles.utils import update_roles_in_fti
 from imio.dms.mail import _tr as _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
@@ -238,7 +238,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             'sent': {'dir_general': {'roles': ['Reader', 'Reviewer']},
                      'lecteurs_globaux_cs': {'roles': ['Reader']}},
         }
-        add_roles_in_fti('dmsoutgoingmail', to_add)
+        update_roles_in_fti('dmsoutgoingmail', to_add)
         # update IActionsPanelFolderOnlyAdd interface
         s_orgs = get_registry_organizations()
         for fld in (self.portal['templates']['om'], self.portal['templates']['oem'],
