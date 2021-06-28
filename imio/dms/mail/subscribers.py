@@ -639,7 +639,7 @@ def group_assignment(event):
             hp = hps_orgs[org]
         else:
             hp = api.content.create(container=pers, id=uid, type='held_position',
-                                    email=safe_unicode(user.getProperty('email')),
+                                    email=safe_unicode(user.getProperty('email').lower()),
                                     position=RelationValue(intids.getId(org)), use_parent_address=True)
         if api.content.get_state(hp) == 'deactivated':
             api.content.transition(hp, 'activate')

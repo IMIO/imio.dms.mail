@@ -483,6 +483,15 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     def update_catalog(self):
         """ Update catalog or objects """
+        # Lowercased hp email
+        brains = self.catalog.searchResults(portal_type='held_position')
+        for brain in brains:
+            obj = brain.getObject()
+            if not obj.email:
+                continue
+            obj.email = obj.email.lower()
+            obj.reindexObject(idxs=['contact_source', 'email'])
+        # Cleaning en update
         brains = self.catalog.searchResults(portal_type=('dmsmainfile', 'dmsommainfile', 'dmsappendixfile'))
         for i, brain in enumerate(brains, 1):
             obj = brain.getObject()
