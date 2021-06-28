@@ -246,6 +246,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                      'lecteurs_globaux_cs': {'roles': ['Reader']}},
         }
         update_roles_in_fti('dmsoutgoingmail', to_add)
+        to_add = {
+            'to_be_signed': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer']}},
+            'sent': {'encodeur': {'roles': ['Reviewer']}},
+        }
+        update_roles_in_fti('dmsoutgoingmail', to_add, keyname='treating_groups')
+
         # update IActionsPanelFolderOnlyAdd interface
         s_orgs = get_registry_organizations()
         for fld in (self.portal['templates']['om'], self.portal['templates']['oem'],
