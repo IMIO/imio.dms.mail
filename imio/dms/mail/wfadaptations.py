@@ -6,6 +6,7 @@ from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from dexterity.localroles.utils import update_roles_in_fti
+from dexterity.localroles.utils import update_security_index
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.utils import get_dms_config
@@ -340,7 +341,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                'encodeurs': {'roles': ['Reader']},
                                'lecteurs_globaux_ce': {'roles': ['Reader']}}
             }
-            update_roles_in_fti(ptype, updates)
+            c1 = update_roles_in_fti(ptype, updates, notify=False)
             # treating_groups local roles
             updates = {
                 'in_treatment': {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}},
@@ -357,7 +358,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                     if i:
                         roles += ['Base Field Writer', 'Treating Group Writer']
                 updates.update({st: {new_id: {'roles': roles}}})
-            update_roles_in_fti(ptype, updates, keyname='treating_groups')
+            c2 = update_roles_in_fti(ptype, updates, keyname='treating_groups', notify=False)
             # recipient_groups local roles
             updates = {
                 new_state_id: {new_id: {'roles': ['Reader']}},
@@ -366,7 +367,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
             }
             for st in next_states:
                 updates.update({st: {new_id: {'roles': ['Reader']}}})
-            update_roles_in_fti(ptype, updates, keyname='recipient_groups')
+            c3 = update_roles_in_fti(ptype, updates, keyname='recipient_groups', notify=False)
+            if c1 or c2 or c3:
+                update_security_index([ptype])
 
         # add collection
         folder = portal['incoming-mail']['mail-searches']
@@ -614,7 +617,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         updates = {val_state_id: {'expedition': {'roles': ['Editor', 'Reviewer']},
                                   'encodeurs': {'roles': ['Reader']},
                                   'dir_general': {'roles': ['Reader']}}}
-        update_roles_in_fti('dmsoutgoingmail', updates)
+        c1 = update_roles_in_fti('dmsoutgoingmail', updates, notify=False)
         # treating_groups local roles
         updates = {
             new_state_id: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
@@ -631,7 +634,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             if st in updates:
                 continue
             updates.update({st: {new_id: {'roles': ['Reader']}}})
-        update_roles_in_fti('dmsoutgoingmail', updates, keyname='treating_groups')
+        c2 = update_roles_in_fti('dmsoutgoingmail', updates, keyname='treating_groups', notify=False)
         # recipient_groups local roles
         updates = {
             new_state_id: {new_id: {'roles': ['Reader']}},
@@ -642,7 +645,9 @@ class OMServiceValidation(WorkflowAdaptationBase):
         }
         for st in to_states:
             updates.update({st: {new_id: {'roles': ['Reader']}}})
-        update_roles_in_fti('dmsoutgoingmail', updates, keyname='recipient_groups')
+        c3 = update_roles_in_fti('dmsoutgoingmail', updates, keyname='recipient_groups', notify=False)
+        if c1 or c2 or c3:
+            update_security_index(['dmsoutgoingmail'])
 
         # update dms config
         if (val_state_id, val_set_tr_id) not in wf_from_to['to']:
