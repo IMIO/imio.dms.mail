@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_functions
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.batchimport.utils import createDocument
@@ -41,10 +42,6 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
     portal = getToolByName(self, "portal_url").getPortalObject()
     contacts = portal.contacts
     intids = getUtility(IIntIds)
-    try:
-        secretariat = contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
-    except:
-        secretariat = None
     docs = {
         'dmsincomingmail': {  # i_e ok
             '59.PDF':
@@ -64,8 +61,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
             'email1.pdf':
             {
                 'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'email', 'file_title': u'email.pdf',
-                      'treating_groups': secretariat, 'assigned_user': 'agent', 'recipient_groups': [],
-                      'orig_sender_email': u's.geul@mail.com'},
+                      'recipient_groups': [], 'orig_sender_email': u's.geul@mail.com'},
                 'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
             },
             'email2.pdf':
@@ -77,6 +73,24 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
             },
         }
     }
+    if ptype == 'dmsincoming_email':
+        try:
+            secretariat = contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
+            user = 'agent'
+        except KeyError:  # if the demo org has been deleted, we search another org with a configured user
+            orgs = get_registry_organizations()
+            for org in orgs:
+                users = api.user.get_users(groupname='{}_editeur'.format(org))
+                if users:
+                    secretariat = org
+                    user = users[0].getId()
+                    break
+            else:
+                secretariat = user = ''
+        if secretariat:
+            docs['dmsincoming_email']['email1.pdf']['c'].update({'treating_groups': secretariat,
+                                                                 'assigned_user': user})
+
     docs_cycle = cycle(docs[ptype])
     folder = portal['incoming-mail']
     count = 1
