@@ -340,7 +340,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                'encodeurs': {'roles': ['Reader']},
                                'lecteurs_globaux_ce': {'roles': ['Reader']}}
             }
-            import ipdb; ipdb.set_trace()
             update_roles_in_fti(ptype, updates)
             # treating_groups local roles
             updates = {
@@ -351,11 +350,13 @@ class IMServiceValidation(WorkflowAdaptationBase):
             if i:
                 updates[new_state_id][new_id]['roles'].append('Base Field Writer')
             for st in next_states:
-                if i:
-                    updates.update({st: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer', 'Base Field Writer',
-                                                            'Treating Group Writer']}}})
+                if st == 'closed':
+                    roles = ['Reviewer']
                 else:
-                    updates.update({st: {new_id: {'roles': ['Contributor', 'Editor', 'Reviewer']}}})
+                    roles = ['Contributor', 'Editor', 'Reviewer']
+                    if i:
+                        roles += ['Base Field Writer', 'Treating Group Writer']
+                updates.update({st: {new_id: {'roles': roles}}})
             update_roles_in_fti(ptype, updates, keyname='treating_groups')
             # recipient_groups local roles
             updates = {
@@ -627,7 +628,9 @@ class OMServiceValidation(WorkflowAdaptationBase):
                                               'Base Field Writer', 'Treating Group Writer']}}
         }
         for st in to_states:
-            updates.update({tr: {new_id: {'roles': ['Reader']}}})
+            if st in updates:
+                continue
+            updates.update({st: {new_id: {'roles': ['Reader']}}})
         update_roles_in_fti('dmsoutgoingmail', updates, keyname='treating_groups')
         # recipient_groups local roles
         updates = {
