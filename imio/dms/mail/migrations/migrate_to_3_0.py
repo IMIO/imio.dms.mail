@@ -8,6 +8,7 @@ from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
 from dexterity.localroles.utils import update_roles_in_fti
+from dexterity.localroles.utils import update_security_index
 from imio.dms.mail import _tr as _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
@@ -245,12 +246,14 @@ class Migrate_To_3_0(Migrator):  # noqa
             'sent': {'dir_general': {'roles': ['Reader', 'Reviewer']},
                      'lecteurs_globaux_cs': {'roles': ['Reader']}},
         }
-        update_roles_in_fti('dmsoutgoingmail', to_add)
+        change1 = update_roles_in_fti('dmsoutgoingmail', to_add, notify=False)
         to_add = {
             'to_be_signed': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer']}},
             'sent': {'encodeur': {'roles': ['Reviewer']}},
         }
-        update_roles_in_fti('dmsoutgoingmail', to_add, keyname='treating_groups')
+        change2 = update_roles_in_fti('dmsoutgoingmail', to_add, keyname='treating_groups', notify=False)
+        if change1 or change2:
+            update_security_index(('dmsoutgoingmail',), trace=10000)
 
         # update IActionsPanelFolderOnlyAdd interface
         s_orgs = get_registry_organizations()
@@ -504,7 +507,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 continue
             obj.email = obj.email.lower()
             obj.reindexObject(idxs=['contact_source', 'email'])
-        # Cleaning en update
+        # Clean and update
         brains = self.catalog.searchResults(portal_type=('dmsmainfile', 'dmsommainfile', 'dmsappendixfile'))
         for i, brain in enumerate(brains, 1):
             obj = brain.getObject()
