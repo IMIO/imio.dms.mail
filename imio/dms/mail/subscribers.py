@@ -290,6 +290,11 @@ def dmsmainfile_modified(dmf, event):
         mail.reindexObject(idxs=['SearchableText'])
 
 
+def dmsappendixfile_added(obj, event):
+    """Set delete permission when a dmsappendixfile is added."""
+    obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'), acquire=1)
+
+
 def imiodmsfile_added(obj, event):
     """when an om file is added
     """
