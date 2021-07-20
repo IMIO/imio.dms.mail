@@ -30,6 +30,8 @@ Changelog
   [sgeulette]
 - Added close transition to n+ states
   [sgeulette]
+- An editor or contributor can delete an appendix file
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

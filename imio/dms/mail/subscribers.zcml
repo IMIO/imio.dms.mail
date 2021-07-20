@@ -70,6 +70,12 @@
       />
 
     <subscriber
+        for="collective.dms.basecontent.dmsfile.IDmsAppendixFile
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.dmsappendixfile_added"
+        />
+
+    <subscriber
         for="collective.dms.basecontent.dmsfile.IDmsFile
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.dmsmainfile_modified"
