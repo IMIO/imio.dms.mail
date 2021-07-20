@@ -77,6 +77,12 @@
 
     <subscriber
         for="collective.dms.basecontent.dmsfile.IDmsFile
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.dmsmainfile_added"
+        />
+
+    <subscriber
+        for="collective.dms.basecontent.dmsfile.IDmsFile
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.dmsmainfile_modified"
         />

@@ -135,7 +135,7 @@ class Migrate_To_1_1(Migrator):
         addOrUpdateColumns(self.portal, columns=('mail_type',))
 
         # block parent portlets on contacts
-        blacklistPortletCategory(self.portal, self.portal['contacts'])
+        blacklistPortletCategory(self.portal['contacts'])
 
         # add local roles
         self.portal['contacts'].manage_addLocalRoles('dir_general', ['Contributor', 'Editor', 'Reader'])
