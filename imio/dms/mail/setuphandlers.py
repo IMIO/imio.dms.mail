@@ -152,7 +152,6 @@ def postInstall(context):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IIMDashboardBatchActions)
 
-        # blacklistPortletCategory(context, im_folder)
         createIMailCollections(col_folder)
         createStateCollections(col_folder, 'dmsincomingmail')  # i_e ok
         configure_faceted_folder(col_folder, xml='im-mail-searches.xml',
@@ -344,7 +343,7 @@ def postInstall(context):
     site.portal_setup.runImportStepFromProfile('profile-plonetheme.imioapps:default', 'viewlets')
 
 
-def blacklistPortletCategory(context, obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
+def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
     """
         block portlets on object for the corresponding category
     """
@@ -1635,7 +1634,7 @@ def addOwnOrganization(context):
     contacts.moveObjectToPosition('plonegroup-organization', 5)
 
     own_orga = contacts['plonegroup-organization']
-    blacklistPortletCategory(context, own_orga)
+    blacklistPortletCategory(own_orga)
 
     # Departments and services creation
     sublevels = [
@@ -1678,7 +1677,7 @@ def addOwnPersonnel(context):
     contacts.invokeFactory('Folder', 'personnel-folder', title=u'Mon personnel')
     contacts.moveObjectToPosition('personnel-folder', 4)
     pf = contacts['personnel-folder']
-    blacklistPortletCategory(context, pf)
+    blacklistPortletCategory(pf)
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
     alsoProvides(pf, IActionsPanelFolder)

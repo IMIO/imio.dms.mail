@@ -291,7 +291,7 @@ class Migrate_To_2_1(Migrator):
         contacts = self.portal['contacts']
         if not IDirectoryFacetedNavigable.providedBy(contacts):
             return
-        blacklistPortletCategory(contacts, contacts, value=False)
+        blacklistPortletCategory(contacts, value=False)
         noLongerProvides(contacts, IHidePloneLeftColumn)
         noLongerProvides(contacts, IHidePloneRightColumn)
         noLongerProvides(contacts, IDisableSmartFacets)
@@ -362,8 +362,8 @@ class Migrate_To_2_1(Migrator):
         cl_folder['common']._p_changed = True
         # various
         contacts.moveObjectToPosition('plonegroup-organization', 6)
-        blacklistPortletCategory(self, contacts['plonegroup-organization'])
-        blacklistPortletCategory(self, contacts['personnel-folder'])
+        blacklistPortletCategory(contacts['plonegroup-organization'])
+        blacklistPortletCategory(contacts['personnel-folder'])
 
     def dms_config(self):
         try:

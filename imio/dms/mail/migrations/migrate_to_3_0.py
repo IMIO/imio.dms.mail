@@ -15,6 +15,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.setuphandlers import add_oem_templates
+from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import update_task_workflow
@@ -514,6 +515,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             if brain.portal_type == 'dmsappendixfile':
                 obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'),
                                       acquire=1)
+            # we remove left portlet
+            blacklistPortletCategory(obj)
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index'])

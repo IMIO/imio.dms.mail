@@ -24,6 +24,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import get_dms_config
@@ -273,6 +274,11 @@ def task_transition(task, event):
             task.auto_to_do_flag = False
 
 
+def dmsmainfile_added(obj, event):
+    """Remove left portlet."""
+    blacklistPortletCategory(obj)
+
+
 def dmsmainfile_modified(dmf, event):
     """
         Update the SearchableText mail index
@@ -291,8 +297,10 @@ def dmsmainfile_modified(dmf, event):
 
 
 def dmsappendixfile_added(obj, event):
-    """Set delete permission when a dmsappendixfile is added."""
+    """Set delete permission when a dmsappendixfile is added.
+    Remove left portlet."""
     obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'), acquire=1)
+    blacklistPortletCategory(obj)
 
 
 def imiodmsfile_added(obj, event):
