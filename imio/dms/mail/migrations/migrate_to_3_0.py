@@ -517,6 +517,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             for attr in ('conversion_finished', 'just_added'):
                 if base_hasattr(obj, attr):
                     delattr(obj, attr)
+            # we update delete permission
+            if brain.portal_type == 'dmsappendixfile':
+                obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'),
+                                      acquire=1)
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index'])
