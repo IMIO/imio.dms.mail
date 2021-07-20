@@ -281,6 +281,11 @@ body.template-import-process.portaltype-classificationfolders #portal-column-one
     display: none;
 }  /* labelJarPortlet when adding a folder */
 
+.template-dmsappendixfile #formfield-form-widgets-IBasic-description,
+.template-edit.portaltype-dmsappendixfile #formfield-form-widgets-IBasic-description {
+    display: none;
+}
+
 /* Other */
 
 body.template-facetednavigation_view.portaltype-classificationfolder #content-core table.no-style-table ul,
