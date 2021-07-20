@@ -267,6 +267,11 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
     display: none;
 }
 
+.template-dmsappendixfile #formfield-form-widgets-IBasic-description,
+.template-edit.portaltype-dmsappendixfile #formfield-form-widgets-IBasic-description {
+    display: none;
+}
+
 /* Other */
 
 #collections-count-refresh {
