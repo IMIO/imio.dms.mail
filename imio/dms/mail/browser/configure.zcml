@@ -256,6 +256,14 @@
             class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAdd"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="collective.dms.basecontent.dmsfile.IDmsAppendixFile"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButTransitions"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
     </configure>
 
     <!-- BATCH ACTIONS CONTACTS -->

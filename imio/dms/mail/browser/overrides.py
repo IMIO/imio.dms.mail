@@ -105,9 +105,10 @@ class LockingOperations(PLLockingOperations):
 class Plone(PloneView):
 
     def showEditableBorder(self):
+        """Do not show editable border (green bar) for some contents"""
         context = aq_inner(self.context)
-        for interface in (ITask, IContactContent, ICKTemplate, IContactList, IDmsFile, IATBTreeFolder, IPODTemplate,
-                          IStyleTemplate):
+        for interface in (ITask, IContactContent, ICKTemplate, IContactList, IDmsAppendixFile, IDmsFile, IATBTreeFolder,
+                          IPODTemplate, IStyleTemplate):
             if interface.providedBy(context):
                 return False
         return super(Plone, self).showEditableBorder()
