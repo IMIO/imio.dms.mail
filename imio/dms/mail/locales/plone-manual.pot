@@ -65,6 +65,18 @@ msgstr ""
 msgid "DmsFile Contributor"
 msgstr ""
 
+#: profiles/default/types/dmsincoming_email.xml
+msgid "Incoming Email"
+msgstr ""
+
+#: profiles/default/types/member_area.xml
+msgid "Member Area"
+msgstr ""
+
+#: profiles/default/types/dmsoutgoing_email.xml
+msgid "Outgoing Email"
+msgstr ""
+
 #: profiles/default/rolemap.xml
 msgid "Treating Group Writer"
 msgstr ""
