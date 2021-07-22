@@ -277,6 +277,11 @@ def task_transition(task, event):
 def dmsmainfile_added(obj, event):
     """Remove left portlet."""
     blacklistPortletCategory(obj)
+    if obj.portal_type == 'dmsmainfile':
+        # we manage modification following restricted roles and without acquisition.
+        # so an editor can't change a dmsmainfile
+        obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
+                              acquire=0)
 
 
 def dmsmainfile_modified(dmf, event):

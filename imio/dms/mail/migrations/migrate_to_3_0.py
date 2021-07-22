@@ -515,6 +515,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             if brain.portal_type == 'dmsappendixfile':
                 obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'),
                                       acquire=1)
+            # we update modification permission on incomingmail main file
+            if brain.portal_type == 'dmsmainfile':
+                obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
+                                      acquire=0)
             # we remove left portlet
             blacklistPortletCategory(obj)
             # we update SearchableText to include short relevant scan_id

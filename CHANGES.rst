@@ -32,6 +32,8 @@ Changelog
   [sgeulette]
 - An editor or contributor can delete an appendix file
   [sgeulette]
+- A dmsmainfile can't be modified anymore by an editor
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------
