@@ -94,4 +94,9 @@
         factory="imio.dms.mail.browser.settings.OMFieldsVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.IMPortalTypesVocabulary"
+        factory="imio.dms.mail.vocabularies.IMPortalTypesVocabulary"
+        />
+
 </configure>
