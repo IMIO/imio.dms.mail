@@ -21,6 +21,7 @@ from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
@@ -402,3 +403,13 @@ class ActionCategoriesVocabularyFactory(object):
         return SimpleVocabulary(
             [SimpleTerm(cat, title=cat) for cat in categories]
         )
+
+
+class IMPortalTypesVocabulary(object):
+    """"""
+
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary([SimpleTerm('dmsincomingmail', title=pmf(u'Incoming Mail')),
+                                 SimpleTerm('dmsincoming_email', title=pmf(u'Incoming Email'))])
