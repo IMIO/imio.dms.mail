@@ -58,6 +58,10 @@ msgid "External reference"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
+msgid "IM main types"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
 msgid "Internal reference"
 msgstr ""
