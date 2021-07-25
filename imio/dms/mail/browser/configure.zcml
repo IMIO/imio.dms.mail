@@ -637,6 +637,22 @@
         permission="zope2.View" />
 
     <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.classification.folder.content.classification_folder.IClassificationFolder"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+
+    <!-- ClassificationCategory does not have workflow at the moment
+    <browser:viewlet
+        name="plone.belowcontenttitle.workflowstate"
+        for="collective.classification.tree.contents.category.IClassificationCategory"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
+        permission="zope2.View" />
+    -->
+
+    <browser:viewlet
         name="collective.contact.core.backrefs"
         for="collective.contact.widget.interfaces.IContactContent"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"

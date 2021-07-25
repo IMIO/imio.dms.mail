@@ -122,6 +122,11 @@
     display: none;
 }
 
+.template-facetednavigation_view.portaltype-classificationfolder .viewlet_workflowstate,
+.template-facetednavigation_view.portaltype-classificationsubfolder .viewlet_workflowstate {
+  display: block;
+}
+
 #formfield-oform-widgets-position,
 .template-dmsdocument-edit .overlay-contact-addnew div.field[id$="_date"],
 .template-dmsoutgoingmail .overlay-contact-addnew div.field[id$="_date"],
