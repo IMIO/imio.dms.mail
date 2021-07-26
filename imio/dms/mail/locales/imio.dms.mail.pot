@@ -17,6 +17,10 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
 
+#: ./vocabularies.py
+msgid "${element_title} (Inactive)"
+msgstr ""
+
 #: ./browser/settings.py:320
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr ""
