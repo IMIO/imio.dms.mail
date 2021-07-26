@@ -17,6 +17,10 @@ msgstr ""
 "Language: fr\n"
 "X-Generator: Poedit 1.8.4\n"
 
+#: ./vocabularies.py
+msgid "${element_title} (Inactive)"
+msgstr "${element_title} (Désactivé)"
+
 #: ./browser/settings.py:320
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr "${tab}: décocher le paramètre '${field}' n'est pas prévu !"

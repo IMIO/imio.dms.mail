@@ -15,6 +15,10 @@ msgstr ""
 "Domain: imio.dms.mail\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
+#: ./vocabularies.py
+msgid "${element_title} (Inactive)"
+msgstr ""
+
 #: ./browser/settings.py:320
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr ""
