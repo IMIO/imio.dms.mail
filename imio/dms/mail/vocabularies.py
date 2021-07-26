@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
+
 from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
@@ -9,6 +10,7 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
+from imio.dms.mail import _tr
 from imio.dms.mail import ALL_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
@@ -17,6 +19,8 @@ from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import list_wf_states
 from imio.helpers.cache import get_cachekey_volatile
+from natsort import humansorted
+from operator import attrgetter
 from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
@@ -413,3 +417,37 @@ class IMPortalTypesVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary([SimpleTerm('dmsincomingmail', title=pmf(u'Incoming Mail')),
                                  SimpleTerm('dmsincoming_email', title=pmf(u'Incoming Email'))])
+
+
+class TreatingGroupsForFacetedFilterVocabulary(object):
+    """Will be used in faceted criteria with deactivated orgs at the end."""
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        """From ItemProposingGroupsForFacetedFilterVocabulary..."""
+        active_orgs = get_organizations(only_selected=True)
+        not_active_orgs = [org for org in get_organizations(only_selected=False)
+                           if org not in active_orgs]
+        res_active = []
+        for active_org in active_orgs:
+            org_uid = active_org.UID()
+            res_active.append(
+                SimpleTerm(org_uid,
+                           org_uid,
+                           safe_unicode(active_org.get_full_title(first_index=1))
+                           )
+            )
+        res = humansorted(res_active, key=attrgetter('title'))
+
+        res_not_active = []
+        for not_active_org in not_active_orgs:
+            org_uid = not_active_org.UID()
+            res_not_active.append(
+                SimpleTerm(org_uid,
+                           org_uid,
+                           _tr('${element_title} (Inactive)',
+                               mapping={'element_title': safe_unicode(not_active_org.get_full_title(first_index=1))}))
+            )
+        res = res + humansorted(res_not_active, key=attrgetter('title'))
+        return SimpleVocabulary(res)

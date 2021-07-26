@@ -416,6 +416,10 @@ ul.select2-choices {
     min-width: 15em !important
 }
 
+#faceted-form fieldset.widget-fieldset label[title*="(Désactivé)"] {
+    color: red;
+}
+
 fieldset table.listing td.td_cell_convert img {
     width: 16px;
     height: 16px;

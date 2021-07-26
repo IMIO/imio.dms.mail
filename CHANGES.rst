@@ -34,6 +34,8 @@ Changelog
   [sgeulette]
 - A dmsmainfile can't be modified anymore by an editor
   [sgeulette]
+- Done full vocabularies for faceted criteria (with deactivated at the end)
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

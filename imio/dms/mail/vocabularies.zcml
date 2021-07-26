@@ -99,4 +99,9 @@
         factory="imio.dms.mail.vocabularies.IMPortalTypesVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.TreatingGroupsForFacetedFilterVocabulary"
+        factory="imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary"
+        />
+
 </configure>
