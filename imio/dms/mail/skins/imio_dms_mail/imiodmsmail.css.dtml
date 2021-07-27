@@ -291,6 +291,10 @@ body.template-import-process.portaltype-classificationfolders #portal-column-one
     display: none;
 }
 
+body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dashboard_filter tr td:nth-child(4){
+    display: None;
+}
+
 /* Other */
 
 body.template-facetednavigation_view.portaltype-classificationfolder #content-core table.no-style-table ul,

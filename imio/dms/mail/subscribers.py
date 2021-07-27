@@ -347,6 +347,8 @@ def contact_plonegroup_change(event):
         # invalidate vocabularies caches
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
 
         portal = api.portal.get()
         # contributor on a contact can edit too
@@ -437,6 +439,8 @@ def plonegroup_contact_changed(organization, event):
     # invalidate vocabularies caches
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
     # is the current organization a part of own organization
     organization_path = '/'.join(organization.getPhysicalPath())
     if not organization_path.startswith(get_own_organization_path('unfound')):
