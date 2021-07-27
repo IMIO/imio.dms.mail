@@ -317,9 +317,10 @@ class IImioDmsMailConfig(model.Schema):
 
     groups_hidden_in_dashboard_filter = schema.List(
         title=_(u"Groups hidden in dashboards filter"),
+        required=False,
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary'),
     )
-    widget('groups_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size = 10)
+    widget('groups_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size=10)
 
     @invariant
     def validate_settings(data):

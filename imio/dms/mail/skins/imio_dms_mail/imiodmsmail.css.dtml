@@ -284,6 +284,12 @@ body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dash
     color: white;
 }
 
+body.template-imiodmsmail-settings #content-core li.formTab a:not(.selected) {
+    border: solid #aaa;
+    border-width: 1px 1px 0 1px;
+    border-top-right-radius: 0.5em;
+    border-top-left-radius: 0.5em;
+
 .portaltype-dmsincomingmail #fieldset-versions table.listing {
     border-top: 1px solid #ddd;
     border-collapse: inherit;
