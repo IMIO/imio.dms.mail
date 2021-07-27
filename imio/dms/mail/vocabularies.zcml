@@ -100,6 +100,11 @@
         />
 
     <utility
+        name="imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary"
+        factory="imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.TreatingGroupsForFacetedFilterVocabulary"
         factory="imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary"
         />

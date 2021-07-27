@@ -28,6 +28,7 @@ from plone.registry.interfaces import IRecordModifiedEvent
 from plone.supermodel import model
 from plone.z3cform import layout
 from z3c.form import form
+from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.browser.radio import RadioFieldWidget
 from zope import schema
 from zope.component import getUtility
@@ -308,6 +309,18 @@ class IImioDmsMailConfig(model.Schema):
         default=False
     )
 
+    model.fieldset(
+        'general',
+        label=_(u"General config tab"),
+        fields=['groups_hidden_in_dashboard_filter']
+    )
+
+    groups_hidden_in_dashboard_filter = schema.List(
+        title=_(u"Groups hidden in dashboards filter"),
+        value_type=schema.Choice(vocabulary=u'imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary'),
+    )
+    widget('groups_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size = 10)
+
     @invariant
     def validate_settings(data):
         for dic in data.omail_send_modes:
@@ -386,6 +399,9 @@ def imiodmsmail_settings_changed(event):
             portal = api.portal.get()
             portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
                                                  ('Manager', 'Site Administrator', 'Contributor'), acquire=1)
+    if event.record.fieldName == 'groups_hidden_in_dashboard_filter':
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
 
 
 def configure_group_encoder(portal_types, contacts_part=False):

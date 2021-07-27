@@ -272,6 +272,10 @@ body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_
     display: none;
 }
 
+body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dashboard_filter tr td:nth-child(4){
+    display: None;
+}
+
 /* Other */
 
 #collections-count-refresh {

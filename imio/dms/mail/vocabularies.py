@@ -419,13 +419,12 @@ class IMPortalTypesVocabulary(object):
                                  SimpleTerm('dmsincoming_email', title=pmf(u'Incoming Email'))])
 
 
-class TreatingGroupsForFacetedFilterVocabulary(object):
-    """Will be used in faceted criteria with deactivated orgs at the end."""
+class TreatingGroupsWithDeactivatedVocabulary(object):
+    """Get all groups, activated first."""
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        """From ItemProposingGroupsForFacetedFilterVocabulary..."""
         active_orgs = get_organizations(only_selected=True)
         not_active_orgs = [org for org in get_organizations(only_selected=False)
                            if org not in active_orgs]
@@ -451,3 +450,16 @@ class TreatingGroupsForFacetedFilterVocabulary(object):
             )
         res = res + humansorted(res_not_active, key=attrgetter('title'))
         return SimpleVocabulary(res)
+
+
+class TreatingGroupsForFacetedFilterVocabulary(object):
+    """Will be used in faceted criteria with deactivated orgs at the end."""
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        factory = getUtility(IVocabularyFactory, 'imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary')
+        vocab = factory(context)
+        hidden_orgs = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                     'groups_hidden_in_dashboard_filter', default=[])
+        return SimpleVocabulary([term for term in vocab._terms if term.value not in hidden_orgs])
