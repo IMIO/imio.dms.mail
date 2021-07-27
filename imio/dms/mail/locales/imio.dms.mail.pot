@@ -328,6 +328,14 @@ msgstr ""
 msgid "Footer template"
 msgstr ""
 
+#: ../browser/settings.py:314
+msgid "General config tab"
+msgstr ""
+
+#: ../browser/settings.py:319
+msgid "Groups hidden in dashboards filter"
+msgstr ""
+
 #: ./setuphandlers.py:2159
 msgid "Header template"
 msgstr ""
