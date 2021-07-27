@@ -319,6 +319,14 @@ msgstr "Dossiers"
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
+#: ../browser/settings.py:314
+msgid "General config tab"
+msgstr "Général"
+
+#: ../browser/settings.py:319
+msgid "Groups hidden in dashboards filter"
+msgstr "Services à ne pas afficher dans le filtre ''Service traitant'' ou ''Groupe assigné'' des tableaux de bord"
+
 #: ./setuphandlers.py:1956
 msgid "Header template"
 msgstr "Sous-document d'entête"
