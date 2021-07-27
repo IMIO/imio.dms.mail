@@ -466,6 +466,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         criterias = (
             (self.imf['mail-searches'], 'im-mail', 'all_mails', 'imail_group_encoder'),
             (self.omf['mail-searches'], 'om-mail', 'all_mails', 'omail_group_encoder'),
+            (self.portal['tasks']['task-searches'], 'im-task', 'all_tasks', '___'),
             (self.contacts['orgs-searches'], 'organizations', 'all_orgs', 'contact_group_encoder'),
             (self.contacts['persons-searches'], 'persons', 'all_persons', 'contact_group_encoder'),
             (self.contacts['hps-searches'], 'held-positions', 'all_hps', 'contact_group_encoder'),
@@ -474,7 +475,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         for folder, xml_start, default_id, ge_config in criterias:
             reimport_faceted_config(folder, xml='{}-searches.xml'.format(xml_start),
                                     default_UID=folder[default_id].UID())
-            if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(ge_config)):
+            if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(ge_config),
+                                              default=False):
                 reimport_faceted_config(folder, xml='mail-searches-group-encoder.xml',
                                         default_UID=folder[default_id].UID())
 
