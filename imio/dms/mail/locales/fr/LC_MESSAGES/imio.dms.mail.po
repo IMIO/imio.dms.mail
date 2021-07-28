@@ -334,7 +334,7 @@ msgstr "Général"
 
 #: ../browser/settings.py:319
 msgid "Groups hidden in dashboards filter"
-msgstr "Services à ne pas afficher dans le filtre ''Service traitant'' ou ''Groupe assigné'' des tableaux de bord"
+msgstr "Services à ne pas afficher dans le filtre \"Service traitant\", \"Service en copie\" ou \"Groupe assigné\" des tableaux de bord"
 
 #: ./setuphandlers.py:2159
 msgid "Header template"
@@ -620,7 +620,7 @@ msgstr "Single steps profile for imio.dms.mail"
 
 #: ./browser/settings.py:160
 msgid "States for which to display remark icon"
-msgstr "États pour lesquels afficher l'icône de \"remarque\""
+msgstr "États pour lesquels afficher l'icône de \"remarque\" "
 
 #: ./browser/settings.py:113
 msgid "Stored value/id"
