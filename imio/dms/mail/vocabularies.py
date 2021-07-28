@@ -97,36 +97,35 @@ class ContactsReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-class AssignedUsersVocabulary(object):
-    """ All possible assigned users vocabulary """
+class AssignedUsersWithDeactivatedVocabulary(object):
+    """All users, activated first."""
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def __call__(self, context):
-        terms = []
-        users = {}
-        titles = []
-        for uid in get_registry_organizations():
-            members = get_selected_org_suffix_users(uid, ALL_EDITOR_SERVICE_FUNCTIONS)
-            for member in members:
-                title = member.getUser().getProperty('fullname') or member.getUserName()
-                if title not in titles:
-                    titles.append(title)
-                    users[title] = [member]
-                elif member not in users[title]:
-                    users[title].append(member)
-        for tit in sorted(titles):
-            for mb in users[tit]:
-                terms.append(SimpleTerm(mb.getUserName(), mb.getId(), tit))
-        return SimpleVocabulary(terms)
+        factory = getUtility(IVocabularyFactory, 'plone.principalsource.Users')
+        vocab = factory(context)  # terms as username, userid, fullname
+        a_terms = []
+        d_terms = []
+        for term in vocab:
+            groups = api.group.get_groups(username=term.value)
+            if [g for g in groups if g.id != 'AuthenticatedUsers']:  # active
+                term.title = term.title.decode('utf8')
+                a_terms.append(term)
+            else:
+                term.title = _tr('${element_title} (Inactive)', mapping={'element_title': safe_unicode(term.title)})
+                d_terms.append(term)
+        return SimpleVocabulary([SimpleTerm(EMPTY_STRING, EMPTY_STRING, _('Empty value'))] +
+                                humansorted(a_terms, key=attrgetter('title')) +
+                                humansorted(d_terms, key=attrgetter('title')))
 
 
-class EmptyAssignedUsersVocabulary(object):
-    """ All possible assigned users vocabulary with empty value """
+class AssignedUsersForFacetedFilterVocabulary(object):
+    """All users, activated first."""
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        voc_inst = AssignedUsersVocabulary()
+        return AssignedUsersWithDeactivatedVocabulary()(context)
         voc = voc_inst(context)
         terms = [SimpleTerm(EMPTY_STRING, EMPTY_STRING, _('Empty value'))]
         for term in voc:
