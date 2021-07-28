@@ -7,9 +7,9 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.settings import configure_group_encoder
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
-from imio.dms.mail.vocabularies import AssignedUsersVocabulary
+from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.dms.mail.vocabularies import CreatingGroupVocabulary
-from imio.dms.mail.vocabularies import EmptyAssignedUsersVocabulary
+from imio.dms.mail.vocabularies import AssignedUsersForFacetedFilterVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.vocabularies import get_settings_vta_table
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
@@ -60,17 +60,23 @@ class TestVocabularies(unittest.TestCase):
                                     ('in_progress', u'In progress'), ('realized', u'Realized'),
                                     ('closed', u'Closed')])
 
-    def test_AssignedUsersVocabulary(self):
-        voc_inst = AssignedUsersVocabulary()
+    def test_AssignedUsersWithDeactivatedVocabulary(self):
+        voc_inst = AssignedUsersWithDeactivatedVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), {('agent', 'Fred Agent'), ('chef', 'Michel Chef'), ('agent1', 'Stef Agent')})
+        self.assertListEqual(voc_list,
+                             [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
+                              ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
+                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
+                              ('test-user', u'test-user (Désactivé)')])
 
-    def test_EmptyAssignedUsersVocabulary(self):
-        voc_inst = EmptyAssignedUsersVocabulary()
+    def test_AssignedUsersForFacetedFilterVocabulary(self):
+        voc_inst = AssignedUsersForFacetedFilterVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list),
-                            {(EMPTY_STRING, 'Empty value'), ('agent', 'Fred Agent'), ('chef', 'Michel Chef'),
-                             ('agent1', 'Stef Agent')})
+        self.assertListEqual(voc_list,
+                             [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
+                              ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
+                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
+                              ('test-user', u'test-user (Désactivé)')])
 
     def test_get_settings_vta_table(self):
         voc_list = [(t.value, t.title) for t in get_settings_vta_table('mail_types')]

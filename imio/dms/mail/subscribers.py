@@ -473,7 +473,8 @@ def user_related_modification(event):
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface != IContactPlonegroupConfig):
         return
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
 
 
 def user_deleted(event):
@@ -602,7 +603,8 @@ def group_assignment(event):
     """
         manage the add of a user in a plone group
     """
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     # we update dms config
@@ -671,7 +673,8 @@ def group_unassignment(event):
     """
         manage the remove of a user in a plone group
     """
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     # we update dms config
