@@ -334,7 +334,7 @@ msgstr "Général"
 
 #: ../browser/settings.py:319
 msgid "Groups hidden in dashboards filter"
-msgstr "Services à ne pas afficher dans le filtre \"Service traitant\", \"Service en copie\" ou \"Groupe assigné\" des tableaux de bord"
+msgstr "Services à ne pas afficher dans les filtres \"Service traitant\", \"Service en copie\" ou \"Groupe assigné\" des tableaux de bord"
 
 #: ./setuphandlers.py:2159
 msgid "Header template"
@@ -695,6 +695,10 @@ msgstr "Reconstruire la prévisualisation"
 #: ./browser/settings.py:251
 msgid "User fullname used format"
 msgstr "Format du nom complet de l'utilisateur"
+
+#: ../browser/settings.py:326
+msgid "Users hidden in dashboards filter"
+msgstr "Utilisateurs à ne pas afficher dans les filtres \"Utilisateur assigné\" ou \"Auteur\" des tableaux de bord"
 
 #: ./browser/templates/actions_panel_create_new_message.pt:4
 msgid "Write email"
