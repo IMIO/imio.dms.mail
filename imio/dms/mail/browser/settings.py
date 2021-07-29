@@ -312,7 +312,7 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         'general',
         label=_(u"General config tab"),
-        fields=['groups_hidden_in_dashboard_filter']
+        fields=['groups_hidden_in_dashboard_filter', 'users_hidden_in_dashboard_filter']
     )
 
     groups_hidden_in_dashboard_filter = schema.List(
@@ -321,6 +321,13 @@ class IImioDmsMailConfig(model.Schema):
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary'),
     )
     widget('groups_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size=10)
+
+    users_hidden_in_dashboard_filter = schema.List(
+        title=_(u"Users hidden in dashboards filter"),
+        required=False,
+        value_type=schema.Choice(vocabulary=u'imio.dms.mail.AssignedUsersWithDeactivatedVocabulary'),
+    )
+    widget('users_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size=10)
 
     @invariant
     def validate_settings(data):
@@ -401,8 +408,9 @@ def imiodmsmail_settings_changed(event):
             portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
                                                  ('Manager', 'Site Administrator', 'Contributor'), acquire=1)
     if event.record.fieldName == 'groups_hidden_in_dashboard_filter':
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
+    if event.record.fieldName == 'users_hidden_in_dashboard_filter':
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
 
 
 def configure_group_encoder(portal_types, contacts_part=False):

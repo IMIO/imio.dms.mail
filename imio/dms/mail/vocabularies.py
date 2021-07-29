@@ -125,12 +125,11 @@ class AssignedUsersForFacetedFilterVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        return AssignedUsersWithDeactivatedVocabulary()(context)
-        voc = voc_inst(context)
-        terms = [SimpleTerm(EMPTY_STRING, EMPTY_STRING, _('Empty value'))]
-        for term in voc:
-            terms.append(term)
-        return SimpleVocabulary(terms)
+        factory = getUtility(IVocabularyFactory, 'imio.dms.mail.AssignedUsersWithDeactivatedVocabulary')
+        vocab = factory(context)
+        hidden_users = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                      'users_hidden_in_dashboard_filter', default=[])
+        return SimpleVocabulary([term for term in vocab._terms if term.value not in hidden_users])
 
 
 def get_settings_vta_table(field, active=(True, False), choose=False):

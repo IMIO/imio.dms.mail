@@ -75,7 +75,7 @@ class TestVocabularies(unittest.TestCase):
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
-                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
+                              ('chef', u'Michel Chef'), ('agent1', u'Stef Agent'),
                               ('test-user', u'test-user (Désactivé)')])
 
     def test_get_settings_vta_table(self):

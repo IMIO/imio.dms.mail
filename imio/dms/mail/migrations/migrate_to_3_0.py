@@ -462,6 +462,12 @@ class Migrate_To_3_0(Migrator):  # noqa
         if om_fo_len != len(om_fo):
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
                                            om_fo)
+        # general config
+        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                              'users_hidden_in_dashboard_filter'):
+            api.portal.set_registry_record(
+                'imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter', ['scanner'])
+
         # reimport faceted
         criterias = (
             (self.imf['mail-searches'], 'im-mail', 'all_mails', 'imail_group_encoder'),
