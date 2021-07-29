@@ -39,6 +39,7 @@ Add batch import configuration for test purpose
             handler="imio.dms.mail.setuphandlers.configureImioDmsMail"
             title="Add french configuration for imio.dms.mail"
             version="2013-03-01T15:00:00.00000">
+           <dependency step="imiodmsmail-addTestUsersAndGroups"/>
 Add french configuration for imio.dms.mail
 </import-step>
 <import-step

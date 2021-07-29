@@ -1279,6 +1279,10 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'] = template.substitute(
             url=GEDURL)
 
+    # general
+    api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter',
+                                   ['scanner'])
+
     # mailcontent
     # Hide internal reference for om. Increment number automatically
     registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
