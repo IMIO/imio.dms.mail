@@ -685,6 +685,10 @@ msgstr ""
 msgid "User fullname used format"
 msgstr ""
 
+#: ../browser/settings.py:326
+msgid "Users hidden in dashboards filter"
+msgstr ""
+
 #: ./browser/templates/actions_panel_create_new_message.pt:4
 msgid "Write email"
 msgstr ""
