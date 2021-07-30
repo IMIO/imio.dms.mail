@@ -107,6 +107,7 @@ class AssignedUsersWithDeactivatedVocabulary(object):
         vocab = factory(context)  # terms as username, userid, fullname
         a_terms = []
         d_terms = []
+        # TODO consider only active orgs ! so a user in deactivated org is considered as inactive
         for term in vocab:
             groups = api.group.get_groups(username=term.value)
             if [g for g in groups if g.id != 'AuthenticatedUsers']:  # active
