@@ -2,6 +2,7 @@
 """Vocabularies."""
 
 from browser.settings import IImioDmsMailConfig
+from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
@@ -107,12 +108,20 @@ class AssignedUsersWithDeactivatedVocabulary(object):
         vocab = factory(context)  # terms as username, userid, fullname
         a_terms = []
         d_terms = []
-        # TODO consider only active orgs ! so a user in deactivated org is considered as inactive
+        active_orgs = get_registry_organizations()
+        functions = [dic['fct_id'] for dic in get_registry_functions()]
         for term in vocab:
-            groups = api.group.get_groups(username=term.value)
-            if [g for g in groups if g.id != 'AuthenticatedUsers']:  # active
+            for group in api.group.get_groups(username=term.value):
+                if group.id == 'AuthenticatedUsers':
+                    continue
+                parts = group.id.split('_')
+                if len(parts) != 1:
+                    group_suffix = '_'.join(parts[1:])
+                    if group_suffix in functions and parts[0] not in active_orgs:  # not an active org
+                        continue
                 term.title = term.title.decode('utf8')
                 a_terms.append(term)
+                break
             else:
                 term.title = _tr('${element_title} (Inactive)', mapping={'element_title': safe_unicode(term.title)})
                 d_terms.append(term)

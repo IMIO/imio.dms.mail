@@ -5,7 +5,7 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import IdmUtilsMethods
-from imio.dms.mail.vocabularies import AssignedUsersVocabulary
+from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
@@ -127,21 +127,32 @@ class TestDmsmail(unittest.TestCase):
         zope.event.notify(ObjectModifiedEvent(f1))
 
     def test_user_related_modification(self):
-        voc_inst = AssignedUsersVocabulary()
+        voc_inst = AssignedUsersWithDeactivatedVocabulary()
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), {('agent', 'Fred Agent'), ('chef', 'Michel Chef'), ('agent1', 'Stef Agent')})
+        self.assertListEqual(voc_list,
+                             [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
+                              ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
+                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
+                              ('test-user', u'test-user (Désactivé)')])
         # we change a user property
         member = api.user.get(userid='chef')
         member.setMemberProperties({'fullname': 'Michel Chef 2'})
         # we simulate the user form change event
         zope.event.notify(ConfigurationChangedEvent(UserDataConfiglet(self.portal, self.portal.REQUEST), {}))
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list),
-                            {('agent', 'Fred Agent'), ('chef', 'Michel Chef 2'), ('agent1', 'Stef Agent')})
+        self.assertListEqual(voc_list,
+                             [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
+                              ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
+                              ('chef', u'Michel Chef 2'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
+                              ('test-user', u'test-user (Désactivé)')])
         # we change the activated services
         set_registry_organizations(get_registry_organizations()[0:1])
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
-        self.assertSetEqual(set(voc_list), {('chef', 'Michel Chef 2')})
+        self.assertListEqual(voc_list,
+                             [('__empty_string__', u'Empty value'), ('encodeur', u'Jean Encodeur'),
+                              ('dirg', u'Maxime DG'), ('chef', u'Michel Chef 2'), ('scanner', u'Scanner'),
+                              ('agent', u'Fred Agent (Désactivé)'), ('lecteur', u'Jef Lecteur (Désactivé)'),
+                              ('agent1', u'Stef Agent (Désactivé)'), ('test-user', u'test-user (Désactivé)')])
         # wrong configuration change
         zope.event.notify(ConfigurationChangedEvent(self.portal, {}))
 
