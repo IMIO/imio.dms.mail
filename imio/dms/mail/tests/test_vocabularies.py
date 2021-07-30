@@ -68,6 +68,25 @@ class TestVocabularies(unittest.TestCase):
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
                               ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
                               ('test-user', u'test-user (Désactivé)')])
+        # add inactive group and user in it
+        guid = self.portal.contacts['plonegroup-organization']['departement-culturel'].UID()
+        new_group = api.group.create('{}_lecteur'.format(guid))
+        api.group.add_user(group=new_group, username='test-user')
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list,
+                             [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
+                              ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
+                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
+                              ('test-user', u'test-user (Désactivé)')])
+        # add same user in active group
+        guid = self.portal.contacts['plonegroup-organization'][u'direction-generale'].UID()
+        api.group.add_user(groupname='{}_lecteur'.format(guid), username='test-user')
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertListEqual(voc_list,
+                             [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
+                              ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
+                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
+                              ('test-user', u'test-user')])
 
     def test_AssignedUsersForFacetedFilterVocabulary(self):
         voc_inst = AssignedUsersForFacetedFilterVocabulary()
