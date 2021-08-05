@@ -469,5 +469,5 @@ class TreatingGroupsForFacetedFilterVocabulary(object):
         factory = getUtility(IVocabularyFactory, 'imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary')
         vocab = factory(context)
         hidden_orgs = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
-                                                     'groups_hidden_in_dashboard_filter', default=[])
+                                                     'groups_hidden_in_dashboard_filter', default=[]) or []
         return SimpleVocabulary([term for term in vocab._terms if term.value not in hidden_orgs])
