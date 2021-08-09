@@ -53,6 +53,7 @@ setup(
         'Products.PasswordStrength',
         'collective.ckeditor',
         'collective.ckeditortemplates',
+        'collective.classification.folder',
         'collective.contact.core',
         'collective.contact.contactlist',
         'collective.contact.duplicated',

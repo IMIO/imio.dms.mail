@@ -111,6 +111,10 @@ class IContactListsDashboardBatchActions(IContactListsDashboard, IBatchActionsMa
     """Marker interface for contact lists dashboard with batch actions."""
 
 
+class IClassificationFoldersDashboard(Interface):
+    """Marker interface for folders dashboard"""
+
+
 class IActionsPanelFolder(Interface):
 
     """Marker interface for folder displaying actions panel viewlet, without transitions."""

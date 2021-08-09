@@ -321,6 +321,8 @@
 
   <javascript id="++resource++imio.pm.wsclient.javascripts/popups.js" insert-after="++resource++plonetheme.imioapps/skin.js" />
 
+  <javascript id="++resource++jquery.datatables.min.js" insert-after="++resource++imio.pm.wsclient.javascripts/popups.js" />
+
   <!--<javascript id="" insert-after="" />-->
 
 </object>

@@ -290,7 +290,7 @@
    <property name="wildcard">False</property>
   </criterion>
 
-    <criterion name="c18" i18n:attributes="title">
+  <criterion name="c18" i18n:attributes="title">
    <property name="widget">text</property>
    <property name="title">Original sender email</property>
    <property name="position">top</property>
@@ -301,6 +301,32 @@
    <property name="onlyallelements">True</property>
    <property name="wildcard">False</property>
    <property name="placeholder">Entire string, in lowercase</property>
+  </criterion>
+
+  <criterion name="c19" i18n:attributes="title">
+   <property name="widget">autocomplete</property>
+   <property name="title">Folder</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">classification_folders</property>
+   <property name="default"></property>
+   <property name="autocomplete_view">folder-autocomplete-suggest</property>
+   <property name="onlyallelements">True</property>
+   <property name="multivalued">True</property>
+  </criterion>
+
+  <criterion name="c20" i18n:attributes="title">
+   <property name="widget">autocomplete</property>
+   <property name="title">Classification Code</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="index">classification_categories</property>
+   <property name="default"></property>
+   <property name="autocomplete_view">classificationcategory-autocomplete-suggest</property>
+   <property name="onlyallelements">True</property>
+   <property name="multivalued">True</property>
   </criterion>
 
  </criteria>

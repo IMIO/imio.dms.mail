@@ -8,8 +8,20 @@
 #
 
 from Acquisition import aq_inner  # noqa
+from Acquisition import aq_parent
+from Products.ATContentTypes.interfaces.document import IATDocument
+from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
+from Products.CMFPlone.browser.ploneview import Plone as PloneView
+from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
+from Products.CPUtils.Extensions.utils import check_zope_admin
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.ckeditortemplates.browser.cktemplatelisting import CKTemplateListingView
 from collective.ckeditortemplates.cktemplate import ICKTemplate
+from collective.classification.folder.content.classification_folder import IClassificationFolder
+from collective.classification.folder.content.classification_folders import IClassificationFolders
+from collective.classification.folder.content.classification_subfolder import IClassificationSubfolder
+from collective.classification.tree.contents.category import IClassificationCategory
+from collective.classification.tree.contents.container import IClassificationContainer
 from collective.contact.contactlist.interfaces import IContactList
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.dmsfile import IDmsFile, IDmsAppendixFile
@@ -17,7 +29,11 @@ from collective.dms.mailcontent.browser.utils import UtilsMethods
 from collective.documentgenerator.content.pod_template import IPODTemplate
 from collective.documentgenerator.content.style_template import IStyleTemplate
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
+from collective.eeafaceted.dashboard.browser.facetedcollectionportlet import Renderer
+from collective.eeafaceted.dashboard.browser.views import JSONCollectionsCount
 from collective.task.behaviors import ITask
+from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
@@ -30,12 +46,6 @@ from plone.app.layout.viewlets.common import ContentActionsViewlet as PALContent
 from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
-from Products.ATContentTypes.interfaces.document import IATDocument
-from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
-from Products.CMFPlone.browser.ploneview import Plone as PloneView
-from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
-from Products.CPUtils.Extensions.utils import check_zope_admin
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.annotation import IAnnotations
 
 
@@ -61,6 +71,8 @@ class IMRenderCategoryView(RenderCategoryView):
             return ViewPageTemplateFile('templates/category_om.pt')
         elif IContactsDashboard.providedBy(self.context):
             return ViewPageTemplateFile('templates/category_contact.pt')
+        elif IClassificationFoldersDashboard.providedBy(self.context):
+            return ViewPageTemplateFile('templates/category_classification_folders.pt')
         return ViewPageTemplateFile('templates/category.pt')
 
 
@@ -107,8 +119,23 @@ class Plone(PloneView):
     def showEditableBorder(self):
         """Do not show editable border (green bar) for some contents"""
         context = aq_inner(self.context)
-        for interface in (ITask, IContactContent, ICKTemplate, IContactList, IDmsAppendixFile, IDmsFile, IATBTreeFolder,
-                          IPODTemplate, IStyleTemplate):
+        interfaces = (
+            ITask,
+            IContactContent,
+            ICKTemplate,
+            IContactList,
+            IDmsAppendixFile,
+            IDmsFile,
+            IATBTreeFolder,
+            IPODTemplate,
+            IStyleTemplate,
+            IClassificationContainer,
+            IClassificationCategory,
+            IClassificationFolders,
+            IClassificationFolder,
+            IClassificationSubfolder,
+        )
+        for interface in interfaces:
             if interface.providedBy(context):
                 return False
         return super(Plone, self).showEditableBorder()
@@ -200,3 +227,31 @@ class DocsCKTemplateListingView(CKTemplateListingView):
         if 'dmsmail.cke_tpl_tit' in annot and annot['dmsmail.cke_tpl_tit']:
             title = u'{} > {}'.format(annot['dmsmail.cke_tpl_tit'], title)
         return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html})
+
+
+class FacetedCollectionPortletRenderer(Renderer):
+
+    @property
+    def _criteriaHolder(self):
+        '''Get the element the criteria are defined on.  This will look up parents until
+           a folder providing IFacetedNavigable is found.'''
+        parent = self.context
+        ignored_types = ("ClassificationSubfolder", "ClassificationFolder")
+        # look up parents until we found the criteria holder or we reach the 'Plone Site'
+        while parent and not parent.portal_type == 'Plone Site':
+            if IFacetedNavigable.providedBy(parent) and parent.portal_type not in ignored_types:
+                return parent
+            parent = aq_parent(aq_inner(parent))
+
+
+class ClassificationJSONCollectionsCount(JSONCollectionsCount):
+
+    def get_context(self):
+        parent = self.context
+        ignored_types = ("ClassificationSubfolder", "ClassificationFolder")
+        # look up parents until we found the criteria holder or we reach the 'Plone Site'
+        while parent and not parent.portal_type == 'Plone Site':
+            if IFacetedNavigable.providedBy(parent) and parent.portal_type not in ignored_types:
+                return parent
+            parent = aq_parent(aq_inner(parent))
+        return parent

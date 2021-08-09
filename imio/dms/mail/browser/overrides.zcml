@@ -6,6 +6,7 @@
     i18n_domain="imio.dms.mail">
 
     <include package="z3c.unconfigure" file="meta.zcml" />
+    <include package="plone.app.portlets" />
 
     <!-- columns -->
     <adapter
@@ -155,5 +156,29 @@
           zcml:condition="not-have plone-5"
       />
     </unconfigure>
+
+    <configure package="collective.eeafaceted.dashboard.browser">
+      <plone:portletRenderer
+        portlet=".facetedcollectionportlet.IFacetedCollectionPortlet"
+        class="imio.dms.mail.browser.overrides.FacetedCollectionPortletRenderer"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+      <browser:page
+        for="collective.classification.folder.content.classification_folder.IClassificationFolder"
+        name="json_collections_count"
+        class="imio.dms.mail.browser.overrides.ClassificationJSONCollectionsCount"
+        layer="collective.eeafaceted.dashboard.interfaces.IFacetedDashboardLayer"
+        permission="zope2.View"
+        />
+
+      <browser:page
+        for="collective.classification.folder.content.classification_subfolder.IClassificationSubfolder"
+        name="json_collections_count"
+        class="imio.dms.mail.browser.overrides.ClassificationJSONCollectionsCount"
+        layer="collective.eeafaceted.dashboard.interfaces.IFacetedDashboardLayer"
+        permission="zope2.View"
+        />
+    </configure>
 
 </configure>

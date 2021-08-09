@@ -8,6 +8,8 @@ from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
+from collective.classification.folder.interfaces import IServiceInCharge
+from collective.classification.folder.interfaces import IServiceInCopy
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
@@ -50,12 +52,14 @@ from z3c.form.interfaces import NO_VALUE
 from z3c.form.term import MissingChoiceTermsVocabulary
 from z3c.form.term import MissingTermsMixin
 from z3c.form.validator import SimpleFieldValidator
+from zope.component import adapter
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
-from zope.interface import implements
 from zope.interface import Interface
+from zope.interface import implementer
+from zope.interface import implements
 from zope.schema.interfaces import IField
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary
@@ -838,3 +842,64 @@ class AssignedUserDataManager(AttributeField):
                 and '_default_assigned_user_' in self.context.REQUEST):
             return self.context.REQUEST.get('_default_assigned_user_')
         return super(AssignedUserDataManager, self).query(default=default)
+
+
+####################################
+# Collective.classification adapters
+####################################
+
+
+@adapter(Interface)
+@implementer(IServiceInCharge)
+class ServiceInChargeAdapter(object):
+
+    def __init__(self, context):
+        self.context = context
+
+    def __call__(self):
+        return getUtility(
+            IVocabularyFactory,
+            "collective.dms.basecontent.treating_groups",
+        )(self.context)
+
+
+@adapter(Interface)
+@implementer(IServiceInCopy)
+class ServiceInCopyAdapter(object):
+
+    def __init__(self, context):
+        self.context = context
+
+    def __call__(self):
+        return getUtility(
+            IVocabularyFactory,
+            "collective.dms.basecontent.recipient_groups",
+        )(self.context)
+
+
+class ClassificationFolderInCopyGroupCriterion(object):
+    """Return catalog criteria following recipient group member"""
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        # if orgs is empty list, nothing is returned => ok
+        return {'recipient_groups': {'query': orgs}}
+
+
+class ClassificationFolderInTreatingGroupCriterion(object):
+    """Return catalog criteria following treating group member"""
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = api.group.get_groups(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        # if orgs is empty list, nothing is returned => ok
+        return {'treating_groups': {'query': orgs}}

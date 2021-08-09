@@ -31,6 +31,25 @@ class ReplyForm(BaseReplyForm):
         self.widgets['send_modes'].value = self.get_send_modes()
         if self.context.orig_sender_email:
             self.widgets['orig_sender_email'].value = self.context.orig_sender_email
+
+        for fieldname in ("classification_categories", "classification_folders"):
+            widgetname = "IClassificationFolder.{0}".format(fieldname)
+            if getattr(self.context, fieldname, None):
+                widget = self.widgets[widgetname]
+                widget.value = getattr(self.context, fieldname)
+                # Terms must be updated to ensure that `displayValue` work correctly
+                terms = []
+                for key in widget.value:
+                    terms.append(widget.source.getTerm(key))
+                widget.terms = widget.terms.__class__(
+                    widget.context,
+                    widget.request,
+                    widget.form,
+                    widget.field,
+                    widget,
+                    terms,
+                )
+
         imio_dmsoutgoingmail_updatewidgets(self)
 
     def get_send_modes(self):

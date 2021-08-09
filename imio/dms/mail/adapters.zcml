@@ -62,6 +62,16 @@
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="task-in-proposing-group" />
 
+    <adapter for="*"
+             factory=".adapters.ClassificationFolderInTreatingGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="classificationfolder-in-treating-group" />
+
+    <adapter for="*"
+             factory=".adapters.ClassificationFolderInCopyGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="classificationfolder-in-copy-group" />
+
     <!-- VARIOUS -->
     <adapter for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
              factory=".adapters.IMPrettyLinkAdapter"
@@ -179,5 +189,16 @@
         for="collective.task.interfaces.ITaskContent
              dexterity.localrolesfield.interfaces.ILocalRoleField"
         factory=".adapters.AssignedUserDataManager" />
+
+    <!-- collective.classification -->
+
+    <adapter
+        factory=".adapters.ServiceInChargeAdapter"
+        />
+
+    <adapter
+        factory=".adapters.ServiceInCopyAdapter"
+        />
+
 
 </configure>

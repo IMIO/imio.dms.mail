@@ -28,6 +28,7 @@
     <include package="collective.dms.mailcontent" />
     <include package="collective.dms.batchimport" />
     <include package="collective.dms.scanbehavior" />
+    <include package="collective.classification.folder" />
     <include package="collective.contact.core" />
     <include package="collective.contact.duplicated" />
     <include package="collective.contact.facetednav" />
@@ -213,6 +214,14 @@
         <implements interface="ftw.labels.interfaces.ILabelSupport" />
     </class>
 
+    <class class="collective.classification.folder.content.classification_folder.ClassificationFolder">
+        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+    </class>
+
+    <class class="collective.classification.folder.content.classification_subfolder.ClassificationSubfolder">
+        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+    </class>
+
     <!-- UTILS METHODS -->
 
     <browser:page
@@ -307,6 +316,16 @@
         name="imio.dms.mail.wfadaptations.TaskServiceValidation"
         factory=".wfadaptations.TaskServiceValidation"
     />
+
+    <!-- faceted config override -->
+
+    <browser:page
+        for="eea.facetednavigation.interfaces.IPossibleFacetedNavigable"
+        name="classification-folders-faceted.xml"
+        template="faceted_conf/classificationfolders-searches.xml"
+        permission="eea.faceted.configure"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
 
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
