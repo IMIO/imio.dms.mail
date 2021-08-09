@@ -919,6 +919,10 @@ msgstr "To treat"
 msgid "om_to_validate"
 msgstr "To validate"
 
+#: ./profiles/default/registry.xml
+msgid "organization_type_query_field"
+msgstr "Sort on scan order"
+
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
 #: ./browser/tabular_view.py:58
 #: ./subscribers.py:188

@@ -201,6 +201,10 @@ msgstr "Choisir ce modèle"
 msgid "Choose to which state a manually forwarded email will go."
 msgstr "Choisir dans quel état un email, transféré manuellement par un agent, va aller."
 
+#: ./setuphandlers.py:131
+msgid "Classification Tree"
+msgstr "Arbre de classement"
+
 #: ./browser/settings.py:266
 msgid "Close outgoing mail on email send"
 msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
@@ -216,7 +220,7 @@ msgstr "Modèles communs"
 #: ./migrations/migrate_to_2_1.py:332
 #: ./setuphandlers.py:284
 msgid "Contact list searches"
-msgstr "Recherches listes de contact"
+msgstr "recherches listes de contact"
 
 #: ./migrations/migrate_to_2_1.py:332
 #: ./setuphandlers.py:284
@@ -314,6 +318,10 @@ msgstr "Prénom Nom"
 #: ./browser/batchactions.py:252
 msgid "Folders"
 msgstr "Dossiers"
+
+#: ./setuphandlers.py:162
+msgid "Folders searches"
+msgstr "Recherches dossiers et chemises"
 
 #: ./setuphandlers.py:1958
 msgid "Footer template"
@@ -735,6 +743,10 @@ msgstr "Votre email n'a pas été envoyé: ${error}."
 msgid "all_cls"
 msgstr "Toutes les listes de contact"
 
+#: ./setuphandlers.py:866
+msgid "all_folders"
+msgstr "Tout"
+
 #: ./setuphandlers.py:747
 msgid "all_hps"
 msgstr "Toutes les fonctions occupées"
@@ -769,6 +781,10 @@ msgstr "Contact utilisé par"
 msgid "city"
 msgstr "Ville"
 
+#: ./browser/templates/category_classification_folders.pt:10
+msgid "create_classification_folder"
+msgstr "Créer une farde"
+
 #: ./browser/templates/category_contact.pt:11
 msgid "create_contact"
 msgstr "Créer un contact"
@@ -800,6 +816,10 @@ msgstr "Créer une organisation"
 #: ./browser/templates/category_contact.pt:11
 msgid "create_person"
 msgstr "Créer une personne"
+
+#: ./setuphandlers.py:951
+msgid "followed"
+msgstr "Étiquette: Suivi"
 
 #: ./migrations/migrate_to_2_0.py:210
 #: ./migrations/migrate_to_2_1.py:219
@@ -870,6 +890,18 @@ msgstr "imio.dms.mail single steps profile"
 msgid "imio.dms.mail test examples"
 msgstr "Gestion du courrier, données de test"
 
+#: ./browser/templates/category_classification_folders.pt:16
+msgid "import_folders"
+msgstr "Importer des fardes et chemises"
+
+#: ./setuphandlers.py:921
+msgid "in_copy"
+msgstr "En copie"
+
+#: ./setuphandlers.py:891
+msgid "in_my_group"
+msgstr "Dans mon service"
+
 #: ./browser/reply_form.py
 msgid "incoming mails"
 msgstr "courriers entrants"
@@ -920,6 +952,10 @@ msgstr "Qui m'est assigné"
 #: ./setuphandlers.py:672
 msgid "om_to_validate"
 msgstr "À valider"
+
+#: ./profiles/default/registry.xml
+msgid "organization_type_query_field"
+msgstr "Tri sur l'ordre de scan"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
 #: ./browser/tabular_view.py:58
