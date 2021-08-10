@@ -246,12 +246,11 @@ class FacetedCollectionPortletRenderer(Renderer):
 
 class ClassificationJSONCollectionsCount(JSONCollectionsCount):
 
-    def get_context(self):
-        parent = self.context
+    def get_context(self, faceted_context):
         ignored_types = ("ClassificationSubfolder", "ClassificationFolder")
         # look up parents until we found the criteria holder or we reach the 'Plone Site'
-        while parent and not parent.portal_type == 'Plone Site':
-            if IFacetedNavigable.providedBy(parent) and parent.portal_type not in ignored_types:
-                return parent
-            parent = aq_parent(aq_inner(parent))
-        return parent
+        while faceted_context and not faceted_context.portal_type == 'Plone Site':
+            if IFacetedNavigable.providedBy(faceted_context) and faceted_context.portal_type not in ignored_types:
+                return faceted_context
+            faceted_context = aq_parent(aq_inner(faceted_context))
+        return faceted_context
