@@ -23,6 +23,7 @@
                 title="imio.dms.mail: Write creating group field"/-->
 
     <include package="Products.PasswordStrength" />
+    <include package="plonetheme.imioapps"/>
     <include package="imio.dashboard"/>
     <include package="collective.dms.basecontent" />
     <include package="collective.dms.mailcontent" />
