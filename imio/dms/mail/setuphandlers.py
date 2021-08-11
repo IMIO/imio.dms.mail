@@ -125,10 +125,12 @@ def setup_classification(site):
         alsoProvides(folders, ILabelRoot)
         adapted = ILabelJar(folders)
         adapted.add("Suivi", "yellow", True)  # label_id = suivi
+        transitions(folders, transitions=['show_internally'])
 
     if not base_hasattr(site, 'tree'):
         site.invokeFactory("ClassificationContainer", id='tree', title=_(u"Classification Tree"))
         blacklistPortletCategory(site, site['tree'])
+        # transitions(site['tree'], transitions=['show_internally'])
 
     roles_config = {
         'service_in_charge': {
