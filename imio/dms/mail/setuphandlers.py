@@ -103,7 +103,7 @@ def add_db_col_folder(folder, id, title, displayed=''):
     col_folder.setConstrainTypesMode(1)
     col_folder.setLocallyAllowedTypes(['DashboardCollection'])
     col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
-    folder.portal_workflow.doActionFor(col_folder, "show_internally")
+    transitions(col_folder, transitions=['show_internally'])
     alsoProvides(col_folder, ICollectionCategories)
     return col_folder
 
@@ -237,7 +237,7 @@ def postInstall(context):
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail', 'dmsincoming_email'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail', 'dmsincoming_email'])
-        site.portal_workflow.doActionFor(im_folder, "show_internally")
+        transitions(im_folder, transitions=['show_internally'])
         logger.info('incoming-mail folder created')
 
     if not base_hasattr(site, 'outgoing-mail'):
@@ -266,7 +266,7 @@ def postInstall(context):
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         # om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
-        site.portal_workflow.doActionFor(om_folder, "show_internally")
+        transitions(om_folder, transitions=['show_internally'])
         logger.info('outgoing-mail folder created')
 
     if not base_hasattr(site, 'tasks'):
@@ -291,7 +291,7 @@ def postInstall(context):
         tsk_folder.setConstrainTypesMode(1)
         tsk_folder.setLocallyAllowedTypes(['task'])
         tsk_folder.setImmediatelyAddableTypes(['task'])
-        site.portal_workflow.doActionFor(tsk_folder, "show_internally")
+        transitions(tsk_folder, transitions=['show_internally'])
         logger.info('tasks folder created')
 
     # Directory creation
@@ -363,7 +363,7 @@ def postInstall(context):
                                  default_UID=col_folder['all_cls'].UID())
 
         site.portal_types.directory.filter_content_types = True
-        site.portal_workflow.doActionFor(contacts, "show_internally")
+        transitions(contacts, transitions=['show_internally'])
         logger.info('contacts folder created')
 
     setup_classification(site)
@@ -1021,7 +1021,7 @@ def adaptDefaultPortal(context):
             frontpage.setText(_("front_page_text"), mimetype='text/html')
             #remove the presentation mode
             frontpage.setPresentation(False)
-            site.portal_workflow.doActionFor(frontpage, "show_internally")
+            transitions(frontpage, transitions=['show_internally'])
             frontpage.reindexObject()
             logger.info('front page adapted')
         # set front-page folder as not next/prev navigable
