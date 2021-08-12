@@ -295,6 +295,10 @@ body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dash
     display: None;
 }
 
+#portal-searchbox div.LSBox div.searchSection {
+    display: None;
+}
+
 /* Other */
 
 body.template-facetednavigation_view.portaltype-classificationfolder #content-core table.no-style-table ul,
