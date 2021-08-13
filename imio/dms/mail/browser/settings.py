@@ -123,7 +123,7 @@ class IImioDmsMailConfig(model.Schema):
 
     model.fieldset(
         'incomingmail',
-        label=_(u"Incoming mail"),
+        label=_(u'Incoming mail'),
         fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'due_date_extension',
                 'imail_remark_states', 'imail_fields_order', 'imail_group_encoder']
     )
@@ -182,7 +182,7 @@ class IImioDmsMailConfig(model.Schema):
 
     model.fieldset(
         'incoming_email',
-        label=_(u"Incoming email"),
+        label=_(u'Incoming email'),
         fields=['iemail_manual_forward_transition']
     )
 
@@ -195,7 +195,7 @@ class IImioDmsMailConfig(model.Schema):
 
     model.fieldset(
         'outgoingmail',
-        label=_(u"Outgoing mail"),
+        label=_(u'Outgoing mail'),
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
                 'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
                 'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',

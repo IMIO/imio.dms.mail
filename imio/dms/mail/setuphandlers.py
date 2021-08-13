@@ -120,7 +120,7 @@ def setup_classification(site):
     alsoProvides(site.REQUEST, IImioDmsMailLayer)
 
     if not base_hasattr(site, 'folders'):
-        site.invokeFactory("ClassificationFolders", id='folders', title=_(u"Folders"))
+        site.invokeFactory("ClassificationFolders", id='folders', title=_(u'folders_tab'))
         folders = site["folders"]
         alsoProvides(folders, ILabelRoot)
         adapted = ILabelJar(folders)
@@ -128,7 +128,7 @@ def setup_classification(site):
         transitions(folders, transitions=['show_internally'])
 
     if not base_hasattr(site, 'tree'):
-        site.invokeFactory("ClassificationContainer", id='tree', title=_(u"Classification Tree"))
+        site.invokeFactory("ClassificationContainer", id='tree', title=_(u'classification_tree_tab'))
         blacklistPortletCategory(site, site['tree'])
         # transitions(site['tree'], transitions=['show_internally'])
 
@@ -210,7 +210,7 @@ def postInstall(context):
 
     # we create the basic folders
     if not base_hasattr(site, 'incoming-mail'):
-        folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u"Incoming mail"))
+        folderid = site.invokeFactory("Folder", id='incoming-mail', title=_(u'incoming_mail_tab'))
         im_folder = getattr(site, folderid)
         alsoProvides(im_folder, INextPrevNotNavigable)
         alsoProvides(im_folder, ILabelRoot)
@@ -241,7 +241,7 @@ def postInstall(context):
         logger.info('incoming-mail folder created')
 
     if not base_hasattr(site, 'outgoing-mail'):
-        folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u"Outgoing mail"))
+        folderid = site.invokeFactory("Folder", id='outgoing-mail', title=_(u'outgoing_mail_tab'))
         om_folder = getattr(site, folderid)
         alsoProvides(om_folder, INextPrevNotNavigable)
         alsoProvides(om_folder, ILabelRoot)
@@ -270,7 +270,7 @@ def postInstall(context):
         logger.info('outgoing-mail folder created')
 
     if not base_hasattr(site, 'tasks'):
-        folderid = site.invokeFactory("Folder", id='tasks', title=_(u"Tasks"))
+        folderid = site.invokeFactory("Folder", id='tasks', title=_(u"tasks_tab"))
         tsk_folder = getattr(site, folderid)
         alsoProvides(tsk_folder, INextPrevNotNavigable)
         alsoProvides(tsk_folder, ILabelRoot)
@@ -314,7 +314,7 @@ def postInstall(context):
                                {'name': u'Département', 'token': u'department'},
                                {'name': u'Service', 'token': u'service'},
                                ]
-        params = {'title': "Contacts",
+        params = {'title': _(u'contacts_tab'),
                   'position_types': position_types,
                   'organization_types': organization_types,
                   'organization_levels': organization_levels,
@@ -2101,9 +2101,9 @@ def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
     template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
-    for path, title, interfaces in [('templates', _(u"Templates"), []),
-                                    ('templates/om', _(u"Outgoing mail"), [IOMTemplatesFolder]),
-                                    ('templates/om/common', _(u"Common templates"), [])]:
+    for path, title, interfaces in [('templates', _(u'templates_tab'), []),
+                                    ('templates/om', _(u'Outgoing mail'), [IOMTemplatesFolder]),
+                                    ('templates/om/common', _(u'Common templates'), [])]:
         parts = path.split('/')
         id = parts[-1]
         parent = site.unrestrictedTraverse('/'.join(parts[:-1]))
