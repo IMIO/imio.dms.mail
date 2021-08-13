@@ -79,6 +79,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.upgradeProfile('collective.contact.core:default')
         self.upgradeProfile('collective.task:default')
         self.upgradeProfile('collective.dms.mailcontent:default')
+        self.upgradeProfile('plonetheme.imioapps:default')
 
         self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
         self.runProfileSteps('plonetheme.imioapps', profile='dmsmailskin', steps=['viewlets'])  # to hide colophon
