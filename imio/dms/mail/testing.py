@@ -37,7 +37,7 @@ import os
 class PloneDmsFixture(PloneFixture):
 
     def setUpZCML(self):
-        """Include imio.dms.mail i18n locales before Plone."""
+        """Include imio.dms.mail i18n locales before Plone to override plone messages."""
         pr = list(self.products)
         pr.insert(-2, ('imio.dms.mail', {'loadZCML': True, 'configure.zcml': 'testing_locales.zcml'},))
         self.products = tuple(pr)
@@ -87,7 +87,7 @@ PLONE_DMS_FIXTURE = PloneDmsFixture()
 
 class DmsmailLayer(PloneWithPackageLayer):
 
-    defaultBases = (PLONE_DMS_FIXTURE,)
+    defaultBases = (PLONE_DMS_FIXTURE,)  # testing_locales.zcml inclusion
 
     def setUpPloneSite(self, portal):
         setLocal('request', portal.REQUEST)
@@ -211,6 +211,7 @@ DMSMAIL_FUNCTIONAL_TESTING = FunctionalTesting(
     bases=(DMSMAIL_FIXTURE, ),
     name="DmsMailFixture:Functional")
 
+# testing_locales.zcml inclusion
 REMOTE_LIBRARY_BUNDLE_FIXTURE.__bases__ = (PLONE_DMS_FIXTURE, )
 DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     bases=(DMSMAIL_NP1_FIXTURE,
