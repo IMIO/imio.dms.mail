@@ -203,8 +203,9 @@ CE transfert email
     Go to  ${PLONE_URL}/import_scanned?number=1&redirect=
     sleep  1
     Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&redirect=
-    sleep  1
+    sleep  2
     Go to  ${PLONE_URL}/incoming-mail
+    sleep  1
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/searchfor_created
     sleep  0.5
@@ -212,11 +213,8 @@ CE transfert email
     Delete content  /${PLONE_SITE_ID}/incoming-mail/ou-se-situe-votre-entite-par-rapport-aux-objectifs-de-developpement-durable
     Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=2&redirect=
     sleep  1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
-    ${EVEN} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/evenements
-    Set field value  ${UID}  treating_groups  ${EVEN}  str
-    Fire transition  ${UID}  propose_to_n_plus_1
     Enable autologin as  dirg
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
@@ -1218,9 +1216,9 @@ Debug
 *** Keywords ***
 Suite Setup
     Open test browser
-#    Set Window Size  1024  768
-#    Set Window Size  1200  1920
-    Set Window Size  1260  2880
+    # Set Window Size  1080  1920
+    # Set Window Size  1260  2880
+    Set Window Size  1200  1920
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
     Set Selenium Speed  0.2
@@ -1228,3 +1226,4 @@ Suite Setup
     Set autologin username  dirg
     Go to  ${PLONE_URL}/robot_init
     Disable autologin
+    Pause
