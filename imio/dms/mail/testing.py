@@ -39,7 +39,7 @@ class PloneDmsFixture(PloneFixture):
     def setUpZCML(self):
         """Include imio.dms.mail i18n locales before Plone to override plone messages."""
         pr = list(self.products)
-        pr.insert(-2, ('imio.dms.mail', {'loadZCML': True, 'configure.zcml': 'testing_locales.zcml'},))
+        pr.insert(-2, ('imio.dms.mail', {'loadZCML': True, 'load_only': {'configure.zcml': 'testing_locales.zcml'}}))
         self.products = tuple(pr)
 
         # Create a new global registry
@@ -49,15 +49,11 @@ class PloneDmsFixture(PloneFixture):
         self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
 
         # Turn off z3c.autoinclude
-
         xmlconfig.string("""\
 <configure xmlns="http://namespaces.zope.org/zope" xmlns:meta="http://namespaces.zope.org/meta">
     <meta:provides feature="disable-autoinclude" />
 </configure>
 """, context=context)
-
-        # Load dependent products's ZCML - Plone doesn't specify dependencies
-        # on Products.* packages fully
 
         from zope.dottedname.resolve import resolve
 
@@ -65,13 +61,16 @@ class PloneDmsFixture(PloneFixture):
             for p, config in self.products:
                 if not config['loadZCML']:
                     continue
+                # we don't want to load overrides.zcml now !
+                if 'load_only' in config and filename not in config['load_only']:
+                    continue
                 try:
                     package = resolve(p)
                 except ImportError:
                     continue
                 try:
-                    if filename in config:
-                        xmlconfig.file(config[filename], package, context=context)
+                    if 'load_only' in config and filename in config['load_only']:
+                        xmlconfig.file(config['load_only'][filename], package, context=context)
                     else:
                         xmlconfig.file(filename, package, context=context)
                 except IOError:
