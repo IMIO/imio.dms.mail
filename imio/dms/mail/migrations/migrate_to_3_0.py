@@ -212,6 +212,15 @@ class Migrate_To_3_0(Migrator):  # noqa
         # update portal title
         self.portal.title = 'Gestion du courrier 3.0'
 
+        # update tabs
+        titles = {'incoming-mail': 'incoming_mail_tab', 'outgoing-mail': 'outgoing_mail_tab', 'folders': 'folders_tab',
+                  'tasks': 'tasks_tab', 'contacts': 'contacts_tab', 'templates': 'templates_tab',
+                  'tree': 'classification_tree_tab'}
+        for oid in titles:
+            obj = self.portal[oid]
+            obj.title = _(titles[oid])
+            obj.reindexObject()
+
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
         # registry
