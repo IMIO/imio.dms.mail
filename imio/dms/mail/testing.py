@@ -13,9 +13,11 @@ from plone.app.testing import IntegrationTesting
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing.helpers import PloneWithPackageLayer
+from plone.app.testing.layers import PloneFixture
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.testing import z2
+from plone.testing import zca
 from Products.CMFPlone.utils import _createObjectByType
 from Products.CMFPlone.utils import base_hasattr
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
@@ -32,7 +34,60 @@ import imio.dms.mail
 import os
 
 
+class PloneDmsFixture(PloneFixture):
+
+    def setUpZCML(self):
+        """Include imio.dms.mail i18n locales before Plone."""
+        pr = list(self.products)
+        pr.insert(-2, ('imio.dms.mail', {'loadZCML': True, 'configure.zcml': 'testing_locales.zcml'},))
+        self.products = tuple(pr)
+
+        # Create a new global registry
+        zca.pushGlobalRegistry()
+
+        from zope.configuration import xmlconfig
+        self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
+
+        # Turn off z3c.autoinclude
+
+        xmlconfig.string("""\
+<configure xmlns="http://namespaces.zope.org/zope" xmlns:meta="http://namespaces.zope.org/meta">
+    <meta:provides feature="disable-autoinclude" />
+</configure>
+""", context=context)
+
+        # Load dependent products's ZCML - Plone doesn't specify dependencies
+        # on Products.* packages fully
+
+        from zope.dottedname.resolve import resolve
+
+        def loadAll(filename):
+            for p, config in self.products:
+                if not config['loadZCML']:
+                    continue
+                try:
+                    package = resolve(p)
+                except ImportError:
+                    continue
+                try:
+                    if filename in config:
+                        xmlconfig.file(config[filename], package, context=context)
+                    else:
+                        xmlconfig.file(filename, package, context=context)
+                except IOError:
+                    pass
+
+        loadAll('meta.zcml')
+        loadAll('configure.zcml')
+        loadAll('overrides.zcml')
+
+
+PLONE_DMS_FIXTURE = PloneDmsFixture()
+
+
 class DmsmailLayer(PloneWithPackageLayer):
+
+    defaultBases = (PLONE_DMS_FIXTURE,)
 
     def setUpPloneSite(self, portal):
         setLocal('request', portal.REQUEST)
@@ -156,6 +211,7 @@ DMSMAIL_FUNCTIONAL_TESTING = FunctionalTesting(
     bases=(DMSMAIL_FIXTURE, ),
     name="DmsMailFixture:Functional")
 
+REMOTE_LIBRARY_BUNDLE_FIXTURE.__bases__ = (PLONE_DMS_FIXTURE, )
 DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     bases=(DMSMAIL_NP1_FIXTURE,
            REMOTE_LIBRARY_BUNDLE_FIXTURE,
