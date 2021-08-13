@@ -301,6 +301,10 @@ body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dash
 
 /* Other */
 
+#portal-header #portal-globalnav li a {
+    min-width: initial;
+}
+
 body.template-facetednavigation_view.portaltype-classificationfolder #content-core table.no-style-table ul,
 body.template-facetednavigation_view.portaltype-classificationsubfolder #content-core table.no-style-table ul {
     margin-left: 1em;
