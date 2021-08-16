@@ -440,9 +440,10 @@ CS nouveau
     Click element  newOMCreation
     Wait until element is visible  css=.template-dmsoutgoingmail #formfield-form-widgets-sender  10
     Sleep  0.5
+    Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Dale  lastname=Cooper  zip_code=4000  city=Belleville  street=Rue Moyenne  number=1991  email=dale.cooper@twinpeaks.com
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation.png  id=content
     Input text  name=form.widgets.IDublinCore.title  Annonce de la réfection des trottoirs Rue Moyenne
-    Input text  name=form.widgets.recipients.widgets.query  swde
+    Input text  name=form.widgets.recipients.widgets.query  cooper
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li
     Select checkbox  id=form-widgets-send_modes-0
