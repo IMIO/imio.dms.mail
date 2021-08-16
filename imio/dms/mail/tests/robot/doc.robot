@@ -309,7 +309,7 @@ CS en réponse
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  treating_groups  ${GRH}  str
-    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${DF} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-financiere
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  sender  ['${SENDER}']  references
@@ -365,8 +365,8 @@ CS en réponse
 
     # Mailing
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
-    ${REC1} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
-    ${REC2} =  Path to uid  /${PLONE_SITE_ID}/contacts/sergerobinet
+    ${REC1} =  Path to uid  /${PLONE_SITE_ID}/contacts/marc-leduc
+    ${REC2} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Dexter  lastname=Morgan  zip_code=5000  city=Namur  street=Place du Théâtre  number=5  email=dexter.morgan@mpd.am
     Set field value  ${UID}  recipients  ['${REC1}', '${REC2}']  references
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
@@ -399,6 +399,7 @@ CS en réponse
     Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001
 
     ### Add mainfile
+    Set field value  ${UID}  recipients  ['${REC1}']  references
     Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
     Sleep  0.5
     #Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
