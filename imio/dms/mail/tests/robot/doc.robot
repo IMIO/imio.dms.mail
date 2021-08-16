@@ -622,9 +622,9 @@ Tableaux de bord
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-filtres-avances.png  id=top---advanced---widgets  css=div.faceted-sections-buttons
     click element  css=.select2-container
     Input text  css=.select2-input  elec
-    Wait until element is visible  css=.select2-results  10
+    Wait until element is visible  css=#select2-drop .select2-results  10
     Sleep  0.5
-    Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-filtre-expediteur.png  id=top---advanced---widgets  css=.select2-results
+    Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-filtre-expediteur.png  id=top---advanced---widgets  css=#select2-drop .select2-results
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/searchfor_created
@@ -1222,6 +1222,7 @@ Suite Setup
     Open test browser
     # Set Window Size  1080  1920
     # Set Window Size  1260  2880
+    # Set Window Size  1260  2240
     Set Window Size  1200  1920
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
