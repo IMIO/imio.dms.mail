@@ -1418,7 +1418,9 @@ def configureImioDmsMail(context):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'] = [
             'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender', 'treating_groups',
             'ITask.assigned_user', 'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
-            'ITask.task_description', 'external_reference_no', 'original_mail_date', 'internal_reference_no']
+            'ITask.task_description', 'external_reference_no', 'original_mail_date',
+            'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
+            'internal_reference_no']
 
     # OM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
@@ -1441,6 +1443,7 @@ def configureImioDmsMail(context):
             'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
             'ITask.assigned_user', 'sender', 'recipient_groups', 'send_modes', 'mail_type', 'mail_date', 'reply_to',
             'ITask.task_description', 'ITask.due_date', 'outgoing_date', 'external_reference_no',
+            'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
             'internal_reference_no', 'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
             'email_attachments', 'email_body']
 

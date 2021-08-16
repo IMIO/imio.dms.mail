@@ -450,13 +450,19 @@ class Migrate_To_3_0(Migrator):  # noqa
                 {'value': u'email', 'dtitle': u'Email', 'active': True},
             ]
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', modes)
-        # order
+        # order im fields
         im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order')
+        im_fo_len = len(im_fo)
         if 'orig_sender_email' not in im_fo:
             im_fo.insert(im_fo.index('sender'), 'orig_sender_email')
+        if 'IClassificationFolder.classification_categories' not in im_fo:
+            idx = im_fo.index('internal_reference_no')
+            im_fo.insert(idx, 'IClassificationFolder.classification_folders')
+            im_fo.insert(idx, 'IClassificationFolder.classification_categories')
+        if im_fo_len != len(im_fo):
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
                                            im_fo)
-        # order send_modes
+        # order om fields
         om_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order')
         om_fo_len = len(om_fo)
         if 'send_modes' not in om_fo:
@@ -469,6 +475,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                       'email_attachments', 'email_body']
         if 'orig_sender_email' not in om_fo:
             om_fo.insert(om_fo.index('recipients'), 'orig_sender_email')
+        if 'IClassificationFolder.classification_categories' not in om_fo:
+            idx = om_fo.index('internal_reference_no')
+            om_fo.insert(idx, 'IClassificationFolder.classification_folders')
+            om_fo.insert(idx, 'IClassificationFolder.classification_categories')
         if om_fo_len != len(om_fo):
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
                                            om_fo)
