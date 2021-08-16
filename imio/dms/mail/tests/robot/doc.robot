@@ -230,6 +230,7 @@ CE manuel
 # partie 2.2.3 Ajout manuel d'une fiche
     [TAGS]  RUN
     Enable autologin as  encodeur
+    sleep  1
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.table_faceted_no_results  10
 
@@ -241,12 +242,12 @@ CE manuel
     Wait until element is visible  css=.template-dmsincomingmail #formfield-form-widgets-sender  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-1-creation.png  id=content
-    Input text  name=form.widgets.IDublinCore.title  Lettre de demande de stage
+    Input text  name=form.widgets.IDublinCore.title  Braderie annuelle septembre
     Input text  name=form.widgets.sender.widgets.query  Non encod
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li
     Select from list by value  id=form-widgets-mail_type  courrier
-    Select from list by index  id=form-widgets-treating_groups  2
+    Select from list by index  id=form-widgets-treating_groups  10
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-1-creation-finie.png  id=content  id=viewlet-below-content
@@ -266,13 +267,13 @@ CE manuel
     Wait until element is visible  id=formfield-form-widgets-IScanFields-scan_id  10
     Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-scan.png  id=content
     Click button  id=form-buttons-cancel
-    Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage/create_main_file?filename=60.PDF
+    Go to  ${PLONE_URL}/incoming-mail/braderie-annuelle-septembre/create_main_file?filename=60.PDF
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note12}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-finie.png  id=portal-column-content  ${note12}
     Remove element  id=${note12}
-    Go to  ${PLONE_URL}/incoming-mail/lettre-de-demande-de-stage
+    Go to  ${PLONE_URL}/incoming-mail/braderie-annuelle-septembre
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-2-visualisation.png  id=content
@@ -1226,4 +1227,4 @@ Suite Setup
     Set autologin username  dirg
     Go to  ${PLONE_URL}/robot_init
     Disable autologin
-    Pause
+#    Pause
