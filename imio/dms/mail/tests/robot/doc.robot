@@ -514,8 +514,9 @@ CS depuis le scanner
     Select from list by index  id=form-widgets-treating_groups  1
     Click element  form_widgets_sender_select_chzn
     Input text  css=.chzn-search input  agent
+    Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Citoyen  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marccitoyen@hotmail.com
     Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_1
-    Input text  name=form.widgets.recipients.widgets.query  Bernard
+    Input text  name=form.widgets.recipients.widgets.query  Citoyen
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li:first-of-type
     Sleep  0.5
