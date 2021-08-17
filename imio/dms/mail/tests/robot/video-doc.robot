@@ -18,7 +18,7 @@ ${N_S} =  4  # normal sleep
 ${L_S} =  6  # longer sleep
 ${W_WIDTH} =  1680  # width 1200 1260 1280
 ${W_HEIGHT} =  1050  # height 1920 2880 720
-${RECORD} =  0
+${RECORD} =  0  # set to 1 to made a pause at each test start, to record easierly
 
 *** Test Cases ***
 
