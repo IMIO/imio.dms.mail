@@ -18,6 +18,7 @@ ${N_S} =  4  # normal sleep
 ${L_S} =  6  # longer sleep
 ${W_WIDTH} =  1680  # width 1200 1260 1280
 ${W_HEIGHT} =  1050  # height 1920 2880 720
+${RECORD} =  0
 
 *** Test Cases ***
 
@@ -50,7 +51,7 @@ Naviguer
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/
     # start video
-    Pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # bandeau principal
     ${tit1}  Add title  Tutoriel vidéo iA.docs : Naviguer dans l'interface...
     sleep  ${L_S}
@@ -175,7 +176,7 @@ Traiter un courrier
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/to_treat
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment traiter un courrier entrant...
     sleep  ${L_S}
@@ -450,7 +451,7 @@ Répondre à un courrier
     Wait until element is visible  css=.DV-pageImage  10
 
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # répondre
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
     sleep  ${L_S}
@@ -553,7 +554,7 @@ Créer un courrier sortant
     Go to  ${PLONE_URL}/outgoing-mail
     Wait until element is visible  css=div.table_faceted_results  10
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # créer cs
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment créer un courrier sortant...
     sleep  ${L_S}
@@ -690,7 +691,7 @@ Créer un document bureautique
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
 # start video
-    #pause
+    Run keyword if  '${RECORD}'=='1'  Pause
 # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : Comment créer un document bureautique
     sleep  ${L_S}
@@ -731,7 +732,7 @@ Créer un document bureautique
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    Pause
+    Run keyword if  '${RECORD}'=='1'  Pause
 
     Add clic  css=.fancytree-exp-cl span.fancytree-expander
     Click element  css=.fancytree-exp-cl span.fancytree-expander
@@ -739,12 +740,12 @@ Créer un document bureautique
     ${note1}  Add main note  On choisit "Modèle type"
     sleep  ${S_S}
     Remove element  id=${note1}
-    
+
     Add clic  css=.fancytree-exp-nl span:nth-child(2)
     Click element  css=.fancytree-exp-nl span:nth-child(2)
 
     GO to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
-    
+
     ${main1}  Add main note  Le document bureautique s'ouvre maintenant dans LibreOffice
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -776,7 +777,7 @@ Créer un document bureautique
     sleep  ${N_S}
     Remove element  id=${note1}
 
-    Pause
+    Run keyword if  '${RECORD}'=='1'  Pause
 
     ${note1}  Add pointy note  css=.DV-cover
     ...  La visualisation du document bureautique nous montre qu'un document a bien été créé à partir d'un template  position=left  color=blue  width=300
@@ -828,7 +829,7 @@ Transférer un email entrant
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/to_treat
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment transférer un email entrant...
     Sleep  ${L_S}
     Remove element  id=${note1}
@@ -948,7 +949,7 @@ Envoyer un email sortant
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment envoyer un email sortant...
     sleep  ${L_S}
@@ -1107,7 +1108,7 @@ Valider un courrier entrant
     GO to  ${PLONE_URL}/incoming-mail/
 
     # Start Video
-    Pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     ${tit1}  Add title  Tutoriel vidéo iA.docs : Comment valider un courrier
     sleep  ${L_S}
     Remove element  id=${tit1}
@@ -1246,7 +1247,7 @@ Ajouter un contact
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
     Wait until element is visible  css=.DV-pageImage  10
     # Start Video
-    Pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # édition
     ${tit1}  Add title  Tutoriel vidéo iA.docs : Comment utiliser le champ de sélection d'un contact et comment en ajouter un nouveau.
     Sleep  ${L_S}
@@ -1563,7 +1564,7 @@ Ajouter une annexe
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # Ajouter une annexe
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe...
     Sleep  ${L_S}
@@ -1664,7 +1665,7 @@ Ajouter une tâche
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     # Ajouter une tache
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une tâche...
     Sleep  ${L_S}
@@ -1808,7 +1809,7 @@ Utiliser les recherches
     Enable autologin as  agent
     GO to  ${PLONE_URL}/
     # start video
-    pause
+    Run keyword if  '${RECORD}'=='1'  Pause
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment utiliser les recherches...
     Sleep  ${L_S}
     Remove element  id=${note1}
@@ -2021,3 +2022,4 @@ Suite Setup
     Go to  ${PLONE_URL}/video_doc_init?pdb=
     Disable autologin
     # Register Keyword To Run On Failure  debug
+#    pause  # to move the window to another screen by example...
