@@ -1092,6 +1092,7 @@ Gestion modèles
     [TAGS]  RUN1
 	## 2.10.1 Tableau
     Enable autologin as  Manager
+    Set autologin username  chef
     Go to  ${PLONE_URL}/templates/om
     # Wait until element is visible  css=#content-core  10
     # Capture and crop page screenshot  doc/utilisation/2-10-1-modeles-docs.png  css=#content
@@ -1105,7 +1106,7 @@ Gestion modèles
     Remove element  id=${note40}
     Remove element  id=${note41}
     Click element  css=#select_unselect_items
-    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:first-child td:first-child input
+    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:last-child td:first-child input
     Click element  css=#transition-batch-action-but
     Wait until element is visible  css=.pb-ajax  10
     Capture and crop page screenshot  doc/utilisation/2-10-2-changer-etat-par-lot.png  css=.pb-ajax
@@ -1116,22 +1117,20 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-copie-par-lot.png  css=.pb-ajax
     Click element  css=#form-buttons-cancel
     Wait until element is visible  css=#content-core  10
-    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:nth-child(3) td:nth-last-child(2) table tbody tr td:first-child a
-    Select window  url=http://localhost:55001/plone/templates/om/header/edit
+    Go to  ${PLONE_URL}/templates/om/header/edit
     ${note42}  Add pointy note  css=#form-widgets-style_template  Modifier le style utilisé  position=right  color=blue
     Capture and crop page screenshot  doc/utilisation/2-10-2-editer-sous-document.png  css=#content
     Remove element  id=${note42}
-    Close window
-    Select window  url=http://localhost:55001/plone/templates/om
-    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:nth-child(8) td:nth-last-child(2) table tbody tr td:first-child a
-    Select window  url=http://localhost:55001/plone/templates/om/main/edit
+    Go to  ${PLONE_URL}/templates/om/main/edit
+    # ScrollDown  # doesn't change the fact the capture is outside !
+    Wait until element is visible  form-widgets-merge_templates  10
+    Update element style  css=#formfield-form-widgets-pod_portal_types  display  None
     ${note43}  Add pointy note  css=#form-widgets-merge_templates tbody tr:first-child td:nth-last-child(2)  Ajouter ou supprimer des sous-modèles  position=left  color=blue
     ${note44}  Add pointy note  css=#form-widgets-merge_templates-4-widgets-template  Choisir le sous-modèle à fusionner  position=bottom  color=blue
 	Capture and crop page screenshot  doc/utilisation/2-10-2-fusion-sous-modeles.png  css=#form-widgets-merge_templates  id=${note44}
 	Remove element  id=${note43}
 	Remove element  id=${note44}
-    Close window
-    Select Window  url=http://localhost:55001/plone/templates/om
+    Go to  ${PLONE_URL}/templates/om
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
 ia-delib
