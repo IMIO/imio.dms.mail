@@ -654,7 +654,7 @@ Visualisation
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
@@ -1046,13 +1046,15 @@ Contacts 3
     Click element  name=Add element
     Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-folder.png  id=content  ${note37}
     Remove element  id=${note37}
+    ${PERS1} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${PERS2} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Dexter  lastname=Morgan  zip_code=5000  city=Namur  street=Place du Théâtre  number=5  email=dexter.morgan@mpd.am
     Select from list by label  name=Add element  Liste de contacts
     Wait until element is visible  id=formfield-form-widgets-contacts  10
     Input text  name=form.widgets.IBasic.title  Liste des candidats poste DF
-    Input text  name=form.widgets.contacts.widgets.query  courant
+    Input text  name=form.widgets.contacts.widgets.query  leduc
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li:first-child
-    Input text  name=form.widgets.contacts.widgets.query  lermitte
+    Input text  name=form.widgets.contacts.widgets.query  morgan
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li:first-child
     Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-creation.png  id=content
