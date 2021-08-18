@@ -32,12 +32,13 @@ Add title
 Add end message
     [Documentation]  Add a note under the portal top
     Add title  Ce tutoriel vidéo est fini ;-) Retrouvez notre documentation complète à l'adresse "https://docs.imio.be".
-    sleep  8
+    sleep  ${N_S}
+    sleep  ${N_S}
 
 Add clic
     [Documentation]  Add a pointer clic on given locator
     [Arguments]  ${locator}
     ${pt1}  Add dot  ${locator}  background=#de007b  size=15
-    sleep  1.5
+    sleep  ${C_S}
     Remove element  id=${pt1}
     # 4dfc02 green

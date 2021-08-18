@@ -13,12 +13,14 @@ Suite Teardown  Close all browsers
 *** Variables ***
 
 #${BROWSER} =  GoogleChrome
+${RECORD} =  0  # set to 1 to made a pause at each test start, to record easierly
+# Default values when RECORD = 1. If not, it's reduced in Suite Setup.
+${C_S} =  1.5  # clic sleep
 ${S_S} =  2  # short sleep
 ${N_S} =  4  # normal sleep
 ${L_S} =  6  # longer sleep
 ${W_WIDTH} =  1680  # width 1200 1260 1280
 ${W_HEIGHT} =  1050  # height 1920 2880 720
-${RECORD} =  0  # set to 1 to made a pause at each test start, to record easierly
 
 *** Test Cases ***
 
@@ -2022,4 +2024,7 @@ Suite Setup
     Go to  ${PLONE_URL}/video_doc_init?pdb=
     Disable autologin
     # Register Keyword To Run On Failure  debug
-#    pause  # to move the window to another screen by example...
+    Run keyword if  '${RECORD}'=='0'  Set suite variable  \${L_S}  2
+    Run keyword if  '${RECORD}'=='0'  Set suite variable  \${N_S}  1
+    Run keyword if  '${RECORD}'=='0'  Set suite variable  \${S_S}  1
+    Run keyword if  '${RECORD}'=='0'  Set suite variable  \${C_S}  0.5
