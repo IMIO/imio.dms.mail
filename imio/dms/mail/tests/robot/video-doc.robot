@@ -550,7 +550,7 @@ Créer un courrier sortant
     [TAGS]  RUN1
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
-    # ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     Go to  ${PLONE_URL}/outgoing-mail
     Wait until element is visible  css=div.table_faceted_results  10
     # start video
