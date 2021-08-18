@@ -822,7 +822,6 @@ Transférer un email entrant
     ${UID2} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
     ${EVEN} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/evenements
     Set field value  ${UID2}  treating_groups  ${EVEN}  str
-    Fire transition  ${UID2}  propose_to_n_plus_1
     Enable autologin as  dirg
     Fire transition  ${UID}  propose_to_agent
     Fire transition  ${UID1}  propose_to_agent
