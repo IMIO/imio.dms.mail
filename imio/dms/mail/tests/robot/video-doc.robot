@@ -1497,7 +1497,8 @@ Ajouter un contact
     Input text  name=oform.widgets.plone_0_held_position.label  Agent
     sleep  ${S_S}
 
-    Scroll Element Into View  oform-buttons-save
+    # ScrollDown
+    Scroll Element Into View  css=#oform #oform-buttons-save
 
     Add clic  oform-buttons-save
     Click button  id=oform-buttons-save
