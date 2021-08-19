@@ -1164,6 +1164,7 @@ Configuration
     ${note50}  Add pointy note  css=.configlets li a[href$="/@@contact-plonegroup-settings"]  Configuration services  position=top  color=blue
     Capture and crop page screenshot  doc/configuration/5-4-liens-config-services.png  css=h2:nth-of-type(2)  css=h2:nth-of-type(3)  ${note50}
     Remove element  ${note50}
+    # mails
     ${note51}  Add pointy note  css=.configlets li a[href$="/@@dmsmailcontent-settings"]  Configuration courrier  position=top  color=blue
     Capture and crop page screenshot  doc/configuration/5-3-liens-config-courrier.png  css=h2:nth-of-type(2)  css=h2:nth-of-type(3)  ${note51}
     Remove element  ${note51}
@@ -1183,6 +1184,7 @@ Configuration
     #Go to  ${PLONE_URL}/@@contact-plonegroup-settings
     #Wait until element is visible  id=pg-orga-link  10
     #Capture and crop page screenshot  doc/configuration/5-4-config-services.png  id=content
+    # services
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
     Wait until element is visible  css=table.suborganizations-listing  10
     Capture and crop page screenshot  doc/configuration/5-4-config-propre-organisation.png  id=content
@@ -1195,6 +1197,7 @@ Configuration
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef
     Wait until element is visible  css=.subsection-personnel-folder-chef #person #held_positions  10
     Capture and crop page screenshot  doc/configuration/5-4-config-personnel-chef.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  css=#held_positions div:nth-child(2)
+    # users
     Go to  ${PLONE_URL}/@@usergroup-userprefs
     Wait until element is visible  css=table.listing  10
     Capture and crop page screenshot  doc/configuration/5-5-users-listing.png  css=#edit-bar li  css=table.listing  css=input[name='form.button.Modify']
@@ -1204,10 +1207,18 @@ Configuration
     Go to  ${PLONE_URL}/@@usergroup-usermembership?userid=agent1
     Wait until element is visible  css=input[name='form.button.Add']  10
     Capture and crop page screenshot  doc/configuration/5-5-user-groups.png  css=#edit-bar li.selected  css=table[summary='Groups']  css=input[name='form.button.Add']
-# contacts
+    # contacts
     Go to  ${PLONE_URL}/contacts/edit
     Wait until element is visible  id=formfield-form-widgets-position_types  10
     Capture and crop page screenshot  doc/configuration/5-6-config-contacts.png  id=content
+    # classification codes
+    Go to  ${PLONE_URL}/tree
+    Wait until element is visible  css=table.actionspanel-no-style-table  10
+    Capture and crop page screenshot  doc/configuration/5-9-lien-import.png  id=portal-breadcrumbs  css=table.actionspanel-no-style-table  id=parent-fieldname-title
+    Go to  ${PLONE_URL}/tree/@@import
+    Wait until element is visible  form-buttons-continue  10
+    Capture and crop page screenshot  doc/configuration/5-9-import-part1.png  id=content
+    debug
 
 Debug
     [TAGS]  DBG
