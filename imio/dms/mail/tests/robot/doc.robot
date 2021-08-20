@@ -1214,11 +1214,23 @@ Configuration
     # classification codes
     Go to  ${PLONE_URL}/tree
     Wait until element is visible  css=table.actionspanel-no-style-table  10
-    Capture and crop page screenshot  doc/configuration/5-9-lien-import.png  id=portal-breadcrumbs  css=table.actionspanel-no-style-table  id=parent-fieldname-title
+    Capture and crop page screenshot  doc/configuration/5-9-import-lien.png  id=portal-breadcrumbs  css=table.actionspanel-no-style-table  id=parent-fieldname-title
     Go to  ${PLONE_URL}/tree/@@import
     Wait until element is visible  form-buttons-continue  10
     Capture and crop page screenshot  doc/configuration/5-9-import-part1.png  id=content
-    debug
+    Choose File  id=form-widgets-source-input  ${CURDIR}/tree_parent.csv
+    Capture and crop page screenshot  doc/configuration/5-9-import-part1-file.png  id=content
+    Click element  form-buttons-continue
+    Wait until element is visible  form-buttons-import  10
+    Capture and crop page screenshot  doc/configuration/5-9-import-part2.png  id=content
+    Click element  form-widgets-decimal_import-0
+    Select from list by value  id=form-widgets-column_0  identifier
+    Select from list by value  id=form-widgets-column_1  title
+    Select from list by value  id=form-widgets-column_2  parent_identifier
+    Capture and crop page screenshot  doc/configuration/5-9-import-part2-correspondance.png  id=content
+    Click element  form-buttons-import
+    Wait until element is visible  css=#table_wrapper table.tree-listing  10
+    Capture and crop page screenshot  doc/configuration/5-9-import-reussi.png  css=#portal-column-content > div:nth-child(2)
 
 Debug
     [TAGS]  DBG
