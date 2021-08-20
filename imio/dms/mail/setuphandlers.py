@@ -13,6 +13,7 @@ __docformat__ = 'plaintext'
 
 from collections import OrderedDict
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
+from collective.classification.tree.utils import create_category
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_groups_mgt
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -1656,6 +1657,35 @@ def addTestDirectory(context):
               'use_parent_address': True
               }
     jeancourant.invokeFactory('held_position', 'agent-electrabel', **params)
+
+
+def add_test_categories(context):
+    """Add french test data: tree categories"""
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    logger.info('Adding test categories')
+    site = context.getSite()
+    cats = [{'identifier': u'-1', 'title': u'Tâche des organes. (*)', 'parent': None},
+            {'identifier': u'-1.7', 'title': u'Tâches de police.', 'parent': u'-1'},
+            {'identifier': u'-1.75', 'title': u'Ordre public. (*)', 'parent': u'-1.7'},
+            {'identifier': u'-1.758', 'title': u'Police des édifices et lieux de réunions publiques.',
+             'parent': u'-1.75'},
+            {'identifier': u'-1.758.1', 'title': u'Contrôle des fêtes, représentations, expositions, etc. (*)',
+             'parent': u'-1.758'},
+            {'identifier': u'-1.758.2', 'title': u'Contrôle des foires, marchés et kermesses. (*)',
+             'parent': u'-1.758'},
+            {'identifier': u'-1.758.3', 'title': u'Contrôle des cabarets, cafés et débits de boissons.',
+             'parent': u'-1.758'},
+            {'identifier': u'-1.758.5', 'title': u'Contrôle des lieux des réunions religieuses.  (*)',
+             'parent': u'-1.758'},
+            ]
+    objs = {None: site['tree']}
+    for cat in cats:
+        parent = cat.pop('parent')
+        if cat['identifier'] in [bb.identifier for bb in objs.get(parent).values()]:
+            break
+        obj = create_category(objs.get(parent), cat)
+        objs[cat['identifier']] = obj
 
 
 def addTestMails(context):

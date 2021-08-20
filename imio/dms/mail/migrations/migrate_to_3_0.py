@@ -109,6 +109,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
+        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-add-test-categories'])
 
         # reset workflow
         self.runProfileSteps('imio.dms.mail', steps=['workflow'])
