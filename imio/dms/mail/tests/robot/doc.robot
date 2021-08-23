@@ -1233,6 +1233,31 @@ Configuration
     Click element  form-buttons-import
     Wait until element is visible  css=#table_wrapper table.tree-listing  10
     Capture and crop page screenshot  doc/configuration/5-9-import-reussi.png  css=#portal-column-content > div:nth-child(2)
+    # folders
+    # clean demo examples before import
+    # Go to  ${PLONE_URL}/delete-category?key=-1
+    Go to  ${PLONE_URL}/folders
+    Wait until element is visible  css=.table_faceted_no_results  10
+    Sleep  0.5
+    Capture and crop page screenshot  doc/configuration/5-10-import-lien.png  portal-column-one  content
+    Go to  ${PLONE_URL}/folders/@@import?no_redirect=1
+    Wait until element is visible  form-buttons-continue  10
+    Capture and crop page screenshot  doc/configuration/5-10-import-part1.png  id=content
+    Choose File  id=form-widgets-source-input  ${CURDIR}/folders.csv
+    Capture and crop page screenshot  doc/configuration/5-10-import-part1-file.png  id=content
+    Click element  form-buttons-continue
+    Wait until element is visible  form-buttons-import  10
+    Capture and crop page screenshot  doc/configuration/5-10-import-part2.png  id=content
+    Select from list by value  id=form-widgets-column_0  folder_categories
+    Select from list by value  id=form-widgets-column_1  subfolder_categories
+    Select from list by value  id=form-widgets-column_2  title_folder
+    Select from list by value  id=form-widgets-column_3  title_subfolder
+    Select from list by value  id=form-widgets-column_5  archived
+    Capture and crop page screenshot  doc/configuration/5-10-import-part2-correspondance.png  id=content
+    Click element  form-buttons-import
+    debug
+    Wait until element is visible  css=.table-faceted-results  20
+    Capture and crop page screenshot  doc/configuration/5-10-import-reussi.png  content
 
 Debug
     [TAGS]  DBG

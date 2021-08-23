@@ -1,8 +1,12 @@
 "code";"libellé";"code parent"
-"35";"Administrations publiques.";""
+"35";"Administrations publiques.";
 "-1";"Tâche des organes. (*)";"35"
 "-1.7";"Tâches de police.";"-1"
 "-1.75";"Ordre public. (*)";"-1.7"
+"-1.753";"Contrôle des armes et munitions.";"-1.75"
+"-1.754";"Police de la voie publique (voies et cours d'eau).";"-1.75"
+"-1.754.2";"Usage de la voie publique. (*)";"-1.754"
+"-1.754.21";"Stationnement et amarrage. (*)";"-1.754.2"
 "-1.758";"Police des édifices et lieux de réunions publiques.";"-1.75"
 "-1.758.1";"Contrôle des fêtes, représentations, expositions, etc. (*)";"-1.758"
 "-1.758.2";"Contrôle des foires, marchés et kermesses. (*)";"-1.758"
