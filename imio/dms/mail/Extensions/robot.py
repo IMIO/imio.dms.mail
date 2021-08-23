@@ -1,9 +1,16 @@
 # -*- coding: utf-8 -*-
-
 from imio.dms.mail import add_path
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from zope.component import getMultiAdapter
+
+
+def delete_category(self, key, identifier='identifier'):
+    portal = self
+    element = portal['tree'].get_by(identifier, key)
+    if element:
+        element.__parent__._delete_element(element)
+    return self.REQUEST.response.redirect(self.absolute_url())
 
 
 def lock(self, unlock=None):

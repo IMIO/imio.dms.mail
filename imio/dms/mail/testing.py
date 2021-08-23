@@ -96,6 +96,7 @@ class DmsmailLayer(PloneWithPackageLayer):
                                  'create_main_file')
         manage_addExternalMethod(portal, 'activate_group_encoder', 'activate_group_encoder', 'imio.dms.mail.demo',
                                  'activate_group_encoder')
+        manage_addExternalMethod(portal, 'delete-category', '', 'imio.dms.mail.robot', 'delete_category')
         manage_addExternalMethod(portal, 'lock-unlock', '', 'imio.dms.mail.robot', 'lock')
         manage_addExternalMethod(portal, 'robot_init', '', 'imio.dms.mail.robot', 'robot_init')
         manage_addExternalMethod(portal, 'video_doc_init', '', 'imio.dms.mail.robot', 'video_doc_init')

@@ -1212,6 +1212,8 @@ Configuration
     Wait until element is visible  id=formfield-form-widgets-position_types  10
     Capture and crop page screenshot  doc/configuration/5-6-config-contacts.png  id=content
     # classification codes
+    # clean demo examples before import
+    Go to  ${PLONE_URL}/delete-category?key=-1
     Go to  ${PLONE_URL}/tree
     Wait until element is visible  css=table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/configuration/5-9-import-lien.png  id=portal-breadcrumbs  css=table.actionspanel-no-style-table  id=parent-fieldname-title
