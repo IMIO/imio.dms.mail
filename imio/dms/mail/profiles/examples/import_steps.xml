@@ -9,11 +9,12 @@
 Add some objects (directory) for test purpose
 </import-step>
 <import-step
-            id="imiodmsmail-add-test-categories"
-            handler="imio.dms.mail.setuphandlers.add_test_categories"
-            title="Add test categories for imio.dms.mail"
+            id="imiodmsmail-add-test-folders"
+            handler="imio.dms.mail.setuphandlers.add_test_folders"
+            title="Add test folders for imio.dms.mail"
             version="2021-08-20T15:00:00.00000">
-Add some objects (tree categories) for test purpose
+Add some objects (tree categories and folders) for test purpose
+           <dependency step="imiodmsmail-configureContactPloneGroup"/>
 </import-step>
 <import-step
             id="imiodmsmail-addTestMails"

@@ -13,6 +13,7 @@ __docformat__ = 'plaintext'
 
 from collections import OrderedDict
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
+from collective.classification.folder.utils import evaluate_internal_reference
 from collective.classification.tree.utils import create_category
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_groups_mgt
@@ -1659,7 +1660,7 @@ def addTestDirectory(context):
     jeancourant.invokeFactory('held_position', 'agent-electrabel', **params)
 
 
-def add_test_categories(context):
+def add_test_folders(context):
     """Add french test data: tree categories"""
     if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
@@ -1668,6 +1669,11 @@ def add_test_categories(context):
     cats = [{'identifier': u'-1', 'title': u'Tâche des organes. (*)', 'parent': None},
             {'identifier': u'-1.7', 'title': u'Tâches de police.', 'parent': u'-1'},
             {'identifier': u'-1.75', 'title': u'Ordre public. (*)', 'parent': u'-1.7'},
+            {'identifier': u'-1.753', 'title': u'Contrôle des armes et munitions.', 'parent': u'-1.75'},
+            {'identifier': u'-1.754', 'title': u'Police de la voie publique (voies et cours d''eau).',
+             'parent': u'-1.75'},
+            {'identifier': u'-1.754.2', 'title': u'Usage de la voie publique. (*)', 'parent': u'-1.754'},
+            {'identifier': u'-1.754.21', 'title': u'Stationnement et amarrage. (*)', 'parent': u'-1.754.2'},
             {'identifier': u'-1.758', 'title': u'Police des édifices et lieux de réunions publiques.',
              'parent': u'-1.75'},
             {'identifier': u'-1.758.1', 'title': u'Contrôle des fêtes, représentations, expositions, etc. (*)',
@@ -1686,6 +1692,59 @@ def add_test_categories(context):
             break
         obj = create_category(objs.get(parent), cat)
         objs[cat['identifier']] = obj
+
+    logger.info('Adding test folders')
+    orgs = get_registry_organizations()
+    data = [
+        {'title': u'Ordre public - Règlement général de police', 'classification_categories': [objs['-1.75'].UID()],
+         'archived': False,
+         'subs': [{'title': u'Anciens règlements', 'archived': True},
+                  {'title': u'Adaptation pour les caméras de surveillance de l\'espace public', 'archived': False},
+                  {'title': u'Demandes de renseignements', 'archived': False}]},
+        {'title': u'Règlement général de police : Sanctions administratives / Service de médiation',
+         'classification_categories': [objs['-1.75'].UID()], 'archived': False,
+         'subs': [{'title': u'Sanctions administratives / Amendes administratives : Agents sanctionnateurs',
+                   'archived': True},
+                  {'title': u'Sanctions administratives communales : Législation', 'archived': False},
+                  {'title': u'Service de médiation : Bilans / Rapports annuels', 'archived': False}]},
+        {'title': u'Contrôle des armes et munitions', 'classification_categories': [objs['-1.753'].UID()],
+         'archived': False,
+         'subs': [{'title': u'Collectionneur d\'armes : Mr Fred Chasseur', 'archived': True},
+                  {'title': u'Stands de tir : Certificats d\'agrément / Contrôles quinquennals', 'archived': False},
+                  {'title': u'Loi sur les armes à feu : redevances fédérales - Année 2020 à', 'archived': False}]},
+        {'title': u'Usage de la voie publique : Stationnement et amarrage',
+         'classification_categories': [objs['-1.754.21'].UID()], 'archived': False,
+         'subs': [{'title': u'Cas particuliers : Demandes en autorisation - 2008 à 2020', 'archived': True},
+                  {'title': u'Cas particuliers : Demandes en autorisation – 2021', 'archived': False}]},
+        {'title': u'Usage de la voie publique : Stationnement et amarrage - Friteries',
+         'classification_categories': [objs['-1.754.21'].UID()], 'archived': False,
+         'subs': [{'title': u'Attestations d\'assurance', 'archived': True},
+                  {'title': u'Autorisation d\'exploiter : Belleville, Rue de la Fleur', 'archived': False}]},
+        {'title': u'Police des édifices et lieux de réunions publiques : Contrôle des fêtes, bals,...',
+         'classification_categories': [objs['-1.758.1'].UID()], 'archived': False,
+         'subs': [{'title': u'Demandes en autorisation - 2009 à 2020', 'archived': True},
+                  {'title': u'Demandes en autorisation – 2021', 'archived': False},
+                  {'title': u'Fancy-fair (Ecoles libres ou non communales) : Demandes en autorisation - 2021',
+                   'archived': False}]},
+    ]
+    folders = site['folders']
+    for cf_dic in data:
+        cf_dic['internal_reference_no'] = evaluate_internal_reference(folders, folders.REQUEST, 'folder_number',
+                                                                      'folder_talexpression')
+        cf_dic['treating_groups'] = orgs[1]
+        cf_dic['recipient_groups'] = []
+        subs = cf_dic.pop('subs')
+        cf_obj = createContentInContainer(folders, 'ClassificationFolder', **cf_dic)
+        cf_obj._increment_internal_reference()
+        for i, csf_dic in enumerate(subs, start=1):
+            csf_dic['internal_reference_no'] = u'{}-{:02d}'.format(cf_obj.internal_reference_no, i)
+            csf_dic['treating_groups'] = cf_obj.treating_groups
+            csf_dic['recipient_groups'] = []
+            if 'classification_categories' not in csf_dic:
+                csf_dic['classification_categories'] = list(cf_obj.classification_categories)
+            csf_obj = createContentInContainer(cf_obj, 'ClassificationSubfolder', **csf_dic)
+            if not csf_dic['archived']:
+                transitions(csf_obj, transitions=['deactivate'])
 
 
 def addTestMails(context):
