@@ -1211,6 +1211,10 @@ Configuration
     Go to  ${PLONE_URL}/contacts/edit
     Wait until element is visible  id=formfield-form-widgets-position_types  10
     Capture and crop page screenshot  doc/configuration/5-6-config-contacts.png  id=content
+    # doing a screenshot here because folders import doesn't work
+    Go to  ${PLONE_URL}/folders
+    Wait until element is visible  css=.faceted-table-results  10
+    Capture and crop page screenshot  doc/configuration/5-10-import-reussi.png  content
     # classification codes
     # clean demo examples before import
     Go to  ${PLONE_URL}/delete-category?key=-1
@@ -1234,8 +1238,13 @@ Configuration
     Wait until element is visible  css=#table_wrapper table.tree-listing  10
     Capture and crop page screenshot  doc/configuration/5-9-import-reussi.png  css=#portal-column-content > div:nth-child(2)
     # folders
-    # clean demo examples before import
-    # Go to  ${PLONE_URL}/delete-category?key=-1
+    # clean test folders before import
+    Delete content  /${PLONE_SITE_ID}/folders/ordre-public-reglement-general-de-police
+    Delete content  /${PLONE_SITE_ID}/folders/reglement-general-de-police-sanctions-administratives-service-de-mediation
+    Delete content  /${PLONE_SITE_ID}/folders/controle-des-armes-et-munitions
+    Delete content  /${PLONE_SITE_ID}/folders/usage-de-la-voie-publique-stationnement-et-amarrage
+    Delete content  /${PLONE_SITE_ID}/folders/usage-de-la-voie-publique-stationnement-et-amarrage-friteries
+    Delete content  /${PLONE_SITE_ID}/folders/police-des-edifices-et-lieux-de-reunions-publiques-controle-des-fetes-bals
     Go to  ${PLONE_URL}/folders
     Wait until element is visible  css=.table_faceted_no_results  10
     Sleep  0.5
