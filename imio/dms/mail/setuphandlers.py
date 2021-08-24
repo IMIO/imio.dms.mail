@@ -1689,7 +1689,7 @@ def add_test_folders(context):
     for cat in cats:
         parent = cat.pop('parent')
         if cat['identifier'] in [bb.identifier for bb in objs.get(parent).values()]:
-            break
+            return
         obj = create_category(objs.get(parent), cat)
         objs[cat['identifier']] = obj
 
