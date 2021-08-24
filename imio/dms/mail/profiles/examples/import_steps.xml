@@ -24,7 +24,7 @@ Add some objects (tree categories and folders) for test purpose
            <dependency step="imiodmsmail-addTestDirectory"/>
            <dependency step="imiodmsmail-addOwnPersonnel"/>
            <dependency step="imiodmsmail-configureContactPloneGroup"/>
-           <dependency step="imiodmsmail-add-test-categories"/>
+           <dependency step="imiodmsmail-add-test-folders"/>
 Add some objects (mails) for test purpose
 </import-step>
 <import-step
