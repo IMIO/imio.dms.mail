@@ -53,6 +53,9 @@ class ImioDmsFile(DmsFile):
         # documentgenerator compliancy before plone 5
         return self.file
 
+    def is_odt(self):
+        return self.file.contentType == 'application/vnd.oasis.opendocument.text'
+
 
 class ImioDmsFileSchemaPolicy(DexteritySchemaPolicy):
     """Schema Policy for DmsFile"""
