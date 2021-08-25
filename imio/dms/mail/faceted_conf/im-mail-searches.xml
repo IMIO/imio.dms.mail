@@ -324,7 +324,7 @@
    </property>
   </criterion-->
 
-  <criterion name="c19" i18n:attributes="title">
+  <criterion name="c20" i18n:attributes="title">
    <property name="widget">autocomplete</property>
    <property name="title">Folder</property>
    <property name="position">top</property>
@@ -337,7 +337,7 @@
    <property name="multivalued">True</property>
   </criterion>
 
-  <criterion name="c20" i18n:attributes="title">
+  <criterion name="c21" i18n:attributes="title">
    <property name="widget">autocomplete</property>
    <property name="title">Classification Code</property>
    <property name="position">top</property>
