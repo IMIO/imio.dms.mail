@@ -23,6 +23,11 @@ msgid "Base collections"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Classification Code"
+msgstr ""
+
+#: ../faceted_conf/im-faceted:
 msgid "Created"
 msgstr ""
 
@@ -56,6 +61,12 @@ msgstr ""
 #: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
 msgid "External reference"
+msgstr ""
+
+#: ../faceted_conf/classificationfolders-searches:
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Folder"
 msgstr ""
 
 #: ../faceted_conf/im-faceted:

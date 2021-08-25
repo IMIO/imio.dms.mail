@@ -23,6 +23,11 @@ msgstr "Utilisateur assigné"
 msgid "Base collections"
 msgstr "Tableau de Bord"
 
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Classification Code"
+msgstr "Code classement"
+
 #: ../faceted_conf/held-positions-searches:
 #: ../faceted_conf/organizations-searches:
 #: ../faceted_conf/persons-searches:
@@ -57,6 +62,12 @@ msgstr "Texte entier en minuscule"
 msgid "External reference"
 msgstr "Référence externe"
 
+#: ../faceted_conf/classificationfolders-searches:
+#: ../faceted_conf/im-faceted:
+#: ../faceted_conf/om-faceted:
+msgid "Folder"
+msgstr "Dossier"
+
 #: ../faceted_conf/im-faceted:
 msgid "IM main types"
 msgstr "Type de fiche"
@@ -85,7 +96,7 @@ msgstr "Date du courrier"
 #: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
 msgid "Original sender email"
-msgstr "Email de l'expéditeur original"
+msgstr "Email expéditeur orig."
 
 #: ../faceted_conf/om-faceted:
 msgid "Outgoing Date"

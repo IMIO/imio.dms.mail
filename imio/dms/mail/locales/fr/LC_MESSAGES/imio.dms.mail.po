@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-08-13 08:10+0000\n"
+"POT-Creation-Date: 2021-08-25 07:01+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -93,7 +93,7 @@ msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 msgid "All"
 msgstr "Tout"
 
-#: ./setuphandlers.py:2157
+#: ./setuphandlers.py:2249
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -125,7 +125,7 @@ msgstr "Vérification sur l'utilisateur assigné"
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr "Utilisateur obligatoire seulement au niveau n+1"
 
-#: ./setuphandlers.py:2194
+#: ./setuphandlers.py:2286
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -209,17 +209,17 @@ msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:2106
+#: ./setuphandlers.py:2198
 msgid "Common templates"
 msgstr "Modèles communs"
 
 #: ./migrations/migrate_to_2_1.py:332
-#: ./setuphandlers.py:356
+#: ./setuphandlers.py:358
 msgid "Contact list searches"
 msgstr "recherches listes de contact"
 
 #: ./migrations/migrate_to_2_1.py:332
-#: ./setuphandlers.py:356
+#: ./setuphandlers.py:358
 msgid "Contact lists"
 msgstr "Listes de contact"
 
@@ -271,7 +271,7 @@ msgstr "Documentation iA.Docs"
 msgid "Due date extension"
 msgstr "Échéance par défaut"
 
-#: ./setuphandlers.py:2259
+#: ./setuphandlers.py:2351
 msgid "Email general template"
 msgstr "Modèle générique"
 
@@ -299,7 +299,7 @@ msgstr "Un rédacteur de courrier sortant peut éditer les modèles d'email sort
 msgid "Enable edition of service office templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles bureautiques de son service."
 
-#: ./setuphandlers.py:2178
+#: ./setuphandlers.py:2270
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -312,15 +312,15 @@ msgid "Firstname Lastname"
 msgstr "Prénom Nom"
 
 #: ./browser/batchactions.py:252
-#: ./setuphandlers.py:164
+#: ./setuphandlers.py:166
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:163
+#: ./setuphandlers.py:165
 msgid "Folders searches"
 msgstr "Recherches dossiers et chemises"
 
-#: ./setuphandlers.py:2174
+#: ./setuphandlers.py:2266
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
@@ -332,17 +332,17 @@ msgstr "Général"
 msgid "Groups hidden in dashboards filter"
 msgstr "Services à ne pas afficher dans les filtres \"Service traitant\", \"Service en copie\" ou \"Groupe assigné\" des tableaux de bord"
 
-#: ./setuphandlers.py:2172
+#: ./setuphandlers.py:2264
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
 #: ./migrations/migrate_to_2_1.py:314
-#: ./setuphandlers.py:338
+#: ./setuphandlers.py:340
 msgid "Held positions"
 msgstr "Fonctions occupées"
 
 #: ./migrations/migrate_to_2_1.py:314
-#: ./setuphandlers.py:338
+#: ./setuphandlers.py:340
 msgid "Held positions searches"
 msgstr "Recherches fonctions occupées"
 
@@ -367,12 +367,12 @@ msgid "Incoming mail listing"
 msgstr "Listing des courriers entrants"
 
 #: ./migrations/migrate_to_1_0.py:71
-#: ./setuphandlers.py:223
+#: ./setuphandlers.py:225
 msgid "Incoming mail searches"
 msgstr "Recherches courriers entrants"
 
 #: ./migrations/migrate_to_1_0.py:72
-#: ./setuphandlers.py:224
+#: ./setuphandlers.py:226
 msgid "Incoming mails"
 msgstr "Courrier entrant"
 
@@ -380,7 +380,7 @@ msgstr "Courrier entrant"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:2176
+#: ./setuphandlers.py:2268
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -392,7 +392,7 @@ msgstr "Nom Prénom"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:2150
+#: ./setuphandlers.py:2242
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
@@ -405,7 +405,7 @@ msgstr "Type de courrier"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:2180
+#: ./setuphandlers.py:2272
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -450,12 +450,12 @@ msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
 #: ./migrations/migrate_to_2_1.py:302
-#: ./setuphandlers.py:326
+#: ./setuphandlers.py:328
 msgid "Organizations"
 msgstr "Organisations"
 
 #: ./migrations/migrate_to_2_1.py:302
-#: ./setuphandlers.py:326
+#: ./setuphandlers.py:328
 msgid "Organizations searches"
 msgstr "Recherches organisations"
 
@@ -472,23 +472,23 @@ msgstr "Email de l'expéditeur original"
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
-#: ./setuphandlers.py:2242
+#: ./setuphandlers.py:2334
 msgid "Outgoing email"
 msgstr "Email sortant"
 
 #: ./browser/settings.py:198
 #: ./migrations/migrate_to_0_2.py:119
-#: ./setuphandlers.py:2105
+#: ./setuphandlers.py:2197
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
 #: ./migrations/migrate_to_2_0.py:218
-#: ./setuphandlers.py:251
+#: ./setuphandlers.py:253
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
 
 #: ./migrations/migrate_to_2_0.py:219
-#: ./setuphandlers.py:252
+#: ./setuphandlers.py:254
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
@@ -501,12 +501,12 @@ msgid "Overwrite"
 msgstr "Écraser le contenu avec les éléments choisis"
 
 #: ./migrations/migrate_to_2_1.py:323
-#: ./setuphandlers.py:347
+#: ./setuphandlers.py:349
 msgid "Persons"
 msgstr "Personnes"
 
 #: ./migrations/migrate_to_2_1.py:323
-#: ./setuphandlers.py:347
+#: ./setuphandlers.py:349
 msgid "Persons searches"
 msgstr "Recherches personnes"
 
@@ -526,11 +526,11 @@ msgstr "Identifiant Plone"
 msgid "Precise scan date"
 msgstr "Date précise de scan"
 
-#: ./setuphandlers.py:2188
+#: ./setuphandlers.py:2280
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./setuphandlers.py:2203
+#: ./setuphandlers.py:2295
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -575,7 +575,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./setuphandlers.py:1432
+#: ./setuphandlers.py:1436
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -621,7 +621,7 @@ msgstr "États pour lesquels afficher l'icône de \"remarque\" "
 msgid "Stored value/id"
 msgstr "Valeur stockée"
 
-#: ./setuphandlers.py:2164
+#: ./setuphandlers.py:2256
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -631,13 +631,13 @@ msgstr "Peut contenir du <a href='https://pagetemplates.readthedocs.io/en/latest
 
 #: ./migrations/migrate_to_1_0.py:84
 #: ./migrations/migrate_to_2_0.py:96
-#: ./setuphandlers.py:280
+#: ./setuphandlers.py:282
 msgid "Tasks"
 msgstr "Tâches"
 
 #: ./migrations/migrate_to_1_0.py:83
 #: ./migrations/migrate_to_2_0.py:100
-#: ./setuphandlers.py:279
+#: ./setuphandlers.py:281
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
@@ -731,36 +731,36 @@ msgstr "Votre email a été envoyé"
 msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
-#: ./setuphandlers.py:855
+#: ./setuphandlers.py:857
 msgid "all_cls"
 msgstr "Toutes les listes de contact"
 
-#: ./setuphandlers.py:869
+#: ./setuphandlers.py:871
 msgid "all_folders"
 msgstr "Tout"
 
-#: ./setuphandlers.py:831
+#: ./setuphandlers.py:833
 msgid "all_hps"
 msgstr "Toutes les fonctions occupées"
 
-#: ./setuphandlers.py:653
+#: ./setuphandlers.py:655
 msgid "all_im_tasks"
 msgstr "Toutes les tâches"
 
 #: ./migrations/migrate_to_0_2.py:110
-#: ./setuphandlers.py:554
+#: ./setuphandlers.py:556
 msgid "all_incoming_mails"
 msgstr "Tout"
 
-#: ./setuphandlers.py:819
+#: ./setuphandlers.py:821
 msgid "all_orgs"
 msgstr "Toutes les organisations"
 
-#: ./setuphandlers.py:744
+#: ./setuphandlers.py:746
 msgid "all_outgoing_mails"
 msgstr "Tout"
 
-#: ./setuphandlers.py:843
+#: ./setuphandlers.py:845
 msgid "all_persons"
 msgstr "Toutes les personnes"
 
@@ -773,11 +773,11 @@ msgstr "Contact utilisé par"
 msgid "city"
 msgstr "Ville"
 
-#: ./setuphandlers.py:131
+#: ./setuphandlers.py:133
 msgid "classification_tree_tab"
 msgstr "Arbre classement"
 
-#: ./setuphandlers.py:317
+#: ./setuphandlers.py:319
 msgid "contacts_tab"
 msgstr "Contacts"
 
@@ -817,11 +817,11 @@ msgstr "Créer une organisation"
 msgid "create_person"
 msgstr "Créer une personne"
 
-#: ./setuphandlers.py:123
+#: ./setuphandlers.py:125
 msgid "folders_tab"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:957
+#: ./setuphandlers.py:959
 msgid "followed"
 msgstr "Étiquette: Suivi"
 
@@ -844,45 +844,45 @@ msgid "front_page_title"
 msgstr "Gestion du courrier 3.0"
 
 #: ./migrations/migrate_to_2_1.py:161
-#: ./setuphandlers.py:635
+#: ./setuphandlers.py:637
 msgid "im_followed"
 msgstr "Étiquette: Suivi"
 
-#: ./setuphandlers.py:589
+#: ./setuphandlers.py:591
 msgid "im_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:580
+#: ./setuphandlers.py:582
 msgid "im_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:626
+#: ./setuphandlers.py:628
 msgid "im_in_copy"
 msgstr "En copie"
 
 #: ./migrations/migrate_to_2_1.py:152
-#: ./setuphandlers.py:617
+#: ./setuphandlers.py:619
 msgid "im_in_copy_unread"
 msgstr "En copie, non lu"
 
-#: ./setuphandlers.py:608
+#: ./setuphandlers.py:610
 msgid "im_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:571
+#: ./setuphandlers.py:573
 msgid "im_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:598
+#: ./setuphandlers.py:600
 msgid "im_to_treat_in_my_group"
 msgstr "À traiter dans mon service"
 
-#: ./setuphandlers.py:561
+#: ./setuphandlers.py:563
 msgid "im_to_validate"
 msgstr "À valider"
 
 #: ./profiles.zcml:14
-#: ./setuphandlers.py:91
+#: ./setuphandlers.py:93
 msgid "imio.dms.mail"
 msgstr "Gestion du courrier"
 
@@ -898,11 +898,11 @@ msgstr "Gestion du courrier, données de test"
 msgid "import_folders"
 msgstr "Importer des fardes et chemises"
 
-#: ./setuphandlers.py:926
+#: ./setuphandlers.py:928
 msgid "in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:895
+#: ./setuphandlers.py:897
 msgid "in_my_group"
 msgstr "Dans mon service"
 
@@ -910,7 +910,7 @@ msgstr "Dans mon service"
 msgid "incoming mails"
 msgstr "courriers entrants"
 
-#: ./setuphandlers.py:213
+#: ./setuphandlers.py:215
 msgid "incoming_mail_tab"
 msgstr "Entrant"
 
@@ -937,27 +937,27 @@ msgstr "Expéditeur"
 msgid "number"
 msgstr "Numéro"
 
-#: ./setuphandlers.py:783
+#: ./setuphandlers.py:785
 msgid "om_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:773
+#: ./setuphandlers.py:775
 msgid "om_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:802
+#: ./setuphandlers.py:804
 msgid "om_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:792
+#: ./setuphandlers.py:794
 msgid "om_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:764
+#: ./setuphandlers.py:766
 msgid "om_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:753
+#: ./setuphandlers.py:755
 msgid "om_to_validate"
 msgstr "À valider"
 
@@ -965,7 +965,7 @@ msgstr "À valider"
 msgid "organization_type_query_field"
 msgstr "Tri sur l'ordre de scan"
 
-#: ./setuphandlers.py:244
+#: ./setuphandlers.py:246
 msgid "outgoing_mail_tab"
 msgstr "Sortant"
 
@@ -1046,47 +1046,47 @@ msgstr "État: à imprimer"
 msgid "street"
 msgstr "Rue"
 
-#: ./setuphandlers.py:685
+#: ./setuphandlers.py:687
 msgid "task_have_treated"
 msgstr "Que j'ai traitées"
 
-#: ./setuphandlers.py:677
+#: ./setuphandlers.py:679
 msgid "task_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:669
+#: ./setuphandlers.py:671
 msgid "task_to_treat"
 msgstr "Qui me sont assignées"
 
-#: ./setuphandlers.py:693
+#: ./setuphandlers.py:695
 msgid "task_to_treat_in_my_group"
 msgstr "À traiter dans mon service"
 
-#: ./setuphandlers.py:710
+#: ./setuphandlers.py:712
 msgid "tasks_have_created"
 msgstr "Que j'ai créées"
 
-#: ./setuphandlers.py:702
+#: ./setuphandlers.py:704
 msgid "tasks_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:717
+#: ./setuphandlers.py:719
 msgid "tasks_in_proposing_group"
 msgstr "Créées par mon service"
 
-#: ./setuphandlers.py:273
+#: ./setuphandlers.py:275
 msgid "tasks_tab"
 msgstr "Tâches"
 
-#: ./setuphandlers.py:659
+#: ./setuphandlers.py:661
 msgid "tasks_to_assign"
 msgstr "À assigner"
 
-#: ./setuphandlers.py:725
+#: ./setuphandlers.py:727
 msgid "tasks_to_close"
 msgstr "À clôturer"
 
-#: ./setuphandlers.py:2104
+#: ./setuphandlers.py:2196
 msgid "templates_tab"
 msgstr "Modèles"
 
