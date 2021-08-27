@@ -211,7 +211,13 @@
 
  <stylesheet id="++resource++actionsportlet.css" insert-after="++resource++collective.fontawesome/css/font-awesome.min.css" />
 
- <stylesheet id="imiodmsmail.css" insert-after="++resource++actionsportlet.css" />
+ <stylesheet id="++resource++jquery.datatables/media/css/jquery.dataTables.css" insert-after="++resource++actionsportlet.css" />
+
+ <stylesheet id="++resource++jquery.datatables/media/css/jquery.dataTables_themeroller.css" insert-after="++resource++jquery.datatables/media/css/jquery.dataTables.css" />
+
+ <stylesheet id="++resource++collective.classification.folder-faceted.css" insert-after="++resource++jquery.datatables/media/css/jquery.dataTables_themeroller.css" />
+
+ <stylesheet id="imiodmsmail.css" insert-after="++resource++collective.classification.folder-faceted.css" />
 
  <!--stylesheet id="" insert-after="" /-->
 
