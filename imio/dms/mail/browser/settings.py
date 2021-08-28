@@ -82,6 +82,40 @@ class OMFieldsVocabulary(object):
                                   'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'related_docs'])
 
 
+class IIMFieldsSchema(Interface):
+    field_name = schema.Choice(
+        title=_(u'Field name'),
+        vocabulary=u'imio.dms.mail.IMFieldsVocabulary',
+    )
+
+    read_tal_condition = schema.TextLine(
+        title=_("Read TAL condition"),
+        required=False,
+    )
+
+    write_tal_condition = schema.TextLine(
+        title=_("Write TAL condition"),
+        required=False,
+    )
+
+
+class IOMFieldsSchema(Interface):
+    field_name = schema.Choice(
+        title=_(u'Field name'),
+        vocabulary=u'imio.dms.mail.OMFieldsVocabulary',
+    )
+
+    read_tal_condition = schema.TextLine(
+        title=_("Read TAL condition"),
+        required=False,
+    )
+
+    write_tal_condition = schema.TextLine(
+        title=_("Write TAL condition"),
+        required=False,
+    )
+
+
 assigned_user_check_levels = SimpleVocabulary(
     [
         SimpleTerm(value=u'no_check', title=_(u'No check')),
@@ -125,7 +159,7 @@ class IImioDmsMailConfig(model.Schema):
         'incomingmail',
         label=_(u'Incoming mail'),
         fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'due_date_extension',
-                'imail_remark_states', 'imail_fields_order', 'imail_group_encoder']
+                'imail_remark_states', 'imail_fields', 'imail_group_encoder']
     )
 
     mail_types = schema.List(
@@ -162,10 +196,17 @@ class IImioDmsMailConfig(model.Schema):
         value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary'),
     )
 
-    imail_fields_order = schema.List(
-        title=_(u"Display order of fields"),
-        value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMFieldsVocabulary'),
-        # value_type=schema.Choice(source=IMFields),  # a source is not managed by registry !!
+    imail_fields = schema.List(
+        title=_(u"${type} fields display", mapping={'type': _('Incoming Mail')}),
+        required=False,
+        value_type=DictRow(title=_(u'Field'), schema=IIMFieldsSchema, required=False),
+    )
+    widget(
+        'imail_fields',
+        DataGridFieldFactory,
+        display_table_css_class='listing',
+        allow_reorder=True,
+        auto_append=False,
     )
 
     imail_group_encoder = schema.Bool(
@@ -199,7 +240,7 @@ class IImioDmsMailConfig(model.Schema):
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
                 'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
                 'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',
-                'omail_close_on_email_send', 'omail_email_signature', 'omail_fields_order', 'omail_group_encoder']
+                'omail_close_on_email_send', 'omail_email_signature', 'omail_fields', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -243,9 +284,17 @@ class IImioDmsMailConfig(model.Schema):
         default=True
     )
 
-    omail_fields_order = schema.List(
-        title=_(u"Display order of fields"),
-        value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMFieldsVocabulary'),
+    omail_fields = schema.List(
+        title=_(u"${type} fields display", mapping={'type': _('Outgoing Mail')}),
+        required=False,
+        value_type=DictRow(title=_(u'Field'), schema=IOMFieldsSchema, required=False),
+    )
+    widget(
+        'omail_fields',
+        DataGridFieldFactory,
+        display_table_css_class='listing',
+        allow_reorder=True,
+        auto_append=False,
     )
 
     omail_fullname_used_form = schema.Choice(

@@ -482,7 +482,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             om_fo.insert(idx, 'IClassificationFolder.classification_categories')
         if om_fo_len != len(om_fo):
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
-                                           om_fo)
+                                            om_fo)
         # general config
         if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                               'users_hidden_in_dashboard_filter'):
@@ -506,6 +506,18 @@ class Migrate_To_3_0(Migrator):  # noqa
                                               default=False):
                 reimport_faceted_config(folder, xml='mail-searches-group-encoder.xml',
                                         default_UID=folder[default_id].UID())
+
+        # Add new fields config
+        iface = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{0}'
+        for fieldname in ('imail_fields', 'omail_fields'):
+            original_key = iface.format("{0}_order".format(fieldname))
+            value = api.portal.get_registry_record(original_key)
+            new_value = [
+                {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
+                for v in value
+            ]
+            new_key = iface.format(fieldname)
+            api.portal.set_registry_record(new_key, new_value)
 
         # update maybe bad local roles (because this record change wasn't handled)
         record = getUtility(IRegistry).records.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.'

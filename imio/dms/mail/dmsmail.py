@@ -43,6 +43,7 @@ from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
 from imio.helpers.emailer import validate_email_address
@@ -60,8 +61,6 @@ from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
-from plone.z3cform.fieldsets.utils import add
-from plone.z3cform.fieldsets.utils import remove
 from vocabularies import encodeur_active_orgs
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
@@ -257,20 +256,6 @@ class ImioDmsIncomingMail(DmsIncomingMail):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
 
-def order_fields(the_form, config_key):
-    """
-        Reorder fields
-    """
-    ordered = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(config_key))
-    for field_name in reversed(ordered):
-        field = remove(the_form, field_name)
-        if field is not None:
-            if field_name.startswith('email_'):
-                add(the_form, field, index=0, group='email')
-            else:
-                add(the_form, field, index=0)
-
-
 def updatewidgets_assigned_user_description(the_form):
     """ Set a description if the field must be completed """
     state = api.content.get_state(the_form.context)
@@ -335,7 +320,7 @@ class IMEdit(DmsDocumentEdit):
 
     def updateFields(self):
         super(IMEdit, self).updateFields()
-        order_fields(self, 'imail_fields_order')
+        manage_fields(self, 'imail_fields', 'edit')
         imio_dmsincomingmail_updatefields(self)
         # sm = getSecurityManager()
         # if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context):
@@ -406,7 +391,7 @@ class IMView(DmsDocumentView):
 
     def updateFieldsFromSchemata(self):
         super(IMView, self).updateFieldsFromSchemata()
-        order_fields(self, 'imail_fields_order')
+        manage_fields(self, 'imail_fields', 'view')
 
     def updateWidgets(self, prefix=None):
         super(IMView, self).updateWidgets()
@@ -428,7 +413,7 @@ class CustomAddForm(DefaultAddForm):
 
     def updateFields(self):
         super(CustomAddForm, self).updateFields()
-        order_fields(self, 'imail_fields_order')
+        manage_fields(self, 'imail_fields', 'edit')
         imio_dmsincomingmail_updatefields(self)
 
     def updateWidgets(self, prefix=None):
@@ -759,7 +744,7 @@ class OMEdit(BaseOMEdit):
     def updateFields(self):
         super(OMEdit, self).updateFields()
         manage_email_fields(self, 'edit')
-        order_fields(self, 'omail_fields_order')
+        manage_fields(self, 'omail_fields', 'edit')
         imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
@@ -794,7 +779,7 @@ class OMCustomAddForm(BaseOMAddForm):
     def updateFields(self):
         super(OMCustomAddForm, self).updateFields()
         manage_email_fields(self, 'add')
-        order_fields(self, 'omail_fields_order')
+        manage_fields(self, 'omail_fields', 'edit')
         imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
@@ -838,7 +823,7 @@ class OMView(DmsDocumentView):
     def updateFieldsFromSchemata(self):
         super(OMView, self).updateFieldsFromSchemata()
         manage_email_fields(self, 'view')
-        order_fields(self, 'omail_fields_order')
+        manage_fields(self, 'omail_fields', 'view')
 
     def updateWidgets(self, prefix=None):
         super(OMView, self).updateWidgets()

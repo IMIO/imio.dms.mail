@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
@@ -20,6 +21,8 @@ from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
+from plone.z3cform.fieldsets.utils import add
+from plone.z3cform.fieldsets.utils import remove
 from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
@@ -871,3 +874,35 @@ def update_solr_config():
     new_port = int(os.getenv('SOLR_PORT', ''))
     if new_port and new_port != configured_port:
         api.portal.set_registry_record(full_key, new_port)
+
+
+def manage_fields(the_form, config_key, mode):
+    """Remove, reorder and restrict fields"""
+    schema_config = api.portal.get_registry_record(
+        'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(config_key)
+    )
+    if not schema_config:
+        return
+    to_input = []
+    to_display = []
+
+    configured_fields = [e["field_name"] for e in schema_config]
+    for fields_schema in reversed(schema_config):
+        field_name = fields_schema['field_name']
+        read_condition = fields_schema.get('read_tal_condition') or ""
+        write_condition = fields_schema.get('write_tal_condition') or ""
+        if _evaluateExpression(the_form.context, expression=read_condition):
+            to_display.append(field_name)
+        if _evaluateExpression(the_form.context, expression=write_condition):
+            to_input.append(field_name)
+
+        field = remove(the_form, field_name)
+        if field is not None and field_name in to_display:
+            add(the_form, field, index=0)
+            if mode != 'view' and field_name not in to_input:
+                field.mode = "display"
+
+    for group in [the_form] + the_form.groups:
+        for field_name in group.fields:
+            if field_name not in to_display and field_name in configured_fields:
+                group.fields = group.fields.omit(field_name)

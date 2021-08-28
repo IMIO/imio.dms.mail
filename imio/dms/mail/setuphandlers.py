@@ -1416,13 +1416,18 @@ def configureImioDmsMail(context):
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = ['proposed_to_agent']
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order'] = [
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields'):
+        fields = [
             'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender', 'treating_groups',
             'ITask.assigned_user', 'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
             'ITask.task_description', 'external_reference_no', 'original_mail_date',
             'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
-            'internal_reference_no']
+            'internal_reference_no'
+        ]
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields'] = [
+            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
+            for v in fields
+        ]
 
     # OM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
@@ -1440,14 +1445,19 @@ def configureImioDmsMail(context):
             {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
             {'value': u'email', 'dtitle': u'Email', 'active': True},
         ]
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order'] = [
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields'):
+        fields = [
             'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
             'ITask.assigned_user', 'sender', 'recipient_groups', 'send_modes', 'mail_type', 'mail_date', 'reply_to',
             'ITask.task_description', 'ITask.due_date', 'outgoing_date', 'external_reference_no',
             'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
             'internal_reference_no', 'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
             'email_attachments', 'email_body']
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields'] = [
+            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
+            for v in fields
+        ]
+
 
     # IEM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'):
