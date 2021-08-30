@@ -877,7 +877,12 @@ def update_solr_config():
 
 
 def manage_fields(the_form, config_key, mode):
-    """Remove, reorder and restrict fields"""
+    """Remove, reorder and restrict fields.
+
+    :param the_form: form displaying fields
+    :param config_key: registry key field containiing the fields configuration
+    :param mode: form mode ('view' or 'edit')
+    """
     schema_config = api.portal.get_registry_record(
         'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(config_key)
     )
