@@ -96,6 +96,7 @@ setup(
         'plone.app.testing',
         'plone.app.robotframework',
         'plone.mocktestcase',
+        'profilehooks',
         'plonetheme.imioapps']},
     entry_points="""
     # -*- Entry points: -*-
