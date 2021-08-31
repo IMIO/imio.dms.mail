@@ -16,6 +16,8 @@ from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
+from natsort import humansorted
+from operator import attrgetter
 from plone import api
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
@@ -55,7 +57,7 @@ def get_pt_fields_voc(pt, excluded):
         if name in excluded:
             continue
         terms.append(SimpleTerm(name, title=_tr(field.title)))
-    return SimpleVocabulary(terms)
+    return SimpleVocabulary(humansorted(terms, key=attrgetter('title')))
 
 
 # @provider(IContextSourceBinder)
