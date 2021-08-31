@@ -566,6 +566,11 @@ td.cke_tpl_preview_img img {
     margin-bottom: 0;
 }
 
+body.template-imiodmsmail-settings #form-widgets-imail_fields .cell-1,
+body.template-imiodmsmail-settings #form-widgets-omail_fields .cell-1 {
+    width: 220px;
+}
+
 /* colorization for incoming_mail_workflow */
 
 .state-created {
