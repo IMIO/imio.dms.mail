@@ -914,7 +914,7 @@ def manage_fields(the_form, config_key, mode):
     for group in [the_form] + the_form.groups:
         for field_name in group.fields:
             if field_name not in to_display and field_name in configured_fields:
-                never go here
+                # never go here
                 group.fields = group.fields.omit(field_name)
 
     # fields not configured are displayed
