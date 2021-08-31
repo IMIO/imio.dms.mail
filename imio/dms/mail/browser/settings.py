@@ -197,7 +197,8 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     imail_fields = schema.List(
-        title=_(u"${type} fields display", mapping={'type': _('Incoming Mail')}),
+        title=_(u"${type} fields display", mapping={'type': _('Incoming mail')}),
+        description=_(u"Configure this carefully. You can order with arrows."),
         required=False,
         value_type=DictRow(title=_(u'Field'), schema=IIMFieldsSchema, required=False),
     )
@@ -285,7 +286,8 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     omail_fields = schema.List(
-        title=_(u"${type} fields display", mapping={'type': _('Outgoing Mail')}),
+        title=_(u"${type} fields display", mapping={'type': _('Outgoing mail')}),
+        description=_(u"Configure this carefully. You can order with arrows."),
         required=False,
         value_type=DictRow(title=_(u'Field'), schema=IOMFieldsSchema, required=False),
     )
