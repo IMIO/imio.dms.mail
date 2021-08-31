@@ -898,16 +898,23 @@ def manage_fields(the_form, config_key, mode):
         write_condition = fields_schema.get('write_tal_condition') or ""
         if _evaluateExpression(the_form.context, expression=read_condition):
             to_display.append(field_name)
-        if _evaluateExpression(the_form.context, expression=write_condition):
+        if mode != 'view' and _evaluateExpression(the_form.context, expression=write_condition):
             to_input.append(field_name)
 
         field = remove(the_form, field_name)
         if field is not None and field_name in to_display:
-            add(the_form, field, index=0)
+            if field_name.startswith('email_'):
+                add(the_form, field, index=0, group='email')
+            else:
+                add(the_form, field, index=0)
             if mode != 'view' and field_name not in to_input:
                 field.mode = "display"
 
+    # We remove configured fields not to display (not added earlier => don't need to be removed !?)
     for group in [the_form] + the_form.groups:
         for field_name in group.fields:
             if field_name not in to_display and field_name in configured_fields:
+                never go here
                 group.fields = group.fields.omit(field_name)
+
+    # fields not configured are displayed
