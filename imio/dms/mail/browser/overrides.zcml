@@ -181,4 +181,12 @@
         />
     </configure>
 
+    <browser:page
+        for="plone.dexterity.interfaces.IDexterityContainer"
+        name="content-core"
+        permission="zope2.View"
+        template="templates/containercontentcore.pt"
+        class="plone.dexterity.browser.view.DefaultView"
+        />
+
 </configure>
