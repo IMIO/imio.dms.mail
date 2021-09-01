@@ -712,17 +712,30 @@ class IdmUtilsMethods(UtilsMethods):
             return True  # state ok, back ok
         return False
 
+    def can_treat(self):
+        """Check if idm can be treated.
+
+        A user can treat if:
+            * a title, a sender, a treating_groups and a mail_type are recorded
+
+        Used in guard expression for treat transition.
+        """
+        if self.context.title is None or self.context.sender is None or self.context.treating_groups is None:
+            # TODO add test on modified to see if object has been changed by a user ?!
+            return False
+        return True
+
     def can_close(self):
         """Check if idm can be closed.
 
         A user can close if:
-            * a sender, a mail_type are recorded
+            * a sender, a treating_groups and a mail_type are recorded
             * the closing agent is in the service (an event will set it)
 
-        Used in guard expression for propose_to_agent transition.
+        Used in guard expression for close transition.
         """
         if self.context.sender is None or self.context.treating_groups is None or self.context.mail_type is None:
-            # TODO must check if mail_type field is activated
+            # TODO must check if mail_type field is activated. Has a user already modified the object to complete all fields
             return False
         # A user that can be an assigned_user can close. An event will set the value...
         return self.is_in_user_groups(admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,

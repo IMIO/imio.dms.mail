@@ -445,6 +445,7 @@
           category="workflow" i18n:translate="">treat</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
+    <guard-expression>python:object.restrictedTraverse('idm-utils').can_treat()</guard-expression>
   </guard>
  </transition>
  <variable variable_id="action" for_catalog="False"
