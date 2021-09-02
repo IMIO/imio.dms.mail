@@ -433,6 +433,25 @@ def sender_email_index(obj):
     return common_marker
 
 
+@indexer(IImioDmsOutgoingMail)
+def ready_for_email_index(obj):
+    """Indexer of 'enabled' for IImioDmsOutgoingMail. Stores flag to know if email can be send (after be signed) !"""
+    if not obj.is_email():  # if not email, we don't have to flag it
+        return False
+    # om_utils = getMultiAdapter((obj, obj.REQUEST), name='odm-utils')
+    # we check if a dms file is marked as signed...
+    docs = []
+    for doc in obj.values():
+        if not IDmsFile.providedBy(doc):
+            continue
+        docs.append(doc)
+        if doc.signed:
+            return True
+    if not docs:
+        return True
+    return False
+
+
 @indexer(IImioDmsIncomingMail)
 def get_full_title_index(obj):
     """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""

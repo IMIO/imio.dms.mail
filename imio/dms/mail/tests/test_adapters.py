@@ -12,6 +12,7 @@ from imio.dms.mail.adapters import org_sortable_title_index
 from imio.dms.mail.adapters import OutgoingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailValidationCriterion
+from imio.dms.mail.adapters import ready_for_email_index
 from imio.dms.mail.adapters import ScanSearchableExtender
 from imio.dms.mail.adapters import sender_email_index
 from imio.dms.mail.adapters import state_group_index
@@ -161,6 +162,22 @@ class TestAdapters(unittest.TestCase):
                                          orig_sender_email=u'"Dexter Morgan" <dexter.morgan@mpd.am>')
         indexer = sender_email_index(imail)
         self.assertEqual(indexer(), u'dexter.morgan@mpd.am')
+
+    def test_ready_for_email_index(self):
+        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', id='my-id', title='My title',
+                                         description='Description', send_modes=['post'])
+        indexer = ready_for_email_index(omail)
+        # not an email
+        self.assertFalse(indexer())
+        # email without docs
+        omail.send_modes = ['email']
+        self.assertTrue(indexer())
+        # email with a doc not signed
+        createContentInContainer(omail, 'dmsommainfile')
+        self.assertFalse(indexer())
+        # email with another doc signed
+        createContentInContainer(omail, 'dmsommainfile', signed=True)
+        self.assertTrue(indexer())
 
     def test_state_group_index(self):
         dguid = self.pgof['direction-generale'].UID()
