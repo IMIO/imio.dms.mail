@@ -923,11 +923,8 @@ def manage_fields(the_form, config_key, mode):
             if mode != 'view' and field_name not in to_input:
                 field.mode = "display"
 
-    # We remove configured fields not to display (not added earlier => don't need to be removed !?)
+    # We remove fields not to display (not configured)
     for group in [the_form] + the_form.groups:
         for field_name in group.fields:
-            if field_name not in to_display and field_name in configured_fields:
-                # never go here
+            if field_name not in to_display:
                 group.fields = group.fields.omit(field_name)
-
-    # fields not configured are displayed

@@ -294,9 +294,6 @@ def imio_dmsincomingmail_updatewidgets(the_form):
         if not is_dim:
             the_form.widgets['internal_reference_no'].value = ''
 
-    for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
-        the_form.widgets[field].mode = HIDDEN_MODE
-
     if the_form.widgets['original_mail_date'].field.required:
         if the_form.widgets['original_mail_date'].value == ('', '', ''):  # field value is None
             date = originalMailDateDefaultValue(None)
@@ -398,8 +395,6 @@ class IMView(DmsDocumentView):
         # this is added to escape treatment when displaying single widget in column
         # if prefix == 'escape':
         #    return
-        for field in ['ITask.assigned_group', 'ITask.enquirer']:
-            self.widgets[field].mode = HIDDEN_MODE
         if not self.widgets['orig_sender_email'].value:
             self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
@@ -674,9 +669,6 @@ def imio_dmsoutgoingmail_updatewidgets(the_form):
                     break
         the_form.widgets['sender'].value = [default]
 
-    for field in ['ITask.assigned_group', 'ITask.enquirer', 'IVersionable.changeNote']:
-        the_form.widgets[field].mode = HIDDEN_MODE
-
     # disable left column
     the_form.request.set('disable_plone.leftcolumn', 1)
 
@@ -827,8 +819,6 @@ class OMView(DmsDocumentView):
 
     def updateWidgets(self, prefix=None):
         super(OMView, self).updateWidgets()
-        for field in ['ITask.assigned_group', 'ITask.enquirer']:
-            self.widgets[field].mode = HIDDEN_MODE
         if not self.widgets['orig_sender_email'].value:
             self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
