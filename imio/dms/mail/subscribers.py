@@ -282,12 +282,18 @@ def dmsmainfile_added(obj, event):
         # so an editor can't change a dmsmainfile
         obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
                               acquire=0)
+    elif obj.portal_type == 'dmsommainfile':
+        # we update parent index
+        obj.__parent__.reindexObject(['enabled'])
 
 
 def dmsmainfile_modified(dmf, event):
     """
         Update the SearchableText mail index
     """
+    if dmf.portal_type == 'dmsommainfile':
+        # we update parent index
+        dmf.__parent__.reindexObject(['enabled'])
     reindex = False
     if event.descriptions:
         for desc in event.descriptions:
