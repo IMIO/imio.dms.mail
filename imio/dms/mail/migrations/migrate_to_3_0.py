@@ -17,6 +17,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
+from imio.dms.mail.setuphandlers import createOMailCollections
 from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
@@ -134,6 +135,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         # do various adaptations for dmsincoming_email and dmsoutgoing_email
         self.insert_incoming_emails()
         self.insert_outgoing_emails()
+        createOMailCollections(self.portal['outgoing-mail']['mail-searches'])
 
         self.check_previously_migrated_collections()
 
@@ -309,7 +311,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             obj = brain.getObject()
             if not getattr(obj, 'send_modes'):
                 obj.send_modes = ['post']
-            obj.reindexObject(idxs=['Subject'])
+            obj.reindexObject(idxs=['Subject', 'enabled'])
 
         # allowed types
         self.omf.setConstrainTypesMode(1)

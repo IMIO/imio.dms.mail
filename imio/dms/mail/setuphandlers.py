@@ -782,6 +782,17 @@ def createOMailCollections(folder):
             'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
                      u'send_modes', u'mail_type', u'sender', u'CreationDate', u'classification_folders', u'actions'),
             'sort': u'created', 'rev': True, 'count': False},
+        {'id': 'om_to_email', 'tit': _('om_to_email'), 'subj': (u'todo', ), 'query': [
+            {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
+             'v': ['dmsoutgoingmail']},
+            {'i': 'assigned_user', 'o': 'plone.app.querystring.operation.string.currentUser'},
+            {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is', 'v':
+                ['to_be_signed']},
+            {'i': 'enabled', 'o': 'plone.app.querystring.operation.boolean.isTrue'}],
+            'cond': u"", 'bypass': [],
+            'flds': (u'select_row', u'pretty_link', u'review_state', u'treating_groups', u'assigned_user', u'due_date',
+                     u'send_modes', u'mail_type', u'sender', u'CreationDate', u'classification_folders', u'actions'),
+            'sort': u'created', 'rev': True, 'count': True},
         {'id': 'have_treated', 'tit': _('om_have_treated'), 'subj': (u'search', ), 'query': [
             {'i': 'portal_type', 'o': 'plone.app.querystring.operation.selection.is',
              'v': ['dmsoutgoingmail']},
