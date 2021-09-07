@@ -1418,7 +1418,6 @@ def configureImioDmsMail(context):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'] = [
             {'value': u'courrier', 'dtitle': u'Courrier', 'active': True},
             {'value': u'recommande', 'dtitle': u'Recommandé', 'active': True},
-            {'value': u'email', 'dtitle': u'E-mail', 'active': True},
             {'value': u'certificat', 'dtitle': u'Certificat médical', 'active': True},
             {'value': u'fax', 'dtitle': u'Fax', 'active': True},
             {'value': u'retour-recommande', 'dtitle': u'Retour recommandé', 'active': True},
@@ -1443,7 +1442,6 @@ def configureImioDmsMail(context):
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'] = [
             {'value': u'courrier', 'dtitle': u'Courrier', 'active': True},
-            {'value': u'recommande', 'dtitle': u'Recommandé', 'active': True},
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
