@@ -135,14 +135,12 @@ def setup_classification(site):
         # transitions(site['tree'], transitions=['show_internally'])
 
     roles_config = {
-        'service_in_charge': {
-            'internally_published': {'editeur': {'roles': ['Editor']},
-                                     'lecteur': {'roles': ['Reader']}},
-            'private': {'editeur': {'roles': ['Editor']},
-                        'lecteur': {'roles': ['Reader']}},
-        }, 'services_in_copy': {
-            'internally_published': {'lecteur': {'roles': ['Reader']}},
-            'private': {'lecteur': {'roles': ['Reader']}},
+        'treating_groups': {
+            'active': {'editeur': {'roles': ['Editor']}, 'lecteur': {'roles': ['Reader']}},
+            'deactivated': {'editeur': {'roles': ['Editor']}, 'lecteur': {'roles': ['Reader']}},
+        }, 'recipient_groups': {
+            'active': {'lecteur': {'roles': ['Reader']}},
+            'deactivated': {'lecteur': {'roles': ['Reader']}},
         },
     }
 
