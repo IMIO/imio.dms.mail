@@ -132,6 +132,7 @@ def setup_classification(site):
     if not base_hasattr(site, 'tree'):
         site.invokeFactory("ClassificationContainer", id='tree', title=_(u'classification_tree_tab'))
         blacklistPortletCategory(site, site['tree'])
+        site['tree'].manage_addLocalRoles('AuthenticatedUsers', ['Reader'])
         # transitions(site['tree'], transitions=['show_internally'])
 
     roles_config = {
