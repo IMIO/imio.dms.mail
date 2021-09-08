@@ -137,8 +137,8 @@ def setup_classification(site):
 
     roles_config = {
         'treating_groups': {
-            'active': {'editeur': {'roles': ['Editor']}, 'lecteur': {'roles': ['Reader']}},
-            'deactivated': {'editeur': {'roles': ['Editor']}, 'lecteur': {'roles': ['Reader']}},
+            'active': {'editeur': {'roles': ['Contributor', 'Editor']}, 'lecteur': {'roles': ['Reader']}},
+            'deactivated': {'editeur': {'roles': ['Contributor', 'Editor']}, 'lecteur': {'roles': ['Reader']}},
         }, 'recipient_groups': {
             'active': {'lecteur': {'roles': ['Reader']}},
             'deactivated': {'lecteur': {'roles': ['Reader']}},
