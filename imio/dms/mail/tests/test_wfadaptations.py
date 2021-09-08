@@ -214,9 +214,9 @@ class TestOMServiceValidation1(unittest.TestCase):
         folder = self.portal['outgoing-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_n_plus_1', folder)
         self.assertIn('searchfor_validated', folder)
-        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 9)
-        self.assertEqual(folder.getObjectPosition('searchfor_validated'), 10)
-        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 11)
+        self.assertEqual(folder.getObjectPosition('searchfor_proposed_to_n_plus_1'), 10)
+        self.assertEqual(folder.getObjectPosition('searchfor_validated'), 11)
+        self.assertEqual(folder.getObjectPosition('searchfor_to_be_signed'), 12)
         self.assertIn('proposed_to_n_plus_1',
                       [dic['v'] for dic in folder['om_treating'].query if dic['i'] == 'review_state'][0])
         self.assertIn('validated',
@@ -229,7 +229,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertIn('proposed_to_n_plus_1', config)
         # check vocabularies
         factory = getUtility(IVocabularyFactory, u'collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
-        self.assertEqual(len(factory(folder, folder)), 13)
+        self.assertEqual(len(factory(folder, folder)), 14)
         factory = getUtility(IVocabularyFactory, u'imio.dms.mail.OMReviewStatesVocabulary')
         self.assertEqual(len(factory(folder)), 6)
         # check configuration

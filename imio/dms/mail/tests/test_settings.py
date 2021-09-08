@@ -61,16 +61,16 @@ class TestSettings(unittest.TestCase):
         # changing mail types
         key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
-        self.assertEqual(len(voc_inst(self.portal)), 7)
+        self.assertEqual(len(voc_inst(self.portal)), 6)
         self.registry[key] += [{'value': u'new_type', 'dtitle': u'New type', 'active': True}]
-        self.assertEqual(len(voc_inst(self.portal)), 8)
+        self.assertEqual(len(voc_inst(self.portal)), 7)
 
         # changing omail types
         key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.OMMailTypesVocabulary')
-        self.assertEqual(len(voc_inst(self.portal)), 2)
+        self.assertEqual(len(voc_inst(self.portal)), 1)
         self.registry[key] += [{'value': u'new_type', 'dtitle': u'New type', 'active': True}]
-        self.assertEqual(len(voc_inst(self.portal)), 3)
+        self.assertEqual(len(voc_inst(self.portal)), 2)
 
         # changing imail group encoder
         key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'

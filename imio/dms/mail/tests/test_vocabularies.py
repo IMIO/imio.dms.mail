@@ -99,7 +99,7 @@ class TestVocabularies(unittest.TestCase):
 
     def test_get_settings_vta_table(self):
         voc_list = [(t.value, t.title) for t in get_settings_vta_table('mail_types')]
-        self.assertEquals(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'), (u'email', u'E-mail'),
+        self.assertEquals(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'),
                                      (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
                                      (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
         voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', choose=True)]
@@ -120,13 +120,13 @@ class TestVocabularies(unittest.TestCase):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'),
-                                        (u'email', u'E-mail'), (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
+                                        (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
                                         (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
 
     def test_IMActiveMailTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMActiveMailTypesVocabulary')
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [None, u'courrier', u'recommande', u'email', u'certificat', u'fax',
+        self.assertListEqual(voc_list, [None, u'courrier', u'recommande', u'certificat', u'fax',
                                         u'retour-recommande', u'facture'])
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
@@ -134,7 +134,7 @@ class TestVocabularies(unittest.TestCase):
         settings.mail_types = mail_types
         # After a registry change, the vocabulary cache has been cleared
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [None, u'recommande', u'email', u'certificat', u'fax', u'retour-recommande',
+        self.assertListEqual(voc_list, [None, u'recommande', u'certificat', u'fax', u'retour-recommande',
                                         u'facture'])
 
     def test_PloneGroupInterfacesVocabulary(self):
@@ -166,12 +166,12 @@ class TestVocabularies(unittest.TestCase):
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [u'courrier', u'recommande'])
+        self.assertListEqual(voc_list, [u'courrier'])
 
     def test_OMActiveMailTypesVocabulary(self):
         voc_inst = OMActiveMailTypesVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [u'courrier', u'recommande'])
+        self.assertListEqual(voc_list, [u'courrier'])
 
     def test_encodeur_active_orgs0(self):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
