@@ -153,6 +153,12 @@ def setup_classification(site):
         if msg:
             logger.warn(msg)
 
+    roles_config = {'internally_published': {'createurs_dossier': {'roles': ['Contributor']}},
+                    'private': {'createurs_dossier': {'roles': ['Contributor']}}}
+    msg = add_fti_configuration('ClassificationFolders', roles_config)
+    if msg:
+        logger.warn(msg)
+
     fti = getUtility(IDexterityFTI, name=site["folders"].portal_type)
     original_allowed = copy.deepcopy(fti.allowed_content_types)
     fti.allowed_content_types += ("Folder", )
@@ -1926,6 +1932,11 @@ def addTestUsersAndGroups(context):
         api.group.add_user(groupname='expedition', username='encodeur')
     if api.group.get('lecteurs_globaux_ce') is None:
         api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
+    if api.group.get('createurs_dossier') is None:
+        api.group.create('createurs_dossier', '1 Créateurs dossiers')
+        api.group.add_user(groupname='createurs_dossier', username='dirg')
+        api.group.add_user(groupname='createurs_dossier', username='agent')
+        api.group.add_user(groupname='createurs_dossier', username='chef')
     if api.group.get('lecteurs_globaux_cs') is None:
         api.group.create('lecteurs_globaux_cs', '2 Lecteurs Globaux CS')
 

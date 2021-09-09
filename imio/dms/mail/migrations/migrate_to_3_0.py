@@ -105,6 +105,10 @@ class Migrate_To_3_0(Migrator):  # noqa
         setattr(iemfti, 'localroles', deepcopy(lr))
         configure_iem_rolefields(self.portal)
 
+        if api.group.get('createurs_dossier') is None:
+            api.group.create('createurs_dossier', '1 Créateurs dossiers')
+            for user in api.user.get_users(groupname='dir_general'):
+                api.group.add_user(groupname='createurs_dossier', user=user)
         setup_classification(self.portal)
         order_1st_level(self.portal)
 
