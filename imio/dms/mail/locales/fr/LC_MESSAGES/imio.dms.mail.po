@@ -799,7 +799,7 @@ msgstr "Ville"
 
 #: ./setuphandlers.py:133
 msgid "classification_tree_tab"
-msgstr "Arbre classement"
+msgstr "Classement"
 
 #: ./setuphandlers.py:319
 msgid "contacts_tab"
