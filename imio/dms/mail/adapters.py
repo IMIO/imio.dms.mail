@@ -875,10 +875,7 @@ class ServiceInChargeAdapter(object):
         self.context = context
 
     def __call__(self):
-        return getUtility(
-            IVocabularyFactory,
-            "collective.dms.basecontent.treating_groups",
-        )(self.context)
+        return getUtility(IVocabularyFactory, "collective.dms.basecontent.treating_groups")(self.context)
 
 
 @adapter(Interface)
@@ -889,10 +886,7 @@ class ServiceInCopyAdapter(object):
         self.context = context
 
     def __call__(self):
-        return getUtility(
-            IVocabularyFactory,
-            "collective.dms.basecontent.recipient_groups",
-        )(self.context)
+        return getUtility(IVocabularyFactory, "collective.dms.basecontent.recipient_groups")(self.context)
 
 
 class ClassificationFolderInCopyGroupCriterion(object):
