@@ -113,6 +113,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         order_1st_level(self.portal)
 
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
+        self.update_config()
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-add-test-folders'])
 
@@ -130,7 +131,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.portal.portal_workflow.updateRoleMappings()  # update permissions, roles and reindex allowedRolesAndUsers
 
         # do various global adaptations
-        self.update_config()
         self.update_site()
 
         # update dmsincomingmails
@@ -250,8 +250,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         # update templates layout and create oem folders
         self.portal.templates.setLayout('folder_listing')
         add_oem_templates(self.portal)
-        record = getUtility(IRegistry).records.get('collective.contact.plonegroup.browser.settings.'
-                                                   'IContactPlonegroupConfig.organizations')
+        record = self.registry.records.get('collective.contact.plonegroup.browser.settings.'
+                                           'IContactPlonegroupConfig.organizations')
         notify(RecordModifiedEvent(record, [], []))
 
         # add group
@@ -448,47 +448,40 @@ class Migrate_To_3_0(Migrator):  # noqa
                     new_mt.append({'value': dic['mt_value'], 'dtitle': dic['mt_title'], 'active': dic['mt_active']})
             if new_mt:
                 api.portal.set_registry_record(mtr, new_mt)
-        # add new setting values
-        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes',
-                                              default=False):
-            modes = [
-                {'value': u'post', 'dtitle': u'Lettre', 'active': True},
-                {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
-                {'value': u'email', 'dtitle': u'Email', 'active': True},
-            ]
-            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', modes)
-        # order im fields
-        im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order')
-        im_fo_len = len(im_fo)
-        if 'orig_sender_email' not in im_fo:
-            im_fo.insert(im_fo.index('sender'), 'orig_sender_email')
-        if 'IClassificationFolder.classification_categories' not in im_fo:
-            idx = im_fo.index('internal_reference_no')
-            im_fo.insert(idx, 'IClassificationFolder.classification_folders')
-            im_fo.insert(idx, 'IClassificationFolder.classification_categories')
-        if im_fo_len != len(im_fo):
-            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
-                                           im_fo)
-        # order om fields
-        om_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order')
-        om_fo_len = len(om_fo)
-        if 'send_modes' not in om_fo:
-            try:
-                idx = om_fo.index('mail_type')
-            except ValueError:
-                idx = len(om_fo)
-            om_fo.insert(idx, 'send_modes')
-            om_fo += ['email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
-                      'email_attachments', 'email_body']
-        if 'orig_sender_email' not in om_fo:
-            om_fo.insert(om_fo.index('recipients'), 'orig_sender_email')
-        if 'IClassificationFolder.classification_categories' not in om_fo:
-            idx = om_fo.index('internal_reference_no')
-            om_fo.insert(idx, 'IClassificationFolder.classification_folders')
-            om_fo.insert(idx, 'IClassificationFolder.classification_categories')
-        if om_fo_len != len(om_fo):
-            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
-                                            om_fo)
+        # im fields order to new field config
+        im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
+                                               default=[])
+        if im_fo:
+            if 'orig_sender_email' not in im_fo:
+                im_fo.insert(im_fo.index('sender'), 'orig_sender_email')
+            if 'IClassificationFolder.classification_categories' not in im_fo:
+                idx = im_fo.index('internal_reference_no')
+                im_fo.insert(idx, 'IClassificationFolder.classification_folders')
+                im_fo.insert(idx, 'IClassificationFolder.classification_categories')
+            imf = [{"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in im_fo]
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields', imf)
+            del self.registry.records['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order']
+        # om fields order to new field config
+        om_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order',
+                                               default=[])
+        if om_fo:
+            if 'send_modes' not in om_fo:
+                try:
+                    idx = om_fo.index('mail_type')
+                except ValueError:
+                    idx = len(om_fo)
+                om_fo.insert(idx, 'send_modes')
+                om_fo += ['email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
+                          'email_attachments', 'email_body']
+            if 'orig_sender_email' not in om_fo:
+                om_fo.insert(om_fo.index('recipients'), 'orig_sender_email')
+            if 'IClassificationFolder.classification_categories' not in om_fo:
+                idx = om_fo.index('internal_reference_no')
+                om_fo.insert(idx, 'IClassificationFolder.classification_folders')
+                om_fo.insert(idx, 'IClassificationFolder.classification_categories')
+            omf = [{"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in om_fo]
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields', omf)
+            del self.registry.records['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order']
         # general config
         if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                               'users_hidden_in_dashboard_filter'):
@@ -512,18 +505,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                                               default=False):
                 reimport_faceted_config(folder, xml='mail-searches-group-encoder.xml',
                                         default_UID=folder[default_id].UID())
-
-        # Add new fields config
-        iface = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{0}'
-        for fieldname in ('imail_fields', 'omail_fields'):
-            original_key = iface.format("{0}_order".format(fieldname))
-            value = api.portal.get_registry_record(original_key)
-            new_value = [
-                {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
-                for v in value
-            ]
-            new_key = iface.format(fieldname)
-            api.portal.set_registry_record(new_key, new_value)
 
         # update maybe bad local roles (because this record change wasn't handled)
         record = getUtility(IRegistry).records.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
