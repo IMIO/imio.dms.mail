@@ -1094,6 +1094,9 @@ def adaptDefaultPortal(context):
     site.manage_permission('CMFEditions: Save new version', ('Manager', 'Site Administrator', 'Contributor',
                            'Editor', 'Member', 'Owner', 'Reviewer'), acquire=0)
 
+    # CLassification tree: can get tree
+    site.manage_permission('plone.restapi: Use REST API', ('Manager', 'Site Administrator', 'Member'), acquire=0)
+
     # Default roles for own permissions
     site.manage_permission('imio.dms.mail: Write mail base fields', ('Manager', 'Site Administrator'),
                            acquire=0)

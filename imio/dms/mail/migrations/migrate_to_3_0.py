@@ -230,6 +230,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
+        self.portal.manage_permission('plone.restapi: Use REST API', ('Manager', 'Site Administrator', 'Member'),
+                                      acquire=0)
         # registry
         api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
                                             'allowed', value=False)
