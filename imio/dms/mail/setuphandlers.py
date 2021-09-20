@@ -136,20 +136,28 @@ def setup_classification(site):
         # transitions(site['tree'], transitions=['show_internally'])
 
     roles_config = {
-        'treating_groups': {
+        'static_config': {
+            'active': {'dir_general': {'roles': ['Contributor', 'Editor']}, 'encodeurs': {'roles': ['Reader']},
+                       'expedition': {'roles': ['Reader']}, 'lecteurs_globaux_ce': {'roles': ['Reader']},
+                       'lecteurs_globaux_cs': {'roles': ['Reader']}},
+            'deactivated': {'dir_general': {'roles': ['Contributor', 'Editor']}, 'encodeurs': {'roles': ['Reader']},
+                            'expedition': {'roles': ['Reader']}, 'lecteurs_globaux_ce': {'roles': ['Reader']},
+                            'lecteurs_globaux_cs': {'roles': ['Reader']}},
+        }, 'treating_groups': {
             'active': {'editeur': {'roles': ['Contributor', 'Editor']}, 'lecteur': {'roles': ['Reader']}},
             'deactivated': {'editeur': {'roles': ['Contributor', 'Editor']}, 'lecteur': {'roles': ['Reader']}},
         }, 'recipient_groups': {
-            'active': {'lecteur': {'roles': ['Reader']}},
-            'deactivated': {'lecteur': {'roles': ['Reader']}},
+            'active': {'editeur': {'roles': ['Reader']}, 'lecteur': {'roles': ['Reader']}},
+            'deactivated': {'editeur': {'roles': ['Reader']}, 'lecteur': {'roles': ['Reader']}},
         },
     }
 
     for keyname in roles_config:
-        msg = add_fti_configuration('ClassificationFolder', roles_config[keyname], keyname=keyname)
+        # TODO must remove force=True
+        msg = add_fti_configuration('ClassificationFolder', roles_config[keyname], keyname=keyname, force=True)
         if msg:
             logger.warn(msg)
-        msg = add_fti_configuration('ClassificationSubfolder', roles_config[keyname], keyname=keyname)
+        msg = add_fti_configuration('ClassificationSubfolder', roles_config[keyname], keyname=keyname, force=True)
         if msg:
             logger.warn(msg)
 
