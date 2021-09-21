@@ -225,6 +225,11 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         default=None,
     )
 
+    document_in_service = schema.Bool(
+        title=_(u'Original document in service'),
+        default=False
+    )
+
     directives.omitted('related_docs', 'recipients', 'notes')
     # directives.widget(recipient_groups=SelectFieldWidget)
 

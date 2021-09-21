@@ -537,6 +537,10 @@ td.cke_tpl_preview_img img {
     color: red;
 }
 
+.template-view #form-widgets-document_in_service, .template-dmsdocument-edit #content #form-widgets-document_in_service label span {
+    font-weight: bold;
+}
+
 /* Align batch actions buttons */
 #dashboard-batch-actions .batch-action-form, #task-dashboard-batch-actions .batch-action-form {
     display: inline-block;

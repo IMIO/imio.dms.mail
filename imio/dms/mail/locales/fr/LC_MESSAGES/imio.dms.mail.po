@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-09-21 05:55+0000\n"
+"POT-Creation-Date: 2021-09-21 12:07+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -479,6 +479,10 @@ msgstr "Organisations"
 msgid "Organizations searches"
 msgstr "Recherches organisations"
 
+#: ./dmsmail.py:229
+msgid "Original document in service"
+msgstr "Le document original est dans le service"
+
 #: ./browser/settings.py:184
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
@@ -488,7 +492,7 @@ msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
 #: ./browser/batchactions.py:186
-#: ./dmsmail.py:537
+#: ./dmsmail.py:542
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -591,7 +595,7 @@ msgstr "Remplacer des éléments par d'autres"
 msgid "Reply"
 msgstr "Répondre"
 
-#: ./browser/reply_form.py:72
+#: ./browser/reply_form.py:83
 msgid "Reply to ${ref}"
 msgstr "Répondre à ${ref}"
 
@@ -620,7 +624,7 @@ msgid "Send email"
 msgstr "Envoyer email"
 
 #: ./browser/settings.py:311
-#: ./dmsmail.py:531
+#: ./dmsmail.py:536
 msgid "Send modes"
 msgstr "Formes d'envoi"
 
@@ -669,7 +673,7 @@ msgstr "Recherches tâches"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:846
+#: ./dmsmail.py:851
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -747,7 +751,7 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les gr
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./dmsmail.py:269
+#: ./dmsmail.py:274
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
