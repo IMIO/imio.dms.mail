@@ -10,6 +10,7 @@ from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatewidgets
 from imio.dms.mail.dmsmail import manage_email_fields
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
+from z3c.form.form import applyChanges
 
 
 class ReplyForm(BaseReplyForm):
@@ -51,6 +52,16 @@ class ReplyForm(BaseReplyForm):
                 )
 
         imio_dmsoutgoingmail_updatewidgets(self)
+
+    def create(self, data):
+        """Overrides to set IClassificationFolder fields"""
+        content = super(ReplyForm, self).create(data)
+        # we have to apply changes again because the base method wraps acquisition around the content
+        # the classification fields are then considered as unchanged
+        # we do it again without this wrap and only on classification data
+        filtered_data = {key: value for key, value in data.items() if key.startswith('IClassificationFolder')}
+        applyChanges(self, content, filtered_data)
+        return content
 
     def get_send_modes(self):
         immode = self.IMMODES[self.context.portal_type]
