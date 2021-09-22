@@ -258,7 +258,7 @@ class TestUtils(unittest.TestCase):
         view = UtilsMethods(imail, imail.REQUEST)
         login(self.portal, 'dirg')
         self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
-                            {'AuthenticatedUsers', 'dir_general'})
+                            {'AuthenticatedUsers', 'createurs_dossier', 'dir_general'})
 
     def test_UtilsMethods_highest_scan_id(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
@@ -277,7 +277,7 @@ class TestUtils(unittest.TestCase):
         # current user is not Manager
         login(self.portal, 'dirg')
         self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
-                            {'AuthenticatedUsers', 'dir_general'})
+                            {'AuthenticatedUsers', 'createurs_dossier', 'dir_general'})
         # with groups
         self.assertFalse(view.is_in_user_groups(groups=['abc']))
         self.assertTrue(view.is_in_user_groups(groups=['abc', 'dir_general']))

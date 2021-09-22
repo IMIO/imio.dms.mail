@@ -146,7 +146,8 @@ class TestDmsmail(unittest.TestCase):
                               ('chef', u'Michel Chef 2'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
                               ('test-user', u'test-user (Désactivé)')])
         # we change the activated services
-        set_registry_organizations(get_registry_organizations()[0:1])
+        set_registry_organizations(get_registry_organizations()[0:1])  # only keep Direction générale
+        api.group.remove_user(groupname='createurs_dossier', username='agent')  # remove agent from global group
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('encodeur', u'Jean Encodeur'),
