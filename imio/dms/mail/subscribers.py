@@ -31,13 +31,13 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import uuidToObject
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
-from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
@@ -373,7 +373,7 @@ def contact_plonegroup_change(event):
         base_model = om_folder.get('main', None)
         cl_folder = portal.contacts['contact-lists-folder']
         for uid in s_orgs:
-            obj = uuidToObject(uid)
+            obj = uuidToObject(uid, unrestricted=True)
             full_title = obj.get_full_title(separator=' - ', first_index=1)
             if uid not in om_folder:
                 folder = api.content.create(container=om_folder, type='Folder', id=uid, title=full_title)
@@ -660,7 +660,7 @@ def group_assignment(event):
         hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
         hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
         uid = orgs[0]
-        org = uuidToObject(uid)
+        org = uuidToObject(uid, unrestricted=True)
         if not org:
             return
         if uid in pers:

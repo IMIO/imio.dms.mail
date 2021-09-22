@@ -29,6 +29,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import logger
+from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
 from imio.prettylink.adapters import PrettyLinkAdapter
 from plone import api
@@ -36,7 +37,6 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
-from plone.app.uuid.utils import uuidToObject
 from plone.indexer import indexer
 from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo
@@ -593,7 +593,7 @@ def sender_index(obj):
     if not obj.sender:
         return common_marker
     index = [obj.sender]
-    sender = uuidToObject(obj.sender)
+    sender = uuidToObject(obj.sender, unrestricted=True)
     # during a clear and rebuild, the sender is maybe not yet indexed...
     if sender:
         add_parent_organizations(sender.get_organization(), index)

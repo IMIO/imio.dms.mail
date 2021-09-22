@@ -14,10 +14,10 @@ from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from imio.helpers.barcode import generate_barcode
+from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
 from imio.zamqp.core.utils import next_scan_id
 from plone import api
-from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
@@ -137,7 +137,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         om = self.real_context
         if not om.treating_groups:
             return None
-        return uuidToObject(om.treating_groups)
+        return uuidToObject(om.treating_groups, unrestricted=True)
 
     def separate_full_title(self, tg=u'', nb=2, sep=u' - '):
         """Separates a treating group name in different parts.
@@ -158,7 +158,7 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             return []
         ret = []
         for fld in om.classification_folders:
-            obj = uuidToObject(fld)
+            obj = uuidToObject(fld, unrestricted=True)
             ret.append(obj.internal_reference_no)
         ret = sep.join(ret)
         return ret
@@ -203,7 +203,7 @@ class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, Dash
                 if tg not in results:
                     results[tg] = {'mails': []}
                     title = tg
-                    tgroup = uuidToObject(tg)
+                    tgroup = uuidToObject(tg, unrestricted=True)
                     if tgroup is not None:
                         title = tgroup.get_full_title(separator=' - ', first_index=1)
                     results[tg]['title'] = title

@@ -18,8 +18,8 @@ from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
+from imio.helpers.content import uuidToObject
 from persistent.list import PersistentList
-from plone.app.uuid.utils import uuidToObject
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield import RelationValue
@@ -85,7 +85,7 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
         hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
         orgs = dict([(hp.get_organization(), hp) for hp in hps])
         for uid in users[userid]['orgs']:
-            org = uuidToObject(uid)
+            org = uuidToObject(uid, unrestricted=True)
             if not org:
                 continue
             if uid in pers:

@@ -46,11 +46,11 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
+from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
-from plone.app.uuid.utils import uuidToObject
 from plone.autoform import directives
 # from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.browser.add import DefaultAddForm
@@ -593,7 +593,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         """
         if not self.sender:
             return {}
-        sender = uuidToObject(self.sender)
+        sender = uuidToObject(self.sender, unrestricted=True)
         if not sender:
             return {}
         return {'hp': sender, 'person': sender.get_person(), 'org': sender.get_organization()}

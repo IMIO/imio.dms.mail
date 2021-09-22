@@ -1,5 +1,5 @@
 from DateTime import DateTime
-from plone.app.uuid.utils import uuidToObject
+from imio.helpers.content import uuidToObject
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 
@@ -41,7 +41,7 @@ class ListingView(BrowserView):
                 if not tg in results:
                     results[tg] = {'mails': []}
                     title = tg
-                    tgroup = uuidToObject(tg)
+                    tgroup = uuidToObject(tg, unrestricted=True)
                     if tgroup is not None:
                         title = tgroup.get_full_title(separator=' - ', first_index=1)
                     results[tg]['title'] = title
