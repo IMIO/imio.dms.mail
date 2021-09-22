@@ -657,7 +657,9 @@ def group_assignment(event):
                                       firstname=firstname, use_parent_address=False)
         if api.content.get_state(pers) == 'deactivated':
             api.content.transition(pers, 'activate')
-        hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
+        hps = [b._unrestrictedGetObject() for b in
+               portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
+                                                               portal_type='held_position')]
         hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
         uid = orgs[0]
         org = uuidToObject(uid, unrestricted=True)
@@ -701,7 +703,9 @@ def group_unassignment(event):
             pers = exist[0].getObject()
         else:
             return
-        hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
+        hps = [b._unrestrictedGetObject() for b in
+               portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
+                                                               portal_type='held_position')]
         for hp in hps:
             if hp.get_organization().UID() == orgs[0] and api.content.get_state(hp) == 'active':
                 api.content.transition(hp, 'deactivate')

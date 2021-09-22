@@ -14,6 +14,7 @@ from imio.dms.mail import _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
+from imio.helpers.content import uuidsToObjects
 from plone import api
 from plone.formwidget.masterselect import MasterSelectField
 from z3c.form.browser.select import SelectFieldWidget
@@ -265,7 +266,7 @@ class CopyToBatchActionForm(BaseBatchActionForm):
     def _apply(self, **data):
         """ """
         if data['folders']:
-            targets = [b.getObject() for b in api.content.find(UID=data['folders'])]
+            targets = uuidsToObjects(data['folders'], unrestricted=True)
             for brain in self.brains:
                 obj = brain.getObject()
                 for target in targets:
