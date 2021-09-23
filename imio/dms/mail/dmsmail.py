@@ -46,6 +46,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
+from imio.helpers.content import uuidsToCatalogBrains
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
 from plone import api
@@ -626,10 +627,10 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
             emails.append(self.orig_sender_email)
         # we don't use directly relation object to be sure to use the real object
         uids = [rel.to_object.UID() for rel in self.recipients or []]
-        brains = self.portal_catalog(UID=uids)
+        brains = uuidsToCatalogBrains(uids, unrestricted=True)
         # selection order not kept !
         for brain in brains:
-            contact = brain.getObject()
+            contact = brain._unrestrictedGetObject()
             contactable = IContactable(contact)
             email = contactable.get_contact_details(keys=['email']).get('email', u'')
             if email and email not in uniques:

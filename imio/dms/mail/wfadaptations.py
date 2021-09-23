@@ -440,8 +440,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                            lst)
         if not self.reapply:
             # update state_group (use dms_config), permissions
-            for brain in portal.portal_catalog(portal_type=['dmsincomingmail', 'dmsincoming_email']):
-                obj = brain.getObject()
+            for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type=['dmsincomingmail',
+                                                                                      'dmsincoming_email']):
+                obj = brain._unrestrictedGetObject()
                 obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
                 for child in obj.objectValues():
                     child.reindexObject(idxs=['allowedRolesAndUsers'])
@@ -740,8 +741,8 @@ class OMServiceValidation(WorkflowAdaptationBase):
 
         if not self.reapply:
             # update state_group (use dms_config), permissions
-            for brain in portal.portal_catalog(portal_type='dmsoutgoingmail'):
-                obj = brain.getObject()
+            for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type='dmsoutgoingmail'):
+                obj = brain._unrestrictedGetObject()
                 obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
                 for child in obj.objectValues():
                     child.reindexObject(idxs=['allowedRolesAndUsers'])
@@ -990,8 +991,8 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         # update cache
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
 
-        for brain in portal.portal_catalog(portal_type='task'):
-            obj = brain.getObject()
+        for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type='task'):
+            obj = brain._unrestrictedGetObject()
             obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
             for child in obj.objectValues():
                 child.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])

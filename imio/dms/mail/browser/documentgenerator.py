@@ -230,12 +230,15 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         catalog = self.portal.portal_catalog
         # self.uids_to_objs(self.context_var('brains'))
         for brain in self.context_var('brains'):
-            brains = catalog(portal_type='dmsommainfile', path=brain.getPath(), sort_on='getObjPositionInParent',
-                             sort_order='descending', sort_limit=limit)
+            brains = catalog.unrestrictedSearchResults(portal_type='dmsommainfile', path=brain.getPath(),
+                                                       sort_on='getObjPositionInParent', sort_order='descending',
+                                                       sort_limit=limit)
             if limit:
                 brains = brains[0:limit]
             for bfile in brains:
-                files.append(bfile.getObject())
+                doc = bfile._unrestrictedGetObject()
+                # if doc.is_odt(): TODO
+                files.append(doc)
         return files
 
     def get_num_pages(self, obj):
@@ -274,6 +277,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
         self.pers = {}
         self.directory_path = '/'.join(self.real_context.aq_parent.getPhysicalPath())
         self.dp_len = len(self.directory_path)
+        self.pc = self.portal.portal_catalog
 
     def get_organizations(self):
         """
@@ -283,10 +287,11 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
         lst = []
         id = 0
         paths = {}
-        for brain in self.portal.portal_catalog(portal_type='organization', path=self.directory_path, sort_on='path'):
+        for brain in self.pc.unrestrictedSearchResults(portal_type='organization', path=self.directory_path,
+                                                       sort_on='path'):
             id += 1
             self.uids[brain.UID] = id
-            obj = brain.getObject()
+            obj = brain._unrestrictedGetObject()
             path = brain.getPath()[self.dp_len:]
             parts = path.split('/')
             p_path = '/'.join(parts[:-1])
@@ -304,12 +309,12 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
         """
         lst = []
         id = 0
-        for brain in self.portal.portal_catalog(portal_type='person', path=self.directory_path,
-                                                sort_on='sortable_title'):
+        for brain in self.pc.unrestrictedSearchResults(portal_type='person', path=self.directory_path,
+                                                       sort_on='sortable_title'):
             id += 1
             self.uids[brain.UID] = id
             self.pers[brain.getPath()[self.dp_len:]] = id
-            obj = brain.getObject()
+            obj = brain._unrestrictedGetObject()
             lst.append((id, obj))
         return lst
 
@@ -320,10 +325,11 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
         """
         lst = []
         id = 0
-        for brain in self.portal.portal_catalog(portal_type='held_position', path=self.directory_path, sort_on='path'):
+        for brain in self.pc.unrestrictedSearchResults(portal_type='held_position', path=self.directory_path,
+                                                       sort_on='path'):
             id += 1
             self.uids[brain.UID] = id
-            obj = brain.getObject()
+            obj = brain._unrestrictedGetObject()
             # pers id
             path = brain.getPath()[self.dp_len:]
             parts = path.split('/')

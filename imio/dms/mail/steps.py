@@ -45,7 +45,8 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
     users = {}
     groups = api.group.get_groups()
     for group in groups:
-        if '_' not in group.id or group.id in ['dir_general', 'lecteurs_globaux_ce', 'lecteurs_globaux_cs']:
+        if '_' not in group.id or group.id in ['createurs_dossier', 'dir_general', 'lecteurs_globaux_ce',
+                                               'lecteurs_globaux_cs']:
             continue
         parts = group.id.split('_')
         org_uid = function = None
@@ -70,11 +71,11 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
     # logger.info(users)
     for userid in users:
         email = users[userid]['pers'].pop('email')
-        exist = portal.portal_catalog(mail_type=userid, portal_type='person')
+        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
         if userid in pf:
             pers = pf[userid]
         elif exist:
-            pers = exist[0].getObject()
+            pers = exist[0]._unrestrictedGetObject()
         else:
             out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, users[userid]['pers']['firstname'],
                                                                           users[userid]['pers']['lastname']))
@@ -82,7 +83,9 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
             pers = api.content.create(container=pf, type='person', id=userid, userid=userid, **users[userid]['pers'])
         if api.content.get_state(pers) == 'deactivated':
             api.content.transition(pers, 'activate')
-        hps = [b.getObject() for b in api.content.find(context=pers, portal_type='held_position')]
+        hps = [b._unrestrictedGetObject() for b in
+               portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
+                                                               portal_type='held_position')]
         orgs = dict([(hp.get_organization(), hp) for hp in hps])
         for uid in users[userid]['orgs']:
             org = uuidToObject(uid, unrestricted=True)
@@ -160,9 +163,9 @@ def mark_copy_im_as_read(context):
     end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
     users = {}
     functions = {'i': IM_READER_SERVICE_FUNCTIONS, 'o': OM_READER_SERVICE_FUNCTIONS}
-    brains = site.portal_catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
-                                 created={'query': (start, end), 'range': 'min:max'},
-                                 sort_on='created')
+    brains = site.portal_catalog.unrestrictedSearchResults(portal_type=['dmsincomingmail', 'dmsincoming_email'],
+                                                           created={'query': (start, end), 'range': 'min:max'},
+                                                           sort_on='created')
     out = []
     out.append("%d mails" % len(brains))
     changed_mails = 0
@@ -181,7 +184,7 @@ def mark_copy_im_as_read(context):
                 user_ids.add(userid)
         if len(user_ids):
             related_users.update(user_ids)
-            obj = brain.getObject()
+            obj = brain._unrestrictedGetObject()
             labeling = ILabeling(obj)
             labeling.storage['lu'] = PersistentList(user_ids)
             obj.reindexObject(idxs=['labels'])

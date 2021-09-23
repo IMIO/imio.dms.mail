@@ -2204,7 +2204,8 @@ def configure_faceted_folder(folder, xml=None, default_UID=None):
 
 def get_dashboard_collections(folder, uids=False):
     """ Return dashboard collections """
-    brains = folder.portal_catalog(portal_type='DashboardCollection', path='/'.join(folder.getPhysicalPath()))
+    brains = folder.portal_catalog.unrestrictedSearchResults(portal_type='DashboardCollection',
+                                                             path='/'.join(folder.getPhysicalPath()))
     if uids:
         return [b.UID for b in brains]
     return brains

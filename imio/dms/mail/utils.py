@@ -461,10 +461,11 @@ class VariousUtilsMethods(UtilsMethods):
         base_model = om_folder.get('main', None)
         if not base_model:
             return
-        brains = portal.portal_catalog(portal_type='Folder', path={'query': '/'.join(om_folder.getPhysicalPath()),
-                                                                   'depth': 1})
+        brains = portal.portal_catalog.unrestrictedSearchResults(portal_type='Folder',
+                                                                 path={'query': '/'.join(om_folder.getPhysicalPath()),
+                                                                       'depth': 1})
         for brain in brains:
-            folder = brain.getObject()
+            folder = brain._unrestrictedGetObject()
             contents = api.content.find(context=folder, depth=1)
             if not contents:
                 logger.info("Copying %s in %s" % (base_model, brain.getPath()))
@@ -522,9 +523,9 @@ class VariousUtilsMethods(UtilsMethods):
             criterias['id'] = 'email.pdf'
         elif typ == 'om':
             criterias['portal_type'] = 'dmsommainfile'
-        brains = pc(**criterias)[:limit]
+        brains = pc.unrestrictedSearchResults(**criterias)[:limit]
         for brain in brains:
-            obj = brain.getObject()
+            obj = brain._unrestrictedGetObject()
             mail = obj.getParentNode()
             out.append(u"{} ({}) in {} ({})".format(brain.scan_id, obj.version, mail.internal_reference_no,
                                                     object_link(mail)))
@@ -618,11 +619,11 @@ class VariousUtilsMethods(UtilsMethods):
         intids = getUtility(IIntIds)
         catalog = getUtility(ICatalog)
         pc = portal.portal_catalog
-        brains = pc(mail_type=userid, portal_type='held_position', sort_on='path')
+        brains = pc.unrestrictedSearchResults(mail_type=userid, portal_type='held_position', sort_on='path')
         if brains:
             persons = {}
             for brain in brains:
-                hp = brain.getObject()
+                hp = brain._unrestrictedGetObject()
                 hps = persons.setdefault(hp.__parent__, [])
                 hps.append(hp)
             for person in persons:
@@ -631,7 +632,7 @@ class VariousUtilsMethods(UtilsMethods):
                     object_link(person, target='_blank'), len(rels)))
                 for hp in persons[person]:
                     rels = list(catalog.findRelations({'to_id': intids.getId(hp)}))
-                    oms = pc(sender_index=hp.UID(), portal_type='dmsoutgoingmail')
+                    oms = pc.unrestrictedSearchResults(sender_index=hp.UID(), portal_type='dmsoutgoingmail')
                     oms_l = len(oms)
                     if oms_l:
                         oms_l = '<a href="{}" target="_blank">{}</a>'.format(
@@ -642,11 +643,11 @@ class VariousUtilsMethods(UtilsMethods):
             log_list(out, u'<p>none</p>')
 
         log_list(out, u"<h2>Is an assigned user ?</h2>")
-        brains = pc(assigned_user=userid, sort_on='path')
+        brains = pc.unrestrictedSearchResults(assigned_user=userid, sort_on='path')
         if brains:
             tasks = {}
             for brain in brains:
-                obj = brain.getObject()
+                obj = brain._unrestrictedGetObject()
                 lst = tasks.setdefault(brain.portal_type, [])
                 lst.append(obj)
             crit = {'dmsincomingmail': 'c6', 'dmsincoming_email': 'c6', 'dmsoutgoingmail': 'c13', 'task': 'c6'}
@@ -658,11 +659,11 @@ class VariousUtilsMethods(UtilsMethods):
             log_list(out, u'<p>none</p>')
 
         log_list(out, u"<h2>Is a creator ?</h2>")
-        brains = pc(Creator=userid, sort_on='path')
+        brains = pc.unrestrictedSearchResults(Creator=userid, sort_on='path')
         if brains:
             log_list(out, "<p>=> Found {} items.</p>".format(len(brains)))
             for brain in brains:
-                obj = brain.getObject()
+                obj = brain._unrestrictedGetObject()
                 log_list(out, u"<p>* {}</p>".format(object_link(obj, target='_blank')))
         else:
             log_list(out, u'<p>none</p>')

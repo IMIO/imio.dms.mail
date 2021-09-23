@@ -10,6 +10,7 @@ from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.helpers.content import richtextval
 from imio.helpers.content import transitions
+from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import add_attachment
 from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import get_mail_host
@@ -93,13 +94,14 @@ class ContactSuggest(BrowserView):
         # search held_positions
         crit = {'portal_type': 'held_position', 'sort_on': 'sortable_title'}
         crit.update(query)
-        brains = self.context.portal_catalog(**crit)
+        pc = self.context.portal_catalog
+        brains = pc(**crit)
         for brain in brains:
             hp.append({'id': brain.UID, 'text': brain.get_full_title})
         # search organizations
         crit = {'portal_type': ('organization'), 'sort_on': 'sortable_title'}
         crit.update(query)
-        brains = self.context.portal_catalog(**crit)
+        brains = pc(**crit)
         make_bis = (len(hp) + len(brains)) > 1 and True or False
         for brain in brains:
             result.append({'id': brain.UID, 'text': brain.get_full_title})
@@ -109,7 +111,7 @@ class ContactSuggest(BrowserView):
         # search persons
         crit = {'portal_type': ('person'), 'sort_on': 'sortable_title'}
         crit.update(query)
-        brains = self.context.portal_catalog(**crit)
+        brains = pc(**crit)
         for brain in brains:
             result.append({'id': brain.UID, 'text': brain.get_full_title})
         # add organizations bis
@@ -218,11 +220,9 @@ class SendEmail(BrowserView):
         # 1 send email
         body = self.context.email_body
         msg = create_html_email(body.raw)
-        pc = self.context.portal_catalog
         for a_uid in self.context.email_attachments or []:
-            res = pc(UID=a_uid)
-            if res:
-                a_obj = res[0].getObject()
+            a_obj = uuidToObject(a_uid, unrestricted=True)
+            if a_obj:
                 title = a_obj.title
                 if a_obj.file.filename:
                     title = a_obj.file.filename
