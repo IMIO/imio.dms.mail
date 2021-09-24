@@ -76,6 +76,11 @@ class TestIMServiceValidation1(unittest.TestCase):
             self.assertIn('proposed_to_n_plus_1', lr['static_config'], ptype)
             self.assertIn('proposed_to_n_plus_1', lr['treating_groups'], ptype)
             self.assertIn('proposed_to_n_plus_1', lr['recipient_groups'], ptype)
+        for ptype in ('ClassificationFolder', 'ClassificationSubfolder'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            self.assertIn('n_plus_1', lr['treating_groups']['active'], ptype)
+            self.assertIn('n_plus_1', lr['recipient_groups']['active'], ptype)
         # check collection
         folder = self.portal['incoming-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_n_plus_1', folder)
@@ -250,6 +255,11 @@ class TestIMServiceValidation2(unittest.TestCase):
             self.assertIn('proposed_to_n_plus_2', lr['static_config'], ptype)
             self.assertIn('proposed_to_n_plus_2', lr['treating_groups'], ptype)
             self.assertIn('proposed_to_n_plus_2', lr['recipient_groups'], ptype)
+        for ptype in ('ClassificationFolder', 'ClassificationSubfolder'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            self.assertIn('n_plus_2', lr['treating_groups']['active'], ptype)
+            self.assertIn('n_plus_2', lr['recipient_groups']['active'], ptype)
         # check collection
         folder = self.portal['incoming-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_n_plus_2', folder)

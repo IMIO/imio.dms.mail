@@ -210,6 +210,11 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertIn('proposed_to_n_plus_1', lr['recipient_groups'])
         self.assertIn('validated', lr['treating_groups'])
         self.assertIn('validated', lr['recipient_groups'])
+        for ptype in ('ClassificationFolder', 'ClassificationSubfolder'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            self.assertIn('n_plus_1', lr['treating_groups']['active'], ptype)
+            self.assertIn('n_plus_1', lr['recipient_groups']['active'], ptype)
         # check collection
         folder = self.portal['outgoing-mail']['mail-searches']
         self.assertIn('searchfor_proposed_to_n_plus_1', folder)
@@ -402,6 +407,11 @@ class TestTaskServiceValidation1(unittest.TestCase):
         lr = getattr(fti, 'localroles')
         self.assertIn('n_plus_1', lr['assigned_group']['to_do'])
         self.assertIn('n_plus_1', lr['parents_assigned_groups']['to_do'])
+        for ptype in ('ClassificationFolder', 'ClassificationSubfolder'):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            lr = getattr(fti, 'localroles')
+            self.assertIn('n_plus_1', lr['treating_groups']['active'], ptype)
+            self.assertIn('n_plus_1', lr['recipient_groups']['active'], ptype)
         # check collection
         folder = self.portal['tasks']['task-searches']
         self.assertTrue(folder['to_assign'].enabled)

@@ -370,6 +370,21 @@ class IMServiceValidation(WorkflowAdaptationBase):
             c3 = update_roles_in_fti(ptype, updates, keyname='recipient_groups', notify=False)
             if c1 or c2 or c3:
                 update_security_index([ptype])
+        # add local roles config on folders
+        for i, ptype in enumerate(('ClassificationFolder', 'ClassificationSubfolder')):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            updates = {
+                'active': {new_id: {'roles': ['Contributor', 'Editor']}},
+                'deactivated': {new_id: {'roles': ['Contributor', 'Editor']}},
+            }
+            c4 = update_roles_in_fti(ptype, updates, keyname='treating_groups', notify=False)
+            updates = {
+                'active': {new_id: {'roles': ['Reader']}},
+                'deactivated': {new_id: {'roles': ['Reader']}},
+            }
+            c5 = update_roles_in_fti(ptype, updates, keyname='recipient_groups', notify=False)
+            if c4 or c5:
+                update_security_index([ptype])
 
         # add collection
         folder = portal['incoming-mail']['mail-searches']
@@ -649,6 +664,22 @@ class OMServiceValidation(WorkflowAdaptationBase):
         c3 = update_roles_in_fti('dmsoutgoingmail', updates, keyname='recipient_groups', notify=False)
         if c1 or c2 or c3:
             update_security_index(['dmsoutgoingmail'])
+
+        # add local roles config on folders
+        for i, ptype in enumerate(('ClassificationFolder', 'ClassificationSubfolder')):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            updates = {
+                'active': {new_id: {'roles': ['Contributor', 'Editor']}},
+                'deactivated': {new_id: {'roles': ['Contributor', 'Editor']}},
+            }
+            c4 = update_roles_in_fti(ptype, updates, keyname='treating_groups', notify=False)
+            updates = {
+                'active': {new_id: {'roles': ['Reader']}},
+                'deactivated': {new_id: {'roles': ['Reader']}},
+            }
+            c5 = update_roles_in_fti(ptype, updates, keyname='recipient_groups', notify=False)
+            if c4 or c5:
+                update_security_index([ptype])
 
         # update dms config
         if (val_state_id, val_set_tr_id) not in wf_from_to['to']:
@@ -961,6 +992,22 @@ class TaskServiceValidation(WorkflowAdaptationBase):
             for st in ['to_assign', 'to_do', 'in_progress', 'realized', 'closed']:
                 lrpag[st].update({new_id: {'roles': ['Reader']}})
         lr._p_changed = True
+
+        # add local roles config on folders
+        for i, ptype in enumerate(('ClassificationFolder', 'ClassificationSubfolder')):
+            fti = getUtility(IDexterityFTI, name=ptype)
+            updates = {
+                'active': {new_id: {'roles': ['Contributor', 'Editor']}},
+                'deactivated': {new_id: {'roles': ['Contributor', 'Editor']}},
+            }
+            c4 = update_roles_in_fti(ptype, updates, keyname='treating_groups', notify=False)
+            updates = {
+                'active': {new_id: {'roles': ['Reader']}},
+                'deactivated': {new_id: {'roles': ['Reader']}},
+            }
+            c5 = update_roles_in_fti(ptype, updates, keyname='recipient_groups', notify=False)
+            if c4 or c5:
+                update_security_index([ptype])
 
         # update collections
         folder = portal['tasks']['task-searches']
