@@ -126,9 +126,9 @@ def dmsdocument_modified(mail, event):
             return
         pcat = getToolByName(mail, 'portal_catalog')
         path = '/'.join(mail.getPhysicalPath())
-        brains = pcat(path=path)
+        brains = pcat.unrestrictedSearchResults(path=path)
         for brain in brains:
-            obj = brain.getObject()
+            obj = brain._unrestrictedGetObject()
             creators = list(obj.creators)
             # change creator metadata
             if 'scanner' in creators:
@@ -147,7 +147,7 @@ def dmsdocument_modified(mail, event):
                 roles.append('Owner')
                 obj.manage_setLocalRoles(userid, roles)
             obj.reindexObject()
-        mail.reindexObjectSecurity()
+        # mail.reindexObjectSecurity()  not needed with previous reindex ?!
 
     # contact list
     if mail.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
@@ -182,7 +182,7 @@ def im_edit_finished(mail, event):
         portal = api.portal.get()
         redirect_to_url = api.portal.get().absolute_url()
         col_path = '%s/incoming-mail/mail-searches/all_mails' % portal.absolute_url_path()
-        brains = portal.portal_catalog(path={'query': col_path, 'depth': 0})
+        brains = portal.portal_catalog.unrestrictedSearchResults(path={'query': col_path, 'depth': 0})
         if brains:
             redirect_to_url = '%s/incoming-mail/mail-searches#c1=%s' % (redirect_to_url, brains[0].UID)
         # add a specific portal_message before redirecting the user
@@ -453,9 +453,9 @@ def plonegroup_contact_changed(organization, event):
         return
     portal = api.portal.getSite()
     pcat = portal.portal_catalog
-    brains = pcat(portal_type='organization', path=organization_path)
+    brains = pcat.unrestrictedSearchResults(portal_type='organization', path=organization_path)
     for brain in brains:
-        obj = brain.getObject()
+        obj = brain._unrestrictedGetObject()
         full_title = obj.get_full_title(separator=' - ', first_index=1)
         for base_folder in (portal['templates']['om'], portal.contacts['contact-lists-folder']):
             folder = base_folder.get(brain.UID)
@@ -519,7 +519,7 @@ def user_deleted(event):
                                      ('mail_type', 'collective.eeafaceted.z3ctable',
                                       {'object_provides': IPersonnelContact.__identifier__})):
         criterias.update({idx: princ})
-        brains = portal.portal_catalog(**criterias)
+        brains = portal.portal_catalog.unrestrictedSearchResults(**criterias)
         if brains:
             api.portal.show_message(message=_("You cannot delete the user name '${user}', used in '${idx}' index.",
                                               mapping={'user': princ, 'idx': translate(idx, domain=domain,
@@ -586,7 +586,7 @@ def group_deleted(event):
             if not query:
                 continue
             query.update({'portal_type': pt})
-            brains = portal.portal_catalog(**query)
+            brains = portal.portal_catalog.unrestrictedSearchResults(**query)
             if brains:
                 api.portal.show_message(message=_("You cannot delete the group '${group}', used in '${idx}' index.",
                                                   mapping={'group': group, 'idx': translate(idx, domain=domain,
@@ -647,11 +647,11 @@ def group_assignment(event):
         intids = getUtility(IIntIds)
         pf = portal['contacts']['personnel-folder']
         # exists already
-        exist = portal.portal_catalog(mail_type=userid, portal_type='person')
+        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
         if userid in pf:
             pers = pf[userid]
         elif exist:
-            pers = exist[0].getObject()
+            pers = exist[0]._unrestrictedGetObject()
         else:
             pers = api.content.create(container=pf, type='person', id=userid, userid=userid, lastname=lastname,
                                       firstname=firstname, use_parent_address=False)
@@ -696,11 +696,11 @@ def group_unassignment(event):
         userid = event.principal
         portal = api.portal.get()
         pf = portal['contacts']['personnel-folder']
-        exist = portal.portal_catalog(mail_type=userid, portal_type='person')
+        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
         if userid in pf:
             pers = pf[userid]
         elif exist:
-            pers = exist[0].getObject()
+            pers = exist[0]._unrestrictedGetObject()
         else:
             return
         hps = [b._unrestrictedGetObject() for b in
@@ -727,8 +727,9 @@ def organization_modified(obj, event):
     if hasattr(event, 'oldParent') and not event.oldParent:
         return
     pc = api.portal.get_tool('portal_catalog')
-    for brain in pc(portal_type='organization', path='/'.join(obj.getPhysicalPath()), sort_on='path')[1:]:
-        brain.getObject().reindexObject(idxs=['sortable_title'])
+    for brain in pc.unrestrictedSearchResults(portal_type='organization', path='/'.join(obj.getPhysicalPath()),
+                                              sort_on='path')[1:]:
+        brain._unrestrictedGetObject().reindexObject(idxs=['sortable_title'])
 
 
 def mark_contact(contact, event):
@@ -816,7 +817,7 @@ def cktemplate_moved(obj, event):
     value = u''
     if parts:
         pcat = obj.portal_catalog
-        brains = pcat(path='{}/{}'.format(path[:index], parts[0]), sort_on='path', )
+        brains = pcat.unrestrictedSearchResults(path='{}/{}'.format(path[:index], parts[0]), sort_on='path', )
         titles = {br.getPath(): br.Title for br in brains}
         values = []
         current_path = path[:index]
