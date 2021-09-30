@@ -1261,7 +1261,7 @@ Configuration
     Select from list by value  id=form-widgets-column_1  subfolder_categories
     Select from list by value  id=form-widgets-column_2  title_folder
     Select from list by value  id=form-widgets-column_3  title_subfolder
-    Select from list by value  id=form-widgets-column_5  archived
+    Select from list by value  id=form-widgets-column_5  archived_subfolder
     Capture and crop page screenshot  doc/configuration/5-10-import-part2-correspondance.png  id=content
     # validation errors when checking classification_categories
     # Click element  form-buttons-import
