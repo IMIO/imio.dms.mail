@@ -167,7 +167,7 @@ class IMSenderBatchActionForm(ContactBaseBatchActionForm):
 
     label = _(u"Batch sender contact field change")
     weight = 60
-    available_permission = 'Manage portal'
+    available_permission = 'Modify portal content'
     attribute = 'sender'
     field_value_type = ContactChoice(
         source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
@@ -202,7 +202,7 @@ class RecipientsBatchActionForm(ContactBaseBatchActionForm):
 
     label = _(u"Batch recipients contact field change")
     weight = 60
-    available_permission = 'Manage portal'
+    available_permission = 'Modify portal content'
     attribute = 'recipients'
     field_value_type = ContactChoice(
         source=DmsContactSourceBinder(portal_type=("organization", 'held_position', 'person', 'contact_list'),
