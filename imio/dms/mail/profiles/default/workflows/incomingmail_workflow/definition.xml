@@ -29,6 +29,7 @@
   </permission-map>
   <permission-map name="Add portal content"
                   acquired="False">
+   <permission-role>Contributor</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
@@ -39,6 +40,7 @@
   </permission-map>
   <permission-map name="Modify portal content"
                   acquired="False">
+   <permission-role>Editor</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
@@ -64,6 +66,7 @@
   </permission-map>
   <permission-map name="imio.dms.mail: Write mail base fields"
                   acquired="False">
+   <permission-role>Base Field Writer</permission-role>
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
   </permission-map>
@@ -71,6 +74,7 @@
                   acquired="False">
    <permission-role>Manager</permission-role>
    <permission-role>Site Administrator</permission-role>
+   <permission-role>Treating Group Writer</permission-role>
   </permission-map>
  </state>
  <state state_id="created"
