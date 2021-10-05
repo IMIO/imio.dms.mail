@@ -112,5 +112,46 @@
    <property name="sortreversed">False</property>
    <property name="default"></property>
   </criterion>
+
+  <!-- advanced widgets -->
+
+  <criterion name="c10" i18n:attributes="title">
+   <property name="widget">checkbox</property>
+   <property name="title">Treating groups</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
+   <property name="index">treating_groups</property>
+   <property name="operator">or</property>
+   <property name="operator_visible">False</property>
+   <property
+      name="vocabulary">imio.dms.mail.TreatingGroupsForFacetedFilterVocabulary</property>
+   <property name="catalog"></property>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
+  </criterion>
+
+  <criterion name="c11" i18n:attributes="title">
+   <property name="widget">checkbox</property>
+   <property name="title">Recipient groups</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
+   <property name="hidden">False</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
+   <property name="index">recipient_groups</property>
+   <property name="operator">or</property>
+   <property name="operator_visible">False</property>
+   <property
+      name="vocabulary">imio.dms.mail.TreatingGroupsForFacetedFilterVocabulary</property>
+   <property name="catalog"></property>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
+  </criterion>
+
  </criteria>
 </object>

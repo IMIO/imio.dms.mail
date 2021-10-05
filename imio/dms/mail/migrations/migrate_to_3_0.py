@@ -111,6 +111,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             for user in api.user.get_users(groupname='dir_general'):
                 api.group.add_user(groupname='createurs_dossier', user=user)
         setup_classification(self.portal)
+        # xml has been modified since first upgrade
+        reimport_faceted_config(self.portal.folders['folder-searches'], xml='classificationfolders-searches.xml',
+                                default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
         order_1st_level(self.portal)
 
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
