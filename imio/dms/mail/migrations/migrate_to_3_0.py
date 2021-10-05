@@ -3,6 +3,7 @@ from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_tem
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
@@ -276,15 +277,18 @@ class Migrate_To_3_0(Migrator):  # noqa
             update_security_index(('dmsoutgoingmail',), trace=10000)
 
         # update IActionsPanelFolderOnlyAdd interface
-        s_orgs = get_registry_organizations()
         for fld in (self.portal['templates']['om'], self.portal['templates']['oem'],
                     self.contacts['contact-lists-folder']):
-            for uid in s_orgs:
-                if uid in fld:
-                    uidf = fld[uid]
-                    alsoProvides(uidf, IActionsPanelFolderOnlyAdd)
-                    noLongerProvides(uidf, IActionsPanelFolder)
-                    noLongerProvides(uidf, IActionsPanelFolderAll)
+            # we search uid folders but also manually created folders
+            folders = api.content.find(context=fld, portal_type='Folder')
+            for brain in folders:
+                folder = brain.getObject()
+                if folder == fld:
+                    continue
+                alsoProvides(folder, IActionsPanelFolderOnlyAdd)
+                alsoProvides(folder, INextPrevNotNavigable)
+                noLongerProvides(folder, IActionsPanelFolder)
+                noLongerProvides(folder, IActionsPanelFolderAll)
 
     def insert_incoming_emails(self):
         # allowed types

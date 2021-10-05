@@ -105,6 +105,12 @@
         handler=".subscribers.member_area_added"
         />
 
+    <subscriber
+        for="Products.ATContentTypes.interfaces.folder.IATFolder
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.folder_added"
+        />
+
     <!-- Configuration -->
     <subscriber
         for="plone.registry.interfaces.IRecordModifiedEvent"

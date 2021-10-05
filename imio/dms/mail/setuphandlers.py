@@ -37,6 +37,7 @@ from ftw.labels.interfaces import ILabelRoot
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
+from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
@@ -172,22 +173,14 @@ def setup_classification(site):
     fti.allowed_content_types += ("Folder", )
 
     # Setup dashboard collections
-    collection_folder = add_db_col_folder(
-        site["folders"],
-        "folder-searches",
-        _("Folders searches"),
-        _("Folders"),
-    )
+    collection_folder = add_db_col_folder(site["folders"], "folder-searches", _("Folders searches"), _("Folders"))
     alsoProvides(collection_folder, INextPrevNotNavigable)
     alsoProvides(collection_folder, IClassificationFoldersDashboard)
     create_classification_folders_collections(collection_folder)
 
     fti.allowed_content_types = original_allowed
-    configure_faceted_folder(
-        collection_folder,
-        xml="classificationfolders-searches.xml",
-        default_UID=collection_folder["all_folders"].UID(),
-    )
+    configure_faceted_folder(collection_folder, xml="classificationfolders-searches.xml",
+                             default_UID=collection_folder["all_folders"].UID())
     site["folders"].setDefaultPage("folder-searches")
 
     logger.info("Classification configured")
@@ -2135,8 +2128,6 @@ def addContactListsFolder(context):
     clf.invokeFactory("Folder", id='common', title=u"Listes communes")
     clf['common'].setLayout('folder_tabular_view')
     transitions(clf['common'], transitions=['show_internally'])
-    alsoProvides(clf['common'], IActionsPanelFolder)
-    alsoProvides(clf['common'], INextPrevNotNavigable)
     intids = getUtility(IIntIds)
     if 'sergerobinet' in contacts and 'bernardlermitte' in contacts:
         api.content.create(container=clf['common'], type='contact_list', id='list-agents-swde',
@@ -2234,8 +2225,8 @@ def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
     template_types = POD_TEMPLATE_TYPES.keys() + ['Folder', 'DashboardPODTemplate']
-    for path, title, interfaces in [('templates', _(u'templates_tab'), []),
-                                    ('templates/om', _(u'Outgoing mail'), [IOMTemplatesFolder]),
+    for path, title, interfaces in [('templates', _(u'templates_tab'), [IActionsPanelFolderAll]),
+                                    ('templates/om', _(u'Outgoing mail'), [IOMTemplatesFolder, IActionsPanelFolderAll]),
                                     ('templates/om/common', _(u'Common templates'), [])]:
         parts = path.split('/')
         id = parts[-1]
@@ -2248,7 +2239,6 @@ def add_templates(site):
             tplt_fld.setConstrainTypesMode(1)
             tplt_fld.setExcludeFromNav(False)
             api.content.transition(obj=tplt_fld, transition='show_internally')
-            alsoProvides(tplt_fld, IActionsPanelFolderAll)
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             for itf in interfaces:
                 alsoProvides(tplt_fld, itf)

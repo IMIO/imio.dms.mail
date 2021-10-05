@@ -377,8 +377,8 @@ def contact_plonegroup_change(event):
             full_title = obj.get_full_title(separator=' - ', first_index=1)
             if uid not in om_folder:
                 folder = api.content.create(container=om_folder, type='Folder', id=uid, title=full_title)
-                alsoProvides(folder, IActionsPanelFolderOnlyAdd)
-                alsoProvides(folder, INextPrevNotNavigable)
+                # alsoProvides(folder, IActionsPanelFolderOnlyAdd)  # made now in subscriber
+                # alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader']
                 if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
                     roles += ['Contributor', 'Editor']
@@ -389,8 +389,6 @@ def contact_plonegroup_change(event):
                     api.content.copy(source=base_model, target=folder)
             if uid not in oem_folder:
                 folder = api.content.create(container=oem_folder, type='Folder', id=uid, title=full_title)
-                alsoProvides(folder, IActionsPanelFolderOnlyAdd)
-                alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader']
                 if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_email_templates_encoder_can_edit']:
                     roles += ['Contributor', 'Editor']
@@ -402,8 +400,6 @@ def contact_plonegroup_change(event):
             if uid not in cl_folder:
                 folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
                 folder.setLayout('folder_tabular_view')
-                alsoProvides(folder, IActionsPanelFolderOnlyAdd)
-                alsoProvides(folder, INextPrevNotNavigable)
                 roles = ['Reader', 'Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
@@ -866,3 +862,20 @@ def member_area_added(obj, event):
         folder.setLocallyAllowedTypes(['contact_list'])
         folder.setImmediatelyAddableTypes(['contact_list'])
         folder.manage_setLocalRoles(obj.getId(), ['Reader', 'Contributor', 'Editor'])
+
+
+def folder_added(folder, event):
+    portal = api.portal.get()
+    folder_path = folder.absolute_url_path()
+    for main_folder in (portal.get('templates', None), portal.get('contacts', None)):
+        if main_folder is None:  # creating site
+            return
+        main_path = main_folder.absolute_url_path()
+        if folder_path.startswith(main_path):
+            sub_path = folder_path[len(main_path)+1:]
+            for sub_name in ('om/', 'oem/', 'contact-lists-folder/'):
+                if sub_path.startswith(sub_name):  # only interested by sulfolders
+                    logger.error('UPDATED {}'.format(folder_path))
+                    alsoProvides(folder, IActionsPanelFolderOnlyAdd)
+                    alsoProvides(folder, INextPrevNotNavigable)
+                    return
