@@ -456,6 +456,10 @@ ul.select2-choices {
     color: red;
 }
 
+body.template-imiodmsmail-settings .unconfigured-fields {
+    color: green;
+}
+
 fieldset table.listing td.td_cell_convert img {
     width: 16px;
     height: 16px;

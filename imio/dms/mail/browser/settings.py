@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
@@ -45,6 +44,7 @@ from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
+import copy
 import logging
 
 
@@ -401,6 +401,26 @@ class SettingsEditForm(RegistryEditForm):
     """
     form.extends(RegistryEditForm)
     schema = IImioDmsMailConfig
+
+    def update(self):
+        super(SettingsEditForm, self).update()
+        # !! groups are updated outside and after updateWidgets
+        # we will display unconfigured fields
+        filt_groups = {'incomingmail': 'imail_fields', 'outgoingmail': 'omail_fields'}
+        for grp in self.groups:
+            if grp.__name__ not in filt_groups:
+                continue
+            wdg = grp.widgets[filt_groups[grp.__name__]]
+            def_values = [row['field_name'] for row in wdg.value]
+            voc_name = wdg.field.value_type.schema['field_name'].vocabularyName
+            voc = getUtility(IVocabularyFactory, voc_name)(self.context)
+            unconfigured = ['"{}"'.format(t.title) for t in voc._terms if t.value not in def_values]
+            if unconfigured:
+                wdg.field = copy.copy(wdg.field)
+                wdg.field.description = u'{}<br />{}'.format(
+                    _tr(u'Configure this carefully. You can order with arrows.'),
+                    _tr(u'<span class="unconfigured-fields">Unconfigured fields are: ${list}</span>',
+                        mapping={'list': u', '.join(unconfigured)}))
 
 
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
