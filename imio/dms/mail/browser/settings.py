@@ -419,7 +419,7 @@ class SettingsEditForm(RegistryEditForm):
                 wdg.field = copy.copy(wdg.field)
                 wdg.field.description = u'{}<br />{}'.format(
                     _tr(u'Configure this carefully. You can order with arrows.'),
-                    _tr(u'<span class="unconfigured-fields">Unconfigured fields are: ${list}</span>',
+                    _tr(u"<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>",
                         mapping={'list': u', '.join(unconfigured)}))
 
 
