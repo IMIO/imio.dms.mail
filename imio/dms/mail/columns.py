@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
+import Missing
 from AccessControl import getSecurityManager
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
 from collective.dms.basecontent.browser.column import IconColumn
@@ -9,6 +10,7 @@ from collective.documentviewer.settings import Settings
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.eeafaceted.z3ctable.columns import ActionsColumn
 from collective.eeafaceted.z3ctable.columns import BaseColumn
+from collective.eeafaceted.z3ctable.columns import ColorColumn
 from collective.eeafaceted.z3ctable.columns import DateColumn
 from collective.eeafaceted.z3ctable.columns import DxWidgetRenderColumn
 from collective.eeafaceted.z3ctable.columns import I18nColumn
@@ -34,6 +36,27 @@ import os
 class IMTitleColumn(PrettyLinkColumn):
 
     params = {'showContentIcon': True, 'display_tag_title': False}
+
+
+class OMColorColumn(ColorColumn):
+
+    attrName = 'printable'
+    sort_index = -1  # not sortable
+    header = u'&nbsp;&nbsp;'
+
+    def is_printable(self, item):
+        return item.markers is not Missing.Value and 'lastDmsFileIsOdt' in item.markers
+
+    def renderCell(self, item):
+        """Display a message."""
+        translated_msg = u'batch_printable_{}'.format(self.is_printable(item))
+        return u'<div title="{0}">&nbsp;</div>'.format(translated_msg)
+
+    def getCSSClasses(self, item):
+        """Generate a CSS class to apply on the TD depending on the value."""
+        return {'td': "{0}_{1}_{2}".format(self.cssClassPrefix,
+                                           str(self.attrName),
+                                           self.is_printable(item))}
 
 
 class OMTitleColumn(PrettyLinkColumn):

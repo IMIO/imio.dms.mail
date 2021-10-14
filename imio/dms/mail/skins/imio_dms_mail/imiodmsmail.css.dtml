@@ -452,6 +452,26 @@ ul.select2-choices {
     min-width: 15em !important
 }
 
+table.listing th.th_header_printable {
+    padding: 0;
+}
+
+table.listing tbody tr.odd td.column_printable_False,
+table.listing tbody tr.even td.column_printable_False {
+    background: red;
+    padding: 0;
+    outline: solid 3px white;
+    outline-offset: -3px;
+}
+
+table.listing tbody tr.odd td.column_printable_True,
+table.listing tbody tr.even td.column_printable_True {
+    background: green;
+    padding: 0;
+    outline: solid 3px white;
+    outline-offset: -3px;
+}
+
 #faceted-form fieldset.widget-fieldset label[title*="(Désactivé)"] {
     color: red;
 }

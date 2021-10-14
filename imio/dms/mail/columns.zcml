@@ -135,6 +135,14 @@
      for="imio.dms.mail.interfaces.IOMDashboard
           zope.publisher.interfaces.browser.IBrowserRequest
           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.OMColorColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="printable" />
+
+  <adapter
+     for="imio.dms.mail.interfaces.IOMDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
      factory=".columns.SendModesColumn"
      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
      name="send_modes" />
