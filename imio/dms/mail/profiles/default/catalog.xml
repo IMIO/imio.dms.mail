@@ -23,4 +23,9 @@
   <indexed_attr value="state_group"/>
  </index>
 
+ <index name="markers" meta_type="KeywordIndex">
+  <indexed_attr value="markers"/>
+ </index>
+ <column value="markers"/>
+
 </object>

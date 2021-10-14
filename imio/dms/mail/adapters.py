@@ -29,6 +29,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import logger
+from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
 from imio.prettylink.adapters import PrettyLinkAdapter
@@ -561,6 +562,17 @@ def task_enquirer_index(obj):
     if base_hasattr(obj, 'enquirer') and obj.enquirer:
         return obj.enquirer
     return common_marker
+
+
+@indexer(IImioDmsOutgoingMail)
+def markers_om_index(obj):
+    """Indexer of various markers for IImioDmsOutgoingMail."""
+    idx = []
+    # Set lastDmsFileIsOdt
+    dfiles = object_values(obj, ['ImioDmsFile'])
+    if dfiles and dfiles[-1].is_odt():
+        idx.append('lastDmsFileIsOdt')
+    return idx
 
 
 @indexer(IImioDmsIncomingMail)
