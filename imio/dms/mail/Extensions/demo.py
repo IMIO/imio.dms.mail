@@ -296,7 +296,8 @@ def clean_examples(self):
     functions = [dic['fct_id'] for dic in get_registry_functions()]
     groups = api.group.get_groups()
     for group in groups:
-        if '_' not in group.id or group.id in ['dir_general']:
+        if '_' not in group.id or group.id in ['createurs_dossier', 'dir_general', 'lecteurs_globaux_ce',
+                                               'lecteurs_globaux_cs']:
             continue
         parts = group.id.split('_')
         if len(parts) == 1:
