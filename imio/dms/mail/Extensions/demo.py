@@ -12,7 +12,7 @@ from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import DummyView
 from itertools import cycle
-
+from imio.helpers.content import find
 from imio.helpers.content import transitions
 from plone import api
 from plone.dexterity.utils import createContentInContainer
@@ -219,7 +219,7 @@ def clean_examples(self):
     registry = getUtility(IRegistry)
 
     # Delete om
-    brains = api.content.find(portal_type='dmsoutgoingmail')
+    brains = find(unrestricted=True, portal_type='dmsoutgoingmail')
     for brain in brains:
         log_list(out, "Deleting om '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
@@ -234,27 +234,28 @@ def clean_examples(self):
     portal['outgoing-mail'].invokeFactory('dmsoutgoingmail', id='test_creation_modele', **params)
 
     # Delete im
-    brains = api.content.find(portal_type='dmsincomingmail')
+    brains = find(unrestricted=True, portal_type='dmsincomingmail')
     for brain in brains:
         log_list(out, "Deleting im '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_number'] = 1
     # Delete own personnel
     pf = portal['contacts']['personnel-folder']
-    brains = api.content.find(context=pf, portal_type='person')
+    brains = find(unrestricted=True, context=pf, portal_type='person')
     for brain in brains:
         log_list(out, "Deleting person '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     # Deactivate own organizations
     ownorg = portal['contacts']['plonegroup-organization']
-    brains = api.content.find(context=ownorg, portal_type='organization',
-                              id=['plonegroup-organization', 'college-communal', 'conseil-communal'])
+    brains = find(unrestricted=True, context=ownorg, portal_type='organization',
+                  id=['plonegroup-organization', 'college-communal'])
     kept_orgs = [brain.UID for brain in brains]
     log_list(out, "Activating only 'college-communal'")
     set_registry_organizations([ownorg['college-communal'].UID()])
     # Delete organization and template folders
     tmpl_folder = portal['templates']['om']
-    brains = api.content.find(context=ownorg, portal_type='organization', sort_on='path', sort_order='descending')
+    brains = find(unrestricted=True, context=ownorg, portal_type='organization', sort_on='path',
+                  sort_order='descending')
     for brain in brains:
         uid = brain.UID
         if uid in kept_orgs:
@@ -265,23 +266,23 @@ def clean_examples(self):
             log_list(out, "Deleting template folder '%s'" % '/'.join(tmpl_folder[uid].getPhysicalPath()))
             api.content.delete(obj=tmpl_folder[uid])
     # Delete contacts
-    brains = api.content.find(context=portal['contacts'], portal_type='person',
-                              id=['jeancourant', 'sergerobinet', 'bernardlermitte'])
+    brains = find(unrestricted=True, context=portal['contacts'], portal_type='person',
+                  id=['jeancourant', 'sergerobinet', 'bernardlermitte'])
     for brain in brains:
         log_list(out, "Deleting person '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
-    brains = api.content.find(context=portal['contacts'], portal_type='organization', id=['electrabel', 'swde'])
+    brains = find(unrestricted=True, context=portal['contacts'], portal_type='organization', id=['electrabel', 'swde'])
     for brain in brains:
         log_list(out, "Deleting organization '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
-    brains = api.content.find(context=portal['contacts'], portal_type='contact_list')
+    brains = find(unrestricted=True, context=portal['contacts'], portal_type='contact_list')
     for brain in brains:
         log_list(out, "Deleting contact list '%s'" % brain.getPath())
         api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
     # Delete users
     for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
         user = api.user.get(userid=userid)
-        for brain in api.content.find(Creator=userid, sort_on='path', sort_order='descending'):
+        for brain in find(unrestricted=True, Creator=userid, sort_on='path', sort_order='descending'):
             log_list(out, "Deleting object '%s' created by '%s'" % (brain.getPath(), userid))
             api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
         for group in api.group.get_groups(user=user):
