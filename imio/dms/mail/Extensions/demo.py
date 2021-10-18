@@ -11,17 +11,17 @@ from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import DummyView
-from itertools import cycle
 from imio.helpers.content import find
 from imio.helpers.content import transitions
+from itertools import cycle
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.CPUtils.Extensions.utils import check_role
+from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.CPUtils.Extensions.utils import log_list
 from z3c.relationfield import RelationValue
 from zope.component import getUtility
@@ -209,49 +209,60 @@ def create_main_file(self, filename='', title='1', mainfile_type='dmsmainfile', 
         return obj.REQUEST.response.redirect('%s/view' % obj.absolute_url())
 
 
-def clean_examples(self):
+def clean_examples(self, doit='1'):
     """ Clean created examples """
     if not check_zope_admin():
         return "You must be a zope manager to run this script"
+    if doit == '1':
+        doit = True
+    else:
+        doit = False
     out = []
     portal = api.portal.getSite()
-    portal.portal_properties.site_properties.enable_link_integrity_checks = False
+    if doit:
+        portal.portal_properties.site_properties.enable_link_integrity_checks = False
     registry = getUtility(IRegistry)
 
     # Delete om
     brains = find(unrestricted=True, portal_type='dmsoutgoingmail')
     for brain in brains:
         log_list(out, "Deleting om '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
-    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number'] = 1
-
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+    if doit:
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number'] = 1
     # Create test om
     params = {'title': u'Courrier test pour création de modèles (ne pas effacer)',
               'internal_reference_no': internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
               'mail_date': date.today(),
               'mail_type': 'courrier',
               }
-    portal['outgoing-mail'].invokeFactory('dmsoutgoingmail', id='test_creation_modele', **params)
+    if doit:
+        portal['outgoing-mail'].invokeFactory('dmsoutgoingmail', id='test_creation_modele', **params)
 
     # Delete im
     brains = find(unrestricted=True, portal_type='dmsincomingmail')
     for brain in brains:
         log_list(out, "Deleting im '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
-    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_number'] = 1
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+    if doit:
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_number'] = 1
     # Delete own personnel
     pf = portal['contacts']['personnel-folder']
     brains = find(unrestricted=True, context=pf, portal_type='person')
     for brain in brains:
         log_list(out, "Deleting person '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     # Deactivate own organizations
     ownorg = portal['contacts']['plonegroup-organization']
     brains = find(unrestricted=True, context=ownorg, portal_type='organization',
                   id=['plonegroup-organization', 'college-communal'])
     kept_orgs = [brain.UID for brain in brains]
     log_list(out, "Activating only 'college-communal'")
-    set_registry_organizations([ownorg['college-communal'].UID()])
+    if doit:
+        set_registry_organizations([ownorg['college-communal'].UID()])
     # Delete organization and template folders
     tmpl_folder = portal['templates']['om']
     brains = find(unrestricted=True, context=ownorg, portal_type='organization', sort_on='path',
@@ -261,37 +272,45 @@ def clean_examples(self):
         if uid in kept_orgs:
             continue
         log_list(out, "Deleting organization '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
         if uid in tmpl_folder:
             log_list(out, "Deleting template folder '%s'" % '/'.join(tmpl_folder[uid].getPhysicalPath()))
-            api.content.delete(obj=tmpl_folder[uid])
+            if doit:
+                api.content.delete(obj=tmpl_folder[uid])
     # Delete contacts
+    brains = find(unrestricted=True, context=portal['contacts'], portal_type='contact_list')
+    for brain in brains:
+        log_list(out, "Deleting contact list '%s'" % brain.getPath())
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     brains = find(unrestricted=True, context=portal['contacts'], portal_type='person',
                   id=['jeancourant', 'sergerobinet', 'bernardlermitte'])
     for brain in brains:
         log_list(out, "Deleting person '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     brains = find(unrestricted=True, context=portal['contacts'], portal_type='organization', id=['electrabel', 'swde'])
     for brain in brains:
         log_list(out, "Deleting organization '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
-    brains = find(unrestricted=True, context=portal['contacts'], portal_type='contact_list')
-    for brain in brains:
-        log_list(out, "Deleting contact list '%s'" % brain.getPath())
-        api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     # Delete users
     for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
         user = api.user.get(userid=userid)
         for brain in find(unrestricted=True, Creator=userid, sort_on='path', sort_order='descending'):
             log_list(out, "Deleting object '%s' created by '%s'" % (brain.getPath(), userid))
-            api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
+            if doit:
+                api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
         for group in api.group.get_groups(user=user):
             if group.id == 'AuthenticatedUsers':
                 continue
             log_list(out, "Removing user '%s' from group '%s'" % (userid, group.getProperty('title')))
-            api.group.remove_user(group=group, user=user)
+            if doit:
+                api.group.remove_user(group=group, user=user)
         log_list(out, "Deleting user '%s'" % userid)
-        api.user.delete(user=user)
+        if doit:
+            api.user.delete(user=user)
     # Delete groups
     functions = [dic['fct_id'] for dic in get_registry_functions()]
     groups = api.group.get_groups()
@@ -307,8 +326,10 @@ def clean_examples(self):
         if org_uid in kept_orgs or function not in functions:
             continue
         log_list(out, "Deleting group '%s'" % group.getProperty('title'))
-        api.group.delete(group=group)
-    portal.portal_properties.site_properties.enable_link_integrity_checks = True
+        if doit:
+            api.group.delete(group=group)
+    if doit:
+        portal.portal_properties.site_properties.enable_link_integrity_checks = True
     return '\n'.join(out)
 
 
