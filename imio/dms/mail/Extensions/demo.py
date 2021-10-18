@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collective.classification.tree import caching
+from collective.classification.tree.utils import iterate_over_tree
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
@@ -12,6 +14,7 @@ from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import DummyView
 from imio.helpers.content import find
+from imio.helpers.content import safe_encode
 from imio.helpers.content import transitions
 from itertools import cycle
 from plone import api
@@ -328,7 +331,21 @@ def clean_examples(self, doit='1'):
         log_list(out, "Deleting group '%s'" % group.getProperty('title'))
         if doit:
             api.group.delete(group=group)
+    # Delete folders
+    for brain in find(unrestricted=True, portal_type=('ClassificationFolder', 'ClassificationSubfolder'),
+                      sort_on='path', sort_order='descending'):
+        log_list(out, "Deleting classification folder '%s'" % brain.getPath())
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject())
+    # Delete categories
+    caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree", portal['tree'].UID())
+    res = iterate_over_tree(portal['tree'])
+    for category in reversed(res):
+        log_list(out, "Deleting category '%s - %s'" % (safe_encode(category.identifier), safe_encode(category.title)))
+        if doit:
+            api.content.delete(obj=category)
     if doit:
+        caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree", portal['tree'].UID())
         portal.portal_properties.site_properties.enable_link_integrity_checks = True
     return '\n'.join(out)
 
