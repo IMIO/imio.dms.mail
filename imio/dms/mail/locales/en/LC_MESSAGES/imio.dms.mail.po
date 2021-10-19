@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-10-07 08:28+0000\n"
+"POT-Creation-Date: 2021-10-19 08:40+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -572,7 +572,7 @@ msgstr ""
 msgid "Refresh tab count"
 msgstr ""
 
-#: ./columns.py:415
+#: ./columns.py:443
 msgid "Relative path"
 msgstr ""
 
@@ -709,7 +709,7 @@ msgstr ""
 msgid "Types of outgoing mail"
 msgstr ""
 
-#: ./columns.py:290
+#: ./columns.py:318
 msgid "Update preview"
 msgstr ""
 
@@ -802,6 +802,14 @@ msgstr ""
 #: ./browser/templates/contactcontent_backrefs.pt:9
 msgid "backrefs_viewlet_title"
 msgstr "Contact used by"
+
+#: ./columns.py:56
+msgid "batch_printable_False"
+msgstr ""
+
+#: ./columns.py:56
+msgid "batch_printable_True"
+msgstr ""
 
 #: ./browser/viewlets.py:107
 msgid "city"

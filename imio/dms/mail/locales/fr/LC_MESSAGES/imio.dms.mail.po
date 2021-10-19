@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2021-10-07 08:28+0000\n"
+"POT-Creation-Date: 2021-10-19 08:40+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -574,7 +574,7 @@ msgstr "Services en copie"
 msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
 
-#: ./columns.py:415
+#: ./columns.py:443
 msgid "Relative path"
 msgstr "Chemin relatif"
 
@@ -711,7 +711,7 @@ msgstr "Types de courrier entrant"
 msgid "Types of outgoing mail"
 msgstr "Types de courrier sortant"
 
-#: ./columns.py:290
+#: ./columns.py:318
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 
@@ -804,6 +804,14 @@ msgstr "Toutes les personnes"
 #: ./browser/templates/contactcontent_backrefs.pt:9
 msgid "backrefs_viewlet_title"
 msgstr "Contact utilisé par"
+
+#: ./columns.py:56
+msgid "batch_printable_False"
+msgstr "Le dernier fichier ged ne sera pas pris en compte dans l'impression par lot."
+
+#: ./columns.py:56
+msgid "batch_printable_True"
+msgstr "Le dernier fichier ged sera bien pris en compte dans l'impression par lot."
 
 #: ./browser/viewlets.py:107
 msgid "city"

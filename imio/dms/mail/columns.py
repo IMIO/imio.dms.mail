@@ -41,6 +41,7 @@ class IMTitleColumn(PrettyLinkColumn):
 class OMColorColumn(ColorColumn):
 
     attrName = 'printable'
+    i18n_domain = 'imio.dms.mail'
     sort_index = -1  # not sortable
     header = u'&nbsp;&nbsp;'
     header_js = '<script type="text/javascript">$(document).ready(function() {' \
@@ -51,7 +52,8 @@ class OMColorColumn(ColorColumn):
 
     def renderCell(self, item):
         """Display a message."""
-        translated_msg = u'batch_printable_{}'.format(self.is_printable(item))
+        msg = u'batch_printable_{}'.format(self.is_printable(item))
+        translated_msg = translate(msg, domain=self.i18n_domain, context=self.request)
         return u'<div class="tooltip-title" title="{0}">&nbsp;</div>'.format(translated_msg)
 
     def getCSSClasses(self, item):
