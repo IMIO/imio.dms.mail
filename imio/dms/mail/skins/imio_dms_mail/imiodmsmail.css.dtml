@@ -500,8 +500,8 @@ fieldset table.listing td.td_cell_convert img {
 #newOMCreation img, #newOEMCreation img,
 #parent-fieldname-title .pretty_link_icons img,
 div.contactcontent_backrefs img {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
 }
 
 body.template-folder_factories #content-core dt label img {

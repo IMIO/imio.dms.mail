@@ -7,7 +7,7 @@
            style="display: inline;"
            tal:condition="python: member.has_permission('collective.dms.mailcontent: Add Outgoing Mail', folder)"
            tal:attributes="href string:$portal_url/outgoing-mail/++add++dmsoutgoingmail?no_redirect=1">
-            <img tal:attributes="src string:$portal_url/++resource++imio.dms.mail/dmsoutgoingmail_icon.svg"
+            <img tal:attributes="src string:$portal_url/++resource++imio.dms.mail/dmsoutgoingmail_icon.png"
               title="create_om" i18n:attributes="title" />
         </a>
         <!--a id="newOEMCreation" href="#"
