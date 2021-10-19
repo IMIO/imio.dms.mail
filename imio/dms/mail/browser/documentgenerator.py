@@ -229,6 +229,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
             return files
         catalog = self.portal.portal_catalog
         # self.uids_to_objs(self.context_var('brains'))
+        limit = 1  # needed to be coherent with dashboard info following lastDmsFileIsOdt
         for brain in self.context_var('brains'):
             brains = catalog.unrestrictedSearchResults(portal_type='dmsommainfile', path=brain.getPath(),
                                                        sort_on='getObjPositionInParent', sort_order='descending',
@@ -237,8 +238,9 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                 brains = brains[0:limit]
             for bfile in brains:
                 doc = bfile._unrestrictedGetObject()
-                # if doc.is_odt(): TODO
-                files.append(doc)
+                # if brain.markers is not Missing.Value and 'lastDmsFileIsOdt' in brain.markers
+                if doc.is_odt():
+                    files.append(doc)
         return files
 
     def get_num_pages(self, obj):

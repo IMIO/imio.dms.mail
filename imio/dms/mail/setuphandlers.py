@@ -35,6 +35,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 # from imio.dms.mail import CREATING_FIELD_ROLE
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -1842,7 +1843,7 @@ def addTestMails(context):
     task3.invokeFactory('task', id='tache3-2', title=u'Sous-tâche 2', assigned_group=task3.assigned_group,
                         enquirer=task3.assigned_group)
 
-    filespath = "%s/batchimport/toprocess/outgoing-mail" % imiodmsmail.__path__[0]
+    filespath = "%s/batchimport/toprocess/outgoing-mail" % PRODUCT_DIR
     files = [safe_unicode(name) for name in os.listdir(filespath)
              if os.path.splitext(name)[1][1:] in ('odt')]
     files.sort()

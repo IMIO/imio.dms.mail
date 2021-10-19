@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """ documentgenerator.py tests for this package."""
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
@@ -156,8 +159,14 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # Test get_dms_files
         view.context_var = lambda x: brains
-        files = view.get_dms_files(limit=1)
+        files = view.get_dms_files()
         self.assertListEqual(files, [view.objs[0]['1'], view.objs[1]['1'], view.objs[2]['1']])
+        filespath = u'%s/batchimport/toprocess/incoming-mail' % PRODUCT_DIR
+        filename = u'in-courrier2.pdf'
+        with open(u"%s/%s" % (filespath, filename), 'rb') as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            createContentInContainer(view.objs[0], 'dmsommainfile', id='2', title='', file=file_object)
+        self.assertListEqual(view.get_dms_files(), [view.objs[1]['1'], view.objs[2]['1']])
         del view.request.form['facetedQuery']
         self.assertListEqual(view.get_dms_files(), [])
 
