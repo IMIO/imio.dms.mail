@@ -323,6 +323,8 @@
 
   <javascript id="++resource++jquery.datatables.min.js" insert-after="++resource++imio.pm.wsclient.javascripts/popups.js" />
 
-  <!--<javascript id="" insert-after="" />-->
+  <javascript id="++resource++collective.js.tooltipster/tooltipster.bundle.min.js" insert-after="++resource++jquery.datatables.min.js" />
+
+  <javascript id="++resource++collective.js.tooltipster/tooltipster_helper.js" insert-after="++resource++collective.js.tooltipster/tooltipster.bundle.min.js" />
 
 </object>

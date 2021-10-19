@@ -70,6 +70,7 @@ setup(
         'collective.fontawesome',
         'collective.iconifieddocumentactions',
         'collective.js.fancytree',
+        'collective.js.tooltipster',
         'collective.messagesviewlet',
         'collective.portlet.actions',
         'collective.querynextprev',

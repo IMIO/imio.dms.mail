@@ -91,7 +91,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.do_prior_updates()
 
-        self.install(['collective.classification.folder'])
+        self.install(['collective.classification.folder', 'collective.js.tooltipster'])
+        self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
 
         self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'controlpanel', 'plone.app.registry', 'repositorytool',
                                                      'typeinfo', 'viewlets'])

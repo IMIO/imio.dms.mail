@@ -219,8 +219,16 @@
 
  <stylesheet id="imiodmsmail.css" insert-after="++resource++collective.classification.folder-faceted.css" />
 
- <!--stylesheet id="" insert-after="" /-->
+ <stylesheet id="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" insert-after="imiodmsmail.css" />
 
- <stylesheet id="ploneCustom.css" insert-after="imiodmsmail.css" />
+ <stylesheet id="++resource++collective.js.tooltipster/tooltipster-sideTip-light.min.css" insert-after="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" />
+
+ <stylesheet id="++resource++collective.js.tooltipster/tooltipster-sideTip-noir.min.css" insert-after="++resource++collective.js.tooltipster/tooltipster-sideTip-light.min.css" />
+
+ <stylesheet id="++resource++collective.js.tooltipster/tooltipster-sideTip-punk.min.css" insert-after="++resource++collective.js.tooltipster/tooltipster-sideTip-noir.min.css" />
+
+ <stylesheet id="++resource++collective.js.tooltipster/tooltipster-sideTip-shadow.min.css" insert-after="++resource++collective.js.tooltipster/tooltipster-sideTip-punk.min.css" />
+
+ <stylesheet id="ploneCustom.css" insert-after="++resource++collective.js.tooltipster/tooltipster-sideTip-shadow.min.css" />
 
 </object>
