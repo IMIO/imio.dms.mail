@@ -43,6 +43,8 @@ class OMColorColumn(ColorColumn):
     attrName = 'printable'
     sort_index = -1  # not sortable
     header = u'&nbsp;&nbsp;'
+    header_js = '<script type="text/javascript">$(document).ready(function() {' \
+                '$(".tooltip-title").tooltipster({position: "right", theme: "tooltipster-shadow"});});</script>'
 
     def is_printable(self, item):
         return item.markers is not Missing.Value and 'lastDmsFileIsOdt' in item.markers
@@ -50,11 +52,12 @@ class OMColorColumn(ColorColumn):
     def renderCell(self, item):
         """Display a message."""
         translated_msg = u'batch_printable_{}'.format(self.is_printable(item))
-        return u'<div title="{0}">&nbsp;</div>'.format(translated_msg)
+        return u'<div class="tooltip-title" title="{0}">&nbsp;</div>'.format(translated_msg)
 
     def getCSSClasses(self, item):
         """Generate a CSS class to apply on the TD depending on the value."""
-        return {'td': "{0}_{1}_{2}".format(self.cssClassPrefix,
+        return {'tr': "min-height",  # needed so a 100% heigth td div works
+                'td': "{0}_{1}_{2}".format(self.cssClassPrefix,
                                            str(self.attrName),
                                            self.is_printable(item))}
 

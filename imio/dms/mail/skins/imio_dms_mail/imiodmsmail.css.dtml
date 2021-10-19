@@ -456,12 +456,17 @@ table.listing th.th_header_printable {
     padding: 0;
 }
 
+tr.min-height { /* needed to maximize tr div to 100% */
+    height: 1px;
+}
+
 table.listing tbody tr.odd td.column_printable_False,
 table.listing tbody tr.even td.column_printable_False {
     background: red;
     padding: 0;
     outline: solid 3px white;
     outline-offset: -3px;
+    height: 100%;
 }
 
 table.listing tbody tr.odd td.column_printable_True,
@@ -470,6 +475,12 @@ table.listing tbody tr.even td.column_printable_True {
     padding: 0;
     outline: solid 3px white;
     outline-offset: -3px;
+    height: 100%;
+}
+
+table.listing tbody td div.tooltip-title {
+    width: 100%;
+    height: 100%;
 }
 
 #faceted-form fieldset.widget-fieldset label[title*="(Désactivé)"] {
