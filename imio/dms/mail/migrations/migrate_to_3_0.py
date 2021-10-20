@@ -31,6 +31,7 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.helpers.content import find
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -126,6 +127,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.update_config()
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'],
                              run_dependencies=False)
+        # clean example users wrongly added by previous migration
+        self.clean_examples()
 
         # reset workflow
         self.runProfileSteps('imio.dms.mail', steps=['workflow'])
@@ -579,6 +582,19 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index'])
+
+    def clean_examples(self):
+        if 'reponse1' not in self.portal['outgoing-mail']:
+            logger.info('Cleaning wrongly added demo users')
+            for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
+                user = api.user.get(userid=userid)
+                for group in api.group.get_groups(user=user):
+                    if group.id == 'AuthenticatedUsers':
+                        continue
+                    logger.info("Removing user '%s' from group '%s'" % (userid, group.getProperty('title')))
+                    api.group.remove_user(group=group, user=user)
+                logger.info("Deleting user '%s'" % userid)
+                api.user.delete(user=user)
 
 
 def migrate(context):
