@@ -374,7 +374,7 @@ class DbDocumentGenerationView(DashboardDocumentGenerationView):
     def _get_generation_context(self, helper_view, pod_template):
         """ """
         gen_context = super(DbDocumentGenerationView, self)._get_generation_context(helper_view, pod_template)
-        if pod_template.getId() == 'd-im-listing':
+        if pod_template.getId().startswith('d-im-listing'):
             gen_context['by_tg'] = helper_view.group_by_tg(gen_context.get('brains', []))
         return gen_context
 

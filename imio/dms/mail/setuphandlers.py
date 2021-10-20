@@ -2209,6 +2209,7 @@ def list_templates():
     # (cid, plone_path, os_path)
     return [
         (10, 'templates/d-im-listing', os.path.join(dpath, 'd-im-listing.odt')),
+        (12, 'templates/d-im-listing-tab', os.path.join(dpath, 'd-im-listing.ods')),
         (20, 'templates/all-contacts-export', os.path.join(dpath, 'contacts-export.ods')),
         (90, 'templates/om/style', os.path.join(dpath, 'om-styles.odt')),
         (100, 'templates/om/header', os.path.join(dpath, 'om-header.odt')),
@@ -2273,6 +2274,13 @@ def add_templates(site):
     data = {
         10: {'title': _(u'Mail listing template'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
              'attrs': {'pod_formats': ['odt'], 'rename_page_styles': False,
+                       'dashboard_collections': [b.UID for b in
+                                                 get_dashboard_collections(site['incoming-mail']['mail-searches'])
+                                                 if b.id == 'all_mails'],
+                       # cond: check c10 reception date (display link), check output_format (generation view)
+                       'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"}},
+        12: {'title': _(u'Mail listing template sheet'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
+             'attrs': {'pod_formats': ['ods'], 'rename_page_styles': False,
                        'dashboard_collections': [b.UID for b in
                                                  get_dashboard_collections(site['incoming-mail']['mail-searches'])
                                                  if b.id == 'all_mails'],

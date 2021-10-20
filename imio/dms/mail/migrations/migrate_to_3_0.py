@@ -16,6 +16,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.setuphandlers import add_oem_templates
+from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import createOMailCollections
@@ -155,6 +156,11 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.upgradeAll(omit=['imio.dms.mail:default'])
 
         self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+
+        # update templates
+        add_templates(self.portal)
+        self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
+        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
         # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
         self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
