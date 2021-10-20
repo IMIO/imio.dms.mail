@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import operator
 
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
@@ -213,6 +214,18 @@ class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, Dash
         if not results['1_no_group']['mails']:
             del results['1_no_group']
         return results
+
+    def flatten_group_by_tg(self, dic):
+        """Flatten dict as a list of list"""
+        current_tg = ''
+        res = []
+        for tg in dic:
+            if current_tg != dic[tg]['title']:
+                current_tg = dic[tg]['title']
+            for mail in dic[tg]['mails']:
+                res.append([current_tg, mail])
+        res.sort(key=operator.itemgetter(0))
+        return res
 
 
 class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper):

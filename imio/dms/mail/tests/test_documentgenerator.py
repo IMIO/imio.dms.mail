@@ -150,12 +150,30 @@ class TestDocumentGenerator(unittest.TestCase):
         res = {tg1.UID(): {'mails': [view.objs[0]], 'title': u'Direction générale'},
                tg2.UID(): {'mails': [view.objs[1]], 'title': u'Direction générale - Secrétariat'}}
         self.assertDictEqual(view.group_by_tg(brains[:2]), res)
+        res = [[u'Direction générale', view.objs[0]],
+               [u'Direction générale - Secrétariat', view.objs[1]]]
+        self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains[:2])), res)
         backup = brains[1].treating_groups
         brains[1].treating_groups = None
         res = {tg1.UID(): {'mails': [view.objs[0]], 'title': u'Direction générale'},
                '1_no_group': {'mails': [view.objs[1]], 'title': u'No treating group'}}
         self.assertDictEqual(view.group_by_tg(brains[:2]), res)
+        res = [[u'Direction générale', view.objs[0]],
+               [u'No treating group', view.objs[1]]]
+        self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains[:2])), res)
         brains[1].treating_groups = backup
+        brains2 = self.pc(portal_type='dmsoutgoingmail', sort_on='id')
+        res = [
+            [u'Direction financière', brains2[4-1].getObject()],
+            [u'Direction financière - Budgets', brains2[5-1].getObject()],
+            [u'Direction financière - Comptabilité', brains2[6-1].getObject()],
+            [u'Direction générale', brains2[1-1].getObject()],
+            [u'Direction générale', brains2[7-1].getObject()],
+            [u'Direction générale - GRH', brains2[3-1].getObject()],
+            [u'Direction générale - GRH', brains2[9-1].getObject()],
+            [u'Direction générale - Secrétariat', brains2[2-1].getObject()],
+            [u'Direction générale - Secrétariat', brains2[8-1].getObject()]]
+        self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains2)), res)
 
         # Test get_dms_files
         view.context_var = lambda x: brains
