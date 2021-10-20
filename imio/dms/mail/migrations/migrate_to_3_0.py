@@ -84,11 +84,14 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.upgradeProfile('collective.dms.mailcontent:default')
         self.upgradeProfile('plonetheme.imioapps:default')
 
-        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'])  # to hide messages-viewlet
-        self.runProfileSteps('plonetheme.imioapps', profile='dmsmailskin', steps=['viewlets'])  # to hide colophon
+        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'],
+                             run_dependencies=False)  # to hide messages-viewlet
+        self.runProfileSteps('plonetheme.imioapps', profile='dmsmailskin', steps=['viewlets'],
+                             run_dependencies=False)  # to hide colophon
         if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
-        self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'])
+        self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'],
+                             run_dependencies=False)
 
         self.do_prior_updates()
 
@@ -118,10 +121,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                                 default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
         order_1st_level(self.portal)
 
-        self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'])
+        self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'],
+                             run_dependencies=False)
         self.update_config()
-        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'])
-        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-add-test-folders'])
+        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'],
+                             run_dependencies=False)
 
         # reset workflow
         self.runProfileSteps('imio.dms.mail', steps=['workflow'])
