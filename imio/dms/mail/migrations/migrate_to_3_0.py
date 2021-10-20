@@ -588,11 +588,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             logger.info('Cleaning wrongly added demo users')
             for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
                 user = api.user.get(userid=userid)
-                for group in api.group.get_groups(user=user):
-                    if group.id == 'AuthenticatedUsers':
-                        continue
-                    logger.info("Removing user '%s' from group '%s'" % (userid, group.getProperty('title')))
-                    api.group.remove_user(group=group, user=user)
+                if user is None:
+                    continue
                 logger.info("Deleting user '%s'" % userid)
                 api.user.delete(user=user)
 
