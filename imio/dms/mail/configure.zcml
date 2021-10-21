@@ -47,6 +47,7 @@
     <include package="plone.app.lockingbehavior"/>
     <include package="collective.dexteritytextindexer"/>
     <include package="plone.app.versioningbehavior"/>
+    <include package="Products.cron4plone" />
     <include package=".browser" />
     <include package=".content" />
 
