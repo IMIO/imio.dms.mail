@@ -339,7 +339,8 @@ def configure_wsclient(context):
         gsm.unregisterHandler(wsclient_configuration_changed, (IRecordModifiedEvent, ))
         api.portal.set_registry_record('{}.generated_actions'.format(prefix),
                                        [{'pm_meeting_config_id': u'meeting-config-college',
-                                         'condition': u"python: context.getPortalTypeName() in ('dmsincomingmail', )",
+                                         'condition': u"python: context.getPortalTypeName() in ('dmsincomingmail', "
+                                                      u"'dmsincoming_email')",
                                          'permissions': 'Modify view template'}])
         api.portal.set_registry_record('{}.viewlet_display_condition'.format(prefix), u'isLinked')
         pm_meeting_config_id_vocabulary.__call__ = orig_call

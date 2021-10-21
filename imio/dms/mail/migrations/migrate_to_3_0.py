@@ -40,14 +40,17 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
+from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.event import notify
 from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 import json
 import logging
 
-from zope.interface import noLongerProvides
 
 logger = logging.getLogger('imio.dms.mail')
 
@@ -533,6 +536,35 @@ class Migrate_To_3_0(Migrator):  # noqa
         record = getUtility(IRegistry).records.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                    'org_templates_encoder_can_edit')
         notify(RecordModifiedEvent(record, [], []))
+        # update wsclient settings
+        from imio.pm.wsclient.browser.vocabularies import pm_meeting_config_id_vocabulary
+        orig_call = pm_meeting_config_id_vocabulary.__call__
+        from imio.dms.mail.subscribers import wsclient_configuration_changed
+        from plone.registry.interfaces import IRecordModifiedEvent
+        gsm = getGlobalSiteManager()
+        prefix = 'imio.pm.wsclient.browser.settings.IWS4PMClientSettings'
+        gen_acts = api.portal.get_registry_record('{}.generated_actions'.format(prefix))
+        is_activated = False
+        changes = False
+        new_acts = []
+        for act in gen_acts:
+            new_act = dict(act)
+            if act['permissions'] != 'Modify view template':
+                is_activated = True
+            if act['condition'] == u"python: context.getPortalTypeName() in ('dmsincomingmail', )":
+                changes = True
+                new_act['condition'] = u"python: context.getPortalTypeName() in ('dmsincomingmail', " \
+                                       u"'dmsincoming_email')"
+            new_acts.append(new_act)
+        if changes:
+            if not is_activated:
+                gsm.unregisterHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
+                pm_meeting_config_id_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(
+                    [SimpleTerm(u'meeting-config-college')])
+            api.portal.set_registry_record('{}.generated_actions'.format(prefix), new_acts)
+            if not is_activated:
+                gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
+                pm_meeting_config_id_vocabulary.__call__ = orig_call
 
     def update_dmsincomingmails(self):
         for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', review_state='closed'), 1):
