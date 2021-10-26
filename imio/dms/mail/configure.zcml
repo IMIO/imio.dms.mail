@@ -233,6 +233,7 @@
         permission="zope2.View"
         allowed_attributes="
             check_scan_id
+            dv_images_clean
             initialize_service_folder
             kofax_orgs
             list_last_scan

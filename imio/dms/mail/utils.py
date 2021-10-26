@@ -5,13 +5,16 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
+from datetime import datetime
 from datetime import timedelta
+from DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
+from imio.helpers.content import object_values
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
 from natsort import natsorted
@@ -26,8 +29,10 @@ from plone.z3cform.fieldsets.utils import remove
 from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
+from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
+from Products.ZCatalog.ProgressHandler import ZLogHandler
 from zc.relation.interfaces import ICatalog
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
@@ -388,6 +393,95 @@ def separate_fullname(user, start='firstname'):
     return firstname, lastname
 
 
+def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
+    """Remove document viewer annotation on old mails.
+
+        * days_back: default behavior: we take closed items not modified from this range
+        * date_back: if present, we take items not modified from this date (whatever the state)
+    """
+    if not check_zope_admin():
+        return "You must be a zope manager to run this script"
+    start = datetime.now()
+    out = ["call the script followed by needed parameters:",
+           "-> days_back=nb of days to keep (default '365') (not used if date_back is used)",
+           "-> date_back=fixed date to consider (default None) (format YYYYMMDD)",
+           "-> batch=batch number to commit each nth (default '3000')"]
+    pghandler = ZLogHandler(steps=int(batch))
+    log_list(out, "Starting dv_clean at {}".format(start), pghandler)
+    from collective.documentviewer.convert import saveFileToBlob
+    from BTrees.OOBTree import OOBTree  # noqa
+    from Products.CPUtils.Extensions.utils import dv_images_size
+    jpg_dir = os.path.join(os.getenv('PWD'), 'Extensions')
+    normal_blob = saveFileToBlob(os.path.join(jpg_dir, 'previsualisation_supprimee_normal.jpg'))
+    blobs = {'large': normal_blob, 'normal': normal_blob,
+             'small': saveFileToBlob(os.path.join(jpg_dir, 'previsualisation_supprimee_small.jpg'))}
+    criterias = [
+        {'portal_type': ['dmsincomingmail', 'dmsincoming_email']},
+        {'portal_type': ['dmsoutgoingmail']},
+    ]
+    state_criterias = [
+        {'review_state': 'closed'},
+        {'review_state': 'sent'},
+    ]
+    if date_back:
+        if len(date_back) != 8:
+            log_list(out, "Bad date_back length '{}'".format(date_back), pghandler)
+            return
+        mod_date = datetime.strptime(date_back, '%Y%m%d')
+        # mod_date = add_timezone(mod_date, force=True)
+    else:
+        mod_date = start - timedelta(days=int(days_back))
+    already_done = DateTime('2010/01/01').ISO8601()
+    get_same_blob = True  # we will get previously blobs
+    total = {'obj': 0, 'pages': 0, 'files': 0, 'size': 0}
+    pc = portal.portal_catalog
+    for j, criteria in enumerate(criterias):
+        if not date_back:
+            criteria.update(state_criterias[j])  # noqa
+        criteria.update({'modified': {'query': mod_date, 'range': 'max'}})  # noqa
+        criteria.update({'sort_on': 'created'})
+        brains = pc(**criteria)
+        bl = len(brains)
+        pghandler.init(criteria['portal_type'][0], bl)
+        total['obj'] += bl
+        for i, brain in enumerate(brains, 1):
+            mail = brain.getObject()
+            for fobj in object_values(mail, ['DmsFile', 'DmsAppendixFile']):
+                annot = IAnnotations(fobj).get('collective.documentviewer', '')
+                if not annot or not annot.get('successfully_converted'):
+                    continue
+                if annot['last_updated'] == already_done:
+                    if get_same_blob:
+                        for name in ('large', 'normal', 'small'):
+                            blobs[name] = annot['blob_files']['{}/dump_1.jpg'.format(name)]
+                        get_same_blob = False
+                    continue
+                get_same_blob = False
+                total['files'] += 1
+                sizes = dv_images_size(fobj)
+                total['pages'] += sizes['pages']
+                total['size'] += (sizes['large'] + sizes['normal'] + sizes['small'] + sizes['text'])
+                # clean annotation
+                files = OOBTree()
+                for name in ['large', 'normal', 'small']:
+                    files['{}/dump_1.jpg'.format(name)] = blobs[name]
+                annot['blob_files'] = files
+                annot['num_pages'] = 1
+                annot['pdf_image_format'] = 'jpg'
+                annot['last_updated'] = already_done
+            pghandler.report(i)
+        pghandler.finish()
+
+    end = datetime.now()
+    delta = end - start
+    log_list(out, "Finishing dv_clean, duration {}".format(delta), pghandler)
+    total['deleted'] = total['pages'] * 4
+    total['size'] = fileSize(total['size'])
+    log_list(out, "Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', "
+             "Size: '{size}'".format(**total), pghandler)
+    return '\n'.join(out)
+
+
 # views
 
 class UtilsMethods(BrowserView):
@@ -669,6 +763,28 @@ class VariousUtilsMethods(UtilsMethods):
             log_list(out, u'<p>none</p>')
         return u'\n'.join(out)
 
+    def dv_images_clean(self):
+        """Call dv_clean to remove old images following configuration"""
+        params = {
+            'days_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_days', default=None),
+            'date_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_date', default=None)
+        }
+        for k, v in params.items():
+            if not params[k]:
+                del params[k]
+        if not params:
+            logger.error('No preservation parameters configured')
+            return
+        logger.info('Cleaning dv files with params {} on {}'.format(params, self.context.absolute_url_path()))
+        try:
+            from datetime import datetime
+            if params.get('date_back'):
+                datetime.strftime(params['date_back'], '%Y%m%d')
+        except Exception, msg:
+            logger.error("Bad date value '{}': '{}'".format(params['date_back'], msg))
+            return
+        dv_clean(self.context, **params)
+
 
 class IdmUtilsMethods(UtilsMethods):
     """ View containing incoming mail utils methods """
@@ -736,7 +852,8 @@ class IdmUtilsMethods(UtilsMethods):
         Used in guard expression for close transition.
         """
         if self.context.sender is None or self.context.treating_groups is None or self.context.mail_type is None:
-            # TODO must check if mail_type field is activated. Has a user already modified the object to complete all fields
+            # TODO must check if mail_type field is activated. Has a user already modified the object to
+            # complete all fields
             return False
         # A user that can be an assigned_user can close. An event will set the value...
         return self.is_in_user_groups(admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
@@ -905,7 +1022,7 @@ def manage_fields(the_form, config_key, mode):
     to_input = []
     to_display = []
 
-    configured_fields = [e["field_name"] for e in schema_config]
+    # configured_fields = [e["field_name"] for e in schema_config]
     for fields_schema in reversed(schema_config):
         field_name = fields_schema['field_name']
         read_condition = fields_schema.get('read_tal_condition') or ""
