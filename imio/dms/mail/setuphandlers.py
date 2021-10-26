@@ -2152,6 +2152,8 @@ def configureDocumentViewer(context):
     if 'excel' not in gsettings.auto_layout_file_types:
         gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ['excel', 'image']
     gsettings.show_search = True
+    # set preservation days
+    api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
 
 
 def refreshCatalog(context):
