@@ -34,7 +34,7 @@ import logging
 import os
 
 
-logger = logging.getLogger('imio.dms.mail: setuphandlers')
+logger = logging.getLogger('imio.dms.mail: steps')
 
 
 def create_persons_from_users(portal, start='firstname', functions=['encodeur'], userid=''):
@@ -120,7 +120,9 @@ def update_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list)
-    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode('utf8')
+    ret = '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode('utf8')
+    logger.info('\n{}'.format(ret))
+    return ret
 
 
 def override_templates_step(context):
@@ -128,7 +130,9 @@ def override_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list, force=True)
-    return '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode('utf8')
+    ret = '\n'.join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode('utf8')
+    logger.info('\n{}'.format(ret))
+    return ret
 
 
 def create_persons_from_users_step(context):
