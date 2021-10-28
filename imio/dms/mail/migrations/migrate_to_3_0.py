@@ -40,6 +40,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
+from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.event import notify
@@ -104,10 +105,6 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'controlpanel', 'plone.app.registry', 'repositorytool',
                                                      'typeinfo', 'viewlets'])
-        # define default preservation value
-        if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
-                not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
-            api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
         # remove to_print related.
         self.remove_to_print()
 
@@ -568,6 +565,16 @@ class Migrate_To_3_0(Migrator):  # noqa
             if not is_activated:
                 gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
                 pm_meeting_config_id_vocabulary.__call__ = orig_call
+
+        # define default preservation value
+        if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
+                not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
+            api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
+        # cron4plone settings
+        cron_configlet = getUtility(ICronConfiguration, 'cron4plone_config')
+        if not cron_configlet.cronjobs:
+            # Syntax: m h dom mon command.
+            cron_configlet.cronjobs = [u'45 18 1,15 * portal/@@various-utils/dv_images_clean']
 
     def update_dmsincomingmails(self):
         for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', review_state='closed'), 1):

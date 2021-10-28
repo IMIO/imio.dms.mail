@@ -71,6 +71,7 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
+from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
 from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
@@ -1160,6 +1161,12 @@ def adaptDefaultPortal(context):
                    OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
     set_dms_config(['review_states', 'task'], OrderedDict())
     set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
+
+    # cron4plone settings
+    cron_configlet = queryUtility(ICronConfiguration, 'cron4plone_config')
+    if not cron_configlet.cronjobs:
+        # Syntax: m h dom mon command.
+        cron_configlet.cronjobs = [u'45 18 1,15 * portal/@@various-utils/dv_images_clean']
 
 
 def changeSearchedTypes(site):
