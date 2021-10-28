@@ -110,13 +110,17 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             ret['levels'] = len(ret['chain']) > 1 and True
         return ret
 
-    def person_title(self, contact, pers_dft=u'Monsieur', org_dft=u'Madame, Monsieur'):
+    def person_title(self, contact, pers_dft=u'Monsieur', org_dft=u'Madame, Monsieur', with_name=False,
+                     upper_name=False):
 
         def pers_title(pers):
             title = contact.person_title
             if not title:
                 title = pers_dft
-            return title
+            if with_name and pers.lastname:
+                return u'{} {}'.format(title, upper_name and pers.lastname.upper() or pers.lastname)
+            else:
+                return title
 
         if IPerson.providedBy(contact):
             return pers_title(contact)

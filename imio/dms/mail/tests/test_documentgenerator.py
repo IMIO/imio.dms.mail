@@ -96,12 +96,19 @@ class TestDocumentGenerator(unittest.TestCase):
         # Test person_title
         self.assertEqual(view1.person_title(None), '')
         self.assertEqual(view1.person_title(self.jc), u'Monsieur')
+        self.assertEqual(view1.person_title(self.jc, with_name=True), u'Monsieur Courant')
+        self.assertEqual(view1.person_title(self.jc, with_name=True, upper_name=True), u'Monsieur COURANT')
         self.jc.person_title = None
         self.assertEqual(view1.person_title(self.jc), u'Monsieur')
         self.assertEqual(view1.person_title(self.jc, pers_dft=u'Madame'), u'Madame')
+        self.assertEqual(view1.person_title(self.jc, pers_dft=u'Madame', with_name=True), u'Madame Courant')
+        self.assertEqual(view1.person_title(self.jc, pers_dft=u'Madame', with_name=True, upper_name=True),
+                         u'Madame COURANT')
         self.assertEqual(view1.person_title(self.electrabel), u'Madame, Monsieur')
         self.assertEqual(view1.person_title(self.electrabel, org_dft=u'Messieurs'), u'Messieurs')
         self.assertEqual(view1.person_title(self.agent), u'Monsieur')
+        self.assertEqual(view1.person_title(self.agent, with_name=True), u'Monsieur Courant')
+        self.assertEqual(view1.person_title(self.agent, with_name=True, upper_name=True), u'Monsieur COURANT')
 
         # Test is_first_doc
         mock = mocker.Mocker()
