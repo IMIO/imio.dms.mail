@@ -426,7 +426,7 @@ def creating_group_index(obj):
 
 
 @indexer(IImioDmsIncomingMail)
-def sender_email_index(obj):
+def im_sender_email_index(obj):
     """Indexer of 'email' for IImioDmsIncomingMail. Stores orig_sender_email !"""
     if obj.orig_sender_email:
         return validate_email_address(obj.orig_sender_email)[1]
@@ -434,7 +434,7 @@ def sender_email_index(obj):
 
 
 @indexer(IImioDmsOutgoingMail)
-def sender_email_index(obj):
+def om_sender_email_index(obj):
     """Indexer of 'email' for IImioDmsOutgoingMail. Stores orig_sender_email !"""
     if obj.orig_sender_email:
         return validate_email_address(obj.orig_sender_email)[1]
