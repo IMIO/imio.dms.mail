@@ -576,13 +576,18 @@ def im_markers(obj):
     """
     markers = []
     # Set hasResponse
-    catalog = getUtility(ICatalog)
     intids = getUtility(IIntIds)
-    query = {'to_id': intids.getId(obj), 'from_attribute': 'reply_to'}
-    for relation in catalog.findRelations(query):
-        if not relation.isBroken() and relation.from_object.portal_type == 'dmsoutgoingmail':
-            markers.append('hasResponse')
-            break
+    try:
+        oid = intids.getId(obj)
+    except KeyError:  # during add
+        oid = None
+    if oid:
+        catalog = getUtility(ICatalog)
+        query = {'to_id': oid, 'from_attribute': 'reply_to'}
+        for relation in catalog.findRelations(query):
+            if not relation.isBroken() and relation.from_object.portal_type == 'dmsoutgoingmail':
+                markers.append('hasResponse')
+                break
     # Stores on obj
     annot = IAnnotations(obj)
     annot['dmsmail.markers'] = markers
