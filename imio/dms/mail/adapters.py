@@ -436,9 +436,7 @@ def im_sender_email_index(obj):
 @indexer(IImioDmsOutgoingMail)
 def om_sender_email_index(obj):
     """Indexer of 'email' for IImioDmsOutgoingMail. Stores orig_sender_email !"""
-    if obj.orig_sender_email:
-        return validate_email_address(obj.orig_sender_email)[1]
-    return common_marker
+    return im_sender_email_index(obj)
 
 
 @indexer(IImioDmsOutgoingMail)
