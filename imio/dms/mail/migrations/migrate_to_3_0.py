@@ -341,7 +341,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             obj = brain.getObject()
             if not getattr(obj, 'send_modes'):
                 obj.send_modes = ['post']
-            obj.reindexObject(idxs=['Subject', 'enabled'])
+            obj.reindexObject(idxs=['Subject', 'enabled', 'markers'])
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
@@ -577,11 +577,12 @@ class Migrate_To_3_0(Migrator):  # noqa
             cron_configlet.cronjobs = [u'45 18 1,15 * portal/@@various-utils/dv_images_clean']
 
     def update_dmsincomingmails(self):
-        for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', review_state='closed'), 1):
+        for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail'), 1):
             obj = brain.getObject()
             if i == 1:
                 view = IdmUtilsMethods(obj, obj.REQUEST)
-            if obj.assigned_user is None:
+            obj.reindexObject(['markers'])
+            if obj.assigned_user is None and brain.review_state == 'closed':
                 for status in obj.workflow_history['incomingmail_workflow']:
                     if status['action'] == 'close':
                         username = status['actor']

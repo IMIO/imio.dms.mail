@@ -108,6 +108,7 @@
     <adapter name="mail_type" factory=".adapters.mail_type_index" />
     <adapter name="mail_type" factory=".adapters.person_userid_index" />
     <adapter name="mail_type" factory=".adapters.task_enquirer_index" />
+    <adapter name="markers" factory=".adapters.markers_im_index" />
     <adapter name="markers" factory=".adapters.markers_om_index" />
     <adapter name="organization_type" factory=".adapters.im_reception_date_index" />
     <adapter name="organization_type" factory=".adapters.om_outgoing_date_index" />

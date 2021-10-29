@@ -53,6 +53,8 @@ from z3c.form.interfaces import NO_VALUE
 from z3c.form.term import MissingChoiceTermsVocabulary
 from z3c.form.term import MissingTermsMixin
 from z3c.form.validator import SimpleFieldValidator
+from zc.relation.interfaces import ICatalog
+from zope.annotation import IAnnotations
 from zope.component import adapter
 from zope.component import adapts
 from zope.component import getMultiAdapter
@@ -61,6 +63,7 @@ from zope.i18n import translate
 from zope.interface import Interface
 from zope.interface import implementer
 from zope.interface import implements
+from zope.intid import IIntIds
 from zope.schema.interfaces import IField
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary
@@ -375,6 +378,10 @@ class IMPrettyLinkAdapter(PrettyLinkAdapter):
         if back_or_again_icon:
             icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
                                                         context=self.request)))
+        annot = IAnnotations(self.context)
+        if 'hasResponse' in annot.get('dmsmail.markers', []):
+            icons.append(('++resource++imio.dms.mail/replied_icon.png', translate("Has response icon",
+                          domain="imio.dms.mail", context=self.request)))
         return icons
 
 
@@ -564,15 +571,52 @@ def task_enquirer_index(obj):
     return common_marker
 
 
-@indexer(IImioDmsOutgoingMail)
-def markers_om_index(obj):
-    """Indexer of various markers for IImioDmsOutgoingMail."""
-    idx = []
+def im_markers(obj):
+    """Calculates IImioDmsIncomingMail markers:
+
+    * hasResponse
+    """
+    markers = []
+    # Set hasResponse
+    catalog = getUtility(ICatalog)
+    intids = getUtility(IIntIds)
+    query = {'to_id': intids.getId(obj), 'from_attribute': 'reply_to'}
+    for relation in catalog.findRelations(query):
+        if not relation.isBroken() and relation.from_object.portal_type == 'dmsoutgoingmail':
+            markers.append('hasResponse')
+            break
+    # Stores on obj
+    annot = IAnnotations(obj)
+    annot['dmsmail.markers'] = markers
+    return markers
+
+
+@indexer(IImioDmsIncomingMail)
+def markers_im_index(obj):
+    """Indexer of various markers for IImioDmsIncomingMail"""
+    return im_markers(obj)
+
+
+def om_markers(obj):
+    """Calculates IImioDmsOutgoingMail markers:
+
+    * lastDmsFileIsOdt
+    """
+    markers = []
     # Set lastDmsFileIsOdt
     dfiles = object_values(obj, ['ImioDmsFile'])
     if dfiles and dfiles[-1].is_odt():
-        idx.append('lastDmsFileIsOdt')
-    return idx
+        markers.append('lastDmsFileIsOdt')
+    # Stores on obj
+    annot = IAnnotations(obj)
+    annot['dmsmail.markers'] = markers
+    return markers
+
+
+@indexer(IImioDmsOutgoingMail)
+def markers_om_index(obj):
+    """Indexer of various markers for IImioDmsOutgoingMail"""
+    return om_markers(obj)
 
 
 @indexer(IImioDmsIncomingMail)

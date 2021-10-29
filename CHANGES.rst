@@ -36,6 +36,8 @@ Changelog
   [sgeulette]
 - Done full vocabularies for faceted criteria (with deactivated at the end)
   [sgeulette]
+- Added replied icon on incoming mail
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------
