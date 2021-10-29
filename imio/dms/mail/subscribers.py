@@ -99,6 +99,17 @@ def replace_contact_list(obj, fieldname):
 # DMSDOCUMENT
 
 
+def reindex_replied(mail):
+    """Reindex replied incoming mails"""
+    intids = getUtility(IIntIds)
+    for rel in mail.reply_to or []:
+        if not rel.isBroken():
+            try:
+                intids.getObject(rel.to_id).reindexObject(['markers'])
+            except KeyError:
+                pass
+
+
 def dmsdocument_added(mail, event):
     """
         Replace ContactList in contact field.
@@ -106,9 +117,10 @@ def dmsdocument_added(mail, event):
     if mail.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
         if replace_contact_list(mail, 'sender'):
             mail.reindexObject(['sender', ])
-    elif mail.portal_type in ('dmsoutgoingmail', 'dmsoutgoing_email'):
+    elif mail.portal_type == 'dmsoutgoingmail':
         if replace_contact_list(mail, 'recipients'):
             mail.reindexObject(['recipients', ])
+        reindex_replied(mail)
 
 
 def dmsdocument_modified(mail, event):
@@ -152,8 +164,9 @@ def dmsdocument_modified(mail, event):
     # contact list
     if mail.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
         replace_contact_list(mail, 'sender')
-    elif mail.portal_type in ('dmsoutgoingmail', 'dmsoutgoing_email'):
+    elif mail.portal_type == 'dmsoutgoingmail':
         replace_contact_list(mail, 'recipients')
+        reindex_replied(mail)
 
     if not event.descriptions:
         return
@@ -284,27 +297,24 @@ def dmsmainfile_added(obj, event):
                               acquire=0)
     elif obj.portal_type == 'dmsommainfile':
         # we update parent index
-        obj.__parent__.reindexObject(['enabled'])
+        obj.__parent__.reindexObject(['enabled', 'markers'])
 
 
 def dmsmainfile_modified(dmf, event):
     """
         Update the SearchableText mail index
     """
+    idx = []
     if dmf.portal_type == 'dmsommainfile':
-        # we update parent index
-        dmf.__parent__.reindexObject(['enabled'])
-    reindex = False
+        idx = ['markers', 'enabled']
     if event.descriptions:
         for desc in event.descriptions:
             if desc.interface == IScanFields and 'IScanFields.scan_id' in desc.attributes:
-                reindex = True
+                idx.append('SearchableText')
                 break
-    if not reindex:
-        return
-    mail = dmf.aq_parent
-    if IDmsDocument.providedBy(mail):
-        mail.reindexObject(idxs=['SearchableText'])
+    # we update parent index
+    if idx:
+        dmf.__parent__.reindexObject(idx)
 
 
 def dmsappendixfile_added(obj, event):
@@ -620,7 +630,7 @@ def group_assignment(event):
     orgs = organizations_with_suffixes([event.group_id], IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
     if orgs:
         days_back = 5
-        start = datetime.datetime(1973, 02, 12)
+        start = datetime.datetime(1973, 2, 12)
         end = datetime.datetime.now() - datetime.timedelta(days=days_back)
         catalog = api.portal.get_tool('portal_catalog')
         for brain in catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'], recipient_groups=orgs,
