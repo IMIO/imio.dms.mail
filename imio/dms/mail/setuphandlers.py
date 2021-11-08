@@ -68,6 +68,7 @@ from plone.namedfile.file import NamedBlobFile
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
 # from Products.CMFPlone import PloneMessageFactory as pmf
+from Products.CMFPlone.interfaces import INonInstallable
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
@@ -80,6 +81,7 @@ from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
+from zope.interface import implementer
 from zope.intid.interfaces import IIntIds
 
 import copy
@@ -2435,3 +2437,14 @@ def update_task_workflow(portal):
         transitions.remove('back_in_to_assign')
         transitions.append('back_in_created2')
         state.transitions = tuple(transitions)
+
+
+@implementer(INonInstallable)
+class HiddenProfiles(object):
+
+    def getNonInstallableProfiles(self):
+        """Hide uninstall profile from site-creation and quickinstaller."""
+        return [
+            'imio.dms.mail:singles',
+        ]
+

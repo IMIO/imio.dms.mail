@@ -29,6 +29,11 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
       />
 
+    <utility
+        factory=".setuphandlers.HiddenProfiles"
+        name="imio.dms.mail.hiddenprofiles"
+      />
+
     <genericsetup:upgradeStep
         title="Go to imio.dms.mail 0.2"
         description=""
