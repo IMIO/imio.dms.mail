@@ -36,6 +36,7 @@ from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.Extensions.demo import clean_examples
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -2448,3 +2449,10 @@ class HiddenProfiles(object):
             'imio.dms.mail:singles',
         ]
 
+
+def clean_examples_step(context):
+    """Clean some examples"""
+    if not context.readDataFile("imiodmsmail_examples_minimal_marker.txt"):
+        return
+    site = context.getSite()
+    clean_examples(site)

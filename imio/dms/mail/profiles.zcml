@@ -22,6 +22,21 @@
       />
 
     <genericsetup:registerProfile
+        name="examples-minimal"
+        title="imio.dms.mail minimal test examples"
+        directory="profiles/examples-minimal"
+        description="Add minimal test examples for imio.dms.mail"
+        provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+
+    <genericsetup:importStep
+        name="imiodmsmail-clean-examples"
+        title="Clean demo examples to keep minimal"
+        description=""
+        handler="imio.dms.mail.setuphandlers.clean_examples_step"
+      />
+
+    <genericsetup:registerProfile
         name="singles"
         title="imio.dms.mail single steps profile"
         directory="profiles/singles"
