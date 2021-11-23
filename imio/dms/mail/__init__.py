@@ -30,6 +30,7 @@ CONTACTS_PART_SUFFIX = u'contacts_part'
 EMPTY_STRING = '__empty_string__'
 EMPTY_DATE = date(1950, 1, 1)
 PRODUCT_DIR = os.path.dirname(__file__)
+BLDT_EXT_DIR = os.path.join(os.getenv('PWD'), 'Extensions')
 
 ALL_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
 IM_EDITOR_SERVICE_FUNCTIONS = ['editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']

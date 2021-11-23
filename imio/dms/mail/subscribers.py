@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get  # noqa
+from BTrees.OOBTree import OOBTree  # noqa
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -10,12 +11,16 @@ from collective.contact.plonegroup.utils import get_own_organization_path
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.documentviewer.convert import Converter
+from collective.documentviewer.convert import saveFileToBlob
+from collective.documentviewer.settings import Settings
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
 from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
+from imio.dms.mail import BLDT_EXT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -62,6 +67,7 @@ from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 
 import datetime
 import logging
+import os
 
 
 logger = logging.getLogger('imio.dms.mail: events')
@@ -295,6 +301,29 @@ def dmsmainfile_added(obj, event):
         # so an editor can't change a dmsmainfile
         obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
                               acquire=0)
+        if obj.file.filename.endswith('.eml'):
+            normal_blob = saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_eml_normal.jpg'))
+            blobs = {'large': normal_blob, 'normal': normal_blob,
+                     'small': saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_small.jpg'))}
+            converter = Converter(obj)
+            annot = IAnnotations(obj).get('collective.documentviewer', '')
+            already_done = DateTime('2011/01/01').ISO8601()
+            # for name in ('large', 'normal', 'small'):
+            #     blobs[name] = annot['blob_files']['{}/dump_1.jpg'.format(name)]
+            # clean annotation
+            files = OOBTree()
+            for name in ['large', 'normal', 'small']:
+                files['{}/dump_1.jpg'.format(name)] = blobs[name]
+            annot['blob_files'] = files
+            annot['num_pages'] = 1
+            annot['pdf_image_format'] = 'jpg'
+            annot['storage_type'] = converter.gsettings.storage_type
+            annot['last_updated'] = already_done
+            annot['catalog'] = None
+            converter.initialize_filehash()  # get md5
+            annot['filehash'] = converter.filehash
+            annot['converting'] = False
+            annot['successfully_converted'] = True
     elif obj.portal_type == 'dmsommainfile':
         # we update parent index
         obj.__parent__.reindexObject(['enabled', 'markers'])

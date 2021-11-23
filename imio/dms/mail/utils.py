@@ -10,6 +10,7 @@ from datetime import timedelta
 from DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail import BLDT_EXT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.helpers.cache import generate_key
@@ -411,10 +412,9 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
     from collective.documentviewer.convert import saveFileToBlob
     from BTrees.OOBTree import OOBTree  # noqa
     from Products.CPUtils.Extensions.utils import dv_images_size
-    jpg_dir = os.path.join(os.getenv('PWD'), 'Extensions')
-    normal_blob = saveFileToBlob(os.path.join(jpg_dir, 'previsualisation_supprimee_normal.jpg'))
+    normal_blob = saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_normal.jpg'))
     blobs = {'large': normal_blob, 'normal': normal_blob,
-             'small': saveFileToBlob(os.path.join(jpg_dir, 'previsualisation_supprimee_small.jpg'))}
+             'small': saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_small.jpg'))}
     criterias = [
         {'portal_type': ['dmsincomingmail', 'dmsincoming_email']},
         {'portal_type': ['dmsoutgoingmail']},
@@ -432,6 +432,7 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
     else:
         mod_date = start - timedelta(days=int(days_back))
     already_done = DateTime('2010/01/01').ISO8601()
+    already_eml = DateTime('2011/01/01').ISO8601()
     get_same_blob = True  # we will get previously blobs
     total = {'obj': 0, 'pages': 0, 'files': 0, 'size': 0}
     pc = portal.portal_catalog
@@ -455,6 +456,8 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
                         for name in ('large', 'normal', 'small'):
                             blobs[name] = annot['blob_files']['{}/dump_1.jpg'.format(name)]
                         get_same_blob = False
+                    continue
+                if annot['last_updated'] == already_eml:
                     continue
                 get_same_blob = False
                 total['files'] += 1
@@ -780,7 +783,7 @@ class VariousUtilsMethods(UtilsMethods):
             from datetime import datetime
             if params.get('date_back'):
                 datetime.strftime(params['date_back'], '%Y%m%d')
-        except Exception, msg:
+        except Exception as msg:
             logger.error("Bad date value '{}': '{}'".format(params['date_back'], msg))
             return
         dv_clean(self.context, **params)
