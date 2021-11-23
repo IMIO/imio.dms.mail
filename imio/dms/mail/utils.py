@@ -1,7 +1,10 @@
 # encoding: utf-8
 
+from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.documentviewer.convert import Converter
+from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
@@ -409,8 +412,6 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
            "-> batch=batch number to commit each nth (default '3000')"]
     pghandler = ZLogHandler(steps=int(batch))
     log_list(out, "Starting dv_clean at {}".format(start), pghandler)
-    from collective.documentviewer.convert import saveFileToBlob
-    from BTrees.OOBTree import OOBTree  # noqa
     from Products.CPUtils.Extensions.utils import dv_images_size
     normal_blob = saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_normal.jpg'))
     blobs = {'large': normal_blob, 'normal': normal_blob,
@@ -483,6 +484,31 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
     log_list(out, "Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', "
              "Size: '{size}'".format(**total), pghandler)
     return '\n'.join(out)
+
+
+def eml_preview(obj):
+    """Adds jpeg documentviewer previews for eml file"""
+    normal_blob = saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_eml_normal.jpg'))
+    blobs = {'large': normal_blob, 'normal': normal_blob,
+             'small': saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_small.jpg'))}
+    converter = Converter(obj)
+    annot = IAnnotations(obj).get('collective.documentviewer', '')
+    already_done = DateTime('2011/01/01').ISO8601()
+    # for name in ('large', 'normal', 'small'):
+    #     blobs[name] = annot['blob_files']['{}/dump_1.jpg'.format(name)]
+    files = OOBTree()
+    for name in ['large', 'normal', 'small']:
+        files['{}/dump_1.jpg'.format(name)] = blobs[name]
+    annot['blob_files'] = files
+    annot['num_pages'] = 1
+    annot['pdf_image_format'] = 'jpg'
+    annot['storage_type'] = converter.gsettings.storage_type
+    annot['last_updated'] = already_done
+    annot['catalog'] = None
+    converter.initialize_filehash()  # get md5
+    annot['filehash'] = converter.filehash
+    annot['converting'] = False
+    annot['successfully_converted'] = True
 
 
 # views
