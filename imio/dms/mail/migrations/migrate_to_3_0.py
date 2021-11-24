@@ -103,8 +103,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.install(['collective.classification.folder', 'collective.js.tooltipster', 'Products.cron4plone'])
         self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
 
-        self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'controlpanel', 'plone.app.registry', 'repositorytool',
-                                                     'typeinfo', 'viewlets'])
+        self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'catalog', 'controlpanel', 'plone.app.registry',
+                                                     'repositorytool', 'typeinfo', 'viewlets'])
         # remove to_print related.
         self.remove_to_print()
 
