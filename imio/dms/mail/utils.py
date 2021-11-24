@@ -13,9 +13,9 @@ from datetime import timedelta
 from DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
-from imio.dms.mail import BLDT_EXT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import PRODUCT_DIR
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.content import object_values
@@ -48,6 +48,7 @@ import logging
 import os
 
 cg_separator = ' ___ '
+PREVIEW_DIR = os.path.join(PRODUCT_DIR, 'base_images')
 
 # methods
 
@@ -413,9 +414,9 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
     pghandler = ZLogHandler(steps=int(batch))
     log_list(out, "Starting dv_clean at {}".format(start), pghandler)
     from Products.CPUtils.Extensions.utils import dv_images_size
-    normal_blob = saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_normal.jpg'))
+    normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_supprimee_normal.jpg'))
     blobs = {'large': normal_blob, 'normal': normal_blob,
-             'small': saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_small.jpg'))}
+             'small': saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_supprimee_small.jpg'))}
     criterias = [
         {'portal_type': ['dmsincomingmail', 'dmsincoming_email']},
         {'portal_type': ['dmsoutgoingmail']},
@@ -488,9 +489,9 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
 
 def eml_preview(obj):
     """Adds jpeg documentviewer previews for eml file"""
-    normal_blob = saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_eml_normal.jpg'))
+    normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_eml_normal.jpg'))
     blobs = {'large': normal_blob, 'normal': normal_blob,
-             'small': saveFileToBlob(os.path.join(BLDT_EXT_DIR, 'previsualisation_supprimee_small.jpg'))}
+             'small': saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_eml_small.jpg'))}
     converter = Converter(obj)
     annot = IAnnotations(obj).get('collective.documentviewer', '')
     already_done = DateTime('2011/01/01').ISO8601()
