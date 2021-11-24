@@ -629,7 +629,7 @@ def markers_dmf_index(obj):
     * isEml
     """
     markers = []
-    if obj.file.filename.endswith('.eml') or obj.file.contentType == 'message/rfc822':
+    if obj.file and (obj.file.filename.endswith('.eml') or obj.file.contentType == 'message/rfc822'):
         markers.append('isEml')
     # Stores on obj
     annot = IAnnotations(obj)

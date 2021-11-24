@@ -294,7 +294,7 @@ def dmsmainfile_added(obj, event):
         # so an editor can't change a dmsmainfile
         obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
                               acquire=0)
-        if obj.file.filename.endswith('.eml') or obj.file.contentType == 'message/rfc822':
+        if obj.file and (obj.file.filename.endswith('.eml') or obj.file.contentType == 'message/rfc822'):
             eml_preview(obj)
     elif obj.portal_type == 'dmsommainfile':
         # we update parent index
