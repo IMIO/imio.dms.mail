@@ -1237,7 +1237,7 @@ def configure_rolefields(context):
         msg = add_fti_configuration('dmsincomingmail', roles_config[keyname], keyname=keyname)
         if msg:
             logger.warn(msg)
-        msg = add_fti_configuration('dmsincoming_email', roles_config[keyname], keyname=keyname)
+        msg = add_fti_configuration('dmsincoming_email', copy.deepcopy(roles_config[keyname]), keyname=keyname)
         if msg:
             logger.warn(msg)
 
