@@ -489,14 +489,22 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
 
 def eml_preview(obj):
     """Adds jpeg documentviewer previews for eml file"""
-    normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_eml_normal.jpg'))
-    blobs = {'large': normal_blob, 'normal': normal_blob,
-             'small': saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_eml_small.jpg'))}
+    blobs = {}
+    pc = api.portal.get_tool('portal_catalog')
+    brains = pc.unrestrictedSearchResults(portal_type='dmsmainfile', markers='isEml')
+    for brain in brains:
+        o_annot = IAnnotations(brain._unrestrictedGetObject()).get('collective.documentviewer', '')
+        if o_annot and 'blob_files' in o_annot:
+            for name in ('large', 'normal', 'small'):
+                blobs[name] = o_annot['blob_files']['{}/dump_1.jpg'.format(name)]
+            break
+    if not blobs:
+        normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_eml_normal.jpg'))
+        blobs = {'large': normal_blob, 'normal': normal_blob,
+                 'small': saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_eml_small.jpg'))}
     converter = Converter(obj)
     annot = IAnnotations(obj).get('collective.documentviewer', '')
     already_done = DateTime('2011/01/01').ISO8601()
-    # for name in ('large', 'normal', 'small'):
-    #     blobs[name] = annot['blob_files']['{}/dump_1.jpg'.format(name)]
     files = OOBTree()
     for name in ['large', 'normal', 'small']:
         files['{}/dump_1.jpg'.format(name)] = blobs[name]
