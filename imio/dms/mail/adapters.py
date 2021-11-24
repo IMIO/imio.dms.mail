@@ -622,6 +622,21 @@ def markers_om_index(obj):
     return om_markers(obj)
 
 
+@indexer(IDmsFile)
+def markers_dmf_index(obj):
+    """Indexer of various markers for IDmsFile:
+
+    * isEml
+    """
+    markers = []
+    if obj.file.filename.endswith('.eml') or obj.file.contentType == 'message/rfc822':
+        markers.append('isEml')
+    # Stores on obj
+    annot = IAnnotations(obj)
+    annot['dmsmail.markers'] = markers
+    return markers
+
+
 @indexer(IImioDmsIncomingMail)
 def im_reception_date_index(obj):
     """Indexer of 'organization_type' for IImioDmsIncomingMail. Stores reception_date (in seconds) !"""

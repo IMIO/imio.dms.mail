@@ -624,7 +624,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             blacklistPortletCategory(obj)
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
-            obj.reindexObject(idxs=['SearchableText', 'sender_index'])
+            obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
 
     def clean_examples(self):
         if 'reponse1' not in self.portal['outgoing-mail']:
