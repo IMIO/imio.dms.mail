@@ -129,7 +129,8 @@ def dmsdocument_modified(mail, event):
         Updates contained tasks.
     """
     # owner
-    if mail.owner_info().get('id') == 'scanner':
+    moi = mail.owner_info()
+    if moi and moi.get('id') == 'scanner':
         user = api.user.get_current()
         userid = user.getId()
         # pass if the container is modified when creating a sub element
