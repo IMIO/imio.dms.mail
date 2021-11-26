@@ -52,6 +52,7 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
@@ -74,7 +75,6 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
-from utils import list_wf_states
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
@@ -506,8 +506,7 @@ def createStateCollections(folder, content_type):
         'dmsincomingmail': ['dmsincomingmail', 'dmsincoming_email']
     }
 
-    for stateo in list_wf_states(folder, content_type):
-        state = stateo.id
+    for state, st_tit in list_wf_states(folder, content_type):
         col_id = "searchfor_%s" % state
         if not base_hasattr(folder, col_id):
             folder.invokeFactory("DashboardCollection", id=col_id, title=_(col_id), enabled=True,

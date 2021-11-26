@@ -549,9 +549,9 @@ def configure_group_encoder(portal_types, contacts_part=False):
     if 'dmsincomingmail' in portal_types:  # i_e ok
         for typ in ('dmsincomingmail', 'dmsincoming_email'):
             states = list_wf_states(portal, typ)
-            for state in states:
-                if state.id.startswith('proposed_to_n_plus_'):
-                    config[typ][state.id] = {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+            for st_id, st_tit in states:
+                if st_id.startswith('proposed_to_n_plus_'):
+                    config[typ][st_id] = {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
 
     # criterias config
     criterias = {

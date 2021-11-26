@@ -55,9 +55,9 @@ class IMReviewStatesVocabulary(object):
     def __call__(self, context):
         terms = []
         tl = api.portal.get().portal_properties.site_properties.getProperty('default_language', 'fr')
-        for state in list_wf_states(context, 'dmsincomingmail'):  # i_e ok
+        for st_id, st_tit in list_wf_states(context, 'dmsincomingmail'):  # i_e ok
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(safe_unicode(state.title), domain='plone', target_language=tl)))
+                st_id, st_id, translate(safe_unicode(st_tit), domain='plone', target_language=tl)))
         return SimpleVocabulary(terms)
 
 
@@ -68,9 +68,9 @@ class OMReviewStatesVocabulary(object):
     def __call__(self, context):
         terms = []
         tl = api.portal.get().portal_properties.site_properties.getProperty('default_language', 'fr')
-        for state in list_wf_states(context, 'dmsoutgoingmail'):
+        for st_id, st_tit in list_wf_states(context, 'dmsoutgoingmail'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(safe_unicode(state.title), domain='plone', target_language=tl)))
+                st_id, st_id, translate(safe_unicode(st_tit), domain='plone', target_language=tl)))
         return SimpleVocabulary(terms)
 
 
@@ -80,9 +80,9 @@ class TaskReviewStatesVocabulary(object):
 
     def __call__(self, context):
         terms = []
-        for state in list_wf_states(context, 'task'):
+        for st_id, st_tit in list_wf_states(context, 'task'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(safe_unicode(state.title), domain='plone', context=context.REQUEST)))
+                st_id, st_id, translate(safe_unicode(st_tit), domain='plone', context=context.REQUEST)))
         return SimpleVocabulary(terms)
 
 
@@ -92,9 +92,9 @@ class ContactsReviewStatesVocabulary(object):
 
     def __call__(self, context):
         terms = []
-        for state in list_wf_states(context, 'organization'):
+        for st_id, st_tit in list_wf_states(context, 'organization'):
             terms.append(SimpleVocabulary.createTerm(
-                state.id, state.id, translate(safe_unicode(state.title), domain='plone', context=context.REQUEST)))
+                st_id, st_id, translate(safe_unicode(st_tit), domain='plone', context=context.REQUEST)))
         return SimpleVocabulary(terms)
 
 
