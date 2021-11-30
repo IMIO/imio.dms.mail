@@ -11,6 +11,9 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
 from plone import api
+from types import FunctionType
+from zope.component import getUtility
+from zope.schema.interfaces import IVocabularyFactory
 
 import time
 import unittest
@@ -22,6 +25,12 @@ def timed(f, nb=100):
         ret = f()
     elapsed = time.time() - start
     return elapsed/nb, ret
+
+
+def extract_wrapped(decorated):
+    """Returns function that was decorated"""
+    closure = (c.cell_contents for c in decorated.__closure__)
+    return next((c for c in closure if isinstance(c, FunctionType)), None)
 
 
 # Commons
@@ -89,3 +98,22 @@ class TestPerformance(unittest.TestCase):
 
     def test_catalog_following_groups(self):
         check_catalog_following_groups(self, init=True)
+
+    def test_IMMailTypesVocabulary_caching(self):
+        voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
+        # this is cached
+        print(u'vocabularies.IMMailTypesVocabulary cached ({}) in {}'.format(
+            1, timed(lambda: voc_inst(self.portal), 1)[0]))
+        print(u'vocabularies.IMMailTypesVocabulary cached ({}) in {}'.format(
+            10, timed(lambda: voc_inst(self.portal), 10)[0]))
+        # original function without cache
+        orig_func = extract_wrapped(voc_inst.__call__)
+        print(u'vocabularies.IMMailTypesVocabulary not cached ({}) in {}'.format(
+            1, timed(lambda: orig_func(voc_inst, self.portal), 1)[0]))
+        print(u'vocabularies.IMMailTypesVocabulary not cached ({}) in {}'.format(
+            10, timed(lambda: orig_func(voc_inst, self.portal), 10)[0]))
+        voc_list = [(t.value, t.title) for t in voc_inst(None)]
+        self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'),
+                                        (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
+                                        (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
+
