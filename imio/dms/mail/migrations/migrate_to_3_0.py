@@ -625,6 +625,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
+        # Reindex internal_reference_no
+        self.reindexIndexes(['internal_reference_no'], update_metadata=True)
 
     def clean_examples(self):
         if 'reponse1' not in self.portal['outgoing-mail']:

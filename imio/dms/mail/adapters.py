@@ -515,6 +515,18 @@ def om_in_out_date_index(obj):
 
 
 @indexer(IImioDmsIncomingMail)
+def im_irn_no_index(obj):
+    """Indexer of 'internal_reference_no' for IImioDmsIncomingMail. Stores nothing !"""
+    return common_marker
+
+
+@indexer(IImioDmsOutgoingMail)
+def om_irn_no_index(obj):
+    """Indexer of 'internal_reference_no' for IImioDmsOutgoingMail. Stores nothing !"""
+    return common_marker
+
+
+@indexer(IImioDmsIncomingMail)
 def mail_date_index(obj):
     """Indexer of 'mail_date' for IImioDmsIncomingMail. Stores original_mail_date !"""
     # No acquisition pb because mail_date isn't an attr but cannot store None

@@ -103,6 +103,8 @@
     <adapter name="getObjSize" factory=".adapters.get_obj_size_df_index" />
     <adapter name="in_out_date" factory=".adapters.in_out_date_index" />
     <adapter name="in_out_date" factory=".adapters.om_in_out_date_index" />
+    <adapter name="internal_reference_no" factory=".adapters.im_irn_no_index" />
+    <adapter name="internal_reference_no" factory=".adapters.om_irn_no_index" />
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="mail_date" factory=".adapters.om_mail_date_index" />
     <adapter name="mail_type" factory=".adapters.heldposition_userid_index" />
