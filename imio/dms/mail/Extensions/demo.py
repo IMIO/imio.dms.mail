@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from collective.classification.tree import caching
 from collective.classification.tree.utils import iterate_over_tree
 from collective.contact.plonegroup.config import get_registry_functions
@@ -35,6 +36,36 @@ import os
 import time
 
 
+def get_org_user(directory, keys, userid=''):
+    """Get internal org corresponding to keys"""
+    f_user = None
+    f_org = directory['plonegroup-organization']
+    for key in keys:
+        if key not in f_org:
+            continue
+        f_org = f_org[key]
+        if key == keys[-1]:
+            users = [u.getId() for u in api.user.get_users(groupname='{}_editeur'.format(f_org.UID()))]
+            if userid in users:
+                f_user = userid
+            elif users:
+                f_user = users[0]
+            break
+    else:  # if the demo org has been deleted, we search another org with a configured user
+        f_org = None
+        orgs = get_registry_organizations()
+        for org in orgs:
+            users = [u.getId() for u in api.user.get_users(groupname='{}_editeur'.format(org))]
+            if userid in users:
+                f_org = org
+                f_user = userid
+                break
+            elif users:
+                f_org = org
+                f_user = users[0]
+    return f_org, f_user
+
+
 def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1'):  # i_e ok
     """
         Import some incoming mail for demo site
@@ -45,6 +76,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
     portal = getToolByName(self, "portal_url").getPortalObject()
     contacts = portal.contacts
     intids = getUtility(IIntIds)
+    onlys = only.split(',')
     docs = {
         'dmsincomingmail': {  # i_e ok
             '59.PDF':
@@ -60,39 +92,32 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
                       'scan_user': 'Opérateur', 'scanner': 'Ricola'}
             },
         },
-        'dmsincoming_email': {
-            'email1.pdf':
-            {
-                'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'email', 'file_title': u'email.pdf',
-                      'recipient_groups': [], 'orig_sender_email': u's.geul@mail.com'},
-                'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
-            },
-            'email2.pdf':
-            {
-                'c': {'title': u'Où se situe votre entité par rapport aux Objectifs de développement durable ?',
-                      'mail_type': u'email', 'file_title': u'email.pdf',
-                      'recipient_groups': [], 'orig_sender_email': u'm.bou@rw.be'},
-                'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}
-            },
-        }
+        'dmsincoming_email': OrderedDict([
+            ('email3.pdf',
+             {'c': {'title': u'Organisation de la braderie annuelle début septembre', 'mail_type': u'courrier',
+                    'file_title': u'email.pdf', 'recipient_groups': [], 'orig_sender_email': u'josiane@mail.com',
+                    'tg': ['evenements'], 'user': 'agent'},
+              'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''},
+              's': 'proposed_to_agent'}),
+            ('email1.pdf',
+             {'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'courrier', 'file_title': u'email.pdf',
+                    'recipient_groups': [], 'orig_sender_email': u's.geul@mail.com',
+                    'tg': ['direction-generale', 'secretariat'], 'user': 'agent'},
+              'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''},
+              's': 'proposed_to_agent'}),
+            ('email2.pdf',
+             {'c': {'title': u'Où se situe votre entité par rapport aux Objectifs de développement durable ?',
+                    'mail_type': u'courrier', 'file_title': u'email.pdf', 'recipient_groups': [],
+                    'orig_sender_email': u'm.bou@rw.be'},
+              'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}}),
+        ])
     }
-    if ptype == 'dmsincoming_email':
-        try:
-            secretariat = contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
-            user = 'agent'
-        except KeyError:  # if the demo org has been deleted, we search another org with a configured user
-            orgs = get_registry_organizations()
-            for org in orgs:
-                users = api.user.get_users(groupname='{}_editeur'.format(org))
-                if users:
-                    secretariat = org
-                    user = users[0].getId()
-                    break
-            else:
-                secretariat = user = ''
-        if secretariat:
-            docs['dmsincoming_email']['email1.pdf']['c'].update({'treating_groups': secretariat,
-                                                                 'assigned_user': user})
+    # update config with tg and user
+    for fil in docs[ptype]:
+        if 'tg' in docs[ptype][fil]['c']:
+            org, user = get_org_user(contacts, docs[ptype][fil]['c'].pop('tg'), docs[ptype][fil]['c'].pop('user'))
+            if org:
+                docs[ptype][fil]['c'].update({'treating_groups': org.UID(), 'assigned_user': user})
 
     docs_cycle = cycle(docs[ptype])
     folder = portal['incoming-mail']
@@ -100,7 +125,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
     limit = int(number)
     while count <= limit:
         doc = docs_cycle.next()
-        if only and doc != only:
+        if only and doc not in onlys:
             time.sleep(0.5)
             continue
         with open(add_path('Extensions/%s' % doc), 'rb') as fo:
@@ -123,10 +148,10 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         # transaction.commit()  # commit here to be sure to index preceding when using collective.indexing
         # change has been done in IdmSearchableExtender to avoid using catalog
         document.reindexObject(idxs=('SearchableText', ))
-        to_state = 'proposed_to_agent'
-        state = api.content.get_state(document)
-        i = 0
-        if doc == 'email1.pdf':
+        if 's' in docs[ptype][doc]:
+            to_state = docs[ptype][doc]['s']
+            state = api.content.get_state(document)
+            i = 0
             while state != to_state and i < 10:
                 transitions(document, ['propose_to_agent', 'propose_to_n_plus_1', 'propose_to_n_plus_2',
                                        'propose_to_n_plus_3', 'propose_to_n_plus_4', 'propose_to_n_plus_5',
