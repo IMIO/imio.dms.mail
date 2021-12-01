@@ -99,6 +99,11 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
                     'tg': ['evenements'], 'user': 'agent'},
               'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''},
               's': 'proposed_to_agent'}),
+            ('email4.pdf',
+             {'c': {'title': u'Facture 3P XX12345', 'mail_type': u'courrier',
+                    'file_title': u'email.pdf', 'recipient_groups': [], 'orig_sender_email': u'facturation@3p.be'},
+              'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''},
+              'a': ['facture-3P-XX12345.pdf']}),
             ('email1.pdf',
              {'c': {'title': u'Réservation de la salle Le Foyer', 'mail_type': u'courrier', 'file_title': u'email.pdf',
                     'recipient_groups': [], 'orig_sender_email': u's.geul@mail.com',
@@ -148,6 +153,12 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         # transaction.commit()  # commit here to be sure to index preceding when using collective.indexing
         # change has been done in IdmSearchableExtender to avoid using catalog
         document.reindexObject(idxs=('SearchableText', ))
+        # attachments
+        for attachment in docs[ptype][doc].get('a', []):
+            with open(add_path('Extensions/%s' % attachment), 'rb') as fo:
+                file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
+            createContentInContainer(document, 'dmsappendixfile', title=attachment, file=file_object)
+        # state
         if 's' in docs[ptype][doc]:
             to_state = docs[ptype][doc]['s']
             state = api.content.get_state(document)
