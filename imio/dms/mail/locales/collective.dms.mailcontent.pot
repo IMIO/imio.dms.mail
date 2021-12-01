@@ -17,7 +17,15 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: collective.dms.mailcontent\n"
 
-#: ../vocabularies.py:23
-msgid "dmsommainfile: ${title}"
+#: ../vocabularies.py:34
+msgid "${ref} (dmsmainfile) => ${title}"
+msgstr ""
+
+#: ../vocabularies.py:34
+msgid "${ref} (dmsommainfile) => ${title}"
+msgstr ""
+
+#: ../vocabularies.py:25
+msgid "(dmsommainfile) => ${title}"
 msgstr ""
 

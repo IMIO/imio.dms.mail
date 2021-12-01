@@ -15,6 +15,10 @@ msgstr ""
 "Domain: collective.dms.mailcontent\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
-#: ../vocabularies.py:23
-msgid "dmsommainfile: ${title}"
+#: ../vocabularies.py:34
+msgid "${ref} (dmsmainfile) => ${title}"
+msgstr ""
+
+#: ../vocabularies.py:25
+msgid "(dmsommainfile) => ${title}"
 msgstr ""
