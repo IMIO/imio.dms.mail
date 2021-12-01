@@ -96,7 +96,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         'dmsincoming_email': OrderedDict([
             ('email3.pdf',
              {'c': {'title': u'Organisation de la braderie annuelle début septembre', 'mail_type': u'courrier',
-                    'file_title': u'email.pdf', 'recipient_groups': [], 'orig_sender_email': u'josiane@mail.com',
+                    'file_title': u'email.pdf', 'recipient_groups': [], 'orig_sender_email': u'josiane@gmail.com',
                     'tg': ['evenements'], 'user': 'agent'},
               'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''},
               's': 'proposed_to_agent'}),
