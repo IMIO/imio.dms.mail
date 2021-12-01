@@ -74,6 +74,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         return "ptype parameter must be in ('dmsincomingmail', 'dmsincoming_email') values"
     now = datetime.now()
     portal = getToolByName(self, "portal_url").getPortalObject()
+    pc = portal.portal_catalog
     contacts = portal.contacts
     intids = getUtility(IIntIds)
     onlys = only.split(',')
@@ -117,12 +118,18 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
               'f': {'scan_id': '', 'pages_number': 1, 'scan_date': now, 'scan_user': '', 'scanner': ''}}),
         ])
     }
-    # update config with tg and user
+    # update config with tg, user, sender
     for fil in docs[ptype]:
         if 'tg' in docs[ptype][fil]['c']:
             org, user = get_org_user(contacts, docs[ptype][fil]['c'].pop('tg'), docs[ptype][fil]['c'].pop('user'))
             if org:
                 docs[ptype][fil]['c'].update({'treating_groups': org.UID(), 'assigned_user': user})
+        if 'orig_sender_email' in docs[ptype][fil]['c']:
+            results = pc.unrestrictedSearchResults(email=docs[ptype][fil]['c']['orig_sender_email'],
+                                                   portal_type=['organization', 'person', 'held_position'])
+            if results:
+                docs[ptype][fil]['c']['sender'] = [RelationValue(intids.getId(brain._unrestrictedGetObject()))
+                                                   for brain in results]
 
     docs_cycle = cycle(docs[ptype])
     folder = portal['incoming-mail']
