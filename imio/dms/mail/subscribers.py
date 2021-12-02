@@ -893,7 +893,6 @@ def folder_added(folder, event):
             sub_path = folder_path[len(main_path)+1:]
             for sub_name in ('om/', 'oem/', 'contact-lists-folder/'):
                 if sub_path.startswith(sub_name):  # only interested by sulfolders
-                    logger.error('UPDATED {}'.format(folder_path))
                     alsoProvides(folder, IActionsPanelFolderOnlyAdd)
                     alsoProvides(folder, INextPrevNotNavigable)
                     return
