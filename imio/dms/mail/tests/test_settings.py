@@ -90,6 +90,8 @@ class TestSettings(unittest.TestCase):
             self.assertTrue(fti.localroles.get('creating_group'))  # config dic not empty
         crit = ICriteria(self.portal['incoming-mail']['mail-searches'])
         self.assertIn('c90', crit.keys())
+        fields = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields')
+        self.assertIn('IDmsMailCreatingGroup.creating_group', [f['field_name'] for f in fields])
 
         # activate omail group encoder
         activate_group_encoder(self.portal, typ='omail')
@@ -102,6 +104,8 @@ class TestSettings(unittest.TestCase):
             self.assertTrue(fti.localroles.get('creating_group'), portal_type)  # config dic not empty
         crit = ICriteria(self.portal['outgoing-mail']['mail-searches'])
         self.assertIn('c90', crit.keys())
+        fields = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields')
+        self.assertIn('IDmsMailCreatingGroup.creating_group', [f['field_name'] for f in fields])
 
         # activate contact group encoder
         activate_group_encoder(self.portal, typ='contact')

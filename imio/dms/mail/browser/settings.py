@@ -586,3 +586,13 @@ def configure_group_encoder(portal_types, contacts_part=False):
         if folder_id:
             reimport_faceted_config(portal[folder_id][category_id], xml='mail-searches-group-encoder.xml',
                                     default_UID=portal[folder_id][category_id][default_id].UID())
+
+    # display added field for im and om
+    if not contacts_part:
+        config = {'dmsincomingmail': 'imail', 'dmsoutgoingmail': 'omail'}
+        key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}_fields'.format(config[portal_types[0]])
+        fields = api.portal.get_registry_record(key)
+        if 'IDmsMailCreatingGroup.creating_group' not in [f['field_name'] for f in fields]:
+            fields.append({'field_name': 'IDmsMailCreatingGroup.creating_group', 'read_tal_condition': u'',
+                           'write_tal_condition': u''})
+            api.portal.set_registry_record(key, fields)
