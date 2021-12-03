@@ -18,7 +18,7 @@ ${SELENIUM_RUN_ON_FAILURE} =  Debug
 
 Premiers pas
 # partie 2.1 Premiers pas
-    [TAGS]  RUN
+    [TAGS]  RUN201
     #Log to console  LOG
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1-acces-a-lapplication.png  css=.site-plone  id=portal-footer-wrapper
@@ -30,7 +30,7 @@ Premiers pas
 
 CE numerisation
 # partie 2.2.1 Numérisation d'un document
-    [TAGS]  RUN1
+    [TAGS]  RUN2021
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
     Go to  ${PLONE_URL}/incoming-mail
@@ -198,11 +198,11 @@ CE numerisation
 
 CE transfert email
 # partie 2.2.2 Transfert d'un email
-    [TAGS]  RUN1
+    [TAGS]  RUN2022
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?number=1&redirect=
     sleep  1
-    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&redirect=
+    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&only=email2.pdf&redirect=
     sleep  2
     Go to  ${PLONE_URL}/incoming-mail
     sleep  1
@@ -211,7 +211,7 @@ CE transfert email
     sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-2-recherche-en-creation-1.png  css=.eea-preview-items
     Delete content  /${PLONE_SITE_ID}/incoming-mail/ou-se-situe-votre-entite-par-rapport-aux-objectifs-de-developpement-durable
-    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=2&redirect=
+    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=2&only=email1.pdf,email2.pdf&redirect=
     sleep  1
     Enable autologin as  dirg
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
@@ -228,7 +228,7 @@ CE transfert email
 
 CE manuel
 # partie 2.2.3 Ajout manuel d'une fiche
-    [TAGS]  RUN
+    [TAGS]  RUN2023
     Enable autologin as  encodeur
     sleep  1
     Go to  ${PLONE_URL}/incoming-mail
@@ -279,7 +279,7 @@ CE manuel
     Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-2-visualisation.png  id=content
 
 CE multi-indicatage
-    [TAGS]  RUN
+    [TAGS]  RUN313
     Enable autologin as  Manager
     Set autologin username  encodeur
     Go to  ${PLONE_URL}/activate_group_encoder
@@ -301,7 +301,7 @@ CE multi-indicatage
 
 CS en réponse
 # partie 2.3.1 Réponse à un courrier entrant
-    [TAGS]  RUN
+    [TAGS]  RUN2031
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -428,7 +428,7 @@ CS en réponse
 CS nouveau
 # partie 2.3.2 Nouveau courrier sortant
 # partie 2.3.4 Envoi d'un email sortant
-    [TAGS]  RUN
+    [TAGS]  RUN2032
     Enable autologin as  agent
     Go to  ${PLONE_URL}/outgoing-mail
     Wait until element is visible  css=.table_faceted_no_results  10
@@ -484,7 +484,7 @@ CS nouveau
 
 CS depuis le scanner
 # partie 2.3.3 Envoi par le scanner
-    [TAGS]  RUN
+    [TAGS]  RUN2033
     Enable autologin as  scanner
     Go to  ${PLONE_URL}/import_scanned2
     Wait until element is visible  css=.faceted-table-results  10
@@ -529,7 +529,7 @@ CS depuis le scanner
 
 Menu courrier
 # partie 2.4.1 Menu de recherches prédéfinies
-    [TAGS]  RUN
+    [TAGS]  RUN2041
     Enable autologin as  scanner
     Go to  ${PLONE_URL}/import_scanned?redirect=
     Go to  ${PLONE_URL}/import_scanned2
@@ -548,7 +548,7 @@ Menu courrier
 
 Tableaux de bord
 # partie 2.4.2 Tableaux de bord
-    [TAGS]  RUN1
+    [TAGS]  RUN2042
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?number=25&redirect=
     Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
@@ -633,7 +633,7 @@ Tableaux de bord
 
 Recherche générale
 # partie 2.4.3 Recherche dans les fichiers scannés
-    [TAGS]  RUN1
+    [TAGS]  RUN2043
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -649,7 +649,7 @@ Recherche générale
 
 Visualisation
 # partie 2.5 Visualisation des courriers
-    [TAGS]  RUN1
+    [TAGS]  RUN205
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -691,7 +691,7 @@ Visualisation
 
 Modification
 # partie 2.6 Modification des courriers
-    [TAGS]  RUN1
+    [TAGS]  RUN206
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -725,7 +725,7 @@ Modification
 
 Tache
 # partie 2.7.1 Ajout d'une tâche
-    [TAGS]  RUN1
+    [TAGS]  RUN207
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -772,7 +772,7 @@ Tache
 
 Workflow ce
 # partie 2.8.1 Principe et utilisation
-    [TAGS]  RUN1
+    [TAGS]  RUN2081
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -874,7 +874,7 @@ Workflow ce
 
 Workflow cs
 # partie 2.8.3 Courrier sortant
-    [TAGS]  RUN1
+    [TAGS]  RUN2083
     Enable autologin as  encodeur
     ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     Enable autologin as  agent
@@ -923,7 +923,7 @@ Workflow cs
 
 Workflow tâche
 # partie 2.8.4 Tâches
-    [TAGS]  RUN1
+    [TAGS]  RUN2084
     Enable autologin as  agent
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     ${OM} =  Create content  type=dmsoutgoingmail  container=/${PLONE_SITE_ID}/outgoing-mail  title=Réponse candidature  internal_reference_number=S0020
@@ -964,7 +964,7 @@ Workflow tâche
 
 Contacts 1
 # partie 2.9.1 Listing des contacts
-    [TAGS]  RUN1
+    [TAGS]  RUN2091
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/contacts
     Wait until element is visible  css=.faceted-table-results  10
@@ -990,7 +990,7 @@ Contacts 1
 
 Contacts 2
 # partie 2.9.2 Gestion de contacts
-    [TAGS]  RUN1
+    [TAGS]  RUN2092
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
@@ -1026,7 +1026,7 @@ Contacts 2
 
 Contacts 3
 # partie 2.9.3 Liste de contacts
-    [TAGS]  RUN1
+    [TAGS]  RUN2093
     ### création liste contact
     Enable autologin as  agent
     Go to  ${PLONE_URL}/contacts
@@ -1089,7 +1089,7 @@ Contacts 3
 
 Gestion modèles
 # partie 2.10 Gestion des modèles
-    [TAGS]  RUN1
+    [TAGS]  RUN210
 	## 2.10.1 Tableau
     Enable autologin as  Manager
     Set autologin username  chef
@@ -1134,7 +1134,7 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
 ia-delib
-    [TAGS]  RUN1
+    [TAGS]  RUN33
     Pass execution  Bypassed due to error
     Enable autologin as  Manager
     Set autologin username  encodeur
@@ -1155,7 +1155,7 @@ ia-delib
     Wait until element is visible  css=.DV-pageImage  10
 
 Configuration
-    [TAGS]  RUN1
+    [TAGS]  RUN5
     Enable autologin as  Manager
     Set autologin username  dirg
     Go to  ${PLONE_URL}/@@overview-controlpanel
