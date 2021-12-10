@@ -26,6 +26,8 @@ class ReplyForm(BaseReplyForm):
 
     def updateWidgets(self):
         super(ReplyForm, self).updateWidgets()
+        if self.request.get('masterID'):  # in MS anonymous call, no need to go further
+            return
         prefix = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                 'omail_response_prefix', default='') or ''
         self.widgets['IDublinCore.title'].value = u"%s%s" % (prefix, safe_unicode(self.context.title))
