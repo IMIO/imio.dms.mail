@@ -88,6 +88,8 @@ class MultipleReplyForm(BaseReplyForm):
 
     def updateFields(self):
         super(BaseReplyForm, self).updateFields()  # skipping BaseReplyForm itself
+        manage_email_fields(self, 'add')
+        manage_fields(self, 'omail_fields', 'edit')
         self.update_fields_irn()
         # Completing form values wasn't working anymore, but relations must be set here too !
         if self.uids:  # view is called a 2d time by MS. uids is empty. We don't want to change request form values
