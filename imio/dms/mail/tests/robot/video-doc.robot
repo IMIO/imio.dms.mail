@@ -13,7 +13,7 @@ Suite Teardown  Close all browsers
 *** Variables ***
 
 #${BROWSER} =  GoogleChrome
-${RECORD} =  0  # set to 1 to made a pause at each test start, to record easierly
+${RECORD} =  1  # set to 1 to made a pause at each test start, to record easierly
 # Default values when RECORD = 1. If not, it's reduced in Suite Setup.
 ${C_S} =  1.5  # clic sleep
 ${S_S} =  2  # short sleep
@@ -26,7 +26,7 @@ ${W_HEIGHT} =  1050  # height 1920 2880 720
 
 Naviguer
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN01
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
@@ -150,7 +150,7 @@ Naviguer
 
 Traiter un courrier
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN02
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
@@ -421,7 +421,7 @@ Traiter un courrier
 
 Répondre à un courrier
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN03
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
@@ -549,7 +549,7 @@ Répondre à un courrier
 
 Créer un courrier sortant
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN04
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
@@ -673,7 +673,7 @@ Créer un courrier sortant
 Créer un document bureautique
 # partie guide utilisation : Créer un courrier bureautique
 # Setup
-    [TAGS]  RUN1
+    [TAGS]  RUN05
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
     ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25  additional_address_details=41  email=marcleduc@hotmail.com  cell_phone=04724523453
@@ -798,7 +798,7 @@ Créer un document bureautique
 
 Transférer un email entrant
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN06
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
@@ -930,7 +930,7 @@ Transférer un email entrant
 
 Envoyer un email sortant
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN07
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
     ${RECIPIENT} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
@@ -1084,7 +1084,7 @@ Envoyer un email sortant
 
 Valider un courrier entrant
     # Setup
-    [TAGS]  RUN1
+    [TAGS]  RUN08
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
@@ -1235,7 +1235,7 @@ Valider un courrier entrant
 
 Ajouter un contact
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN09
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=&only=59.PDF
@@ -1535,7 +1535,7 @@ Ajouter un contact
 Ajouter une annexe
     # ATTENTION: le pointeur souris doit être hors de la fenêtre !!
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN10
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
@@ -1635,7 +1635,7 @@ Ajouter une annexe
 Ajouter une tâche
     # ATTENTION: le pointeur souris doit être hors de la fenêtre !!
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN11
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
@@ -1785,7 +1785,7 @@ Ajouter une tâche
 
 Utiliser les recherches
     # setup
-    [TAGS]  RUN1
+    [TAGS]  RUN12
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
