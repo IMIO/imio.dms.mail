@@ -243,7 +243,8 @@ class IImioDmsMailConfig(model.Schema):
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
                 'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
                 'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',
-                'omail_close_on_email_send', 'omail_email_signature', 'omail_fields', 'omail_group_encoder']
+                'omail_close_on_email_send', 'omail_replyto_email_send', 'omail_email_signature', 'omail_fields',
+                'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -319,6 +320,11 @@ class IImioDmsMailConfig(model.Schema):
     omail_close_on_email_send = schema.Bool(
         title=_(u'Close outgoing mail on email send'),
         default=True
+    )
+
+    omail_replyto_email_send = schema.Bool(
+        title=_(u'Send email with agent as reply to'),
+        default=False
     )
 
     widget('omail_email_signature', WysiwygFieldWidget)
