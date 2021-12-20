@@ -104,6 +104,7 @@ def reindex_replied(mail):
     for rel in mail.reply_to or []:
         if not rel.isBroken():
             try:
+                # TODO update modified to clear actionspanel cache ?
                 intids.getObject(rel.to_id).reindexObject(['markers'])
             except KeyError:
                 pass
