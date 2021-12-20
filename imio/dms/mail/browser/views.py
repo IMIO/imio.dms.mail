@@ -230,12 +230,13 @@ class SendEmail(BrowserView):
                     title = unidecode(title)
                 add_attachment(msg, title, content=a_obj.file.data)
         mailhost = get_mail_host(check=False)
+        replyto_key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send'
         if mailhost.smtp_host == u'localhost' and not PMH_ENABLED:
             api.portal.show_message(_('Your email has not been sent: ${error}.',
                                       mapping={'error': _(u'Cannot use localhost as smtp')}),
                                     self.request, type='error')
             return
-        elif mailhost.smtp_host == u'smtp.office365.com':
+        elif api.portal.get_registry_record(replyto_key, default=False):
             ret, error = send_email(msg, self.context.email_subject, mailhost.smtp_uid, self.context.email_recipient,
                                     self.context.email_cc, replyto=self.context.email_sender)
         else:

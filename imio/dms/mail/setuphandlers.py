@@ -1473,6 +1473,8 @@ def configureImioDmsMail(context):
             {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
             {'value': u'email', 'dtitle': u'Email', 'active': True},
         ]
+    if registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send') is None:
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send'] = False
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields'):
         fields = [
             'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
