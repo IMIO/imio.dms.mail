@@ -28,4 +28,3 @@ msgstr ""
 #: ../vocabularies.py:25
 msgid "(dmsommainfile) => ${title}"
 msgstr ""
-

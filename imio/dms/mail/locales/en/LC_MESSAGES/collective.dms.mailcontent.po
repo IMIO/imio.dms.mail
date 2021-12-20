@@ -19,6 +19,10 @@ msgstr ""
 msgid "${ref} (dmsmainfile) => ${title}"
 msgstr ""
 
+#: ../vocabularies.py:34
+msgid "${ref} (dmsommainfile) => ${title}"
+msgstr ""
+
 #: ../vocabularies.py:25
 msgid "(dmsommainfile) => ${title}"
 msgstr ""

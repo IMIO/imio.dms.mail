@@ -26,7 +26,3 @@ msgstr "${ref} (D) => ${title}"
 #: ../vocabularies.py:25
 msgid "(dmsommainfile) => ${title}"
 msgstr "(D) => ${title}"
-
-#: ../vocabularies.py:23    TEMPORARY
-msgid "dmsommainfile: ${title}"
-msgstr "D: ${title}"
