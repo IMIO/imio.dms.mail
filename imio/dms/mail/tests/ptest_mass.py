@@ -23,6 +23,7 @@ class TestMass(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
 
     def test_mass0(self):
+        return  # avoid long test if not needed
         for j in range(0, 10):
             nb = 1000
             create_im_mails(self, nb*(j+1), start=nb*j+1, senders=[], transitions=['propose_to_agent'])

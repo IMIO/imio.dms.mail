@@ -6,6 +6,7 @@ from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from imio.dms.mail.testing import add_user_in_groups
 from imio.dms.mail.testing import create_groups
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.pyutils.utils import ftimed
 from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -15,16 +16,7 @@ from types import FunctionType
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 
-import time
 import unittest
-
-
-def timed(f, nb=100):
-    start = time.time()
-    for i in range(nb):
-        ret = f()
-    elapsed = time.time() - start
-    return elapsed/nb, ret
 
 
 def extract_wrapped(decorated):
@@ -46,9 +38,9 @@ def check_catalog_following_groups(self, init=False, nb=100):
     groups_nb = len(api.group.get_groups(username='newuser'))
     login(self.portal, 'newuser')
     print(u'catalog._listAllowedRolesAndUsers ({}): {} groups, in {}'.format(
-        nb, groups_nb, timed(lambda: pc._listAllowedRolesAndUsers(user), nb)))
+        nb, groups_nb, ftimed(lambda: pc._listAllowedRolesAndUsers(user), nb)))
     print(u'catalog.searchResults ({}): {} groups, in {}'.format(
-        nb, groups_nb, timed(lambda: pc.searchResults(criterias), nb)))
+        nb, groups_nb, ftimed(lambda: pc.searchResults(criterias), nb)))
     # adding new groups
     if init:
         create_groups(self, 500)
@@ -58,9 +50,9 @@ def check_catalog_following_groups(self, init=False, nb=100):
         user = self.portal.acl_users.getUserById('newuser')
         groups_nb = len(api.group.get_groups(user=user))
         print(u'catalog._listAllowedRolesAndUsers ({}): {} groups, in {}'.format(
-            nb, groups_nb, timed(lambda: pc._listAllowedRolesAndUsers(user), nb)[0]))
+            nb, groups_nb, ftimed(lambda: pc._listAllowedRolesAndUsers(user), nb)[0]))
         print(u'catalog.searchResults ({}): {} groups, in {}'.format(
-            nb, groups_nb, timed(lambda: pc.searchResults(criterias), nb)[0]))
+            nb, groups_nb, ftimed(lambda: pc.searchResults(criterias), nb)[0]))
     self.assertTrue(self.portal.portal_catalog._listAllowedRolesAndUsers(
         self.portal.acl_users.getUserById('newuser')) > 100)
 
@@ -78,9 +70,9 @@ class TestPerformance(unittest.TestCase):
         # __builtin__.__dict__.update(locals())
         nb = 100
         print(u'voc_selected_org_suffix_users ({}) without n_plus: in {}'.format(
-            nb, timed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur']), nb)[0]))
+            nb, ftimed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur']), nb)[0]))
         print(u'voc_selected_org_suffix_users ({}) with 5 n_plus: in {}'.format(
-            nb, timed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur', 'n_plus_1', 'n_plus_2',
+            nb, ftimed(lambda: voc_selected_org_suffix_users(org_uid, ['editeur', 'n_plus_1', 'n_plus_2',
                                                                       'n_plus_3', 'n_plus_4', 'n_plus_5']), nb)[0]))
 
     def test_organizations_with_suffixes(self):
@@ -90,11 +82,11 @@ class TestPerformance(unittest.TestCase):
         # __builtin__.__dict__.update(locals())
         nb = 100
         print(u'organizations_with_suffixes ({}) without n_plus: in {}'.format(
-            nb, timed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True), nb)))
+            nb, ftimed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True), nb)))
         suffixes = ('editeur', 'lecteur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5')
         # __builtin__.__dict__.update(locals())
         print(u'organizations_with_suffixes ({}) with 5 n_plus: in {}'.format(
-            nb, timed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True), nb)))
+            nb, ftimed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True), nb)))
 
     def test_catalog_following_groups(self):
         check_catalog_following_groups(self, init=True)
@@ -103,15 +95,15 @@ class TestPerformance(unittest.TestCase):
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')
         # this is cached
         print(u'vocabularies.IMMailTypesVocabulary cached ({}) in {}'.format(
-            1, timed(lambda: voc_inst(self.portal), 1)[0]))
+            1, ftimed(lambda: voc_inst(self.portal), 1)[0]))
         print(u'vocabularies.IMMailTypesVocabulary cached ({}) in {}'.format(
-            10, timed(lambda: voc_inst(self.portal), 10)[0]))
+            10, ftimed(lambda: voc_inst(self.portal), 10)[0]))
         # original function without cache
         orig_func = extract_wrapped(voc_inst.__call__)
         print(u'vocabularies.IMMailTypesVocabulary not cached ({}) in {}'.format(
-            1, timed(lambda: orig_func(voc_inst, self.portal), 1)[0]))
+            1, ftimed(lambda: orig_func(voc_inst, self.portal), 1)[0]))
         print(u'vocabularies.IMMailTypesVocabulary not cached ({}) in {}'.format(
-            10, timed(lambda: orig_func(voc_inst, self.portal), 10)[0]))
+            10, ftimed(lambda: orig_func(voc_inst, self.portal), 10)[0]))
         voc_list = [(t.value, t.title) for t in voc_inst(None)]
         self.assertListEqual(voc_list, [(u'courrier', u'Courrier'), (u'recommande', u'Recommandé'),
                                         (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
