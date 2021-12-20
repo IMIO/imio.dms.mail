@@ -19,14 +19,15 @@ def actionspanelview_cachekey(method,
         We will add the following informations:
         * context
         * modification date
-        * review state
         * current user
         * user groups
     """
     user = self.request['AUTHENTICATED_USER']
-    return (useIcons, showOwnDelete, showActions, showAddContent, showEdit,
-            self.context, user.getId(), self.context.modified(), api.content.get_state(self.context, default=None),
-            sorted(user.getGroups()))
+    # review_state is no more considered because modification is changed at transition (in subscribers)
+    ret = (useIcons, showOwnDelete, showActions, showAddContent, showEdit,
+           '/'.join(self.context.getPhysicalPath()), user.getId(), self.context.modified().strftime('%Y%m%d-%H%M%S-%f'),
+           sorted(user.getGroups()))
+    return ret
 
 
 class DmsIMActionsPanelView(ActionsPanelView):
@@ -88,31 +89,31 @@ class DmsIMActionsPanelView(ActionsPanelView):
     @ram.cache(actionspanelview_cachekey)
     def __call__(self,
                  useIcons=True,
-                 #showTransitions=True,
-                 #appendTypeNameToTransitionLabel=False,
+                 # howTransitions=True,
+                 # ppendTypeNameToTransitionLabel=False,
                  showEdit=True,
-                 #showExtEdit=False,
+                 # howExtEdit=False,
                  showOwnDelete=False,
                  showActions=False,
                  showAddContent=False,
-                 #showHistory=False,
-                 #showHistoryLastEventHasComments=True,
-                 #showArrows=False,
-                 #arrowsPortalTypeAware=False,
+                 # howHistory=False,
+                 # howHistoryLastEventHasComments=True,
+                 # howArrows=False,
+                 # rrowsPortalTypeAware=False,
                  **kwargs):
         return super(DmsIMActionsPanelView, self).__call__(
             useIcons=useIcons,
-            #showTransitions=showTransitions,
-            #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            # howTransitions=showTransitions,
+            # ppendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
             showEdit=showEdit,
-            #showExtEdit=showExtEdit,
+            # howExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
             showAddContent=showAddContent,
-            #showHistory=showHistory,
-            #showHistoryLastEventHasComments=showHistoryLastEventHasComments,
-            #showArrows=showArrows,
-            #arrowsPortalTypeAware=arrowsPortalTypeAware,
+            # howHistory=showHistory,
+            # howHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            # howArrows=showArrows,
+            # rrowsPortalTypeAware=arrowsPortalTypeAware,
             **kwargs)
 
 
@@ -191,31 +192,31 @@ class DmsOMActionsPanelView(ActionsPanelView):
     @ram.cache(actionspanelview_cachekey)
     def __call__(self,
                  useIcons=True,
-                 #showTransitions=True,
-                 #appendTypeNameToTransitionLabel=False,
+                 # howTransitions=True,
+                 # ppendTypeNameToTransitionLabel=False,
                  showEdit=True,
-                 #showExtEdit=False,
+                 # howExtEdit=False,
                  showOwnDelete=False,
                  showActions=False,
                  showAddContent=False,
-                 #showHistory=False,
-                 #showHistoryLastEventHasComments=True,
-                 #showArrows=False,
-                 #arrowsPortalTypeAware=False,
+                 # howHistory=False,
+                 # howHistoryLastEventHasComments=True,
+                 # howArrows=False,
+                 # rrowsPortalTypeAware=False,
                  **kwargs):
         return super(DmsOMActionsPanelView, self).__call__(
             useIcons=useIcons,
-            #showTransitions=showTransitions,
-            #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            # howTransitions=showTransitions,
+            # ppendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
             showEdit=showEdit,
-            #showExtEdit=showExtEdit,
+            # howExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
             showAddContent=showAddContent,
-            #showHistory=showHistory,
-            #showHistoryLastEventHasComments=showHistoryLastEventHasComments,
-            #showArrows=showArrows,
-            #arrowsPortalTypeAware=arrowsPortalTypeAware,
+            # howHistory=showHistory,
+            # howHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            # howArrows=showArrows,
+            # rrowsPortalTypeAware=arrowsPortalTypeAware,
             **kwargs)
 
 
@@ -237,31 +238,31 @@ class DmsTaskActionsPanelView(ActionsPanelView):
     @ram.cache(actionspanelview_cachekey)
     def __call__(self,
                  useIcons=True,
-                 #showTransitions=True,
-                 #appendTypeNameToTransitionLabel=False,
+                 # showTransitions=True,
+                 # appendTypeNameToTransitionLabel=False,
                  showEdit=True,
-                 #showExtEdit=False,
+                 # showExtEdit=False,
                  showOwnDelete=False,
                  showActions=False,
                  showAddContent=False,
-                 #showHistory=False,
-                 #showHistoryLastEventHasComments=True,
-                 #showArrows=False,
-                 #arrowsPortalTypeAware=False,
+                 # showHistory=False,
+                 # showHistoryLastEventHasComments=True,
+                 # showArrows=False,
+                 # arrowsPortalTypeAware=False,
                  **kwargs):
         return super(DmsTaskActionsPanelView, self).__call__(
             useIcons=useIcons,
-            #showTransitions=showTransitions,
-            #appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            # showTransitions=showTransitions,
+            # appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
             showEdit=showEdit,
-            #showExtEdit=showExtEdit,
+            # showExtEdit=showExtEdit,
             showOwnDelete=showOwnDelete,
             showActions=showActions,
             showAddContent=showAddContent,
-            #showHistory=showHistory,
-            #showHistoryLastEventHasComments=showHistoryLastEventHasComments,
-            #showArrows=showArrows,
-            #arrowsPortalTypeAware=arrowsPortalTypeAware,
+            # showHistory=showHistory,
+            # showHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            # showArrows=showArrows,
+            # arrowsPortalTypeAware=arrowsPortalTypeAware,
             **kwargs)
 
 
