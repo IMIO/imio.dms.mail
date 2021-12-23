@@ -6,6 +6,10 @@ from plone.app.testing import login
 from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
+from z3c.relationfield.relation import RelationValue
+from zope.component import getUtility
+from zope.intid.interfaces import IIntIds
+from zope.lifecycleevent import modified
 
 import unittest
 
@@ -20,6 +24,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.portal.REQUEST['AUTHENTICATED_USER'] = api.user.get(username=TEST_USER_ID)
         self.im1 = self.portal['incoming-mail']['courrier2']
         self.view = self.im1.unrestrictedTraverse('@@actions_panel')
+        self.intids = getUtility(IIntIds)
 
     def test_mayReply(self):
         self.assertEqual(api.content.get_state(self.im1), 'created')
@@ -96,6 +101,22 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         to_sort = [{'id': 'unknown'}, {'id': 'close'}, {'id': 'back_to_creation'}, {'id': 'treat'}]
         self.view.sortTransitions(to_sort)
         self.assertListEqual(to_sort, [{'id': 'back_to_creation'}, {'id': 'treat'}, {'id': 'close'}, {'id': 'unknown'}])
+
+    def test_im_actionspanel_cache(self):
+        # TODO update this irrelevant test
+        ret0 = self.view()
+        # we have 3 actions: edit, propose manager, propose agent
+        self.assertEqual(ret0.count(u'<td '), 3)
+        api.content.transition(self.im1, 'propose_to_agent')
+        ret1 = self.view()
+        # we have the same transitions because there is a cache on getTransitions
+        self.assertEqual(ret1.count(u'<td '), 5)
+        # we add a reply
+        om2 = self.portal['outgoing-mail']['reponse2']
+        om2.reply_to = [RelationValue(self.intids.getId(self.im1))]
+        modified(om2)
+        ret2 = self.view()
+        self.assertEqual(ret2.count(u'<td '), 5)
 
 
 class TestContactActionsPanelView(unittest.TestCase):
