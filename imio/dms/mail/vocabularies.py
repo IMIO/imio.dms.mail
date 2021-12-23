@@ -45,6 +45,9 @@ import re
 
 
 def voc_cache_key(method, self, context):
+    """Returns a persistent portal stored date following the given cache key.
+
+    Must be programatically invalidated."""
     return get_cachekey_volatile("%s.%s" % (self.__class__.__module__, self.__class__.__name__))
 
 
