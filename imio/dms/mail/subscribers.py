@@ -103,8 +103,8 @@ def reindex_replied(objs):
     """Reindex replied incoming mails"""
     for im in objs:
         im.reindexObject(['markers'])
-        # update modified to clear actionspanel cache
-        # TODO or clear cache...
+        # it also modify the im annotation
+        # actionspanel cache depends now on imio.helpers.cache.obj_modified (testing annotations too)
 
 
 def _get_replied_ids(obj, from_obj=False):
