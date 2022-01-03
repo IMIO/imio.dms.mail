@@ -42,7 +42,8 @@ from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from z3c.relationfield.event import updateRelations
+from z3c.relationfield.event import removeRelations as orig_removeRelations
+from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
@@ -92,22 +93,55 @@ def replace_contact_list(obj, fieldname):
                 newvalue.append(relation)
     if changed:
         setattr(obj, fieldname, newvalue)
-        updateRelations(obj, None)
+        orig_updateRelations(obj, None)
     return changed
 
 # DMSDOCUMENT
 
 
-def reindex_replied(mail):
+def reindex_replied(objs):
     """Reindex replied incoming mails"""
-    intids = getUtility(IIntIds)
-    for rel in mail.reply_to or []:
-        if not rel.isBroken():
-            try:
-                # TODO update modified to clear actionspanel cache ?
-                intids.getObject(rel.to_id).reindexObject(['markers'])
-            except KeyError:
-                pass
+    for im in objs:
+        im.reindexObject(['markers'])
+        # update modified to clear actionspanel cache
+        # TODO or clear cache...
+
+
+def _get_replied_ids(obj, from_obj=False):
+    objs = []
+    if obj.portal_type == 'dmsoutgoingmail':
+        intids = queryUtility(IIntIds)
+        if from_obj:
+            rels = obj.reply_to or []
+        else:
+            catalog = queryUtility(ICatalog)
+            rels = catalog.findRelations({'from_id': intids.queryId(obj), 'from_attribute': 'reply_to'})
+        for rel in rels:
+            if rel.to_object.portal_type != 'dmsoutgoingmail':
+                objs.append(intids.getObject(rel.to_id))
+    return objs
+
+
+def remove_relations(obj, event):
+    """Overrides of z3c.relationfield.event.removeRelations to know removed linked ims."""
+    ims = _get_replied_ids(obj)
+    orig_removeRelations(obj, event)
+    reindex_replied(ims)
+
+
+def update_relations(obj, event):
+    """Overrides of z3c.relationfield.event.updateRelations to know removed linked ims."""
+    old_ims = _get_replied_ids(obj)
+    orig_updateRelations(obj, event)
+    new_ims = _get_replied_ids(obj, from_obj=True)
+    # get removed and new only, not unchanged
+    res = []
+    for im in old_ims:
+        if im not in new_ims:
+            res.append(im)
+        else:
+            new_ims.remove(im)
+    reindex_replied(res + new_ims)
 
 
 def dmsdocument_added(mail, event):
@@ -120,7 +154,7 @@ def dmsdocument_added(mail, event):
     elif mail.portal_type == 'dmsoutgoingmail':
         if replace_contact_list(mail, 'recipients'):
             mail.reindexObject(['recipients', ])
-        reindex_replied(mail)
+        reindex_replied(_get_replied_ids(mail, from_obj=True))
 
 
 def dmsdocument_modified(mail, event):
@@ -167,7 +201,6 @@ def dmsdocument_modified(mail, event):
         replace_contact_list(mail, 'sender')
     elif mail.portal_type == 'dmsoutgoingmail':
         replace_contact_list(mail, 'recipients')
-        reindex_replied(mail)
 
     if not event.descriptions:
         return

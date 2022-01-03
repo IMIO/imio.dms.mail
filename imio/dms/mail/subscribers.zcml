@@ -5,6 +5,31 @@
 
     <include package="z3c.unconfigure" file="meta.zcml" />
 
+    <!-- z3c.relationfield : we have to detect OM/IM relation change => own implementation -->
+    <unconfigure>
+        <subscriber
+            for="z3c.relationfield.interfaces.IHasOutgoingRelations
+                 zope.app.container.interfaces.IObjectRemovedEvent"
+        handler="z3c.relationfield.event.removeRelations"
+        />
+        <subscriber
+            for="z3c.relationfield.interfaces.IHasOutgoingRelations
+                 zope.lifecycleevent.IObjectModifiedEvent"
+        handler="z3c.relationfield.event.updateRelations"
+        />
+    </unconfigure>
+
+    <subscriber
+        for="z3c.relationfield.interfaces.IHasOutgoingRelations
+             zope.app.container.interfaces.IObjectRemovedEvent"
+    handler=".subscribers.remove_relations"
+    />
+    <subscriber
+        for="z3c.relationfield.interfaces.IHasOutgoingRelations
+             zope.lifecycleevent.IObjectModifiedEvent"
+    handler=".subscribers.update_relations"
+    />
+
     <!-- IDmsDocument -->
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
