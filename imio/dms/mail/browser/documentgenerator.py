@@ -153,6 +153,19 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             return None
         return uuidToObject(om.treating_groups)
 
+    def separate_full_title(self, tg=u'', nb=2, sep=u' - '):
+        """Separates a treating group name in different parts.
+        Returns always the good number of parts, fulled with empty strings."""
+        ret = [u'' for i in range(0, nb)]
+        if not tg:
+            return ret
+        parts = tg.split(sep)
+        for i in range(0, nb-1):
+            ret[i] = parts[i]
+        if len(parts) >= nb:
+            ret[-1] = sep.join(parts[nb-1:])
+        return ret
+
 
 class DashboardDGBaseHelper():
     """
