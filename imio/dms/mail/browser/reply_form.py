@@ -11,6 +11,7 @@ from imio.dms.mail.dmsmail import manage_email_fields
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form.form import applyChanges
+from z3c.form.interfaces import HIDDEN_MODE
 
 
 class ReplyForm(BaseReplyForm):
@@ -34,6 +35,8 @@ class ReplyForm(BaseReplyForm):
         self.widgets['send_modes'].value = self.get_send_modes()
         if self.context.orig_sender_email:
             self.widgets['orig_sender_email'].value = self.context.orig_sender_email
+        else:
+            self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
         for fieldname in ("classification_categories", "classification_folders"):
             widgetname = "IClassificationFolder.{0}".format(fieldname)
