@@ -12,15 +12,15 @@ Suite Teardown  Close all browsers
 
 *** Variables ***
 
-#${BROWSER} =  GoogleChrome
+# ${BROWSER} =  GoogleChrome
 ${RECORD} =  1  # set to 1 to made a pause at each test start, to record easierly
 # Default values when RECORD = 1. If not, it's reduced in Suite Setup.
 ${C_S} =  1.5  # clic sleep
 ${S_S} =  2  # short sleep
 ${N_S} =  4  # normal sleep
 ${L_S} =  6  # longer sleep
-${W_WIDTH} =  1680  # width 1200 1260 1280
-${W_HEIGHT} =  1050  # height 1920 2880 720
+${W_WIDTH} =  1840  # width 1200 1260 1280 1680
+${W_HEIGHT} =  1035  # height 1920 2880 720 1050
 
 *** Test Cases ***
 
@@ -54,6 +54,7 @@ Naviguer
     Go to  ${PLONE_URL}/
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # bandeau principal
     ${tit1}  Add title  Tutoriel vidéo iA.docs : Naviguer dans l'interface...
     sleep  ${L_S}
@@ -179,6 +180,7 @@ Traiter un courrier
     Select collection  incoming-mail/mail-searches/to_treat
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment traiter un courrier entrant...
     sleep  ${L_S}
@@ -454,6 +456,7 @@ Répondre à un courrier
 
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # répondre
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
     sleep  ${L_S}
@@ -557,6 +560,7 @@ Créer un courrier sortant
     Wait until element is visible  css=div.table_faceted_results  10
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # créer cs
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment créer un courrier sortant...
     sleep  ${L_S}
@@ -694,7 +698,8 @@ Créer un document bureautique
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
 # start video
     Run keyword if  '${RECORD}'=='1'  Pause
-# visualisation
+    sleep  ${S_S}
+# visualisation TODO à corriger
     ${main1}  Add title  Tutoriel vidéo iA.docs : Comment créer un document bureautique
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -735,6 +740,7 @@ Créer un document bureautique
     Remove element  id=${main1}
 
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
 
     Add clic  css=.fancytree-exp-cl span.fancytree-expander
     Click element  css=.fancytree-exp-cl span.fancytree-expander
@@ -780,6 +786,7 @@ Créer un document bureautique
     Remove element  id=${note1}
 
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
 
     ${note1}  Add pointy note  css=.DV-cover
     ...  La visualisation du document bureautique nous montre qu'un document a bien été créé à partir d'un template  position=left  color=blue  width=300
@@ -831,6 +838,7 @@ Transférer un email entrant
     Select collection  incoming-mail/mail-searches/to_treat
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment transférer un email entrant...
     Sleep  ${L_S}
     Remove element  id=${note1}
@@ -951,6 +959,7 @@ Envoyer un email sortant
     Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : comment envoyer un email sortant...
     sleep  ${L_S}
@@ -1110,6 +1119,7 @@ Valider un courrier entrant
 
     # Start Video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     ${tit1}  Add title  Tutoriel vidéo iA.docs : Comment valider un courrier
     sleep  ${L_S}
     Remove element  id=${tit1}
@@ -1249,6 +1259,7 @@ Ajouter un contact
     Wait until element is visible  css=.DV-pageImage  10
     # Start Video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # édition
     ${tit1}  Add title  Tutoriel vidéo iA.docs : Comment utiliser le champ de sélection d'un contact et comment en ajouter un nouveau.
     Sleep  ${L_S}
@@ -1567,6 +1578,7 @@ Ajouter une annexe
     Wait until element is visible  css=.DV-pageImage  10
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # Ajouter une annexe
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe...
     Sleep  ${L_S}
@@ -1668,6 +1680,7 @@ Ajouter une tâche
     Wait until element is visible  css=.DV-pageImage  10
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     # Ajouter une tache
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une tâche...
     Sleep  ${L_S}
@@ -1812,6 +1825,7 @@ Utiliser les recherches
     GO to  ${PLONE_URL}/
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
+    sleep  ${S_S}
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment utiliser les recherches...
     Sleep  ${L_S}
     Remove element  id=${note1}

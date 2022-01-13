@@ -31,9 +31,11 @@ Add title
 
 Add end message
     [Documentation]  Add a note under the portal top
-    Add title  Ce tutoriel vidéo est fini ;-) Retrouvez notre documentation complète à l'adresse "https://docs.imio.be".
+    ${id}  Add title  Ce tutoriel vidéo est fini ;-) Retrouvez notre documentation complète à l'adresse "https://docs.imio.be".
     sleep  ${N_S}
     sleep  ${N_S}
+    Remove element  id=${id}
+    sleep  1.5
 
 Add clic
     [Documentation]  Add a pointer clic on given locator
