@@ -106,7 +106,7 @@ class AssignedUsersWithDeactivatedVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def AssignedUsersWithDeactivatedVocabulary__call__(self, context):
         factory = getUtility(IVocabularyFactory, 'plone.principalsource.Users')
         vocab = factory(context)  # terms as username, userid, fullname
         a_terms = []
@@ -131,6 +131,8 @@ class AssignedUsersWithDeactivatedVocabulary(object):
         return SimpleVocabulary([SimpleTerm(EMPTY_STRING, EMPTY_STRING, _('Empty value'))] +
                                 humansorted(a_terms, key=attrgetter('title')) +
                                 humansorted(d_terms, key=attrgetter('title')))
+
+    __call__ = AssignedUsersWithDeactivatedVocabulary__call__
 
 
 class AssignedUsersForFacetedFilterVocabulary(object):
@@ -170,8 +172,10 @@ class IMMailTypesVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def IMMailTypesVocabulary__call__(self, context):
         return get_settings_vta_table('mail_types')
+
+    __call__ = IMMailTypesVocabulary__call__
 
 
 class IMActiveMailTypesVocabulary(object):
@@ -179,8 +183,10 @@ class IMActiveMailTypesVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def IMActiveMailTypesVocabulary__call__(self, context):
         return get_settings_vta_table('mail_types', choose=True, active=[True])
+
+    __call__ = IMActiveMailTypesVocabulary__call__
 
 
 class PloneGroupInterfacesVocabulary(object):
@@ -213,7 +219,7 @@ class OMSenderVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def OMSenderVocabulary__call__(self, context):
         catalog = api.portal.get_tool('portal_catalog')
         sfs = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                              'omail_sender_firstname_sorting')
@@ -243,14 +249,18 @@ class OMSenderVocabulary(object):
 
         return SimpleVocabulary([term for pers, hpo, term in sorted(terms, key=sort_terms)])
 
+    __call__ = OMSenderVocabulary__call__
+
 
 class OMMailTypesVocabulary(object):
     """ Mail types vocabulary """
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def OMMailTypesVocabulary__call__(self, context):
         return get_settings_vta_table('omail_types')
+
+    __call__ = OMMailTypesVocabulary__call__
 
 
 class OMActiveMailTypesVocabulary(object):
@@ -258,8 +268,10 @@ class OMActiveMailTypesVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def OMActiveMailTypesVocabulary__call__(self, context):
         return get_settings_vta_table('omail_types', active=[True])
+
+    __call__ = OMActiveMailTypesVocabulary__call__
 
 
 class OMActiveSendModesVocabulary(object):
@@ -267,8 +279,10 @@ class OMActiveSendModesVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def OMActiveSendModesVocabulary__call__(self, context):
         return get_settings_vta_table('omail_send_modes', active=[True])
+
+    __call__ = OMActiveSendModesVocabulary__call__
 
 
 def encodeur_active_orgs(context):
@@ -322,7 +336,7 @@ class CreatingGroupVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def CreatingGroupVocabulary__call__(self, context):
         terms = []
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         vocab = factory(context)
@@ -334,13 +348,15 @@ class CreatingGroupVocabulary(object):
                 terms.append(term)
         return SimpleVocabulary(terms)
 
+    __call__ = CreatingGroupVocabulary__call__
+
 
 class ActiveCreatingGroupVocabulary(object):
     """ Active creating group vocabulary """
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def ActiveCreatingGroupVocabulary__call__(self, context):
         terms = []
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         vocab = factory(context)
@@ -354,6 +370,8 @@ class ActiveCreatingGroupVocabulary(object):
             if term.value in to_keep:
                 terms.append(term)
         return SimpleVocabulary(terms)
+
+    __call__ = ActiveCreatingGroupVocabulary__call__
 
 
 class SourceAbleVocabulary(object):
@@ -435,7 +453,7 @@ class TreatingGroupsWithDeactivatedVocabulary(object):
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def TreatingGroupsWithDeactivatedVocabulary__call__(self, context):
         active_orgs = get_organizations(only_selected=True)
         not_active_orgs = [org for org in get_organizations(only_selected=False)
                            if org not in active_orgs]
@@ -462,15 +480,19 @@ class TreatingGroupsWithDeactivatedVocabulary(object):
         res = res + humansorted(res_not_active, key=attrgetter('title'))
         return SimpleVocabulary(res)
 
+    __call__ = TreatingGroupsWithDeactivatedVocabulary__call__
+
 
 class TreatingGroupsForFacetedFilterVocabulary(object):
     """Will be used in faceted criteria with deactivated orgs at the end."""
     implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
+    def TreatingGroupsForFacetedFilterVocabulary__call__(self, context):
         factory = getUtility(IVocabularyFactory, 'imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary')
         vocab = factory(context)
         hidden_orgs = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                      'groups_hidden_in_dashboard_filter', default=[]) or []
         return SimpleVocabulary([term for term in vocab._terms if term.value not in hidden_orgs])
+
+    __call__ = TreatingGroupsForFacetedFilterVocabulary__call__

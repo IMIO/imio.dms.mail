@@ -87,7 +87,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
         lst.sort(lambda x, y: cmp(self.tr_order.get(x['id'], 99), self.tr_order.get(y['id'], 99)))
 
     @ram.cache(actionspanelview_cachekey)
-    def __call__(self,
+    def DmsIMActionsPanelView__call__(self,
                  useIcons=True,
                  # howTransitions=True,
                  # ppendTypeNameToTransitionLabel=False,
@@ -115,6 +115,8 @@ class DmsIMActionsPanelView(ActionsPanelView):
             # howArrows=showArrows,
             # rrowsPortalTypeAware=arrowsPortalTypeAware,
             **kwargs)
+
+    __call__ = DmsIMActionsPanelView__call__
 
 
 class DmsActionsPanelViewlet(ActionsPanelViewlet):
@@ -190,7 +192,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         return ''
 
     @ram.cache(actionspanelview_cachekey)
-    def __call__(self,
+    def DmsOMActionsPanelView__call__(self,
                  useIcons=True,
                  # howTransitions=True,
                  # ppendTypeNameToTransitionLabel=False,
@@ -219,6 +221,8 @@ class DmsOMActionsPanelView(ActionsPanelView):
             # rrowsPortalTypeAware=arrowsPortalTypeAware,
             **kwargs)
 
+    __call__ = DmsOMActionsPanelView__call__
+
 
 class DmsTaskActionsPanelView(ActionsPanelView):
 
@@ -236,7 +240,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
         lst.sort(lambda x, y: cmp(self.tr_order[x['id']], self.tr_order[y['id']]))
 
     @ram.cache(actionspanelview_cachekey)
-    def __call__(self,
+    def DmsTaskActionsPanelView__call__(self,
                  useIcons=True,
                  # showTransitions=True,
                  # appendTypeNameToTransitionLabel=False,
@@ -264,6 +268,8 @@ class DmsTaskActionsPanelView(ActionsPanelView):
             # showArrows=showArrows,
             # arrowsPortalTypeAware=arrowsPortalTypeAware,
             **kwargs)
+
+    __call__ = DmsTaskActionsPanelView__call__
 
 
 class BasicActionsPanelView(ActionsPanelView):

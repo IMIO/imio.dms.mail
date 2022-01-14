@@ -258,8 +258,10 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     recipient_groups = FieldProperty(IImioDmsIncomingMail[u'recipient_groups'])
 
     @ram.cache(object_modified_cachekey)
-    def get_back_or_again_icon(self):
+    def IM_get_back_or_again_icon(self):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
+
+    get_back_or_again_icon = IM_get_back_or_again_icon
 
 
 def updatewidgets_assigned_user_description(the_form):
@@ -574,8 +576,10 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return False
 
     @ram.cache(object_modified_cachekey)
-    def get_back_or_again_icon(self):
+    def OM_get_back_or_again_icon(self):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
+
+    get_back_or_again_icon = OM_get_back_or_again_icon
 
     def is_email(self):
         """Check if send_modes is related to email.
