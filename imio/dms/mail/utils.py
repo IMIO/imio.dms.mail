@@ -18,6 +18,7 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import PRODUCT_DIR
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
+from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
@@ -357,7 +358,7 @@ def back_or_again_state(obj, transitions=()):
 
 def object_modified_cachekey(method, self, brain=False):
     """ cachekey method for an object and his modification date. """
-    return self, self.modified()
+    return '/'.join(self.getPhysicalPath()), obj_modified(self)
 
 
 def get_scan_id(obj):
