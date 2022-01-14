@@ -1,0 +1,22 @@
+Screencast avce OBS Studio:
+===========================
+Sources
+fenetres composite: rogner en haut 84, décocher capturer le curseur
+
+Paramètres
+output: mp4, h264, qualité indistinguable
+audio : désactiver son
+video : 25fps, 1920x1080, pas de resize sinon flou...
+
+Prochaine fois, essayer d'avoir une résolution d'écran de plus de 1920 car en comptant les barres, la fenêtre est en dessous
+
+Firefox
+=======
+zoomer à 120% après le Pause
+
+
+Youtube
+=======
+compte imio
+Pas conçu pour les enfants
+non répertoriée
