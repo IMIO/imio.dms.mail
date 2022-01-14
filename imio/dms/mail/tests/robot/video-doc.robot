@@ -1391,8 +1391,9 @@ Ajouter un contact
     Add clic  id=fieldsetlegend-address
     Click element  id=fieldsetlegend-address
     Wait until element is visible  id=form-widgets-IContactDetails-use_parent_address-0  10
-    ${note1}  Add pointy note  formfield-form-widgets-IContactDetails-use_parent_address
-    ...  Par défaut, l'adresse parent est utilisée. On peut décocher pour entrer une adresse différente.  position=top  color=blue  width=300
+    # ${note1}  Add pointy note  formfield-form-widgets-IContactDetails-use_parent_address
+    # ...  Par défaut, l'adresse parent est utilisée. On peut décocher pour entrer une adresse différente.  position=top  color=blue  width=300
+    ${note1}  Add main note  Par défaut, l'adresse parent est utilisée. On peut décocher pour entrer une adresse différente.
     sleep  ${N_S}
     Remove element  ${note1}
     Add clic  css=#pb_2 #form-buttons-save
@@ -1440,8 +1441,9 @@ Ajouter un contact
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add pointy note  formfield-form-widgets-gender
-    ...  La sélection du genre est intéressante car elle remplit automatiquement la civilité, qui sera utilisée dans les modèles de document.  position=top  color=blue  width=400
+    # ${note1}  Add pointy note  formfield-form-widgets-gender
+    # ...  La sélection du genre est intéressante car elle remplit automatiquement la civilité, qui sera utilisée dans les modèles de document.  position=top  color=blue  width=400
+    ${note1}  Add main note  La sélection du genre est intéressante car elle remplit automatiquement la civilité, qui sera utilisée dans les modèles de document.
     Highlight  formfield-form-widgets-gender
     sleep  ${N_S}
     Clear highlight  formfield-form-widgets-gender
@@ -1509,10 +1511,12 @@ Ajouter un contact
     sleep  ${S_S}
 
     # ScrollDown
-    Scroll Element Into View  css=#oform #oform-buttons-save
+    ScrollDown
+    # Scroll Element Into View  css=#oform #oform-buttons-save
 
     Add clic  oform-buttons-save
     Click button  id=oform-buttons-save
+    ScrollUp
     sleep  ${N_S}
 
     # Choose person
@@ -1584,7 +1588,7 @@ Ajouter une annexe
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${main1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une annexe.
+    ${main1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant ou sortant.
     Sleep  ${L_S}
     Remove element  id=${main1}
 
