@@ -70,6 +70,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.existing_settings = {}
         self.config = {'om_mt': {}}
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
+        self.none_mail_type = False
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
@@ -84,6 +85,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 smodes = [dic.get('mt_value', dic.get('value')) for dic in smodes]
             else:  # will be set later in update_config
                 smodes = [u'post', u'post_registered', u'email']
+            self.none_mail_type = len(mtypes) == len(self.config['om_mt'])
             stop = False
             for mtype in self.config['om_mt']:
                 if mtype not in mtypes:
@@ -370,7 +372,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 # set send_modes following mail_type
                 if self.config['om_mt'] and obj.mail_type:
                     obj.send_modes = [self.config['om_mt'][obj.mail_type]]
-                    obj.mail_type = None
+                    if self.none_mail_type:
+                        obj.mail_type = None
                 else:
                     obj.send_modes = ['post']
             obj.reindexObject(idxs=['Subject', 'enabled', 'mail_type', 'markers'])
