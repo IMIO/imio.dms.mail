@@ -631,7 +631,10 @@ class Migrate_To_3_0(Migrator):  # noqa
     def clean_examples(self):
         if 'reponse1' not in self.portal['outgoing-mail']:
             logger.info('Cleaning wrongly added demo users')
+            pf = self.portal['contacts']['personnel-folder']
             for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
+                for brain in find(unrestricted=True, context=pf, portal_type='person', id=userid):
+                    api.content.delete(obj=brain._unrestrictedGetObject())
                 user = api.user.get(userid=userid)
                 if user is None:
                     continue

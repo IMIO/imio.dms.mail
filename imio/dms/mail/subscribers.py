@@ -569,13 +569,14 @@ def user_deleted(event):
         criterias.update({idx: princ})
         brains = portal.portal_catalog.unrestrictedSearchResults(**criterias)
         if brains:
-            api.portal.show_message(message=_("You cannot delete the user name '${user}', used in '${idx}' index.",
-                                              mapping={'user': princ, 'idx': translate(idx, domain=domain,
-                                                                                       context=request)}),
-                                    request=request, type='error')
-            api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
-                                    'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains])}),
-                                    request=request, type='error')
+            msg = _("You cannot delete the user name '${user}', used in '${idx}' index.",
+                    mapping={'user': princ, 'idx': translate(idx, domain=domain, context=request)})
+            api.portal.show_message(message=msg, request=request, type='error')
+            logger.error(translate(msg))
+            msg = _("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
+                    'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains])})
+            api.portal.show_message(message=msg, request=request, type='error')
+            logger.error(translate(msg))
             raise Redirect(request.get('ACTUAL_URL'))
 
 
