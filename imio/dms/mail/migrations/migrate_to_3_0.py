@@ -8,9 +8,11 @@ from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
+from datetime import datetime
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from imio.dms.mail import _tr as _
+from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
@@ -33,6 +35,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
 from imio.migrator.migrator import Migrator
+from imio.pyutils.system import load_var
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
@@ -51,6 +54,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import json
 import logging
+import os
 
 
 logger = logging.getLogger('imio.dms.mail')
@@ -64,10 +68,32 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.omf = self.portal['outgoing-mail']
         self.contacts = self.portal['contacts']
         self.existing_settings = {}
+        self.config = {'om_mt': {}}
+        load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
-
+        if self.config['om_mt']:
+            logger.info('Loaded config {}'.format(self.config))
+            mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
+                                                    default=[])
+            mtypes = [dic.get('mt_value', dic.get('value')) for dic in mtypes]
+            smodes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                    'omail_send_modes', default=[])
+            if smodes:
+                smodes = [dic.get('mt_value', dic.get('value')) for dic in smodes]
+            else:  # will be set later in update_config
+                smodes = [u'post', u'post_registered', u'email']
+            stop = False
+            for mtype in self.config['om_mt']:
+                if mtype not in mtypes:
+                    logger.warning("config mtype '{}' not in list '{}'".format(mtype, mtypes))
+                smode = self.config['om_mt'][mtype]
+                if smode not in smodes:
+                    stop = True
+                    logger.error("config '{}' not in list '{}'".format(smode, smodes))
+            if stop:
+                raise Exception('Bad config file 30_config.dic')
         # check if oo port or solr port must be changed
         update_solr_config()
         update_oo_config()
@@ -184,6 +210,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             mark_last_version(self.portal, product=prod)
 
         # self.refreshDatabase()
+        logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         self.finish()
 
     def do_prior_updates(self):
@@ -340,8 +367,32 @@ class Migrate_To_3_0(Migrator):  # noqa
         for brain in brains:
             obj = brain.getObject()
             if not getattr(obj, 'send_modes'):
-                obj.send_modes = ['post']
-            obj.reindexObject(idxs=['Subject', 'enabled', 'markers'])
+                # set send_modes following mail_type
+                if self.config['om_mt'] and obj.mail_type:
+                    obj.send_modes = [self.config['om_mt'][obj.mail_type]]
+                    obj.mail_type = None
+                else:
+                    obj.send_modes = ['post']
+            obj.reindexObject(idxs=['Subject', 'enabled', 'mail_type', 'markers'])
+
+        mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
+                                                default=[])
+        n_mtypes = []
+        remove_mtype = True
+        for mtype in mtypes:
+            brains = self.catalog.searchResults(portal_type='dmsoutgoingmail', mail_type=mtype)
+            if brains:
+                logger.warning("mtype '{}' is yet used after migration, on {} OMs".format(mtype, len(brains)))
+                remove_mtype = False
+            else:
+                mtype['active'] = False
+            n_mtypes.append(mtype)
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types', n_mtypes)
+        if remove_mtype:
+            logger.info("Disabling om mail_type field, no more used")
+            omf = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields')
+            omf = [dic for dic in omf if dic['field_name'] != 'mail_type']
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields', omf)
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
@@ -474,6 +525,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                     new_mt.append({'value': dic['mt_value'], 'dtitle': dic['mt_title'], 'active': dic['mt_active']})
             if new_mt:
                 api.portal.set_registry_record(mtr, new_mt)
+        # set default send_modes values
+        if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes',
+                                              default=[]):
+            smodes = [{'value': u'post', 'dtitle': u'Lettre', 'active': True},
+                      {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
+                      {'value': u'email', 'dtitle': u'Email', 'active': True}]
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', smodes)
         # im fields order to new field config
         im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
                                                default=[])
