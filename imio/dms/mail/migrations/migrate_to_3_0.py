@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import transaction
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
@@ -72,6 +73,10 @@ class Migrate_To_3_0(Migrator):  # noqa
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
 
+    def savepoint_flush(self):
+        transaction.savepoint(True)
+        self.portal._p_jar.cacheGC()
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
         if self.config['om_mt']:
@@ -125,6 +130,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
         self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'],
                              run_dependencies=False)
+        self.savepoint_flush()
 
         self.do_prior_updates()
 
@@ -173,6 +179,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             update_task_workflow(self.portal)
 
         self.portal.portal_workflow.updateRoleMappings()  # update permissions, roles and reindex allowedRolesAndUsers
+        self.savepoint_flush()
 
         # do various global adaptations
         self.update_site()
@@ -187,6 +194,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.check_previously_migrated_collections()
 
+        self.savepoint_flush()
         # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
         self.update_catalog()
 
