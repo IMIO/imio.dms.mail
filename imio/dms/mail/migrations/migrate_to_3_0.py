@@ -36,7 +36,9 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
 from imio.migrator.migrator import Migrator
+from imio.pyutils.system import memory
 from imio.pyutils.system import load_var
+from imio.pyutils.system import process_memory
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
@@ -72,6 +74,11 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.config = {'om_mt': {}}
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
+        self.display_mem = True
+
+    def log_mem(self, tag=''):
+        if self.display_mem:
+            logger.info('Mem used {} at {}, ({})'.format(process_memory(), tag, memory()))
 
     def savepoint_flush(self):
         transaction.savepoint(True)
@@ -79,6 +86,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
+        self.log_mem('start')
         if self.config['om_mt']:
             logger.info('Loaded config {}'.format(self.config))
             mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
@@ -108,6 +116,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.cleanRegistries()
 
         self.correct_actions()
+        self.log_mem('after correct_actions')
 
         for mt in ('mail_types', 'omail_types'):
             mtr = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(mt)
@@ -131,14 +140,17 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'],
                              run_dependencies=False)
         self.savepoint_flush()
+        self.log_mem('first upgrades')
 
         self.do_prior_updates()
+        self.log_mem('prior_updates')
 
         self.install(['collective.classification.folder', 'collective.js.tooltipster', 'Products.cron4plone'])
         self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
 
         self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'catalog', 'controlpanel', 'plone.app.registry',
                                                      'repositorytool', 'typeinfo', 'viewlets'])
+        self.log_mem('idm steps')
         # remove to_print related.
         self.remove_to_print()
 
@@ -166,6 +178,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                              run_dependencies=False)
         # clean example users wrongly added by previous migration
         self.clean_examples()
+        self.log_mem('clean_examples')
 
         # reset workflow
         self.runProfileSteps('imio.dms.mail', steps=['workflow'])
@@ -180,23 +193,29 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         self.portal.portal_workflow.updateRoleMappings()  # update permissions, roles and reindex allowedRolesAndUsers
         self.savepoint_flush()
+        self.log_mem('updateRoleMappings')
 
         # do various global adaptations
         self.update_site()
+        self.log_mem('update_site')
 
         # update dmsincomingmails
         self.update_dmsincomingmails()
+        self.log_mem('update_dmsincomingmails')
 
         # do various adaptations for dmsincoming_email and dmsoutgoing_email
         self.insert_incoming_emails()
+        self.log_mem('insert i emails')
         self.insert_outgoing_emails()
+        self.log_mem('insert o emails')
         createOMailCollections(self.portal['outgoing-mail']['mail-searches'])
 
         self.check_previously_migrated_collections()
-
         self.savepoint_flush()
+        self.log_mem('check collections')
         # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
         self.update_catalog()
+        self.log_mem('update_catalog')
 
         # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
         self.upgradeAll(omit=['imio.dms.mail:default'])
@@ -222,6 +241,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         # self.refreshDatabase()
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         self.finish()
+        self.log_mem('END')
 
     def do_prior_updates(self):
         # clean dmsconfig to avoid duplications in wf_from_to
@@ -404,6 +424,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             omf = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields')
             omf = [dic for dic in omf if dic['field_name'] != 'mail_type']
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields', omf)
+            # TODO remove collections column
+            # TODO remove filter
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
