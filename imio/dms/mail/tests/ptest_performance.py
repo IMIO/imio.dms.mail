@@ -102,3 +102,10 @@ class TestPerformance(unittest.TestCase):
                                         (u'certificat', u'Certificat médical'), (u'fax', u'Fax'),
                                         (u'retour-recommande', u'Retour recommandé'), (u'facture', u'Facture')])
 
+    def test_getGroups(self):
+        user = api.user.get(userid='dirg')
+        print(u'dirg getGroups in {}'.format(ftimed(lambda: user.getGroups(), 1)))
+        user = api.user.get(userid='chef')
+        print(u'chef getGroups in {}'.format(ftimed(lambda: user.getGroups(), 1)))
+        user = api.user.get(userid='agent')
+        print(u'agent getGroups in {}'.format(ftimed(lambda: user.getGroups(), 1)))
