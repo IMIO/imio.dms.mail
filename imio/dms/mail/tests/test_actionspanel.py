@@ -42,7 +42,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Member'])
         logout()
         login(self.portal, 'lecteur')
-        self.view.member = api.user.get_current()
+        self.view.request.set('imio.actionspanel_member_cachekey', None)
         self.assertFalse(self.view.mayReply())
 
     def test_renderReplyButton(self):
