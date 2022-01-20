@@ -117,7 +117,7 @@ def _get_replied_ids(obj, from_obj=False):
             catalog = queryUtility(ICatalog)
             rels = catalog.findRelations({'from_id': intids.queryId(obj), 'from_attribute': 'reply_to'})
         for rel in rels:
-            if rel.to_object.portal_type != 'dmsoutgoingmail':
+            if not rel.isBroken() and rel.to_object.portal_type != 'dmsoutgoingmail':
                 objs.append(intids.getObject(rel.to_id))
     return objs
 

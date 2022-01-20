@@ -287,7 +287,7 @@ def clean_examples(self, doit='1'):
         portal['outgoing-mail'].invokeFactory('dmsoutgoingmail', id='test_creation_modele', **params)
 
     # Delete im
-    brains = find(unrestricted=True, portal_type='dmsincomingmail')
+    brains = find(unrestricted=True, portal_type=['dmsincomingmail', 'dmsincoming_email'])
     for brain in brains:
         log_list(out, "Deleting im '%s'" % brain.getPath())
         if doit:
