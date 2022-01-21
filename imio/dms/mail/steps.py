@@ -162,16 +162,15 @@ def mark_copy_im_as_read(context):
         return
     site = context.getSite()
     # adapted = ILabelJar(site['incoming-mail']); adapted.list()
-    DAYS_BACK = 5
-    start = datetime.datetime(1973, 02, 12)
-    end = datetime.datetime.now() - datetime.timedelta(days=DAYS_BACK)
+    days_back = 5
+    start = datetime.datetime(1973, 2, 12)
+    end = datetime.datetime.now() - datetime.timedelta(days=days_back)
     users = {}
     functions = {'i': IM_READER_SERVICE_FUNCTIONS, 'o': OM_READER_SERVICE_FUNCTIONS}
     brains = site.portal_catalog.unrestrictedSearchResults(portal_type=['dmsincomingmail', 'dmsincoming_email'],
                                                            created={'query': (start, end), 'range': 'min:max'},
                                                            sort_on='created')
-    out = []
-    out.append("%d mails" % len(brains))
+    out = ["%d mails" % len(brains)]
     changed_mails = 0
     related_users = set()
     for brain in brains:
@@ -357,7 +356,6 @@ def contact_import_pipeline(context):
     """Set contact import pipeline record."""
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    site = context.getSite()
     logger.info('Set contact import pipeline')
     api.portal.set_registry_record(
         'collective.contact.importexport.interfaces.IPipelineConfiguration.pipeline', u"""[transmogrifier]
