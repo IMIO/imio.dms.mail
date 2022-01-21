@@ -49,7 +49,7 @@
         name="imio.dms.mail.hiddenprofiles"
       />
 
-    <genericsetup:upgradeStep
+    <!--genericsetup:upgradeStep
         title="Go to imio.dms.mail 0.2"
         description=""
         source="0.1"
@@ -111,7 +111,7 @@
         source="2.1"
         destination="2.2"
         handler="imio.dms.mail.migrations.migrate_to_2_2.migrate"
-        profile="imio.dms.mail:default" />
+        profile="imio.dms.mail:default" /-->
 
     <genericsetup:upgradeStep
         title="Go to imio.dms.mail 2.3"
