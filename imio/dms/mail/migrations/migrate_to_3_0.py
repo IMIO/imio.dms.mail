@@ -71,7 +71,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.omf = self.portal['outgoing-mail']
         self.contacts = self.portal['contacts']
         self.existing_settings = {}
-        self.config = {'om_mt': {}}
+        self.config = {'om_mt': {}, 'flds': None}
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
         self.display_mem = True
@@ -109,6 +109,18 @@ class Migrate_To_3_0(Migrator):  # noqa
                     logger.error("config '{}' not in list '{}'".format(smode, smodes))
             if stop:
                 raise Exception('Bad config file 30_config.dic')
+
+        if self.config['flds'] is None:  # not in config file
+            if 'folders' not in self.portal:  # first time migration
+                self.config['flds'] = True
+            else:
+                rec_name = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields'
+                showed = [dic['field_name'] for dic in api.portal.get_registry_record(rec_name)]
+                if u'IClassificationFolder.classification_folders' in showed:  # activated
+                    self.config['flds'] = True
+                else:
+                    self.config['flds'] = False
+
         # check if oo port or solr port must be changed
         update_solr_config()
         update_oo_config()
@@ -174,6 +186,12 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'],
                              run_dependencies=False)
         self.update_config()
+        if self.config['flds']:
+            self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-activate_classification'],
+                                 run_dependencies=False)
+        else:
+            self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-deactivate_classification'],
+                                 run_dependencies=False)
         self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'],
                              run_dependencies=False)
         # clean example users wrongly added by previous migration
