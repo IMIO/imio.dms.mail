@@ -589,7 +589,8 @@ def group_deleted(event):
     request = portal.REQUEST
 
     # is protected group
-    if group in ('dir_general', 'encodeurs', 'expedition', 'Administrators', 'Reviewers', 'Site Administrators'):
+    if group in ('createurs_dossier', 'dir_general', 'encodeurs', 'expedition', 'lecteurs_globaux_cs',
+                 'lecteurs_globaux_ce', 'Administrators', 'Reviewers', 'Site Administrators'):
         api.portal.show_message(message=_("You cannot delete the group '${group}'.", mapping={'group': group}),
                                 request=request, type='error')
         raise Redirect(request.get('ACTUAL_URL'))
