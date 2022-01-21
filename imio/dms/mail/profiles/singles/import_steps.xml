@@ -82,6 +82,22 @@
  </import-step>
 
  <import-step
+    id="imiodmsmail-deactivate_classification"
+    handler="imio.dms.mail.steps.deactivate_classification"
+    title="Deactivate classification in imio.dms.mail"
+    version="2022-01-21T15:00:00.00000">
+    Deactivate classification in imio.dms.mail
+ </import-step>
+
+ <import-step
+    id="imiodmsmail-activate_classification"
+    handler="imio.dms.mail.steps.activate_classification"
+    title="Activate classification in imio.dms.mail"
+    version="2022-01-21T15:00:00.00000">
+    Activate classification in imio.dms.mail
+ </import-step>
+
+ <import-step
     id="imiodmsmail-reset_workflows"
     handler="imio.dms.mail.steps.reset_workflows"
     title="Reset workflows from imio.dms.mail"

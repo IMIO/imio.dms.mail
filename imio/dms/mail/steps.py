@@ -8,6 +8,7 @@ from collective.documentgenerator.utils import update_templates
 from collective.wfadaptations.api import add_applied_adaptation
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
+from eea.facetednavigation.criteria.interfaces import ICriteria
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
@@ -261,6 +262,83 @@ def task_n_plus_1_wfadaptation(context):
     if 'chef' in [u.id for u in api.user.get_users()]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
+
+
+def manage_classification(context, active):
+    """Activate or deactivate classification"""
+    logger.info('Manage classification by {}activating related things'.format(not active and 'de-' or ''))
+    site = context.getSite()
+    # handle navtree_properties
+    unlisted = list(site.portal_properties.navtree_properties.metaTypesNotToList)
+    update = False
+    for ptype in ('ClassificationFolders', 'ClassificationContainer'):
+        if active and ptype in unlisted:
+            unlisted.remove(ptype)
+            update = True
+        elif not active and ptype not in unlisted:
+            unlisted.append(ptype)
+            update = True
+    if update:
+        site.portal_properties.navtree_properties.manage_changeProperties(metaTypesNotToList=unlisted)
+    # handle fields
+    for rec in ('imail_fields', 'omail_fields'):
+        update = False
+        rec_name = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(rec)
+        showed = api.portal.get_registry_record(rec_name, default=[])
+        showed_ids = [dic['field_name'] for dic in showed]
+        # imf = [ for v in im_fo]
+        for fld in (u'IClassificationFolder.classification_folders',
+                    u'IClassificationFolder.classification_categories'):
+            if active and fld not in showed_ids:
+                idx = showed_ids.index('internal_reference_no')
+                showed.insert(idx, {"field_name": fld, "read_tal_condition": u"", "write_tal_condition": u""})
+                update = True
+            elif not active and fld in showed_ids:
+                showed = [dic for dic in showed if dic['field_name'] != fld]
+                update = True
+        if update:
+            api.portal.set_registry_record(rec_name, list(showed))
+    # handle criterias
+    for dpath, crit_ids in (('incoming-mail', ['c20', 'c21']), ('outgoing-mail', ['c19', 'c20'])):
+        mspath = os.path.join(dpath, 'mail-searches')
+        folder = site.unrestrictedTraverse(mspath)
+        criterias = ICriteria(folder)
+        for crit_id in crit_ids:
+            criterion = criterias.get(crit_id)
+            if active and criterion.hidden:
+                criterion.hidden = False
+                criterias.criteria._p_changed = 1
+            elif not active and not criterion.hidden:
+                criterion.hidden = True
+                criterias.criteria._p_changed = 1
+    # handle columns
+    for dpath in ('incoming-mail', 'outgoing-mail'):
+        obj = site.unrestrictedTraverse(dpath)
+        brains = site.portal_catalog(portal_type='DashboardCollection', path='/'.join(obj.getPhysicalPath()))
+        for brain in brains:
+            col = brain.getObject()
+            buf = list(col.customViewFields)
+            if active and u'classification_folders' not in buf:
+                if 'actions' in buf:
+                    buf.insert(buf.index('actions'), u'classification_folders')
+                else:
+                    buf.append(u'classification_folders')
+                col.customViewFields = tuple(buf)
+            elif not active and u'classification_folders' in buf:
+                buf.remove(u'classification_folders')
+                col.customViewFields = tuple(buf)
+
+
+def deactivate_classification(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    manage_classification(context, False)
+
+
+def activate_classification(context):
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    manage_classification(context, True)
 
 
 def reset_workflows(context):
