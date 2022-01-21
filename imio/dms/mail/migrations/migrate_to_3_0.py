@@ -12,6 +12,7 @@ from copy import deepcopy
 from datetime import datetime
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
+from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr as _
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
@@ -442,8 +443,21 @@ class Migrate_To_3_0(Migrator):  # noqa
             omf = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields')
             omf = [dic for dic in omf if dic['field_name'] != 'mail_type']
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields', omf)
-            # TODO remove collections column
-            # TODO remove filter
+            # remove collections column
+            brains = self.catalog(portal_type='DashboardCollection', path='/'.join(self.omf.getPhysicalPath()))
+            for brain in brains:
+                col = brain.getObject()
+                buf = list(col.customViewFields)
+                if u'mail_type' in buf:
+                    buf.remove(u'mail_type')
+                    col.customViewFields = tuple(buf)
+            # remove filter
+            folder = self.omf['mail-searches']
+            criterias = ICriteria(folder)
+            criterion = criterias.get('c9')
+            if not criterion.hidden:
+                criterion.hidden = True
+                criterias.criteria._p_changed = 1
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
