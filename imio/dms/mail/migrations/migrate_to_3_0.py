@@ -429,7 +429,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
                                                 default=[])
         if ([dic for dic in omf if dic['field_name'] == 'mail_type'] or
-                [dic for dic in omf if dic['active']]):
+                [dic for dic in mtypes if dic['active']]):
             n_mtypes = []
             remove_mtype = True
             for mtype in mtypes:
