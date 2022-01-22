@@ -425,39 +425,43 @@ class Migrate_To_3_0(Migrator):  # noqa
                     obj.send_modes = ['post']
             obj.reindexObject(idxs=['Subject', 'enabled', 'mail_type', 'markers'])
 
+        omf = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields')
         mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
                                                 default=[])
-        n_mtypes = []
-        remove_mtype = True
-        for mtype in mtypes:
-            brains = self.catalog.searchResults(portal_type='dmsoutgoingmail', mail_type=mtype)
-            if brains:
-                logger.warning("mtype '{}' is yet used after migration, on {} OMs".format(mtype, len(brains)))
-                remove_mtype = False
-            else:
-                mtype['active'] = False
-            n_mtypes.append(mtype)
-        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types', n_mtypes)
-        if remove_mtype:
-            logger.info("Disabling om mail_type field, no more used")
-            omf = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields')
-            omf = [dic for dic in omf if dic['field_name'] != 'mail_type']
-            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields', omf)
-            # remove collections column
-            brains = self.catalog(portal_type='DashboardCollection', path='/'.join(self.omf.getPhysicalPath()))
-            for brain in brains:
-                col = brain.getObject()
-                buf = list(col.customViewFields)
-                if u'mail_type' in buf:
-                    buf.remove(u'mail_type')
-                    col.customViewFields = tuple(buf)
-            # remove filter
-            folder = self.omf['mail-searches']
-            criterias = ICriteria(folder)
-            criterion = criterias.get('c9')
-            if not criterion.hidden:
-                criterion.hidden = True
-                criterias.criteria._p_changed = 1
+        if ([dic for dic in omf if dic['field_name'] == 'mail_type'] or
+                [dic for dic in omf if dic['active']]):
+            n_mtypes = []
+            remove_mtype = True
+            for mtype in mtypes:
+                brains = self.catalog.searchResults(portal_type='dmsoutgoingmail', mail_type=mtype['value'])
+                if brains:
+                    logger.warning("mtype '{}' is yet used after migration, on {} OMs".format(mtype, len(brains)))
+                    remove_mtype = False
+                else:
+                    mtype['active'] = False
+                n_mtypes.append(mtype)
+            api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types', n_mtypes)
+            if remove_mtype:
+                logger.info("Disabling om mail_type field, no more used")
+                n_omf = [dic for dic in omf if dic['field_name'] != 'mail_type']
+                if len(n_omf) != len(omf):
+                    api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields',
+                                                   n_omf)
+                # remove collections column
+                brains = self.catalog(portal_type='DashboardCollection', path='/'.join(self.omf.getPhysicalPath()))
+                for brain in brains:
+                    col = brain.getObject()
+                    buf = list(col.customViewFields)
+                    if u'mail_type' in buf:
+                        buf.remove(u'mail_type')
+                        col.customViewFields = tuple(buf)
+                # remove filter
+                folder = self.omf['mail-searches']
+                criterias = ICriteria(folder)
+                criterion = criterias.get('c9')
+                if not criterion.hidden:
+                    criterion.hidden = True
+                    criterias.criteria._p_changed = 1
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
