@@ -72,7 +72,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.omf = self.portal['outgoing-mail']
         self.contacts = self.portal['contacts']
         self.existing_settings = {}
-        self.config = {'om_mt': {}, 'flds': None}
+        self.config = {'om_mt': [], 'flds': None}
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
         self.display_mem = True
@@ -98,16 +98,18 @@ class Migrate_To_3_0(Migrator):  # noqa
             if smodes:
                 smodes = [dic.get('mt_value', dic.get('value')) for dic in smodes]
             else:  # will be set later in update_config
-                smodes = [u'post', u'post_registered', u'email']
-            self.none_mail_type = len(mtypes) == len(self.config['om_mt'])
+                smodes = [dic['nid'] for dic in self.config['om_mt']]
+            if not [mt for mt in mtypes if mt not in smodes]:
+                self.none_mail_type = True
             stop = False
-            for mtype in self.config['om_mt']:
+            for dic in self.config['om_mt']:
+                mtype = dic['oid']
                 if mtype not in mtypes:
-                    logger.warning("config mtype '{}' not in list '{}'".format(mtype, mtypes))
-                smode = self.config['om_mt'][mtype]
+                    logger.warning(u"config mtype '{}' not in '{}'".format(mtype, mtypes))
+                smode = dic['nid']
                 if smode not in smodes:
                     stop = True
-                    logger.error("config '{}' not in list '{}'".format(smode, smodes))
+                    logger.error(u"config sm '{}' not in '{}'".format(smode, smodes))
             if stop:
                 raise Exception('Bad config file 30_config.dic')
 
@@ -412,13 +414,14 @@ class Migrate_To_3_0(Migrator):  # noqa
     def insert_outgoing_emails(self):
         """The partially added dmsoutgoing_email is not used... We clean what's configured..."""
         # Set send_modes on dmsoutgoingmails
+        mt_2_sm = {dic['oid']: dic['nid'] for dic in self.config['om_mt']}
         brains = self.catalog.searchResults(portal_type='dmsoutgoingmail')
         for brain in brains:
             obj = brain.getObject()
             if not getattr(obj, 'send_modes'):
                 # set send_modes following mail_type
                 if self.config['om_mt'] and obj.mail_type:
-                    obj.send_modes = [self.config['om_mt'][obj.mail_type]]
+                    obj.send_modes = [mt_2_sm[obj.mail_type]]
                     if self.none_mail_type:
                         obj.mail_type = None
                 else:
@@ -597,9 +600,9 @@ class Migrate_To_3_0(Migrator):  # noqa
         # set default send_modes values
         if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes',
                                               default=[]):
-            smodes = [{'value': u'post', 'dtitle': u'Lettre', 'active': True},
-                      {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
-                      {'value': u'email', 'dtitle': u'Email', 'active': True}]
+            smodes = []
+            for dic in self.config['om_mt']:
+                smodes.append({'value': dic['nid'], 'dtitle': dic['t'], 'active': True})
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', smodes)
         # im fields order to new field config
         im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
