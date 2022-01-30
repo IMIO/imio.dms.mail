@@ -100,6 +100,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             else:  # will be set later in update_config
                 smodes = [dic['nid'] for dic in self.config['om_mt']]
             if not [mt for mt in mtypes if mt not in smodes]:
+                logger.info('OM MAIL_TYPE WILL BE SET TO NONE')
                 self.none_mail_type = True
             stop = False
             for dic in self.config['om_mt']:
