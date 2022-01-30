@@ -415,18 +415,28 @@ class Migrate_To_3_0(Migrator):  # noqa
         """The partially added dmsoutgoing_email is not used... We clean what's configured..."""
         # Set send_modes on dmsoutgoingmails
         mt_2_sm = {dic['oid']: dic['nid'] for dic in self.config['om_mt']}
+        unk_mt = {}
         brains = self.catalog.searchResults(portal_type='dmsoutgoingmail')
         for brain in brains:
             obj = brain.getObject()
             if not getattr(obj, 'send_modes'):
                 # set send_modes following mail_type
                 if self.config['om_mt'] and obj.mail_type:
-                    obj.send_modes = [mt_2_sm[obj.mail_type]]
-                    if self.none_mail_type:
-                        obj.mail_type = None
+                    if obj.mail_type in mt_2_sm:
+                        obj.send_modes = [mt_2_sm[obj.mail_type]]
+                        if self.none_mail_type:
+                            obj.mail_type = None
+                    else:
+                        unk_mt.setdefault(obj.mail_type, 0)
+                        unk_mt[obj.mail_type] += 1
+                        logger.error(u"Unknown mail_type '{}' on {}".format(obj.mail_type, obj.absolute_url()))
                 else:
                     obj.send_modes = ['post']
             obj.reindexObject(idxs=['Subject', 'enabled', 'mail_type', 'markers'])
+        if unk_mt:
+            logger.error("THERE ARE UNKNOWN MAIL TYPES. WE HAVE TO UPDATE 30_config.dic !")
+            for mt in unk_mt:
+                logger.error(u"value '{}' found {} times".format(mt, unk_mt[mt]))
 
         omf = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields')
         mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
