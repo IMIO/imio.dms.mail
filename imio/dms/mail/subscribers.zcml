@@ -42,6 +42,12 @@
         handler=".subscribers.item_added"
     />
 
+    <subscriber
+        for="OFS.interfaces.IItem
+             OFS.interfaces.IObjectWillBeMovedEvent"
+        handler=".subscribers.item_moved"
+    />
+
     <!-- IDmsDocument -->
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument

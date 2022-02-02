@@ -34,6 +34,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import uuidToObject
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
+from OFS.interfaces import IObjectWillBeRemovedEvent
 from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
@@ -47,7 +48,7 @@ from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield.event import removeRelations as orig_removeRelations
 from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
-from zc.relation.interfaces import ICatalog
+from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
@@ -72,9 +73,9 @@ logger = logging.getLogger('imio.dms.mail: events')
 def item_copied(obj, event):
     """OFS.item copying"""
     if get_site_root_relative_path(event.original) in ('/templates/om', '/templates/oem'):
-        api.portal.show_message(message=_("You cannot copy this item '${title}'. If you are in a table, you have to "
-                                          "use the buttons below the table.",
-                                          mapping={'title': event.original.Title()}),
+        api.portal.show_message(message=_(u"You cannot copy this item '${title}' ! If you are in a table, you have to "
+                                          u"use the buttons below the table.",
+                                          mapping={'title': event.original.Title().decode('utf8')}),
                                 request=event.original.REQUEST, type='error')
         raise Redirect(event.original.REQUEST.get('ACTUAL_URL'))
     # we can't modify obj because it's sometimes the original object, not yet in the target directory
@@ -83,8 +84,21 @@ def item_copied(obj, event):
 
 def item_added(obj, event):
     """OFS.item added"""
-    if api.env.getRequest().get('_copying_', False) and IPreventDelete.providedBy(obj):
+    req = api.env.getRequest()
+    if req and req.get('_copying_', False) and IPreventDelete.providedBy(obj):
         noLongerProvides(obj, IPreventDelete)
+
+
+def item_moved(obj, event):
+    """OFS.item re/moved"""
+    if (IObjectWillBeRemovedEvent.providedBy(event)  # deletion
+            or (event.oldParent and event.newParent != event.oldParent)):  # cut
+        if IPreventDelete.providedBy(obj):
+            api.portal.show_message(
+                message=_(u"You cannot move or delete this item '${title}' !",
+                          mapping={'title': obj.Title().decode('utf8')}),
+                request=obj.REQUEST, type='error')
+            raise Redirect(obj.REQUEST.get('ACTUAL_URL'))
 
 
 def replace_contact_list(obj, fieldname):

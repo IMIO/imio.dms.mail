@@ -50,7 +50,6 @@ class TestDmsmail(unittest.TestCase):
         # check if om folder cannot be pasted
         self.assertRaises(Redirect, api.content.copy, self.portal['templates']['om'], self.portal['templates'], 'new')
 
-
     def test_dmsdocument_modified(self):
         # owner changing test
         orgs = get_registry_organizations()
