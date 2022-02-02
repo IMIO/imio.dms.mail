@@ -331,6 +331,8 @@ class TestUtils(unittest.TestCase):
         for brain in self.catalog(portal_type=['DashboardCollection', 'DashboardPODTemplate', 'StyleTemplate',
                                                'SubTemplate', 'MailingLoopTemplate', 'ConfigurablePODTemplate']):
             obj = brain.getObject()
+            if obj.id == 'main' and not obj.absolute_url_path().endswith('/om/main'):  # we pass copy made in setup
+                continue
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_deletable(), "obj {} is deletable !!".format(obj.absolute_url_path()))
 

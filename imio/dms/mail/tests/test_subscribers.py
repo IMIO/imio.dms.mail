@@ -41,6 +41,16 @@ class TestDmsmail(unittest.TestCase):
                                               mail_type=u'courrier', title=u'title')
         self.omf = self.portal['outgoing-mail']
 
+    def test_item_copied(self):
+        # check if protection markers are removed from copied item
+        source = self.portal['templates']['om']['main']
+        self.assertFalse(source.restrictedTraverse('@@various-utils').is_deletable())
+        copied = api.content.copy(source, self.portal['templates']['om'], 'copied_id')
+        self.assertTrue(copied.restrictedTraverse('@@various-utils').is_deletable())
+        # check if om folder cannot be pasted
+        self.assertRaises(Redirect, api.content.copy, self.portal['templates']['om'], self.portal['templates'], 'new')
+
+
     def test_dmsdocument_modified(self):
         # owner changing test
         orgs = get_registry_organizations()

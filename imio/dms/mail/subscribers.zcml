@@ -35,6 +35,11 @@
              zope.lifecycleevent.IObjectCopiedEvent"
         handler=".subscribers.item_copied"
     />
+
+    <subscriber
+        for="OFS.interfaces.IItem
+             zope.lifecycleevent.IObjectAddedEvent"
+        handler=".subscribers.item_added"
     />
 
     <!-- IDmsDocument -->

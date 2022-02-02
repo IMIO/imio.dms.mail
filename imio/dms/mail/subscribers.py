@@ -23,6 +23,7 @@ from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.interfaces import IPreventDelete
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import IdmUtilsMethods
@@ -76,6 +77,14 @@ def item_copied(obj, event):
                                           mapping={'title': event.original.Title()}),
                                 request=event.original.REQUEST, type='error')
         raise Redirect(event.original.REQUEST.get('ACTUAL_URL'))
+    # we can't modify obj because it's sometimes the original object, not yet in the target directory
+    event.original.REQUEST.set('_copying_', True)
+
+
+def item_added(obj, event):
+    """OFS.item added"""
+    if api.env.getRequest().get('_copying_', False) and IPreventDelete.providedBy(obj):
+        noLongerProvides(obj, IPreventDelete)
 
 
 def replace_contact_list(obj, fieldname):
