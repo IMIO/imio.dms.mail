@@ -19,11 +19,13 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
+from imio.dms.mail.interfaces import IPreventDelete
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import createOMailCollections
+from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
@@ -164,8 +166,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.install(['collective.classification.folder', 'collective.js.tooltipster', 'Products.cron4plone'])
         self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
 
-        self.runProfileSteps('imio.dms.mail', steps=['atcttool', 'catalog', 'controlpanel', 'plone.app.registry',
-                                                     'repositorytool', 'typeinfo', 'viewlets'])
+        self.runProfileSteps('imio.dms.mail', steps=['actions', 'atcttool', 'catalog', 'controlpanel',
+                                                     'plone.app.registry', 'repositorytool', 'typeinfo', 'viewlets'])
         self.log_mem('idm steps')
         # remove to_print related.
         self.remove_to_print()
@@ -388,6 +390,25 @@ class Migrate_To_3_0(Migrator):  # noqa
                 alsoProvides(folder, INextPrevNotNavigable)
                 noLongerProvides(folder, IActionsPanelFolder)
                 noLongerProvides(folder, IActionsPanelFolderAll)
+        # protect objects
+        for obj in (
+                self.portal['incoming-mail'], self.portal['incoming-mail']['mail-searches'],
+                self.portal['outgoing-mail'], self.portal['outgoing-mail']['mail-searches'],
+                self.portal['tasks'], self.portal['tasks']['task-searches'],
+                self.portal['contacts'], self.portal['contacts']['orgs-searches'],
+                self.portal['contacts']['hps-searches'], self.portal['contacts']['persons-searches'],
+                self.portal['contacts']['cls-searches'], self.portal['contacts']['plonegroup-organization'],
+                self.portal['contacts']['personnel-folder'], self.portal['contacts']['contact-lists-folder'],
+                self.portal['contacts']['contact-lists-folder']['common'],
+                self.portal['folders'], self.portal['folders']['folder-searches'], self.portal['tree'],
+                self.portal['templates'], self.portal['templates']['om'], self.portal['templates']['om']['common'],
+                self.portal['templates']['oem']):
+            alsoProvides(obj, IPreventDelete)
+        for brain in self.catalog(portal_type='DashboardCollection'):
+            alsoProvides(brain.getObject(), IPreventDelete)
+        for tup in list_templates():
+            obj = self.portal.restrictedTraverse(tup[1])
+            alsoProvides(obj, IPreventDelete)
 
     def insert_incoming_emails(self):
         # allowed types

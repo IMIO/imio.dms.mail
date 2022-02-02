@@ -16,6 +16,7 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
+from imio.dms.mail.utils import VariousUtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
@@ -43,6 +44,7 @@ class TestUtils(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.pgof = self.portal['contacts']['plonegroup-organization']
+        self.catalog = self.portal.portal_catalog
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
@@ -307,6 +309,30 @@ class TestUtils(unittest.TestCase):
         login(self.portal, 'agent')
         self.assertFalse(view.is_in_user_groups(suffixes=['general'], org_uid='dir'))
         self.assertTrue(view.is_in_user_groups(suffixes=['general'], org_uid='dir', user=api.user.get('dirg')))
+
+    def test_VariousMethods_is_deletable(self):
+        obj = self.portal['front-page']
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+        self.assertTrue(view.is_deletable(), "obj {} is not deletable !!".format(obj))
+        for obj in (
+                self.portal['incoming-mail'], self.portal['incoming-mail']['mail-searches'],
+                self.portal['outgoing-mail'], self.portal['outgoing-mail']['mail-searches'],
+                self.portal['tasks'], self.portal['tasks']['task-searches'],
+                self.portal['contacts'], self.portal['contacts']['orgs-searches'],
+                self.portal['contacts']['hps-searches'], self.portal['contacts']['persons-searches'],
+                self.portal['contacts']['cls-searches'], self.portal['contacts']['plonegroup-organization'],
+                self.portal['contacts']['personnel-folder'], self.portal['contacts']['contact-lists-folder'],
+                self.portal['contacts']['contact-lists-folder']['common'],
+                self.portal['folders'], self.portal['folders']['folder-searches'], self.portal['tree'],
+                self.portal['templates'], self.portal['templates']['om'], self.portal['templates']['om']['common'],
+                self.portal['templates']['oem']):
+            view = VariousUtilsMethods(obj, obj.REQUEST)
+            self.assertFalse(view.is_deletable(), "obj {} is deletable !!".format(obj))
+        for brain in self.catalog(portal_type=['DashboardCollection', 'DashboardPODTemplate', 'StyleTemplate',
+                                               'SubTemplate', 'MailingLoopTemplate', 'ConfigurablePODTemplate']):
+            obj = brain.getObject()
+            view = VariousUtilsMethods(obj, obj.REQUEST)
+            self.assertFalse(view.is_deletable(), "obj {} is deletable !!".format(obj))
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

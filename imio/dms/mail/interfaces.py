@@ -150,3 +150,7 @@ class IMemberAreaFolder(IDexterityContainer):
     """
         Marker interface for member area folder.
     """
+
+
+class IPreventDelete(Interface):
+    """Marker interface for prevent move/delete object"""

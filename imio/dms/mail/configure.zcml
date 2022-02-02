@@ -74,6 +74,7 @@
     />
 
     <interface interface=".browser.settings.IImioDmsMailConfig" />
+    <interface interface=".interfaces.IPreventDelete" />
 
     <browser:page
         for=".dmsmail.IImioDmsIncomingMail"
@@ -235,6 +236,7 @@
             check_scan_id
             dv_images_clean
             initialize_service_folder
+            is_deletable
             kofax_orgs
             list_last_scan
             pg_organizations

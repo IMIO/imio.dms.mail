@@ -50,6 +50,7 @@ from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
+from imio.dms.mail.interfaces import IPreventDelete
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import list_wf_states
@@ -113,6 +114,7 @@ def add_db_col_folder(folder, id, title, displayed=''):
     col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
     transitions(col_folder, transitions=['show_internally'])
     alsoProvides(col_folder, ICollectionCategories)
+    alsoProvides(col_folder, IPreventDelete)
     return col_folder
 
 
@@ -131,6 +133,7 @@ def setup_classification(site):
         site.invokeFactory("ClassificationFolders", id='folders', title=_(u'folders_tab'))
         folders = site["folders"]
         alsoProvides(folders, ILabelRoot)
+        alsoProvides(folders, IPreventDelete)
         adapted = ILabelJar(folders)
         adapted.add("Suivi", "yellow", True)  # label_id = suivi
         transitions(folders, transitions=['show_internally'])
@@ -139,6 +142,7 @@ def setup_classification(site):
         site.invokeFactory("ClassificationContainer", id='tree', title=_(u'classification_tree_tab'))
         blacklistPortletCategory(site, site['tree'])
         site['tree'].manage_addLocalRoles('AuthenticatedUsers', ['Reader'])
+        alsoProvides(site['tree'], IPreventDelete)
         # transitions(site['tree'], transitions=['show_internally'])
 
     roles_config = {
@@ -228,6 +232,7 @@ def postInstall(context):
         alsoProvides(im_folder, INextPrevNotNavigable)
         alsoProvides(im_folder, ILabelRoot)
         alsoProvides(im_folder, ICountableTab)
+        alsoProvides(im_folder, IPreventDelete)
         adapted = ILabelJar(im_folder)
         adapted.add('Lu', 'green', True)  # label_id = lu
         adapted.add('Suivi', 'yellow', True)  # label_id = suivi
@@ -259,6 +264,7 @@ def postInstall(context):
         alsoProvides(om_folder, INextPrevNotNavigable)
         alsoProvides(om_folder, ILabelRoot)
         alsoProvides(om_folder, ICountableTab)
+        alsoProvides(om_folder, IPreventDelete)
 
         # add mail-searches
         col_folder = add_db_col_folder(om_folder, 'mail-searches', _("Outgoing mail searches"),
@@ -288,6 +294,7 @@ def postInstall(context):
         alsoProvides(tsk_folder, INextPrevNotNavigable)
         alsoProvides(tsk_folder, ILabelRoot)
         alsoProvides(tsk_folder, ICountableTab)
+        alsoProvides(tsk_folder, IPreventDelete)
         # add task-searches
         col_folder = add_db_col_folder(tsk_folder, 'task-searches', _("Tasks searches"),
                                        _("Tasks"))
@@ -334,6 +341,7 @@ def postInstall(context):
                   }
         site.invokeFactory('directory', 'contacts', **params)
         contacts = site['contacts']
+        alsoProvides(contacts, IPreventDelete)
         site.portal_types.directory.filter_content_types = False
         # add organizations searches
         col_folder = add_db_col_folder(contacts, 'orgs-searches', _("Organizations searches"), _("Organizations"))
@@ -523,6 +531,7 @@ def createStateCollections(folder, content_type):
                                      content_type, {}).get('*', u'sortable_title')),
                                  sort_reversed=True, b_size=30, limit=0)
             col = folder[col_id]
+            alsoProvides(col, IPreventDelete)
             col.setSubject((u'search', ))
             col.reindexObject(['Subject'])
             col.setLayout('tabular_view')
@@ -550,6 +559,7 @@ def createDashboardCollections(folder, collections):
                                  b_size=30,
                                  limit=0)
             collection = folder[dic['id']]
+            alsoProvides(collection, IPreventDelete)
             if 'subj' in dic:
                 collection.setSubject(dic['subj'])
                 collection.reindexObject(['Subject'])
@@ -1981,6 +1991,7 @@ def addOwnOrganization(context):
               }
     contacts.invokeFactory('organization', 'plonegroup-organization', **params)
     contacts.moveObjectToPosition('plonegroup-organization', 5)
+    alsoProvides(contacts['plonegroup-organization'], IPreventDelete)
 
     own_orga = contacts['plonegroup-organization']
     blacklistPortletCategory(own_orga)
@@ -2026,6 +2037,7 @@ def addOwnPersonnel(context):
     contacts.invokeFactory('Folder', 'personnel-folder', title=u'Mon personnel')
     contacts.moveObjectToPosition('personnel-folder', 4)
     pf = contacts['personnel-folder']
+    alsoProvides(pf, IPreventDelete)
     blacklistPortletCategory(pf)
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
@@ -2131,6 +2143,7 @@ def addContactListsFolder(context):
     api.content.transition(obj=clf, transition='show_internally')
     alsoProvides(clf, IActionsPanelFolder)
     alsoProvides(clf, INextPrevNotNavigable)
+    alsoProvides(clf, IPreventDelete)
     # Set restrictions
     clf.setConstrainTypesMode(1)
     clf.setLocallyAllowedTypes(['Folder', 'contact_list'])
@@ -2139,6 +2152,7 @@ def addContactListsFolder(context):
     # set common
     clf.invokeFactory("Folder", id='common', title=u"Listes communes")
     clf['common'].setLayout('folder_tabular_view')
+    alsoProvides(clf['common'], IPreventDelete)
     transitions(clf['common'], transitions=['show_internally'])
     intids = getUtility(IIntIds)
     if 'sergerobinet' in contacts and 'bernardlermitte' in contacts:
@@ -2255,6 +2269,7 @@ def add_templates(site):
             tplt_fld.setExcludeFromNav(False)
             api.content.transition(obj=tplt_fld, transition='show_internally')
             alsoProvides(tplt_fld, INextPrevNotNavigable)
+            alsoProvides(tplt_fld, IPreventDelete)
             for itf in interfaces:
                 alsoProvides(tplt_fld, itf)
             logger.info("'%s' folder created" % path)
@@ -2361,6 +2376,9 @@ def add_templates(site):
     templates = combine_data(data, test=lambda x: x >= 200)
     cids = create(templates, pos=False, cids=cids)
 
+    for obj in cids.values():
+        alsoProvides(obj, IPreventDelete)
+
     if not exists:
         site['templates']['om'].moveObjectToPosition('d-print', 1)
         site['templates']['om'].moveObjectToPosition('main', 10)
@@ -2393,6 +2411,7 @@ def add_oem_templates(site):
         api.content.transition(obj=tplt_fld, transition='show_internally')
         alsoProvides(tplt_fld, IActionsPanelFolderAll)
         alsoProvides(tplt_fld, INextPrevNotNavigable)
+        alsoProvides(tplt_fld, IPreventDelete)
         for itf in []:
             alsoProvides(tplt_fld, itf)
         logger.info("'templates/{}' folder created".format(folder_id))
