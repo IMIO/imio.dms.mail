@@ -527,11 +527,6 @@ class UtilsMethods(BrowserView):
     """Base view containing utils methods, not directly callable."""
     mainfile_type = 'dmsmainfile'
 
-    def user_is_admin(self):
-        """Test if current user is admin."""
-        user = api.user.get_current()
-        return user.has_role(['Manager', 'Site Administrator'])
-
     def current_user_groups(self, user):
         """Return current user groups."""
         return api.group.get_groups(user=user)
@@ -581,37 +576,18 @@ class UtilsMethods(BrowserView):
             portal_type = self.context.portal_type
         return highest_review_level(portal_type, str(self.current_user_groups_ids(api.user.get_current()))) is not None
 
+    def user_is_admin(self):
+        """Test if current user is admin."""
+        user = api.user.get_current()
+        return user.has_role(['Manager', 'Site Administrator'])
+
 
 class VariousUtilsMethods(UtilsMethods):
     """View containing various utils methods. It can be used with `various-utils` name on all types."""
 
-    def initialize_service_folder(self):
-        """ """
-        if not self.user_is_admin() and not check_zope_admin():
-            return
+    def all_collection_uid(self, main_path='', subpath='mail-searches', col='all_mails'):
         portal = api.portal.get()
-        om_folder = portal['templates']['om']
-        base_model = om_folder.get('main', None)
-        if not base_model:
-            return
-        brains = portal.portal_catalog.unrestrictedSearchResults(portal_type='Folder',
-                                                                 path={'query': '/'.join(om_folder.getPhysicalPath()),
-                                                                       'depth': 1})
-        for brain in brains:
-            folder = brain._unrestrictedGetObject()
-            contents = api.content.find(context=folder, depth=1)
-            if not contents:
-                logger.info("Copying %s in %s" % (base_model, brain.getPath()))
-                api.content.copy(source=base_model, target=folder)
-        return self.context.REQUEST['RESPONSE'].redirect(self.context.absolute_url())
-
-    def unread_criteria(self):
-        """ """
-        cc = getCurrentCollection(self.context)
-        if not cc or cc.id != 'in_copy_unread':
-            return 'FACET-EMPTY'
-        user = api.user.get_current()
-        return {'not': '%s:lu' % user.id}
+        return portal[main_path][subpath][col].UID()
 
     def check_scan_id(self, by='1000', sort='scan'):
         """ Return a list of scan ids, one by 1000 items and by flow types """
@@ -639,6 +615,70 @@ class VariousUtilsMethods(UtilsMethods):
             for nb in natsorted(res[flow], reverse=True):
                 out.append('<a href="%s" target="_blank">%s</a>, %s' % (res[flow][nb][0], nb, res[flow][nb][1]))
         return '<br/>\n'.join(out)
+
+    def dv_images_clean(self):
+        """Call dv_clean to remove old images following configuration"""
+        params = {
+            'days_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_days', default=None),
+            'date_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_date', default=None)
+        }
+        for k, v in params.items():
+            if not params[k]:
+                del params[k]
+        if not params:
+            logger.error('No preservation parameters configured')
+            return
+        logger.info('Cleaning dv files with params {} on {}'.format(params, self.context.absolute_url_path()))
+        try:
+            from datetime import datetime
+            if params.get('date_back'):
+                datetime.strftime(params['date_back'], '%Y%m%d')
+        except Exception as msg:
+            logger.error("Bad date value '{}': '{}'".format(params['date_back'], msg))
+            return
+        dv_clean(self.context, **params)
+
+    def initialize_service_folder(self):
+        """ """
+        if not self.user_is_admin() and not check_zope_admin():
+            return
+        portal = api.portal.get()
+        om_folder = portal['templates']['om']
+        base_model = om_folder.get('main', None)
+        if not base_model:
+            return
+        brains = portal.portal_catalog.unrestrictedSearchResults(portal_type='Folder',
+                                                                 path={'query': '/'.join(om_folder.getPhysicalPath()),
+                                                                       'depth': 1})
+        for brain in brains:
+            folder = brain._unrestrictedGetObject()
+            contents = api.content.find(context=folder, depth=1)
+            if not contents:
+                logger.info("Copying %s in %s" % (base_model, brain.getPath()))
+                api.content.copy(source=base_model, target=folder)
+        return self.context.REQUEST['RESPONSE'].redirect(self.context.absolute_url())
+
+    def kofax_orgs(self):
+        """ Return a list of orgs formatted for Kofax """
+        if not self.user_is_admin():
+            return
+
+        def get_voc_values(voc_name):
+            values = []
+            factory = getUtility(IVocabularyFactory, voc_name)
+            for term in factory(self.context):
+                values.append('{}{}{}'.format(term.title.encode('utf8'), cg_separator, term.value))
+            return values
+
+        ret = []  # noqa
+        ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
+        ret.append('')
+        ret.append('\r\n'.join(get_voc_values('imio.dms.mail.ActiveCreatingGroupVocabulary')))
+        ret.append('')
+        ret.append(_('Treating groups : to be used in kofax index').encode('utf8'))
+        ret.append('')
+        ret.append('\r\n'.join(get_voc_values('collective.dms.basecontent.treating_groups')))
+        return '\r\n'.join(ret)
 
     def list_last_scan(self, typ='im', nb='100'):
         """List last scan of type."""
@@ -689,31 +729,13 @@ class VariousUtilsMethods(UtilsMethods):
                 ret.append('%s;%s' % (uid, tit))
         return '\n'.join(ret)
 
-    def kofax_orgs(self):
-        """ Return a list of orgs formatted for Kofax """
-        if not self.user_is_admin():
-            return
-
-        def get_voc_values(voc_name):
-            values = []
-            factory = getUtility(IVocabularyFactory, voc_name)
-            for term in factory(self.context):
-                values.append('{}{}{}'.format(term.title.encode('utf8'), cg_separator, term.value))
-            return values
-
-        ret = []  # noqa
-        ret.append(_('Creating groups : to be used in kofax index').encode('utf8'))
-        ret.append('')
-        ret.append('\r\n'.join(get_voc_values('imio.dms.mail.ActiveCreatingGroupVocabulary')))
-        ret.append('')
-        ret.append(_('Treating groups : to be used in kofax index').encode('utf8'))
-        ret.append('')
-        ret.append('\r\n'.join(get_voc_values('collective.dms.basecontent.treating_groups')))
-        return '\r\n'.join(ret)
-
-    def all_collection_uid(self, main_path='', subpath='mail-searches', col='all_mails'):
-        portal = api.portal.get()
-        return portal[main_path][subpath][col].UID()
+    def unread_criteria(self):
+        """ """
+        cc = getCurrentCollection(self.context)
+        if not cc or cc.id != 'in_copy_unread':
+            return 'FACET-EMPTY'
+        user = api.user.get_current()
+        return {'not': '%s:lu' % user.id}
 
     def user_usages(self, userid=''):
         """Checks user usages"""
@@ -802,36 +824,26 @@ class VariousUtilsMethods(UtilsMethods):
             log_list(out, u'<p>none</p>')
         return u'\n'.join(out)
 
-    def dv_images_clean(self):
-        """Call dv_clean to remove old images following configuration"""
-        params = {
-            'days_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_days', default=None),
-            'date_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_date', default=None)
-        }
-        for k, v in params.items():
-            if not params[k]:
-                del params[k]
-        if not params:
-            logger.error('No preservation parameters configured')
-            return
-        logger.info('Cleaning dv files with params {} on {}'.format(params, self.context.absolute_url_path()))
-        try:
-            from datetime import datetime
-            if params.get('date_back'):
-                datetime.strftime(params['date_back'], '%Y%m%d')
-        except Exception as msg:
-            logger.error("Bad date value '{}': '{}'".format(params['date_back'], msg))
-            return
-        dv_clean(self.context, **params)
-
 
 class IdmUtilsMethods(UtilsMethods):
     """ View containing incoming mail utils methods """
 
-    def get_im_folder(self):
-        """ Get the incoming-mail folder """
-        portal = getSite()
-        return portal['incoming-mail']
+    def can_close(self):
+        """Check if idm can be closed.
+
+        A user can close if:
+            * a sender, a treating_groups and a mail_type are recorded
+            * the closing agent is in the service (an event will set it)
+
+        Used in guard expression for close transition.
+        """
+        if self.context.sender is None or self.context.treating_groups is None or self.context.mail_type is None:
+            # TODO must check if mail_type field is activated. Has a user already modified the object to
+            # complete all fields
+            return False
+        # A user that can be an assigned_user can close. An event will set the value...
+        return self.is_in_user_groups(admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
+                                      org_uid=self.context.treating_groups)
 
     def can_do_transition(self, transition):
         """Check if N+ transitions and "around" transitions can be done, following N+ users and
@@ -881,35 +893,30 @@ class IdmUtilsMethods(UtilsMethods):
             return False
         return True
 
-    def can_close(self):
-        """Check if idm can be closed.
-
-        A user can close if:
-            * a sender, a treating_groups and a mail_type are recorded
-            * the closing agent is in the service (an event will set it)
-
-        Used in guard expression for close transition.
-        """
-        if self.context.sender is None or self.context.treating_groups is None or self.context.mail_type is None:
-            # TODO must check if mail_type field is activated. Has a user already modified the object to
-            # complete all fields
-            return False
-        # A user that can be an assigned_user can close. An event will set the value...
-        return self.is_in_user_groups(admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
-                                      org_uid=self.context.treating_groups)
-
     def created_col_cond(self):
         """ Condition for searchfor_created collection """
         return self.is_in_user_groups(['encodeurs'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
 
+    def get_im_folder(self):
+        """ Get the incoming-mail folder """
+        portal = getSite()
+        return portal['incoming-mail']
+
+    def im_listing_url(self):
+        col_folder = self.get_im_folder()['mail-searches']
+        url = col_folder.absolute_url()
+        col_uid = col_folder['all_mails'].UID()
+        from_date = date.today()
+        to_date = from_date + timedelta(1)
+        return "{}/#c3=20&b_start=0&c1={}&c10={}&c10={}".format(url, col_uid, from_date.strftime('%d/%m/%Y'),
+                                                                to_date.strftime('%d/%m/%Y'))
+
+    def must_render_im_listing(self):
+        return IIMDashboard.providedBy(self.context)
+
     def proposed_to_manager_col_cond(self):
         """ Condition for searchfor_proposed_to_manager collection """
         return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
-
-    def proposed_to_pre_manager_col_cond(self):
-        """ Condition for searchfor_proposed_to_pre_manager collection """
-        return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False,
-                                      suffixes=[CREATING_GROUP_SUFFIX])
 
     def proposed_to_n_plus_col_cond(self):
         """
@@ -922,46 +929,15 @@ class IdmUtilsMethods(UtilsMethods):
         suffixes.append(CREATING_GROUP_SUFFIX)
         return self.is_in_user_groups(['encodeurs', 'dir_general'], admin=False, suffixes=suffixes)
 
-    def must_render_im_listing(self):
-        return IIMDashboard.providedBy(self.context)
-
-    def im_listing_url(self):
-        col_folder = self.get_im_folder()['mail-searches']
-        url = col_folder.absolute_url()
-        col_uid = col_folder['all_mails'].UID()
-        from_date = date.today()
-        to_date = from_date + timedelta(1)
-        return "{}/#c3=20&b_start=0&c1={}&c10={}&c10={}".format(url, col_uid, from_date.strftime('%d/%m/%Y'),
-                                                                to_date.strftime('%d/%m/%Y'))
+    def proposed_to_pre_manager_col_cond(self):
+        """ Condition for searchfor_proposed_to_pre_manager collection """
+        return self.is_in_user_groups(['encodeurs', 'dir_general', 'pre_manager'], admin=False,
+                                      suffixes=[CREATING_GROUP_SUFFIX])
 
 
 class OdmUtilsMethods(UtilsMethods):
     """ View containing outgoing mail utils methods """
     mainfile_type = 'dmsommainfile'
-
-    def get_om_folder(self):
-        """ Get the outgoing-mail folder """
-        portal = getSite()
-        return portal['outgoing-mail']
-
-    def can_do_transition(self, transition):
-        """ Used in guard expression for n_plus_1 transitions """
-        if self.context.treating_groups is None or not self.context.title:
-            # print "no tg: False"
-            return False
-        way_index = transition.startswith('back_to') and 1 or 0
-        # show only the next valid level
-        state = api.content.get_state(self.context)
-        transitions_levels = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
-        if (self.context.treating_groups in transitions_levels[state] and
-           transitions_levels[state][self.context.treating_groups][way_index] == transition):
-            # print "from state: True"
-            return True
-        return False
-
-    def can_be_validated(self):
-        """Used in guard expression for validated transitions."""
-        return True
 
     def can_be_handsigned(self):
         """Used in guard expression for to_be_signed transitions."""
@@ -985,13 +961,37 @@ class OdmUtilsMethods(UtilsMethods):
         else:
             return self.can_be_handsigned()
 
-    def scanned_col_cond(self):
-        """ Condition for searchfor_scanned collection """
-        return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
+    def can_be_validated(self):
+        """Used in guard expression for validated transitions."""
+        return True
+
+    def can_do_transition(self, transition):
+        """ Used in guard expression for n_plus_1 transitions """
+        if self.context.treating_groups is None or not self.context.title:
+            # print "no tg: False"
+            return False
+        way_index = transition.startswith('back_to') and 1 or 0
+        # show only the next valid level
+        state = api.content.get_state(self.context)
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
+        if (self.context.treating_groups in transitions_levels[state] and
+           transitions_levels[state][self.context.treating_groups][way_index] == transition):
+            # print "from state: True"
+            return True
+        return False
+
+    def get_om_folder(self):
+        """ Get the outgoing-mail folder """
+        portal = getSite()
+        return portal['outgoing-mail']
 
     def is_odt_activated(self):
         registry = getUtility(IRegistry)
         return registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile']
+
+    def scanned_col_cond(self):
+        """ Condition for searchfor_scanned collection """
+        return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
 
 
 class TaskUtilsMethods(UtilsMethods):
