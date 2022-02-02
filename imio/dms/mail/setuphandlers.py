@@ -12,7 +12,7 @@ __author__ = """Gauthier BASTIEN <gbastien@imio.be>, Stephan GEULETTE
 __docformat__ = 'plaintext'
 
 from collections import OrderedDict
-from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
+from collective.ckeditortemplates.setuphandlers import FOLDER as DEFAULT_CKE_TEMPL_FOLDER
 from collective.classification.folder.utils import evaluate_internal_reference
 from collective.classification.tree.utils import create_category
 from collective.contact.plonegroup.config import get_registry_functions
@@ -39,7 +39,7 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.Extensions.demo import clean_examples
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
-from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
+# from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
@@ -423,7 +423,7 @@ def postInstall(context):
         manage_addExternalMethod(site, 'sge_import_contacts', '', 'imports', 'import_contacts')
         manage_addExternalMethod(site, 'sge_import_scanned', '', 'imio.dms.mail.demo', 'import_scanned')
         manage_addExternalMethod(site, 'sge_import_scanned2', '', 'imio.dms.mail.demo', 'import_scanned2')
-    except:
+    except Exception:
         pass
 
     site.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
@@ -434,8 +434,8 @@ def postInstall(context):
                                                'imiodmsmail-contact-import-pipeline', run_dependencies=False)
 
     # remove collective.ckeditortemplates folder
-    if default_cke_templ_folder in site:
-        api.content.delete(obj=site[default_cke_templ_folder])
+    if DEFAULT_CKE_TEMPL_FOLDER in site:
+        api.content.delete(obj=site[DEFAULT_CKE_TEMPL_FOLDER])
 
     # hide plone.portalheader message viewlet
     site.portal_setup.runImportStepFromProfile('profile-plonetheme.imioapps:default', 'viewlets')
@@ -1026,9 +1026,9 @@ def adaptDefaultPortal(context):
     """
     site = context.getSite()
 
-    #deactivate tabs auto generation in navtree_properties
-    #site.portal_properties.site_properties.disable_folder_sections = True
-    #remove default created objects like events, news, ...
+    # deactivate tabs auto generation in navtree_properties
+    # site.portal_properties.site_properties.disable_folder_sections = True
+    # remove default created objects like events, news, ...
     for obj, ids in {site: ('events', 'news'), site.portal_actions.user: ('contact-contactlist-mylists', )}.items():
         for id in ids:
             try:
@@ -1037,7 +1037,7 @@ def adaptDefaultPortal(context):
             except AttributeError:
                 continue
 
-    #set member area type
+    # set member area type
     site.portal_membership.setMemberAreaType('member_area')
     site.portal_membership.memberareaCreationFlag = 0
     site.Members.setExcludeFromNav(True)
@@ -1045,14 +1045,14 @@ def adaptDefaultPortal(context):
     site.Members.setLocallyAllowedTypes([])
     site.Members.setImmediatelyAddableTypes([])
 
-    #change the content of the front-page
+    # change the content of the front-page
     try:
         frontpage = getattr(site, 'front-page')
         if not base_hasattr(site, 'incoming-mail'):
             frontpage.setTitle(_("front_page_title"))
             frontpage.setDescription(_("front_page_descr"))
             frontpage.setText(_("front_page_text"), mimetype='text/html')
-            #remove the presentation mode
+            # remove the presentation mode
             frontpage.setPresentation(False)
             transitions(frontpage, transitions=['show_internally'])
             frontpage.reindexObject()
@@ -1062,39 +1062,39 @@ def adaptDefaultPortal(context):
             alsoProvides(frontpage, INextPrevNotNavigable)
 
     except AttributeError:
-        #the 'front-page' object does not exist...
+        # the 'front-page' object does not exist...
         pass
 
-    #reactivate old Topic
+    # reactivate old Topic
     site.portal_types.Topic.manage_changeProperties(global_allow=True)
     for action in site.portal_controlpanel.listActions():
         if action.id == 'portal_atct':
             action.visible = True
 
-    #change default_page_types property
+    # change default_page_types property
     if 'Folder' not in site.portal_properties.site_properties.default_page_types:
         new_list = list(site.portal_properties.site_properties.default_page_types)
         new_list.append('Folder')
         site.portal_properties.site_properties.manage_changeProperties(default_page_types=new_list)
 
-    #permissions
-    #Removing owner to 'hide' sharing tab
+    # permissions
+    # Removing owner to 'hide' sharing tab
     site.manage_permission('Sharing page: Delegate roles', ('Manager', 'Site Administrator'),
                            acquire=0)
-    #Hiding layout menu
+    # Hiding layout menu
     site.manage_permission('Modify view template', ('Manager', 'Site Administrator'),
                            acquire=0)
-    #Hiding folder contents
+    # Hiding folder contents
     site.manage_permission('List folder contents', ('Manager', 'Site Administrator'),
                            acquire=0)
-    #List undo
+    # List undo
     site.manage_permission('List undoable changes', ('Manager', 'Site Administrator'),
                            acquire=0)
-    #History: can revert to previous versions
+    # History: can revert to previous versions
     site.manage_permission('CMFEditions: Revert to previous versions', ('Manager', 'Site Administrator'),
                            acquire=0)
 
-    #History: add history after contact merging.
+    # History: add history after contact merging.
     # Member needed if the treating_group is changed to another where current user doesn't have rights
     site.manage_permission('CMFEditions: Access previous versions', ('Manager', 'Site Administrator', 'Contributor',
                            'Editor', 'Member', 'Owner', 'Reviewer'), acquire=0)
@@ -1120,11 +1120,11 @@ def adaptDefaultPortal(context):
     msg = site['messages-config']['browser-warning']
     api.content.transition(obj=msg, to_state='activated')
 
-    #we need external edition so make sure it is activated
+    # we need external edition so make sure it is activated
     # site.portal_properties.site_properties.manage_changeProperties(ext_editor=True)  # sans effet
     site.portal_memberdata.manage_changeProperties(ext_editor=True)  # par défaut pour les nouveaux utilisateurs
 
-    #for collective.externaleditor
+    # for collective.externaleditor
     registry = getUtility(IRegistry)
     registry['externaleditor.ext_editor'] = True
     if 'Image' in registry['externaleditor.externaleditor_enabled_types']:
@@ -1170,7 +1170,7 @@ def adaptDefaultPortal(context):
     set_dms_config(['review_levels', 'dmsoutgoingmail'], OrderedDict())
     # review_states configuration, is the same as review_levels with some key, value inverted
     set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
-                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),]))
+                   OrderedDict([('proposed_to_manager', {'group': 'dir_general'})]))
     set_dms_config(['review_states', 'task'], OrderedDict())
     set_dms_config(['review_states', 'dmsoutgoingmail'], OrderedDict())
 
@@ -1498,7 +1498,6 @@ def configureImioDmsMail(context):
             for v in fields
         ]
 
-
     # IEM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'):
         from string import Template
@@ -1807,7 +1806,7 @@ def addTestMails(context):
     logger.info('Adding test mails')
     import imio.dms.mail as imiodmsmail
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
-    files = [unicode(name) for name in os.listdir(filespath)
+    files = [unicode(name) for name in os.listdir(filespath)  # noqa
              if os.path.splitext(name)[1][1:] in ('pdf', 'doc', 'jpg')]
     files_cycle = cycle(files)
 
@@ -1888,7 +1887,7 @@ def addTestMails(context):
                       'sender': senders_cycle.next(),
                       'assigned_user': users_cycle.next(),
                       # temporary in comment because it doesn't pass in test and case probably errors when deleting site
-                      #'in_reply_to': [RelationValue(intids.getId(inmail))],
+                      # 'in_reply_to': [RelationValue(intids.getId(inmail))],
                       'recipients': [RelationValue(recipients_cycle.next())],
                       'send_modes': ['post'],
                       }
@@ -1929,7 +1928,7 @@ def addTestUsersAndGroups(context):
             member = site.portal_registration.addMember(id=uid, password=password,
                                                         roles=['Member'] + users[(uid, fullname)])
             member.setMemberProperties({'fullname': fullname, 'email': '{}@macommune.be'.format(uid)})
-        except ValueError, exc:
+        except ValueError as exc:
             if str(exc).startswith('The login name you selected is already in use'):
                 continue
             logger("Error creating user '%s': %s" % (uid, exc))
@@ -2088,8 +2087,8 @@ def addOwnPersonnel(context):
 
     persons = {
         'dirg': {'pers': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
-                 'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'électron",
-                 'number': u'1', 'use_parent_address': False},
+                          'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'électron",
+                          'number': u'1', 'use_parent_address': False},
                  'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale'])),
                            'label': u'Directeur général', 'email': u'maxime.dirg@macommune.be', 'phone': u'012345678',
                            'use_parent_address': True},
@@ -2098,16 +2097,16 @@ def addOwnPersonnel(context):
                            'end_date': datetime.date(2016, 6, 14), 'use_parent_address': True,
                            'email': u'maxime.dirg@macommune.be', 'phone': u'012345678'}]},
         'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
-                 'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
-                 'number': u'2', 'use_parent_address': False},
+                          'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
+                          'number': u'2', 'use_parent_address': False},
                  'fcts': hp_dic_list('chef')},
         'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
-                  'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
-                  'number': u'3', 'use_parent_address': False},
+                           'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
+                           'number': u'3', 'use_parent_address': False},
                   'fcts': hp_dic_list('agent')},
         'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
-                   'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
-                   'number': u'1', 'use_parent_address': False},
+                            'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
+                            'number': u'1', 'use_parent_address': False},
                    'fcts': hp_dic_list('agent1')},
     }
 
