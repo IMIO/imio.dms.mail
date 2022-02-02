@@ -332,7 +332,7 @@ class TestUtils(unittest.TestCase):
                                                'SubTemplate', 'MailingLoopTemplate', 'ConfigurablePODTemplate']):
             obj = brain.getObject()
             view = VariousUtilsMethods(obj, obj.REQUEST)
-            self.assertFalse(view.is_deletable(), "obj {} is deletable !!".format(obj))
+            self.assertFalse(view.is_deletable(), "obj {} is deletable !!".format(obj.absolute_url_path()))
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

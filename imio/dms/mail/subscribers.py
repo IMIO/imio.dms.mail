@@ -10,6 +10,7 @@ from collective.contact.plonegroup.utils import get_own_organization_path
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -65,6 +66,16 @@ import logging
 
 
 logger = logging.getLogger('imio.dms.mail: events')
+
+
+def item_copied(obj, event):
+    """OFS.item copying"""
+    if get_site_root_relative_path(event.original) in ('/templates/om', '/templates/oem'):
+        api.portal.show_message(message=_("You cannot copy this item '${title}'. If you are in a table, you have to "
+                                          "use the buttons below the table.",
+                                          mapping={'title': event.original.Title()}),
+                                request=event.original.REQUEST, type='error')
+        raise Redirect(event.original.REQUEST.get('ACTUAL_URL'))
 
 
 def replace_contact_list(obj, fieldname):

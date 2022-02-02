@@ -22,12 +22,19 @@
     <subscriber
         for="z3c.relationfield.interfaces.IHasOutgoingRelations
              zope.app.container.interfaces.IObjectRemovedEvent"
-    handler=".subscribers.remove_relations"
+        handler=".subscribers.remove_relations"
     />
     <subscriber
         for="z3c.relationfield.interfaces.IHasOutgoingRelations
              zope.lifecycleevent.IObjectModifiedEvent"
-    handler=".subscribers.update_relations"
+        handler=".subscribers.update_relations"
+    />
+
+    <subscriber
+        for="OFS.interfaces.IItem
+             zope.lifecycleevent.IObjectCopiedEvent"
+        handler=".subscribers.item_copied"
+    />
     />
 
     <!-- IDmsDocument -->
