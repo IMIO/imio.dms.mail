@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2022-02-03 08:45+0000\n"
+"POT-Creation-Date: 2022-02-03 12:09+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -774,7 +774,7 @@ msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
 #: ./subscribers.py:99
-msgid "You cannot move or delete this item '${title}' !"
+msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
 #: ./dmsmail.py:277

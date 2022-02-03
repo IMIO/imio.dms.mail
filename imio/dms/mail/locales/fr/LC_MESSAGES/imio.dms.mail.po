@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-02-03 08:45+0000\n"
+"POT-Creation-Date: 2022-02-03 12:09+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -776,8 +776,8 @@ msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
 #: ./subscribers.py:99
-msgid "You cannot move or delete this item '${title}' !"
-msgstr "Vous ne pouvez pas effacer ou déplacer cet élément '${title}' !"
+msgid "You cannot delete, cut or rename this item '${title}' !"
+msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
 #: ./dmsmail.py:277
 msgid "You must select an assigned user before you can propose to an agent !"
