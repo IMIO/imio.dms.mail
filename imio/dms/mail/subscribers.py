@@ -78,7 +78,7 @@ def item_copied(obj, event):
                                           u"use the buttons below the table.",
                                           mapping={'title': event.original.Title().decode('utf8')}),
                                 request=event.original.REQUEST, type='error')
-        raise Redirect(event.original.REQUEST.get('ACTUAL_URL'))
+        raise Redirect(event.original.REQUEST.get('HTTP_REFERER'))
     # we can't modify obj because it's sometimes the original object, not yet in the target directory
     event.original.REQUEST.set('_copying_', True)
 
@@ -99,7 +99,7 @@ def item_moved(obj, event):
                 message=_(u"You cannot move or delete this item '${title}' !",
                           mapping={'title': obj.Title().decode('utf8')}),
                 request=obj.REQUEST, type='error')
-            raise Redirect(obj.REQUEST.get('ACTUAL_URL'))
+            raise Exception('You cannot move or delete this item')
 
 
 def replace_contact_list(obj, fieldname):
