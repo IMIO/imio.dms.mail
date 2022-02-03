@@ -45,6 +45,7 @@ from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
+from Products.CPUtils.Extensions.utils import check_zope_admin
 from z3c.relationfield.event import removeRelations as orig_removeRelations
 from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
@@ -93,7 +94,7 @@ def item_moved(obj, event):
     """OFS.item re/moved"""
     if (IObjectWillBeRemovedEvent.providedBy(event)  # deletion
             or (event.oldParent and event.newParent != event.oldParent)):  # cut
-        if IPreventDelete.providedBy(obj):
+        if IPreventDelete.providedBy(obj) and not check_zope_admin():
             api.portal.show_message(
                 message=_(u"You cannot move or delete this item '${title}' !",
                           mapping={'title': obj.Title().decode('utf8')}),

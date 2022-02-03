@@ -4,7 +4,6 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
@@ -46,9 +45,19 @@ class TestDmsmail(unittest.TestCase):
         source = self.portal['templates']['om']['main']
         self.assertFalse(source.restrictedTraverse('@@various-utils').is_deletable())
         copied = api.content.copy(source, self.portal['templates']['om'], 'copied_id')
+        self.assertIn('copied_id', self.portal['templates']['om'])
         self.assertTrue(copied.restrictedTraverse('@@various-utils').is_deletable())
         # check if om folder cannot be pasted
         self.assertRaises(Redirect, api.content.copy, self.portal['templates']['om'], self.portal['templates'], 'new')
+
+    def test_item_moved(self):
+        source = self.portal['templates']['om']['main']
+        copied = api.content.copy(source, self.portal['templates']['om'], 'copied_id')
+        self.assertIn('copied_id', self.portal['templates']['om'])
+        self.assertRaises(Redirect, api.content.delete, obj=source, check_linkintegrity=False)
+        self.assertRaises(Redirect, api.content.move, source, self.portal['templates']['om']['common'])
+        api.content.delete(obj=copied, check_linkintegrity=False)
+        self.assertNotIn('copied_id', self.portal['templates']['om'])
 
     def test_dmsdocument_modified(self):
         # owner changing test
