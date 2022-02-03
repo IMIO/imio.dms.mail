@@ -152,5 +152,5 @@ class IMemberAreaFolder(IDexterityContainer):
     """
 
 
-class IPreventDelete(Interface):
-    """Marker interface for prevent move/delete object"""
+class IProtectedItem(Interface):
+    """Marker interface to protect object against deletion, cut and rename"""

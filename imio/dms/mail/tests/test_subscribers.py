@@ -43,10 +43,10 @@ class TestDmsmail(unittest.TestCase):
     def test_item_copied(self):
         # check if protection markers are removed from copied item
         source = self.portal['templates']['om']['main']
-        self.assertFalse(source.restrictedTraverse('@@various-utils').is_deletable())
+        self.assertFalse(source.restrictedTraverse('@@various-utils').is_unprotected())
         copied = api.content.copy(source, self.portal['templates']['om'], 'copied_id')
         self.assertIn('copied_id', self.portal['templates']['om'])
-        self.assertTrue(copied.restrictedTraverse('@@various-utils').is_deletable())
+        self.assertTrue(copied.restrictedTraverse('@@various-utils').is_unprotected())
         # check if om folder cannot be pasted
         self.assertRaises(Redirect, api.content.copy, self.portal['templates']['om'], self.portal['templates'], 'new')
 
@@ -54,10 +54,17 @@ class TestDmsmail(unittest.TestCase):
         source = self.portal['templates']['om']['main']
         copied = api.content.copy(source, self.portal['templates']['om'], 'copied_id')
         self.assertIn('copied_id', self.portal['templates']['om'])
+        # cannot move or delete a protected object
         self.assertRaises(Redirect, api.content.delete, obj=source, check_linkintegrity=False)
         self.assertRaises(Redirect, api.content.move, source, self.portal['templates']['om']['common'])
+        # cannot rename a protected object
+        self.assertRaises(Redirect, api.content.rename, source, 'new_id')
+        # can rename an unprotected
+        copied = api.content.rename(copied, 'new_id')
+        self.assertEqual(copied.id, 'new_id')
+        # can delete an unprotected
         api.content.delete(obj=copied, check_linkintegrity=False)
-        self.assertNotIn('copied_id', self.portal['templates']['om'])
+        self.assertNotIn('new_id', self.portal['templates']['om'])
 
     def test_dmsdocument_modified(self):
         # owner changing test

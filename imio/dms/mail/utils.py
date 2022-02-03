@@ -16,7 +16,7 @@ from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.interfaces import IPreventDelete
+from imio.dms.mail.interfaces import IProtectedItem
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import obj_modified
@@ -659,9 +659,9 @@ class VariousUtilsMethods(UtilsMethods):
                 api.content.copy(source=base_model, target=folder)
         return self.context.REQUEST['RESPONSE'].redirect(self.context.absolute_url())
 
-    def is_deletable(self):
-        """Test if object is protected against deletion"""
-        return not IPreventDelete.providedBy(self.context)
+    def is_unprotected(self):
+        """Test if object is protected"""
+        return not IProtectedItem.providedBy(self.context)
 
     def kofax_orgs(self):
         """ Return a list of orgs formatted for Kofax """

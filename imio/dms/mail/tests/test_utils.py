@@ -310,10 +310,10 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.is_in_user_groups(suffixes=['general'], org_uid='dir'))
         self.assertTrue(view.is_in_user_groups(suffixes=['general'], org_uid='dir', user=api.user.get('dirg')))
 
-    def test_VariousMethods_is_deletable(self):
+    def test_VariousMethods_is_unprotected(self):
         obj = self.portal['front-page']
         view = VariousUtilsMethods(obj, obj.REQUEST)
-        self.assertTrue(view.is_deletable(), "obj {} is not deletable !!".format(obj))
+        self.assertTrue(view.is_unprotected(), "obj {} is protected !!".format(obj))
         for obj in (
                 self.portal['incoming-mail'], self.portal['incoming-mail']['mail-searches'],
                 self.portal['outgoing-mail'], self.portal['outgoing-mail']['mail-searches'],
@@ -327,14 +327,14 @@ class TestUtils(unittest.TestCase):
                 self.portal['templates'], self.portal['templates']['om'], self.portal['templates']['om']['common'],
                 self.portal['templates']['oem']):
             view = VariousUtilsMethods(obj, obj.REQUEST)
-            self.assertFalse(view.is_deletable(), "obj {} is deletable !!".format(obj))
+            self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj))
         for brain in self.catalog(portal_type=['DashboardCollection', 'DashboardPODTemplate', 'StyleTemplate',
                                                'SubTemplate', 'MailingLoopTemplate', 'ConfigurablePODTemplate']):
             obj = brain.getObject()
             if obj.id == 'main' and not obj.absolute_url_path().endswith('/om/main'):  # we pass copy made in setup
                 continue
             view = VariousUtilsMethods(obj, obj.REQUEST)
-            self.assertFalse(view.is_deletable(), "obj {} is deletable !!".format(obj.absolute_url_path()))
+            self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')

@@ -19,7 +19,7 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
-from imio.dms.mail.interfaces import IPreventDelete
+from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
@@ -403,12 +403,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                 self.portal['folders'], self.portal['folders']['folder-searches'], self.portal['tree'],
                 self.portal['templates'], self.portal['templates']['om'], self.portal['templates']['om']['common'],
                 self.portal['templates']['oem']):
-            alsoProvides(obj, IPreventDelete)
+            alsoProvides(obj, IProtectedItem)
         for brain in self.catalog(portal_type='DashboardCollection'):
-            alsoProvides(brain.getObject(), IPreventDelete)
+            alsoProvides(brain.getObject(), IProtectedItem)
         for tup in list_templates():
             obj = self.portal.restrictedTraverse(tup[1])
-            alsoProvides(obj, IPreventDelete)
+            alsoProvides(obj, IProtectedItem)
 
     def insert_incoming_emails(self):
         # allowed types

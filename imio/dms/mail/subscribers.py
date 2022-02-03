@@ -23,7 +23,7 @@ from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
-from imio.dms.mail.interfaces import IPreventDelete
+from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import IdmUtilsMethods
@@ -86,20 +86,20 @@ def item_copied(obj, event):
 def item_added(obj, event):
     """OFS.item added"""
     req = api.env.getRequest()
-    if req and req.get('_copying_', False) and IPreventDelete.providedBy(obj):
-        noLongerProvides(obj, IPreventDelete)
+    if req and req.get('_copying_', False) and IProtectedItem.providedBy(obj):
+        noLongerProvides(obj, IProtectedItem)
 
 
 def item_moved(obj, event):
-    """OFS.item re/moved"""
+    """OFS.item removed, cut or renamed (event also called for added and pasted)"""
     if (IObjectWillBeRemovedEvent.providedBy(event)  # deletion
-            or (event.oldParent and event.newParent != event.oldParent)):  # cut
-        if IPreventDelete.providedBy(obj) and not check_zope_admin():
+            or event.oldParent):  # cut or rename
+        if IProtectedItem.providedBy(obj) and not check_zope_admin():
             api.portal.show_message(
-                message=_(u"You cannot move or delete this item '${title}' !",
+                message=_(u"You cannot delete, cut or rename this item '${title}' !",
                           mapping={'title': obj.Title().decode('utf8')}),
                 request=obj.REQUEST, type='error')
-            raise Exception('You cannot move or delete this item')
+            raise Redirect(obj.REQUEST.get('HTTP_REFERER'))
 
 
 def replace_contact_list(obj, fieldname):
