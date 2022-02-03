@@ -408,8 +408,11 @@ class Migrate_To_3_0(Migrator):  # noqa
         for brain in self.catalog(portal_type='DashboardCollection'):
             alsoProvides(brain.getObject(), IProtectedItem)
         for tup in list_templates():
-            obj = self.portal.restrictedTraverse(tup[1])
-            alsoProvides(obj, IProtectedItem)
+            try:
+                obj = self.portal.restrictedTraverse(tup[1])
+                alsoProvides(obj, IProtectedItem)
+            except AttributeError:
+                pass
 
     def insert_incoming_emails(self):
         # allowed types
