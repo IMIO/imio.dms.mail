@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import transaction
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
-from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -78,10 +77,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
         self.display_mem = True
-
-    def log_mem(self, tag=''):
-        if self.display_mem:
-            logger.info('Mem used {} at {}, ({})'.format(process_memory(), tag, memory()))
+        self.run_part = os.getenv('FUNC_PART', '')
 
     def savepoint_flush(self):
         transaction.savepoint(True)
@@ -89,7 +85,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
-        self.log_mem('start')
+        self.log_mem('START')
         if self.config['om_mt']:
             logger.info('Loaded config {}'.format(self.config))
             mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
@@ -128,145 +124,154 @@ class Migrate_To_3_0(Migrator):  # noqa
                 else:
                     self.config['flds'] = False
 
-        # check if oo port or solr port must be changed
-        update_solr_config()
-        update_oo_config()
-
-        self.cleanRegistries()
-
-        self.correct_actions()
-        self.log_mem('after correct_actions')
-
         for mt in ('mail_types', 'omail_types'):
             mtr = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(mt)
             self.existing_settings[mt] = api.portal.get_registry_record(mtr)
 
-        self.install(['collective.ckeditortemplates'])
-        if default_cke_templ_folder in self.portal:
-            api.content.delete(obj=self.portal[default_cke_templ_folder])
-        self.upgradeProfile('collective.documentgenerator:default')
-        self.upgradeProfile('collective.contact.core:default')
-        self.upgradeProfile('collective.task:default')
-        self.upgradeProfile('collective.dms.mailcontent:default')
-        self.upgradeProfile('plonetheme.imioapps:default')
+        if self.is_in_part('a'):
+            # check if oo port or solr port must be changed
+            update_solr_config()
+            update_oo_config()
 
-        self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'],
-                             run_dependencies=False)  # to hide messages-viewlet
-        self.runProfileSteps('plonetheme.imioapps', profile='dmsmailskin', steps=['viewlets'],
-                             run_dependencies=False)  # to hide colophon
-        if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
-            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
-        self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'],
-                             run_dependencies=False)
-        self.savepoint_flush()
-        self.log_mem('first upgrades')
+            self.cleanRegistries()
 
-        self.do_prior_updates()
-        self.log_mem('prior_updates')
+            self.correct_actions()
 
-        self.install(['collective.classification.folder', 'collective.js.tooltipster', 'Products.cron4plone'])
-        self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
+            self.install(['collective.ckeditortemplates'])
+            if default_cke_templ_folder in self.portal:
+                api.content.delete(obj=self.portal[default_cke_templ_folder])
+            self.upgradeProfile('collective.documentgenerator:default')
+            self.upgradeProfile('collective.contact.core:default')
+            self.upgradeProfile('collective.task:default')
+            self.upgradeProfile('collective.dms.mailcontent:default')
+            self.upgradeProfile('plonetheme.imioapps:default')
 
-        self.runProfileSteps('imio.dms.mail', steps=['actions', 'atcttool', 'catalog', 'controlpanel',
-                                                     'plone.app.registry', 'repositorytool', 'typeinfo', 'viewlets'])
-        self.log_mem('idm steps')
-        # remove to_print related.
-        self.remove_to_print()
-
-        # copy localroles from dmsincomingmail to dmsincoming_email
-        imfti = getUtility(IDexterityFTI, name='dmsincomingmail')
-        lr = getattr(imfti, 'localroles')
-        iemfti = getUtility(IDexterityFTI, name='dmsincoming_email')
-        setattr(iemfti, 'localroles', deepcopy(lr))
-        configure_iem_rolefields(self.portal)
-
-        if api.group.get('createurs_dossier') is None:
-            api.group.create('createurs_dossier', '1 Créateurs dossiers')
-            for user in api.user.get_users(groupname='dir_general'):
-                api.group.add_user(groupname='createurs_dossier', user=user)
-        setup_classification(self.portal)
-        # xml has been modified since first upgrade
-        reimport_faceted_config(self.portal.folders['folder-searches'], xml='classificationfolders-searches.xml',
-                                default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
-        order_1st_level(self.portal)
-
-        self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'],
-                             run_dependencies=False)
-        self.update_config()
-        if self.config['flds']:
-            self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-activate_classification'],
+            self.runProfileSteps('plonetheme.imioapps', steps=['viewlets'],
+                                 run_dependencies=False)  # to hide messages-viewlet
+            self.runProfileSteps('plonetheme.imioapps', profile='dmsmailskin', steps=['viewlets'],
+                                 run_dependencies=False)  # to hide colophon
+            if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
+                self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
+            self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'],
                                  run_dependencies=False)
-        else:
-            self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-deactivate_classification'],
+
+            self.do_prior_updates()
+
+            self.install(['collective.classification.folder', 'collective.js.tooltipster', 'Products.cron4plone'])
+            self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
+
+        if self.is_in_part('c'):
+            self.runProfileSteps('imio.dms.mail', steps=['actions', 'atcttool', 'catalog', 'controlpanel',
+                                                         'plone.app.registry', 'repositorytool', 'typeinfo',
+                                                         'viewlets'])
+            # remove to_print related.
+            self.remove_to_print()
+
+            # copy localroles from dmsincomingmail to dmsincoming_email
+            imfti = getUtility(IDexterityFTI, name='dmsincomingmail')
+            lr = getattr(imfti, 'localroles')
+            iemfti = getUtility(IDexterityFTI, name='dmsincoming_email')
+            setattr(iemfti, 'localroles', deepcopy(lr))
+            configure_iem_rolefields(self.portal)
+
+            if api.group.get('createurs_dossier') is None:
+                api.group.create('createurs_dossier', '1 Créateurs dossiers')
+                for user in api.user.get_users(groupname='dir_general'):
+                    api.group.add_user(groupname='createurs_dossier', user=user)
+            setup_classification(self.portal)
+            # xml has been modified since first upgrade
+            reimport_faceted_config(self.portal.folders['folder-searches'], xml='classificationfolders-searches.xml',
+                                    default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
+            order_1st_level(self.portal)
+
+            self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'],
                                  run_dependencies=False)
-        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'],
-                             run_dependencies=False)
-        # clean example users wrongly added by previous migration
-        self.clean_examples()
-        self.log_mem('clean_examples')
+            self.update_config()
+            if self.config['flds']:
+                self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-activate_classification'],
+                                     run_dependencies=False)
+            else:
+                self.runProfileSteps('imio.dms.mail', profile='singles',
+                                     steps=['imiodmsmail-deactivate_classification'], run_dependencies=False)
+            self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'],
+                                 run_dependencies=False)
+            # clean example users wrongly added by previous migration
+            self.clean_examples()
 
-        # reset workflow
-        self.runProfileSteps('imio.dms.mail', steps=['workflow'])
-        # Apply workflow adaptations
-        applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
-        if applied_adaptations:
-            success, errors = apply_from_registry(reapply=True)
-            if errors:
-                logger.error("Problem applying wf adaptations: %d errors" % errors)
-        if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
-            update_task_workflow(self.portal)
+        if self.is_in_part('e'):
+            # reset workflow
+            self.runProfileSteps('imio.dms.mail', steps=['workflow'])
+            # Apply workflow adaptations
+            applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+            if applied_adaptations:
+                success, errors = apply_from_registry(reapply=True)
+                if errors:
+                    logger.error("Problem applying wf adaptations: %d errors" % errors)
+            if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
+                update_task_workflow(self.portal)
+            # update permissions, roles and reindex allowedRolesAndUsers
+            self.portal.portal_workflow.updateRoleMappings()
 
-        self.portal.portal_workflow.updateRoleMappings()  # update permissions, roles and reindex allowedRolesAndUsers
-        self.savepoint_flush()
-        self.log_mem('updateRoleMappings')
+        if self.is_in_part('g'):
+            # do various global adaptations
+            self.update_site()
 
-        # do various global adaptations
-        self.update_site()
-        self.log_mem('update_site')
+        if self.is_in_part('i'):
+            # update dmsincomingmails
+            self.update_dmsincomingmails()
 
-        # update dmsincomingmails
-        self.update_dmsincomingmails()
-        self.log_mem('update_dmsincomingmails')
+        if self.is_in_part('k'):
+            # do various adaptations for dmsincoming_email and dmsoutgoing_email
+            self.insert_incoming_emails()
 
-        # do various adaptations for dmsincoming_email and dmsoutgoing_email
-        self.insert_incoming_emails()
-        self.log_mem('insert i emails')
-        self.insert_outgoing_emails()
-        self.log_mem('insert o emails')
-        createOMailCollections(self.portal['outgoing-mail']['mail-searches'])
+        if self.is_in_part('m'):
+            self.insert_outgoing_emails()
+            createOMailCollections(self.portal['outgoing-mail']['mail-searches'])
+            self.check_previously_migrated_collections()
 
-        self.check_previously_migrated_collections()
-        self.savepoint_flush()
-        self.log_mem('check collections')
-        # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
-        self.update_catalog()
-        self.log_mem('update_catalog')
+        if self.is_in_part('o'):
+            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
+            self.update_catalog1()
 
-        # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
-        self.upgradeAll(omit=['imio.dms.mail:default'])
+        if self.is_in_part('p'):
+            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
+            self.update_catalog2()
 
-        self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+        if self.is_in_part('q'):
+            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
+            self.update_catalog3()
 
-        # update templates
-        add_templates(self.portal)
-        self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
-        self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
+        if self.is_in_part('r'):
+            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
+            self.update_catalog4()
 
-        # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
-        self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+        if self.is_in_part('t'):
+            # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
+            self.upgradeAll(omit=['imio.dms.mail:default'])
 
-        for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
-                     'collective.contact.facetednav', 'collective.contact.importexport', 'collective.dms.basecontent',
-                     'collective.eeafaceted.batchactions', 'collective.eeafaceted.dashboard',
-                     'collective.eeafaceted.z3ctable', 'collective.wfadaptations', 'collective.z3cform.chosen',
-                     'eea.facetednavigation', 'imio.actionspanel', 'imio.dms.mail', 'imio.history', 'imio.pm.wsclient',
-                     'plonetheme.imioapps']:
-            mark_last_version(self.portal, product=prod)
+        if self.is_in_part('v'):
+            self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
 
-        # self.refreshDatabase()
+            # update templates
+            add_templates(self.portal)
+            self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
+            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
+
+        if self.is_in_part('x'):
+            # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
+            self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+
+            for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
+                         'collective.contact.facetednav', 'collective.contact.importexport', 'collective.dms.basecontent',
+                         'collective.eeafaceted.batchactions', 'collective.eeafaceted.dashboard',
+                         'collective.eeafaceted.z3ctable', 'collective.wfadaptations', 'collective.z3cform.chosen',
+                         'eea.facetednavigation', 'imio.actionspanel', 'imio.dms.mail', 'imio.history', 'imio.pm.wsclient',
+                         'plonetheme.imioapps']:
+                mark_last_version(self.portal, product=prod)
+
+        self.log_mem('END')
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         self.finish()
-        self.log_mem('END')
 
     def do_prior_updates(self):
         # clean dmsconfig to avoid duplications in wf_from_to
@@ -758,9 +763,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                             obj.reindexObject(['assigned_user'])
                         break
 
-    def update_catalog(self):
+    def update_catalog1(self):
         """ Update catalog or objects """
         # Lowercased hp email
+        logger.info('Updating held_positions')
         brains = self.catalog.searchResults(portal_type='held_position')
         for brain in brains:
             obj = brain.getObject()
@@ -768,8 +774,15 @@ class Migrate_To_3_0(Migrator):  # noqa
                 continue
             obj.email = obj.email.lower()
             obj.reindexObject(idxs=['contact_source', 'email'])
+        logger.info('Updated {} brains'.format(len(brains)))
+        # Reindex internal_reference_no
+        self.reindexIndexes(['internal_reference_no'], update_metadata=True)
+
+    def update_catalog2(self):
+        """ Update catalog or objects """
         # Clean and update
-        brains = self.catalog.searchResults(portal_type=('dmsmainfile', 'dmsommainfile', 'dmsappendixfile'))
+        logger.info('Updating dmsmainfile')
+        brains = self.catalog.searchResults(portal_type='dmsmainfile')
         for i, brain in enumerate(brains, 1):
             obj = brain.getObject()
             if i % 10000 == 0:
@@ -778,21 +791,58 @@ class Migrate_To_3_0(Migrator):  # noqa
             for attr in ('conversion_finished', 'just_added'):
                 if base_hasattr(obj, attr):
                     delattr(obj, attr)
-            # we update delete permission
-            if brain.portal_type == 'dmsappendixfile':
-                obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'),
-                                      acquire=1)
-            # we update modification permission on incomingmail main file
-            if brain.portal_type == 'dmsmainfile':
-                obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
-                                      acquire=0)
+            # specific: we update modification permission on incomingmail main file
+            obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
+                                  acquire=0)
             # we remove left portlet
             blacklistPortletCategory(obj)
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
-        # Reindex internal_reference_no
-        self.reindexIndexes(['internal_reference_no'], update_metadata=True)
+        logger.info('Updated {} brains'.format(len(brains)))
+
+    def update_catalog3(self):
+        """ Update catalog or objects """
+        # Clean and update
+        logger.info('Updating dmsommainfile')
+        brains = self.catalog.searchResults(portal_type='dmsommainfile')
+        for i, brain in enumerate(brains, 1):
+            obj = brain.getObject()
+            if i % 10000 == 0:
+                logger.info('On file brain {}'.format(i))
+            # we removed those useless attributes
+            for attr in ('conversion_finished', 'just_added'):
+                if base_hasattr(obj, attr):
+                    delattr(obj, attr)
+            # we remove left portlet
+            blacklistPortletCategory(obj)
+            # we update SearchableText to include short relevant scan_id
+            # we update sender_index that can be empty after a clear and rebuild !!
+            obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
+        logger.info('Updated {} brains'.format(len(brains)))
+
+    def update_catalog4(self):
+        """ Update catalog or objects """
+        # Clean and update
+        logger.info('Updating dmsappendixfile')
+        brains = self.catalog.searchResults(portal_type='dmsappendixfile')
+        for i, brain in enumerate(brains, 1):
+            obj = brain.getObject()
+            if i % 10000 == 0:
+                logger.info('On file brain {}'.format(i))
+            # we removed those useless attributes
+            for attr in ('conversion_finished', 'just_added'):
+                if base_hasattr(obj, attr):
+                    delattr(obj, attr)
+            # specific: we update delete permission
+            obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'),
+                                  acquire=1)
+            # we remove left portlet
+            blacklistPortletCategory(obj)
+            # we update SearchableText to include short relevant scan_id
+            # we update sender_index that can be empty after a clear and rebuild !!
+            obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
+        logger.info('Updated {} brains'.format(len(brains)))
 
     def clean_examples(self):
         if 'reponse1' not in self.portal['outgoing-mail']:
@@ -806,6 +856,19 @@ class Migrate_To_3_0(Migrator):  # noqa
                     continue
                 logger.info("Deleting user '%s'" % userid)
                 api.user.delete(user=user)
+
+    def is_in_part(self, part):
+        if self.run_part == part:
+            logger.info("DOING PART '{}'".format(part))
+            return True
+        elif self.run_part == '':
+            self.log_mem("PART {}".format(part))  # print intermediate part memory info if run in one step
+            return True
+        return False
+
+    def log_mem(self, tag=''):
+        if self.display_mem:
+            logger.info('Mem used {} at {}, ({})'.format(process_memory(), tag, memory()))
 
 
 def migrate(context):
