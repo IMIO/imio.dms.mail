@@ -145,6 +145,13 @@ iemail_manual_forward_transitions = SimpleVocabulary(
     ]
 )
 
+oemail_sender_email_values = SimpleVocabulary(
+    [
+        SimpleTerm(value=u'agent_email', title=_(u'Sender held position email is used')),
+        SimpleTerm(value=u'service_email', title=_(u'Sender held position service email is used'))
+    ]
+)
+
 
 class ITableListSchema(Interface):
     value = schema.TextLine(title=_("Stored value/id"), required=True)
@@ -243,8 +250,8 @@ class IImioDmsMailConfig(model.Schema):
         fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
                 'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
                 'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',
-                'omail_close_on_email_send', 'omail_replyto_email_send', 'omail_email_signature', 'omail_fields',
-                'omail_group_encoder']
+                'omail_close_on_email_send', 'omail_replyto_email_send', 'omail_sender_email_default',
+                'omail_email_signature', 'omail_fields', 'omail_group_encoder']
     )
 
     omail_types = schema.List(
@@ -325,6 +332,12 @@ class IImioDmsMailConfig(model.Schema):
     omail_replyto_email_send = schema.Bool(
         title=_(u'Send email with agent as reply to'),
         default=False
+    )
+
+    omail_sender_email_default = schema.Choice(
+        title=_(u'Add reply-to in email'),
+        vocabulary=oemail_sender_email_values,
+        default=u'agent_email'
     )
 
     widget('omail_email_signature', WysiwygFieldWidget)

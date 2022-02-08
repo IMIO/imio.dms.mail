@@ -612,6 +612,9 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         """
         if not sender_i:
             sender_i = self.get_sender_info()
+        replyto_key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_email_default'
+        rtv = api.portal.get_registry_record(replyto_key, default=u'agent_email')
+        # TODO
         hpc = IContactable(sender_i['hp'])
         email = hpc.get_contact_details(keys=['email']).get('email', u'')
         if email:
