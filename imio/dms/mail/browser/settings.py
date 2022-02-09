@@ -330,12 +330,12 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     omail_replyto_email_send = schema.Bool(
-        title=_(u'Send email with agent as reply to'),
+        title=_(u'Send email with sender as reply to'),
         default=False
     )
 
     omail_sender_email_default = schema.Choice(
-        title=_(u'Add reply-to in email'),
+        title=_(u'From where to get sender default email'),
         vocabulary=oemail_sender_email_values,
         default=u'agent_email'
     )
