@@ -1471,7 +1471,7 @@ def configureImioDmsMail(context):
     # OM
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'] = [
-            {'value': u'courrier', 'dtitle': u'Courrier', 'active': True},
+            {'value': u'type1', 'dtitle': u'Type 1', 'active': True},
         ]
     if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
@@ -1883,7 +1883,7 @@ def addTestMails(context):
                       'internal_reference_no': internalReferenceOutgoingMailDefaultValue(data),
                       'mail_date': mailDateDefaultValue(data),
                       'treating_groups': orgas_cycle.next(),
-                      'mail_type': 'courrier',
+                      'mail_type': 'type1',
                       'sender': senders_cycle.next(),
                       'assigned_user': users_cycle.next(),
                       # temporary in comment because it doesn't pass in test and case probably errors when deleting site

@@ -299,22 +299,22 @@ class TestAdapters(unittest.TestCase):
 
     def test_OMMCTV(self):
         omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', id='my-id', title='My title',
-                                         mail_type='courrier')
+                                         mail_type='type1')
         view = omail.restrictedTraverse('@@view')
         view.update()
         # the title from the vocabulary is well rendered
-        self.assertIn('Courrier', view.widgets['mail_type'].render())
+        self.assertIn('Type 1', view.widgets['mail_type'].render())
         # We deactivate the courrier mail type, the missing value is managed
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.omail_types
         mail_types[0]['active'] = False
         settings.omail_types = mail_types
         voc_inst = getUtility(IVocabularyFactory, 'imio.dms.mail.OMActiveMailTypesVocabulary')
-        self.assertNotIn('courrier', [t.value for t in voc_inst(omail)])
+        self.assertNotIn('type1', [t.value for t in voc_inst(omail)])
         view.updateWidgets()
-        self.assertIn('Courrier', view.widgets['mail_type'].render())
+        self.assertIn('Type 1', view.widgets['mail_type'].render())
         # We remove the courrier mail type, the missing value cannot be managed anymore
         settings.omail_types = settings.omail_types[1:]
         view.updateWidgets()
-        self.assertNotIn('Courrier', view.widgets['mail_type'].render())
+        self.assertNotIn('Type 1', view.widgets['mail_type'].render())
         self.assertIn('Missing', view.widgets['mail_type'].render())

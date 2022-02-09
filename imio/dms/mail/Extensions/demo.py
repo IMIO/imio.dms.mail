@@ -189,13 +189,13 @@ def import_scanned2(self, number=2):
     docs = {
         u'011500000000001.pdf':
         {
-            'c': {'mail_type': 'courrier', 'file_title': u'011500000000001.pdf', 'outgoing_date': now},
+            'c': {'mail_type': 'type1', 'file_title': u'011500000000001.pdf', 'outgoing_date': now},
             'f': {'scan_id': '011500000000001', 'pages_number': 1, 'scan_date': now,
                   'scan_user': 'Opérateur', 'scanner': 'Ricola'}
         },
         u'011500000000002.pdf':
         {
-            'c': {'mail_type': 'courrier', 'file_title': u'011500000000002.pdf', 'outgoing_date': now},
+            'c': {'mail_type': 'type1', 'file_title': u'011500000000002.pdf', 'outgoing_date': now},
             'f': {'scan_id': '011500000000002', 'pages_number': 1, 'scan_date': now,
                   'scan_user': 'Opérateur', 'scanner': 'Ricola'}
         },
@@ -281,7 +281,7 @@ def clean_examples(self, doit='1'):
     params = {'title': u'Courrier test pour création de modèles (ne pas effacer)',
               'internal_reference_no': internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
               'mail_date': date.today(),
-              'mail_type': 'courrier',
+              'mail_type': 'type1',
               }
     if doit:
         portal['outgoing-mail'].invokeFactory('dmsoutgoingmail', id='test_creation_modele', **params)
