@@ -379,6 +379,18 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(recipients_filter_default(self.portal),
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
 
+    def test_OM_get_sender_email(self):
+        om = self.portal['outgoing-mail']['reponse1']
+        # default option is getting agent email
+        self.assertEqual(om.get_sender_email(), u'"Michel Chef" <michel.chef@macommune.be>')
+        # get service email
+        replyto_key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_email_default'
+        api.portal.set_registry_record(replyto_key, u'service_email')
+        self.assertEqual(om.get_sender_email(), u'contact@macommune.be')  # get higher email
+        org = om.get_sender_info()['org']
+        org.email = u'grh@macommune.be'
+        self.assertEqual(om.get_sender_email(), u'grh@macommune.be')  # get nearest email
+
     def test_OM_get_recipient_emails(self):
         om = self.portal['outgoing-mail']['reponse1']
         self.assertIsNone(om.orig_sender_email)

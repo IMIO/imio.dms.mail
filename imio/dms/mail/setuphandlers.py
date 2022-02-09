@@ -1986,6 +1986,7 @@ def addOwnOrganization(context):
               'city': u'Ma ville',
               'street': u'Rue de la commune',
               'number': u'1',
+              'email': u'contact@macommune.be',
               'use_parent_address': False,
               }
     contacts.invokeFactory('organization', 'plonegroup-organization', **params)
