@@ -262,10 +262,11 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
             for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
-                         'collective.contact.facetednav', 'collective.contact.importexport', 'collective.dms.basecontent',
-                         'collective.eeafaceted.batchactions', 'collective.eeafaceted.dashboard',
-                         'collective.eeafaceted.z3ctable', 'collective.wfadaptations', 'collective.z3cform.chosen',
-                         'eea.facetednavigation', 'imio.actionspanel', 'imio.dms.mail', 'imio.history', 'imio.pm.wsclient',
+                         'collective.contact.facetednav', 'collective.contact.importexport',
+                         'collective.dms.basecontent', 'collective.eeafaceted.batchactions',
+                         'collective.eeafaceted.dashboard', 'collective.task', 'collective.eeafaceted.z3ctable',
+                         'collective.wfadaptations', 'collective.z3cform.chosen', 'eea.facetednavigation',
+                         'imio.actionspanel', 'imio.dms.mail', 'imio.history', 'imio.pm.wsclient',
                          'plonetheme.imioapps']:
                 mark_last_version(self.portal, product=prod)
 

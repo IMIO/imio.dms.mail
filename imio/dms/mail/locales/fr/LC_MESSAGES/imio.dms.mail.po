@@ -596,7 +596,7 @@ msgstr "Chemin relatif"
 
 #: ./adapters.py:
 msgid "Remark icon"
-msgstr "Le champ \"description de la tâche\" n'est pas vide"
+msgstr "Le champ \"description du travail\" n'est pas vide"
 
 #: ./browser/batchactions.py:83
 msgid "Remove items"
