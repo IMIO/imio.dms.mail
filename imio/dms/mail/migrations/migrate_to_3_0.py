@@ -644,7 +644,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                                               default=[]):
             smodes = []
             for dic in self.config['om_mt']:
-                smodes.append({'value': dic['nid'], 'dtitle': dic['t'], 'active': True})
+                if dic['nid'] not in [dc['value'] for dc in smodes]:  # avoid duplicates
+                    smodes.append({'value': dic['nid'], 'dtitle': dic['t'], 'active': True})
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', smodes)
         # im fields order to new field config
         im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
