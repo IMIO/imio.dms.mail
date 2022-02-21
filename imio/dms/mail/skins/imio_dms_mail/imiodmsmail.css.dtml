@@ -509,6 +509,11 @@ body.template-folder_factories #content-core dt label img {
     max-height: 18px;
 }
 
+/* org logo in listing */
+body.template-view.subsection-plonegroup-organization table.suborganizations-listing div.additional-infos img {
+    width: auto;
+    max-height: 50px;
+
 /* ckeditor templates cktemplate */
 div.cke_tpl_item {
     padding: 2px;
