@@ -10,17 +10,22 @@ from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
+
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
+from imio.helpers.content import transitions
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
 from natsort import natsorted
@@ -28,6 +33,8 @@ from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.api.exc import GroupNotFoundError
+from plone.dexterity.interfaces import IDexterityFTI
+from plone.dexterity.utils import addContentToContainer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
@@ -43,6 +50,7 @@ from zc.relation.interfaces import ICatalog
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.component.hooks import getSite
+from zope.interface import alsoProvides
 from zope.intid import IIntIds
 from zope.schema.interfaces import IVocabularyFactory
 
@@ -494,12 +502,14 @@ def eml_preview(obj):
     blobs = {}
     pc = api.portal.get_tool('portal_catalog')
     brains = pc.unrestrictedSearchResults(portal_type='dmsmainfile', markers='isEml')
+    # search an existing main file with eml previews
     for brain in brains:
         o_annot = IAnnotations(brain._unrestrictedGetObject()).get('collective.documentviewer', '')
         if o_annot and 'blob_files' in o_annot:
             for name in ('large', 'normal', 'small'):
                 blobs[name] = o_annot['blob_files']['{}/dump_1.jpg'.format(name)]
             break
+    # otherwise create previews
     if not blobs:
         normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, 'previsualisation_eml_normal.jpg'))
         blobs = {'large': normal_blob, 'normal': normal_blob,
@@ -1038,6 +1048,38 @@ class DummyView(object):
             self.request = request
         else:
             self.request = {}
+
+
+def create_period_folder(main_dir, dte, period='week'):
+    """Following date, get a period date string and create the subdirectory"""
+    dte_str = dte.strftime(PERIODS[period])
+    if dte_str not in main_dir:
+        with api.env.adopt_user(username='admin'):
+            main_dir.setConstrainTypesMode(0)
+            subfolder = api.content.create(main_dir, 'Folder', dte_str, dte_str.decode())
+            main_dir.setConstrainTypesMode(1)
+            alsoProvides(subfolder, INextPrevNotNavigable)
+            transitions(subfolder, transitions=['show_internally'])
+        return subfolder
+    return main_dir[dte_str]
+
+
+def add_content_in_subfolder(view, obj, dte, period):
+    """Add obj in period subfolder"""
+    portal = api.portal.get()
+    container = create_period_folder(portal[MAIN_FOLDERS[view.portal_type]], dte, period)
+    new_object = addContentToContainer(container, obj)
+    fti = getUtility(IDexterityFTI, name=view.portal_type)
+    if fti.immediate_view:
+        view.immediate_view = "/".join([container.absolute_url(), new_object.id, fti.immediate_view])
+    else:
+        view.immediate_view = "/".join([container.absolute_url(), new_object.id])
+
+
+def sub_create(main_folder, ptype, dte, period, oid, **params):
+    container = create_period_folder(main_folder, dte, period)
+    container.invokeFactory(ptype, id=oid, **params)  # i_e ok
+    return container[oid]
 
 
 def update_solr_config():

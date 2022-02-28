@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test views."""
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -19,10 +20,10 @@ class BatchActions(unittest.TestCase):
         self.imf = self.portal['incoming-mail']
         self.msf = self.imf['mail-searches']
         self.imdb = self.imf['mail-searches']['all_mails']
-        self.im1 = self.imf['courrier1']
-        self.im2 = self.imf['courrier2']
-        self.im3 = self.imf['courrier3']
-        self.im4 = self.imf['courrier4']
+        self.im1 = get_object(oid='courrier1', ptype='dmsincomingmail')
+        self.im2 = get_object(oid='courrier2', ptype='dmsincomingmail')
+        self.im3 = get_object(oid='courrier3', ptype='dmsincomingmail')
+        self.im4 = get_object(oid='courrier4', ptype='dmsincomingmail')
         self.tsf = self.portal['tasks']['task-searches']
         self.ta1 = self.im1['tache1']
         self.ta2 = self.im1['tache2']

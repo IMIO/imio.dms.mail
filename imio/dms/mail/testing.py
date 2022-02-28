@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import transitions as do_transitions
 from imio.pyutils.system import runCommand
 from itertools import cycle
@@ -291,8 +292,7 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
                           'recipient_groups': [services[3]],  # Direction générale, communication
                           'description': 'Ceci est la description du courrier %d' % i,
                           }
-                ifld.invokeFactory('dmsincomingmail', id=mid, **params)  # i_e ok
-                mail = ifld[mid]
+                mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'week', mid, **params)
                 filename = files_cycle.next()
                 with open("%s/%s" % (filespath, filename), 'rb') as fo:
                     file_object = NamedBlobFile(fo.read(), filename=filename)

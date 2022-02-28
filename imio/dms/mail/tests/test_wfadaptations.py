@@ -14,6 +14,7 @@ from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
+from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import logout
@@ -425,7 +426,7 @@ class TestTaskServiceValidation1(unittest.TestCase):
         self.assertIn('realized', config)
 
     def test_TaskUtilsMethods_can_do_transition1(self):
-        task = self.portal['incoming-mail']['courrier1']['tache1']
+        task = get_object(oid='courrier1', ptype='dmsincomingmail')['tache1']
         api.content.transition(task, transition='do_to_assign')
         self.assertEqual(api.content.get_state(task), 'to_do')
         view = TaskUtilsMethods(task, task.REQUEST)

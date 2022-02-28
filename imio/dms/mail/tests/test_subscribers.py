@@ -5,6 +5,7 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
+from imio.helpers.content import get_object
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
@@ -111,7 +112,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')
-        task = self.portal['incoming-mail']['courrier1']['tache1']
+        task = get_object(oid='courrier1', ptype='dmsincomingmail')['tache1']
         # no assigned_user and no TaskServiceValidation
         self.assertIsNone(task.assigned_user)
         api.content.transition(task, transition='do_to_assign')

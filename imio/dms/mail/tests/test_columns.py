@@ -3,6 +3,7 @@ from imio.dms.mail.columns import SenderColumn
 from imio.dms.mail.columns import TaskActionsColumn
 from imio.dms.mail.columns import TaskParentColumn
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -25,8 +26,8 @@ class TestColumns(unittest.TestCase):
         self.mail_table = self.portal['incoming-mail']['mail-searches'].unrestrictedTraverse('@@faceted-table-view')
         self.task_table = self.portal['incoming-mail']['mail-searches'].unrestrictedTraverse('@@faceted-table-view')
         self.imf = self.portal['incoming-mail']
-        self.im1 = self.imf['courrier1']
-        self.im5 = self.imf['courrier5']
+        self.im1 = get_object(oid='courrier1', ptype='dmsincomingmail')
+        self.im5 = get_object(oid='courrier5', ptype='dmsincomingmail')
         self.ta1 = self.im1['tache1']
         self.ta31 = self.im1['tache3']['tache3-1']
         self.maxDiff = None
@@ -61,21 +62,20 @@ class TestColumns(unittest.TestCase):
     def test_TaskParentColumn(self):
         column = TaskParentColumn(self.portal, self.portal.REQUEST, self.task_table)
         brain = self.portal.portal_catalog(UID=self.ta1.UID())[0]
+        mail = get_object(oid='courrier1', ptype='dmsincomingmail')
         self.assertEqual(column.renderCell(brain),
                          u"<a class='pretty_link' title='E0001 - Courrier 1' "
-                         u"href='http://nohost/plone/incoming-mail/courrier1' target='_blank'>"
-                         u"<span class='pretty_link_icons'><img title='Incoming Mail' "
+                         u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
                          u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
-                         u"\"width: 16px; height: 16px;\" /></span><span class='"
-                         u"pretty_link_content state-created'>E0001 - Courrier 1</span></a>")
+                         u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
+                         u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()))
         brain = self.portal.portal_catalog(UID=self.ta31.UID())[0]
         self.assertEqual(column.renderCell(brain),
                          u"<a class='pretty_link' title='E0001 - Courrier 1' "
-                         u"href='http://nohost/plone/incoming-mail/courrier1' target='_blank'>"
-                         u"<span class='pretty_link_icons'><img title='Incoming Mail' "
+                         u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
                          u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
-                         u"\"width: 16px; height: 16px;\" /></span><span class='"
-                         u"pretty_link_content state-created'>E0001 - Courrier 1</span></a>")
+                         u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
+                         u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()))
 
     def test_TaskActionsColumn(self):
         column = TaskActionsColumn(self.portal, self.portal.REQUEST, None)

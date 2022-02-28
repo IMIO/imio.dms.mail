@@ -41,6 +41,7 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
+from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import manage_fields
@@ -428,6 +429,9 @@ class CustomAddForm(DefaultAddForm):
         if due_date_extension > 0:
             due_date = datetime.today() + timedelta(days=due_date_extension)
             self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
+
+    def add(self, obj):
+        add_content_in_subfolder(self, obj, obj.reception_date, 'week')
 
 
 class AddIM(DefaultAddView):

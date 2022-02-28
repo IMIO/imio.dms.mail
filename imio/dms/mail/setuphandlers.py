@@ -52,11 +52,13 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
+from imio.dms.mail.utils import sub_create
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
+from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.content import transitions
 from imio.helpers.security import generate_password
@@ -1841,8 +1843,7 @@ def addTestMails(context):
                       'recipient_groups': [],
                       'description': 'Ceci est la description du courrier %d' % i,
                       }
-            ifld.invokeFactory('dmsincomingmail', id='courrier%d' % i, **params)  # i_e ok
-            mail = ifld['courrier%d' % i]
+            mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'week', 'courrier%d' % i, **params)
             filename = files_cycle.next()
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
@@ -1850,7 +1851,7 @@ def addTestMails(context):
                                          scan_id='0509999000000%02d' % i, scan_date=scan_date)
 
     # tasks
-    mail = ifld['courrier1']
+    mail = get_object(oid='courrier1', ptype='dmsincomingmail')
     mail.invokeFactory('task', id='tache1', title=u'Tâche 1', assigned_group=mail.treating_groups,
                        enquirer=mail.treating_groups)
     mail.invokeFactory('task', id='tache2', title=u'Tâche 2', assigned_group=mail.treating_groups,

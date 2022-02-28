@@ -43,6 +43,8 @@ TASK_EDITOR_SERVICE_FUNCTIONS = ['editeur', 'n_plus_1']
 BACK_OR_AGAIN_ICONS = {'': False,
                        'back': '++resource++imio.dms.mail/wf_back.png',
                        'again': '++resource++imio.dms.mail/wf_again.png'}
+PERIODS = {'month': '%Y%m', 'week': '%Y%U', 'day': '%Y%m%d'}
+MAIN_FOLDERS = {'dmsincomingmail': 'incoming-mail', 'dmsoutgoingmail': 'outgoing-mail'}
 
 
 def _tr(msgid, domain='imio.dms.mail', mapping=None):

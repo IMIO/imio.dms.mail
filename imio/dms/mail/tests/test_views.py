@@ -3,6 +3,7 @@
 from collective.MockMailHost.MockMailHost import MockMailHost
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
 from plone import api
@@ -22,11 +23,11 @@ class TestReplyForm(unittest.TestCase):
         self.portal = self.layer['portal']
 
     def test_updateFields(self):
-        imail1 = self.portal['incoming-mail']['courrier1']
+        imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         view = imail1.unrestrictedTraverse('@@reply')
         view.updateFields()
         form = self.portal.REQUEST.form
-        expected_linked_mails = ('/plone/incoming-mail/courrier1', )
+        expected_linked_mails = ('/'.join(imail1.getPhysicalPath()), )
         self.assertEqual(form['form.widgets.reply_to'], expected_linked_mails)
         self.assertEqual(translate(view.label), u'Reply to E0001 - Courrier 1')
         expected_recipients = ('/plone/contacts/electrabel', )
@@ -34,7 +35,7 @@ class TestReplyForm(unittest.TestCase):
 
     def test_add(self):
         setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
-        imail1 = self.portal['incoming-mail']['courrier1']
+        imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         omail1 = api.content.create(container=self.portal, type='dmsoutgoingmail', id='newo1', title='TEST')
         view = imail1.unrestrictedTraverse('@@reply')
         view.add(omail1)
@@ -49,7 +50,7 @@ class TestPloneView(unittest.TestCase):
         self.portal = self.layer['portal']
 
     def test_showEditableBorder(self):
-        view = self.portal['incoming-mail']['courrier1'].unrestrictedTraverse('@@plone')
+        view = get_object(oid='courrier1', ptype='dmsincomingmail').unrestrictedTraverse('@@plone')
         self.assertEqual(view.showEditableBorder(), False)
         view = self.portal['front-page'].unrestrictedTraverse('@@plone')
         self.assertEqual(view.showEditableBorder(), True)
@@ -73,7 +74,7 @@ class TestContactSuggest(unittest.TestCase):
                          {'SearchableText': 'director* AND organization*'})
 
     def test_call_ContactSuggest(self):
-        imail1 = self.portal['incoming-mail']['courrier1']
+        imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         view = imail1.unrestrictedTraverse('@@contact-autocomplete-suggest')
         # no term
         self.assertEqual(view(), '[]')
@@ -95,7 +96,7 @@ class TestContactSuggest(unittest.TestCase):
                          {"text": "Electrabel / Travaux 1 [TOUT]", "id": 'l:%s' % self.elec['travaux'].UID()})
 
     def test_call_SenderSuggest(self):
-        omail1 = self.portal['incoming-mail']['courrier1']
+        omail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         view = omail1.unrestrictedTraverse('@@sender-autocomplete-suggest')
         # no term
         self.assertEqual(view(), '[]')
@@ -197,7 +198,7 @@ class TestUpdateItem(unittest.TestCase):
         self.portal = self.layer['portal']
 
     def test_call(self):
-        imail1 = self.portal['incoming-mail']['courrier1']
+        imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         self.assertIsNone(imail1.assigned_user)
         view = imail1.unrestrictedTraverse('@@update_item')
         # called without form value

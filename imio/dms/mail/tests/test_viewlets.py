@@ -5,6 +5,7 @@ from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
 from imio.dms.mail.browser.viewlets import ContextInformationViewlet
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
 
@@ -28,31 +29,37 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         # configure to see all refs
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.all_backrefs_view', True)
         self.assertListEqual([self.portal.unrestrictedTraverse(b.getPath()) for b in viewlet.backrefs()],
-                             [self.omf['reponse7'], self.omf['reponse1'], self.imf['courrier7'], self.imf['courrier1']])
+                             [self.omf['reponse7'], self.omf['reponse1'],
+                              get_object(oid='courrier7', ptype='dmsincomingmail'),
+                              get_object(oid='courrier1', ptype='dmsincomingmail')])
         # configure to see only permitted refs
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.all_backrefs_view', False)
         self.assertListEqual(viewlet.backrefs(), [])
         # login to get view permission
         login(self.portal, 'encodeur')
         self.assertListEqual([b.getObject() for b in viewlet.backrefs()],
-                             [self.imf['courrier7'], self.imf['courrier1']])
+                             [get_object(oid='courrier7', ptype='dmsincomingmail'),
+                              get_object(oid='courrier1', ptype='dmsincomingmail')])
 
     def test_find_relations(self):
         login(self.portal, 'encodeur')
         viewlet = ContactContentBackrefsViewlet(self.elec, self.elec.REQUEST, None)
         ret = viewlet.find_relations(from_attribute='sender')
-        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier7'], self.imf['courrier1']})
+        self.assertSetEqual(set([b.getObject() for b in ret]), {get_object(oid='courrier7', ptype='dmsincomingmail'),
+                                                                get_object(oid='courrier1', ptype='dmsincomingmail')})
         ret = viewlet.find_relations(from_interfaces_flattened=IImioDmsIncomingMail)
-        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier7'], self.imf['courrier1']})
+        self.assertSetEqual(set([b.getObject() for b in ret]), {get_object(oid='courrier7', ptype='dmsincomingmail'),
+                                                                get_object(oid='courrier1', ptype='dmsincomingmail')})
         # call on person
         viewlet = ContactContentBackrefsViewlet(self.jean, self.jean.REQUEST, None)
         ret = viewlet.find_relations()
-        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier3'], self.imf['courrier9']})
+        self.assertSetEqual(set([b.getObject() for b in ret]), {get_object(oid='courrier3', ptype='dmsincomingmail'),
+                                                                get_object(oid='courrier9', ptype='dmsincomingmail')})
         # call on held position
         agent = self.jean['agent-electrabel']
         viewlet = ContactContentBackrefsViewlet(agent, agent.REQUEST, None)
         ret = viewlet.find_relations()
-        self.assertSetEqual(set([b.getObject() for b in ret]), {self.imf['courrier5']})
+        self.assertSetEqual(set([b.getObject() for b in ret]), {get_object(oid='courrier5', ptype='dmsincomingmail')})
 
     def test_ContextInformationViewlet(self):
         login(self.portal, 'encodeur')

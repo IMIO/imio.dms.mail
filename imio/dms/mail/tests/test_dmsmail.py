@@ -15,6 +15,7 @@ from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
 from imio.dms.mail.dmsmail import recipients_filter_default
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import logout
@@ -80,7 +81,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertNotEqual(len(voc), 11)  # len = full vocabulary with hidden terms
 
     def test_IM_Title(self):
-        imail1 = self.portal['incoming-mail']['courrier1']
+        imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         self.assertEquals(imail1.Title(), 'E0001 - Courrier 1')
         imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
                                          **{'title': 'Test with auto ref'})
@@ -88,8 +89,8 @@ class TestDmsmail(unittest.TestCase):
 
     def test_reply_to(self):
         catalog = getUtility(ICatalog)
-        imail1 = self.portal['incoming-mail']['courrier1']
-        imail2 = self.portal['incoming-mail']['courrier2']
+        imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
+        imail2 = get_object(oid='courrier2', ptype='dmsincomingmail')
         omail1 = self.portal['outgoing-mail']['reponse1']
         omail2 = self.portal['outgoing-mail']['reponse2']
         omail1.reply_to = [
@@ -412,7 +413,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_AssignedUserValidator(self):
         # im
-        obj = self.portal['incoming-mail']['courrier1']
+        obj = get_object(oid='courrier1', ptype='dmsincomingmail')
         view = IMEdit(obj, obj.REQUEST)
         auv = AssignedUserValidator(obj, view.request, view, 'fld', 'widget')
         self.assertEqual(obj.treating_groups, self.pgof['direction-generale'].UID())
@@ -436,7 +437,7 @@ class TestDmsmail(unittest.TestCase):
         view.request.form['form.widgets.treating_groups'] = [self.pgof['direction-financiere'].UID()]
         self.assertRaises(Invalid, auv.validate, 'agent1')
         # task
-        obj = self.portal['incoming-mail']['courrier1']['tache1']
+        obj = get_object(oid='courrier1', ptype='dmsincomingmail')['tache1']
         view = TaskEdit(obj, obj.REQUEST)
         auv = AssignedUserValidator(obj, view.request, view, 'fld', 'widget')
         self.assertEqual(obj.assigned_group, self.pgof['direction-generale'].UID())
