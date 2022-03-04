@@ -4,6 +4,7 @@ from imio.actionspanel.browser.views import ActionsPanelView
 from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
 from plone import api
 from plone.memoize import ram
+from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
 
@@ -342,6 +343,11 @@ class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
         'showActions': True,
         'showTransitions': False,
     }
+
+    def show(self):
+        if IHideFromBreadcrumbs.providedBy(self.context):
+            return False
+        return super(ActionsPanelViewletAllButTransitions, self).show()
 
 
 class ActionsPanelViewletAllButOwnDelete(ActionsPanelViewlet):
