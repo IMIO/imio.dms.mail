@@ -13,6 +13,7 @@ from datetime import date
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
 from imio.helpers.content import find
 from imio.helpers.content import safe_encode
@@ -148,7 +149,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
             DummyView(portal, portal.REQUEST),
-            folder,
+            create_period_folder(folder, datetime.now(), 'week'),
             ptype,
             '',
             file_object,
