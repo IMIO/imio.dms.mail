@@ -150,9 +150,8 @@ def _get_replied_ids(obj, from_obj=False):
             rels = obj.reply_to or []
         else:
             catalog = queryUtility(ICatalog)
-            if catalog is None:
+            if catalog is None:  # to avoid error when deleting site
                 return objs
-            
             rels = catalog.findRelations({'from_id': intids.queryId(obj), 'from_attribute': 'reply_to'})
         for rel in rels:
             if not rel.isBroken() and rel.to_object.portal_type != 'dmsoutgoingmail':
