@@ -1057,6 +1057,7 @@ def create_period_folder(main_dir, dte, period='week'):
         with api.env.adopt_user(username='admin'):
             main_dir.setConstrainTypesMode(0)
             subfolder = api.content.create(main_dir, 'Folder', dte_str, dte_str.decode())
+            # print('Sub folder {} created'.format(dte_str))
             main_dir.setConstrainTypesMode(1)
             alsoProvides(subfolder, INextPrevNotNavigable)
             alsoProvides(subfolder, IHideFromBreadcrumbs)

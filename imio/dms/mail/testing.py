@@ -279,10 +279,13 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
 
     ifld = tc.layer['portal']['incoming-mail']
     with api.env.adopt_user(username='encodeur'):
+        days = 0
         for i in range(start, nb+1):
+            if i % 200 == 0:
+                days += 1
             mid = 'im{}'.format(i)
             if mid not in ifld:
-                scan_date = datetime.datetime.now()
+                scan_date = datetime.datetime.now() - datetime.timedelta(days=days)
                 params = {'title': 'Courrier %d' % i,
                           'mail_type': 'courrier',
                           'internal_reference_no': 'E{:04d}'.format(i),
@@ -292,7 +295,7 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
                           'recipient_groups': [services[3]],  # Direction générale, communication
                           'description': 'Ceci est la description du courrier %d' % i,
                           }
-                mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'week', mid, **params)
+                mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'day', mid, **params)
                 filename = files_cycle.next()
                 with open("%s/%s" % (filespath, filename), 'rb') as fo:
                     file_object = NamedBlobFile(fo.read(), filename=filename)
