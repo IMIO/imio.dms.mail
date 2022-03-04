@@ -44,7 +44,8 @@ BACK_OR_AGAIN_ICONS = {'': False,
                        'back': '++resource++imio.dms.mail/wf_back.png',
                        'again': '++resource++imio.dms.mail/wf_again.png'}
 PERIODS = {'month': '%Y%m', 'week': '%Y%U', 'day': '%Y%m%d'}
-MAIN_FOLDERS = {'dmsincomingmail': 'incoming-mail', 'dmsoutgoingmail': 'outgoing-mail'}
+MAIN_FOLDERS = {'dmsincomingmail': 'incoming-mail', 'dmsincoming_email': 'incoming-mail',
+                'dmsoutgoingmail': 'outgoing-mail'}
 
 
 def _tr(msgid, domain='imio.dms.mail', mapping=None):
