@@ -3,12 +3,14 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.wfadaptations.api import add_applied_adaptation
+from datetime import datetime
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import IdmUtilsMethods
+from imio.dms.mail.utils import sub_create
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from plone import api
 from plone.app.testing import login
@@ -32,7 +34,8 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.pw = self.portal.portal_workflow
         self.imw = self.pw['incomingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
-        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', title=u'test')
+        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'test',
+                                **{'title': u'test'})
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                           'imiodmsmail-im_n_plus_1_wfadaptation',
                                                           run_dependencies=False)
@@ -195,7 +198,8 @@ class TestIMServiceValidation2(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.pw = self.portal.portal_workflow
         self.imw = self.pw['incomingmail_workflow']
-        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', title=u'test')
+        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'test',
+                                **{'title': u'test'})
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                           'imiodmsmail-im_n_plus_1_wfadaptation',

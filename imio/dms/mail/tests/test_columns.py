@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from imio.dms.mail.columns import SenderColumn
 from imio.dms.mail.columns import TaskActionsColumn
 from imio.dms.mail.columns import TaskParentColumn
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import setRoles
@@ -48,8 +50,8 @@ class TestColumns(unittest.TestCase):
         self.assertIn('<ul class="contacts_col"><li>', rendered)
         self.assertEqual(rendered.count('<a href'), 2)
         # no sender
-        imail = createContentInContainer(self.imf, 'dmsincomingmail', id='my-id', title='My title',
-                                         description='Description')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+                           **{'title': u'My title', 'description': u'Description'})
         brain = self.portal.portal_catalog(UID=imail.UID())[0]
         self.assertEqual(column.renderCell(brain), '-')
         # sender not found: we delete it

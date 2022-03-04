@@ -3,7 +3,9 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
+from datetime import datetime
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.helpers.content import get_object
 from plone import api
@@ -36,9 +38,9 @@ class TestDmsmail(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         intids = getUtility(IIntIds)
-        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail', id='c1',
-                                              sender=[RelationValue(intids.getId(self.portal.contacts['electrabel']))],
-                                              mail_type=u'courrier', title=u'title')
+        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'c1',
+                                **{'sender': [RelationValue(intids.getId(self.portal.contacts['electrabel']))],
+                                   'mail_type': u'courrier', 'title': u'title'})
         self.omf = self.portal['outgoing-mail']
 
     def test_item_copied(self):
@@ -71,8 +73,8 @@ class TestDmsmail(unittest.TestCase):
         # owner changing test
         orgs = get_registry_organizations()
         with api.env.adopt_user(username='scanner'):
-            imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
-                                             **{'title': 'IMail created by scanner', 'treating_groups': orgs[0]})
+            imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+                               **{'title': u'IMail created by scanner', 'treating_groups': orgs[0]})
             dfile = createContentInContainer(imail, 'dmsmainfile', **{'title': 'File created by scanner'})
         self.assertEquals(imail.Creator(), 'scanner')
         self.assertEquals(imail.owner_info()['id'], 'scanner')

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_organizations
+from datetime import datetime
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
@@ -15,6 +16,7 @@ from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
 from imio.dms.mail.dmsmail import recipients_filter_default
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
@@ -83,8 +85,8 @@ class TestDmsmail(unittest.TestCase):
     def test_IM_Title(self):
         imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         self.assertEquals(imail1.Title(), 'E0001 - Courrier 1')
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail',
-                                         **{'title': 'Test with auto ref'})
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+                           **{'title': u'Test with auto ref'})
         self.assertEquals(imail.Title(), 'E0010 - Test with auto ref')
 
     def test_reply_to(self):
@@ -340,7 +342,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_view(self):
         setRoles(self.portal, TEST_USER_ID, ['Contributor', 'Reviewer'])
-        imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IMView(imail, imail.REQUEST)
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')

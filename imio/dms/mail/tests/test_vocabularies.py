@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
+from datetime import datetime
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.settings import configure_group_encoder
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.dms.mail.vocabularies import CreatingGroupVocabulary
@@ -42,7 +44,7 @@ class TestVocabularies(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        self.imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
+        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
         self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
         self.maxDiff = None
 
