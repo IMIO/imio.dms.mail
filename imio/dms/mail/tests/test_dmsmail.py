@@ -85,7 +85,7 @@ class TestDmsmail(unittest.TestCase):
     def test_IM_Title(self):
         imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         self.assertEquals(imail1.Title(), 'E0001 - Courrier 1')
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
                            **{'title': u'Test with auto ref'})
         self.assertEquals(imail.Title(), 'E0010 - Test with auto ref')
 
@@ -342,7 +342,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_view(self):
         setRoles(self.portal, TEST_USER_ID, ['Contributor', 'Reviewer'])
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IMView(imail, imail.REQUEST)
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')

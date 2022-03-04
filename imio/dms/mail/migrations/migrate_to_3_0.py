@@ -15,6 +15,7 @@ from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr as _
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -229,20 +230,18 @@ class Migrate_To_3_0(Migrator):  # noqa
             createOMailCollections(self.portal['outgoing-mail']['mail-searches'])
             self.check_previously_migrated_collections()
 
+        # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
+
         if self.is_in_part('o'):
-            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
             self.update_catalog1()
 
         if self.is_in_part('p'):
-            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
             self.update_catalog2()
 
         if self.is_in_part('q'):
-            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
             self.update_catalog3()
 
         if self.is_in_part('r'):
-            # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
             self.update_catalog4()
 
         if self.is_in_part('t'):
@@ -338,6 +337,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             obj = self.portal[oid]
             obj.title = _(titles[oid])
             obj.reindexObject()
+
+        # update folder period
+        setattr(self.portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', u'week')
 
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
@@ -745,6 +747,9 @@ class Migrate_To_3_0(Migrator):  # noqa
         if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
                 not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
             api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
+        #
+        if not api.portal.get_registry_record('imio.dms.mail.imail_folder_period'):
+            api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
         # cron4plone settings
         cron_configlet = getUtility(ICronConfiguration, 'cron4plone_config')
         if not cron_configlet.cronjobs:

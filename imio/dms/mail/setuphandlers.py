@@ -1843,7 +1843,7 @@ def addTestMails(context):
                       'recipient_groups': [],
                       'description': 'Ceci est la description du courrier %d' % i,
                       }
-            mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'week', 'courrier%d' % i, **params)
+            mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'courrier%d' % i, **params)
             filename = files_cycle.next()
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)

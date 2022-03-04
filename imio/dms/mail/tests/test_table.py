@@ -23,7 +23,7 @@ class TestTable(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
 
     def test_VersionsTitleColumn(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         createContentInContainer(imail, 'dmsmainfile', id='testid1', title='title',
                                  scan_id='123456789')
         # Cannot use scan_date because toLocalizedTime causes error in test
@@ -34,7 +34,7 @@ class TestTable(unittest.TestCase):
 
     def test_AssignedGroupColumn(self):
         group0 = get_registry_organizations()[0]
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         task = createContentInContainer(imail, 'task', id='testid1', assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
         self.assertEqual(col.renderCell(task).encode('utf8'), "Direction générale")

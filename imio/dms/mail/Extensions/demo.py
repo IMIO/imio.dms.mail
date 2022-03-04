@@ -149,7 +149,7 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
             DummyView(portal, portal.REQUEST),
-            create_period_folder(folder, datetime.now(), 'week'),
+            create_period_folder(folder, datetime.now()),
             ptype,
             '',
             file_object,

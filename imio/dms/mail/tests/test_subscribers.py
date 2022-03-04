@@ -38,7 +38,7 @@ class TestDmsmail(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         intids = getUtility(IIntIds)
-        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'c1',
+        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'c1',
                                 **{'sender': [RelationValue(intids.getId(self.portal.contacts['electrabel']))],
                                    'mail_type': u'courrier', 'title': u'title'})
         self.omf = self.portal['outgoing-mail']
@@ -73,7 +73,7 @@ class TestDmsmail(unittest.TestCase):
         # owner changing test
         orgs = get_registry_organizations()
         with api.env.adopt_user(username='scanner'):
-            imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+            imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
                                **{'title': u'IMail created by scanner', 'treating_groups': orgs[0]})
             dfile = createContentInContainer(imail, 'dmsmainfile', **{'title': 'File created by scanner'})
         self.assertEquals(imail.Creator(), 'scanner')

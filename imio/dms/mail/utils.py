@@ -1050,8 +1050,9 @@ class DummyView(object):
             self.request = {}
 
 
-def create_period_folder(main_dir, dte, period='week'):
+def create_period_folder(main_dir, dte):
     """Following date, get a period date string and create the subdirectory"""
+    period = getattr(main_dir, 'folder_period', u'week')
     dte_str = dte.strftime(PERIODS[period])
     if dte_str not in main_dir:
         with api.env.adopt_user(username='admin'):
@@ -1066,10 +1067,10 @@ def create_period_folder(main_dir, dte, period='week'):
     return main_dir[dte_str]
 
 
-def add_content_in_subfolder(view, obj, dte, period):
+def add_content_in_subfolder(view, obj, dte):
     """Add obj in period subfolder"""
     portal = api.portal.get()
-    container = create_period_folder(portal[MAIN_FOLDERS[view.portal_type]], dte, period)
+    container = create_period_folder(portal[MAIN_FOLDERS[view.portal_type]], dte)
     new_object = addContentToContainer(container, obj)
     fti = getUtility(IDexterityFTI, name=view.portal_type)
     if fti.immediate_view:
@@ -1078,8 +1079,8 @@ def add_content_in_subfolder(view, obj, dte, period):
         view.immediate_view = "/".join([container.absolute_url(), new_object.id])
 
 
-def sub_create(main_folder, ptype, dte, period, oid, **params):
-    container = create_period_folder(main_folder, dte, period)
+def sub_create(main_folder, ptype, dte, oid, **params):
+    container = create_period_folder(main_folder, dte)
     container.invokeFactory(ptype, id=oid, **params)  # i_e ok
     return container[oid]
 

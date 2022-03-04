@@ -10,6 +10,7 @@ from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -503,6 +504,9 @@ def imiodmsmail_settings_changed(event):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
     if event.record.fieldName == 'users_hidden_in_dashboard_filter':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
+    if event.record.__name__ == 'imio.dms.mail.imail_folder_period' and event.newValue is not None:
+        portal = api.portal.get()
+        setattr(portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', event.newValue)
 
 
 def configure_group_encoder(portal_types, contacts_part=False):

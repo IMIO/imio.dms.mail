@@ -431,7 +431,7 @@ class CustomAddForm(DefaultAddForm):
             self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
 
     def add(self, obj):
-        add_content_in_subfolder(self, obj, obj.reception_date, 'week')
+        add_content_in_subfolder(self, obj, datetime.now())
 
 
 class AddIM(DefaultAddView):

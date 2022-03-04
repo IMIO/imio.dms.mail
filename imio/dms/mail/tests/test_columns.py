@@ -50,7 +50,7 @@ class TestColumns(unittest.TestCase):
         self.assertIn('<ul class="contacts_col"><li>', rendered)
         self.assertEqual(rendered.count('<a href'), 2)
         # no sender
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
                            **{'title': u'My title', 'description': u'Description'})
         brain = self.portal.portal_catalog(UID=imail.UID())[0]
         self.assertEqual(column.renderCell(brain), '-')

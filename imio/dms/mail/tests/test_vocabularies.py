@@ -44,7 +44,7 @@ class TestVocabularies(unittest.TestCase):
         # below
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
         self.maxDiff = None
 

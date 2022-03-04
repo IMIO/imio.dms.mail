@@ -278,6 +278,7 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
     orgas_cycle = cycle(selected_orgs)
 
     ifld = tc.layer['portal']['incoming-mail']
+    setattr(ifld, 'folder_period', u'day')
     with api.env.adopt_user(username='encodeur'):
         days = 0
         for i in range(start, nb+1):
@@ -295,7 +296,7 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
                           'recipient_groups': [services[3]],  # Direction générale, communication
                           'description': 'Ceci est la description du courrier %d' % i,
                           }
-                mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'day', mid, **params)
+                mail = sub_create(ifld, 'dmsincomingmail', scan_date, mid, **params)
                 filename = files_cycle.next()
                 with open("%s/%s" % (filespath, filename), 'rb') as fo:
                     file_object = NamedBlobFile(fo.read(), filename=filename)

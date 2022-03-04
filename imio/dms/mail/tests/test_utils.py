@@ -220,7 +220,7 @@ class TestUtils(unittest.TestCase):
         self.assertEquals(highest_review_level('dmsincomingmail', "['111_n_plus_1']"), '_n_plus_1')
 
     def test_list_wf_states(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.assertEqual(list_wf_states(imail, 'unknown'), [])
         self.assertEqual([s_id for s_id, s_tit in list_wf_states(imail, 'task')],
                          ['created', 'to_assign', 'to_do', 'in_progress', 'realized', 'closed'])
@@ -236,7 +236,7 @@ class TestUtils(unittest.TestCase):
                          ['created', 'to_assign', 'in_progress', 'realized', 'closed', 'NEW'])
 
     def test_back_or_again_state(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'test',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'test',
                            **{'assigned_user': u'agent', 'title': u'test',
                               'treating_groups': self.pgof['direction-generale']['secretariat'].UID()})
         self.assertEqual(back_or_again_state(imail), '')  # initial state: no action
@@ -254,24 +254,24 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(back_or_again_state(imail), 'again')  # third state again
 
     def test_get_scan_id(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid1.pdf', scan_id=u'010999900000690')
         self.assertListEqual(get_scan_id(obj), [u'010999900000690', u'IMIO010999900000690', u'690'])
 
     def test_UtilsMethods_current_user_groups_ids(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = UtilsMethods(imail, imail.REQUEST)
         login(self.portal, 'dirg')
         self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
                             {'AuthenticatedUsers', 'createurs_dossier', 'dir_general'})
 
     def test_UtilsMethods_highest_scan_id(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = UtilsMethods(imail, imail.REQUEST)
         self.assertEqual(view.highest_scan_id(), "dmsmainfiles: '9', highest scan_id: '050999900000009'")
 
     def test_UtilsMethods_is_in_user_groups(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = UtilsMethods(imail, imail.REQUEST)
         self.assertListEqual(view.current_user_groups_ids(api.user.get_current()), ['AuthenticatedUsers'])
         # current user is Manager
@@ -339,12 +339,12 @@ class TestUtils(unittest.TestCase):
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
 
     def test_IdmUtilsMethods_get_im_folder(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertEqual(view.get_im_folder(), self.portal['incoming-mail'])
 
     def test_IdmUtilsMethods_user_has_review_level(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.user_has_review_level())
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
@@ -360,7 +360,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
 
     def test_IdmUtilsMethods_can_do_transition0(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         # no treating_group nor title: NOK
@@ -390,7 +390,7 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.can_do_transition('unknown'))
 
     def test_IdmUtilsMethods_can_close(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
                            **{'title': u'test'})
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IdmUtilsMethods(imail, imail.REQUEST)
@@ -409,7 +409,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.can_close())
 
     def test_IdmUtilsMethods_created_col_cond(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.created_col_cond())
         login(self.portal, 'encodeur')
@@ -420,7 +420,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.created_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_manager_col_cond(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.proposed_to_manager_col_cond())
         login(self.portal, 'encodeur')
@@ -433,7 +433,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.proposed_to_manager_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_premanager_col_cond(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.proposed_to_pre_manager_col_cond())
         login(self.portal, 'encodeur')

@@ -159,7 +159,7 @@ class TestAdapters(unittest.TestCase):
 
     def test_im_sender_email_index(self):
         dguid = self.pgof['direction-generale'].UID()
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'id1',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'id1',
                            **{'title': u'test', 'treating_groups': dguid, 'assigned_user': u'chef',
                               'orig_sender_email': u'"Dexter Morgan" <dexter.morgan@mpd.am>'})
         indexer = im_sender_email_index(imail)
@@ -183,7 +183,7 @@ class TestAdapters(unittest.TestCase):
 
     def test_state_group_index(self):
         dguid = self.pgof['direction-generale'].UID()
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'id1',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'id1',
                            **{'title': u'test', 'treating_groups': dguid, 'assigned_user': u'chef'})
         indexer = state_group_index(imail)
         self.assertEqual(indexer(), 'created')
@@ -205,7 +205,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(indexer(), 'to_assign,%s' % dguid)
 
     def test_ScanSearchableExtender(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'id1')
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'id1')
         obj = createContentInContainer(imail, 'dmsmainfile', id='testid1.pdf', title='title', description='description')
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), 'testid1 title description')
@@ -234,7 +234,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(ext(), 'testid2 title 010999900000690 IMIO010999900000690 description One word\n')
 
     def test_IdmSearchableExtender(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
                            **{'title': u'My title', 'description': u'Description'})
         ext = IdmSearchableExtender(imail)
         self.assertEqual(ext(), None)
@@ -278,7 +278,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(org_sortable_title_index(trav)(), 'electrabel|travaux 0001|')
 
     def test_IMMCTV(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'week', 'my-id',
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
                            **{'title': u'My title', 'mail_type': u'courrier', 'assigned_user': u'agent'})
         view = imail.restrictedTraverse('@@view')
         view.update()
