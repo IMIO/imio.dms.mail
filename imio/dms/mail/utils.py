@@ -7,12 +7,11 @@ from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
-from datetime import timedelta
-
-from collective.querynextprev.interfaces import INextPrevNotNavigable
 from DateTime import DateTime
+from datetime import timedelta
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
@@ -39,6 +38,7 @@ from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
 from plone.z3cform.fieldsets.utils import remove
+from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
@@ -1059,6 +1059,7 @@ def create_period_folder(main_dir, dte, period='week'):
             subfolder = api.content.create(main_dir, 'Folder', dte_str, dte_str.decode())
             main_dir.setConstrainTypesMode(1)
             alsoProvides(subfolder, INextPrevNotNavigable)
+            alsoProvides(subfolder, IHideFromBreadcrumbs)
             transitions(subfolder, transitions=['show_internally'])
         return subfolder
     return main_dir[dte_str]
