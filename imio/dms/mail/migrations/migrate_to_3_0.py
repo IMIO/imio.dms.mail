@@ -151,11 +151,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                                  run_dependencies=False)  # to hide messages-viewlet
             self.runProfileSteps('plonetheme.imioapps', profile='dmsmailskin', steps=['viewlets'],
                                  run_dependencies=False)  # to hide colophon
-            if self.config.get('pm', True):
-                if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
-                    self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
-                self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'],
-                                     run_dependencies=False)
+            if not self.portal.portal_quickinstaller.isProductInstalled('imio.pm.wsclient'):
+                self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-configure-wsclient'], profile='singles')
+            self.runProfileSteps('collective.contact.importexport', steps=['plone.app.registry'],
+                                 run_dependencies=False)
 
             self.do_prior_updates()
 
