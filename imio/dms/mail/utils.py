@@ -614,7 +614,11 @@ class VariousUtilsMethods(UtilsMethods):
         for brain in brains:
             if not brain.scan_id:
                 continue
-            nb = int(brain.scan_id[7:])
+            try:
+                nb = int(brain.scan_id[7:])
+            except ValueError:
+                out.append("Invalid scan_id '{}' for item {}".format(brain.scan_id, brain.getURL()))
+                continue
             if (nb % divisor) == 0:
                 ref = brain._unrestrictedGetObject().__parent__.internal_reference_no
                 if sort == 'scan':
