@@ -340,6 +340,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # update folder period
         setattr(self.portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', u'week')
+        setattr(self.portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', u'week')
 
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
