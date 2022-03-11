@@ -260,9 +260,9 @@ def create_groups(tc, nb, start=1):
 
 
 @timecall
-def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
-    """Create nb im"""
-    print('Creating {} incoming mails'.format(nb))
+def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=200):
+    """Create a number of im"""
+    print('Creating {} incoming mails'.format(end-start+1))
     import imio.dms.mail as imiodmsmail
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
     files = [unicode(name) for name in os.listdir(filespath)
@@ -281,8 +281,8 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
     setattr(ifld, 'folder_period', u'day')
     with api.env.adopt_user(username='encodeur'):
         days = 0
-        for i in range(start, nb+1):
-            if i % 200 == 0:
+        for i in range(start, end+1):
+            if i % by_days == 0:
                 days += 1
             mid = 'im{}'.format(i)
             if mid not in ifld:
@@ -296,7 +296,10 @@ def create_im_mails(tc, nb, start=1, senders=[], transitions=[]):
                           'recipient_groups': [services[3]],  # Direction générale, communication
                           'description': 'Ceci est la description du courrier %d' % i,
                           }
+                t_st = datetime.datetime.now()
                 mail = sub_create(ifld, 'dmsincomingmail', scan_date, mid, **params)
+                if i == start or i % 1000 == 0:
+                    print("Creation time at {}: '{}'".format(i, datetime.datetime.now()-t_st))
                 filename = files_cycle.next()
                 with open("%s/%s" % (filespath, filename), 'rb') as fo:
                     file_object = NamedBlobFile(fo.read(), filename=filename)
