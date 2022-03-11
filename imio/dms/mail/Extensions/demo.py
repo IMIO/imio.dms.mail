@@ -218,7 +218,7 @@ def import_scanned2(self, number=2):
         doc_metadata['internal_reference_no'] = irn
         (document, main_file) = createDocument(
             DummyView(portal, portal.REQUEST),
-            folder,
+            create_period_folder(folder, datetime.now()),
             'dmsoutgoingmail',
             '',
             file_object,
