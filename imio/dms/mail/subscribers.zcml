@@ -61,6 +61,12 @@
         handler=".subscribers.dmsdocument_modified"
         />
 
+    <!--subscriber
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
+             zope.app.container.interfaces.IObjectRemovedEvent"
+        handler=".subscribers.dmsdocument_removed"
+    /-->
+
     <subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"

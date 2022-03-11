@@ -20,6 +20,7 @@ from imio.dms.mail import _
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -44,6 +45,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from z3c.relationfield.event import removeRelations as orig_removeRelations
@@ -258,6 +260,20 @@ def dmsdocument_modified(mail, event):
         adapted.set_lower_parents_value(field, fields[field])
 
 
+def dmsdocument_removed(mail, event):
+    """Delete subfolder if empty"""
+    # If we are just after link_integrity check, we don't do anything...
+    # Not working
+    # if mail.REQUEST.get('_link_integrity_check_', False):
+    #     mail.REQUEST.set('_link_integrity_check_', False)
+    #     return
+    parent = mail.__parent__
+    # confirmed = mail.REQUEST.get('HTTP_REFERER').endswith('delete_confirmation?')
+    if False and IHideFromBreadcrumbs.providedBy(parent) and not parent.objectIds():
+        api.content.delete(obj=parent)
+        # mail.REQUEST.response.redirect(api.portal.get()[MAIN_FOLDERS[mail.portal_type]].absolute_url())
+
+
 def im_edit_finished(mail, event):
     """
     """
@@ -312,7 +328,10 @@ def reference_document_removed(obj, event):
     request = aq_get(obj, 'REQUEST', None)
     if not request:
         return
+    # if '_link_integrity_check_' not in request:
+    #     request.set('_link_integrity_check_', True)
     storage = ILinkIntegrityInfo(request)
+    # confirmed = request.get('HTTP_REFERER').endswith('delete_confirmation?')
 
     catalog = queryUtility(ICatalog)
     intids = queryUtility(IIntIds)
