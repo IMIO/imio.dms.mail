@@ -22,6 +22,12 @@
         </field>
     </record>
 
+    <record name="imio.dms.mail.omail_folder_period">
+        <field type="plone.registry.field.Text">
+            <title>Outgoing mails folder period (month, week, day)</title>
+        </field>
+    </record>
+
     <records interface="plone.app.querystring.interfaces.IQueryField"
              prefix="plone.app.querystring.field.organization_type">
        <value key="title" i18n:translate="">Precise scan date</value>

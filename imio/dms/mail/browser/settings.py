@@ -507,6 +507,9 @@ def imiodmsmail_settings_changed(event):
     if event.record.__name__ == 'imio.dms.mail.imail_folder_period' and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', event.newValue)
+    if event.record.__name__ == 'imio.dms.mail.omail_folder_period' and event.newValue is not None:
+        portal = api.portal.get()
+        setattr(portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', event.newValue)
 
 
 def configure_group_encoder(portal_types, contacts_part=False):

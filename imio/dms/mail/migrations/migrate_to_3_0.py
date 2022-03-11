@@ -747,9 +747,11 @@ class Migrate_To_3_0(Migrator):  # noqa
         if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
                 not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
             api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
-        #
+        # define subfolder period
         if not api.portal.get_registry_record('imio.dms.mail.imail_folder_period'):
             api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
+        if not api.portal.get_registry_record('imio.dms.mail.omail_folder_period'):
+            api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
         # cron4plone settings
         cron_configlet = getUtility(ICronConfiguration, 'cron4plone_config')
         if not cron_configlet.cronjobs:
