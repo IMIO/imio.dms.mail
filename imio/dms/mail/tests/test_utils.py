@@ -456,7 +456,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue('See test_wfadaptations_imservicevalidation.py')
 
     def test_OdmUtilsMethods_can_be_handsigned(self):
-        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test-id')
         self.assertEqual(api.content.get_state(omail), 'created')
         view = OdmUtilsMethods(omail, omail.REQUEST)
         self.assertFalse(view.can_be_handsigned())
@@ -468,7 +468,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.can_be_handsigned())
 
     def test_OdmUtilsMethods_can_be_sent(self):
-        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', title=u'test')
+        omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test-id', title=u'test')
         self.assertEqual(api.content.get_state(omail), 'created')
         view = OdmUtilsMethods(omail, omail.REQUEST)
         # no treating_groups

@@ -3,7 +3,6 @@ from collections import OrderedDict
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from datetime import datetime
 from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.settings import configure_group_encoder
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -27,7 +26,6 @@ from plone.app.testing import login
 from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
-from plone.dexterity.utils import createContentInContainer
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
@@ -45,7 +43,7 @@ class TestVocabularies(unittest.TestCase):
         self.portal = self.layer['portal']
         setRoles(self.portal, TEST_USER_ID, ['Manager'])
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
-        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail')
+        self.omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id')
         self.maxDiff = None
 
     def test_IMReviewStatesVocabulary(self):
@@ -112,7 +110,7 @@ class TestVocabularies(unittest.TestCase):
                                        [{'value': u'None', 'dtitle': u'Travaille fieu', 'active': True},
                                         {'value': u'post', 'dtitle': u'Lettre', 'active': False},
                                         {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
-                                        {'value': u'email', 'dtitle': u'Email', 'active': True},])
+                                        {'value': u'email', 'dtitle': u'Email', 'active': True}])
         voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', choose=True)]
         self.assertEqual(voc_list[0], (None, u"Travaille fieu"))
         voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', active=(False, ))]

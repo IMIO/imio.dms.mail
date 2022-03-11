@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 """ wfadaptations.py tests for this package."""
+
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.wfadaptations.api import add_applied_adaptation
+from datetime import datetime
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import sub_create
 from imio.dms.mail.utils import TaskUtilsMethods
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
@@ -38,7 +41,8 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.pw = self.portal.portal_workflow
         self.omw = self.pw['outgoingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
-        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', title=u'Test')
+        self.omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test-id',
+                                title=u'Test')
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
@@ -169,7 +173,8 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
                                                           'imiodmsmail-om_n_plus_1_wfadaptation',
                                                           run_dependencies=False)
-        self.omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', title=u'test')
+        self.omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test-id',
+                                title=u'test')
 
     def tearDown(self):
         # the modified dmsconfig is kept globally

@@ -166,8 +166,8 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(indexer(), u'dexter.morgan@mpd.am')
 
     def test_ready_for_email_index(self):
-        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', id='my-id', title='My title',
-                                         description='Description', send_modes=['post'])
+        omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id', title='My title',
+                           description='Description', send_modes=['post'])
         indexer = ready_for_email_index(omail)
         # not an email
         self.assertFalse(indexer())
@@ -253,8 +253,8 @@ class TestAdapters(unittest.TestCase):
                                            u'700'])
 
     def test_OdmSearchableExtender(self):
-        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', id='my-id', title='My title',
-                                         description='Description')
+        omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id', title='My title',
+                           description='Description')
         ext = OdmSearchableExtender(omail)
         self.assertEqual(ext(), None)
         createContentInContainer(omail, 'dmsommainfile', id='testid1', scan_id='011999900000690')
@@ -300,8 +300,8 @@ class TestAdapters(unittest.TestCase):
         self.assertIn('Missing', view.widgets['mail_type'].render())
 
     def test_OMMCTV(self):
-        omail = createContentInContainer(self.portal['outgoing-mail'], 'dmsoutgoingmail', id='my-id', title='My title',
-                                         mail_type='type1')
+        omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id', title='My title',
+                           mail_type='type1')
         view = omail.restrictedTraverse('@@view')
         view.update()
         # the title from the vocabulary is well rendered
