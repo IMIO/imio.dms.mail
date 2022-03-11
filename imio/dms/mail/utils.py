@@ -1076,11 +1076,7 @@ def add_content_in_subfolder(view, obj, dte):
     portal = api.portal.get()
     container = create_period_folder(portal[MAIN_FOLDERS[view.portal_type]], dte)
     new_object = addContentToContainer(container, obj)
-    fti = getUtility(IDexterityFTI, name=view.portal_type)
-    if fti.immediate_view:
-        view.immediate_view = "/".join([container.absolute_url(), new_object.id, fti.immediate_view])
-    else:
-        view.immediate_view = "/".join([container.absolute_url(), new_object.id])
+    return container, new_object
 
 
 def sub_create(main_folder, ptype, dte, oid, **params):

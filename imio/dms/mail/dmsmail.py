@@ -57,6 +57,7 @@ from plone.autoform import directives
 # from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
 # from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
@@ -431,7 +432,12 @@ class CustomAddForm(DefaultAddForm):
             self.widgets['ITask.due_date'].value = (due_date.year, due_date.month, due_date.day)
 
     def add(self, obj):
-        add_content_in_subfolder(self, obj, datetime.now())
+        container, new_object = add_content_in_subfolder(self, obj, datetime.now())
+        fti = getUtility(IDexterityFTI, name=self.portal_type)
+        if fti.immediate_view:
+            self.immediate_view = "/".join([container.absolute_url(), new_object.id, fti.immediate_view])
+        else:
+            self.immediate_view = "/".join([container.absolute_url(), new_object.id])
 
 
 class AddIM(DefaultAddView):
@@ -801,6 +807,16 @@ class OMCustomAddForm(BaseOMAddForm):
         self.widgets['orig_sender_email'].mode = HIDDEN_MODE
         # the following doesn't work
         # self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
+
+    def add(self, obj):
+        if not self.request.get('_auto_ref', True):
+            setattr(obj, '_auto_ref', False)
+        container, new_object = add_content_in_subfolder(self, obj, datetime.now())
+        fti = getUtility(IDexterityFTI, name=self.portal_type)
+        if fti.immediate_view:
+            self.immediate_view = "/".join([container.absolute_url(), new_object.id, fti.immediate_view])
+        else:
+            self.immediate_view = "/".join([container.absolute_url(), new_object.id])
 
 
 class AddOM(BaseAddOM):

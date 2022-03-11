@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """Reply form."""
 # from collections import Counter
+
 from collective.dms.mailcontent.browser.reply_form import ReplyForm as BaseReplyForm
 from collective.eeafaceted.batchactions.browser.views import brains_from_uids
+from datetime import datetime
 from imio.dms.mail import _
+from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatefields
 from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatewidgets
@@ -57,6 +60,9 @@ class ReplyForm(BaseReplyForm):
                 )
 
         imio_dmsoutgoingmail_updatewidgets(self)
+
+    def add_content(self, obj):
+        return add_content_in_subfolder(self, obj, datetime.now())
 
     def create(self, data):
         """Overrides to set IClassificationFolder fields"""
