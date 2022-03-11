@@ -115,7 +115,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         # we have the same transitions because there is a cache on getTransitions
         self.assertEqual(ret1.count(u'<td '), 5)
         # we add a reply
-        om2 = self.portal['outgoing-mail']['reponse2']
+        om2 = get_object(oid='reponse2', ptype='dmsoutgoingmail')
         om2.reply_to = [RelationValue(self.intids.getId(self.im2))]
         modified(om2)
         ret2 = self.view()

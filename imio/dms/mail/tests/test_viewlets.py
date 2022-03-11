@@ -29,7 +29,8 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         # configure to see all refs
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.all_backrefs_view', True)
         self.assertListEqual([self.portal.unrestrictedTraverse(b.getPath()) for b in viewlet.backrefs()],
-                             [self.omf['reponse7'], self.omf['reponse1'],
+                             [get_object(oid='reponse7', ptype='dmsoutgoingmail'),
+                              get_object(oid='reponse1', ptype='dmsoutgoingmail'),
                               get_object(oid='courrier7', ptype='dmsincomingmail'),
                               get_object(oid='courrier1', ptype='dmsincomingmail')])
         # configure to see only permitted refs
@@ -73,7 +74,7 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         hp_v = ContextInformationViewlet(self.jean['agent-electrabel'], self.elec.REQUEST, None)
         self.assertTrue(self.jean['agent-electrabel'].use_parent_address)
         self.assertListEqual(hp_v.getAllMessages(), [])
-        om_v = ContextInformationViewlet(self.omf['reponse1'], self.elec.REQUEST, None)
+        om_v = ContextInformationViewlet(get_object(oid='reponse1', ptype='dmsoutgoingmail'), self.elec.REQUEST, None)
         self.assertListEqual(om_v.getAllMessages(), [])
         # removing street from electrabel org
         self.elec.street = None

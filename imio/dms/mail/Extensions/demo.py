@@ -15,6 +15,7 @@ from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import find
 from imio.helpers.content import safe_encode
 from imio.helpers.content import transitions
@@ -285,7 +286,7 @@ def clean_examples(self, doit='1'):
               'mail_type': 'type1',
               }
     if doit:
-        portal['outgoing-mail'].invokeFactory('dmsoutgoingmail', id='test_creation_modele', **params)
+        sub_create(portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test_creation_modele', **params)
 
     # Delete im
     brains = find(unrestricted=True, portal_type=['dmsincomingmail', 'dmsincoming_email'])

@@ -1866,7 +1866,7 @@ def addTestMails(context):
 
     filespath = "%s/batchimport/toprocess/outgoing-mail" % PRODUCT_DIR
     files = [safe_unicode(name) for name in os.listdir(filespath)
-             if os.path.splitext(name)[1][1:] in ('odt')]
+             if os.path.splitext(name)[1][1:] in ('odt', )]
     files.sort()
     files_cycle = cycle(files)
     pf = contacts['personnel-folder']
@@ -1892,8 +1892,7 @@ def addTestMails(context):
                       'recipients': [RelationValue(recipients_cycle.next())],
                       'send_modes': ['post'],
                       }
-            ofld.invokeFactory('dmsoutgoingmail', id='reponse%d' % i, **params)
-            mail = ofld['reponse%d' % i]
+            mail = sub_create(ofld, 'dmsoutgoingmail', datetime.datetime.now(), 'reponse%d' % i, **params)
             filename = files_cycle.next()
             with open(u"%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)

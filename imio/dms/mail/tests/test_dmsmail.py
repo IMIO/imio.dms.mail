@@ -93,8 +93,8 @@ class TestDmsmail(unittest.TestCase):
         catalog = getUtility(ICatalog)
         imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         imail2 = get_object(oid='courrier2', ptype='dmsincomingmail')
-        omail1 = self.portal['outgoing-mail']['reponse1']
-        omail2 = self.portal['outgoing-mail']['reponse2']
+        omail1 = get_object(oid='reponse1', ptype='dmsoutgoingmail')
+        omail2 = get_object(oid='reponse2', ptype='dmsoutgoingmail')
         omail1.reply_to = [
             RelationValue(self.intids.getId(imail1)),
             RelationValue(self.intids.getId(imail2)),
@@ -383,7 +383,7 @@ class TestDmsmail(unittest.TestCase):
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
 
     def test_OM_get_sender_email(self):
-        om = self.portal['outgoing-mail']['reponse1']
+        om = get_object(oid='reponse1', ptype='dmsoutgoingmail')
         # default option is getting agent email
         self.assertEqual(om.get_sender_email(), u'"Michel Chef" <michel.chef@macommune.be>')
         # get service email
@@ -395,7 +395,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(om.get_sender_email(), u'grh@macommune.be')  # get nearest email
 
     def test_OM_get_recipient_emails(self):
-        om = self.portal['outgoing-mail']['reponse1']
+        om = get_object(oid='reponse1', ptype='dmsoutgoingmail')
         self.assertIsNone(om.orig_sender_email)
         recip1 = self.portal.unrestrictedTraverse(om.recipients[0].to_path)
         # recip1 is electrabel org
@@ -427,7 +427,7 @@ class TestDmsmail(unittest.TestCase):
         view.request.form['form.widgets.treating_groups'] = [self.pgof['direction-financiere'].UID()]
         self.assertRaises(Invalid, auv.validate, 'agent1')
         # om
-        obj = self.portal['outgoing-mail']['reponse1']
+        obj = get_object(oid='reponse1', ptype='dmsoutgoingmail')
         view = OMEdit(obj, obj.REQUEST)
         auv = AssignedUserValidator(obj, view.request, view, 'fld', 'widget')
         self.assertEqual(obj.treating_groups, self.pgof['direction-generale'].UID())

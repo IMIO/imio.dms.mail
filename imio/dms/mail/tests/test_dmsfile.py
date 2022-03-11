@@ -2,6 +2,7 @@
 """ dmsfile.py tests for this package."""
 from imio.dms.mail.dmsfile import RestrictedNamedBlobFile
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.namedfile.file import NamedBlobFile
@@ -40,7 +41,7 @@ class TestDmsfile(unittest.TestCase):
         self.assertEqual(get_contenttype(otherblob), 'text/plain')
         field = RestrictedNamedBlobFile()
         # with om context and good file
-        field.context = self.omf.reponse1['1']
+        field.context = get_object(oid='reponse1', ptype='dmsoutgoingmail')['1']
         field._validate(odtblob)
         # with bad file
         self.assertRaises(Invalid, field._validate, otherblob)

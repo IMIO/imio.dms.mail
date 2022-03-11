@@ -144,7 +144,7 @@ class TestServerSentEvents(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
 
     def test_call(self):
-        omail1 = self.portal['outgoing-mail']['reponse1']
+        omail1 = get_object(oid='reponse1', ptype='dmsoutgoingmail')
         omf = omail1['1']
         sse_vw = omail1.restrictedTraverse('server_sent_events')
         eee_vw = omf.restrictedTraverse('@@externalEditorEnabled')
@@ -223,7 +223,7 @@ class TestSendEmail(unittest.TestCase):
         setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
 
     def test_call(self):
-        omail1 = self.portal['outgoing-mail']['reponse1']
+        omail1 = get_object(oid='reponse1', ptype='dmsoutgoingmail')
         omail1.send_modes = [u'email']
         omail1.email_subject = u'Email subject'
         omail1.email_sender = u'sender@mio.be'
@@ -262,7 +262,7 @@ class TestRenderEmailSignature(unittest.TestCase):
         model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                'omail_email_signature')
         self.assertIn('http://localhost:8081/', model)  # $url well replaced by PUBLIC_URL
-        omail1 = self.portal['outgoing-mail']['reponse1']
+        omail1 = get_object(oid='reponse1', ptype='dmsoutgoingmail')
         view = omail1.unrestrictedTraverse('@@render_email_signature')
         self.assertIn('sender', view.namespace)
         self.assertEqual(view.namespace['sender']['org_full_title'], u'Direction générale - GRH')
