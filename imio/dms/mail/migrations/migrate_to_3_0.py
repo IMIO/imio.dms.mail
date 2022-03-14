@@ -758,6 +758,17 @@ class Migrate_To_3_0(Migrator):  # noqa
         if not cron_configlet.cronjobs:
             # Syntax: m h dom mon command.
             cron_configlet.cronjobs = [u'45 18 1,15 * portal/@@various-utils/dv_images_clean']
+        # update actionspanel transitions config
+        key = 'imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions'
+        values = api.portal.get_registry_record(key)
+        new_values = []
+        for val in values:
+            if val.startswith('dmsincomingmail.'):
+                email_val = val.replace('dmsincomingmail.', 'dmsincoming_email.')
+                if email_val not in values:
+                    new_values.append(email_val)
+        if new_values:
+            api.portal.set_registry_record(key, list(values) + new_values)
 
     def update_dmsincomingmails(self):
         for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail'), 1):
