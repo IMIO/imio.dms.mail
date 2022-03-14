@@ -310,6 +310,7 @@ class TestUtils(unittest.TestCase):
         logout()
         login(self.portal, 'agent')
         self.assertFalse(view.is_in_user_groups(suffixes=['general'], org_uid='dir'))
+        self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers'], suffixes=['general'], org_uid='dir'))
         self.assertTrue(view.is_in_user_groups(suffixes=['general'], org_uid='dir', user=api.user.get('dirg')))
 
     def test_VariousMethods_is_unprotected(self):

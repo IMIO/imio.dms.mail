@@ -861,7 +861,7 @@ class IdmUtilsMethods(UtilsMethods):
             # complete all fields
             return False
         # A user that can be an assigned_user can close. An event will set the value...
-        return self.is_in_user_groups(admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
+        return self.is_in_user_groups(groups=('dir_general', ), admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
                                       org_uid=self.context.treating_groups)
 
     def can_do_transition(self, transition):
