@@ -30,6 +30,7 @@ from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import reimport_faceted_config
@@ -129,7 +130,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             mtr = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(mt)
             self.existing_settings[mt] = api.portal.get_registry_record(mtr)
 
-        if self.is_in_part('a'):
+        if self.is_in_part('a'):  # install and upgrade products
             # check if oo port or solr port must be changed
             update_solr_config()
             update_oo_config()
@@ -161,7 +162,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.install(['collective.classification.folder', 'collective.js.tooltipster', 'Products.cron4plone'])
             self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
 
-        if self.is_in_part('c'):
+        if self.is_in_part('b'):  # idm steps, config, folders
             self.runProfileSteps('imio.dms.mail', steps=['actions', 'atcttool', 'catalog', 'controlpanel',
                                                          'plone.app.registry', 'repositorytool', 'typeinfo',
                                                          'viewlets'])
@@ -199,7 +200,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # clean example users wrongly added by previous migration
             self.clean_examples()
 
-        if self.is_in_part('e'):
+        if self.is_in_part('c'):  # workflow
             # reset workflow
             self.runProfileSteps('imio.dms.mail', steps=['workflow'])
             # Apply workflow adaptations
@@ -213,42 +214,45 @@ class Migrate_To_3_0(Migrator):  # noqa
             # update permissions, roles and reindex allowedRolesAndUsers
             self.portal.portal_workflow.updateRoleMappings()
 
-        if self.is_in_part('g'):
+        if self.is_in_part('d'):  # update site
             # do various global adaptations
             self.update_site()
 
-        if self.is_in_part('i'):
+        if self.is_in_part('e'):  # update dmsincomingmails
             # update dmsincomingmails
             self.update_dmsincomingmails()
 
-        if self.is_in_part('k'):
+        if self.is_in_part('f'):  # insert incoming emails
             # do various adaptations for dmsincoming_email and dmsoutgoing_email
             self.insert_incoming_emails()
 
-        if self.is_in_part('m'):
+        if self.is_in_part('g'):  # insert outgoing emails
             self.insert_outgoing_emails()
             createOMailCollections(self.portal['outgoing-mail']['mail-searches'])
             self.check_previously_migrated_collections()
 
         # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
 
-        if self.is_in_part('o'):
+        if self.is_in_part('i'):  # move incoming mails
+            self.move_dmsincomingmails()
+
+        if self.is_in_part('m'):  # update held positions
             self.update_catalog1()
 
-        if self.is_in_part('p'):
+        if self.is_in_part('n'):  # update dmsmainfile
             self.update_catalog2()
 
-        if self.is_in_part('q'):
+        if self.is_in_part('o'):  # update dmsommainfile
             self.update_catalog3()
 
-        if self.is_in_part('r'):
+        if self.is_in_part('p'):  # update appendixfile
             self.update_catalog4()
 
-        if self.is_in_part('t'):
+        if self.is_in_part('q'):  # upgrade other products
             # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
             self.upgradeAll(omit=['imio.dms.mail:default'])
 
-        if self.is_in_part('v'):
+        if self.is_in_part('r'):  # update templates
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
 
             # update templates
@@ -256,7 +260,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
-        if self.is_in_part('x'):
+        if self.is_in_part('s'):  # update quick installer
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
@@ -785,6 +789,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                             obj.assigned_user = username
                             obj.reindexObject(['assigned_user'])
                         break
+
+    def move_dmsincomingmails(self):
+        imf_path = '/'.join(self.imf.getPhysicalPath())
+        for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', sort_on='organization_type',
+                                               path={'query': imf_path, 'depth': 1}), 1):
+            obj = brain.getObject()
+            # TODO create specific method to split folder if more than 1000 elements
+            new_container = create_period_folder(self.imf, obj.reception_date)
+            api.content.move(obj, new_container)
+            # obj.reindexObject(['getObjPositionInParent', 'path'])
 
     def update_catalog1(self):
         """ Update catalog or objects """
