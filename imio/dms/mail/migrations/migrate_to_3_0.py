@@ -85,6 +85,21 @@ class Migrate_To_3_0(Migrator):  # noqa
         transaction.savepoint(True)
         self.portal._p_jar.cacheGC()
 
+    def set_fingerpointing(self, activate=None, itself=True):
+        """Activate/deactivate some fingerpointing settings"""
+        ret = []
+        fp_fields = ['audit_lifecycle', 'audit_workflow']
+        if itself:
+            fp_fields.append('audit_registry')
+        for i, fp_field in enumerate(fp_fields):
+            key = 'collective.fingerpointing.interfaces.IFingerPointingSettings.{}'.format(fp_field)
+            ret.append(api.portal.get_registry_record(key))
+            if activate is None:
+                api.portal.set_registry_record(key, False)
+            else:
+                api.portal.set_registry_record(key, activate[i])
+        return ret
+
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
         self.log_mem('START')
@@ -796,14 +811,19 @@ class Migrate_To_3_0(Migrator):  # noqa
                         break
 
     def move_dmsincomingmails(self):
+        logger.info('Moving dmsincomingmails')
+        orig = self.set_fingerpointing()
         imf_path = '/'.join(self.imf.getPhysicalPath())
         counter_dic = {}
         for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', sort_on='organization_type',
                                                path={'query': imf_path, 'depth': 1}), 1):
             obj = brain.getObject()
+            if i % 10000 == 0:
+                logger.info('On dmsincomingmail brain {}'.format(i))
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
+        self.set_fingerpointing(orig)
 
     def update_catalog1(self):
         """ Update catalog or objects """
