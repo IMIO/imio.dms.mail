@@ -86,11 +86,15 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.portal._p_jar.cacheGC()
 
     def set_fingerpointing(self, activate=None, itself=True):
-        """Activate/deactivate some fingerpointing settings"""
+        """Activate/deactivate some fingerpointing settings."""
         ret = []
         fp_fields = ['audit_lifecycle', 'audit_workflow']
         if itself:
-            fp_fields.append('audit_registry')
+            if activate:
+                fp_fields.append('audit_registry')
+                activate.append(activate.pop(0))  # put at end the orig audit_registry value
+            else:
+                fp_fields.insert(0, 'audit_registry')
         for i, fp_field in enumerate(fp_fields):
             key = 'collective.fingerpointing.interfaces.IFingerPointingSettings.{}'.format(fp_field)
             ret.append(api.portal.get_registry_record(key))
