@@ -2,10 +2,13 @@
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
 from datetime import datetime
+from datetime import timedelta
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import create_period_folder
+from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -47,6 +50,9 @@ class TestUtils(unittest.TestCase):
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.pgof = self.portal['contacts']['plonegroup-organization']
         self.catalog = self.portal.portal_catalog
+        self.imf = self.portal['incoming-mail']
+        self.omf = self.portal['outgoing-mail']
+        self.contacts = self.portal['contacts']
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
@@ -490,3 +496,26 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.can_be_sent())
         createContentInContainer(omail, 'dmsommainfile')
         self.assertTrue(view.can_be_sent())
+
+    def test_create_period_folder(self):
+        dte = datetime.now() - timedelta(days=7)
+        foldername = dte.strftime('%Y%U')  # week
+        self.assertNotIn(foldername, self.imf)
+        folder = create_period_folder(self.imf, dte)
+        self.assertIn(foldername, self.imf)
+        folder.invokeFactory('dmsincomingmail', id='test-id')
+        self.assertIn('test-id', folder)
+        folder = create_period_folder(self.imf, dte, subfolder='fixed')
+        self.assertIn('fixed', self.imf)
+
+    def test_create_period_folder_max(self):
+        dte = datetime.now()
+        foldername = dte.strftime('%Y%U')  # week
+        self.assertIn(foldername, self.imf)  # we already have example ims
+        self.assertEqual(len(self.imf[foldername].objectIds()), 9)
+        counter_dic = {}
+        create_period_folder_max(self.imf, dte, counter_dic, max_nb=9)
+        self.assertIn('{}-1'.format(foldername), self.imf)
+        for i in range(0, 9):
+            create_period_folder_max(self.imf, dte, counter_dic, max_nb=9)
+        self.assertIn('{}-2'.format(foldername), self.imf)

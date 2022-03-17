@@ -1054,15 +1054,43 @@ class DummyView(object):
             self.request = {}
 
 
-def create_period_folder(main_dir, dte):
-    """Following date, get a period date string and create the subdirectory"""
+def create_period_folder_max(main_dir, dte, counter_dic, max_nb=1000):
+    """Following date, get a period date string and create the subdirectory.
+    If the children number is greater than max_nb, create another subfolder."""
     period = getattr(main_dir, 'folder_period', u'week')
-    dte_str = dte.strftime(PERIODS[period])
+    dte_str = base_dte_str = dte.strftime(PERIODS[period])
+
+    def folder_status(folder):
+        if folder in counter_dic:  # known folder status
+            pass
+        elif folder in main_dir:  # folder already exists, count children
+            counter_dic[folder] = len(main_dir[folder].objectIds())
+        else:  # new folder
+            counter_dic[folder] = 0
+        return counter_dic[folder]
+
+    # find the correct subfolder name following children count
+    i = 0
+    while folder_status(dte_str) > max_nb-1:
+        i += 1
+        dte_str = '{}-{}'.format(base_dte_str, i)
+
+    counter_dic[dte_str] += 1
+    return create_period_folder(main_dir, dte, subfolder=dte_str)
+
+
+def create_period_folder(main_dir, dte, subfolder=''):
+    """Following date, get a period date string and create the subdirectory.
+    If subfolder is given, this subfolder name is used in place of dte."""
+    if subfolder:
+        dte_str = subfolder
+    else:
+        period = getattr(main_dir, 'folder_period', u'week')
+        dte_str = dte.strftime(PERIODS[period])
     if dte_str not in main_dir:
         with api.env.adopt_user(username='admin'):
             main_dir.setConstrainTypesMode(0)
             subfolder = api.content.create(main_dir, 'Folder', dte_str, dte_str.decode())
-            # print('Sub folder {} created'.format(dte_str))
             main_dir.setConstrainTypesMode(1)
             alsoProvides(subfolder, INextPrevNotNavigable)
             alsoProvides(subfolder, IHideFromBreadcrumbs)

@@ -30,7 +30,7 @@ from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
-from imio.dms.mail.utils import create_period_folder
+from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import reimport_faceted_config
@@ -797,11 +797,11 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     def move_dmsincomingmails(self):
         imf_path = '/'.join(self.imf.getPhysicalPath())
+        counter_dic = {}
         for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', sort_on='organization_type',
                                                path={'query': imf_path, 'depth': 1}), 1):
             obj = brain.getObject()
-            # TODO create specific method to split folder if more than 1000 elements
-            new_container = create_period_folder(self.imf, obj.reception_date)
+            new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
 
