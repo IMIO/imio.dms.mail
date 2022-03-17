@@ -339,12 +339,15 @@ class Migrate_To_3_0(Migrator):  # noqa
                   'tree': 'classification_tree_tab'}
         for oid in titles:
             obj = self.portal[oid]
-            obj.title = _(titles[oid])
-            obj.reindexObject()
+            if obj.title != _(titles[oid]):
+                obj.title = _(titles[oid])
+                obj.reindexObject()
 
         # update folder period
-        setattr(self.portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', u'week')
-        setattr(self.portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', u'week')
+        if getattr(self.portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', None) is None:
+            setattr(self.portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', u'week')
+        if getattr(self.portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', None) is None:
+            setattr(self.portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', u'week')
 
         # self.portal.manage_permission('imio.dms.mail: Write creating group field', ('Manager',
         #                               'Site Administrator'), acquire=0)
@@ -354,8 +357,10 @@ class Migrate_To_3_0(Migrator):  # noqa
         api.portal.set_registry_record(name='Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.'
                                             'allowed', value=False)
 
-        if 'doc' in self.portal['messages-config']:
+        if 'doc' in self.portal['messages-config'] and \
+                u'version 3.0' not in self.portal['messages-config']['doc'].text.raw:
             api.content.delete(self.portal['messages-config']['doc'])
+        # not added if already exists
         add_message('doc', 'Documentation', u'<p>Vous pouvez consulter la <a href="https://docs.imio.be/'
                     u'imio-doc/ia.docs/" target="_blank">documentation en ligne de la '
                     u'version 3.0</a>, dont <a href="https://docs.imio.be/imio-doc/ia.docs/changelog" '
