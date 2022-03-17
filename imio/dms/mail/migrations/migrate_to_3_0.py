@@ -154,7 +154,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
             self.correct_actions()
 
-            self.install(['collective.ckeditortemplates'])
+            self.install(['collective.ckeditortemplates', 'collective.fingerpointing'])
             if default_cke_templ_folder in self.portal:
                 api.content.delete(obj=self.portal[default_cke_templ_folder])
             self.upgradeProfile('collective.documentgenerator:default')
@@ -201,8 +201,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                                     default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
             order_1st_level(self.portal)
 
+            orig = self.set_fingerpointing()
             self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-contact-import-pipeline'],
                                  run_dependencies=False)
+            self.set_fingerpointing(orig)
             self.update_config()
             if self.config['flds']:
                 self.runProfileSteps('imio.dms.mail', profile='singles', steps=['imiodmsmail-activate_classification'],
@@ -815,6 +817,12 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     def move_dmsincomingmails(self):
         logger.info('Moving dmsincomingmails')
+        # TODO TEMPORARY HERE
+        self.install(['collective.fingerpointing'])
+        ckp = self.portal.portal_properties.ckeditor_properties
+        ckp.manage_changeProperties(toolbar='CustomOld')
+        configure_ckeditor(self.portal, custom='ged', filtering='disabled')
+
         orig = self.set_fingerpointing()
         imf_path = '/'.join(self.imf.getPhysicalPath())
         counter_dic = {}
