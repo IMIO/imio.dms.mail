@@ -251,6 +251,9 @@ class Migrate_To_3_0(Migrator):  # noqa
         if self.is_in_part('i'):  # move incoming mails
             self.move_dmsincomingmails()
 
+        if self.is_in_part('j'):  # move outgoing mails
+            self.move_dmsoutgoingmails()
+
         if self.is_in_part('m'):  # update held positions
             self.update_catalog1()
 
@@ -823,6 +826,20 @@ class Migrate_To_3_0(Migrator):  # noqa
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
+        self.set_fingerpointing(orig)
+
+    def move_dmsoutgoingmails(self):
+        logger.info('Moving dmsoutgoingmails')
+        orig = self.set_fingerpointing()
+        omf_path = '/'.join(self.omf.getPhysicalPath())
+        counter_dic = {}
+        for i, brain in enumerate(self.catalog(portal_type='dmsoutgoingmail', sort_on='created',
+                                               path={'query': omf_path, 'depth': 1}), 1):
+            obj = brain.getObject()
+            if i % 5000 == 0:
+                logger.info('On dmsoutgoingmail brain {}'.format(i))
+            new_container = create_period_folder_max(self.omf, obj.creation_date, counter_dic, max_nb=1000)
+            api.content.move(obj, new_container)
         self.set_fingerpointing(orig)
 
     def update_catalog1(self):
