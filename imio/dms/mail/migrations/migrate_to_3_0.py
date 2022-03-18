@@ -830,8 +830,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         orig = self.set_fingerpointing()
         imf_path = '/'.join(self.imf.getPhysicalPath())
         counter_dic = {}
-        for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail', sort_on='organization_type',
-                                               path={'query': imf_path, 'depth': 1}), 1):
+        for i, brain in enumerate(self.catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
+                                               sort_on='organization_type', path={'query': imf_path, 'depth': 1}), 1):
             obj = brain.getObject()
             if i % 10000 == 0:
                 logger.info('On dmsincomingmail brain {}'.format(i))
