@@ -405,8 +405,10 @@ class IImioDmsMailConfig(model.Schema):
     @invariant
     def validate_settings(data):
         for dic in data.omail_send_modes:
-            if not dic['value'].startswith('email') and not dic['value'].startswith('post'):
-                raise Invalid(_(u"Outgoingmail tab: send_modes field must have values starting with 'post' or 'email'"))
+            if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
+                    and not dic['value'].startswith('other'):
+                raise Invalid(_(u"Outgoingmail tab: send_modes field must have values starting with 'post', 'email' "
+                                u"or 'other'"))
         for tab, fld in (('Incoming mail', 'imail_group_encoder'), ('Outgoing mail', 'omail_group_encoder'),
                          ('Contacts', 'contact_group_encoder')):
             rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(fld)
