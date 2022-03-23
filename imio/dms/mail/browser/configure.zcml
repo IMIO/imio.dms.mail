@@ -279,7 +279,7 @@
             for="collective.classification.tree.contents.category.IClassificationCategory"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
-            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButOwnDelete"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButTransitions"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View"
             />
@@ -646,14 +646,6 @@
         name="plone.belowcontenttitle.workflowstate"
         for="collective.classification.folder.content.classification_folder.IClassificationFolder"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
-        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
-        permission="zope2.View" />
-
-    <!-- We put it in abovecontent because belowcontent manager is not in the view template -->
-    <browser:viewlet
-        name="plone.belowcontenttitle.workflowstate"
-        for="collective.classification.tree.contents.category.IClassificationCategory"
-        manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
         class="plonetheme.imioapps.browser.viewlets.WorkflowState"
         permission="zope2.View" />
 

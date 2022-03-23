@@ -34,7 +34,7 @@
    <bound-workflow workflow_id="(Default)"/>
   </type>
   <type type_id="ClassificationCategory">
-   <bound-workflow workflow_id="active_inactive_workflow"/>
+   <bound-workflow workflow_id=""/>
   </type>
   <type type_id="ClassificationFolder">
    <bound-workflow workflow_id="active_inactive_workflow"/>
