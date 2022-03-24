@@ -9,12 +9,6 @@
 
 from Acquisition import aq_inner  # noqa
 from Acquisition import aq_parent
-from Products.ATContentTypes.interfaces.document import IATDocument
-from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
-from Products.CMFPlone.browser.ploneview import Plone as PloneView
-from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
-from Products.CPUtils.Extensions.utils import check_zope_admin
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from collective.ckeditortemplates.browser.cktemplatelisting import CKTemplateListingView
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from collective.classification.folder.content.classification_folder import IClassificationFolder
@@ -24,7 +18,8 @@ from collective.classification.tree.contents.category import IClassificationCate
 from collective.classification.tree.contents.container import IClassificationContainer
 from collective.contact.contactlist.interfaces import IContactList
 from collective.contact.widget.interfaces import IContactContent
-from collective.dms.basecontent.dmsfile import IDmsFile, IDmsAppendixFile
+from collective.dms.basecontent.dmsfile import IDmsAppendixFile
+from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.browser.utils import UtilsMethods
 from collective.documentgenerator.content.pod_template import IPODTemplate
 from collective.documentgenerator.content.style_template import IStyleTemplate
@@ -42,11 +37,23 @@ from plone import api
 from plone.app.controlpanel.usergroups import GroupsOverviewControlPanel
 from plone.app.controlpanel.usergroups import UsersGroupsControlPanelView
 from plone.app.controlpanel.usergroups import UsersOverviewControlPanel
+from plone.app.layout.navigation.root import getNavigationRoot
 from plone.app.layout.viewlets.common import ContentActionsViewlet as PALContentActionsViewlet
 from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
+from Products.ATContentTypes.interfaces.document import IATDocument
+from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
+from Products.CMFPlone import utils
+from Products.CMFPlone.browser.navigation import get_view_url
+from Products.CMFPlone.browser.navigation import PhysicalNavigationBreadcrumbs as PlonePhysicalNavigationBreadcrumbs
+from Products.CMFPlone.browser.ploneview import Plone as PloneView
+from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
+from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
+from Products.CPUtils.Extensions.utils import check_zope_admin
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.annotation import IAnnotations
+from zope.component import getMultiAdapter
 
 
 class IMRenderCategoryView(RenderCategoryView):
@@ -139,6 +146,42 @@ class Plone(PloneView):
             if interface.providedBy(context):
                 return False
         return super(Plone, self).showEditableBorder()
+
+
+class PhysicalNavigationBreadcrumbs(PlonePhysicalNavigationBreadcrumbs):
+    """ Corrected the item url after a hidden part, visible 2 levels deeper."""
+
+    def breadcrumbs(self):
+        context = aq_inner(self.context)
+        request = self.request
+        container = utils.parent(context)
+
+        name, item_url = get_view_url(context)
+
+        if container is None:
+            return ({
+                'absolute_url': item_url,
+                'Title': utils.pretty_title_or_id(context, context),
+            },)
+
+        view = getMultiAdapter((container, request), name='breadcrumbs_view')
+        base = tuple(view.breadcrumbs())
+
+        # Some things want to be hidden from the breadcrumbs
+        if IHideFromBreadcrumbs.providedBy(context):
+            return base
+
+        rootpath = getNavigationRoot(context)
+        itempath = '/'.join(context.getPhysicalPath())
+
+        # don't show default pages in breadcrumbs or pages above the navigation root
+        if not utils.isDefaultPage(context, request) \
+           and not rootpath.startswith(itempath):
+            base += ({
+                'absolute_url': item_url,
+                'Title': utils.pretty_title_or_id(context, context),
+            },)
+        return base
 
 
 class ContentActionsViewlet(PALContentActionsViewlet):
