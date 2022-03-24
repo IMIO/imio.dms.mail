@@ -43,7 +43,8 @@ class TestSettings(unittest.TestCase):
         data = {'omail_send_modes': [{'dtitle': u'Lettre', 'active': True, 'value': u'bad'}]}
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = _tr(msgid=u"Outgoingmail tab: send_modes field must have values starting with 'post' or 'email'")
+        error_msg = _tr(msgid=u"Outgoingmail tab: send_modes field must have values starting with 'post', 'email' "
+                              u"or 'other'")
         self.assertEqual(_tr(errors[0].message), error_msg)
         # test imail_group_encoder
         rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'
