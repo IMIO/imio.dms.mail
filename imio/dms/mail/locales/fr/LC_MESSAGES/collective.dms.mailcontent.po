@@ -20,8 +20,16 @@ msgid "${ref} (dmsmainfile) => ${title}"
 msgstr "${ref} (D) => ${title}"
 
 #: ../vocabularies.py:34
+msgid "${ref} (dmsommainfile signed) => ${title}"
+msgstr "${ref} (DS) => ${title}"
+
+#: ../vocabularies.py:34
 msgid "${ref} (dmsommainfile) => ${title}"
 msgstr "${ref} (D) => ${title}"
+
+#: ../vocabularies.py:25
+msgid "(dmsommainfile signed) => ${title}"
+msgstr "(DS) => ${title}"
 
 #: ../vocabularies.py:25
 msgid "(dmsommainfile) => ${title}"
