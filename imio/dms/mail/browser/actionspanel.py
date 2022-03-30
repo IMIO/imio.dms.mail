@@ -288,7 +288,7 @@ class ClassificationContainersActionsPanelView(ActionsPanelView):
         super(ClassificationContainersActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         self.ACCEPTABLE_ACTIONS = [
-            'paste', 'classification.import', 'classification.tree.add',
+            'paste', 'classification.import', 'classification.tree.add', 'classification.tree.refresh_cache',
         ]
 
 
