@@ -833,4 +833,13 @@
         permission="zope2.View"
         />
 
+    <!-- folders import overrides -->
+    <browser:page
+        name="import-process"
+        for="collective.classification.folder.content.classification_folders.IClassificationFolders"
+        class="imio.dms.mail.browser.overrides.DocsImportSecondStepView"
+        permission="cmf.AddPortalContent"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
 </configure>

@@ -14,6 +14,8 @@ from collective.ckeditortemplates.cktemplate import ICKTemplate
 from collective.classification.folder.content.classification_folder import IClassificationFolder
 from collective.classification.folder.content.classification_folders import IClassificationFolders
 from collective.classification.folder.content.classification_subfolder import IClassificationSubfolder
+from collective.classification.folder.form.importform import ImportFormSecondStep
+from collective.classification.folder.form.importform import ImportSecondStepView
 from collective.classification.tree.contents.category import IClassificationCategory
 from collective.classification.tree.contents.container import IClassificationContainer
 from collective.contact.contactlist.interfaces import IContactList
@@ -28,11 +30,13 @@ from collective.eeafaceted.dashboard.browser.facetedcollectionportlet import Ren
 from collective.eeafaceted.dashboard.browser.views import JSONCollectionsCount
 from collective.task.behaviors import ITask
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from imio.dms.mail import BLDT_DIR
 from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
 from imio.history.browser.views import IHDocumentBylineViewlet
+from imio.pyutils.system import read_dictcsv
 from plone import api
 from plone.app.controlpanel.usergroups import GroupsOverviewControlPanel
 from plone.app.controlpanel.usergroups import UsersGroupsControlPanelView
@@ -54,6 +58,9 @@ from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
+from zope.interface.exceptions import Invalid
+
+import os
 
 
 class IMRenderCategoryView(RenderCategoryView):
@@ -297,3 +304,32 @@ class ClassificationJSONCollectionsCount(JSONCollectionsCount):
                 return faceted_context
             faceted_context = aq_parent(aq_inner(faceted_context))
         return faceted_context
+
+
+class DocsImportFormSecondStep(ImportFormSecondStep):
+
+    def _get_treating_groups_titles(self):
+        tgt = super(DocsImportFormSecondStep, self)._get_treating_groups_titles()
+        csv_file = os.path.join(BLDT_DIR, u'imports/tg_matching.csv')
+        if os.path.exists(csv_file):
+            msg, rows = read_dictcsv(csv_file, fieldnames=['otgt', 'ntgt'], skip_lines=1)
+            if msg:
+                raise Invalid(u"Error reading '{}': '{}'".format(csv_file, msg))
+            errors = []
+            for row in rows:
+                otgt = row['otgt'].decode('utf8')
+                ntgt = row['ntgt'].decode('utf8')
+                if otgt not in tgt:
+                    if ntgt not in tgt:
+                        errors.append(u"{}: new value '{}' not found".format(row['_ln'], ntgt))
+                    else:
+                        tgt[otgt] = tgt[ntgt]
+            if errors:
+                raise Invalid(u"Existing groups = '{}'. Errors: '{}'".format(u', '.join(tgt.keys()),
+                                                                             u', '.join(errors)))
+        return tgt
+
+
+class DocsImportSecondStepView(ImportSecondStepView):
+
+    form = DocsImportFormSecondStep
