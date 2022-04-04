@@ -493,9 +493,9 @@ class TestUtils(unittest.TestCase):
         # define as normal mail
         omail.send_modes = [u'post']
         self.assertFalse(omail.is_email())
-        self.assertFalse(view.can_be_sent())
-        createContentInContainer(omail, 'dmsommainfile')
         self.assertTrue(view.can_be_sent())
+        # createContentInContainer(omail, 'dmsommainfile')  # no more depend on a dmsommainfile
+        # self.assertTrue(view.can_be_sent())
 
     def test_create_period_folder(self):
         dte = datetime.now() - timedelta(days=7)

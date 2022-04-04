@@ -977,8 +977,7 @@ class OdmUtilsMethods(UtilsMethods):
             if self.context.email_status:  # has been sent
                 return True
             return False  # consumer will not can "close": ok
-        else:
-            return self.can_be_handsigned()
+        return True
 
     def can_be_validated(self):
         """Used in guard expression for validated transitions."""
