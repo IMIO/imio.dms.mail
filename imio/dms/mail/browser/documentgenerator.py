@@ -168,6 +168,15 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         ret = sep.join(ret)
         return ret
 
+    def get_linked_mails(self):
+        om = self.real_context
+        if not om.reply_to:
+            return []
+        ret = []
+        for rel in om.reply_to:
+            ret.append(rel.to_object)
+        return ret
+
 
 class DashboardDGBaseHelper():  # noqa
     """
