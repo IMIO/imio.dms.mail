@@ -137,6 +137,17 @@ class TestDocumentGenerator(unittest.TestCase):
                              [u'Direction générale', u'Secrétariat', u'Michèle'])
         self.assertRaises(IndexError, view1.separate_full_title, u'Direction', nb=0)
 
+        # Test get_linked_mails
+        self.assertListEqual(view1.get_linked_mails(), [])
+        omail = view1.real_context
+        imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
+        imail2 = get_object(oid='courrier2', ptype='dmsincomingmail')
+        omail.reply_to = [
+            RelationValue(self.intids.getId(imail1)),
+            RelationValue(self.intids.getId(imail2)),
+        ]
+        self.assertListEqual(view1.get_linked_mails(), [imail1, imail2])
+
     def test_DocumentGenerationOMDashboardHelper(self):
         """
             Test all methods of DocumentGenerationOMDashboardHelper view
