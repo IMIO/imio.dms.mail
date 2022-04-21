@@ -32,7 +32,6 @@ from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.api.exc import GroupNotFoundError
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import addContentToContainer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
@@ -89,8 +88,9 @@ dms_config
 * ['transitions_auc'] : indique si les transitions propose_to_agent ou propose_to_n_plus_x peuvent être effectuées en
                         fonction du paramètre assigned_user_check. (close toujours)
     * ['dmsincomingmail'][transition] = {'org1': True, 'org2': False}
-* ['transitions_levels'] : indique les transitions valides par état en fonction de la présence des validateurs
-    * ['dmsincomingmail'][state] = {'org1': ('propose_to_n_plus_1', 'from_states'), 'org2': (...) }
+* ['transitions_levels'] : indique les transitions valides (avant, arrière, n+_users) par état en fonction de la
+                           présence des validateurs. (n+_users indique si le groupe a des utilisateurs pour cet état)
+    * ['dmsincomingmail'][state] = {'org1': ('propose_to_n_plus_1', 'from_states', False), 'org2': (...) }
     ('from_states' est une valeur spéciale qui représente les transitions stockées dans from_states)
 """
 
@@ -154,8 +154,9 @@ def group_has_user(groupname, action=None):
 
 
 def update_transitions_levels_config(ptypes, action=None, group_id=None):
-    """
-    Set transitions_levels dms config following org group users: [ptype][state][org] = (valid_propose_to, valid_back_to)
+    """Set transitions_levels dms config following org group users:
+    [ptype][state][org] = (valid_propose_to, valid_back_to, n_plus_users)
+
     :param ptypes: portal types
     :param action: useful on group assignment event. Can be 'add', 'remove', 'delete'
     :param group_id: new group assignment
@@ -172,19 +173,21 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
         states = []
         max_level = 0
-        for i, (st, tr) in enumerate(wf_from_to['to'], start=-1):  # 2 values before n+
+        for i, (st, tr) in enumerate(wf_from_to['to'], start=-1):  # 2 values before n+ (closed, proposed_to_agent)
             states.append((st, i))
             max_level = i
+        # states: [('closed', -1), ('proposed_to_agent', 0), ('proposed_to_n_plus_1', 1)]
         states += [(st, 9) for (st, tr) in wf_from_to['from']]
         states.reverse()
-        # [('proposed_to_manager', 9), ('created', 9), ('proposed_to_n_plus_1', 1), ('proposed_to_agent', 0)]
+        # states: [('proposed_to_manager', 9), ('created', 9), ('proposed_to_n_plus_1', 1), ('proposed_to_agent', 0),
+        #          ('closed', -1)]
         state9 = ''
         orgs_back = {}  # last valid back transition by org
 
         for state, level in states:
             start = level - 1
             if level == 9:  # from states
-                start = max_level
+                start = max_level  # max n+ level from 1 to 5
             # for states before validation levels, we copy the first one
             if level == 9 and state9:
                 set_dms_config(['transitions_levels', 'dmsincomingmail', state],  # i_e ok
@@ -198,11 +201,15 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
                 for lev in range(start, 0, -1):
                     # level 9: range(0, 0, -1) => [] ; range(1, 0, -1) => [1] ; etc.
                     # level 1: range(0, 0, -1) => [] ; level 2: range(1, 0, -1) => [1] ; etc.
-                    # level 0: range(-1, 0, -1) => []
+                    # level 0, -1: range(-1, 0, -1) => []
                     if check_group_users('{}_n_plus_{}'.format(org, lev), users_in_groups, group_id, action):
                         propose_to = 'propose_to_n_plus_{}'.format(lev)
                         break
-                config[org] = (propose_to, back_to)
+                n_plus_users = None
+                if state.startswith('proposed_to_n_plus_'):
+                    n_plus_users = check_group_users('{}_n_plus_{}'.format(org, level), users_in_groups, group_id,
+                                                     action)
+                config[org] = (propose_to, back_to, n_plus_users)
                 if level != 9 and users_in_groups.get('{}_n_plus_{}'.format(org, level), False):
                     orgs_back[org] = 'back_to_n_plus_{}'.format(level)
 
@@ -215,15 +222,20 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
         states = [('created', 0)]
         for (st, tr) in wf_from_to['to']:
             states.append((st, 1))
-        right_transitions = ('propose_to_n_plus_1', 'back_to_n_plus_1')
+        # states: [('created', 0), ('sent', 1), ('to_be_signed', 1), ('validated', 1)]
+        right_transitions = ('propose_to_n_plus_1', 'back_to_n_plus_1', None)
         for st, way in states:
             config = {}
             for org in orgs:
-                trs = ['', '']
+                trs = ['', '', None]
                 if check_group_users('{}_n_plus_1'.format(org), users_in_groups, group_id, action):
                     trs[way] = right_transitions[way]
                 config[org] = tuple(trs)
             set_dms_config(['transitions_levels', 'dmsoutgoingmail', st], config)
+        if 'validated' in [tup[0] for tup in wf_from_to['to']]:
+            set_dms_config(['transitions_levels', 'dmsoutgoingmail', 'proposed_to_n_plus_1'],
+                           {org: ('', '', check_group_users('{}_n_plus_1'.format(org), users_in_groups, group_id,
+                                                            action)) for org in orgs})
 
     if 'task' in ptypes:
         states = (('created', 0), ('to_do', 1))
