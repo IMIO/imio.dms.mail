@@ -102,6 +102,7 @@ class TestDmsmail(unittest.TestCase):
         zope.event.notify(ObjectModifiedEvent(imail, Attributes(Interface, 'treating_groups')))
         self.assertListEqual(task1.parents_assigned_groups, [orgs[4]])
         self.assertListEqual(task2.parents_assigned_groups, [orgs[4], orgs[1]])
+        # treating_groups change on service validation state is tested in test_wfadaptations_imservicevalidation...
 
     def test_dmsincomingmail_transition(self):
         self.assertEqual(api.content.get_state(self.imail), 'created')

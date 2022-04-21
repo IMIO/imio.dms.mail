@@ -259,6 +259,17 @@ def dmsdocument_modified(mail, event):
     for field in updates:
         adapted.set_lower_parents_value(field, fields[field])
 
+    # check if the treating_groups is changed while the state is on a service validation level
+    state = api.content.get_state(mail)
+    if 'treating_groups' in mod_attr and state.startswith('proposed_to_n_plus'):
+        p_t = mail.portal_type
+        if p_t == 'dmsincoming_email':
+            p_t = 'dmsincomingmail'
+        config = get_dms_config(['transitions_levels', p_t])
+        if config[state][mail.treating_groups][2] is False:  # no user in the new group
+            # TODO we have to do something
+            pass
+
 
 def dmsdocument_removed(mail, event):
     """Delete subfolder if empty"""

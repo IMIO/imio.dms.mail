@@ -17,11 +17,14 @@ from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.dexterity.utils import createContentInContainer
 from zope.component import getUtility
+from zope.interface import Interface
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 
 import unittest
+import zope.event
 
 
 class TestIMServiceValidation1(unittest.TestCase):
@@ -187,6 +190,28 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
         login(self.portal, 'chef')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
+
+    def test_dmsdocument_modified_subscriber(self):
+        """Test only treating_groups change while the state is on a service validation level"""
+        self.assertEqual(api.content.get_state(self.imail), 'created')
+        view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        org1, org2 = get_registry_organizations()[0:2]
+        groupname1 = '{}_n_plus_1'.format(org1)
+        groupname2 = '{}_n_plus_1'.format(org2)
+        self.assertTrue(group_has_user(groupname2))
+        api.group.remove_user(groupname=groupname1, username='chef')
+        self.assertFalse(group_has_user(groupname1))
+        self.imail.treating_groups = org1
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.imail.treating_groups = org2
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        api.content.transition(self.imail, 'propose_to_n_plus_1')
+        self.imail.treating_groups = org1
+        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
+        # TODO to be continued
 
 
 class TestIMServiceValidation2(unittest.TestCase):
