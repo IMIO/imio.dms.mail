@@ -238,6 +238,9 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertIn('_n_plus_1', config)
         config = get_dms_config(['review_states', 'dmsoutgoingmail'])
         self.assertIn('proposed_to_n_plus_1', config)
+        config = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'])
+        self.assertListEqual(config['to'], [('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed'),
+                                            ('validated', 'set_validated')])
         # check vocabularies
         factory = getUtility(IVocabularyFactory, u'collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
         self.assertEqual(len(factory(folder, folder)), 14)
@@ -271,15 +274,22 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
         # we do transition
         api.content.transition(self.omail, transition='propose_to_n_plus_1')
-        createContentInContainer(self.omail, 'dmsommainfile')  # add a file so it's possible to do transition
-        api.content.transition(self.omail, transition='propose_to_be_signed')
-        self.assertEqual(api.content.get_state(self.omail), 'to_be_signed')
+        api.content.transition(self.omail, transition='set_validated')
         # tg ok, user in group
         self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
         # tg ok, no user in group
         api.group.remove_user(groupname=groupname, username='chef')
         self.assertFalse(group_has_user(groupname))
         self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        createContentInContainer(self.omail, 'dmsommainfile')  # add a file so it's possible to do transition
+        api.content.transition(self.omail, transition='propose_to_be_signed')
+        self.assertEqual(api.content.get_state(self.omail), 'to_be_signed')
+        # tg ok, no user in group
+        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        # tg ok, user in group
+        api.group.add_user(groupname=groupname, username='chef')
+        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
+
 
     def test_encodeur_active_orgs1(self):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
