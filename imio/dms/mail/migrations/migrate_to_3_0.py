@@ -821,12 +821,6 @@ class Migrate_To_3_0(Migrator):  # noqa
 
     def move_dmsincomingmails(self):
         logger.info('Moving dmsincomingmails')
-        # TODO TEMPORARY HERE
-        self.install(['collective.fingerpointing'])
-        ckp = self.portal.portal_properties.ckeditor_properties
-        ckp.manage_changeProperties(toolbar='CustomOld')
-        configure_ckeditor(self.portal, custom='ged', filtering='disabled')
-
         orig = self.set_fingerpointing()
         imf_path = '/'.join(self.imf.getPhysicalPath())
         counter_dic = {}
