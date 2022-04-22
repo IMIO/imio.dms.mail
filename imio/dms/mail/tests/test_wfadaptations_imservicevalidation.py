@@ -208,8 +208,6 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         self.imail.treating_groups = org1
-        config = get_dms_config(['transitions_levels', 'dmsincomingmail', 'proposed_to_n_plus_1'])
-        self.assertEqual(config[org1][0], 'propose_to_agent')
         zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
 
@@ -429,3 +427,41 @@ class TestIMServiceValidation2(unittest.TestCase):
         login(self.portal, 'agent1')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())  # can view lower level collection
         self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
+
+    def test_dmsdocument_modified_subscriber2(self):
+        """Test only treating_groups change while the state is on a service validation level"""
+        self.assertEqual(api.content.get_state(self.imail), 'created')
+        view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        org1, org2 = get_registry_organizations()[0:2]
+        groupname1_1 = '{}_n_plus_1'.format(org1)
+        groupname1_2 = '{}_n_plus_2'.format(org1)
+        groupname2_1 = '{}_n_plus_1'.format(org2)
+        groupname2_2 = '{}_n_plus_2'.format(org2)
+        # N+2 has no user but n+1 has users
+        self.assertTrue(group_has_user(groupname2_1))
+        self.assertTrue(group_has_user(groupname2_2))
+        api.group.remove_user(groupname=groupname1_2, username='chef')
+        self.assertFalse(group_has_user(groupname1_2))  # no user
+        self.assertTrue(group_has_user(groupname1_1))
+        self.imail.treating_groups = org1
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))  # no user
+        self.imail.treating_groups = org2
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
+        api.content.transition(self.imail, 'propose_to_n_plus_2')
+        self.imail.treating_groups = org1
+        zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
+        self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')
+        # N+2 has no user and n+1 has no user
+        api.group.remove_user(groupname=groupname1_1, username='chef')
+        self.assertFalse(group_has_user(groupname1_1))  # no user
+        self.assertFalse(group_has_user(groupname1_2))  # no user
+        api.content.transition(self.imail, 'back_to_creation')
+        self.assertEqual(api.content.get_state(self.imail), 'created')
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))  # no user
+        self.imail.treating_groups = org2
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
+        api.content.transition(self.imail, 'propose_to_n_plus_2')
+        self.imail.treating_groups = org1
+        zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
+        self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
