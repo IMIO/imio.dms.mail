@@ -267,13 +267,14 @@ class ImioDmsIncomingMail(DmsIncomingMail):
 
     get_back_or_again_icon = IM_get_back_or_again_icon
 
-    def is_n_plus_level_obsolete(self, state=None, config=None, state_start='proposed_to_n_plus'):
+    def is_n_plus_level_obsolete(self, treating_group='', state=None, config=None, state_start='proposed_to_n_plus'):
         """Check if current treating_groups has validators on the state"""
-        return is_n_plus_level_obsolete(self, 'dmsincomingmail', state=state, config=config, state_start=state_start)
+        return is_n_plus_level_obsolete(self, 'dmsincomingmail', treating_group=treating_group, state=state,
+                                        config=config, state_start=state_start)
 
-    def do_next_transition(self, state=None, config=None):
+    def do_next_transition(self, treating_group='', state=None, config=None):
         """Do next transition following transition_levels"""
-        do_next_transition(self, 'dmsincomingmail', state=state, config=config)
+        do_next_transition(self, 'dmsincomingmail', treating_group=treating_group, state=state, config=config)
 
 
 def updatewidgets_assigned_user_description(the_form):
@@ -601,13 +602,14 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
     get_back_or_again_icon = OM_get_back_or_again_icon
 
-    def is_n_plus_level_obsolete(self, state=None, config=None, state_start='proposed_to_n_plus'):
+    def is_n_plus_level_obsolete(self, treating_group='', state=None, config=None, state_start='proposed_to_n_plus'):
         """Check if current treating_groups has validators on the state"""
-        return is_n_plus_level_obsolete(self, 'dmsoutgoingmail', state=state, config=config, state_start=state_start)
+        return is_n_plus_level_obsolete(self, 'dmsoutgoingmail', treating_group=treating_group, state=state,
+                                        config=config, state_start=state_start)
 
-    def do_next_transition(self, state=None, config=None):
+    def do_next_transition(self, treating_group='', state=None, config=None):
         """Do next transition following transition_levels"""
-        do_next_transition(self, 'dmsoutgoingmail', state=state, config=config)
+        do_next_transition(self, 'dmsoutgoingmail', treating_group=treating_group, state=state, config=config)
 
     def is_email(self):
         """Check if send_modes is related to email.
@@ -883,22 +885,32 @@ class OMView(DmsDocumentView):
 class AssignedUserValidator(validator.SimpleFieldValidator):
 
     def validate(self, value, force=False):
-        # we go out if assigned user is empty
-        if value is None:
-            return
         config = ((IMEdit, {'attr': 'treating_groups', 'schema': '', 'fcts': IM_EDITOR_SERVICE_FUNCTIONS}),
                   (OMEdit, {'attr': 'treating_groups', 'schema': '', 'fcts': OM_EDITOR_SERVICE_FUNCTIONS}),
                   (TaskEdit, {'attr': 'assigned_group', 'schema': 'ITask.', 'fcts': TASK_EDITOR_SERVICE_FUNCTIONS}),)
         for klass, dic in config:
             if isinstance(self.view, klass):
-                # check if group is changed and assigned_user is no more in
+                # check if group is changed
                 form_widget = 'form.widgets.{}{}'.format(dic['schema'], dic['attr'])
-                if (getattr(self.context, dic['attr']) is not None and self.context.assigned_user is not None and
-                    self.request.form.get(form_widget, False) and
-                    self.request.form[form_widget][0] != getattr(self.context, dic['attr']) and
-                    value not in [mb.getUserName() for mb in get_selected_org_suffix_users(
-                                  self.request.form[form_widget][0], dic['fcts'])]):
-                    raise Invalid(_(u"The assigned user is not in the selected group !"))
+                if (getattr(self.context, dic['attr']) is not None and self.request.form.get(form_widget, False) and
+                        self.request.form[form_widget][0] != getattr(self.context, dic['attr'])):
+                    # check if assigned_user is no more in
+                    if (self.context.assigned_user is not None and value is not None and value not in
+                            [mb.getUserName() for mb in get_selected_org_suffix_users(self.request.form[form_widget][0],
+                                                                                      dic['fcts'])]):
+                        raise Invalid(_(u"The assigned user is not in the selected group !"))
+                    # check if assigned_user is needed on dmsincomingmail
+                    if klass != IMEdit or value is not None:
+                        continue
+                    ntg = self.request.form[form_widget][0]
+                    obsolete, state, config = is_n_plus_level_obsolete(self.context, 'dmsincomingmail',
+                                                                       treating_group=ntg)
+                    if False and obsolete:  # on the new tg, there is no validators.
+                        # TODO to be continued
+                        transition = ''
+                        transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
+                        if not transitions_auc.get(ntg, False):
+                            raise
 
 
 validator.WidgetValidatorDiscriminators(AssignedUserValidator, field=ITask['assigned_user'])
