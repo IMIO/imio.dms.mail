@@ -43,7 +43,9 @@ from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import do_next_transition
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
@@ -264,6 +266,14 @@ class ImioDmsIncomingMail(DmsIncomingMail):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
     get_back_or_again_icon = IM_get_back_or_again_icon
+
+    def is_n_plus_level_obsolete(self, state=None, config=None, state_start='proposed_to_n_plus'):
+        """Check if current treating_groups has validators on the state"""
+        return is_n_plus_level_obsolete(self, 'dmsincomingmail', state=state, config=config, state_start=state_start)
+
+    def do_next_transition(self, state=None, config=None):
+        """Do next transition following transition_levels"""
+        do_next_transition(self, 'dmsincomingmail', state=state, config=config)
 
 
 def updatewidgets_assigned_user_description(the_form):

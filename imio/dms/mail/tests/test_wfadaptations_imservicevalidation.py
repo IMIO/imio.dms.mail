@@ -191,11 +191,10 @@ class TestIMServiceValidation1(unittest.TestCase):
         login(self.portal, 'chef')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
 
-    def test_dmsdocument_modified_subscriber(self):
+    def test_dmsdocument_modified_subscriber1(self):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.imail), 'created')
         view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
-        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         org1, org2 = get_registry_organizations()[0:2]
         groupname1 = '{}_n_plus_1'.format(org1)
@@ -209,9 +208,10 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         self.imail.treating_groups = org1
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        config = get_dms_config(['transitions_levels', 'dmsincomingmail', 'proposed_to_n_plus_1'])
+        self.assertEqual(config[org1][0], 'propose_to_agent')
         zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
-        # TODO to be continued
+        self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
 
 
 class TestIMServiceValidation2(unittest.TestCase):

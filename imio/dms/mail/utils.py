@@ -1174,3 +1174,27 @@ def manage_fields(the_form, config_key, mode):
         for field_name in group.fields:
             if field_name not in to_display:
                 group.fields = group.fields.omit(field_name)
+
+
+def is_n_plus_level_obsolete(mail, ptype, state=None, config=None, state_start='proposed_to_n_plus'):
+    """Check if current treating_groups has validators on the state"""
+    if mail.treating_groups is None:
+        return False, state, config
+    if state is None:
+        state = api.content.get_state(mail)
+    if not state.startswith(state_start):
+        return False, state, config
+    if config is None:
+        config = get_dms_config(['transitions_levels', ptype])
+    if config[state][mail.treating_groups][2] is False:  # no user in the  group
+        return True, state, config
+    return False, state, config
+
+
+def do_next_transition(mail, ptype, state=None, config=None):
+    """Do next transition following transition_levels"""
+    if state is None:
+        state = api.content.get_state(mail)
+    if config is None:
+        config = get_dms_config(['transitions_levels', ptype])
+    api.content.transition(mail, config[state][mail.treating_groups][0])

@@ -260,15 +260,14 @@ def dmsdocument_modified(mail, event):
         adapted.set_lower_parents_value(field, fields[field])
 
     # check if the treating_groups is changed while the state is on a service validation level
-    state = api.content.get_state(mail)
-    if 'treating_groups' in mod_attr and state.startswith('proposed_to_n_plus'):
-        p_t = mail.portal_type
-        if p_t == 'dmsincoming_email':
-            p_t = 'dmsincomingmail'
-        config = get_dms_config(['transitions_levels', p_t])
-        if config[state][mail.treating_groups][2] is False:  # no user in the new group
-            # TODO we have to do something
-            pass
+    if 'treating_groups' in mod_attr:
+        doit = True
+        while doit:
+            obsolete, state, config = mail.is_n_plus_level_obsolete()
+            if obsolete:
+                mail.do_next_transition(state=state, config=config)
+            else:
+                doit = False
 
 
 def dmsdocument_removed(mail, event):
