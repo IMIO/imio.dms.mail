@@ -278,7 +278,6 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('r'):  # update templates
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
-
             # update templates
             add_templates(self.portal)
             self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
@@ -287,6 +286,9 @@ class Migrate_To_3_0(Migrator):  # noqa
         if self.is_in_part('s'):  # update quick installer
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+            # TEMPORARY HERE
+            update_transitions_levels_config(['dmsincomingmail'])
+            update_transitions_levels_config(['dmsoutgoingmail'])
 
             for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
                          'collective.contact.core', 'collective.contact.facetednav', 'collective.contact.importexport',
@@ -320,14 +322,14 @@ class Migrate_To_3_0(Migrator):  # noqa
         if ('sent', 'mark_as_sent') not in nplus_to:
             nplus_to.insert(0, ('sent', 'mark_as_sent'))
             set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], nplus_to)
-            update_transitions_levels_config(['dmsoutgoingmail'])
+        update_transitions_levels_config(['dmsoutgoingmail'])
         # update dms config wf_from_to with close transition
         nplus_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'])
         if ('closed', 'close') not in nplus_to:
             nplus_to.insert(0, ('closed', 'close'))
             set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'], nplus_to)
-            update_transitions_levels_config(['dmsincomingmail'])
             update_transitions_auc_config(['dmsincomingmail'])
+        update_transitions_levels_config(['dmsincomingmail'])
         # remove doing_migration from wfadaptations parameters (added by 2.3 migration)
         change = False
         record = []
