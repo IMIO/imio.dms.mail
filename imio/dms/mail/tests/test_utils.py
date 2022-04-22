@@ -131,8 +131,8 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(config['to_be_signed'][org1], ('', '', None))
         self.assertEqual(config['created'][org2], ('', '', None))
         self.assertEqual(config['to_be_signed'][org2], ('', '', None))
-        self.assertEqual(config['proposed_to_n_plus_1'][org1], ('', '', False))
-        self.assertEqual(config['proposed_to_n_plus_1'][org2], ('', '', False))
+        self.assertEqual(config['proposed_to_n_plus_1'][org1], ('set_validated', '', False))
+        self.assertEqual(config['proposed_to_n_plus_1'][org2], ('set_validated', '', False))
         # we simulate the adding of a level and a user
         update_transitions_levels_config(['dmsoutgoingmail'], 'add', '{}_n_plus_1'.format(org1))
         config = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
@@ -140,8 +140,8 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(config['to_be_signed'][org1], ('', 'back_to_n_plus_1', None))
         self.assertEqual(config['created'][org2], ('', '', None))
         self.assertEqual(config['to_be_signed'][org2], ('', '', None))
-        self.assertEqual(config['proposed_to_n_plus_1'][org1], ('', '', True))
-        self.assertEqual(config['proposed_to_n_plus_1'][org2], ('', '', False))
+        self.assertEqual(config['proposed_to_n_plus_1'][org1], ('set_validated', '', True))
+        self.assertEqual(config['proposed_to_n_plus_1'][org2], ('set_validated', '', False))
 
         # task #
         config = get_dms_config(['transitions_levels', 'task'])

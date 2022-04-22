@@ -26,9 +26,13 @@ from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
 from zope.component import getUtility
+from zope.interface import Interface
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 
 import unittest
+import zope.event
 
 
 class TestOMToPrintAdaptation(unittest.TestCase):
@@ -253,6 +257,26 @@ class TestOMServiceValidation1(unittest.TestCase):
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states')
         self.assertIn('proposed_to_n_plus_1', lst)
         self.assertIn('validated', lst)
+
+    def test_dmsdocument_modified_subscriber1(self):
+        """Test only treating_groups change while the state is on a service validation level"""
+        self.assertEqual(api.content.get_state(self.omail), 'created')
+        view = OdmUtilsMethods(self.omail, self.omail.REQUEST)
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
+        org1, org2 = get_registry_organizations()[0:2]
+        groupname1 = '{}_n_plus_1'.format(org1)
+        groupname2 = '{}_n_plus_1'.format(org2)
+        self.assertTrue(group_has_user(groupname2))
+        api.group.remove_user(groupname=groupname1, username='chef')
+        self.assertFalse(group_has_user(groupname1))
+        self.omail.treating_groups = org1
+        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.omail.treating_groups = org2
+        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        api.content.transition(self.omail, 'propose_to_n_plus_1')
+        self.omail.treating_groups = org1
+        zope.event.notify(ObjectModifiedEvent(self.omail, Attributes(Interface, 'treating_groups')))
+        self.assertEqual(api.content.get_state(self.omail), 'validated')
 
     def test_OdmUtilsMethods_can_do_transition1(self):
         # self.assertEqual(api.content.get_state(self.omail), 'created')

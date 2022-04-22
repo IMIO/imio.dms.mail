@@ -48,6 +48,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
+from imio.dms.mail.vocabularies import encodeur_active_orgs
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
 from imio.helpers.content import uuidsToCatalogBrains
 from imio.helpers.content import uuidToObject
@@ -66,7 +67,6 @@ from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
-from vocabularies import encodeur_active_orgs
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
@@ -600,6 +600,14 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return BACK_OR_AGAIN_ICONS[back_or_again_state(self)]
 
     get_back_or_again_icon = OM_get_back_or_again_icon
+
+    def is_n_plus_level_obsolete(self, state=None, config=None, state_start='proposed_to_n_plus'):
+        """Check if current treating_groups has validators on the state"""
+        return is_n_plus_level_obsolete(self, 'dmsoutgoingmail', state=state, config=config, state_start=state_start)
+
+    def do_next_transition(self, state=None, config=None):
+        """Do next transition following transition_levels"""
+        do_next_transition(self, 'dmsoutgoingmail', state=state, config=config)
 
     def is_email(self):
         """Check if send_modes is related to email.

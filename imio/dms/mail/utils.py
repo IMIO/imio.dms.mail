@@ -234,8 +234,8 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
             set_dms_config(['transitions_levels', 'dmsoutgoingmail', st], config)
         if 'validated' in [tup[0] for tup in wf_from_to['to']]:
             set_dms_config(['transitions_levels', 'dmsoutgoingmail', 'proposed_to_n_plus_1'],
-                           {org: ('', '', check_group_users('{}_n_plus_1'.format(org), users_in_groups, group_id,
-                                                            action)) for org in orgs})
+                           {org: ('set_validated', '', check_group_users('{}_n_plus_1'.format(org), users_in_groups,
+                                                                         group_id, action)) for org in orgs})
 
     if 'task' in ptypes:
         states = (('created', 0), ('to_do', 1))
