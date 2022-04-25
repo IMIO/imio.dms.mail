@@ -165,7 +165,7 @@ def setup_classification(site):
     }
 
     for keyname in roles_config:
-        # TODO must remove force=True
+        # TODO must remove force=True after 3.0 migration
         msg = add_fti_configuration('ClassificationFolder', roles_config[keyname], keyname=keyname, force=True)
         if msg:
             logger.warn(msg)
