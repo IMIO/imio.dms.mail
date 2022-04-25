@@ -1188,7 +1188,7 @@ def is_n_plus_level_obsolete(mail, ptype, treating_group='', state=None, config=
         return False, state, config
     if config is None:
         config = get_dms_config(['transitions_levels', ptype])
-    if config[state][treating_group][2] is False:  # no user in the  group
+    if config[state][treating_group][2] is False:  # no user in the group
         return True, state, config
     return False, state, config
 

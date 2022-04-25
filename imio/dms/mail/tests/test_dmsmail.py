@@ -450,3 +450,5 @@ class TestDmsmail(unittest.TestCase):
         # we change group but user is not in
         view.request.form['form.widgets.ITask.assigned_group'] = [self.pgof['direction-financiere'].UID()]
         self.assertRaises(Invalid, auv.validate, 'agent1')
+        # we check assigned_user requirement if the imail state will be changed
+        # this test is done in im wfadaptation test

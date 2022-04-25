@@ -5,6 +5,8 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail.dmsmail import AssignedUserValidator
+from imio.dms.mail.dmsmail import IMEdit
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
@@ -19,6 +21,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from zope.component import getUtility
 from zope.interface import Interface
+from zope.interface import Invalid
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
@@ -191,10 +194,12 @@ class TestIMServiceValidation1(unittest.TestCase):
         login(self.portal, 'chef')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
 
-    def test_dmsdocument_modified_subscriber1(self):
+    def test_treating_groups_change_on_edit1(self):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.imail), 'created')
         view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        edit_view = IMEdit(self.imail, self.imail.REQUEST)
+        auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         org1, org2 = get_registry_organizations()[0:2]
         groupname1 = '{}_n_plus_1'.format(org1)
@@ -207,6 +212,14 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.imail.treating_groups = org2
         self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
+        # we check assigned_user requirement
+        edit_view.request.form['form.widgets.treating_groups'] = [org1]
+        self.assertEqual(api.portal.get_registry_record(AUC_RECORD), 'n_plus_1')
+        self.assertIsNone(auv.validate(None))
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertRaises(Invalid, auv.validate, None)
+        # notify modification
+        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
         self.imail.treating_groups = org1
         zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
@@ -428,10 +441,12 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())  # can view lower level collection
         self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
 
-    def test_dmsdocument_modified_subscriber2(self):
+    def test_treating_groups_change_on_edit2(self):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.imail), 'created')
         view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        edit_view = IMEdit(self.imail, self.imail.REQUEST)
+        auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         org1, org2 = get_registry_organizations()[0:2]
         groupname1_1 = '{}_n_plus_1'.format(org1)
@@ -449,6 +464,14 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.imail.treating_groups = org2
         self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
         api.content.transition(self.imail, 'propose_to_n_plus_2')
+        # we check assigned_user requirement
+        edit_view.request.form['form.widgets.treating_groups'] = [org1]
+        self.assertEqual(api.portal.get_registry_record(AUC_RECORD), 'n_plus_1')
+        self.assertIsNone(auv.validate(None))
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertIsNone(auv.validate(None))
+        # notify modification
+        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
         self.imail.treating_groups = org1
         zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')
@@ -462,6 +485,14 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.imail.treating_groups = org2
         self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
         api.content.transition(self.imail, 'propose_to_n_plus_2')
+        # we check assigned_user requirement
+        edit_view.request.form['form.widgets.treating_groups'] = [org1]
+        self.assertEqual(api.portal.get_registry_record(AUC_RECORD), 'n_plus_1')
+        self.assertIsNone(auv.validate(None))
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertRaises(Invalid, auv.validate, None)
+        # notify modification
+        api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
         self.imail.treating_groups = org1
         zope.event.notify(ObjectModifiedEvent(self.imail, Attributes(Interface, 'treating_groups')))
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')

@@ -34,6 +34,7 @@ from datetime import datetime
 from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
+from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
@@ -902,15 +903,31 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                     # check if assigned_user is needed on dmsincomingmail
                     if klass != IMEdit or value is not None:
                         continue
+                    # we are editing an incoming mail and the assigned_user is None
+                    # we have to check if the assigned_user must be completed because we will maybe do transitions
+                    # in the modified subscriber after the treating_groups modification
+                    if api.portal.get_registry_record(AUC_RECORD) != 'mandatory':
+                        continue
                     ntg = self.request.form[form_widget][0]
-                    obsolete, state, config = is_n_plus_level_obsolete(self.context, 'dmsincomingmail',
-                                                                       treating_group=ntg)
-                    if False and obsolete:  # on the new tg, there is no validators.
-                        # TODO to be continued
-                        transition = ''
-                        transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])
-                        if not transitions_auc.get(ntg, False):
-                            raise
+                    doit = True
+                    transitions = []
+                    state = config = None
+                    wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'to'])
+                    tr_states = {tup[1]: tup[0] for tup in wf_from_to}
+                    while doit:
+                        doit, state, config = is_n_plus_level_obsolete(self.context, 'dmsincomingmail',
+                                                                       treating_group=ntg, state=state, config=config)
+                        if doit:
+                            tr = config[state][ntg][0]
+                            transitions.append(tr)
+                            state = tr_states[tr]
+                    if transitions:
+                        auc_config = get_dms_config(['transitions_auc', 'dmsincomingmail'])
+                        for transition in transitions:
+                            if not auc_config[transition].get(ntg, False):
+                                raise Invalid(_(u"You must select an assigned user because the treating group "
+                                                u"modification to another without validators will cause the mail state "
+                                                u"change."))
 
 
 validator.WidgetValidatorDiscriminators(AssignedUserValidator, field=ITask['assigned_user'])
