@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2022-03-19 07:07+0000\n"
+"POT-Creation-Date: 2022-04-25 13:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,7 @@ msgstr ""
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr ""
 
-#: ./subscribers.py:614
+#: ./subscribers.py:624
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -101,7 +101,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./dmsmail.py:97
+#: ./dmsmail.py:100
 msgid "All"
 msgstr ""
 
@@ -259,7 +259,7 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:693
+#: ./utils.py:705
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
@@ -424,7 +424,7 @@ msgstr ""
 msgid "Lastname Firstname"
 msgstr ""
 
-#: ./subscribers.py:632
+#: ./subscribers.py:642
 msgid "Linked objects: ${list}"
 msgstr ""
 
@@ -437,7 +437,7 @@ msgid "Mail listing template sheet"
 msgstr ""
 
 #: ./browser/settings.py:179
-#: ./dmsmail.py:223
+#: ./dmsmail.py:226
 msgid "Mail type"
 msgstr ""
 
@@ -499,7 +499,7 @@ msgstr ""
 msgid "Organizations searches"
 msgstr ""
 
-#: ./dmsmail.py:232
+#: ./dmsmail.py:235
 msgid "Original document in service"
 msgstr ""
 
@@ -507,12 +507,12 @@ msgstr ""
 msgid "Original mail date requirement"
 msgstr ""
 
-#: ./dmsmail.py:178
+#: ./dmsmail.py:181
 msgid "Original sender email"
 msgstr ""
 
 #: ./browser/batchactions.py:187
-#: ./dmsmail.py:555
+#: ./dmsmail.py:567
 msgid "Outgoing Date"
 msgstr ""
 
@@ -582,7 +582,7 @@ msgstr ""
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:215
+#: ./dmsmail.py:218
 msgid "Recipient groups"
 msgstr ""
 
@@ -648,11 +648,11 @@ msgid "Send email with sender as reply to"
 msgstr ""
 
 #: ./browser/settings.py:320
-#: ./dmsmail.py:549
+#: ./dmsmail.py:561
 msgid "Send modes"
 msgstr ""
 
-#: ./dmsmail.py:184
+#: ./dmsmail.py:187
 #: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr ""
@@ -705,7 +705,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:883
+#: ./dmsmail.py:902
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -723,11 +723,11 @@ msgstr ""
 
 #: ./browser/batchactions.py:44
 #: ./browser/table.py:117
-#: ./dmsmail.py:196
+#: ./dmsmail.py:199
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:697
+#: ./utils.py:709
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -767,23 +767,23 @@ msgstr ""
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr ""
 
-#: ./subscribers.py:697
+#: ./subscribers.py:707
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:650
+#: ./subscribers.py:660
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
-#: ./subscribers.py:628
+#: ./subscribers.py:638
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:608
+#: ./subscribers.py:618
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:600
+#: ./subscribers.py:610
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
@@ -791,7 +791,11 @@ msgstr ""
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./dmsmail.py:279
+#: ./dmsmail.py:928
+msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
+msgstr ""
+
+#: ./dmsmail.py:291
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
@@ -1059,7 +1063,7 @@ msgstr ""
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
 #: ./browser/tabular_view.py:58
-#: ./subscribers.py:289
+#: ./subscribers.py:299
 msgid "redirected_after_edition"
 msgstr ""
 

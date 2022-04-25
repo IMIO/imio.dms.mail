@@ -927,7 +927,7 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                             if not auc_config[transition].get(ntg, False):
                                 raise Invalid(_(u"You must select an assigned user because the treating group "
                                                 u"modification to another without validators will cause the mail state "
-                                                u"change."))
+                                                u"change !"))
 
 
 validator.WidgetValidatorDiscriminators(AssignedUserValidator, field=ITask['assigned_user'])
