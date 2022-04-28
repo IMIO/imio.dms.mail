@@ -286,9 +286,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         if self.is_in_part('s'):  # update quick installer
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
-            # TEMPORARY HERE
-            update_transitions_levels_config(['dmsincomingmail'])
-            update_transitions_levels_config(['dmsoutgoingmail'])
 
             for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
                          'collective.contact.core', 'collective.contact.facetednav', 'collective.contact.importexport',
