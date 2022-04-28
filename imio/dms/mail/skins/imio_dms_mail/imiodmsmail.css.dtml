@@ -403,6 +403,10 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-image: url('&dtml-portal_url;/user.png');
 }
 
+.apButtonAction_assign.apUseIcons {
+    width: 30px;
+}
+
 .apButtonAction_create-from-template {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/models_icon.png');
 }
