@@ -29,6 +29,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import logger
+from imio.helpers.content import get_relations
 from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
@@ -53,7 +54,6 @@ from z3c.form.interfaces import NO_VALUE
 from z3c.form.term import MissingChoiceTermsVocabulary
 from z3c.form.term import MissingTermsMixin
 from z3c.form.validator import SimpleFieldValidator
-from zc.relation.interfaces import ICatalog
 from zope.annotation import IAnnotations
 from zope.component import adapter
 from zope.component import adapts
@@ -63,7 +63,6 @@ from zope.i18n import translate
 from zope.interface import Interface
 from zope.interface import implementer
 from zope.interface import implements
-from zope.intid import IIntIds
 from zope.schema.interfaces import IField
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary
@@ -588,18 +587,11 @@ def im_markers(obj):
     """
     markers = []
     # Set hasResponse
-    intids = getUtility(IIntIds)
-    try:
-        oid = intids.getId(obj)
-    except KeyError:  # during add
-        oid = None
-    if oid:
-        catalog = getUtility(ICatalog)
-        query = {'to_id': oid, 'from_attribute': 'reply_to'}
-        for relation in catalog.findRelations(query):
-            if not relation.isBroken() and relation.from_object.portal_type == 'dmsoutgoingmail':
-                markers.append('hasResponse')
-                break
+    rels = get_relations(obj, 'reply_to', backrefs=True)  # get only "normal" response
+    for relation in rels:
+        if not relation.isBroken() and relation.from_object.portal_type == 'dmsoutgoingmail':
+            markers.append('hasResponse')
+            break
     # Stores on obj
     annot = IAnnotations(obj)
     annot['dmsmail.markers'] = markers
