@@ -68,20 +68,20 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         api.content.transition(self.view.context, 'propose_to_manager')
         # right state
         self.assertEqual(self.view.renderAssignUser(),
-                         u'<td>\n    <form action="">\n      <select class="apButton apButtonSelect apButtonAction '
-                         u'apButtonAction_assign" name="Assign" onchange="javascript:callViewAndReload(base_url='
-                         u'\'{}\', view_name=\'@@update_item\', params='
-                         u'{{\'assigned_user\': this.value}})">\n        <option style="display:none" value="#">Assign'
-                         u'</option>\n        \n        <option value="agent">Fred Agent</option>\n      </select>'
-                         u'\n    </form>\n</td>\n'.format(self.im2.absolute_url()))
+                         u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
+                         u'callViewAndReload(base_url=\'{}\', view_name=\'@@update_item\', params={{\'assigned_user\': '
+                         u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign">\n'
+                         u'        <option style="display:none" value="#">Assign</option>\n        \n        '
+                         u'<option value="agent">Fred Agent</option>\n      </select>\n    </form>\n</td>'
+                         u'\n'.format(self.im2.absolute_url()))
         self.view.useIcons = True
         self.assertEqual(self.view.renderAssignUser(),
-                         u'<td>\n    <form action="">\n      <select class="apButton apButtonSelect apButtonAction '
-                         u'apButtonAction_assign" name="Assign" onchange="javascript:callViewAndReload(base_url='
-                         u'\'{}\', view_name=\'@@update_item\', params='
-                         u'{{\'assigned_user\': this.value}})">\n        \n        <option style="display:none" value='
-                         u'"#"></option>\n        <option value="agent">Fred Agent</option>\n      </select>\n    '
-                         u'</form>\n</td>\n'.format(self.im2.absolute_url()))
+                         u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
+                         u'callViewAndReload(base_url=\'{}\', view_name=\'@@update_item\', params={{\'assigned_user\': '
+                         u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign '
+                         u'apUseIcons">\n        \n        <option style="display:none" value="#"></option>\n        '
+                         u'<option value="agent">Fred Agent</option>\n      </select>\n    </form>\n</td>'
+                         u'\n'.format(self.im2.absolute_url()))
         # without treating_groups
         new = api.content.create(self.portal['incoming-mail'], 'dmsincomingmail', 'c1')
         view = new.unrestrictedTraverse('@@actions_panel')
