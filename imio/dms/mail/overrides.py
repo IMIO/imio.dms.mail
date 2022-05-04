@@ -8,6 +8,8 @@
 #
 
 from collective.contact.core.content.person import IPerson
+from collective.contact.plonegroup.subscribers import PloneGroupContactChecksAdapter
+from collective.contact.plonegroup.subscribers import search_value_in_objects
 from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from imio.dms.mail import _
 from plone.autoform import directives
@@ -32,3 +34,20 @@ class DmsPersonSchemaPolicy(DexteritySchemaPolicy):
     """ """
     def bases(self, schemaName, tree):
         return (IDmsPerson, )
+
+
+class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
+
+    def check_items_on_delete(self):
+        fields = {'dmsincomingmail': ['treating_groups', 'recipient_groups'],
+                  'dmsincoming_email': ['treating_groups', 'recipient_groups'],
+                  'dmsoutgoingmail': ['treating_groups', 'recipient_groups'],
+                  'task': ['assigned_group', 'enquirer', 'parents_assigned_groups', 'parents_enquirers']}
+        search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)
+
+    def check_items_on_transition(self):
+        fields = {'dmsincomingmail': ['treating_groups', 'recipient_groups'],
+                  'dmsincoming_email': ['treating_groups', 'recipient_groups'],
+                  'dmsoutgoingmail': ['treating_groups', 'recipient_groups'],
+                  'task': ['assigned_group', 'enquirer', 'parents_assigned_groups', 'parents_enquirers']}
+        search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)

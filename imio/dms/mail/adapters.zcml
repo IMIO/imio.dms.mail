@@ -150,7 +150,7 @@
     />
 
 
-    <!-- TEMPORARY ADAPTERS FOR ZOPEEDIT 1.0 -->
+    <!-- ADAPTERS FOR ZOPEEDIT -->
     <adapter
         for="collective.dms.basecontent.dmsfile.IDmsFile"
         provides="zope.filerepresentation.interfaces.IRawReadFile"
