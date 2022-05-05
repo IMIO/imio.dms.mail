@@ -182,7 +182,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         return ''
 
     def may_send_email(self):
-        if self.context.email_subject and not self.isInFacetedNavigation() and \
+        if self.context.email_subject and self.context.is_email() and not self.isInFacetedNavigation() and \
                 self.member.has_permission('Modify portal content', self.context):
             return True
         return False
