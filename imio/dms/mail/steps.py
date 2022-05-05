@@ -507,6 +507,7 @@ transfer_path = copied
 [csv_reader]
 blueprint = collective.contact.importexport.csv_reader
 fmtparam-strict = python:True
+# fmtparam-delimiter = python:';'
 csv_headers = python:True
 raise_on_error = ${config:raise_on_error}
 
