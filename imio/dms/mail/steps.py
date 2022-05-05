@@ -517,6 +517,7 @@ phone_country = BE
 language = fr
 organization_uniques = _uid internal_number
 organization_booleans = use_parent_address _ic _inactive
+organization_hyphen_newline = title street
 person_uniques = _uid internal_number
 person_booleans = use_parent_address _ic _inactive
 held_position_uniques = _uid
