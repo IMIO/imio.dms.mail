@@ -828,6 +828,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             obj = brain.getObject()
             if i % 10000 == 0:
                 logger.info('On dmsincomingmail brain {}'.format(i))
+                transaction.commit()
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
