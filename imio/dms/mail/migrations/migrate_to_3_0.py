@@ -284,6 +284,19 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
 
         if self.is_in_part('s'):  # update quick installer
+            # temporary
+            for wf_name, view in (('incomingmail_workflow', 'idm-utils'), ):
+                wf = self.wfTool[wf_name]
+                for tr_id in wf.transitions:
+                    tr = wf.transitions[tr_id]
+                    guard = tr.getGuard()
+                    cur_expr = guard.getExprText()
+                    to_replace = "restrictedTraverse('{}')".format(view)
+                    if to_replace in cur_expr:
+                        new_expr = cur_expr.replace(to_replace, 'wf_conditions()')
+                        if guard.changeFromProperties({'guard_expr': new_expr}):
+                            tr.guard = guard
+
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
