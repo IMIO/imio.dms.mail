@@ -3,8 +3,9 @@
 """
     This module contains mainly dms types and their view methods.
 """
-
+from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
+from AccessControl.class_init import InitializeClass
 from browser.settings import IImioDmsMailConfig
 from collective.contact.core.interfaces import IContactable
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
@@ -42,10 +43,12 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
+from imio.dms.mail.interfaces import IImioDmsIncomingMailWfConditions
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import do_next_transition
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
@@ -72,6 +75,7 @@ from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
+from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -276,6 +280,93 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     def do_next_transition(self, treating_group='', state=None, config=None):
         """Do next transition following transition_levels"""
         do_next_transition(self, 'dmsincomingmail', treating_group=treating_group, state=state, config=config)
+
+    def wf_conditions(self):
+        """Returns the adapter providing workflow conditions"""
+        return IImioDmsIncomingMailWfConditions(self)
+
+
+class ImioDmsIncomingMailWfConditionsAdapter(object):
+    implements(IImioDmsIncomingMailWfConditions)
+    adapts(IImioDmsIncomingMail)
+    security = ClassSecurityInfo()
+
+    def __init__(self, context):
+        self.context = context
+
+    security.declarePublic('can_close')
+
+    def can_close(self):
+        """Check if idm can be closed.
+
+        A user can close if:
+            * a sender, a treating_groups and a mail_type are recorded
+            * the closing agent is in the service (an event will set it)
+
+        Used in guard expression for close transition.
+        """
+        if self.context.sender is None or self.context.treating_groups is None or self.context.mail_type is None:
+            # TODO must check if mail_type field is activated. Has a user already modified the object to
+            # complete all fields
+            return False
+        # A user that can be an assigned_user can close. An event will set the value...
+        return is_in_user_groups(groups=('dir_general', ), admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
+                                 org_uid=self.context.treating_groups)
+
+    security.declarePublic('can_do_transition')
+
+    def can_do_transition(self, transition):
+        """Check if N+ transitions and "around" transitions can be done, following N+ users and
+        assigned_user configuration. Used in guard expression for some transitions.
+        :param transition: transition name to do
+        :return: bool
+        """
+        if self.context.treating_groups is None or not self.context.title:
+            # print "no tg: False"
+            return False
+        way_index = transition.startswith('back_to') and 1 or 0
+        transition_to_test = transition
+        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
+        if transition in [tr for (st, tr) in wf_from_to['from']]:
+            transition_to_test = 'from_states'
+        # show only the next valid level
+        state = api.content.get_state(self.context)
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])  # i_e ok
+        if state not in transitions_levels or \
+                (transitions_levels[state].get(self.context.treating_groups)
+                 and transitions_levels[state][self.context.treating_groups][way_index] != transition_to_test):
+            # print "from state: False"
+            return False
+        # show transition following assigned_user on propose_to transition only
+        if way_index == 0:
+            if self.context.assigned_user is not None:
+                # print "have assigned user: True"
+                return True
+            transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])  # i_e ok
+            if transitions_auc.get(self.context.treating_groups, False):
+                # print 'auc ok: True'
+                return True
+        else:
+            return True  # state ok, back ok
+        return False
+
+    security.declarePublic('can_treat')
+
+    def can_treat(self):
+        """Check if idm can be treated.
+
+        A user can treat if:
+            * a title, a sender, a treating_groups and a mail_type are recorded
+
+        Used in guard expression for treat transition.
+        """
+        if self.context.title is None or self.context.sender is None or self.context.treating_groups is None:
+            # TODO add test on modified to see if object has been changed by a user ?!
+            return False
+        return True
+
+
+InitializeClass(ImioDmsIncomingMailWfConditionsAdapter)
 
 
 def updatewidgets_assigned_user_description(the_form):

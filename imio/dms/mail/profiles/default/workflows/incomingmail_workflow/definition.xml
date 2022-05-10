@@ -366,7 +366,7 @@
           category="workflow" i18n:translate="">back_to_creation</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
-    <guard-expression>python:object.restrictedTraverse('idm-utils').can_do_transition('back_to_creation')</guard-expression>
+    <guard-expression>python:object.wf_conditions().can_do_transition('back_to_creation')</guard-expression>
   </guard>
  </transition>
  <transition transition_id="back_to_manager"
@@ -380,7 +380,7 @@
           category="workflow" i18n:translate="">back_to_manager</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
-    <guard-expression>python:object.restrictedTraverse('idm-utils').can_do_transition('back_to_manager')</guard-expression>
+    <guard-expression>python:object.wf_conditions().can_do_transition('back_to_manager')</guard-expression>
   </guard>
  </transition>
  <transition transition_id="back_to_treatment"
@@ -407,7 +407,7 @@
           category="workflow" i18n:translate="">close</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
-    <guard-expression>python:object.restrictedTraverse('idm-utils').can_close()</guard-expression>
+    <guard-expression>python:object.wf_conditions().can_close()</guard-expression>
   </guard>
  </transition>
  <transition transition_id="propose_to_agent"
@@ -421,7 +421,7 @@
           category="workflow" i18n:translate="">propose_to_agent</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
-    <guard-expression>python:object.restrictedTraverse('idm-utils').can_do_transition('propose_to_agent')</guard-expression>
+    <guard-expression>python:object.wf_conditions().can_do_transition('propose_to_agent')</guard-expression>
   </guard>
  </transition>
  <transition transition_id="propose_to_manager"
@@ -449,7 +449,7 @@
           category="workflow" i18n:translate="">treat</action>
   <guard>
     <guard-permission>Review portal content</guard-permission>
-    <guard-expression>python:object.restrictedTraverse('idm-utils').can_treat()</guard-expression>
+    <guard-expression>python:object.wf_conditions().can_treat()</guard-expression>
   </guard>
  </transition>
  <variable variable_id="action" for_catalog="False"

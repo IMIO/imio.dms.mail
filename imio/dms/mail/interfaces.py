@@ -9,6 +9,10 @@ from plone.theme.interfaces import IDefaultPloneLayer
 from zope.interface import Interface
 
 
+class IImioDmsIncomingMailWfConditions(Interface):
+    """Adapter interface adding methods used in workflow conditions"""
+
+
 class IImioDmsMailLayer(IDefaultPloneLayer, IActionsPanelLayer):
     """Marker interface that defines a Zope 3 browser layer."""
 

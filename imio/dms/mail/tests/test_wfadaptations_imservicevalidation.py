@@ -121,61 +121,61 @@ class TestIMServiceValidation1(unittest.TestCase):
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         self.assertIn('proposed_to_n_plus_1', lst)
 
-    def test_IdmUtilsMethods_can_do_transition1(self):
+    def test_ImioDmsIncomingMailWfConditionsAdapter_can_do_transition1(self):
         # imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         # creation is made earlier otherwise wf_from_to['to'] is again at default value ??????????????
         self.assertEqual(api.content.get_state(self.imail), 'created')
-        view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        adapted = self.imail.wf_conditions()
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         # no treating_group: NOK
         self.assertTupleEqual(self.pw.getTransitionsFor(self.imail), ())
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, following states
         self.imail.treating_groups = get_registry_organizations()[0]
         self.assertListEqual([dic['id'] for dic in self.pw.getTransitionsFor(self.imail)],
                              ['propose_to_manager', 'propose_to_n_plus_1'])
         api.portal.set_registry_record(AUC_RECORD, 'no_check')
-        self.assertFalse(view.can_do_transition('propose_to_agent'))  # has higher level
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))  # has higher level
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
         # tg ok, following states: no more n_plus_1 user
         groupname = '{}_n_plus_1'.format(self.imail.treating_groups)
         api.group.remove_user(groupname=groupname, username='chef')
         self.assertFalse(group_has_user(groupname))
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
         # tg ok, assigner_user nok, auc ok
         api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
-        self.assertTrue(view.can_do_transition('propose_to_agent'))  # ok because no n+1 level
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))  # ok because no n+1 level
         # tg ok, assigner_user nok, auc nok
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user ok, auc nok
         self.imail.assigned_user = 'chef'
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
         # WE DO TRANSITION
         api.group.add_user(groupname=groupname, username='chef')
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')
         # tg ok, state ok, assigner_user nok, auc nok
         self.imail.assigned_user = None
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
-        self.assertTrue(view.can_do_transition('back_to_creation'))
-        self.assertTrue(view.can_do_transition('back_to_manager'))
-        self.assertFalse(view.can_do_transition('unknown'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
+        self.assertTrue(adapted.can_do_transition('back_to_creation'))
+        self.assertTrue(adapted.can_do_transition('back_to_manager'))
+        self.assertFalse(adapted.can_do_transition('unknown'))
         # WE DO TRANSITION
         self.imail.assigned_user = 'chef'
         api.content.transition(self.imail, 'propose_to_agent')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
-        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
-        self.assertFalse(view.can_do_transition('back_to_creation'))
-        self.assertFalse(view.can_do_transition('back_to_manager'))
+        self.assertTrue(adapted.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('back_to_creation'))
+        self.assertFalse(adapted.can_do_transition('back_to_manager'))
         # we remove n+1 users
         api.group.remove_user(groupname=groupname, username='chef')
-        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
-        self.assertTrue(view.can_do_transition('back_to_creation'))
-        self.assertTrue(view.can_do_transition('back_to_manager'))
+        self.assertFalse(adapted.can_do_transition('back_to_n_plus_1'))
+        self.assertTrue(adapted.can_do_transition('back_to_creation'))
+        self.assertTrue(adapted.can_do_transition('back_to_manager'))
 
     def test_IdmUtilsMethods_proposed_to_n_plus_col_cond1(self):
         folder = self.portal['incoming-mail']['mail-searches']
@@ -198,6 +198,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.imail), 'created')
         view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
@@ -208,9 +209,9 @@ class TestIMServiceValidation1(unittest.TestCase):
         api.group.remove_user(groupname=groupname1, username='chef')
         self.assertFalse(group_has_user(groupname1))
         self.imail.treating_groups = org1
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))  # no user
         self.imail.treating_groups = org2
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         # we check assigned_user requirement
         edit_view.request.form['form.widgets.treating_groups'] = [org1]
@@ -338,81 +339,81 @@ class TestIMServiceValidation2(unittest.TestCase):
         lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states')
         self.assertIn('proposed_to_n_plus_2', lst)
 
-    def test_IdmUtilsMethods_can_do_transition2(self):
+    def test_ImioDmsIncomingMailWfConditionsAdapter_can_do_transition2(self):
         # imail = createContentInContainer(self.portal['incoming-mail'], 'dmsincomingmail')
         # creation is made earlier otherwise wf_from_to['to'] is again at default value ??????????????
         self.assertEqual(api.content.get_state(self.imail), 'created')
-        view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        adapted = self.imail.wf_conditions()
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         # no treating_group: NOK
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, following states
         self.imail.treating_groups = get_registry_organizations()[0]
         api.portal.set_registry_record(AUC_RECORD, 'no_check')
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_2'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, following states: no more n_plus_ user
         groupname2 = '{}_n_plus_2'.format(self.imail.treating_groups)
         api.group.remove_user(groupname=groupname2, username='chef')
         self.assertFalse(group_has_user(groupname2))
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_2'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         groupname1 = '{}_n_plus_1'.format(self.imail.treating_groups)
         api.group.remove_user(groupname=groupname1, username='chef')
         self.assertFalse(group_has_user(groupname1))
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_2'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
         # tg ok, assigner_user nok, auc ok
         api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
-        self.assertTrue(view.can_do_transition('propose_to_agent'))  # ok because no n+1 level
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))  # ok because no n+1 level
         # tg ok, assigner_user nok, auc nok
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user ok, auc nok
         self.imail.assigned_user = 'chef'
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
         # WE DO TRANSITION
         api.group.add_user(groupname=groupname2, username='chef')
         api.content.transition(self.imail, 'propose_to_n_plus_2')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_2')
         # tg ok, state ok, assigner_user nok, auc nok
         self.imail.assigned_user = None
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
-        self.assertTrue(view.can_do_transition('back_to_creation'))
-        self.assertTrue(view.can_do_transition('back_to_manager'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
+        self.assertTrue(adapted.can_do_transition('back_to_creation'))
+        self.assertTrue(adapted.can_do_transition('back_to_manager'))
         # WE DO TRANSITION
         api.group.add_user(groupname=groupname1, username='chef')
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
-        self.assertTrue(view.can_do_transition('back_to_n_plus_2'))
-        self.assertFalse(view.can_do_transition('back_to_creation'))
-        self.assertFalse(view.can_do_transition('back_to_manager'))
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
+        self.assertTrue(adapted.can_do_transition('back_to_n_plus_2'))
+        self.assertFalse(adapted.can_do_transition('back_to_creation'))
+        self.assertFalse(adapted.can_do_transition('back_to_manager'))
         # we remove n+2 users
         api.group.remove_user(groupname=groupname2, username='chef')
-        self.assertFalse(view.can_do_transition('back_to_n_plus_2'))
-        self.assertTrue(view.can_do_transition('back_to_creation'))
-        self.assertTrue(view.can_do_transition('back_to_manager'))
+        self.assertFalse(adapted.can_do_transition('back_to_n_plus_2'))
+        self.assertTrue(adapted.can_do_transition('back_to_creation'))
+        self.assertTrue(adapted.can_do_transition('back_to_manager'))
         # WE DO TRANSITION
         self.imail.assigned_user = 'chef'
         api.content.transition(self.imail, 'propose_to_agent')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
-        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
-        self.assertFalse(view.can_do_transition('back_to_n_plus_2'))
-        self.assertFalse(view.can_do_transition('back_to_creation'))
-        self.assertFalse(view.can_do_transition('back_to_manager'))
+        self.assertTrue(adapted.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('back_to_n_plus_2'))
+        self.assertFalse(adapted.can_do_transition('back_to_creation'))
+        self.assertFalse(adapted.can_do_transition('back_to_manager'))
         # we remove n+1 users
         api.group.remove_user(groupname=groupname1, username='chef')
         api.group.add_user(groupname=groupname2, username='chef')
-        self.assertTrue(view.can_do_transition('back_to_n_plus_2'))
-        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
-        self.assertFalse(view.can_do_transition('back_to_creation'))
-        self.assertFalse(view.can_do_transition('back_to_manager'))
+        self.assertTrue(adapted.can_do_transition('back_to_n_plus_2'))
+        self.assertFalse(adapted.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('back_to_creation'))
+        self.assertFalse(adapted.can_do_transition('back_to_manager'))
 
     def test_IdmUtilsMethods_proposed_to_n_plus_col_cond2(self):
         folder = self.portal['incoming-mail']['mail-searches']
@@ -445,6 +446,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.imail), 'created')
         view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
+        adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
@@ -460,9 +462,9 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertFalse(group_has_user(groupname1_2))  # no user
         self.assertTrue(group_has_user(groupname1_1))
         self.imail.treating_groups = org1
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))  # no user
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_2'))  # no user
         self.imail.treating_groups = org2
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_2'))
         api.content.transition(self.imail, 'propose_to_n_plus_2')
         # we check assigned_user requirement
         edit_view.request.form['form.widgets.treating_groups'] = [org1]
@@ -481,9 +483,9 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertFalse(group_has_user(groupname1_2))  # no user
         api.content.transition(self.imail, 'back_to_creation')
         self.assertEqual(api.content.get_state(self.imail), 'created')
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_2'))  # no user
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_2'))  # no user
         self.imail.treating_groups = org2
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_2'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_2'))
         api.content.transition(self.imail, 'propose_to_n_plus_2')
         # we check assigned_user requirement
         edit_view.request.form['form.widgets.treating_groups'] = [org1]

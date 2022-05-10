@@ -373,55 +373,6 @@ class TestUtils(unittest.TestCase):
         api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
 
-    def test_IdmUtilsMethods_can_do_transition0(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
-        self.assertEqual(api.content.get_state(imail), 'created')
-        view = IdmUtilsMethods(imail, imail.REQUEST)
-        # no treating_group nor title: NOK
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
-        imail.title = u'test'
-        # tg ok, state ok, assigner_user nok but auc ok: OK
-        imail.treating_groups = get_registry_organizations()[0]
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
-        # tg ok, state ok, assigner_user nok, auc nok: NOK
-        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
-        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
-        self.assertFalse(view.can_do_transition('propose_to_agent'))
-        # tg ok, state ok, assigner_user nok, auc ok: OK
-        api.portal.set_registry_record(AUC_RECORD, 'no_check')
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
-        # tg ok, state ok, assigner_user ok, auc nok: OK
-        imail.assigned_user = 'chef'
-        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
-        # WE DO TRANSITION
-        api.content.transition(imail, 'propose_to_agent')
-        self.assertEqual(api.content.get_state(imail), 'proposed_to_agent')
-        # tg ok, state ok, (assigner_user nok, auc nok): OK
-        imail.assigned_user = None
-        self.assertTrue(view.can_do_transition('back_to_creation'))
-        self.assertTrue(view.can_do_transition('back_to_manager'))
-        self.assertFalse(view.can_do_transition('unknown'))
-
-    def test_IdmUtilsMethods_can_close(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
-                           **{'title': u'test'})
-        self.assertEqual(api.content.get_state(imail), 'created')
-        view = IdmUtilsMethods(imail, imail.REQUEST)
-        imail.treating_groups = get_registry_organizations()[0]  # direction-generale
-        self.assertTrue(view.can_do_transition('propose_to_agent'))
-        api.content.transition(imail, 'propose_to_agent')
-        login(self.portal, 'agent')
-        self.assertIsNone(imail.sender)
-        self.assertIsNone(imail.mail_type)
-        self.assertFalse(view.can_close())
-        intids = getUtility(IIntIds)
-        imail.sender = [RelationValue(intids.getId(self.portal.contacts['electrabel']))]
-        imail.mail_type = u'courrier'
-        self.assertFalse(view.can_close())  # not part of treating group editors
-        api.group.add_user(groupname='{}_editeur'.format(imail.treating_groups), username='agent')
-        self.assertTrue(view.can_close())
-
     def test_IdmUtilsMethods_created_col_cond(self):
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)

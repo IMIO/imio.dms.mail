@@ -509,6 +509,48 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
     return '\n'.join(out)
 
 
+def current_user_groups(user):
+    """Return current user groups."""
+    return api.group.get_groups(user=user)
+
+
+def current_user_groups_ids(user):
+    """Return current user groups ids."""
+    return [g.id for g in current_user_groups(user)]
+
+
+def user_is_admin():
+    """Test if current user is admin."""
+    user = api.user.get_current()
+    return user.has_role(['Manager', 'Site Administrator'])
+
+
+def is_in_user_groups(groups=(), admin=True, test='any', suffixes=(), org_uid='', user=None):
+    """Test if one or all of a given group list is part of the current user groups.
+    Test if one or all of a suffix list is part of the current user groups.
+    """
+    # for admin, we bypass the check
+    if admin and user_is_admin():
+        return True
+    if user is None:
+        user = api.user.get_current()
+    u_groups = current_user_groups_ids(user)
+    # u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
+    u_suffixes = []
+    for sfx in suffixes:
+        for grp in u_groups:
+            if org_uid:
+                if grp == '{}_{}'.format(org_uid, sfx):
+                    u_suffixes.append(sfx)
+            elif grp.endswith('_{}'.format(sfx)):
+                u_suffixes.append(sfx)
+    if test == 'any':
+        return any(x in u_groups for x in groups) or any(sfx in u_suffixes for sfx in suffixes)
+    elif test == 'all':
+        return all(x in u_groups for x in groups) and all(sfx in u_suffixes for sfx in suffixes)
+    return False
+
+
 def eml_preview(obj):
     """Adds jpeg documentviewer previews for eml file"""
     blobs = {}
@@ -858,71 +900,6 @@ class VariousUtilsMethods(UtilsMethods):
 
 class IdmUtilsMethods(UtilsMethods):
     """ View containing incoming mail utils methods """
-
-    def can_close(self):
-        """Check if idm can be closed.
-
-        A user can close if:
-            * a sender, a treating_groups and a mail_type are recorded
-            * the closing agent is in the service (an event will set it)
-
-        Used in guard expression for close transition.
-        """
-        if self.context.sender is None or self.context.treating_groups is None or self.context.mail_type is None:
-            # TODO must check if mail_type field is activated. Has a user already modified the object to
-            # complete all fields
-            return False
-        # A user that can be an assigned_user can close. An event will set the value...
-        return self.is_in_user_groups(groups=('dir_general', ), admin=True, suffixes=IM_EDITOR_SERVICE_FUNCTIONS,
-                                      org_uid=self.context.treating_groups)
-
-    def can_do_transition(self, transition):
-        """Check if N+ transitions and "around" transitions can be done, following N+ users and
-        assigned_user configuration. Used in guard expression for some transitions.
-        :param transition: transition name to do
-        :return: bool
-        """
-        if self.context.treating_groups is None or not self.context.title:
-            # print "no tg: False"
-            return False
-        way_index = transition.startswith('back_to') and 1 or 0
-        transition_to_test = transition
-        wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
-        if transition in [tr for (st, tr) in wf_from_to['from']]:
-            transition_to_test = 'from_states'
-        # show only the next valid level
-        state = api.content.get_state(self.context)
-        transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])  # i_e ok
-        if state not in transitions_levels or \
-                (transitions_levels[state].get(self.context.treating_groups)
-                 and transitions_levels[state][self.context.treating_groups][way_index] != transition_to_test):
-            # print "from state: False"
-            return False
-        # show transition following assigned_user on propose_to transition only
-        if way_index == 0:
-            if self.context.assigned_user is not None:
-                # print "have assigned user: True"
-                return True
-            transitions_auc = get_dms_config(['transitions_auc', 'dmsincomingmail', transition])  # i_e ok
-            if transitions_auc.get(self.context.treating_groups, False):
-                # print 'auc ok: True'
-                return True
-        else:
-            return True  # state ok, back ok
-        return False
-
-    def can_treat(self):
-        """Check if idm can be treated.
-
-        A user can treat if:
-            * a title, a sender, a treating_groups and a mail_type are recorded
-
-        Used in guard expression for treat transition.
-        """
-        if self.context.title is None or self.context.sender is None or self.context.treating_groups is None:
-            # TODO add test on modified to see if object has been changed by a user ?!
-            return False
-        return True
 
     def created_col_cond(self):
         """ Condition for searchfor_created collection """

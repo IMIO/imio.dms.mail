@@ -89,6 +89,55 @@ class TestDmsmail(unittest.TestCase):
                            **{'title': u'Test with auto ref'})
         self.assertEquals(imail.Title(), 'E0010 - Test with auto ref')
 
+    def test_ImioDmsIncomingMailWfConditionsAdapter_can_do_transition0(self):
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
+        self.assertEqual(api.content.get_state(imail), 'created')
+        adapted = imail.wf_conditions()
+        # no treating_group nor title: NOK
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
+        imail.title = u'test'
+        # tg ok, state ok, assigner_user nok but auc ok: OK
+        imail.treating_groups = get_registry_organizations()[0]
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user nok, auc nok: NOK
+        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertFalse(adapted.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user nok, auc ok: OK
+        api.portal.set_registry_record(AUC_RECORD, 'no_check')
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
+        # tg ok, state ok, assigner_user ok, auc nok: OK
+        imail.assigned_user = 'chef'
+        api.portal.set_registry_record(AUC_RECORD, 'mandatory')
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
+        # WE DO TRANSITION
+        api.content.transition(imail, 'propose_to_agent')
+        self.assertEqual(api.content.get_state(imail), 'proposed_to_agent')
+        # tg ok, state ok, (assigner_user nok, auc nok): OK
+        imail.assigned_user = None
+        self.assertTrue(adapted.can_do_transition('back_to_creation'))
+        self.assertTrue(adapted.can_do_transition('back_to_manager'))
+        self.assertFalse(adapted.can_do_transition('unknown'))
+
+    def test_ImioDmsIncomingMailWfConditionsAdapter_can_close(self):
+        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id',
+                           **{'title': u'test'})
+        self.assertEqual(api.content.get_state(imail), 'created')
+        adapted = imail.wf_conditions()
+        imail.treating_groups = get_registry_organizations()[0]  # direction-generale
+        self.assertTrue(adapted.can_do_transition('propose_to_agent'))
+        api.content.transition(imail, 'propose_to_agent')
+        login(self.portal, 'agent')
+        self.assertIsNone(imail.sender)
+        self.assertIsNone(imail.mail_type)
+        self.assertFalse(adapted.can_close())
+        intids = getUtility(IIntIds)
+        imail.sender = [RelationValue(intids.getId(self.portal.contacts['electrabel']))]
+        imail.mail_type = u'courrier'
+        self.assertFalse(adapted.can_close())  # not part of treating group editors
+        api.group.add_user(groupname='{}_editeur'.format(imail.treating_groups), username='agent')
+        self.assertTrue(adapted.can_close())
+
     def test_reply_to(self):
         catalog = getUtility(ICatalog)
         imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')

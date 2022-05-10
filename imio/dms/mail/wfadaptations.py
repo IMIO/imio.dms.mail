@@ -286,8 +286,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_propose_to_n_plus.png',
             actbox_category='workflow',
             props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('idm-utils')."
-                                 "can_do_transition('{}')".format(propose_tr_id)})
+                   'guard_expr': "python:object.wf_conditions().can_do_transition('{}')".format(propose_tr_id)})
         back_tr_id = 'back_to_{}'.format(new_id)
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
@@ -297,8 +296,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/im_back_to_n_plus.png',
             actbox_category='workflow',
             props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('idm-utils')."
-                                 "can_do_transition('{}')".format(back_tr_id)})
+                   'guard_expr': "python:object.wf_conditions().can_do_transition('{}')".format(back_tr_id)})
 
         # modify existing states
         # add new back_to transition on next states
@@ -398,8 +396,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [new_state_id]}],
                                  customViewFields=tuple(next_col.customViewFields),
-                                 tal_condition="python: object.restrictedTraverse('idm-utils')."
-                                               "proposed_to_n_plus_col_cond()",
+                                 tal_condition="python: object.wf_conditions().proposed_to_n_plus_col_cond()",
                                  showNumberOfItems=False,
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
                                  sort_on=u'organization_type', sort_reversed=True, b_size=30, limit=0)

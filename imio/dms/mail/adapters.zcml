@@ -6,6 +6,8 @@
 
     <include package="z3c.unconfigure" file="meta.zcml" />
 
+    <adapter factory=".dmsmail.ImioDmsIncomingMailWfConditionsAdapter" />
+
     <!-- CRITERIONS -->
     <adapter for="*"
              factory=".adapters.IncomingMailValidationCriterion"
