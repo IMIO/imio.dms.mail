@@ -1008,10 +1008,11 @@ def folder_added(folder, event):
 def zope_ready(event):
     ramcache = queryUtility(IRAMCache)
     if ramcache.maxEntries == 1000:
+        logger.info('=> Setting ramcache parameters')
         ramcache.update(maxEntries=100000, maxAge=2400, cleanupInterval=600)
     config = getattr(getConfiguration(), 'product_config', {})
     package_config = config.get('imio.dms.mail')
-    if package_config and 'plone-path' in package_config:
+    if package_config and package_config.get('plone-path'):  # set on instance1 only
         db = Zope2.DB
         connection = db.open()
         root_folder = connection.root().get(ZopePublication.root_name, None)
@@ -1021,5 +1022,6 @@ def zope_ready(event):
         except ImportError:
             from zope.component.hooks import setSite
         setSite(site)
+        logger.info('=> Set folders tree annotation')
         set_folders_tree(site)
     transaction.commit()
