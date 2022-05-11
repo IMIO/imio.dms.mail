@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get  # noqa
+from App.config import getConfiguration
+from collective.classification.folder.content.vocabularies import set_folders_tree
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -55,6 +57,7 @@ from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
+from zope.app.publication.zopepublication import ZopePublication
 from zope.component import getAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -65,10 +68,12 @@ from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
+from zope.ramcache.interfaces.ram import IRAMCache
 
 import datetime
 import logging
-
+import transaction
+import Zope2
 
 logger = logging.getLogger('imio.dms.mail: events')
 
@@ -998,3 +1003,23 @@ def folder_added(folder, event):
                     alsoProvides(folder, IActionsPanelFolderOnlyAdd)
                     alsoProvides(folder, INextPrevNotNavigable)
                     return
+
+
+def zope_ready(event):
+    ramcache = queryUtility(IRAMCache)
+    if ramcache.maxEntries == 1000:
+        ramcache.update(maxEntries=100000, maxAge=2400, cleanupInterval=600)
+    config = getattr(getConfiguration(), 'product_config', {})
+    package_config = config.get('imio.dms.mail')
+    if package_config and 'plone-path' in package_config:
+        db = Zope2.DB
+        connection = db.open()
+        root_folder = connection.root().get(ZopePublication.root_name, None)
+        site = root_folder.unrestrictedTraverse(package_config['plone-path'])
+        try:
+            from zope.app.component.hooks import setSite
+        except ImportError:
+            from zope.component.hooks import setSite
+        setSite(site)
+        set_folders_tree(site)
+    transaction.commit()
