@@ -291,4 +291,9 @@
         handler=".subscribers.wsclient_configuration_changed"
         />
 
+    <subscriber
+        for="zope.processlifetime.IProcessStarting"
+        handler=".subscribers.zope_ready"
+        />
+
 </configure>
