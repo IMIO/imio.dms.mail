@@ -35,6 +35,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import uuidToObject
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
@@ -68,7 +69,6 @@ from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
-from zope.ramcache.interfaces.ram import IRAMCache
 
 import datetime
 import logging
@@ -1006,10 +1006,7 @@ def folder_added(folder, event):
 
 
 def zope_ready(event):
-    ramcache = queryUtility(IRAMCache)
-    if ramcache.maxEntries == 1000:
-        logger.info('=> Setting ramcache parameters')
-        ramcache.update(maxEntries=100000, maxAge=2400, cleanupInterval=600)
+    setup_ram_cache()
     config = getattr(getConfiguration(), 'product_config', {})
     package_config = config.get('imio.dms.mail')
     if package_config and package_config.get('plone-path'):  # set on instance1 only
