@@ -251,9 +251,6 @@
         class=".utils.IdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
-            can_close
-            can_do_transition
-            can_treat
             created_col_cond
             current_user_groups
             current_user_groups_ids
@@ -276,9 +273,6 @@
         class=".utils.OdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
-            can_be_handsigned
-            can_be_sent
-            can_do_transition
             get_om_folder
             highest_scan_id
             is_in_user_groups
