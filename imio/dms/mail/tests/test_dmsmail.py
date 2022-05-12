@@ -462,6 +462,41 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <contak@electrabel.eb>, '
                                                     u'"Jean Courant" <jean.courant@electrabel.eb>')
 
+    def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_handsigned(self):
+        omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test-id')
+        self.assertEqual(api.content.get_state(omail), 'created')
+        adapted = omail.wf_conditions()
+        self.assertFalse(adapted.can_be_handsigned())
+        createContentInContainer(omail, 'task')
+        self.assertFalse(adapted.can_be_handsigned())
+        createContentInContainer(omail, 'dmsappendixfile')
+        self.assertFalse(adapted.can_be_handsigned())
+        createContentInContainer(omail, 'dmsommainfile')
+        self.assertTrue(adapted.can_be_handsigned())
+
+    def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_sent(self):
+        omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test-id', title=u'test')
+        self.assertEqual(api.content.get_state(omail), 'created')
+        adapted = omail.wf_conditions()
+        # no treating_groups
+        self.assertFalse(adapted.can_be_sent())
+        omail.treating_groups = get_registry_organizations()[0]  # direction-generale
+        # admin
+        self.assertTrue(adapted.can_be_sent())
+        setRoles(self.portal, TEST_USER_ID, ['Member'])
+        # define as email
+        omail.send_modes = [u'email']
+        self.assertTrue(omail.is_email())
+        self.assertFalse(adapted.can_be_sent())
+        omail.email_status = u'sent at ...'
+        self.assertTrue(adapted.can_be_sent())
+        # define as normal mail
+        omail.send_modes = [u'post']
+        self.assertFalse(omail.is_email())
+        self.assertTrue(adapted.can_be_sent())
+        # createContentInContainer(omail, 'dmsommainfile')  # no more depend on a dmsommainfile
+        # self.assertTrue(adapted.can_be_sent())
+
     def test_AssignedUserValidator(self):
         # im
         obj = get_object(oid='courrier1', ptype='dmsincomingmail')

@@ -10,7 +10,11 @@ from zope.interface import Interface
 
 
 class IImioDmsIncomingMailWfConditions(Interface):
-    """Adapter interface adding methods used in workflow conditions"""
+    """Adapter interface adding methods used in im workflow conditions"""
+
+
+class IImioDmsOutgoingMailWfConditions(Interface):
+    """Adapter interface adding methods used in om workflow conditions"""
 
 
 class IImioDmsMailLayer(IDefaultPloneLayer, IActionsPanelLayer):

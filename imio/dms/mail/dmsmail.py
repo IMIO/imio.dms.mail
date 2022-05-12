@@ -44,6 +44,7 @@ from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.interfaces import IImioDmsIncomingMailWfConditions
+from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import do_next_transition
@@ -677,7 +678,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u'recipient_groups'])
 
-    def wf_condition_may_set_scanned(self, state_change):  # noqa, pragma: no cover
+    def wf_condition_may_set_scanned(self, state_change):  # noqa, pragma: no cover  NO MORE USED
         """ method used in wf condition """
         # python: here.wf_condition_may_set_scanned(state_change)
         user = api.user.get_current()
@@ -773,6 +774,68 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
                 else:
                     emails.append(email)
         return u', '.join(emails)
+
+    def wf_conditions(self):
+        """Returns the adapter providing workflow conditions"""
+        return IImioDmsOutgoingMailWfConditions(self)
+
+
+class ImioDmsOutgoingMailWfConditionsAdapter(object):
+    implements(IImioDmsOutgoingMailWfConditions)
+    adapts(IImioDmsOutgoingMail)
+    security = ClassSecurityInfo()
+
+    def __init__(self, context):
+        self.context = context
+
+    security.declarePublic('can_be_handsigned')
+
+    def can_be_handsigned(self):
+        """Used in guard expression for to_be_signed transitions."""
+        brains = self.context.portal_catalog.unrestrictedSearchResults(portal_type='dmsommainfile',
+                                                                       path='/'.join(self.context.getPhysicalPath()))
+        return bool(brains)
+
+    security.declarePublic('can_be_sent')
+
+    def can_be_sent(self):
+        """Used in guard expression for sent transitions."""
+        # Protect from scanned state
+        if not self.context.treating_groups or not self.context.title:
+            return False
+        # expedition can always sent
+        if is_in_user_groups(['expedition'], admin=True):
+            return True
+        # email, is sent ?
+        if self.context.is_email():
+            if self.context.email_status:  # has been sent
+                return True
+            return False  # consumer will not can "close": ok
+        return True
+
+    def can_be_validated(self):
+        """Used in guard expression for validated transitions."""
+        return True
+
+    security.declarePublic('can_do_transition')
+
+    def can_do_transition(self, transition):
+        """ Used in guard expression for n_plus_1 transitions """
+        if self.context.treating_groups is None or not self.context.title:
+            # print "no tg: False"
+            return False
+        way_index = transition.startswith('back_to') and 1 or 0
+        # show only the next valid level
+        state = api.content.get_state(self.context)
+        transitions_levels = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
+        if (self.context.treating_groups in transitions_levels[state] and
+           transitions_levels[state][self.context.treating_groups][way_index] == transition):
+            # print "from state: True"
+            return True
+        return False
+
+
+InitializeClass(ImioDmsOutgoingMailWfConditionsAdapter)
 
 
 def imio_dmsoutgoingmail_updatefields(the_form):

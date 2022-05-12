@@ -285,7 +285,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('s'):  # update quick installer
             # temporary
-            for wf_name, view in (('incomingmail_workflow', 'idm-utils'), ):
+            for wf_name, view in (('incomingmail_workflow', 'idm-utils'), ('outgoingmail_workflow', 'odm-utils')):
                 wf = self.wfTool[wf_name]
                 for tr_id in wf.transitions:
                     tr = wf.transitions[tr_id]

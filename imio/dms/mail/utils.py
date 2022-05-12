@@ -947,46 +947,6 @@ class OdmUtilsMethods(UtilsMethods):
     """ View containing outgoing mail utils methods """
     mainfile_type = 'dmsommainfile'
 
-    def can_be_handsigned(self):
-        """Used in guard expression for to_be_signed transitions."""
-        brains = self.context.portal_catalog.unrestrictedSearchResults(portal_type='dmsommainfile',
-                                                                       path='/'.join(self.context.getPhysicalPath()))
-        return bool(brains)
-
-    def can_be_sent(self):
-        """Used in guard expression for sent transitions."""
-        # Protect from scanned state
-        if not self.context.treating_groups or not self.context.title:
-            return False
-        # expedition can always sent
-        if self.is_in_user_groups(['expedition'], admin=True):
-            return True
-        # email, is sent ?
-        if self.context.is_email():
-            if self.context.email_status:  # has been sent
-                return True
-            return False  # consumer will not can "close": ok
-        return True
-
-    def can_be_validated(self):
-        """Used in guard expression for validated transitions."""
-        return True
-
-    def can_do_transition(self, transition):
-        """ Used in guard expression for n_plus_1 transitions """
-        if self.context.treating_groups is None or not self.context.title:
-            # print "no tg: False"
-            return False
-        way_index = transition.startswith('back_to') and 1 or 0
-        # show only the next valid level
-        state = api.content.get_state(self.context)
-        transitions_levels = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
-        if (self.context.treating_groups in transitions_levels[state] and
-           transitions_levels[state][self.context.treating_groups][way_index] == transition):
-            # print "from state: True"
-            return True
-        return False
-
     def get_om_folder(self):
         """ Get the outgoing-mail folder """
         portal = getSite()

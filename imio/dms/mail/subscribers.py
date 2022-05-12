@@ -1022,6 +1022,6 @@ def zope_ready(event):
         except ImportError:
             from zope.component.hooks import setSite
         setSite(site)
-        logger.info('=> Set folders tree annotation')
+        logger.info('=> Setting folders tree annotation')
         set_folders_tree(site)
     transaction.commit()

@@ -261,7 +261,7 @@ class TestOMServiceValidation1(unittest.TestCase):
     def test_dmsdocument_modified_subscriber1(self):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.omail), 'created')
-        view = OdmUtilsMethods(self.omail, self.omail.REQUEST)
+        adapted = self.omail.wf_conditions()
         setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
         org1, org2 = get_registry_organizations()[0:2]
         groupname1 = '{}_n_plus_1'.format(org1)
@@ -270,9 +270,9 @@ class TestOMServiceValidation1(unittest.TestCase):
         api.group.remove_user(groupname=groupname1, username='chef')
         self.assertFalse(group_has_user(groupname1))
         self.omail.treating_groups = org1
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))  # no user
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))  # no user
         self.omail.treating_groups = org2
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.omail, 'propose_to_n_plus_1')
         self.omail.treating_groups = org1
         zope.event.notify(ObjectModifiedEvent(self.omail, Attributes(Interface, 'treating_groups')))
@@ -280,40 +280,39 @@ class TestOMServiceValidation1(unittest.TestCase):
 
     def test_OdmUtilsMethods_can_do_transition1(self):
         # self.assertEqual(api.content.get_state(self.omail), 'created')
-        view = OdmUtilsMethods(self.omail, self.omail.REQUEST)
+        adapted = self.omail.wf_conditions()
         setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
         # no treating_groups: NOK
         self.assertIsNone(self.omail.treating_groups)
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
-        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('back_to_n_plus_1'))
         # tg ok, no user in group
         self.omail.treating_groups = get_registry_organizations()[0]
         groupname = '{}_n_plus_1'.format(self.omail.treating_groups)
         api.group.remove_user(groupname=groupname, username='chef')
         self.assertFalse(group_has_user(groupname))
-        self.assertFalse(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))
         # tg ok, user in group
         api.group.add_user(groupname=groupname, username='chef')
         self.assertTrue(group_has_user(groupname))
-        self.assertTrue(view.can_do_transition('propose_to_n_plus_1'))
+        self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
         # we do transition
         api.content.transition(self.omail, transition='propose_to_n_plus_1')
         api.content.transition(self.omail, transition='set_validated')
         # tg ok, user in group
-        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
+        self.assertTrue(adapted.can_do_transition('back_to_n_plus_1'))
         # tg ok, no user in group
         api.group.remove_user(groupname=groupname, username='chef')
         self.assertFalse(group_has_user(groupname))
-        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('back_to_n_plus_1'))
         createContentInContainer(self.omail, 'dmsommainfile')  # add a file so it's possible to do transition
         api.content.transition(self.omail, transition='propose_to_be_signed')
         self.assertEqual(api.content.get_state(self.omail), 'to_be_signed')
         # tg ok, no user in group
-        self.assertFalse(view.can_do_transition('back_to_n_plus_1'))
+        self.assertFalse(adapted.can_do_transition('back_to_n_plus_1'))
         # tg ok, user in group
         api.group.add_user(groupname=groupname, username='chef')
-        self.assertTrue(view.can_do_transition('back_to_n_plus_1'))
-
+        self.assertTrue(adapted.can_do_transition('back_to_n_plus_1'))
 
     def test_encodeur_active_orgs1(self):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')

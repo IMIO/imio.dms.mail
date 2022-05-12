@@ -557,8 +557,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_propose_to_n_plus.png',
             actbox_category='workflow',
             props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('odm-utils')."
-                                 "can_do_transition('{}')".format(propose_tr_id)})
+                   'guard_expr': "python:object.wf_conditions().can_do_transition('{}')".format(propose_tr_id)})
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
             title=parameters['backward_transition_title'].encode('utf8'),
@@ -567,8 +566,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_n_plus.png',
             actbox_category='workflow',
             props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('odm-utils')."
-                                 "can_do_transition('{}')".format(back_tr_id)})
+                   'guard_expr': "python:object.wf_conditions().can_do_transition('{}')".format(back_tr_id)})
         # add validated transitions
         wf.transitions.addTransition(val_set_tr_id)
         wf.transitions[val_set_tr_id].setProperties(
@@ -577,7 +575,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             actbox_name='om_set_validated', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_set_validated.png', actbox_category='workflow',
             props={'guard_permissions': 'Review portal content', })
-#                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
+#                   'guard_expr': "python:object.wf_conditions().can_be_validated()"})
         wf.transitions.addTransition(val_back_tr_id)
         wf.transitions[val_back_tr_id].setProperties(
             title='om_back_to_validated',
@@ -585,7 +583,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             actbox_name='om_back_to_validated', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_validated.png', actbox_category='workflow',
             props={'guard_permissions': 'Review portal content', })
-#                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_validated()"})
+#                   'guard_expr': "python:object.wf_conditions().can_be_validated()"})
 
         # modify existing states
         # add new back_to transition on next states
@@ -838,7 +836,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             actbox_name='om_set_to_print', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_set_to_print.png', actbox_category='workflow',
             props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_handsigned()"})
+                   'guard_expr': "python:object.wf_conditions().can_be_handsigned()"})
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
             title='om_back_to_print',
@@ -846,7 +844,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             actbox_name='om_back_to_print', actbox_url='',
             actbox_icon='%(portal_url)s/++resource++imio.dms.mail/om_back_to_print.png', actbox_category='workflow',
             props={'guard_permissions': 'Review portal content',
-                   'guard_expr': "python:object.restrictedTraverse('odm-utils').can_be_handsigned()"})
+                   'guard_expr': "python:object.wf_conditions().can_be_handsigned()"})
 
         # proposed_to_n_plus_1 transitions
         if has_n_plus_1 and 'proposed_to_n_plus_1' in wf.states:
