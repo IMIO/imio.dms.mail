@@ -285,7 +285,9 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('s'):  # update quick installer
             # temporary
-            for wf_name, view in (('incomingmail_workflow', 'idm-utils'), ('outgoingmail_workflow', 'odm-utils')):
+            for wf_name, view, method in (('incomingmail_workflow', 'idm-utils', 'wfconditions'),
+                                          ('outgoingmail_workflow', 'odm-utils', 'wfconditions'),
+                                          ('task_workflow', 'task-utils', 'get_methods_adapter')):
                 wf = self.wfTool[wf_name]
                 for tr_id in wf.transitions:
                     tr = wf.transitions[tr_id]
@@ -293,7 +295,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                     cur_expr = guard.getExprText()
                     to_replace = "restrictedTraverse('{}')".format(view)
                     if to_replace in cur_expr:
-                        new_expr = cur_expr.replace(to_replace, 'wf_conditions()')
+                        new_expr = cur_expr.replace(to_replace, '{}()'.format(method))
                         if guard.changeFromProperties({'guard_expr': new_expr}):
                             tr.guard = guard
 

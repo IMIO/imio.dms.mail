@@ -961,28 +961,6 @@ class OdmUtilsMethods(UtilsMethods):
         return self.is_in_user_groups(['encodeurs', 'expedition'], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
 
 
-class TaskUtilsMethods(UtilsMethods):
-    """ View containing task utils methods """
-
-    def can_do_transition(self, transition):
-        """
-            Check if assigned_user is set or if the test is required or if the user is admin.
-            Used in guard expression for propose_to_agent transition
-        """
-        if self.context.assigned_group is None:
-            # print "no tg: False"
-            return False
-        way_index = transition.startswith('back_in') and 1 or 0
-        # show only the next valid level
-        state = api.content.get_state(self.context)
-        transitions_levels = get_dms_config(['transitions_levels', 'task'])
-        if (self.context.assigned_group in transitions_levels[state] and
-           transitions_levels[state][self.context.assigned_group][way_index] == transition):
-            # print "from state: True"
-            return True
-        return False
-
-
 class Dummy(object):
     """dummy class that allows setting attributes """
 

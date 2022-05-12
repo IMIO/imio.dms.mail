@@ -961,7 +961,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         for tr_id in ('back_in_to_assign', 'back_in_created2'):
             tr = wf.transitions[tr_id]
             guard = tr.getGuard()
-            if guard.changeFromProperties({'guard_expr': "python:object.restrictedTraverse('task-utils')."
+            if guard.changeFromProperties({'guard_expr': "python:object.get_methods_adapter()."
                                                          "can_do_transition('{}')".format(tr_id)}):
                 tr.guard = guard
 

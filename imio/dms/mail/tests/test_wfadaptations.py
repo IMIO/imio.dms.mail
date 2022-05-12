@@ -3,20 +3,16 @@
 
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
-from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import OdmUtilsMethods
-from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
-from imio.dms.mail.utils import TaskUtilsMethods
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
-from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
@@ -463,27 +459,27 @@ class TestTaskServiceValidation1(unittest.TestCase):
         self.assertIn('to_assign', config)
         self.assertIn('realized', config)
 
-    def test_TaskUtilsMethods_can_do_transition1(self):
+    def test_DmsTaskContentAdapter_can_do_transition1(self):
         task = get_object(oid='courrier1', ptype='dmsincomingmail')['tache1']
         api.content.transition(task, transition='do_to_assign')
         self.assertEqual(api.content.get_state(task), 'to_do')
-        view = TaskUtilsMethods(task, task.REQUEST)
+        adapted = task.get_methods_adapter()
         setRoles(self.portal, TEST_USER_ID, ['Editor', 'Reviewer'])
         # no assigned_group: NOK
         task.assigned_group = None
-        self.assertFalse(view.can_do_transition('back_in_created2'))
-        self.assertFalse(view.can_do_transition('back_in_to_assign'))
+        self.assertFalse(adapted.can_do_transition('back_in_created2'))
+        self.assertFalse(adapted.can_do_transition('back_in_to_assign'))
         # ag ok, no user in group
         task.assigned_group = get_registry_organizations()[0]
         groupname = '{}_n_plus_1'.format(task.assigned_group)
         self.assertFalse(group_has_user(groupname))
-        self.assertTrue(view.can_do_transition('back_in_created2'))
-        self.assertFalse(view.can_do_transition('back_in_to_assign'))
+        self.assertTrue(adapted.can_do_transition('back_in_created2'))
+        self.assertFalse(adapted.can_do_transition('back_in_to_assign'))
         # ag ok, user in group
         api.group.add_user(groupname=groupname, username='chef')
         self.assertTrue(group_has_user(groupname))
-        self.assertFalse(view.can_do_transition('back_in_created2'))
-        self.assertTrue(view.can_do_transition('back_in_to_assign'))
+        self.assertFalse(adapted.can_do_transition('back_in_created2'))
+        self.assertTrue(adapted.can_do_transition('back_in_to_assign'))
         # we do transition
         api.content.transition(task, transition='back_in_to_assign')
         api.content.transition(task, transition='back_in_created')
