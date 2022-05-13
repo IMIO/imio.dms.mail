@@ -47,13 +47,25 @@
 .template-dmsdocument-edit #content-core #fieldset-default .field,
 .template-dmsdocument-edit #form-widgets-treating_groups,
 .template-dmsdocument-edit #form_widgets_recipient_groups_select_chzn,
+.template-dmsdocument-edit .chzn-container-active .chzn-drop,
+.template-dmsdocument-edit .chzn-container-active .search-field,
 .template-dmsdocument-edit #form_widgets_sender_select_chzn,
+.template-dmsdocument-edit .chzn-container-active .search-field input,
 .template-dmsdocument-edit #form-widgets-email_subject,
 .template-dmsdocument-edit #form-widgets-email_sender,
 .template-dmsdocument-edit #form-widgets-email_recipient,
 .template-dmsdocument-edit #form-widgets-email_cc,
 .template-dmsdocument-edit #form-widgets-email_status {
     width: 100% !important;
+}
+
+.template-dmsdocument-edit #form-widgets-IDublinCore-description,
+.template-dmsdocument-edit #form-widgets-reply_to-widgets-query,
+.template-dmsdocument-edit #form-widgets-external_reference_no,
+.template-dmsdocument-edit #form-widgets-IClassificationFolder-classification_categories-widgets-query,
+.template-dmsdocument-edit #form-widgets-IClassificationFolder-classification_folders-widgets-query,
+.template-edit #form-widgets-classification_categories-widgets-query {
+    width: -moz-available;
 }
 
 #form_widgets_sender_select_chzn.chzn-container-single .chzn-single span {
