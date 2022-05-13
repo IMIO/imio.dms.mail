@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get  # noqa
-from App.config import getConfiguration
 from collective.classification.folder.content.vocabularies import set_folders_tree
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.contact.plonegroup.config import get_registry_functions
@@ -37,6 +36,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import uuidToObject
+from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
 from persistent.list import PersistentList
@@ -58,7 +58,6 @@ from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
-from zope.app.publication.zopepublication import ZopePublication
 from zope.component import getAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -73,7 +72,6 @@ from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 import datetime
 import logging
 import transaction
-import Zope2
 
 logger = logging.getLogger('imio.dms.mail: events')
 
@@ -1006,19 +1004,9 @@ def folder_added(folder, event):
 
 
 def zope_ready(event):
-    setup_ram_cache()
-    config = getattr(getConfiguration(), 'product_config', {})
-    package_config = config.get('imio.dms.mail')
-    if package_config and package_config.get('plone-path'):  # set on instance1 only
-        db = Zope2.DB
-        connection = db.open()
-        root_folder = connection.root().get(ZopePublication.root_name, None)
-        site = root_folder.unrestrictedTraverse(package_config['plone-path'])
-        try:
-            from zope.app.component.hooks import setSite
-        except ImportError:
-            from zope.component.hooks import setSite
-        setSite(site)
+    # setup_ram_cache()
+    site = set_site_from_package_config('imio.dms.mail')
+    if site:
         logger.info('=> Setting folders tree annotation')
         set_folders_tree(site)
     transaction.commit()
