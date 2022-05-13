@@ -40,9 +40,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
 from imio.migrator.migrator import Migrator
-from imio.pyutils.system import memory
 from imio.pyutils.system import load_var
-from imio.pyutils.system import process_memory
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
@@ -69,8 +67,8 @@ logger = logging.getLogger('imio.dms.mail')
 
 class Migrate_To_3_0(Migrator):  # noqa
 
-    def __init__(self, context):
-        Migrator.__init__(self, context)
+    def __init__(self, context, disable_linkintegrity_checks=False):
+        Migrator.__init__(self, context, disable_linkintegrity_checks=disable_linkintegrity_checks)
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
         self.contacts = self.portal['contacts']
@@ -78,8 +76,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.config = {'om_mt': [], 'flds': None}
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
-        self.display_mem = True
-        self.run_part = os.getenv('FUNC_PART', '')
 
     def savepoint_flush(self):
         transaction.savepoint(True)
@@ -956,19 +952,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                     continue
                 logger.info("Deleting user '%s'" % userid)
                 api.user.delete(user=user)
-
-    def is_in_part(self, part):
-        if self.run_part == part:
-            logger.info("DOING PART '{}'".format(part))
-            return True
-        elif self.run_part == '':
-            self.log_mem("PART {}".format(part))  # print intermediate part memory info if run in one step
-            return True
-        return False
-
-    def log_mem(self, tag=''):
-        if self.display_mem:
-            logger.info('Mem used {} at {}, ({})'.format(process_memory(), tag, memory()))
 
 
 def migrate(context):
