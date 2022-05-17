@@ -201,15 +201,6 @@ class ContentActionsViewlet(PALContentActionsViewlet):
         return self.index()
 
 
-class PloneSearch(Search):
-
-    def filter_query(self, query):
-        qr = super(PloneSearch, self).filter_query(query)
-        if qr and 'SearchableText' in qr and not qr['SearchableText'].endswith('*'):
-            qr['SearchableText'] += '*'
-        return qr
-
-
 class IDMUtilsMethods(UtilsMethods):
     """ View containing utils methods """
 

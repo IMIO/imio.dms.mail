@@ -128,16 +128,6 @@
         />
 
     <!-- Various -->
-    <configure package="plone.app.search">
-        <browser:page
-            name="search"
-            class="imio.dms.mail.browser.overrides.PloneSearch"
-            permission="zope2.View"
-            for="*"
-            template="search.pt"
-            />
-    </configure>
-
     <browser:page
         for="*"
         name="cdmc-utils"
