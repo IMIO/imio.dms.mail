@@ -160,8 +160,8 @@ class DmsOMActionsPanelView(ActionsPanelView):
         """
           Method that check if special 'create from template' action has to be displayed.
         """
-        if not self.isInFacetedNavigation() and self.member.has_permission('Add portal content', self.context) and \
-                self.member.has_role('DmsFile Contributor', self.context):
+        if not self.isInFacetedNavigation() and self.member.has_permission('collective.dms.basecontent: Add DmsFile',
+                                                                           self.context):
             return True
         return False
 
