@@ -403,7 +403,7 @@ class IImioDmsMailConfig(model.Schema):
     widget('users_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size=10)
 
     @invariant
-    def validate_settings(data):
+    def validate_settings(data):  # noqa
         for dic in data.omail_send_modes:
             if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
                     and not dic['value'].startswith('other'):
