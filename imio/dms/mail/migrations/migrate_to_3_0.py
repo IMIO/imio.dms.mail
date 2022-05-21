@@ -281,6 +281,12 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('s'):  # update quick installer
             # temporary
+            update_transitions_levels_config(['dmsincomingmail'])
+            update_transitions_levels_config(['dmsoutgoingmail'])
+            self.install(['collective.fingerpointing'])
+            ckp = self.portal.portal_properties.ckeditor_properties
+            ckp.manage_changeProperties(toolbar='CustomOld')
+            configure_ckeditor(self.portal, custom='ged', filtering='disabled')
             for wf_name, view, method in (('incomingmail_workflow', 'idm-utils', 'wfconditions'),
                                           ('outgoingmail_workflow', 'odm-utils', 'wfconditions'),
                                           ('task_workflow', 'task-utils', 'get_methods_adapter')):
