@@ -198,6 +198,29 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
                 modified(obj)
 
 
+class SendModesBatchActionForm(BaseBatchActionForm):
+
+    label = _(u"Batch send modes change")
+    weight = 60
+
+    def available(self):
+        return api.user.has_permission('Manage portal', obj=self.context)
+
+    def _update(self):
+        self.fields += Fields(schema.Choice(
+            __name__='send_modes',
+            title=_(u"Send modes"),
+            vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary',
+        ))
+
+    def _apply(self, **data):
+        if data['send_modes']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                obj.send_modes = data['send_modes']
+                modified(obj)
+
+
 class RecipientsBatchActionForm(ContactBaseBatchActionForm):
 
     label = _(u"Batch recipients contact field change")
