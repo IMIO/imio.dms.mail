@@ -43,6 +43,10 @@ msgstr "Changer les destinataires"
 msgid "reply-batch-action-but"
 msgstr "Répondre à tous"
 
+#. Default: "Change send modes"
+msgid "send-modes-batch-action-but"
+msgstr "Changer formes envoi"
+
 #. Default: "Change treating group"
 msgid "treatinggroup-batch-action-but"
 msgstr "Changer le service traitant"

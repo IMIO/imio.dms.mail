@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2022-04-25 13:05+0000\n"
+"POT-Creation-Date: 2022-05-22 06:22+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -41,7 +41,7 @@ msgstr "Cet élément passe à nouveau par cet état dans le workflow."
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr "Cet élément est revenu en arrière dans le workflow."
 
-#: ./subscribers.py:624
+#: ./subscribers.py:627
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
@@ -101,7 +101,7 @@ msgstr "Éléments à ajouter"
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./dmsmail.py:100
+#: ./dmsmail.py:105
 msgid "All"
 msgstr "Tout"
 
@@ -121,7 +121,7 @@ msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Cour
 msgid "Apply"
 msgstr "Appliquer"
 
-#: ./browser/templates/actions_panel_assign_user.pt:8
+#: ./browser/templates/actions_panel_assign_user.pt:10
 msgid "Assign"
 msgstr "Assigner"
 
@@ -149,7 +149,7 @@ msgstr "Choix de l'action à effectuer"
 msgid "Batch action form"
 msgstr "Formulaire d'action sur un lot"
 
-#: ./browser/batchactions.py:236
+#: ./browser/batchactions.py:259
 msgid "Batch copy to"
 msgstr "Copie par lot vers les dossiers sélectionnés"
 
@@ -169,9 +169,13 @@ msgstr "Changement de date d'expédition par lot"
 msgid "Batch recipient groups change"
 msgstr "Changement de services en copie par lot"
 
-#: ./browser/batchactions.py:203
+#: ./browser/batchactions.py:226
 msgid "Batch recipients contact field change"
 msgstr "Changement des destinataires par lot"
+
+#: ./browser/batchactions.py:203
+msgid "Batch send modes change"
+msgstr "Changement des formes d'envoi par lot"
 
 #: ./browser/batchactions.py:168
 msgid "Batch sender contact field change"
@@ -259,7 +263,7 @@ msgstr "Créer depuis modèle"
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:705
+#: ./utils.py:747
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
@@ -339,7 +343,7 @@ msgstr "Nom du champ"
 msgid "Firstname Lastname"
 msgstr "Prénom Nom"
 
-#: ./browser/batchactions.py:253
+#: ./browser/batchactions.py:276
 #: ./setuphandlers.py:187
 msgid "Folders"
 msgstr "Dossiers"
@@ -424,7 +428,7 @@ msgstr "Sous-document d'introduction"
 msgid "Lastname Firstname"
 msgstr "Nom Prénom"
 
-#: ./subscribers.py:642
+#: ./subscribers.py:645
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
@@ -437,7 +441,7 @@ msgid "Mail listing template sheet"
 msgstr "Listing courrier tabulé"
 
 #: ./browser/settings.py:179
-#: ./dmsmail.py:226
+#: ./dmsmail.py:231
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -465,7 +469,7 @@ msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sél
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./browser/batchactions.py:257
+#: ./browser/batchactions.py:280
 msgid "No folder available where you can add templates."
 msgstr "Il n'y a aucun dossier où vous pouvez ajouter des modèles."
 
@@ -499,7 +503,7 @@ msgstr "Organisations"
 msgid "Organizations searches"
 msgstr "Recherches organisations"
 
-#: ./dmsmail.py:235
+#: ./dmsmail.py:240
 msgid "Original document in service"
 msgstr "Le document original est dans le service"
 
@@ -507,12 +511,12 @@ msgstr "Le document original est dans le service"
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
-#: ./dmsmail.py:181
+#: ./dmsmail.py:186
 msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
 #: ./browser/batchactions.py:187
-#: ./dmsmail.py:567
+#: ./dmsmail.py:659
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -558,11 +562,11 @@ msgstr "Recherches personnes"
 msgid "Pipeline to use to import contacts"
 msgstr "Pipeline pour importer des contacts"
 
-#: ./wfadaptations.py:334
+#: ./wfadaptations.py:332
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la fonction creating_group !"
 
-#: ./overrides.py:21
+#: ./overrides.py:27
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
@@ -582,7 +586,7 @@ msgstr "Condition d'affichage"
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
-#: ./dmsmail.py:218
+#: ./dmsmail.py:223
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -627,7 +631,7 @@ msgstr "Préfixe de l'intitulé d'une réponse"
 msgid "Response: "
 msgstr "Réponse: "
 
-#: ./browser/batchactions.py:256
+#: ./browser/batchactions.py:279
 msgid "Select multiple values (CTRL+click)"
 msgstr "Sélectionner les éléments (CTRL+clic)"
 
@@ -647,12 +651,13 @@ msgstr "Envoyer email"
 msgid "Send email with sender as reply to"
 msgstr "Envoi d'email: l'email d'expédition est placé dans 'Répondre à'"
 
+#: ./browser/batchactions.py:212
 #: ./browser/settings.py:320
-#: ./dmsmail.py:561
+#: ./dmsmail.py:653
 msgid "Send modes"
 msgstr "Formes d'envoi"
 
-#: ./dmsmail.py:187
+#: ./dmsmail.py:192
 #: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr "Expéditeurs"
@@ -701,11 +706,11 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./overrides.zcml:36
+#: ./overrides.zcml:42
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:902
+#: ./dmsmail.py:1056
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -723,11 +728,11 @@ msgstr "Transition"
 
 #: ./browser/batchactions.py:44
 #: ./browser/table.py:117
-#: ./dmsmail.py:199
+#: ./dmsmail.py:204
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:709
+#: ./utils.py:751
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
@@ -763,39 +768,39 @@ msgstr "Rédiger email"
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)"
 
-#: ./subscribers.py:79
+#: ./subscribers.py:82
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr "Vous ne pouvez pas copier cet élément '${title}' ! Pour un élément du tableau, vous devez utiliser les boutons sous le tableau."
 
-#: ./subscribers.py:707
+#: ./subscribers.py:710
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:660
+#: ./subscribers.py:663
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:638
+#: ./subscribers.py:641
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:618
+#: ./subscribers.py:621
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:610
+#: ./subscribers.py:613
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./subscribers.py:101
+#: ./subscribers.py:104
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./dmsmail.py:928
+#: ./dmsmail.py:1082
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service traitant n'a pas de validateur et l'état va être modifié !"
 
-#: ./dmsmail.py:291
+#: ./dmsmail.py:383
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
@@ -1063,11 +1068,11 @@ msgstr "Sortant"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
 #: ./browser/tabular_view.py:58
-#: ./subscribers.py:299
+#: ./subscribers.py:302
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
-#: ./wfadaptations.py:696
+#: ./wfadaptations.py:691
 msgid "searchfor: ${state}"
 msgstr "État: ${state}"
 

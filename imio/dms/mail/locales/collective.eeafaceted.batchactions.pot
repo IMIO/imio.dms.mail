@@ -48,3 +48,7 @@ msgstr ""
 #. Default: "Change recipients"
 msgid "recipients-batch-action-but"
 msgstr ""
+
+#. Default: "Change send modes"
+msgid "send-modes-batch-action-but"
+msgstr ""

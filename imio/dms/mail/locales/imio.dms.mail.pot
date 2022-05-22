@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2022-04-25 13:05+0000\n"
+"POT-Creation-Date: 2022-05-22 06:22+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,7 @@ msgstr ""
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr ""
 
-#: ./subscribers.py:624
+#: ./subscribers.py:627
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -101,7 +101,7 @@ msgstr ""
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./dmsmail.py:100
+#: ./dmsmail.py:105
 msgid "All"
 msgstr ""
 
@@ -121,7 +121,7 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
-#: ./browser/templates/actions_panel_assign_user.pt:8
+#: ./browser/templates/actions_panel_assign_user.pt:10
 msgid "Assign"
 msgstr ""
 
@@ -149,7 +149,7 @@ msgstr ""
 msgid "Batch action form"
 msgstr ""
 
-#: ./browser/batchactions.py:236
+#: ./browser/batchactions.py:259
 msgid "Batch copy to"
 msgstr ""
 
@@ -169,8 +169,12 @@ msgstr ""
 msgid "Batch recipient groups change"
 msgstr ""
 
-#: ./browser/batchactions.py:203
+#: ./browser/batchactions.py:226
 msgid "Batch recipients contact field change"
+msgstr ""
+
+#: ./browser/batchactions.py:203
+msgid "Batch send modes change"
 msgstr ""
 
 #: ./browser/batchactions.py:168
@@ -259,7 +263,7 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:705
+#: ./utils.py:747
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
@@ -339,7 +343,7 @@ msgstr ""
 msgid "Firstname Lastname"
 msgstr ""
 
-#: ./browser/batchactions.py:253
+#: ./browser/batchactions.py:276
 #: ./setuphandlers.py:187
 msgid "Folders"
 msgstr ""
@@ -424,7 +428,7 @@ msgstr ""
 msgid "Lastname Firstname"
 msgstr ""
 
-#: ./subscribers.py:642
+#: ./subscribers.py:645
 msgid "Linked objects: ${list}"
 msgstr ""
 
@@ -437,7 +441,7 @@ msgid "Mail listing template sheet"
 msgstr ""
 
 #: ./browser/settings.py:179
-#: ./dmsmail.py:226
+#: ./dmsmail.py:231
 msgid "Mail type"
 msgstr ""
 
@@ -465,7 +469,7 @@ msgstr ""
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/batchactions.py:257
+#: ./browser/batchactions.py:280
 msgid "No folder available where you can add templates."
 msgstr ""
 
@@ -499,7 +503,7 @@ msgstr ""
 msgid "Organizations searches"
 msgstr ""
 
-#: ./dmsmail.py:235
+#: ./dmsmail.py:240
 msgid "Original document in service"
 msgstr ""
 
@@ -507,12 +511,12 @@ msgstr ""
 msgid "Original mail date requirement"
 msgstr ""
 
-#: ./dmsmail.py:181
+#: ./dmsmail.py:186
 msgid "Original sender email"
 msgstr ""
 
 #: ./browser/batchactions.py:187
-#: ./dmsmail.py:567
+#: ./dmsmail.py:659
 msgid "Outgoing Date"
 msgstr ""
 
@@ -558,11 +562,11 @@ msgstr ""
 msgid "Pipeline to use to import contacts"
 msgstr ""
 
-#: ./wfadaptations.py:334
+#: ./wfadaptations.py:332
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr ""
 
-#: ./overrides.py:21
+#: ./overrides.py:27
 msgid "Plone user"
 msgstr ""
 
@@ -582,7 +586,7 @@ msgstr ""
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:218
+#: ./dmsmail.py:223
 msgid "Recipient groups"
 msgstr ""
 
@@ -627,7 +631,7 @@ msgstr ""
 msgid "Response: "
 msgstr ""
 
-#: ./browser/batchactions.py:256
+#: ./browser/batchactions.py:279
 msgid "Select multiple values (CTRL+click)"
 msgstr ""
 
@@ -647,12 +651,13 @@ msgstr ""
 msgid "Send email with sender as reply to"
 msgstr ""
 
+#: ./browser/batchactions.py:212
 #: ./browser/settings.py:320
-#: ./dmsmail.py:561
+#: ./dmsmail.py:653
 msgid "Send modes"
 msgstr ""
 
-#: ./dmsmail.py:187
+#: ./dmsmail.py:192
 #: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr ""
@@ -701,11 +706,11 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./overrides.zcml:36
+#: ./overrides.zcml:42
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:902
+#: ./dmsmail.py:1056
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -723,11 +728,11 @@ msgstr ""
 
 #: ./browser/batchactions.py:44
 #: ./browser/table.py:117
-#: ./dmsmail.py:199
+#: ./dmsmail.py:204
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:709
+#: ./utils.py:751
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -763,39 +768,39 @@ msgstr ""
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
-#: ./subscribers.py:79
+#: ./subscribers.py:82
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr ""
 
-#: ./subscribers.py:707
+#: ./subscribers.py:710
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:660
+#: ./subscribers.py:663
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
-#: ./subscribers.py:638
+#: ./subscribers.py:641
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:618
+#: ./subscribers.py:621
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:610
+#: ./subscribers.py:613
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./subscribers.py:101
+#: ./subscribers.py:104
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./dmsmail.py:928
+#: ./dmsmail.py:1082
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr ""
 
-#: ./dmsmail.py:291
+#: ./dmsmail.py:383
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
@@ -1063,11 +1068,11 @@ msgstr ""
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
 #: ./browser/tabular_view.py:58
-#: ./subscribers.py:299
+#: ./subscribers.py:302
 msgid "redirected_after_edition"
 msgstr ""
 
-#: ./wfadaptations.py:696
+#: ./wfadaptations.py:691
 msgid "searchfor: ${state}"
 msgstr ""
 
