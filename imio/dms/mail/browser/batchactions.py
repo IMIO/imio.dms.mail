@@ -207,17 +207,68 @@ class SendModesBatchActionForm(BaseBatchActionForm):
         return api.user.has_permission('Manage portal', obj=self.context)
 
     def _update(self):
-        self.fields += Fields(schema.Choice(
-            __name__='send_modes',
-            title=_(u"Send modes"),
-            vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary',
+        self.fields += Fields(MasterSelectField(
+            __name__='action_choice',
+            title=_(u'Batch action choice'),
+            vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add items')),
+                                         SimpleTerm(value=u'remove', title=_(u'Remove items')),
+                                         SimpleTerm(value=u'replace', title=_(u'Replace some items by others')),
+                                         SimpleTerm(value=u'overwrite', title=_(u'Overwrite'))]),
+            slave_fields=(
+                {'name': 'removed_values',
+                 'slaveID': '#form-widgets-removed_values',
+                 'action': 'hide',
+                 'hide_values': (u'add', u'overwrite'),
+                 'siblings': True,
+                 },
+                {'name': 'added_values',
+                 'slaveID': '#form-widgets-added_values',
+                 'action': 'hide',
+                 'hide_values': (u'remove',),
+                 'siblings': True,
+                 },
+            ),
+            required=self.do_apply,
+            default=u'add'
         ))
+        self.fields += Fields(schema.List(
+            __name__='removed_values',
+            title=_(u"Removed values"),
+            description=_(u"Select the values to remove (CTRL+click)"),
+            required=False,
+            value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary'),
+        ))
+        self.fields += Fields(schema.List(
+            __name__='added_values',
+            title=_(u"Added values"),
+            description=_(u"Select the values to add (CTRL+click)"),
+            required=False,
+            value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary'),
+        ))
+        self.fields["removed_values"].widgetFactory = SelectFieldWidget
+        self.fields["added_values"].widgetFactory = SelectFieldWidget
+
+    def _update_widgets(self):
+        #        self.widgets['action_choice'].size = 4
+        self.widgets['removed_values'].multiple = 'multiple'
+        self.widgets['removed_values'].size = 5
+        self.widgets['added_values'].multiple = 'multiple'
+        self.widgets['added_values'].size = 5
 
     def _apply(self, **data):
-        if data['send_modes']:
+        if ((data.get('removed_values', None) and data['action_choice'] in ('remove', 'replace')) or
+           (data.get('added_values', None)) and data['action_choice'] in ('add', 'replace', 'overwrite')):
             for brain in self.brains:
                 obj = brain.getObject()
-                obj.send_modes = data['send_modes']
+                if data['action_choice'] in ('overwrite', ):
+                    items = set(data['added_values'])
+                else:
+                    items = set(obj.send_modes or [])
+                    if data['action_choice'] in ('remove', 'replace'):
+                        items = items.difference(data['removed_values'])
+                    if data['action_choice'] in ('add', 'replace'):
+                        items = items.union(data['added_values'])
+                obj.send_modes = list(items)
                 modified(obj)
 
 

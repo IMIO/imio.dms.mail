@@ -440,12 +440,12 @@
         permission="zope2.View"
         />
 
-    <!--browser:page
+    <browser:page
         for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="send-modes-batch-action"
         class=".batchactions.SendModesBatchActionForm"
         permission="zope2.View"
-        /-->
+        />
 
     <!-- BATCH ACTIONS TASKS -->
     <browser:page
