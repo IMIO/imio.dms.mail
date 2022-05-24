@@ -1092,7 +1092,16 @@ def manage_fields(the_form, config_key, mode):
 
 
 def is_n_plus_level_obsolete(mail, ptype, treating_group='', state=None, config=None, state_start='proposed_to_n_plus'):
-    """Check if current treating_groups has validators on the state."""
+    """Check if current treating_groups has validators on the state.
+
+    :param mail: concerned object
+    :param ptype: portal type
+    :param treating_group: treating group
+    :param state: current state
+    :param config: transitions_levels dms config
+    :param state_start: concerned state start check
+    :return: obsolete bool, state, config
+    """
     if treating_group == '':
         treating_group = mail.treating_groups
     if treating_group is None:
