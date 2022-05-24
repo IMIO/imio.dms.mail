@@ -794,6 +794,7 @@ def group_assignment(event):
                                     position=RelationValue(intids.getId(org)), use_parent_address=True)
         if api.content.get_state(hp) == 'deactivated':
             api.content.transition(hp, 'activate')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
 def group_unassignment(event):
@@ -828,6 +829,7 @@ def group_unassignment(event):
         for hp in hps:
             if hp.get_organization().UID() == orgs[0] and api.content.get_state(hp) == 'active':
                 api.content.transition(hp, 'deactivate')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
 # CONTACT
@@ -913,6 +915,7 @@ def personnel_contact_removed(del_obj, event):
         storage = ILinkIntegrityInfo(aq_get(del_obj, 'REQUEST', None))
         for brain in catalog.unrestrictedSearchResults(portal_type=['dmsoutgoingmail'], sender_index=[del_obj.UID()]):
             storage.addBreach(brain._unrestrictedGetObject(), del_obj)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
 def cktemplate_moved(obj, event):
