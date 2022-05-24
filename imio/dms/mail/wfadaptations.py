@@ -396,7 +396,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
                                         {'i': 'review_state', 'o': 'plone.app.querystring.operation.selection.is',
                                          'v': [new_state_id]}],
                                  customViewFields=tuple(next_col.customViewFields),
-                                 tal_condition="python: object.wf_conditions().proposed_to_n_plus_col_cond()",
+                                 tal_condition="python: object.restrictedTraverse('idm-utils')."
+                                               "proposed_to_n_plus_col_cond()",
                                  showNumberOfItems=False,
                                  roles_bypassing_talcondition=['Manager', 'Site Administrator'],
                                  sort_on=u'organization_type', sort_reversed=True, b_size=30, limit=0)
