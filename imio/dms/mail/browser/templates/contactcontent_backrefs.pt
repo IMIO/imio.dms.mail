@@ -16,7 +16,7 @@
                tal:define="title brain/Title;"
                tal:content="title">
             </a>
-            , <span tal:content="python: toLocalizedTime(brain.created)" />
+            , <span tal:content="python: toLocalizedTime(brain.in_out_date) or toLocalizedTime(brain.created)" />
         </li>
     </tal:refs>
     </ul>
