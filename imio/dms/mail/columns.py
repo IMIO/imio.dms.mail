@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
-import Missing
 from AccessControl import getSecurityManager
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
 from collective.dms.basecontent.browser.column import IconColumn
@@ -30,6 +29,8 @@ from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
+import html
+import Missing
 import os
 
 
@@ -156,7 +157,8 @@ class ContactsColumn(PrettyLinkColumn):
                 ret.append(u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
                            u"<span class='pretty_link_icons'>%s</span>"
                            u"<span class='pretty_link_content'>%s</span></a>"
-                           % (c_brain.getURL(), self._icons(c_brain), safe_unicode(c_brain.get_full_title))
+                           % (c_brain.getURL(), self._icons(c_brain), safe_unicode(html.escape(c_brain.get_full_title,
+                                                                                               quote=True)))
                            )
         l_ret = len(ret)
         if l_ret == 1:
@@ -418,7 +420,7 @@ class PathColumn(LinkColumn, BaseColumn):
         rel_path = os.path.relpath(dir_path, self.root_path)
         if rel_path not in self.paths:
             self.rel_path_title(rel_path)
-        return self.paths[rel_path]
+        return html.escape(self.paths[rel_path], quote=True)
 
 # ck-templates-listing columns
 
