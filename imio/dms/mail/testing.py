@@ -11,6 +11,8 @@ from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
+from plone.app.testing import login
+from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing.helpers import PloneWithPackageLayer
@@ -257,6 +259,11 @@ def create_groups(tc, nb, start=1):
             gid = 'group_{}'.format(i)
             if not api.group.get(gid):
                 api.group.create(gid, 'Group {}'.format(i))
+
+
+def change_user(portal, user='test-user'):
+    logout()
+    login(portal, user)
 
 
 @timecall
