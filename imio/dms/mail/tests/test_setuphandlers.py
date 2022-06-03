@@ -1,8 +1,7 @@
 from collective.contact.plonegroup.config import get_registry_organizations
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from zope.component import getUtility
@@ -18,7 +17,7 @@ class TestSetuphandlers(unittest.TestCase):
         # you'll want to use this to set up anything you need for your tests
         # below
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
 
     def test_postInstall(self):
         self.assertTrue(hasattr(self.portal, 'incoming-mail'))

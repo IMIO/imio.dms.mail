@@ -5,6 +5,7 @@ from datetime import datetime
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.settings import configure_group_encoder
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
@@ -24,8 +25,6 @@ from imio.helpers.cache import invalidate_cachekey_volatile_for
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import logout
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
@@ -41,7 +40,7 @@ class TestVocabularies(unittest.TestCase):
         # you'll want to use this to set up anything you need for your tests
         # below
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id')
         self.maxDiff = None
@@ -66,8 +65,8 @@ class TestVocabularies(unittest.TestCase):
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
-                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
-                              ('test-user', u'test-user (Désactivé)')])
+                              ('chef', u'Michel Chef'), ('siteadmin', u'siteadmin'), ('scanner', u'Scanner'),
+                              ('agent1', u'Stef Agent'), ('test-user', u'test-user (Désactivé)')])
         # add inactive group and user in it
         guid = self.portal.contacts['plonegroup-organization']['departement-culturel'].UID()
         new_group = api.group.create('{}_lecteur'.format(guid))
@@ -76,8 +75,8 @@ class TestVocabularies(unittest.TestCase):
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
-                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
-                              ('test-user', u'test-user (Désactivé)')])
+                              ('chef', u'Michel Chef'), ('siteadmin', u'siteadmin'), ('scanner', u'Scanner'),
+                              ('agent1', u'Stef Agent'), ('test-user', u'test-user (Désactivé)')])
         # add same user in active group
         guid = self.portal.contacts['plonegroup-organization'][u'direction-generale'].UID()
         api.group.add_user(groupname='{}_lecteur'.format(guid), username='test-user')
@@ -85,8 +84,8 @@ class TestVocabularies(unittest.TestCase):
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
-                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
-                              ('test-user', u'test-user')])
+                              ('chef', u'Michel Chef'), ('siteadmin', u'siteadmin'), ('scanner', u'Scanner'),
+                              ('agent1', u'Stef Agent'), ('test-user', u'test-user')])
 
     def test_AssignedUsersForFacetedFilterVocabulary(self):
         voc_inst = AssignedUsersForFacetedFilterVocabulary()
@@ -94,7 +93,7 @@ class TestVocabularies(unittest.TestCase):
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
-                              ('chef', u'Michel Chef'), ('agent1', u'Stef Agent'),
+                              ('chef', u'Michel Chef'), ('siteadmin', u'siteadmin'), ('agent1', u'Stef Agent'),
                               ('test-user', u'test-user (Désactivé)')])
 
     def test_get_settings_vta_table(self):

@@ -10,10 +10,9 @@ from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.Extensions.demo import activate_group_encoder
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from z3c.form import validator
@@ -80,7 +79,7 @@ class TestSettings(unittest.TestCase):
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 4)
 
     def test_configure_group_encoder(self):
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         # activate imail group encoder
         activate_group_encoder(self.portal)
         self.assertIn(CREATING_GROUP_SUFFIX, [fct['fct_id'] for fct in get_registry_functions()])

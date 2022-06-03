@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """ dmsfile.py tests for this package."""
 from imio.dms.mail.dmsfile import RestrictedNamedBlobFile
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
@@ -21,7 +20,7 @@ class TestDmsfile(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pc = self.portal.portal_catalog
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']

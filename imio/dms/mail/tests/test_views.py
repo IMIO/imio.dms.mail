@@ -5,13 +5,12 @@ from collective.MockMailHost.MockMailHost import MockMailHost
 from datetime import datetime
 from imio.dms.mail import PERIODS
 from imio.dms.mail.browser.views import parse_query
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
 from plone import api
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from zope.i18n import translate
 
 import json
@@ -37,7 +36,7 @@ class TestReplyForm(unittest.TestCase):
         self.assertEqual(form['form.widgets.recipients'], expected_recipients)
 
     def test_add(self):
-        setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
+        change_user(self.portal)
         imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
         omail1 = api.content.create(container=self.portal, type='dmsoutgoingmail', id='newo1', title='TEST')
         view = imail1.unrestrictedTraverse('@@reply')
@@ -141,7 +140,7 @@ class TestServerSentEvents(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
+        change_user(self.portal)
 
     def test_call(self):
         omail1 = get_object(oid='reponse1', ptype='dmsoutgoingmail')
@@ -220,7 +219,7 @@ class TestSendEmail(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Member', 'Manager'])
+        change_user(self.portal)
 
     def test_call(self):
         omail1 = get_object(oid='reponse1', ptype='dmsoutgoingmail')

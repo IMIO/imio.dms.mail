@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 """Test views."""
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
 from plone import api
-from plone.app.testing import login
-from plone.app.testing import logout
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
@@ -21,8 +18,8 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
-        self.portal.REQUEST['AUTHENTICATED_USER'] = api.user.get(username=TEST_USER_ID)
+        change_user(self.portal)
+        self.portal.REQUEST['AUTHENTICATED_USER'] = api.user.get(username='siteadmin')
         self.im2 = get_object(oid='courrier2', ptype='dmsincomingmail')
         self.view = self.im2.unrestrictedTraverse('@@actions_panel')
         self.intids = getUtility(IIntIds)
@@ -40,9 +37,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.im2.title = u'title'
         # removed permission
         api.content.transition(self.im2, to_state='proposed_to_agent')
-        setRoles(self.portal, TEST_USER_ID, ['Member'])
-        logout()
-        login(self.portal, 'lecteur')
+        change_user(self.portal, 'lecteur')
         self.view.request.set('imio.actionspanel_member_cachekey', None)
         self.assertFalse(self.view.mayReply())
 

@@ -7,6 +7,7 @@ from datetime import datetime
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.dmsmail import AssignedUserValidator
 from imio.dms.mail.dmsmail import IMEdit
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
@@ -36,7 +37,7 @@ class TestIMServiceValidation1(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pw = self.portal.portal_workflow
         self.imw = self.pw['incomingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
@@ -126,6 +127,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         # creation is made earlier otherwise wf_from_to['to'] is again at default value ??????????????
         self.assertEqual(api.content.get_state(self.imail), 'created')
         adapted = self.imail.wf_conditions()
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         # no treating_group: NOK
         self.assertTupleEqual(self.pw.getTransitionsFor(self.imail), ())
@@ -201,6 +203,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         org1, org2 = get_registry_organizations()[0:2]
         groupname1 = '{}_n_plus_1'.format(org1)
@@ -232,7 +235,7 @@ class TestIMServiceValidation2(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pw = self.portal.portal_workflow
         self.imw = self.pw['incomingmail_workflow']
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'test',
@@ -344,6 +347,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         # creation is made earlier otherwise wf_from_to['to'] is again at default value ??????????????
         self.assertEqual(api.content.get_state(self.imail), 'created')
         adapted = self.imail.wf_conditions()
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         # no treating_group: NOK
         self.assertFalse(adapted.can_do_transition('propose_to_agent'))
@@ -449,6 +453,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
         org1, org2 = get_registry_organizations()[0:2]
         groupname1_1 = '{}_n_plus_1'.format(org1)

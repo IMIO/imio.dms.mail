@@ -4,6 +4,7 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
@@ -11,8 +12,6 @@ from imio.helpers.content import get_object
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
-from plone.app.testing import login
-from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
@@ -36,7 +35,7 @@ class TestDmsmail(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         intids = getUtility(IIntIds)
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'c1',
                                 **{'sender': [RelationValue(intids.getId(self.portal.contacts['electrabel']))],
@@ -108,7 +107,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(api.content.get_state(self.imail), 'created')
         self.imail.treating_groups = get_registry_organizations()[1]  # direction-generale secretariat
         api.content.transition(self.imail, 'propose_to_agent')
-        login(self.portal, 'agent')
+        change_user(self.portal, 'agent')
         self.assertIsNone(self.imail.assigned_user)
         api.content.transition(self.imail, 'close')
         self.assertEqual(self.imail.assigned_user, 'agent')
@@ -161,8 +160,8 @@ class TestDmsmail(unittest.TestCase):
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
-                              ('chef', u'Michel Chef'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
-                              ('test-user', u'test-user (Désactivé)')])
+                              ('chef', u'Michel Chef'), ('siteadmin', u'siteadmin'), ('scanner', u'Scanner'),
+                              ('agent1', u'Stef Agent'), ('test-user', u'test-user (Désactivé)')])
         # we change a user property
         member = api.user.get(userid='chef')
         member.setMemberProperties({'fullname': 'Michel Chef 2'})
@@ -172,15 +171,16 @@ class TestDmsmail(unittest.TestCase):
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
                               ('encodeur', u'Jean Encodeur'), ('lecteur', u'Jef Lecteur'), ('dirg', u'Maxime DG'),
-                              ('chef', u'Michel Chef 2'), ('scanner', u'Scanner'), ('agent1', u'Stef Agent'),
-                              ('test-user', u'test-user (Désactivé)')])
+                              ('chef', u'Michel Chef 2'), ('siteadmin', u'siteadmin'), ('scanner', u'Scanner'),
+                              ('agent1', u'Stef Agent'), ('test-user', u'test-user (Désactivé)')])
         # we change the activated services
         set_registry_organizations(get_registry_organizations()[0:1])  # only keep Direction générale
         api.group.remove_user(groupname='createurs_dossier', username='agent')  # remove agent from global group
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('encodeur', u'Jean Encodeur'),
-                              ('dirg', u'Maxime DG'), ('chef', u'Michel Chef 2'), ('scanner', u'Scanner'),
+                              ('dirg', u'Maxime DG'), ('chef', u'Michel Chef 2'), ('siteadmin', u'siteadmin'),
+                              ('scanner', u'Scanner'),
                               ('agent', u'Fred Agent (Désactivé)'), ('lecteur', u'Jef Lecteur (Désactivé)'),
                               ('agent1', u'Stef Agent (Désactivé)'), ('test-user', u'test-user (Désactivé)')])
         # wrong configuration change

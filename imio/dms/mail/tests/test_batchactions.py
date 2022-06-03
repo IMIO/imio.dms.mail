@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 """Test views."""
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
 from plone import api
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 
 import unittest
 
@@ -15,7 +14,7 @@ class BatchActions(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pc = api.portal.get_tool('portal_catalog')
         self.imf = self.portal['incoming-mail']
         self.msf = self.imf['mail-searches']

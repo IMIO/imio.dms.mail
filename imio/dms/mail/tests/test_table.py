@@ -3,10 +3,9 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from datetime import datetime
 from imio.dms.mail.browser.table import AssignedGroupColumn
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 
 import unittest
@@ -20,7 +19,7 @@ class TestTable(unittest.TestCase):
         # you'll want to use this to set up anything you need for your tests
         # below
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
 
     def test_VersionsTitleColumn(self):
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')

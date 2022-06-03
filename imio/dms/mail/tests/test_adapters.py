@@ -21,13 +21,12 @@ from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from plone import api
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
@@ -42,10 +41,8 @@ class TestAdapters(unittest.TestCase):
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
-        # you'll want to use this to set up anything you need for your tests
-        # below
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pgof = self.portal['contacts']['plonegroup-organization']
 
     def tearDown(self):
@@ -57,7 +54,7 @@ class TestAdapters(unittest.TestCase):
         # no groups, => default criterias
         self.assertEqual(crit.query, default_criterias['dmsincomingmail'])
         api.group.create(groupname='111_n_plus_1')
-        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
         # update reviewlevels because n_plus_1 level is not applied by default
         set_dms_config(['review_levels', 'dmsincomingmail'],
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
@@ -65,7 +62,7 @@ class TestAdapters(unittest.TestCase):
         # in a group _n_plus_1
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_n_plus_1']},
                                       'treating_groups': {'query': ['111']}})
-        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        api.group.add_user(groupname='dir_general', username='siteadmin')
         # in a group dir_general
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_manager']}})
 
@@ -75,14 +72,14 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'state_group': {'query': []}})
         # in a group _n_plus_1
         api.group.create(groupname='111_n_plus_1')
-        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
         # update reviewlevels because n_plus_1 level is not applied by default
         set_dms_config(['review_levels', 'dmsincomingmail'],
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                     ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
-        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        api.group.add_user(groupname='dir_general', username='siteadmin')
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
                                                                 'proposed_to_n_plus_1,111']}})
 
@@ -92,13 +89,13 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'state_group': {'query': []}})
         # in a group _n_plus_1
         api.group.create(groupname='111_n_plus_1')
-        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
         # update reviewlevels because n_plus_1 level is not applied by default
         set_dms_config(['review_levels', 'dmsoutgoingmail'],
                        OrderedDict([('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
-        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        api.group.add_user(groupname='dir_general', username='siteadmin')
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
 
     def test_TaskValidationCriterion(self):
@@ -107,54 +104,54 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'state_group': {'query': []}})
         # in a group _n_plus_1
         api.group.create(groupname='111_n_plus_1')
-        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
         set_dms_config(['review_levels', 'task'],
                        OrderedDict([('_n_plus_1', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
         # in a group dir_general, but no effect for task criterion
-        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        api.group.add_user(groupname='dir_general', username='siteadmin')
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
 
     def test_IncomingMailInTreatingGroupCriterion(self):
         crit = IncomingMailInTreatingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
         api.group.create(groupname='111_n_plus_1')
-        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_OutgoingMailInTreatingGroupCriterion(self):
         crit = OutgoingMailInTreatingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
         api.group.create(groupname='111_n_plus_1')
-        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_IncomingMailInCopyGroupCriterion(self):
         crit = IncomingMailInCopyGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'recipient_groups': {'query': []}})
         api.group.create(groupname='111_editeur')
-        api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_editeur', username='siteadmin')
         self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
 
     def test_OutgoingMailInCopyGroupCriterion(self):
         crit = OutgoingMailInCopyGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'recipient_groups': {'query': []}})
         api.group.create(groupname='111_editeur')
-        api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_editeur', username='siteadmin')
         self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
 
     def test_TaskInAssignedGroupCriterion(self):
         crit = TaskInAssignedGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'assigned_group': {'query': []}})
         api.group.create(groupname='111_editeur')
-        api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_editeur', username='siteadmin')
         self.assertEqual(crit.query, {'assigned_group': {'query': ['111']}})
 
     def test_TaskInProposingGroupCriterion(self):
         crit = TaskInProposingGroupCriterion(self.portal)
         self.assertEqual(crit.query, {'mail_type': {'query': []}})
         api.group.create(groupname='111_editeur')
-        api.group.add_user(groupname='111_editeur', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_editeur', username='siteadmin')
         self.assertEqual(crit.query, {'mail_type': {'query': ['111']}})
 
     def test_im_sender_email_index(self):

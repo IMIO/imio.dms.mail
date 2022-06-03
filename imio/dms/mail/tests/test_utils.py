@@ -4,6 +4,7 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from datetime import datetime
 from datetime import timedelta
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
@@ -28,8 +29,6 @@ from persistent.list import PersistentList
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import logout
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from z3c.relationfield import RelationValue
 from zope.annotation.interfaces import IAnnotations
@@ -43,10 +42,8 @@ class TestUtils(unittest.TestCase):
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
-        # you'll want to use this to set up anything you need for your tests
-        # below
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.pgof = self.portal['contacts']['plonegroup-organization']
         self.catalog = self.portal.portal_catalog
@@ -286,7 +283,8 @@ class TestUtils(unittest.TestCase):
     def test_UtilsMethods_is_in_user_groups(self):
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = UtilsMethods(imail, imail.REQUEST)
-        self.assertListEqual(view.current_user_groups_ids(api.user.get_current()), ['AuthenticatedUsers'])
+        self.assertListEqual(view.current_user_groups_ids(api.user.get_current()),
+                             ['Administrators', 'AuthenticatedUsers'])
         # current user is Manager
         self.assertTrue(view.is_in_user_groups(groups=['abc']))
         self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False))
@@ -363,14 +361,14 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.user_has_review_level())
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
         api.group.create(groupname='111_n_plus_1')
-        api.group.add_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
         set_dms_config(['review_levels', 'dmsincomingmail'],
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                     ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
-        api.group.remove_user(groupname='111_n_plus_1', username=TEST_USER_ID)
+        api.group.remove_user(groupname='111_n_plus_1', username='siteadmin')
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
-        api.group.add_user(groupname='dir_general', username=TEST_USER_ID)
+        api.group.add_user(groupname='dir_general', username='siteadmin')
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
 
     def test_IdmUtilsMethods_created_col_cond(self):

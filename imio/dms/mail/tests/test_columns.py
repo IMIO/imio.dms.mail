@@ -3,13 +3,12 @@ from datetime import datetime
 from imio.dms.mail.columns import SenderColumn
 from imio.dms.mail.columns import TaskActionsColumn
 from imio.dms.mail.columns import TaskParentColumn
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from plone import api
-from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
-from plone.dexterity.utils import createContentInContainer
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
@@ -23,7 +22,7 @@ class TestColumns(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.intids = getUtility(IIntIds)
         self.mail_table = self.portal['incoming-mail']['mail-searches'].unrestrictedTraverse('@@faceted-table-view')
         self.task_table = self.portal['incoming-mail']['mail-searches'].unrestrictedTraverse('@@faceted-table-view')

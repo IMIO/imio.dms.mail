@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """ workflow tests for this package."""
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import get_dms_config
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 
 import unittest
 
@@ -14,7 +13,7 @@ class TestWorkflows(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pw = self.portal.portal_workflow
 
     def test_im_workflow0(self):

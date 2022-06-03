@@ -4,6 +4,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from datetime import datetime
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
@@ -37,7 +38,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pw = self.portal.portal_workflow
         self.omw = self.pw['outgoingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
@@ -114,6 +115,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertIn('proposed_to_n_plus_1', res)
         # check dms config
         view = OdmUtilsMethods(self.omail, self.omail.REQUEST)
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
         # no treating_groups: NOK
         self.assertIsNone(self.omail.treating_groups)
@@ -166,7 +168,7 @@ class TestOMServiceValidation1(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pw = self.portal.portal_workflow
         self.omw = self.pw['outgoingmail_workflow']
         api.group.create('abc_group_encoder', 'ABC group encoder')
@@ -258,6 +260,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.omail), 'created')
         adapted = self.omail.wf_conditions()
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
         org1, org2 = get_registry_organizations()[0:2]
         groupname1 = '{}_n_plus_1'.format(org1)
@@ -277,6 +280,7 @@ class TestOMServiceValidation1(unittest.TestCase):
     def test_OdmUtilsMethods_can_do_transition1(self):
         # self.assertEqual(api.content.get_state(self.omail), 'created')
         adapted = self.omail.wf_conditions()
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Reviewer', 'Manager'])
         # no treating_groups: NOK
         self.assertIsNone(self.omail.treating_groups)
@@ -330,7 +334,7 @@ class TestIMPreManagerValidation(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pw = self.portal.portal_workflow
         self.imw = self.pw['incomingmail_workflow']
         params = {'state_title': u'À valider avant le DG',
@@ -395,7 +399,7 @@ class TestTaskServiceValidation1(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
         self.pw = self.portal.portal_workflow
         self.tw = self.pw['task_workflow']
         self.portal.portal_setup.runImportStepFromProfile('profile-imio.dms.mail:singles',
@@ -464,6 +468,7 @@ class TestTaskServiceValidation1(unittest.TestCase):
         api.content.transition(task, transition='do_to_assign')
         self.assertEqual(api.content.get_state(task), 'to_do')
         adapted = task.get_methods_adapter()
+        change_user(self.portal, 'test-user')
         setRoles(self.portal, TEST_USER_ID, ['Editor', 'Reviewer'])
         # no assigned_group: NOK
         task.assigned_group = None

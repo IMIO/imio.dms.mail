@@ -34,6 +34,7 @@ from zope.intid import IIntIds
 
 import datetime
 import imio.dms.mail
+import inspect
 import os
 
 
@@ -133,7 +134,9 @@ class DmsmailLayer(PloneWithPackageLayer):
         # avoid redirection after document generation
         from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
         OMPDGenerationView.redirects = lambda a, b: None
-
+        caller = inspect.stack()[1][3]
+        if caller == 'setUp':
+            common_setup(portal)
         setRoles(portal, TEST_USER_ID, ['Member'])
 
     def setUpZope(self, app, configurationContext):
@@ -182,6 +185,7 @@ class DmsmailLayerNP1(DmsmailLayer):
                                        'incomingmail_number', 1)
 
         setRoles(portal, TEST_USER_ID, ['Member'])
+        common_setup(portal)
 
 
 DMSMAIL_FIXTURE = DmsmailLayer(
@@ -223,6 +227,12 @@ DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     name="DMSMAIL_ROBOT_TESTING")
 
 
+def common_setup(portal):
+    portal.portal_registration.addMember(id='siteadmin', password='SiteAdm!n0')
+    api.group.add_user(groupname='Administrators', username='siteadmin')
+    setattr(portal, '_v_ready', True)
+
+
 def reset_dms_config():
     set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus', 'from'],  # i_e ok
                    [('created', 'back_to_creation'), ('proposed_to_manager', 'back_to_manager')])
@@ -261,7 +271,7 @@ def create_groups(tc, nb, start=1):
                 api.group.create(gid, 'Group {}'.format(i))
 
 
-def change_user(portal, user='test-user'):
+def change_user(portal, user='siteadmin'):
     logout()
     login(portal, user)
 

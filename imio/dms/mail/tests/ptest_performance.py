@@ -3,6 +3,7 @@ from __future__ import print_function
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from imio.dms.mail.testing import add_user_in_groups
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import create_groups
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.cache import extract_wrapped
@@ -21,7 +22,7 @@ import unittest
 # Commons
 
 def check_catalog_following_groups(self, init=False, nb=100):
-    login(self.portal, TEST_USER_NAME)
+    # login(self.portal, TEST_USER_NAME)
     if init:
         user = api.user.create('test@test.be', 'newuser', 'Password#1')
     user = self.portal.acl_users.getUserById('newuser')
@@ -56,7 +57,7 @@ class TestPerformance(unittest.TestCase):
 
     def setUp(self):
         self.portal = self.layer['portal']
-        setRoles(self.portal, TEST_USER_ID, ['Manager'])
+        change_user(self.portal)
 
     def test_voc_selected_org_suffix_users(self):
         org_uid = self.portal.contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
