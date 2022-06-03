@@ -96,13 +96,12 @@ class TestDmsmail(unittest.TestCase):
         adapted = imail.wf_conditions()
         # no treating_group nor title: NOK
         self.assertFalse(adapted.can_do_transition('propose_to_agent'))
-        imail.title = u'test'
         # tg ok, state ok, assigner_user nok but auc ok: OK
+        imail.title = u'test'
         imail.treating_groups = get_registry_organizations()[0]
         self.assertTrue(adapted.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user nok, auc nok: NOK
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        change_user(self.portal, 'encodeur')
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')
         self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user nok, auc ok: OK
@@ -175,8 +174,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_add_edit(self):
         # Based on test_settings from collective.dms.mailcontent
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Contributor'])
+        change_user(self.portal, 'encodeur')
         # check default config
         self.assertEquals(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                          'outgoingmail_number'), 10)
@@ -393,8 +391,7 @@ class TestDmsmail(unittest.TestCase):
         self.clean_request()
 
     def test_view(self):
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Contributor', 'Reviewer'])
+        change_user(self.portal, 'encodeur')
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IMView(imail, imail.REQUEST)
@@ -487,8 +484,7 @@ class TestDmsmail(unittest.TestCase):
         omail.treating_groups = get_registry_organizations()[0]  # direction-generale
         # admin
         self.assertTrue(adapted.can_be_sent())
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Member'])
+        change_user(self.portal, 'chef')
         # define as email
         omail.send_modes = [u'email']
         self.assertTrue(omail.is_email())
