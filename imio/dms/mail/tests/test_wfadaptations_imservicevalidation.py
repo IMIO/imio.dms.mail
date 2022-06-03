@@ -17,8 +17,6 @@ from imio.dms.mail.utils import sub_create
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from plone import api
 from plone.app.testing import login
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from zope.component import getUtility
 from zope.interface import Interface
@@ -127,8 +125,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         # creation is made earlier otherwise wf_from_to['to'] is again at default value ??????????????
         self.assertEqual(api.content.get_state(self.imail), 'created')
         adapted = self.imail.wf_conditions()
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        change_user(self.portal, 'encodeur')
         # no treating_group: NOK
         self.assertTupleEqual(self.pw.getTransitionsFor(self.imail), ())
         self.assertFalse(adapted.can_do_transition('propose_to_agent'))
@@ -159,6 +156,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         api.group.add_user(groupname=groupname, username='chef')
         self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
         api.content.transition(self.imail, 'propose_to_n_plus_1')
+        change_user(self.portal, 'chef')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')
         # tg ok, state ok, assigner_user nok, auc nok
         self.imail.assigned_user = None
@@ -203,23 +201,25 @@ class TestIMServiceValidation1(unittest.TestCase):
         adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        change_user(self.portal, 'encodeur')
         org1, org2 = get_registry_organizations()[0:2]
         groupname1 = '{}_n_plus_1'.format(org1)
         groupname2 = '{}_n_plus_1'.format(org2)
         self.assertTrue(group_has_user(groupname2))
+        # with api.env.adopt_roles(['Manager']):
         api.group.remove_user(groupname=groupname1, username='chef')
         self.assertFalse(group_has_user(groupname1))
         self.imail.treating_groups = org1
         self.assertFalse(adapted.can_do_transition('propose_to_n_plus_1'))  # no user
         self.imail.treating_groups = org2
         self.assertTrue(adapted.can_do_transition('propose_to_n_plus_1'))
+        # with api.env.adopt_roles(['Manager']):
         api.content.transition(self.imail, 'propose_to_n_plus_1')
         # we check assigned_user requirement
         edit_view.request.form['form.widgets.treating_groups'] = [org1]
         self.assertEqual(api.portal.get_registry_record(AUC_RECORD), 'n_plus_1')
         self.assertIsNone(auv.validate(None))
+        # with api.env.adopt_roles(['Manager']):
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')
         self.assertRaises(Invalid, auv.validate, None)
         # notify modification
@@ -347,8 +347,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         # creation is made earlier otherwise wf_from_to['to'] is again at default value ??????????????
         self.assertEqual(api.content.get_state(self.imail), 'created')
         adapted = self.imail.wf_conditions()
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        change_user(self.portal, 'encodeur')
         # no treating_group: NOK
         self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, following states
@@ -392,7 +391,8 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertTrue(adapted.can_do_transition('back_to_manager'))
         # WE DO TRANSITION
         api.group.add_user(groupname=groupname1, username='chef')
-        api.content.transition(self.imail, 'propose_to_n_plus_1')
+        with api.env.adopt_roles(['Reviewer']):
+            api.content.transition(self.imail, 'propose_to_n_plus_1')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_n_plus_1')
         self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         self.assertTrue(adapted.can_do_transition('back_to_n_plus_2'))
@@ -405,7 +405,8 @@ class TestIMServiceValidation2(unittest.TestCase):
         self.assertTrue(adapted.can_do_transition('back_to_manager'))
         # WE DO TRANSITION
         self.imail.assigned_user = 'chef'
-        api.content.transition(self.imail, 'propose_to_agent')
+        with api.env.adopt_roles(['Reviewer']):
+            api.content.transition(self.imail, 'propose_to_agent')
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
         self.assertTrue(adapted.can_do_transition('back_to_n_plus_1'))
         self.assertFalse(adapted.can_do_transition('back_to_n_plus_2'))
@@ -453,8 +454,7 @@ class TestIMServiceValidation2(unittest.TestCase):
         adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, 'fld', 'widget')
-        change_user(self.portal, 'test-user')
-        setRoles(self.portal, TEST_USER_ID, ['Reviewer'])
+        change_user(self.portal, 'encodeur')
         org1, org2 = get_registry_organizations()[0:2]
         groupname1_1 = '{}_n_plus_1'.format(org1)
         groupname1_2 = '{}_n_plus_2'.format(org1)
@@ -486,7 +486,8 @@ class TestIMServiceValidation2(unittest.TestCase):
         api.group.remove_user(groupname=groupname1_1, username='chef')
         self.assertFalse(group_has_user(groupname1_1))  # no user
         self.assertFalse(group_has_user(groupname1_2))  # no user
-        api.content.transition(self.imail, 'back_to_creation')
+        with api.env.adopt_roles(['Reviewer']):
+            api.content.transition(self.imail, 'back_to_creation')
         self.assertEqual(api.content.get_state(self.imail), 'created')
         self.assertFalse(adapted.can_do_transition('propose_to_n_plus_2'))  # no user
         self.imail.treating_groups = org2
