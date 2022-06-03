@@ -1125,4 +1125,5 @@ def do_next_transition(mail, ptype, treating_group='', state=None, config=None):
         config = get_dms_config(['transitions_levels', ptype])
     if treating_group == '':
         treating_group = mail.treating_groups
-    api.content.transition(mail, config[state][treating_group][0])
+    with api.env.adopt_roles(['Reviewer']):
+        api.content.transition(mail, config[state][treating_group][0])
