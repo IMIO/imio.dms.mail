@@ -174,7 +174,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
             self.do_prior_updates()
 
-            self.install(['collective.classification.folder', 'collective.js.tooltipster', 'Products.cron4plone'])
+            self.install(['collective.classification.folder', 'collective.js.tooltipster', 'imio.helpers',
+                          'Products.cron4plone'])
             self.ps.runAllImportStepsFromProfile('profile-collective.js.tooltipster:themes')
 
         if self.is_in_part('b'):  # idm steps, config, folders
@@ -273,6 +274,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.upgradeAll(omit=['imio.dms.mail:default'])
 
         if self.is_in_part('r'):  # update templates
+            # TEMPORARY to 3.0.19
+            self.install(['imio.helpers'])
+
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             # update templates
             add_templates(self.portal)
@@ -291,7 +295,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                          'collective.eeafaceted.z3ctable', 'collective.js.tooltipster', 'collective.task',
                          'collective.wfadaptations', 'collective.z3cform.chosen', 'dexterity.localroles',
                          'dexterity.localrolesfield', 'eea.facetednavigation', 'eea.jquery', 'imio.actionspanel',
-                         'imio.dashboard', 'imio.dms.mail', 'imio.history', 'imio.pm.wsclient', 'plonetheme.imioapps']:
+                         'imio.dashboard', 'imio.dms.mail', 'imio.helpers', 'imio.history', 'imio.pm.wsclient',
+                         'plonetheme.imioapps']:
                 mark_last_version(self.portal, product=prod)
 
         self.log_mem('END')
