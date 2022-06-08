@@ -375,6 +375,7 @@ class PathColumn(LinkColumn, BaseColumn):
     linkTarget = '_blank'
     subPath = 'contact-lists-folder'
     sort_index = 'path'
+    escape = False
 
     def init_paths(self, item):
         self.root_obj = self.get_root_obj(item)
