@@ -7,10 +7,10 @@ from collective.task import _ as _task
 from html import escape
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail.columns import NoEscapeLinkColumn
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
-from z3c.table.column import LinkColumn
 from z3c.table.table import Table
 from zope.annotation.interfaces import IAnnotations
 from zope.cachedescriptors.property import CachedProperty
@@ -23,6 +23,7 @@ from zope.schema.interfaces import IVocabularyFactory
 
 
 class IMVersionsTitleColumn(VersionsTitleColumn):
+    """Supplants original base table title. xss ok"""
 
     def getLinkTitle(self, item):
         obj = item.getObject()
@@ -68,7 +69,8 @@ class OMSignedColumn(Column):
 '''
 
 
-class GenerationColumn(LinkColumn):
+class GenerationColumn(NoEscapeLinkColumn):
+    """Mailing icon column. xss ok"""
     header = ""
     weight = 12  # before label = 15
     iconName = "++resource++imio.dms.mail/mailing.gif"

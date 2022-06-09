@@ -19,6 +19,7 @@ from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
 from collective.task.interfaces import ITaskMethods
 from imio.dms.mail import _
+from html import escape
 from plone import api
 from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone import PloneMessageFactory as PMF
@@ -29,17 +30,32 @@ from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
-import html
 import Missing
 import os
 
 
+class NoEscapeLinkColumn(LinkColumn):
+    """Do not escape link content (made in z3c.table >= 2.1.1)"""
+
+    def renderCell(self, item):
+        # setup a tag
+        return '<a href="%s"%s%s%s>%s</a>' % (
+            escape(self.getLinkURL(item)),
+            self.getLinkTarget(item),
+            self.getLinkCSS(item),
+            self.getLinkTitle(item),  # internally escaped
+            self.getLinkContent(item),  # originally escaped
+        )
+
+
 class IMTitleColumn(PrettyLinkColumn):
+    """IM dashboard. xss ok"""
 
     params = {'showContentIcon': True, 'display_tag_title': False}
 
 
 class OMColorColumn(ColorColumn):
+    """OM dashboard. xss ok"""
 
     attrName = 'printable'
     i18n_domain = 'imio.dms.mail'
@@ -66,49 +82,56 @@ class OMColorColumn(ColorColumn):
 
 
 class OMTitleColumn(PrettyLinkColumn):
+    """OM dashboard. xss ok"""
 
     params = {'showContentIcon': True, 'display_tag_title': False}
 
 
 class TreatingGroupsColumn(VocabularyColumn):
+    """IM, OM dashboard. xss ok"""
 
     vocabulary = u'collective.dms.basecontent.treating_groups'
 
 
 class AssignedGroupColumn(VocabularyColumn):
+    """Task dashboard. xss ok"""
 
     vocabulary = u'collective.dms.basecontent.treating_groups'
 
 
 class AssignedUserColumn(MemberIdColumn):
+    """IM dashboard. xss ok"""
 
     attrName = u'assigned_user'
 
 
 class DueDateColumn(DateColumn):
+    """Dashboards. xss ok"""
 
     attrName = u'due_date'
 
 
 class IMActionsColumn(ActionsColumn):
+    """IM dashboard. xss ok"""
 
     params = {'showHistory': True, 'showActions': True}
 
 
 class MailTypeColumn(VocabularyColumn):
+    """IM dashboard. xss ok"""
 
     vocabulary = u'imio.dms.mail.IMMailTypesVocabulary'
 
 
 class Sender2Column(DxWidgetRenderColumn):  # pragma: no cover
-# 3 à 4 fois plus lent que Sender3Column
+    # 3 à 4 fois plus lent que Sender3Column
 
     field_name = 'sender'
     prefix = 'escape'
 
 
 class Sender3Column(RelationPrettyLinkColumn):  # pragma: no cover
-# 3 à 4 fois plus lent que SenderColumn
+    # 3 à 4 fois plus lent que SenderColumn
     attrName = 'sender'
     params = {'showContentIcon': True, 'target': '_blank'}
 
@@ -118,6 +141,7 @@ class Sender3Column(RelationPrettyLinkColumn):  # pragma: no cover
 
 
 class ContactsColumn(PrettyLinkColumn):
+    """Dashboard. xss ok"""
 
     attrName = ''
     i_cache = {}
@@ -157,7 +181,7 @@ class ContactsColumn(PrettyLinkColumn):
                 ret.append(u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
                            u"<span class='pretty_link_icons'>%s</span>"
                            u"<span class='pretty_link_content'>%s</span></a>"
-                           % (c_brain.getURL(), self._icons(c_brain), safe_unicode(html.escape(c_brain.get_full_title)))
+                           % (c_brain.getURL(), self._icons(c_brain), safe_unicode(escape(c_brain.get_full_title)))
                            )
         l_ret = len(ret)
         if l_ret == 1:
@@ -169,12 +193,14 @@ class ContactsColumn(PrettyLinkColumn):
 
 
 class SenderColumn(ContactsColumn):
+    """IM dashboard. xss ok"""
 
     attrName = 'sender_index'
     header = _cez('header_sender')
 
 
 class TaskParentColumn(PrettyLinkColumn):
+    """Task dashboard. xss ok"""
 
     params = {'showContentIcon': True, 'target': '_blank'}
     sort_index = -1  # not sortable
@@ -188,24 +214,28 @@ class TaskParentColumn(PrettyLinkColumn):
 
 
 class RecipientsColumn(ContactsColumn):
+    """OM dashboard. xss ok"""
 
     attrName = 'recipients_index'
     header = _cez('header_recipients')
 
 
 class OutgoingDateColumn(DateColumn):
+    """OM dashboard. xss ok"""
 
     attrName = u'in_out_date'
     # long_format = True
 
 
 class SendModesColumn(VocabularyColumn):
+    """OM dashboard. xss ok"""
 
     attrName = 'Subject'
     vocabulary = u'imio.dms.mail.OMActiveSendModesVocabulary'
 
 
 class ReviewStateColumn(I18nColumn):
+    """Dashboards. xss ok"""
 
     i18n_domain = 'plone'
     weight = 30
@@ -420,7 +450,7 @@ class PathColumn(LinkColumn, BaseColumn):
         rel_path = os.path.relpath(dir_path, self.root_path)
         if rel_path not in self.paths:
             self.rel_path_title(rel_path)
-        return html.escape(self.paths[rel_path])
+        return escape(self.paths[rel_path])
 
 # ck-templates-listing columns
 
