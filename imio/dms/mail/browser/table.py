@@ -4,6 +4,7 @@ from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task import _ as _task
+from html import escape
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from plone import api
@@ -28,7 +29,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         if not IScanFields.providedBy(obj):
             return
         scan_infos = [
-            ('scan_id', item.scan_id or ''),
+            ('scan_id', item.scan_id and escape(item.scan_id) or ''),
             ('scan_date', obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ''),
             ('Version', obj.version or ''),
         ]
@@ -40,7 +41,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
 
     def getLinkContent(self, item):
         iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
-        content = super(VersionsTitleColumn, self).getLinkContent(item)
+        content = super(VersionsTitleColumn, self).getLinkContent(item)  # escaped
         if item.signed:
             return u"""%s <img title="%s" src="%s" />""" % (
                 content,
