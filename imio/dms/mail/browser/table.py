@@ -7,7 +7,7 @@ from collective.task import _ as _task
 from html import escape
 from imio.dms.mail import _
 from imio.dms.mail import _tr
-from imio.dms.mail.columns import NoEscapeLinkColumn
+from imio.helpers.adapters import NoEscapeLinkColumn
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
@@ -99,8 +99,7 @@ class GenerationColumn(NoEscapeLinkColumn):
 
 
 class EnquirerColumn(Column):
-
-    """Column that displays enquirer group."""
+    """Tasks table viewlet. xss ok"""
 
     header = _task("Enquirer")
     weight = 30
@@ -110,12 +109,11 @@ class EnquirerColumn(Column):
             return ''
         factory = getUtility(IVocabularyFactory, 'collective.task.Enquirer')
         voc = factory(item)
-        return safe_unicode(voc.getTerm(item.enquirer).title)
+        return escape(safe_unicode(voc.getTerm(item.enquirer).title))
 
 
 class AssignedGroupColumn(Column):
-
-    """Column that displays assigned group."""
+    """Tasks table viewlet. xss ok"""
 
     header = _("Treating groups")
     weight = 30
@@ -125,7 +123,7 @@ class AssignedGroupColumn(Column):
             return ''
         factory = getUtility(IVocabularyFactory, 'collective.task.AssignedGroups')
         voc = factory(item)
-        return safe_unicode(voc.getTerm(item.assigned_group).title)
+        return escape(safe_unicode(voc.getTerm(item.assigned_group).title))
 
 
 class OMVersionsTable(VersionsTable):

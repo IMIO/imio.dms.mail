@@ -34,20 +34,6 @@ import Missing
 import os
 
 
-class NoEscapeLinkColumn(LinkColumn):
-    """Do not escape link content (made in z3c.table >= 2.1.1)"""
-
-    def renderCell(self, item):
-        # setup a tag
-        return '<a href="%s"%s%s%s>%s</a>' % (
-            escape(self.getLinkURL(item)),
-            self.getLinkTarget(item),
-            self.getLinkCSS(item),
-            self.getLinkTitle(item),  # internally escaped
-            self.getLinkContent(item),  # originally escaped
-        )
-
-
 class IMTitleColumn(PrettyLinkColumn):
     """IM dashboard. xss ok"""
 
@@ -159,7 +145,7 @@ class ContactsColumn(PrettyLinkColumn):
                 # or like string:${portal_url}/++resource++imio.dashboard/dashboardpodtemplate.png
                 contentIcon = '/'.join(typeInfo.icon_expr.split('/')[1:])
                 title = translate(typeInfo.title, domain=typeInfo.i18n_domain, context=self.request)
-                icon_link = u"<img title='%s' src='%s/%s' />" % (safe_unicode(title), purl, contentIcon)
+                icon_link = u"<img title='%s' src='%s/%s' />" % (safe_unicode(escape(title)), purl, contentIcon)
             self.i_cache[c_brain.portal_type] = icon_link
         return self.i_cache[c_brain.portal_type]
 
@@ -267,6 +253,7 @@ class ObjectBrowserViewCallColumn(column.Column):
 
 
 class TaskActionsColumn(ObjectBrowserViewCallColumn):
+    """Tasks table viewlet. xss ok"""
 
     header = _cez("header_actions")
     weight = 70
@@ -456,7 +443,7 @@ class PathColumn(LinkColumn, BaseColumn):
 
 
 class TitleColumn(LinkColumn):
-    """Column that displays title."""
+    """CKTemplates table. xss ok"""
 
     header = PMF("Title")
     weight = 10
@@ -470,7 +457,7 @@ class TitleColumn(LinkColumn):
 
 
 class CKPathColumn(LinkColumn):
-    """Column that displays relative path."""
+    """CKTemplates table. xss ok"""
 
     header = _("Relative path")
     weight = 20
@@ -487,7 +474,7 @@ class CKPathColumn(LinkColumn):
 
 
 class ActionsColumn(DGActionsColumn):
-    """A column displaying available actions of the listed item."""
+    """CKTemplates table. xss ok"""
 
 #    header = _("Actions")
     weight = 70
