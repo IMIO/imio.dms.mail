@@ -265,6 +265,7 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
 # Columns for collective.dms.basecontent.browser.listing.VersionsTable
 
 class ExternalEditColumn(eec_base):
+    """Versions table. xss ok"""
 
     lockedLinkName = 'view'
     lockedIconName = 'lock_icon.png'
@@ -305,7 +306,7 @@ class ExternalEditColumn(eec_base):
             lock_info = getMultiAdapter((obj, self.request), name="plone_lock_info")
             lock_details = lock_info.lock_info()
             link_title = translate('description_webdav_locked_by_author_on_time', domain='plone', context=self.request,
-                                   mapping={'author': safe_unicode(lock_details['fullname']),
+                                   mapping={'author': escape(safe_unicode(lock_details['fullname'])),
                                             'time': lock_details['time_difference']})
         else:
             link_url = '%s/@@external_edit' % item.getURL()
@@ -320,6 +321,7 @@ class ExternalEditColumn(eec_base):
 
 
 class NoExternalEditColumn(eec_base):
+    """IM Versions table. xss ok"""
 
     cssClasses = {'th': 'empty_col', 'td': 'empty_cell'}
 
@@ -328,6 +330,7 @@ class NoExternalEditColumn(eec_base):
 
 
 class DVConvertColumn(IconColumn):
+    """Versions table. xss ok"""
 
     header = u""
     weight = 20
@@ -370,6 +373,7 @@ class HistoryColumn(lc_base):
 # Columns for contacts dashboard
 
 class ContactTitleColumn(PrettyLinkColumn):
+    """contact dashboards. xss ok"""
 
     attrName = 'get_full_title'
     params = {'target': '_blank', 'additionalCSSClasses': ['link-tooltip'], 'display_tag_title': False}
@@ -380,12 +384,13 @@ class ContactTitleColumn(PrettyLinkColumn):
 
 
 class ContactListTitleColumn(PrettyLinkColumn):
+    """contact dashboards. xss ok"""
 
     params = {'target': '_blank', 'additionalCSSClasses': ['link-tooltip', 'contact-list'], 'display_tag_title': False}
 
 
 class PathColumn(LinkColumn, BaseColumn):
-    """Column that displays path."""
+    """Column that displays path. xss ok"""
 
     header = 'header_relative_path'
     attrName = 'title'

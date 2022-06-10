@@ -131,7 +131,7 @@ class OMVersionsTable(VersionsTable):
 
 
 class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
-    """ Remove some additional infos """
+    """Plonegroup organizations: removed additional infos. xss ok"""
     ai_excluded_fields = ['organization_type']
     ai_extra_fields = []
 
