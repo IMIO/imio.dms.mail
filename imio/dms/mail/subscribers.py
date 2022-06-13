@@ -1011,6 +1011,7 @@ def folder_added(folder, event):
 
 
 def zope_ready(event):
+    """Not going here in test"""
     site = set_site_from_package_config('imio.dms.mail')
     if site:
         # Use our ramcache with patched storage

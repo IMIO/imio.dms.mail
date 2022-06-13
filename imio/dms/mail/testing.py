@@ -3,7 +3,9 @@ from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import transitions as do_transitions
+from imio.helpers.ram import imio_global_cache
 from imio.pyutils.system import runCommand
 from itertools import cycle
 from plone import api
@@ -27,10 +29,12 @@ from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from profilehooks import timecall
 from Testing import ZopeTestCase as ztc
 from z3c.relationfield import RelationValue
+from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.globalrequest.local import setLocal
 from zope.i18n import translate
 from zope.intid import IIntIds
+from zope.ramcache.interfaces.ram import IRAMCache
 
 import datetime
 import imio.dms.mail
@@ -94,6 +98,12 @@ class DmsmailLayer(PloneWithPackageLayer):
 
     def setUpPloneSite(self, portal):
         setLocal('request', portal.REQUEST)
+        sml = getSiteManager(portal)
+        sml.unregisterUtility(provided=IRAMCache)
+        sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
+        print('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+        setup_ram_cache()
+
         manage_addExternalMethod(portal, 'import_scanned', 'import_scanned', 'imio.dms.mail.demo', 'import_scanned')
         manage_addExternalMethod(portal, 'import_scanned2', 'import_scanned2', 'imio.dms.mail.demo', 'import_scanned2')
         manage_addExternalMethod(portal, 'create_main_file', 'create_main_file', 'imio.dms.mail.demo',
@@ -134,6 +144,7 @@ class DmsmailLayer(PloneWithPackageLayer):
         # avoid redirection after document generation
         from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
         OMPDGenerationView.redirects = lambda a, b: None
+
         caller = inspect.stack()[1][3]
         if caller == 'setUp':
             common_setup(portal)
