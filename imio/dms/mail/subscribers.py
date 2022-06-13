@@ -36,6 +36,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import uuidToObject
+from imio.helpers.ram import imio_global_cache
 from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
@@ -59,6 +60,7 @@ from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
+from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.container.interfaces import IContainerModifiedEvent
@@ -68,9 +70,11 @@ from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
+from zope.ramcache.interfaces.ram import IRAMCache
 
 import datetime
 import logging
+import os
 import transaction
 
 logger = logging.getLogger('imio.dms.mail: events')
@@ -1007,9 +1011,16 @@ def folder_added(folder, event):
 
 
 def zope_ready(event):
-    # setup_ram_cache()
     site = set_site_from_package_config('imio.dms.mail')
     if site:
-        logger.info('=> Setting folders tree annotation')
-        set_folders_tree(site)
+        # Use our ramcache with patched storage
+        sml = getSiteManager(site)
+        sml.unregisterUtility(provided=IRAMCache)
+        sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
+        logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+        setup_ram_cache()
+        # Store or refresh folders tree
+        if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
+            logger.info('=> Storing folders tree annotation')
+            set_folders_tree(site)
     transaction.commit()
