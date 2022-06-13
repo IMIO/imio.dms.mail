@@ -36,7 +36,6 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import uuidToObject
-from imio.helpers.ram import imio_global_cache
 from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
@@ -76,6 +75,11 @@ import datetime
 import logging
 import os
 import transaction
+
+try:
+    from imio.helpers.ram import imio_global_cache
+except ImportError:
+    imio_global_cache = None
 
 logger = logging.getLogger('imio.dms.mail: events')
 
@@ -1015,11 +1019,12 @@ def zope_ready(event):
     site = set_site_from_package_config('imio.dms.mail')
     if site:
         # Use our ramcache with patched storage
-        sml = getSiteManager(site)
-        sml.unregisterUtility(provided=IRAMCache)
-        sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
-        logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
-        setup_ram_cache()
+        if imio_global_cache is not None:
+            sml = getSiteManager(site)
+            sml.unregisterUtility(provided=IRAMCache)
+            sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
+            logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+            setup_ram_cache()
         # Store or refresh folders tree
         if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
             logger.info('=> Storing folders tree annotation')
