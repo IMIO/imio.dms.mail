@@ -1018,6 +1018,7 @@ def folder_added(folder, event):
 def zope_ready(event):
     """Not going here in test"""
     site = set_site_from_package_config('imio.dms.mail')
+    change = False
     if site:
         # Use our ramcache with patched storage
         if imio_global_cache is not None:
@@ -1027,8 +1028,11 @@ def zope_ready(event):
                 sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
                 logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
                 setup_ram_cache()
+                change = True
         # Store or refresh folders tree
         if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
             logger.info('=> Storing folders tree annotation')
             set_folders_tree(site)
-    transaction.commit()
+            change = True
+    if change:
+        transaction.commit()
