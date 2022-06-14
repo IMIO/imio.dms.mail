@@ -78,6 +78,7 @@ import transaction
 
 try:
     from imio.helpers.ram import imio_global_cache
+    from imio.helpers.ram import IMIORAMCache
 except ImportError:
     imio_global_cache = None
 
@@ -1020,11 +1021,12 @@ def zope_ready(event):
     if site:
         # Use our ramcache with patched storage
         if imio_global_cache is not None:
-            sml = getSiteManager(site)
-            sml.unregisterUtility(provided=IRAMCache)
-            sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
-            logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
-            setup_ram_cache()
+            if not isinstance(getUtility(IRAMCache), IMIORAMCache):
+                sml = getSiteManager(site)
+                sml.unregisterUtility(provided=IRAMCache)
+                sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
+                logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+                setup_ram_cache()
         # Store or refresh folders tree
         if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
             logger.info('=> Storing folders tree annotation')
