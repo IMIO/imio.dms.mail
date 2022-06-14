@@ -36,6 +36,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import uuidToObject
+from imio.helpers.security import get_zope_root
 from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
@@ -1018,7 +1019,6 @@ def folder_added(folder, event):
 def zope_ready(event):
     """Not going here in test"""
     site = set_site_from_package_config('imio.dms.mail')
-    change = False
     if site:
         # Use our ramcache with patched storage
         if imio_global_cache is not None:
@@ -1028,11 +1028,16 @@ def zope_ready(event):
                 sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
                 logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
                 setup_ram_cache()
-                change = True
+                transaction.commit()
         # Store or refresh folders tree
         if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
-            logger.info('=> Storing folders tree annotation')
-            set_folders_tree(site)
-            change = True
-    if change:
-        transaction.commit()
+            with api.env.adopt_user('admin'):
+                logger.info('=> Storing folders tree annotation')
+                set_folders_tree(site)
+                transaction.commit()
+                zope_app = get_zope_root()
+                ret = zope_app.cputils_install(zope_app)
+                ret = ret.replace('<div>Those methods have been added: ', '').replace('</div>', '')
+                if ret:
+                    logger.info('=> CPUtils added methods: "{}"'.format(ret.replace('<br />', ', ')))
+                    transaction.commit()
