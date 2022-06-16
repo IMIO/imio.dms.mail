@@ -49,6 +49,7 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
+from zExceptions import Redirect
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.event import notify
@@ -931,17 +932,22 @@ class Migrate_To_3_0(Migrator):  # noqa
         logger.info('Updated {} brains'.format(len(brains)))
 
     def clean_examples(self):
-        if 'reponse1' not in self.portal['outgoing-mail']:
+        brains = find(unrestricted=True, context=self.portal['outgoing-mail'], portal_type='dmsoutgoingmail',
+                      id='reponse1')
+        if not brains:
             logger.info('Cleaning wrongly added demo users')
             pf = self.portal['contacts']['personnel-folder']
             for userid in ['encodeur', 'dirg', 'chef', 'agent', 'agent1', 'lecteur']:
                 for brain in find(unrestricted=True, context=pf, portal_type='person', id=userid):
-                    api.content.delete(obj=brain._unrestrictedGetObject())
+                    api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
                 user = api.user.get(userid=userid)
                 if user is None:
                     continue
                 logger.info("Deleting user '%s'" % userid)
-                api.user.delete(user=user)
+                try:
+                    api.user.delete(user=user)
+                except Redirect:
+                    pass
 
 
 def migrate(context):
