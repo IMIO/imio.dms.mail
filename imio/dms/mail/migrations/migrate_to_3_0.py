@@ -148,6 +148,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         if self.is_in_part('a'):  # install and upgrade products
             # check if oo port or solr port must be changed
             update_solr_config()
+            self.upgradeProfile('collective.documentgenerator:default')
             update_oo_config()
 
             self.cleanRegistries()
@@ -157,7 +158,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.install(['collective.ckeditortemplates', 'collective.fingerpointing'])
             if default_cke_templ_folder in self.portal:
                 api.content.delete(obj=self.portal[default_cke_templ_folder])
-            self.upgradeProfile('collective.documentgenerator:default')
             self.upgradeProfile('collective.contact.core:default')
             self.upgradeProfile('collective.task:default')
             self.upgradeProfile('collective.dms.mailcontent:default')
