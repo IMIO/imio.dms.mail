@@ -25,6 +25,7 @@ from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
 from imio.helpers.content import transitions
+from imio.helpers.content import uuidToObject
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
 from natsort import natsorted
@@ -801,6 +802,29 @@ class VariousUtilsMethods(UtilsMethods):
             else:
                 ret.append('%s;%s' % (uid, tit))
         return '\n'.join(ret)
+
+    def template_infos(self):
+        """Get from a generated document the original template."""
+        annot = IAnnotations(self.context)
+        if 'documentgenerator' not in annot or 'template_uid' not in annot['documentgenerator']:
+            return 'No template'
+        uid = annot['documentgenerator']['template_uid']
+        doc = uuidToObject(uid, unrestricted=True)
+        if doc:
+            ret = [u"<p>Template: {}</p>".format(object_link(doc, target='_blank'))]
+            merge = doc.get_templates_to_merge()
+            if merge:
+                ret.append(u'<ul>')
+                for name in sorted(merge.keys()):
+                    ret.append(u"<li>{} = {}</li>".format(name, object_link(merge[name][0], target='_blank')))
+                else:
+                    ret.append(u'</ul>')
+            style = doc.get_style_template()
+            if style:
+                ret.append(u"<p>Style: {}</p>".format(object_link(style, target='_blank')))
+            return u''.join(ret)
+        else:
+            return "No template found with uid '{}'".format(uid)
 
     def unread_criteria(self):
         """ """

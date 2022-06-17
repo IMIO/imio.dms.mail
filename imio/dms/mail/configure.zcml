@@ -240,6 +240,7 @@
             kofax_orgs
             list_last_scan
             pg_organizations
+            template_infos
             unread_criteria
             user_usages
         "
