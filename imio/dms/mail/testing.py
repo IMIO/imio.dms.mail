@@ -5,7 +5,6 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import transitions as do_transitions
-from imio.helpers.ram import imio_global_cache
 from imio.pyutils.system import runCommand
 from itertools import cycle
 from plone import api
@@ -40,6 +39,11 @@ import datetime
 import imio.dms.mail
 import inspect
 import os
+
+try:
+    from imio.helpers.ram import imio_global_cache
+except ImportError:
+    imio_global_cache = None
 
 
 class PloneDmsFixture(PloneFixture):
@@ -98,11 +102,12 @@ class DmsmailLayer(PloneWithPackageLayer):
 
     def setUpPloneSite(self, portal):
         setLocal('request', portal.REQUEST)
-        sml = getSiteManager(portal)
-        sml.unregisterUtility(provided=IRAMCache)
-        sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
-        print('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
-        setup_ram_cache()
+        if imio_global_cache:
+            sml = getSiteManager(portal)
+            sml.unregisterUtility(provided=IRAMCache)
+            sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
+            print('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+            setup_ram_cache()
 
         manage_addExternalMethod(portal, 'import_scanned', 'import_scanned', 'imio.dms.mail.demo', 'import_scanned')
         manage_addExternalMethod(portal, 'import_scanned2', 'import_scanned2', 'imio.dms.mail.demo', 'import_scanned2')
