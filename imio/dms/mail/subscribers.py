@@ -1031,6 +1031,14 @@ def zope_ready(event):
                 logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
                 setup_ram_cache()
                 change = True
+        else:  # temporary
+            if isinstance(getUtility(IRAMCache), IMIORAMCache):
+                sml = getSiteManager(site)
+                sml.unregisterUtility(provided=IRAMCache)
+                from plone.memoize.ram import global_cache
+                sml.registerUtility(component=global_cache, provided=IRAMCache)
+                logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+
         # Store or refresh folders tree
         if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
             with api.env.adopt_user('admin'):
