@@ -480,7 +480,7 @@ organizations_fieldnames = _id _oid title description organization_type use_pare
 persons_filename =
 persons_fieldnames = _id lastname firstname gender person_title birthday use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country internal_number _uid _ic
 held_positions_filename =
-held_positions_fieldnames = _id _pid _oid _fid label start_date end_date use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country _uid _ic
+held_positions_fieldnames = _id _pid _oid _fid label start_date end_date use_parent_address street number additional_address_details zip_code city phone cell_phone fax email website region country internal_number _uid _ic
 raise_on_error = 1
 
 [initialization]
