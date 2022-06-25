@@ -290,7 +290,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
             for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
                          'collective.contact.core', 'collective.contact.facetednav', 'collective.contact.importexport',
-                         'collective.contact.plonegroup', 'collective.dms.basecontent', 'collective.dms.mailcontent',
+                         'collective.contact.plonegroup', 'collective.contact.widget', 'collective.dms.basecontent',
+                         'collective.dms.batchimport', 'collective.dms.mailcontent',
                          'collective.documentgenerator', 'collective.eeafaceted.batchactions',
                          'collective.eeafaceted.collectionwidget', 'collective.eeafaceted.dashboard',
                          'collective.eeafaceted.z3ctable', 'collective.js.tooltipster', 'collective.task',
