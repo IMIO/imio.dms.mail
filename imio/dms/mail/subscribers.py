@@ -698,34 +698,35 @@ def group_deleted(event):
         return {}
 
     # search in indexes following suffix use in type localroles
-    for (idx, field, pts, domain) in (
-            ('assigned_group', 'assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
-            ('treating_groups', 'treating_groups',
-             # ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'], here under too
-             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
-             'collective.eeafaceted.z3ctable'),
-            ('recipient_groups', 'recipient_groups',
-             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
-             'collective.eeafaceted.z3ctable'),
-            ('assigned_group', 'creating_group',
-             ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
-             'collective.eeafaceted.z3ctable')):
-        for pt in pts:
-            query = get_query(pt, field, idx, parts[0], group_suffix)
-            if not query:
-                continue
-            query.update({'portal_type': pt})
-            brains = portal.portal_catalog.unrestrictedSearchResults(**query)
-            if brains:
-                api.portal.show_message(message=_("You cannot delete the group '${group}', used in '${idx}' index.",
-                                                  mapping={'group': group, 'idx': translate(idx, domain=domain,
-                                                                                            context=request)}),
-                                        request=request, type='error')
-                api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
-                                        'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title))
-                                        for b in brains])}),
-                                        request=request, type='error')
-                raise Redirect(request.get('ACTUAL_URL'))
+    if group_suffix in [fct['fct_id'] for fct in get_registry_functions()]:
+        for (idx, field, pts, domain) in (
+                ('assigned_group', 'assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
+                ('treating_groups', 'treating_groups',
+                 # ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'], here under too
+                 ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
+                 'collective.eeafaceted.z3ctable'),
+                ('recipient_groups', 'recipient_groups',
+                 ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
+                 'collective.eeafaceted.z3ctable'),
+                ('assigned_group', 'creating_group',
+                 ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
+                 'collective.eeafaceted.z3ctable')):
+            for pt in pts:
+                query = get_query(pt, field, idx, parts[0], group_suffix)
+                if not query:
+                    continue
+                query.update({'portal_type': pt})
+                brains = portal.portal_catalog.unrestrictedSearchResults(**query)
+                if brains:
+                    api.portal.show_message(message=_("You cannot delete the group '${group}', used in '${idx}' index.",
+                                                      mapping={'group': group, 'idx': translate(idx, domain=domain,
+                                                                                                context=request)}),
+                                            request=request, type='error')
+                    api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a '
+                                            'href="%s" target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title))
+                                            for b in brains])}),
+                                            request=request, type='error')
+                    raise Redirect(request.get('ACTUAL_URL'))
 
     # we update dms config
     if 'n_plus_' in group:
