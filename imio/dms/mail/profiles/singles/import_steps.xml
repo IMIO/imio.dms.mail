@@ -98,11 +98,11 @@
  </import-step>
 
  <import-step
-    id="imiodmsmail-reset_workflows"
-    handler="imio.dms.mail.steps.reset_workflows"
-    title="Reset workflows from imio.dms.mail"
-    version="2021-03-28T12:00:00.00000">
-    Reset workflows from imio.dms.mail
+    id="imiodmsmail-remove_om_nplus1_wfadaptation"
+    handler="imio.dms.mail.steps.remove_om_nplus1_wfadaptation"
+    title="Remove om nplus1 wfadaptation from imio.dms.mail"
+    version="2022-06-27T12:00:00.00000">
+    Remove om nplus1 wfadaptation from imio.dms.mail
  </import-step>
 
  <import-step

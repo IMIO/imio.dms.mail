@@ -2,12 +2,16 @@
 
 # Copyright (c) 2021 by Imio
 # GNU General Public License (GPL)
+from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
+from collective.contact.plonegroup.utils import get_suffixed_groups
 from collective.documentgenerator.utils import update_templates
 from collective.wfadaptations.api import add_applied_adaptation
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
+from collective.wfadaptations.api import RECORD_NAME
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -20,6 +24,8 @@ from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.helpers.content import uuidToObject
+from imio.helpers.workflow import load_workflow_from_package
+from imio.pyutils.utils import append
 from persistent.list import PersistentList
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
@@ -341,7 +347,7 @@ def activate_classification(context):
     manage_classification(context, True)
 
 
-def reset_workflows(context):
+def reset_workflows_bad(context):
     """Reset workflows and reapply wf adaptations."""
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
@@ -366,6 +372,54 @@ def reset_workflows(context):
         update_task_workflow(site)
     site.portal_workflow.updateRoleMappings()
     logger.info("Workflow reset done")
+
+
+def remove_om_nplus1_wfadaptation(context):
+    """"""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    val_state_id = 'validated'
+    new_state_id = 'proposed_to_n_plus_1'
+    log = []
+    site = context.getSite()
+    applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+    # are there oms ?
+    brains = site.portal_catalog.unrestrictedSearchResults(portal_type='dmsoutgoingmail',
+                                                           review_state=[val_state_id, new_state_id])
+    if brains:
+        logger.error(append(log, "Found some outgoing mails in state 'proposed_to_n_plus_1' or 'validated'. We stop !"))
+        return '\n'.join(log)
+    # reset workflow
+    if not load_workflow_from_package('outgoingmail_workflow', 'profile-imio.dms.mail:default'):
+        raise Exception("Cannot reload workflow from package")
+    # remove function if not used elsewhere
+    functions = get_registry_functions()
+    for wfa in (u'imio.dms.mail.wfadaptations.TaskServiceValidation',
+                u'imio.dms.mail.wfadaptations.IMServiceValidation'):
+        if wfa in applied_adaptations:
+            logger.info(append(log, "Do not remove n_plus_1 function because it's used by another adaptation"))
+            break
+    else:
+        if u'n_plus_1' in [fct['fct_id'] for fct in functions]:
+            set_registry_functions([fct for fct in functions if fct['fct_id'] != u'n_plus_1'])
+        # empty and delete groups...
+        groups = get_suffixed_groups(['n_plus_1'])
+        for group in groups:
+            for user in api.user.get_users(group=group):
+                api.group.remove_user(group=group, user=user)
+            api.group.delete(group=group)
+    # remove dexterity local roles om, folders
+    # update dms config
+    # remove collections, update some
+    # update cache
+    # update remark states
+    # reindex
+    # remove wfadaptation entry
+    Not yet finished
+    record = api.portal.get_registry_record(RECORD_NAME)
+    api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
+                                                 u'imio.dms.mail.wfadaptations.OMServiceValidation'])
+    return '\n'.join(log)
 
 
 def configure_wsclient(context):

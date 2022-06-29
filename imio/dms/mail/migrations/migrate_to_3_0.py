@@ -277,6 +277,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         if self.is_in_part('r'):  # update templates
             # TEMPORARY to 3.0.19
             self.install(['imio.helpers'])
+            # TEMPORARY to 3.0.20
+            self.cleanRegistries()
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             # update templates
