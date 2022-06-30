@@ -12,6 +12,9 @@ from collective.wfadaptations.api import add_applied_adaptation
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
+from copy import deepcopy
+from dexterity.localroles.utils import fti_configuration
+from dexterity.localroles.utils import update_roles_in_fti
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -378,14 +381,14 @@ def remove_om_nplus1_wfadaptation(context):
     """"""
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    val_state_id = 'validated'
-    new_state_id = 'proposed_to_n_plus_1'
+    val_states = ['validated', 'proposed_to_n_plus_1']
+    p_t = 'dmsoutgoingmail'
+    fct_id = u'n_plus_1'
     log = []
     site = context.getSite()
     applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
     # are there oms ?
-    brains = site.portal_catalog.unrestrictedSearchResults(portal_type='dmsoutgoingmail',
-                                                           review_state=[val_state_id, new_state_id])
+    brains = site.portal_catalog.unrestrictedSearchResults(portal_type=p_t, review_state=val_states)
     if brains:
         logger.error(append(log, "Found some outgoing mails in state 'proposed_to_n_plus_1' or 'validated'. We stop !"))
         return '\n'.join(log)
@@ -400,8 +403,8 @@ def remove_om_nplus1_wfadaptation(context):
             logger.info(append(log, "Do not remove n_plus_1 function because it's used by another adaptation"))
             break
     else:
-        if u'n_plus_1' in [fct['fct_id'] for fct in functions]:
-            set_registry_functions([fct for fct in functions if fct['fct_id'] != u'n_plus_1'])
+        if fct_id in [fct['fct_id'] for fct in functions]:
+            set_registry_functions([fct for fct in functions if fct['fct_id'] != fct_id])
         # empty and delete groups...
         groups = get_suffixed_groups(['n_plus_1'])
         for group in groups:
@@ -409,6 +412,25 @@ def remove_om_nplus1_wfadaptation(context):
                 api.group.remove_user(group=group, user=user)
             api.group.delete(group=group)
     # remove dexterity local roles om, folders
+    lr, fti = fti_configuration(portal_type=p_t)
+    for i, keyname in enumerate(('static_config', 'treating_groups', 'recipient_groups')):
+        if keyname not in lr:
+            continue
+        lrd = lr[keyname]
+        for state in val_states:
+            if state not in lrd:
+                continue
+            update_roles_in_fti(p_t, {state: deepcopy(lrd[state])}, action='rem', keyname=keyname)
+        if i == 0:
+            continue  # no need to remove n_plus_ suffix
+        config = {}
+        for state in lrd:
+            if fct_id in lrd[state]:
+                config.update({state: {fct_id: deepcopy(lrd[state][fct_id])}})
+        if config:
+            update_roles_in_fti(p_t, config, action='rem', keyname=keyname)
+    # remove dexterity local roles om, folders
+
     # update dms config
     # remove collections, update some
     # update cache
