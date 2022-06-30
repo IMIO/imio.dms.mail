@@ -22,7 +22,10 @@ from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import separate_fullname
+from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
@@ -387,6 +390,9 @@ def remove_om_nplus1_wfadaptation(context):
     log = []
     site = context.getSite()
     applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
+    if u'imio.dms.mail.wfadaptations.OMServiceValidation' not in applied_adaptations:
+        logger.info(append(log, 'OMServiceValidation already removed !'))
+        return '\n'.join(log)
     # are there oms ?
     brains = site.portal_catalog.unrestrictedSearchResults(portal_type=p_t, review_state=val_states)
     if brains:
@@ -434,17 +440,24 @@ def remove_om_nplus1_wfadaptation(context):
                     config.update({state: {fct_id: deepcopy(lrd[state][fct_id])}})
             if config:
                 update_roles_in_fti(ptype, config, action='rem', keyname=keyname)
-
     # update dms config
+    wf_from_to = get_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'])
+    new_to_value = [tup for tup in wf_from_to['to'] if tup[0] != val_states[0]]  # we remove validated
+    if wf_from_to['to'] != new_to_value:
+        set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], new_to_value)
+    tr_config = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
+    new_value = {k: v for (k, v) in tr_config.items() if k not in val_states}
+    if tr_config != new_value:
+        set_dms_config(['transitions_levels', 'dmsoutgoingmail'], new_value)
+        update_transitions_levels_config(['dmsoutgoingmail'])
     # remove collections, update some
     # update cache
     # update remark states
     # reindex
     # remove wfadaptation entry
-    # Not yet finished
     record = api.portal.get_registry_record(RECORD_NAME)
-    api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
-                                                 u'imio.dms.mail.wfadaptations.OMServiceValidation'])
+    # api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
+    #                                              u'imio.dms.mail.wfadaptations.OMServiceValidation'])
     return '\n'.join(log)
 
 
