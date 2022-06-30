@@ -29,6 +29,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import uuidToObject
 from imio.helpers.workflow import load_workflow_from_package
 from imio.pyutils.utils import append
@@ -473,6 +474,17 @@ def remove_om_nplus1_wfadaptation(context):
     if folder['to_validate'].enabled:
         folder['to_validate'].enabled = False
         folder['to_validate'].reindexObject()
+    col = folder['om_treating']
+    query = list(col.query)
+    modif = False
+    for dic in query:
+        if dic['i'] == 'review_state':
+            for st_id in val_states:
+                if st_id in dic['v']:
+                    modif = True
+                    dic['v'] = [st for st in dic['v'] if st != st_id]
+    if modif:
+        col.query = query
     # Remove collection from template
     tmpl = site['templates']['om']['d-print']
     cols = tmpl.dashboard_collections
@@ -480,12 +492,36 @@ def remove_om_nplus1_wfadaptation(context):
         cols.remove(val_col_uid)
         tmpl.dashboard_collections = cols
     # update cache
+    invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
+    # update actionspanel back transitions registry
+    lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
+    lst_len = len(lst)
+    for tr_id in ('back_to_{}'.format(fct_id), 'back_to_{}'.format(val_states[0])):
+        if 'dmsoutgoingmail.{}|'.format(tr_id) in lst:
+            lst.remove('dmsoutgoingmail.{}|'.format(tr_id))
+    if len(lst) != lst_len:
+        api.portal.set_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions',
+                                       lst)
     # update remark states
-    # reindex
+    lst = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
+                                         default=False) or []
+    for st_id in val_states:
+        if st_id in lst:
+            lst.remove(st_id)
+    api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states', lst)
+    # update state_group (use dms_config), permissions
+    for brain in site.portal_catalog.unrestrictedSearchResults(portal_type='dmsoutgoingmail'):
+        obj = brain._unrestrictedGetObject()
+        obj.reindexObject(idxs=['allowedRolesAndUsers', 'state_group'])
+        for child in obj.objectValues():
+            child.reindexObject(idxs=['allowedRolesAndUsers'])
     # remove wfadaptation entry
     record = api.portal.get_registry_record(RECORD_NAME)
-    # api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
-    #                                              u'imio.dms.mail.wfadaptations.OMServiceValidation'])
+    api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
+                                                 u'imio.dms.mail.wfadaptations.OMServiceValidation'])
     return '\n'.join(log)
 
 

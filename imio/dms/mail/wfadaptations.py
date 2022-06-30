@@ -750,18 +750,20 @@ class OMServiceValidation(WorkflowAdaptationBase):
                 lst.insert(0, st_id)
                 api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states',
                                                lst)
-
+        # update treating collection
         col = folder['om_treating']
         query = list(col.query)
         modif = False
         for dic in query:
-            for st_id in (new_state_id, val_state_id):
-                if dic['i'] == 'review_state' and st_id not in dic['v']:
-                    modif = True
-                    dic['v'] += [st_id]
+            if dic['i'] == 'review_state':
+                for st_id in (new_state_id, val_state_id):
+                    if st_id not in dic['v']:
+                        modif = True
+                        dic['v'] += [st_id]
         if modif:
             col.query = query
 
+        # reindex
         if not self.reapply:
             # update state_group (use dms_config), permissions
             for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type='dmsoutgoingmail'):
