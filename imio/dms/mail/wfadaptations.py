@@ -5,6 +5,7 @@ from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
+from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from imio.dms.mail import _tr as _
@@ -16,9 +17,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.pyutils.utils import insert_in_ordereddict
 from plone import api
-from plone.dexterity.interfaces import IDexterityFTI
 from zope import schema
-from zope.component import getUtility
 from zope.interface import Interface
 from zope.interface import provider
 from zope.schema.interfaces import IContextSourceBinder
@@ -326,9 +325,9 @@ class IMServiceValidation(WorkflowAdaptationBase):
 
         # add local roles config
         for i, ptype in enumerate(('dmsincomingmail', 'dmsincoming_email')):
-            fti = getUtility(IDexterityFTI, name=ptype)
+            lr, fti = fti_configuration(portal_type=ptype)
             # TODO replace with im option check
-            if 'creating_group' in fti.localroles:
+            if 'creating_group' in lr:
                 api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
                                         mapping={'type': 'dmsincomingmail, dmsincoming_email'}), portal.REQUEST,
                                         type='warning')
@@ -370,7 +369,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
                 update_security_index([ptype])
         # add local roles config on folders
         for i, ptype in enumerate(('ClassificationFolder', 'ClassificationSubfolder')):
-            fti = getUtility(IDexterityFTI, name=ptype)
             updates = {
                 'active': {new_id: {'roles': ['Contributor', 'Editor']}},
                 'deactivated': {new_id: {'roles': ['Contributor', 'Editor']}},
@@ -619,8 +617,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             set_registry_functions(functions)
 
         # add local roles config
-        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
-        lr = getattr(fti, 'localroles')
+        lr, fti = fti_configuration(portal_type='dmsoutgoingmail')
         # TODO replace with om option check
         if 'creating_group' in lr:
             api.portal.show_message(_('Please update manually ${type} local roles for creating_group !',
@@ -663,7 +660,6 @@ class OMServiceValidation(WorkflowAdaptationBase):
 
         # add local roles config on folders
         for i, ptype in enumerate(('ClassificationFolder', 'ClassificationSubfolder')):
-            fti = getUtility(IDexterityFTI, name=ptype)
             updates = {
                 'active': {new_id: {'roles': ['Contributor', 'Editor']}},
                 'deactivated': {new_id: {'roles': ['Contributor', 'Editor']}},
@@ -862,8 +858,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         wf.states['to_be_signed'].transitions = tuple(transitions)
 
         # ajouter config local roles
-        fti = getUtility(IDexterityFTI, name='dmsoutgoingmail')
-        lr = getattr(fti, 'localroles')
+        lr, fti = fti_configuration(portal_type='dmsoutgoingmail')
         lrsc = lr['static_config']
         if new_state_id not in lrsc:
             lrsc[new_state_id] = {'expedition': {'roles': ['Editor', 'Reviewer']},
@@ -974,8 +969,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
             set_registry_functions(functions)
 
         # add local roles config
-        fti = getUtility(IDexterityFTI, name='task')
-        lr = getattr(fti, 'localroles')
+        lr, fti = fti_configuration(portal_type='task')
         lrag = lr['assigned_group']
         if new_id not in lrag['to_do']:
             for st in ['to_assign', 'to_do', 'in_progress', 'realized']:
@@ -991,7 +985,6 @@ class TaskServiceValidation(WorkflowAdaptationBase):
 
         # add local roles config on folders
         for i, ptype in enumerate(('ClassificationFolder', 'ClassificationSubfolder')):
-            fti = getUtility(IDexterityFTI, name=ptype)
             updates = {
                 'active': {new_id: {'roles': ['Contributor', 'Editor']}},
                 'deactivated': {new_id: {'roles': ['Contributor', 'Editor']}},
