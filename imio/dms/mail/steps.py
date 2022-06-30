@@ -396,6 +396,8 @@ def remove_om_nplus1_wfadaptation(context):
     if not load_workflow_from_package('outgoingmail_workflow', 'profile-imio.dms.mail:default'):
         raise Exception("Cannot reload workflow from package")
     # remove function if not used elsewhere
+    lr_types = [p_t]
+    other_nplus = True
     functions = get_registry_functions()
     for wfa in (u'imio.dms.mail.wfadaptations.TaskServiceValidation',
                 u'imio.dms.mail.wfadaptations.IMServiceValidation'):
@@ -403,6 +405,8 @@ def remove_om_nplus1_wfadaptation(context):
             logger.info(append(log, "Do not remove n_plus_1 function because it's used by another adaptation"))
             break
     else:
+        lr_types.extend(('ClassificationFolder', 'ClassificationSubfolder'))
+        other_nplus = False
         if fct_id in [fct['fct_id'] for fct in functions]:
             set_registry_functions([fct for fct in functions if fct['fct_id'] != fct_id])
         # empty and delete groups...
@@ -411,25 +415,25 @@ def remove_om_nplus1_wfadaptation(context):
             for user in api.user.get_users(group=group):
                 api.group.remove_user(group=group, user=user)
             api.group.delete(group=group)
-    # remove dexterity local roles om, folders
-    lr, fti = fti_configuration(portal_type=p_t)
-    for i, keyname in enumerate(('static_config', 'treating_groups', 'recipient_groups')):
-        if keyname not in lr:
-            continue
-        lrd = lr[keyname]
-        for state in val_states:
-            if state not in lrd:
+    # remove dexterity local roles on om and folders
+    for ptype in lr_types:
+        lr, fti = fti_configuration(portal_type=ptype)
+        for i, keyname in enumerate(('static_config', 'treating_groups', 'recipient_groups')):
+            if keyname not in lr:
                 continue
-            update_roles_in_fti(p_t, {state: deepcopy(lrd[state])}, action='rem', keyname=keyname)
-        if i == 0:
-            continue  # no need to remove n_plus_ suffix
-        config = {}
-        for state in lrd:
-            if fct_id in lrd[state]:
-                config.update({state: {fct_id: deepcopy(lrd[state][fct_id])}})
-        if config:
-            update_roles_in_fti(p_t, config, action='rem', keyname=keyname)
-    # remove dexterity local roles om, folders
+            lrd = lr[keyname]
+            for state in val_states:
+                if state not in lrd:
+                    continue
+                update_roles_in_fti(ptype, {state: deepcopy(lrd[state])}, action='rem', keyname=keyname)
+            if other_nplus:  # no need to remove n_plus_ suffix
+                continue
+            config = {}
+            for state in lrd:
+                if fct_id in lrd[state]:
+                    config.update({state: {fct_id: deepcopy(lrd[state][fct_id])}})
+            if config:
+                update_roles_in_fti(ptype, config, action='rem', keyname=keyname)
 
     # update dms config
     # remove collections, update some
@@ -437,7 +441,7 @@ def remove_om_nplus1_wfadaptation(context):
     # update remark states
     # reindex
     # remove wfadaptation entry
-    Not yet finished
+    # Not yet finished
     record = api.portal.get_registry_record(RECORD_NAME)
     api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
                                                  u'imio.dms.mail.wfadaptations.OMServiceValidation'])
