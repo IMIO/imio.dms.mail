@@ -32,6 +32,7 @@ from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from dexterity.localroles.utils import add_fti_configuration
+from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 # from imio.dms.mail import CREATING_FIELD_ROLE
@@ -1257,8 +1258,7 @@ def configure_iem_rolefields(context):
     """
         Configure the rolefields for dmsincoming_email
     """
-    fti = getUtility(IDexterityFTI, name='dmsincoming_email')
-    lr = getattr(fti, 'localroles')
+    lr, fti = fti_configuration(portal_type='dmsincoming_email')
     lrs = lr['static_config']
     if 'Base Field Writer' not in lrs['proposed_to_agent']['encodeurs']['roles']:
         lrs['proposed_to_agent']['encodeurs']['roles'] = ['Contributor', 'Editor', 'Base Field Writer',
