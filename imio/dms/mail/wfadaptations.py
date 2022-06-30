@@ -706,7 +706,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             folder['to_validate'].enabled = True
             folder['to_validate'].reindexObject()
 
-        # Add template to folder
+        # Add collection to template
         tmpl = portal['templates']['om']['d-print']
         cols = tmpl.dashboard_collections
         col = folder['searchfor_{}'.format(val_state_id)]

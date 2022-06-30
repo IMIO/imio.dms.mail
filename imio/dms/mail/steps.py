@@ -445,12 +445,40 @@ def remove_om_nplus1_wfadaptation(context):
     new_to_value = [tup for tup in wf_from_to['to'] if tup[0] != val_states[0]]  # we remove validated
     if wf_from_to['to'] != new_to_value:
         set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus', 'to'], new_to_value)
+    # --
     tr_config = get_dms_config(['transitions_levels', 'dmsoutgoingmail'])
     new_value = {k: v for (k, v) in tr_config.items() if k not in val_states}
     if tr_config != new_value:
         set_dms_config(['transitions_levels', 'dmsoutgoingmail'], new_value)
         update_transitions_levels_config(['dmsoutgoingmail'])
+    # --
+    rl_config = get_dms_config(['review_levels', 'dmsoutgoingmail'])
+    suffix = '_{}'.format(fct_id)
+    if suffix in rl_config:
+        rl_config.pop(suffix)
+        set_dms_config(keys=['review_levels', 'dmsoutgoingmail'], value=rl_config)
+    # --
+    rs_config = get_dms_config(['review_states', 'dmsoutgoingmail'])
+    if val_states[1] in rs_config:
+        rs_config.pop(val_states[1])
+        set_dms_config(keys=['review_states', 'dmsoutgoingmail'], value=rs_config)
+    update_transitions_levels_config(['dmsoutgoingmail'])
     # remove collections, update some
+    folder = site['outgoing-mail']['mail-searches']
+    val_col_uid = folder['searchfor_{}'.format(val_states[0])].UID()
+    for state_id in val_states:
+        col_id = 'searchfor_{}'.format(state_id)
+        if col_id in folder:
+            api.content.delete(folder[col_id])
+    if folder['to_validate'].enabled:
+        folder['to_validate'].enabled = False
+        folder['to_validate'].reindexObject()
+    # Remove collection from template
+    tmpl = site['templates']['om']['d-print']
+    cols = tmpl.dashboard_collections
+    if val_col_uid in cols:
+        cols.remove(val_col_uid)
+        tmpl.dashboard_collections = cols
     # update cache
     # update remark states
     # reindex
