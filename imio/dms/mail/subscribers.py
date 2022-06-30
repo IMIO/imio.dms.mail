@@ -743,6 +743,7 @@ def group_assignment(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+    invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)  # i_e ok
@@ -816,6 +817,7 @@ def group_unassignment(event):
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+    invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)  # i_e ok
