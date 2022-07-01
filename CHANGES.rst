@@ -1,13 +1,13 @@
 Changelog
 =========
 
-3.0 (unreleased)
+3.0 (2021-09-30)
 ----------------
 
-- Added dmsoutgoing_email type
-  [ndemonte]
 - Added dmsincoming_email type
   [sgeulette]
+- Added classificationFolder and ClassificationCategory types
+  [sgeulette] 
 - Added collective.ckeditortemplates
   [sgeulette]
 - Added lecteurs_globaux_cs group
