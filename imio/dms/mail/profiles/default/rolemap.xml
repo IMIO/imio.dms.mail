@@ -8,7 +8,9 @@
 <!-- ##/code-section roles -->
   </roles>
   <permissions>
-<!-- ##code-section permissions -->
-<!-- ##/code-section permissions -->
+    <!-- avoid that index effectiveRange is added to every queries -->
+    <permission name="Access inactive portal content" acquire="True">
+      <role name="Member"/>
+    </permission>
   </permissions>
 </rolemap>
