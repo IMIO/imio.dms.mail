@@ -181,7 +181,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('b'):  # idm steps, config, folders
             self.runProfileSteps('imio.dms.mail', steps=['actions', 'atcttool', 'catalog', 'controlpanel',
-                                                         'plone.app.registry', 'repositorytool', 'typeinfo',
+                                                         'plone.app.registry', 'repositorytool', 'rolemap', 'typeinfo',
                                                          'viewlets'])
             # remove to_print related.
             self.remove_to_print()
@@ -279,6 +279,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.install(['imio.helpers'])
             # TEMPORARY to 3.0.30
             self.cleanRegistries()
+            # TEMPORARY to 3.0.21
+            self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator', 'Member'),
+                                          acquire=0)
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             # update templates
