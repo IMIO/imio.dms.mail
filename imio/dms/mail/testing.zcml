@@ -2,23 +2,19 @@
            xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
            i18n_domain="imio.dms.mail">
 
-   <include package="communesplone.layout"/>
+   <include file="configure.zcml"/>
+   <includeDependencies package="." />
 
    <include package="Products.CMFPlone"/>
    <include package="plone.app.event"/>
-   <include package="imio.dms.mail"/>
-   <include package="plonetheme.imioapps"/>
+   <!--include package="imio.dms.mail"/-->
    <include package="collective.ckeditor"/>
    <include package="collective.iconifieddocumentactions"/>
    <include package="collective.messagesviewlet"/>
    <include package="collective.MockMailHost"/>
    <include package="collective.documentgenerator"/>
    <include package="ftw.labels"/>
-   <include package="imio.dashboard"/>
 
-   <includeDependencies package="." />
-
-   <!--include file="configure.zcml"/-->
    <includeOverrides file="overrides.zcml" />
    <includeOverrides package="collective.eeafaceted.dashboard" file="overrides.zcml" />
 
