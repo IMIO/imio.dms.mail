@@ -5,5 +5,4 @@
      <img tal:condition="useIcons" i18n:attributes="title" title="Reply"
            tal:attributes="src string: ${view/portal_url}/++resource++imio.dms.mail/reply_icon.png;"/>
   </a>
-</td>
-<td class="noPadding">
+</td><tal:comment condition="python:False"><td class="noPadding"> error or useful ?</td></tal:comment>
