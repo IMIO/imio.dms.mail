@@ -10,15 +10,16 @@ from imio.dms.mail.dmsmail import AssignedUserValidator
 from imio.dms.mail.dmsmail import creating_group_filter
 from imio.dms.mail.dmsmail import creating_group_filter_default
 from imio.dms.mail.dmsmail import CustomAddForm
+from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
 from imio.dms.mail.dmsmail import IMEdit
 from imio.dms.mail.dmsmail import IMView
 from imio.dms.mail.dmsmail import OMCustomAddForm
 from imio.dms.mail.dmsmail import OMEdit
 from imio.dms.mail.dmsmail import recipients_filter_default
-from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
+from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import logout
@@ -35,18 +36,18 @@ from zope.lifecycleevent import modified
 import unittest
 
 
-class TestDmsmail(unittest.TestCase):
+class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']
-        change_user(self.portal)
+        self.change_user('siteadmin')
         self.pgof = self.portal['contacts']['plonegroup-organization']
         self.intids = getUtility(IIntIds)
 
     def test_creating_group_filter(self):
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertIsNone(creating_group_filter(self.portal))
         self.assertIsNone(creating_group_filter_default(self.portal))
         # we activate contact group encoder
@@ -62,12 +63,20 @@ class TestDmsmail(unittest.TestCase):
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[0]))
         self.assertIsNone(creating_group_filter_default(self.portal))
         # we add the connected user in group
-        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='encodeur')
+        self.add_principal_to_groups('encodeur', ['{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX)])
         self.assertEqual(creating_group_filter_default(self.portal),
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
         # user logout
         logout()
         self.assertIsNone(creating_group_filter_default(self.portal))
+
+    def test_filter_dmsincomingmail_assigned_users(self):
+        self.assertEqual(len(filter_dmsincomingmail_assigned_users(None)), 0)
+        selected_orgs = get_registry_organizations()
+        voc = filter_dmsincomingmail_assigned_users(selected_orgs[0])
+        self.assertListEqual([t.title for t in voc._terms], [])  # direction generale => no user
+        voc = filter_dmsincomingmail_assigned_users(selected_orgs[1])
+        self.assertListEqual([t.title for t in voc._terms], [u'Fred Agent'])
 
     def test_TreatingGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary
@@ -101,7 +110,7 @@ class TestDmsmail(unittest.TestCase):
         imail.treating_groups = get_registry_organizations()[0]
         self.assertTrue(adapted.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user nok, auc nok: NOK
-        change_user(self.portal, 'encodeur')
+        self.change_user('encodeur')
         api.portal.set_registry_record(AUC_RECORD, 'mandatory')
         self.assertFalse(adapted.can_do_transition('propose_to_agent'))
         # tg ok, state ok, assigner_user nok, auc ok: OK
@@ -136,7 +145,7 @@ class TestDmsmail(unittest.TestCase):
         imail.sender = [RelationValue(intids.getId(self.portal.contacts['electrabel']))]
         imail.mail_type = u'courrier'
         self.assertFalse(adapted.can_close())  # not part of treating group editors
-        api.group.add_user(groupname='{}_editeur'.format(imail.treating_groups), username='agent')
+        self.add_principal_to_groups('agent', ['{}_editeur'.format(imail.treating_groups)])
         self.assertTrue(adapted.can_close())
 
     def test_reply_to(self):
@@ -174,7 +183,7 @@ class TestDmsmail(unittest.TestCase):
 
     def test_add_edit(self):
         # Based on test_settings from collective.dms.mailcontent
-        change_user(self.portal, 'encodeur')
+        self.change_user('encodeur')
         # check default config
         self.assertEquals(api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
                                                          'outgoingmail_number'), 10)
@@ -391,7 +400,7 @@ class TestDmsmail(unittest.TestCase):
         self.clean_request()
 
     def test_view(self):
-        change_user(self.portal, 'encodeur')
+        self.change_user('encodeur')
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.assertEqual(api.content.get_state(imail), 'created')
         view = IMView(imail, imail.REQUEST)
@@ -422,13 +431,13 @@ class TestDmsmail(unittest.TestCase):
         api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='chef')
         self.assertIsNone(recipients_filter_default(self.portal))
         # we add the connected user in group
-        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX), username='encodeur')
+        self.add_principal_to_groups('encodeur', ['{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX)])
         self.assertEqual(recipients_filter_default(self.portal),
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
         login(self.portal, 'agent')
         self.assertIsNone(recipients_filter_default(self.portal))
         # we add the connected user in group
-        api.group.add_user(groupname='{}_{}'.format(selected_orgs[1], CONTACTS_PART_SUFFIX), username='agent')
+        self.add_principal_to_groups('agent', ['{}_{}'.format(selected_orgs[1], CONTACTS_PART_SUFFIX)])
         self.assertEqual(recipients_filter_default(self.portal),
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
 
@@ -484,7 +493,7 @@ class TestDmsmail(unittest.TestCase):
         omail.treating_groups = get_registry_organizations()[0]  # direction-generale
         # admin
         self.assertTrue(adapted.can_be_sent())
-        change_user(self.portal, 'chef')
+        self.change_user('chef')
         # define as email
         omail.send_modes = [u'email']
         self.assertTrue(omail.is_email())

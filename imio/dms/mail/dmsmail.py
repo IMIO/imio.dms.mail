@@ -12,6 +12,7 @@ from collective.contact.plonegroup.browser.settings import SelectedOrganizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
+from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.contact.widget.schema import ContactChoice
 from collective.contact.widget.schema import ContactList
 from collective.contact.widget.source import ContactSource
@@ -55,6 +56,7 @@ from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import uuidsToCatalogBrains
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
@@ -102,6 +104,7 @@ def creating_group_filter(context):
         return None
     factory = getUtility(IVocabularyFactory, 'imio.dms.mail.ActiveCreatingGroupVocabulary')
     voc = factory(context)
+    # TODO EnhancedTerm ?
     new_term = SimpleTerm(None, token='all', title=_('All'))
     setattr(new_term, '__org__', None)
     terms = [new_term]
@@ -130,8 +133,8 @@ def creating_group_filter_default(context):
     current_user = api.user.get_current()
     if current_user.getId() is None:
         return None
-    orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), [CREATING_GROUP_SUFFIX,
-                                                                                 CONTACTS_PART_SUFFIX])
+    orgs = organizations_with_suffixes(get_plone_groups_for_user(user=current_user),
+                                       [CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX], group_as_str=True)
     for term in voc:
         if term.__org__ in orgs:
             return term.value
@@ -164,7 +167,7 @@ def filter_dmsincomingmail_assigned_users(org_uid):
     """
         Filter assigned_user in dms incoming mail
     """
-    voc = voc_selected_org_suffix_users(org_uid, IM_EDITOR_SERVICE_FUNCTIONS)
+    voc = voc_selected_org_suffix_userids(org_uid, IM_EDITOR_SERVICE_FUNCTIONS)
     if len(voc) == 1:
         req = api.env.getRequest()
         view = req.get('PUBLISHED', None)
