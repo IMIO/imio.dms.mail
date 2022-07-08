@@ -26,7 +26,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
 
     def test_mayReply(self):
         self.assertEqual(api.content.get_state(self.im2), 'created')
-        self.assertFalse(self.view.mayReply())
+        self.assertTrue(self.view.mayReply())
         # change state
         api.content.transition(self.im2, 'propose_to_manager')
         self.assertEqual(api.content.get_state(self.im2), 'proposed_to_manager')
@@ -47,14 +47,16 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.assertEqual(self.view.renderReplyButton(),
                          '<td class="noPadding">\n  <a target="_parent" href="{}'
                          '/@@reply">\n     \n     <img title="Reply" src=" http://nohost/plone/'
-                         '++resource++imio.dms.mail/reply_icon.png" />\n  </a>\n</td>\n'
-                         '<td class="noPadding"></td>\n'.format(self.im2.absolute_url()))
+                         '++resource++imio.dms.mail/reply_icon.png" />\n  </a>\n</td>'
+                         '\n'.format(self.im2.absolute_url()))
+#                         '<td class="noPadding"></td>\n'.format(self.im2.absolute_url()))
         self.view.useIcons = False
         self.assertEqual(self.view.renderReplyButton(),
                          '<td class="noPadding">\n  <a target="_parent" href="{}'
                          '/@@reply">\n     <input type="button" value="Reply" class="apButton apButtonAction '
-                         'apButtonAction_reply" />\n     \n  </a>\n</td>\n'
-                         '<td class="noPadding"></td>\n'.format(self.im2.absolute_url()))
+                         'apButtonAction_reply" />\n     \n  </a>\n</td>'
+                         '\n'.format(self.im2.absolute_url()))
+#                         '<td class="noPadding"></td>\n'.format(self.im2.absolute_url()))
 
     def test_renderAssignUser(self):
         self.view.useIcons = False
@@ -103,18 +105,19 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
     def test_im_actionspanel_cache(self):
         # TODO update this irrelevant test
         ret0 = self.view()
-        # we have 3 actions: edit, propose manager, propose agent
-        self.assertEqual(ret0.count(u'<td '), 3)
+        # we have 5 actions: edit, propose manager, propose agent, reply
+        self.assertEqual(ret0.count(u'<td '), 4)
         api.content.transition(self.im2, 'propose_to_agent')
         ret1 = self.view()
         # we have the same transitions because there is a cache on getTransitions
-        self.assertEqual(ret1.count(u'<td '), 5)
+        # we have also assign but it starts with <td>
+        self.assertEqual(ret1.count(u'<td '), 4)
         # we add a reply
         om2 = get_object(oid='reponse2', ptype='dmsoutgoingmail')
         om2.reply_to = [RelationValue(self.intids.getId(self.im2))]
         modified(om2)
         ret2 = self.view()
-        self.assertEqual(ret2.count(u'<td '), 5)
+        self.assertEqual(ret2.count(u'<td '), 4)
 
 
 class TestContactActionsPanelView(unittest.TestCase):
