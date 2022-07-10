@@ -21,7 +21,6 @@ from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
-from plone.app.testing import login
 from plone.app.testing import logout
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -137,7 +136,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         imail.treating_groups = get_registry_organizations()[0]  # direction-generale
         self.assertTrue(adapted.can_do_transition('propose_to_agent'))
         api.content.transition(imail, 'propose_to_agent')
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertIsNone(imail.sender)
         self.assertIsNone(imail.mail_type)
         self.assertFalse(adapted.can_close())
@@ -423,7 +422,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # we activate contact group encoder
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder', True)
         self.assertIsNone(recipients_filter_default(self.portal))
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertIsNone(recipients_filter_default(self.portal))
         # we add a user in groups
         selected_orgs = get_registry_organizations()[0:2]
@@ -434,7 +433,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.add_principal_to_groups('encodeur', ['{}_{}'.format(selected_orgs[1], CREATING_GROUP_SUFFIX)])
         self.assertEqual(recipients_filter_default(self.portal),
                          u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertIsNone(recipients_filter_default(self.portal))
         # we add the connected user in group
         self.add_principal_to_groups('agent', ['{}_{}'.format(selected_orgs[1], CONTACTS_PART_SUFFIX)])
