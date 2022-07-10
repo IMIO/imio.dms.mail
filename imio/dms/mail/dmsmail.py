@@ -584,8 +584,8 @@ def recipients_filter_default(context):
     if current_user.getId() is None:
         return None
     # user can be a real "indicator" or an agent
-    orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), [CREATING_GROUP_SUFFIX,
-                                                                                 CONTACTS_PART_SUFFIX])
+    orgs = organizations_with_suffixes(get_plone_groups_for_user(user=current_user),
+                                       [CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX], group_as_str=True)
     for term in voc:
         if term.__org__ in orgs:
             return term.value
