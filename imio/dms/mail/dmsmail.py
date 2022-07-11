@@ -11,7 +11,6 @@ from collective.contact.core.interfaces import IContactable
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.plonegroup.utils import organizations_with_suffixes
-from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.contact.widget.schema import ContactChoice
 from collective.contact.widget.schema import ContactList
@@ -572,7 +571,7 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
         No need to manage '_default_assigned_user_' because assigned_user is here mandatory:
         the first voc value is selected
     """
-    return voc_selected_org_suffix_users(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current())
+    return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current().getId())
 
 
 def recipients_filter_default(context):
@@ -685,7 +684,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         """ method used in wf condition """
         # python: here.wf_condition_may_set_scanned(state_change)
         user = api.user.get_current()
-        if 'expedition' in [g.id for g in api.group.get_groups(user=user)]:
+        if 'expedition' in get_plone_groups_for_user(user=user):
             return True
         roles = api.user.get_roles(user=user)
         if 'Manager' in roles or 'Site Administrator' in roles:

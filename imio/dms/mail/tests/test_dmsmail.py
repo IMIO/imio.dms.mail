@@ -11,6 +11,7 @@ from imio.dms.mail.dmsmail import creating_group_filter
 from imio.dms.mail.dmsmail import creating_group_filter_default
 from imio.dms.mail.dmsmail import CustomAddForm
 from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
+from imio.dms.mail.dmsmail import filter_dmsoutgoingmail_assigned_users
 from imio.dms.mail.dmsmail import IMEdit
 from imio.dms.mail.dmsmail import IMView
 from imio.dms.mail.dmsmail import OMCustomAddForm
@@ -416,6 +417,18 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(AUC_RECORD, 'n_plus_1')
         view.updateWidgets()
         self.assertEquals(view.widgets['ITask.assigned_user'].field.description, u'')
+
+    def test_filter_dmsoutgoingmail_assigned_users(self):
+        self.assertEqual(len(filter_dmsoutgoingmail_assigned_users(None)), 0)
+        selected_orgs = get_registry_organizations()
+        self.change_user('agent')
+        voc = filter_dmsoutgoingmail_assigned_users(selected_orgs[0])
+        self.assertListEqual([t.title for t in voc._terms], [u'Michel Chef'])  # direction generale
+        voc = filter_dmsoutgoingmail_assigned_users(selected_orgs[1])
+        self.assertListEqual([t.title for t in voc._terms], [u'Fred Agent', u'Michel Chef'])
+        self.change_user('chef')
+        voc = filter_dmsoutgoingmail_assigned_users(selected_orgs[1])
+        self.assertListEqual([t.title for t in voc._terms], [u'Michel Chef', u'Fred Agent'])
 
     def test_recipients_filter_default(self):
         self.assertIsNone(recipients_filter_default(self.portal))
