@@ -15,8 +15,8 @@ from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.wfadaptations import IMServiceValidation
+from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
-from plone.app.testing import login
 from plone.dexterity.interfaces import IDexterityFTI
 from zope.component import getUtility
 from zope.interface import Interface
@@ -29,7 +29,7 @@ import unittest
 import zope.event
 
 
-class TestIMServiceValidation1(unittest.TestCase):
+class TestIMServiceValidation1(unittest.TestCase, ImioTestHelpers):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -182,16 +182,17 @@ class TestIMServiceValidation1(unittest.TestCase):
         col = folder['searchfor_proposed_to_n_plus_1']
         n_plus_1_view = IdmUtilsMethods(col, col.REQUEST)
         self.assertFalse(n_plus_1_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertFalse(n_plus_1_view.proposed_to_n_plus_col_cond())
         api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.change_user('agent')  # relog to "refresh" getGroups
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
         api.group.remove_user(groupname='abc_group_encoder', username='agent')
-        login(self.portal, 'dirg')
+        self.change_user('dirg')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'chef')
+        self.change_user('chef')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())
 
     def test_treating_groups_change_on_edit1(self):
@@ -229,7 +230,7 @@ class TestIMServiceValidation1(unittest.TestCase):
         self.assertEqual(api.content.get_state(self.imail), 'proposed_to_agent')
 
 
-class TestIMServiceValidation2(unittest.TestCase):
+class TestIMServiceValidation2(unittest.TestCase, ImioTestHelpers):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -427,23 +428,24 @@ class TestIMServiceValidation2(unittest.TestCase):
         col2 = folder['searchfor_proposed_to_n_plus_2']
         n_plus_2_view = IdmUtilsMethods(col2, col2.REQUEST)
         self.assertFalse(n_plus_2_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertFalse(n_plus_2_view.proposed_to_n_plus_col_cond())
         api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.change_user('agent')  # refresh getGroups
         self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
         api.group.remove_user(groupname='abc_group_encoder', username='agent')
-        login(self.portal, 'dirg')
+        self.change_user('dirg')
         self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
-        login(self.portal, 'chef')
+        self.change_user('chef')
         self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
         # Set N+2 to user, have to get an organization UID first
         contacts = self.portal['contacts']
         own_orga = contacts['plonegroup-organization']
         departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
         self.portal.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_n_plus_2" % departments[5].UID())
-        login(self.portal, 'agent1')
+        self.change_user('agent1')
         self.assertTrue(n_plus_1_view.proposed_to_n_plus_col_cond())  # can view lower level collection
         self.assertTrue(n_plus_2_view.proposed_to_n_plus_col_cond())
 

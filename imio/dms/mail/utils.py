@@ -22,6 +22,7 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
 from imio.helpers.content import transitions
@@ -517,7 +518,7 @@ def current_user_groups(user):
 
 def current_user_groups_ids(user):
     """Return current user groups ids."""
-    return [g.id for g in current_user_groups(user)]
+    return get_plone_groups_for_user(user=user)
 
 
 def user_is_admin():
@@ -593,14 +594,6 @@ class UtilsMethods(BrowserView):
     """Base view containing utils methods, not directly callable."""
     mainfile_type = 'dmsmainfile'
 
-    def current_user_groups(self, user):
-        """Return current user groups."""
-        return api.group.get_groups(user=user)
-
-    def current_user_groups_ids(self, user):
-        """Return current user groups ids."""
-        return [g.id for g in self.current_user_groups(user)]
-
     def highest_scan_id(self):
         """Return highest scan id."""
         pc = getToolByName(self.context, 'portal_catalog')
@@ -620,7 +613,7 @@ class UtilsMethods(BrowserView):
             return True
         if user is None:
             user = api.user.get_current()
-        u_groups = self.current_user_groups_ids(user)
+        u_groups = current_user_groups_ids(user)
         # u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
         u_suffixes = []
         for sfx in suffixes:
@@ -640,7 +633,7 @@ class UtilsMethods(BrowserView):
         """ Test if the current user has a review level """
         if portal_type is None:
             portal_type = self.context.portal_type
-        return highest_review_level(portal_type, str(self.current_user_groups_ids(api.user.get_current()))) is not None
+        return highest_review_level(portal_type, str(current_user_groups_ids(api.user.get_current()))) is not None
 
     def user_is_admin(self):
         """Test if current user is admin."""
@@ -850,7 +843,7 @@ class VariousUtilsMethods(UtilsMethods):
                         content=user.getProperty('fullname'), target='_blank'), user.getProperty('email')))
         # get groups
         log_list(out, u"<h2>In groups ?</h2>")
-        groups = [group for group in api.group.get_groups(user=user) if group.id != 'AuthenticatedUsers']
+        groups = [group for group in get_plone_groups_for_user(user=user) if group != 'AuthenticatedUsers']
         if groups:
             log_list(out, u'<p>=> in {} {}.</p>'.format(len(groups),
                      object_link(portal, view='@@usergroup-usermembership?userid={}'.format(userid), content='groups',
