@@ -625,7 +625,7 @@ def user_deleted(event):
         raise Redirect(request.get('ACTUAL_URL'))
 
     # check groups
-    pg = portal.acl_users.source_groups._principal_groups
+    pg = portal.acl_users.source_groups._principal_groups  # BTree principal id: group ids tuple
     groups = pg.get(princ, [])
     if groups:
         api.portal.show_message(message=_("You cannot delete the user name '${user}', used in following groups.",
@@ -744,6 +744,7 @@ def group_assignment(event):
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+    invalidate_cachekey_volatile_for('_users_groups_value', get_again=True)
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)  # i_e ok
@@ -818,6 +819,7 @@ def group_unassignment(event):
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+    invalidate_cachekey_volatile_for('_users_groups_value', get_again=True)
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)  # i_e ok

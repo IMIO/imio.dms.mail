@@ -191,6 +191,12 @@
         handler=".subscribers.group_deleted"
         />
 
+    <unconfigure>
+        <subscriber for="Products.PluggableAuthService.interfaces.events.IPrincipalAddedToGroupEvent"
+                  handler="imio.helpers.events.onPrincipalAddedToGroup" />
+        <subscriber for="Products.PluggableAuthService.interfaces.events.IPrincipalRemovedFromGroupEvent"
+                  handler="imio.helpers.events.onPrincipalRemovedFromGroup" />
+    </unconfigure>
     <subscriber
         for="Products.PluggableAuthService.interfaces.events.IPrincipalAddedToGroupEvent"
         handler=".subscribers.group_assignment"
