@@ -4,12 +4,12 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from datetime import datetime
 from datetime import timedelta
 from imio.dms.mail import AUC_RECORD
-from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import create_period_folder_max
+from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -24,11 +24,10 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
 from imio.dms.mail.utils import VariousUtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.test_helpers import ImioTestHelpers
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
-from plone.app.testing import login
-from plone.app.testing import logout
 from plone.dexterity.utils import createContentInContainer
 from z3c.relationfield import RelationValue
 from zope.annotation.interfaces import IAnnotations
@@ -38,12 +37,12 @@ from zope.intid import IIntIds
 import unittest
 
 
-class TestUtils(unittest.TestCase):
+class TestUtils(unittest.TestCase, ImioTestHelpers):
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']
-        change_user(self.portal)
+        self.change_user('siteadmin')
         api.group.create('abc_group_encoder', 'ABC group encoder')
         self.pgof = self.portal['contacts']['plonegroup-organization']
         self.catalog = self.portal.portal_catalog
@@ -269,10 +268,8 @@ class TestUtils(unittest.TestCase):
         self.assertListEqual(get_scan_id(obj), [u'010999900000690', u'IMIO010999900000690', u'690'])
 
     def test_UtilsMethods_current_user_groups_ids(self):
-        imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
-        view = UtilsMethods(imail, imail.REQUEST)
-        login(self.portal, 'dirg')
-        self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
+        self.change_user('dirg')
+        self.assertSetEqual(set(current_user_groups_ids(api.user.get_current())),
                             {'AuthenticatedUsers', 'createurs_dossier', 'dir_general'})
 
     def test_UtilsMethods_highest_scan_id(self):
@@ -283,7 +280,7 @@ class TestUtils(unittest.TestCase):
     def test_UtilsMethods_is_in_user_groups(self):
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = UtilsMethods(imail, imail.REQUEST)
-        self.assertListEqual(view.current_user_groups_ids(api.user.get_current()),
+        self.assertListEqual(current_user_groups_ids(api.user.get_current()),
                              ['Administrators', 'AuthenticatedUsers'])
         # current user is Manager
         self.assertTrue(view.is_in_user_groups(groups=['abc']))
@@ -291,8 +288,8 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False, test='all'))
         self.assertFalse(view.is_in_user_groups(groups=['abc'], admin=False, suffixes=['general']))
         # current user is not Manager
-        login(self.portal, 'dirg')
-        self.assertSetEqual(set(view.current_user_groups_ids(api.user.get_current())),
+        self.change_user('dirg')
+        self.assertSetEqual(set(current_user_groups_ids(api.user.get_current())),
                             {'AuthenticatedUsers', 'createurs_dossier', 'dir_general'})
         # with groups
         self.assertFalse(view.is_in_user_groups(groups=['abc']))
@@ -318,8 +315,7 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(view.is_in_user_groups(groups=['dir_general'], suffixes=['general'], org_uid='wrong'))
         self.assertFalse(view.is_in_user_groups(groups=['abc'], test='all', suffixes=['general'], org_uid='dir'))
         self.assertTrue(view.is_in_user_groups(groups=['dir_general'], test='all', suffixes=['general'], org_uid='dir'))
-        logout()
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertFalse(view.is_in_user_groups(suffixes=['general'], org_uid='dir'))
         self.assertTrue(view.is_in_user_groups(groups=['AuthenticatedUsers'], suffixes=['general'], org_uid='dir'))
         self.assertTrue(view.is_in_user_groups(suffixes=['general'], org_uid='dir', user=api.user.get('dirg')))
@@ -362,55 +358,62 @@ class TestUtils(unittest.TestCase):
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')  # refresh getGroups
         set_dms_config(['review_levels', 'dmsincomingmail'],
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                     ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
         api.group.remove_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')  # refresh getGroups
         self.assertFalse(view.user_has_review_level('dmsincomingmail'))
         api.group.add_user(groupname='dir_general', username='siteadmin')
+        self.change_user('siteadmin')  # refresh getGroups
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
 
     def test_IdmUtilsMethods_created_col_cond(self):
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.created_col_cond())
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertTrue(view.created_col_cond())
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertFalse(view.created_col_cond())
         api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.change_user('agent')  # refresh getGroups
         self.assertTrue(view.created_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_manager_col_cond(self):
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.proposed_to_manager_col_cond())
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertTrue(view.proposed_to_manager_col_cond())
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertFalse(view.proposed_to_manager_col_cond())
         api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.change_user('agent')  # refresh getGroups
         self.assertTrue(view.proposed_to_manager_col_cond())
-        login(self.portal, 'dirg')
+        self.change_user('dirg')
         self.assertTrue(view.proposed_to_manager_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_premanager_col_cond(self):
         imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         view = IdmUtilsMethods(imail, imail.REQUEST)
         self.assertFalse(view.proposed_to_pre_manager_col_cond())
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertTrue(view.proposed_to_pre_manager_col_cond())
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertFalse(view.proposed_to_pre_manager_col_cond())
         api.group.add_user(groupname='abc_group_encoder', username='agent')
+        self.change_user('agent')  # refresh getGroups
         self.assertTrue(view.proposed_to_pre_manager_col_cond())
-        login(self.portal, 'dirg')
+        self.change_user('dirg')
         self.assertTrue(view.proposed_to_pre_manager_col_cond())
-        login(self.portal, 'agent1')
+        self.change_user('agent1')
         self.assertFalse(view.proposed_to_pre_manager_col_cond())
         api.group.create('pre_manager', 'Pre manager')
         api.group.add_user(groupname='pre_manager', username='agent1')
+        self.change_user('agent1')  # refresh getGroups
         self.assertTrue(view.proposed_to_pre_manager_col_cond())
 
     def test_IdmUtilsMethods_proposed_to_n_plus_col_cond0(self):
