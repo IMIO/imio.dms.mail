@@ -518,6 +518,7 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
 
 def current_user_groups(user):
     """Return current user groups."""
+    # no more used in code but kept if necessary
     return api.group.get_groups(user=user)
 
 

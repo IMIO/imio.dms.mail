@@ -2,6 +2,7 @@ from collective.documentgenerator.browser.actionspanel import ConfigurablePODTem
 from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
 from imio.actionspanel.browser.views import ActionsPanelView
 from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
+from imio.helpers.cache import get_plone_groups_for_user
 from plone import api
 from plone.memoize import ram
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
@@ -27,7 +28,7 @@ def actionspanelview_cachekey(method,
     # review_state is no more considered because modification is changed at transition (in subscribers)
     ret = (useIcons, showOwnDelete, showActions, showAddContent, showEdit,
            '/'.join(self.context.getPhysicalPath()), user.getId(), self.context.modified().strftime('%Y%m%d-%H%M%S-%f'),
-           sorted(user.getGroups()))
+           get_plone_groups_for_user(user=user))
     return ret
 
 
