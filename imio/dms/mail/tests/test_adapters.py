@@ -21,11 +21,11 @@ from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
-from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -36,13 +36,13 @@ from zope.schema.interfaces import IVocabularyFactory
 import unittest
 
 
-class TestAdapters(unittest.TestCase):
+class TestAdapters(unittest.TestCase, ImioTestHelpers):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']
-        change_user(self.portal)
+        self.change_user('siteadmin')
         self.pgof = self.portal['contacts']['plonegroup-organization']
 
     def tearDown(self):
@@ -55,6 +55,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, default_criterias['dmsincomingmail'])
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')
         # update reviewlevels because n_plus_1 level is not applied by default
         set_dms_config(['review_levels', 'dmsincomingmail'],
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
@@ -63,6 +64,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_n_plus_1']},
                                       'treating_groups': {'query': ['111']}})
         api.group.add_user(groupname='dir_general', username='siteadmin')
+        self.change_user('siteadmin')
         # in a group dir_general
         self.assertEqual(crit.query, {'review_state': {'query': ['proposed_to_manager']}})
 
@@ -73,6 +75,7 @@ class TestAdapters(unittest.TestCase):
         # in a group _n_plus_1
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')
         # update reviewlevels because n_plus_1 level is not applied by default
         set_dms_config(['review_levels', 'dmsincomingmail'],
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
@@ -80,6 +83,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_manager',
                                                                 'proposed_to_n_plus_1,111']}})
 
@@ -90,12 +94,14 @@ class TestAdapters(unittest.TestCase):
         # in a group _n_plus_1
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')
         # update reviewlevels because n_plus_1 level is not applied by default
         set_dms_config(['review_levels', 'dmsoutgoingmail'],
                        OrderedDict([('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
         # in a group dir_general
         api.group.add_user(groupname='dir_general', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'state_group': {'query': ['proposed_to_n_plus_1,111']}})
 
     def test_TaskValidationCriterion(self):
@@ -105,11 +111,13 @@ class TestAdapters(unittest.TestCase):
         # in a group _n_plus_1
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')
         set_dms_config(['review_levels', 'task'],
                        OrderedDict([('_n_plus_1', {'st': ['to_assign', 'realized'], 'org': 'assigned_group'})]))
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
         # in a group dir_general, but no effect for task criterion
         api.group.add_user(groupname='dir_general', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'state_group': {'query': ['to_assign,111', 'realized,111']}})
 
     def test_IncomingMailInTreatingGroupCriterion(self):
@@ -117,6 +125,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_OutgoingMailInTreatingGroupCriterion(self):
@@ -124,6 +133,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'treating_groups': {'query': []}})
         api.group.create(groupname='111_n_plus_1')
         api.group.add_user(groupname='111_n_plus_1', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'treating_groups': {'query': ['111']}})
 
     def test_IncomingMailInCopyGroupCriterion(self):
@@ -131,6 +141,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'recipient_groups': {'query': []}})
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
 
     def test_OutgoingMailInCopyGroupCriterion(self):
@@ -138,6 +149,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'recipient_groups': {'query': []}})
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'recipient_groups': {'query': ['111']}})
 
     def test_TaskInAssignedGroupCriterion(self):
@@ -145,6 +157,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'assigned_group': {'query': []}})
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'assigned_group': {'query': ['111']}})
 
     def test_TaskInProposingGroupCriterion(self):
@@ -152,6 +165,7 @@ class TestAdapters(unittest.TestCase):
         self.assertEqual(crit.query, {'mail_type': {'query': []}})
         api.group.create(groupname='111_editeur')
         api.group.add_user(groupname='111_editeur', username='siteadmin')
+        self.change_user('siteadmin')
         self.assertEqual(crit.query, {'mail_type': {'query': ['111']}})
 
     def test_im_sender_email_index(self):

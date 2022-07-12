@@ -29,6 +29,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import logger
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import get_relations
 from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
@@ -90,8 +91,8 @@ def highest_validation_criterion(portal_type):
     """
     if portal_type == 'dmsincoming_email':
         portal_type = 'dmsincomingmail'  # i_e ok
-    groups = api.group.get_groups(user=api.user.get_current())
-    highest_level = highest_review_level(portal_type, str([g.id for g in groups]))
+    groups = get_plone_groups_for_user(user=api.user.get_current())
+    highest_level = highest_review_level(portal_type, str(groups))
     if highest_level is None:
         return default_criterias[portal_type]
     ret = {}
@@ -101,9 +102,9 @@ def highest_validation_criterion(portal_type):
         ret['review_state'] = {'query': criterias['st']}
     if 'org' in criterias:
         organizations = []
-        for group in groups:
-            if group.id.endswith(highest_level):
-                organizations.append(group.id[:-len(highest_level)])
+        for groupid in groups:
+            if groupid.endswith(highest_level):
+                organizations.append(groupid[:-len(highest_level)])
         ret[criterias['org']] = {'query': organizations}
     return ret
 
@@ -140,22 +141,20 @@ def validation_criterion(context, portal_type):
     """ Return a query criterion corresponding to current user validation level """
     if portal_type == 'dmsincoming_email':
         portal_type = 'dmsincomingmail'  # i_e ok
-    groups = api.group.get_groups(user=api.user.get_current())
-    groups_ids = [g.id for g in groups]
+    groups = get_plone_groups_for_user(user=api.user.get_current())
     config = get_dms_config(['review_levels', portal_type])
     # set_dms_config(['review_levels', 'dmsincomingmail'],  # i_e ok
     #            OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
     #                         ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
-
     ret = {'state_group': {'query': []}}
     for group_or_suffix in config:
         if not group_or_suffix.startswith('_'):
-            if group_or_suffix in groups_ids:
+            if group_or_suffix in groups:
                 for state in config[group_or_suffix]['st']:
                     ret['state_group']['query'].append(state)
         else:
             # get orgs of user groups with suffix
-            orgs = organizations_with_suffixes(groups, [group_or_suffix[1:]])
+            orgs = organizations_with_suffixes(groups, [group_or_suffix[1:]], group_as_str=True)
             if orgs:
                 for state in config[group_or_suffix]['st']:
                     for org in orgs:
@@ -212,8 +211,8 @@ class IncomingMailInTreatingGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'treating_groups': {'query': orgs}}
 
@@ -228,8 +227,8 @@ class OutgoingMailInTreatingGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'treating_groups': {'query': orgs}}
 
@@ -244,8 +243,8 @@ class IncomingMailInCopyGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}}
 
@@ -261,8 +260,8 @@ class IncomingMailInCopyGroupUnreadCriterion(object):
     @property
     def query(self):
         user = api.user.get_current()
-        groups = api.group.get_groups(user=user)
-        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=user)
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}, 'labels': {'not': ['%s:lu' % user.id]}}
 
@@ -290,8 +289,8 @@ class OutgoingMailInCopyGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}}
 
@@ -306,8 +305,8 @@ class TaskInAssignedGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'assigned_group': {'query': orgs}}
 
@@ -322,8 +321,8 @@ class TaskInProposingGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'mail_type': {'query': orgs}}
 
@@ -975,8 +974,8 @@ class ClassificationFolderInCopyGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'recipient_groups': {'query': orgs}}
 
@@ -989,7 +988,7 @@ class ClassificationFolderInTreatingGroupCriterion(object):
 
     @property
     def query(self):
-        groups = api.group.get_groups(user=api.user.get_current())
-        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS)
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {'treating_groups': {'query': orgs}}
