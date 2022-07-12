@@ -24,16 +24,16 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertTrue(hasattr(self.portal, 'outgoing-mail'))
 
     def test_adaptDefaultPortal(self):
-        #ltool = self.portal.portal_languages
-        #defaultLanguage = 'fr'
-        #supportedLanguages = ['en','fr']
-        #ltool.manage_setLanguageSettings(defaultLanguage, supportedLanguages, setUseCombinedLanguageCodes=False)
-        #ltool.setLanguageBindings()
+        # ltool = self.portal.portal_languages
+        # defaultLanguage = 'fr'
+        # supportedLanguages = ['en','fr']
+        # ltool.manage_setLanguageSettings(defaultLanguage, supportedLanguages, setUseCombinedLanguageCodes=False)
+        # ltool.setLanguageBindings()
         self.assertFalse(hasattr(self.portal, 'news'))
         self.assertFalse(hasattr(self.portal, 'events'))
-        #check front-page modification
+        # check front-page modification
         self.assertIn('Gestion du courrier', self.portal['front-page'].Title())
-        #check old Topic activation
+        # check old Topic activation
         self.assertTrue('Collection (old-style)' in [pt.title for pt in self.portal.allowedContentTypes()])
 
     def test_configureBatchImport(self):
@@ -46,42 +46,42 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertEquals(code_to_type_mapping[0]['portal_type'], u'dmsincomingmail')
 
     def test_addTestDirectory(self):
-        #checking directory
+        # checking directory
         self.assertTrue(hasattr(self.portal, 'contacts'))
         contacts = self.portal['contacts']
         self.assertEquals(len(contacts.position_types), 5)
         self.assertEquals(len(contacts.organization_types), 7)
         self.assertEquals(len(contacts.organization_levels), 3)
-        #checking organizations
+        # checking organizations
         organizations = contacts.listFolderContents(contentFilter={'portal_type': 'organization'})
         self.assertEquals(len(organizations), 3)
-        #checking positions
+        # checking positions
         pc = self.portal.portal_catalog
         positions = pc(portal_type=('position',), path={"query": 'plone/contacts'})
         self.assertEquals(len(positions), 0)
-        #checking persons
+        # checking persons
         persons = contacts.listFolderContents(contentFilter={'portal_type': 'person'})
         self.assertEquals(len(persons), 4)
-        #checking held positions
+        # checking held positions
         held_positions = pc(portal_type=('held_position',), path={"query": 'plone/contacts'},
                             object_provides='collective.contact.plonegroup.interfaces.INotPloneGroupContact')
         self.assertEquals(len(held_positions), 3)
 
     def test_addTestMails(self):
-        #checking incoming mails
+        # checking incoming mails
         pc = self.portal.portal_catalog
         imails = pc(portal_type=('dmsincomingmail',), path={"query": 'plone/incoming-mail'})
         self.assertEquals(len(imails), 9)
-        #checking outgoing mails
+        # checking outgoing mails
         omails = pc(portal_type=('dmsoutgoingmail',), path={"query": 'plone/outgoing-mail'})
         self.assertEquals(len(omails), 9)
 
     def test_addTestUsersAndGroups(self):
-        #checking groups
+        # checking groups
         acl_users = getToolByName(self.portal, 'acl_users')
         lecteurs = [gd for gd in acl_users.searchGroups() if gd['groupid'].endswith('_lecteur')]
         self.assertEquals(len(lecteurs), 11)
-        #checking users
+        # checking users
         mt = getToolByName(self.portal, 'portal_membership')
         users = [member for member in mt.listMembers()
                  if member.getProperty('fullname').find(' ') >= 1]
@@ -90,37 +90,3 @@ class TestSetuphandlers(unittest.TestCase):
     def ttest_addTemplates(self):
         self.assertIn('templates', self.portal)
         self.assertEqual(len(self.portal['templates'].listFolderContents()), 2)
-
-    def test_create_persons_from_users(self):
-        pf = self.portal['contacts']['personnel-folder']
-        self.assertListEqual(pf.objectIds(), ['chef', 'dirg', 'agent1', 'agent'])
-        member = self.portal.portal_registration.addMember(id='newuser', password='TestUser=6')
-        member.setMemberProperties({'fullname': 'Leloup Pierre', 'email': 'test@macommune.be'})
-        orgs = get_registry_organizations()
-        api.group.add_user(groupname='%s_encodeur' % orgs[0], username='newuser')
-        # with the added subscriber, the person and held_position are already added
-        api.content.delete(pf['newuser'])
-        self.portal.portal_setup.runImportStepFromProfile('imio.dms.mail:singles',
-                                                          'imiodmsmail-create-persons-from-users-inverted',
-                                                          run_dependencies=False)
-        # person
-        self.assertListEqual(pf.objectIds(), ['chef', 'dirg', 'agent1', 'agent', 'newuser'])
-        nu_p = pf['newuser']
-        self.assertEqual(nu_p.firstname, 'Pierre')
-        self.assertEqual(nu_p.lastname, 'Leloup')
-        self.assertEqual(nu_p.portal_type, 'person')
-        # held position
-        self.assertIn(orgs[0], nu_p)
-        nu_hp = nu_p[orgs[0]]
-        self.assertEqual(nu_hp.portal_type, 'held_position')
-        self.assertEqual(nu_hp.position.to_path, '/plone/contacts/plonegroup-organization/direction-generale')
-        # mixed with manual content
-        api.content.rename(obj=nu_p, new_id='newuser_renamed')
-        api.content.rename(obj=nu_hp, new_id='%s_renamed' % orgs[0])
-        api.group.add_user(groupname='%s_encodeur' % orgs[1], username='newuser')
-        api.content.delete(pf['newuser_renamed'][orgs[1]])
-        self.portal.portal_setup.runImportStepFromProfile('imio.dms.mail:singles',
-                                                          'imiodmsmail-create-persons-from-users-inverted',
-                                                          run_dependencies=False)
-        self.assertListEqual(pf.objectIds(), ['chef', 'dirg', 'agent1', 'agent', 'newuser_renamed'])
-        self.assertListEqual(nu_p.objectIds(), ['%s_renamed' % orgs[0], orgs[1]])

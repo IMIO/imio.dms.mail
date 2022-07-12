@@ -6,13 +6,11 @@ from plone import api
 import unittest
 
 
-class TestSetuphandlers(unittest.TestCase):
+class TestSteps(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
-        # you'll want to use this to set up anything you need for your tests
-        # below
         self.portal = self.layer['portal']
         change_user(self.portal)
 

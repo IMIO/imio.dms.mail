@@ -5,6 +5,7 @@ from imio.dms.mail import _
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
+from imio.helpers.cache import get_plone_groups_for_user
 from plone import api
 from plone.autoform import directives
 from plone.autoform.interfaces import IFormFieldProvider
@@ -25,10 +26,10 @@ def user_creating_group(context):
     # user is anonymous when some widget are accessed in source search or masterselect
     # check if we have a real user to avoid 404 because get_groups on None user
     if user.getId():
-        user_groups = api.group.get_groups(user=api.user.get_current())
+        user_groups = get_plone_groups_for_user(user=user)
         # we check if user is in creating_group for incoming and contact_part for outgoing and contact
         for fct in (CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX):
-            user_orgs = set([gp.id[:-14] for gp in user_groups if gp.id.endswith(fct)])
+            user_orgs = set([gp[:-14] for gp in user_groups if gp.endswith(fct)])
             inter = creating_groups & user_orgs
             if inter:
                 # ordered = [uid for uid in creating_groups if uid in inter]; return ordered[0]
