@@ -7,7 +7,6 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_organizations
-from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
@@ -20,6 +19,7 @@ from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import list_wf_states
 from imio.helpers.cache import get_cachekey_volatile
+from imio.helpers.cache import get_plone_groups_for_user
 from natsort import humansorted
 from operator import attrgetter
 from plone import api
@@ -114,10 +114,10 @@ class AssignedUsersWithDeactivatedVocabulary(object):
         active_orgs = get_registry_organizations()
         functions = [dic['fct_id'] for dic in get_registry_functions()]
         for term in vocab:
-            for group in api.group.get_groups(username=term.value):
-                if group.id == 'AuthenticatedUsers':
+            for groupid in get_plone_groups_for_user(user_id=term.token):  # token is the userid
+                if groupid == 'AuthenticatedUsers':
                     continue
-                parts = group.id.split('_')
+                parts = groupid.split('_')
                 if len(parts) != 1:
                     group_suffix = '_'.join(parts[1:])
                     if group_suffix in functions and parts[0] not in active_orgs:  # not an active org
@@ -293,7 +293,7 @@ def encodeur_active_orgs(context):
     if current_user.getId() is None:
         return voc
     # the expedition group must have all values
-    if 'expedition' in [g.id for g in api.group.get_groups(user=current_user)]:
+    if 'expedition' in get_plone_groups_for_user(user=current_user):
         return voc
     # we filter orgs if
     #   * current user is not admin
@@ -301,7 +301,8 @@ def encodeur_active_orgs(context):
     #   * state is created
     if (not current_user.has_role(['Manager', 'Site Administrator']) and
             (context.portal_type != 'dmsoutgoingmail' or api.content.get_state(context) == 'created')):
-        orgs = organizations_with_suffixes(api.group.get_groups(user=current_user), OM_EDITOR_SERVICE_FUNCTIONS)
+        orgs = organizations_with_suffixes(get_plone_groups_for_user(user=current_user), OM_EDITOR_SERVICE_FUNCTIONS,
+                                           group_as_str=True)
         return SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
     return voc
 
@@ -342,7 +343,9 @@ class CreatingGroupVocabulary(object):
         vocab = factory(context)
 
         # we get all orgs where there are plone groups with the creating group suffix
-        to_keep = organizations_with_suffixes(api.group.get_groups(), [CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX])
+        gpm = context.acl_users.source_groups._group_principal_map
+        to_keep = organizations_with_suffixes(gpm.keys(),
+                                              [CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX], group_as_str=True)
         for term in vocab:
             if term.value in to_keep:
                 terms.append(term)
