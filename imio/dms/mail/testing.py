@@ -101,6 +101,8 @@ class DmsmailLayer(PloneWithPackageLayer):
     defaultBases = (PLONE_DMS_FIXTURE,)  # testing_locales.zcml inclusion
 
     def setUpPloneSite(self, portal):
+        portal.portal_registration.addMember(id='siteadmin', password='SiteAdm!n0')
+        api.group.add_user(groupname='Administrators', username='siteadmin')
         setLocal('request', portal.REQUEST)
         if imio_global_cache:
             sml = getSiteManager(portal)
@@ -152,7 +154,7 @@ class DmsmailLayer(PloneWithPackageLayer):
 
         caller = inspect.stack()[1][3]
         if caller == 'setUp':
-            common_setup(portal)
+            end_setup(portal)
         setRoles(portal, TEST_USER_ID, ['Member'])
 
     def setUpZope(self, app, configurationContext):
@@ -201,7 +203,7 @@ class DmsmailLayerNP1(DmsmailLayer):
                                        'incomingmail_number', 1)
 
         setRoles(portal, TEST_USER_ID, ['Member'])
-        common_setup(portal)
+        end_setup(portal)
 
 
 DMSMAIL_FIXTURE = DmsmailLayer(
@@ -243,9 +245,7 @@ DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     name="DMSMAIL_ROBOT_TESTING")
 
 
-def common_setup(portal):
-    portal.portal_registration.addMember(id='siteadmin', password='SiteAdm!n0')
-    api.group.add_user(groupname='Administrators', username='siteadmin')
+def end_setup(portal):
     setattr(portal, '_v_ready', True)
 
 
