@@ -138,7 +138,12 @@ def get_dms_config(keys=None):
 
 
 def group_has_user(groupname, action=None):
-    """ Check if group contains user """
+    """ Check if group contains user
+
+    :param groupname: group id
+    :param action: None or group 'delete', group user 'add' or group user 'remove'
+    :return: bool
+    """
     try:
         # group is deleted
         if action == 'delete':

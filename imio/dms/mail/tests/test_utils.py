@@ -73,6 +73,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(group_has_user('abc_group_encoder'))  # no user
         self.assertTrue(group_has_user('abc_group_encoder', 'add'))  # we are adding a user
         api.group.add_user(groupname='abc_group_encoder', username='chef')
+        self.change_user('siteadmin')
         self.assertTrue(group_has_user('abc_group_encoder'))  # group has one user
         self.assertFalse(group_has_user('abc_group_encoder', 'remove'))  # we are removing the only one user
 

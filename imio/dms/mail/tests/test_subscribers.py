@@ -4,11 +4,11 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
-from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.helpers.content import get_object
+from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
@@ -29,13 +29,13 @@ import unittest
 import zope.event
 
 
-class TestDmsmail(unittest.TestCase):
+class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
         self.portal = self.layer['portal']
-        change_user(self.portal)
+        self.change_user('siteadmin')
         intids = getUtility(IIntIds)
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'c1',
                                 **{'sender': [RelationValue(intids.getId(self.portal.contacts['electrabel']))],
@@ -107,7 +107,7 @@ class TestDmsmail(unittest.TestCase):
         self.assertEqual(api.content.get_state(self.imail), 'created')
         self.imail.treating_groups = get_registry_organizations()[1]  # direction-generale secretariat
         api.content.transition(self.imail, 'propose_to_agent')
-        change_user(self.portal, 'agent')
+        self.change_user('agent')
         self.assertIsNone(self.imail.assigned_user)
         api.content.transition(self.imail, 'close')
         self.assertEqual(self.imail.assigned_user, 'agent')

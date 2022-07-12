@@ -5,7 +5,6 @@ from datetime import datetime
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.settings import configure_group_encoder
-from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
@@ -22,9 +21,8 @@ from imio.dms.mail.vocabularies import OMSenderVocabulary
 from imio.dms.mail.vocabularies import PloneGroupInterfacesVocabulary
 from imio.dms.mail.vocabularies import TaskReviewStatesVocabulary
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
-from plone.app.testing import login
-from plone.app.testing import logout
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
@@ -32,7 +30,7 @@ from zope.schema.interfaces import IVocabularyFactory
 import unittest
 
 
-class TestVocabularies(unittest.TestCase):
+class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -40,7 +38,7 @@ class TestVocabularies(unittest.TestCase):
         # you'll want to use this to set up anything you need for your tests
         # below
         self.portal = self.layer['portal']
-        change_user(self.portal)
+        self.change_user('siteadmin')
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
         self.omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id')
         self.maxDiff = None
@@ -71,6 +69,7 @@ class TestVocabularies(unittest.TestCase):
         guid = self.portal.contacts['plonegroup-organization']['departement-culturel'].UID()
         new_group = api.group.create('{}_lecteur'.format(guid))
         api.group.add_user(group=new_group, username='test-user')
+        self.change_user('siteadmin')  # refresh getGroups
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
@@ -80,6 +79,7 @@ class TestVocabularies(unittest.TestCase):
         # add same user in active group
         guid = self.portal.contacts['plonegroup-organization'][u'direction-generale'].UID()
         api.group.add_user(groupname='{}_lecteur'.format(guid), username='test-user')
+        self.change_user('siteadmin')  # refresh getGroups
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list,
                              [('__empty_string__', u'Empty value'), ('agent', u'Fred Agent'),
@@ -175,15 +175,14 @@ class TestVocabularies(unittest.TestCase):
     def test_encodeur_active_orgs0(self):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
         all_titles = [t.title for t in factory(self.omail)]
-        login(self.portal, 'encodeur')
+        self.change_user('encodeur')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
-        logout()
-        login(self.portal, 'agent')
+        self.change_user('agent')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
                              [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
 
     def test_LabelsVocabulary(self):
-        login(self.portal, 'agent')
+        self.change_user('agent')
         voc_inst = LabelsVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, ['agent:lu', 'agent:suivi'])
@@ -206,5 +205,6 @@ class TestVocabularies(unittest.TestCase):
         # adding user to group_encoder plone groups
         for org_uid in selected_orgs:
             api.group.add_user(groupname='{}_{}'.format(org_uid, CREATING_GROUP_SUFFIX), username='agent')
+        self.change_user('siteadmin')  # refresh getGroups
         self.assertEqual(len(voc_inst1(self.imail)), 2)
         self.assertEqual(len(voc_inst2(self.imail)), 2)
