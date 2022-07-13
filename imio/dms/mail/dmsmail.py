@@ -9,7 +9,7 @@ from AccessControl.class_init import InitializeClass
 from browser.settings import IImioDmsMailConfig
 from collective.contact.core.interfaces import IContactable
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
-from collective.contact.plonegroup.utils import get_selected_org_suffix_users
+from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.contact.widget.schema import ContactChoice
@@ -1053,8 +1053,7 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                         self.request.form[form_widget][0] != getattr(self.context, dic['attr'])):
                     # check if assigned_user is no more in
                     if (self.context.assigned_user is not None and value is not None and value not in
-                            [mb.getUserName() for mb in get_selected_org_suffix_users(self.request.form[form_widget][0],
-                                                                                      dic['fcts'])]):
+                            get_selected_org_suffix_principal_ids(self.request.form[form_widget][0], dic['fcts'])):
                         raise Invalid(_(u"The assigned user is not in the selected group !"))
                     # check if assigned_user is needed on dmsincomingmail
                     if klass != IMEdit or value is not None:

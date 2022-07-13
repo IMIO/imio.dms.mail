@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
-
+from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.widget.schema import ContactChoice
 from collective.dms.basecontent.dmsdocument import IDmsDocument
@@ -53,8 +53,8 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
                 # check if treating_groups is changed and assigned_user is no more in
                 if (brain.treating_groups is not None and brain.assigned_user != EMPTY_STRING and
                     data['treating_group'] != brain.treating_groups and
-                    brain.assigned_user not in [mb.getUserName() for mb in get_selected_org_suffix_users(
-                        data['treating_group'], IM_EDITOR_SERVICE_FUNCTIONS)]):
+                    brain.assigned_user not in get_selected_org_suffix_principal_ids(
+                        data['treating_group'], IM_EDITOR_SERVICE_FUNCTIONS)):
                     # self.status not good here because it needs to stay on the same form
                     api.portal.show_message(_(u'An assigned user is not in this new treating group. '
                                               u'Mail "${mail}" !', mapping={'mail': brain.Title.decode('utf8')}),
@@ -131,7 +131,7 @@ class RecipientGroupBatchActionForm(BaseBatchActionForm):
            (data.get('added_values', None)) and data['action_choice'] in ('add', 'replace', 'overwrite')):
             for brain in self.brains:
                 obj = brain.getObject()
-                if data['action_choice'] in ('overwrite'):
+                if data['action_choice'] in ('overwrite', ):
                     items = set(data['added_values'])
                 else:
                     items = set(obj.recipient_groups or [])

@@ -5,7 +5,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
-from collective.contact.plonegroup.utils import get_selected_org_suffix_users
+from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import get_suffixed_groups
 from collective.documentgenerator.utils import update_templates
 from collective.wfadaptations.api import add_applied_adaptation
@@ -196,7 +196,7 @@ def mark_copy_im_as_read(context):
             if org_uid not in users:
                 users[org_uid] = {}
             if typ not in users[org_uid]:
-                users[org_uid][typ] = [u.id for u in get_selected_org_suffix_users(org_uid, functions[typ])]
+                users[org_uid][typ] = get_selected_org_suffix_principal_ids(org_uid, functions[typ])
             for userid in users[org_uid][typ]:
                 user_ids.add(userid)
         if len(user_ids):
