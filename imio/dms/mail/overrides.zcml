@@ -64,4 +64,16 @@
         />
     </unconfigure>
 
+    <unconfigure package="collective.task">
+        <utility
+            name="collective.task.AssignedUsers"
+            provides="zope.schema.interfaces.IVocabularyFactory"
+            component="collective.task.behaviors.AssignedUsersVocabularyFactory"
+        />
+    </unconfigure>
+    <utility
+      component="imio.helpers.vocabularies.SimplySortedUsersFactory"
+      name="collective.task.AssignedUsers"
+    />
+
 </configure>
