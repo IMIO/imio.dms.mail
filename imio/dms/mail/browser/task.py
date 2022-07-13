@@ -1,4 +1,4 @@
-from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
+from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.task import _ as _t
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from plone import api
@@ -11,11 +11,11 @@ from Products.CMFPlone.utils import base_hasattr
 import copy
 
 
-def filter_task_assigned_users(group):
+def filter_task_assigned_users(org_uid):
     """
         Filter assigned_user in dms incoming mail
     """
-    voc = voc_selected_org_suffix_users(group, TASK_EDITOR_SERVICE_FUNCTIONS)
+    voc = voc_selected_org_suffix_userids(org_uid, TASK_EDITOR_SERVICE_FUNCTIONS)
     if len(voc) == 1:
         req = api.env.getRequest()
         view = req.get('PUBLISHED', None)
