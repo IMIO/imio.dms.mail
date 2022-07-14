@@ -4,6 +4,7 @@ from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_tem
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.task.content.task import Task
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
@@ -42,6 +43,7 @@ from imio.helpers.content import find
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import load_var
 from plone import api
+from plone.app.contenttypes.migration.dxmigration import migrate_base_class_to_new_class
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
@@ -236,6 +238,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         if self.is_in_part('d'):  # update site
             # do various global adaptations
             self.update_site()
+            self.update_tasks()
 
         if self.is_in_part('e'):  # update dmsincomingmails
             # update dmsincomingmails
@@ -279,9 +282,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.install(['imio.helpers'])
             # TEMPORARY to 3.0.30
             self.cleanRegistries()
-            # TEMPORARY to 3.0.21
+            # TEMPORARY to 3.0.31
             self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator', 'Member'),
                                           acquire=0)
+            self.update_tasks()
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             # update templates
@@ -954,6 +958,19 @@ class Migrate_To_3_0(Migrator):  # noqa
                     api.user.delete(user=user)
                 except Redirect:
                     pass
+
+    def update_tasks(self):
+        # change klass on task
+        count = 0
+        for brain in self.catalog(portal_type='task'):
+            obj = brain.getObject()
+            if obj.__class__ != Task:
+                # old_class_name='plone.dexterity.content.Container',
+                migrate_base_class_to_new_class(obj, new_class_name='collective.task.content.task.Task')
+                obj.reindexObjectSecurity()
+                count += 1
+        if count:
+            logger.info('TASKS class corrected : {}'.format(count))
 
 
 def migrate(context):
