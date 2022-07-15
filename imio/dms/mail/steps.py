@@ -31,7 +31,7 @@ from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import uuidToObject
-from imio.helpers.workflow import load_workflow_from_package
+from imio.helpers.setup import load_workflow_from_package
 from imio.pyutils.utils import append
 from persistent.list import PersistentList
 from plone import api
