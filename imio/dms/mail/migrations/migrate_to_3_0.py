@@ -286,6 +286,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator', 'Member'),
                                           acquire=0)
             self.update_tasks()
+            if api.group.get('gestion_contacts') is None:
+                api.group.create('gestion_contacts', '1 Gestion doublons contacts')
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             # update templates
@@ -415,6 +417,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         notify(RecordModifiedEvent(record, [], []))
 
         # add group
+        if api.group.get('gestion_contacts') is None:
+            api.group.create('gestion_contacts', '1 Gestion doublons contacts')
         if api.group.get('lecteurs_globaux_cs') is None:
             api.group.create('lecteurs_globaux_cs', '2 Lecteurs Globaux CS')
         # change local roles
