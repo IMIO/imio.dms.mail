@@ -19,9 +19,9 @@ from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
 from collective.task.interfaces import ITaskMethods
 from imio.dms.mail import _
+from imio.helpers.content import uuidToCatalogBrain
 from html import escape
 from plone import api
-from plone.app.uuid.utils import uuidToCatalogBrain
 from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table import column
@@ -160,7 +160,7 @@ class ContactsColumn(PrettyLinkColumn):
         for val in value:
             if val.startswith('l:'):
                 continue
-            c_brain = uuidToCatalogBrain(val)
+            c_brain = uuidToCatalogBrain(val, unrestricted=True)
             if not c_brain:
                 ret.append('-')
             else:
