@@ -1955,6 +1955,9 @@ def addTestUsersAndGroups(context):
         site['contacts']['contact-lists-folder'].manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
         api.group.add_user(groupname='expedition', username='scanner')
         api.group.add_user(groupname='expedition', username='encodeur')
+    if api.group.get('gestion_contacts') is None:
+        api.group.create('gestion_contacts', '1 Gestion doublons contacts')
+        api.group.add_user(groupname='gestion_contacts', username='encodeur')
     if api.group.get('lecteurs_globaux_ce') is None:
         api.group.create('lecteurs_globaux_ce', '2 Lecteurs Globaux CE')
     if api.group.get('createurs_dossier') is None:

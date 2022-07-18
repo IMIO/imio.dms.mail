@@ -527,9 +527,10 @@ def current_user_groups_ids(user):
     return get_plone_groups_for_user(user=user)
 
 
-def user_is_admin():
+def user_is_admin(user=None):
     """Test if current user is admin."""
-    user = api.user.get_current()
+    if user is None:
+        user = api.user.get_current()
     return user.has_role(['Manager', 'Site Administrator'])
 
 
@@ -537,11 +538,11 @@ def is_in_user_groups(groups=(), admin=True, test='any', suffixes=(), org_uid=''
     """Test if one or all of a given group list is part of the current user groups.
     Test if one or all of a suffix list is part of the current user groups.
     """
-    # for admin, we bypass the check
-    if admin and user_is_admin():
-        return True
     if user is None:
         user = api.user.get_current()
+    # for admin, we bypass the check
+    if admin and user_is_admin(user):
+        return True
     u_groups = current_user_groups_ids(user)
     # u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
     u_suffixes = []
@@ -614,11 +615,11 @@ class UtilsMethods(BrowserView):
         """Test if one or all of a given group list is part of the current user groups.
         Test if one or all of a suffix list is part of the current user groups.
         """
-        # for admin, we bypass the check
-        if admin and self.user_is_admin():
-            return True
         if user is None:
             user = api.user.get_current()
+        # for admin, we bypass the check
+        if admin and user_is_admin(user):
+            return True
         u_groups = current_user_groups_ids(user)
         # u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
         u_suffixes = []

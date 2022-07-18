@@ -14,6 +14,8 @@ from imio.dms.mail import _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
+from imio.dms.mail.utils import is_in_user_groups
+from imio.helpers.cache import get_current_user_id
 from imio.helpers.content import uuidsToObjects
 from plone import api
 from plone.formwidget.masterselect import MasterSelectField
@@ -353,9 +355,14 @@ class DuplicatedBatchActionForm(BaseBatchActionForm):
     overlay = False
     weight = 20
 
+    def available(self):
+        return is_in_user_groups(groups=('gestion_contacts', ))
+
     def __call__(self):
+        if not self.available():  # double check
+            return ''
         self.request['uids'] = self.request['uids'].split(',')
         self.request['no_redirect'] = 1
         view = getMultiAdapter((self.context.getParentNode(), self.request), name='merge-contacts')
-        with api.env.adopt_roles(['Manager']):  # not sure it's working
+        with api.env.adopt_roles(['Manager']):
             return view()
