@@ -225,6 +225,11 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         msgs = smi.show()
         self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
 
+    def test_group_assignment(self):
+        self.portal.ok = True
+        self.portal.acl_users.source_groups.addPrincipalToGroup('agent', 'encodeurs')
+        self.assertRaises(Redirect, self.portal.acl_users.source_groups.addPrincipalToGroup, 'Reviewers', 'encodeurs')
+
     def test_organization_modified(self):
         pc = self.portal.portal_catalog
         self.elec = self.portal['contacts']['electrabel']

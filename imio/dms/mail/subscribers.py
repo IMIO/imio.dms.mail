@@ -35,6 +35,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
+from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import get_zope_root
 from imio.helpers.security import set_site_from_package_config
@@ -64,6 +65,7 @@ from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.container.interfaces import IContainerModifiedEvent
+from zope.globalrequest import getRequest
 from zope.i18n import translate
 from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
@@ -739,6 +741,12 @@ def group_assignment(event):
     """
         manage the add of a user in a plone group
     """
+    # check if we have a user
+    if event.principal not in get_vocab_values(None, 'imio.helpers.SimplySortedUsers'):
+        req = getRequest()
+        api.portal.show_message(message=_('You cannot add a group in a group !'),
+                                request=req, type='error')
+        raise Redirect(req.get('HTTP_REFERER'))
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
