@@ -40,6 +40,7 @@ from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
+from imio.helpers.content import get_vocab_values
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import load_var
 from plone import api
@@ -157,6 +158,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.cleanRegistries()
 
             self.correct_actions()
+
+            self.correct_groups()
 
             self.install(['collective.ckeditortemplates', 'collective.fingerpointing'])
             if default_cke_templ_folder in self.portal:
@@ -288,6 +291,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.update_tasks()
             if api.group.get('gestion_contacts') is None:
                 api.group.create('gestion_contacts', '1 Gestion doublons contacts')
+            self.correct_groups()
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             # update templates
@@ -609,6 +613,16 @@ class Migrate_To_3_0(Migrator):  # noqa
         if 'portlet' in pa:
             api.content.rename(obj=pa['portlet'], new_id='object_portlet')
             set_portlet(self.portal)
+
+    def correct_groups(self):
+        valid_users = get_vocab_values(None, 'imio.helpers.SimplySortedUsers')
+        for group in api.group.get_groups():
+            for principal in api.user.get_users(group=group):
+                if principal.id not in valid_users:
+                    logger.info("Removing principal '{}' from group '{}'".format(principal.id, group.id))
+                    for user in api.user.get_users(group=principal):
+                        api.group.add_user(user=user, group=group)
+                    api.group.remove_user(user=principal, group=group)
 
     def remove_to_print(self):
         applied_adaptations = [dic['adaptation'] for dic in get_applied_adaptations()]
