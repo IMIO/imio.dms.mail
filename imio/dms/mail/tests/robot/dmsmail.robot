@@ -24,8 +24,7 @@ Plone is installed
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  0.5
-    ${URL} =  Get mail url  oid=dmsincomingmail
-    Go to  ${URL}
+    Go to mail  oid=dmsincomingmail
     Wait until element is visible  css=.DV-pageImage  10
 
 *** Keywords ***
