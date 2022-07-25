@@ -37,17 +37,18 @@ CE numerisation
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1-onglet-courrier-entrant.png  css=.site-plone  id=portal-footer-wrapper
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}/lock-unlock
     Wait until element is visible  css=.DV-pageImage  10
     Select collection  incoming-mail/mail-searches/searchfor_created
     Capture and crop page screenshot  doc/utilisation/2-2-1-recherche-en-creation.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
+    Go to  ${PLONE_URL}/${im_path}/lock-unlock?unlock=1
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
 
     ### Edit mail
     Capture and crop page screenshot  doc/utilisation/2-2-1-lien-modifier-courrier.png  id=viewlet-above-content-title  id=viewlet-below-content-title
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-1-edition-courrier.png  id=content
@@ -184,14 +185,13 @@ CE numerisation
     Capture and crop page screenshot  doc/utilisation/2-2-1-expediteur-0-fini.png  id=formfield-form-widgets-IDublinCore-description  id=formfield-form-widgets-original_mail_date
 
     ### Complete last fields
-    # scroll up
-    Execute javascript  window.scrollTo(0, 0)
-    Click element  css=.DV-documentView span.DV-trigger
+    Select from list by index  id=form-widgets-treating_groups  2
+    Sleep  0.5
+    scroll down
+    Click element  css=#formfield-form-widgets-original_mail_date label
     Select from list by value  id=form-widgets-original_mail_date-day  6
     Select from list by value  id=form-widgets-original_mail_date-month  6
     Select from list by value  id=form-widgets-original_mail_date-year  2012
-    Select from list by index  id=form-widgets-treating_groups  2
-    Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1-edition-courrier-fini.png  id=content
     Click button  id=form-buttons-save
     Sleep  2
@@ -210,18 +210,20 @@ CE transfert email
     Select collection  incoming-mail/mail-searches/searchfor_created
     sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-2-recherche-en-creation-1.png  css=.eea-preview-items
-    Delete content  /${PLONE_SITE_ID}/incoming-mail/ou-se-situe-votre-entite-par-rapport-aux-objectifs-de-developpement-durable
+    ${im_path} =  Get mail path  ptype=dmsincoming_email  oid=ou-se-situe-votre-entite-par-rapport-aux-objectifs-de-developpement-durable
+    Delete content  /${PLONE_SITE_ID}/${im_path}
     Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=2&only=email1.pdf,email2.pdf&redirect=
     sleep  1
     Enable autologin as  dirg
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
+    ${im_path} =  Get mail path  ptype=dmsincoming_email  oid=reservation-de-la-salle-le-foyer
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-2-2-recherche-en-creation-2.png  css=.eea-preview-items
     Enable autologin as  agent
-    Go to  ${PLONE_URL}/incoming-mail/reservation-de-la-salle-le-foyer
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-2-email-a-traiter.png  id=content
@@ -267,13 +269,14 @@ CE manuel
     Wait until element is visible  id=formfield-form-widgets-IScanFields-scan_id  10
     Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-scan.png  id=content
     Click button  id=form-buttons-cancel
-    Go to  ${PLONE_URL}/incoming-mail/braderie-annuelle-septembre/create_main_file?filename=60.PDF
+    ${im_path} =  Get mail path  oid=braderie-annuelle-septembre
+    Go to  ${PLONE_URL}/${im_path}/create_main_file?filename=60.PDF
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note12}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-finie.png  id=portal-column-content  ${note12}
     Remove element  id=${note12}
-    Go to  ${PLONE_URL}/incoming-mail/braderie-annuelle-septembre
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-2-3-courrier-2-visualisation.png  id=content
@@ -286,15 +289,17 @@ CE multi-indicatage
     Wait until element is visible  css=h1.documentFirstHeading
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
+    Scrolldown
     Click element  id=form-widgets-IDmsMailCreatingGroup-creating_group
     Wait until element is visible  id=form-widgets-IDmsMailCreatingGroup-creating_group-1  10
     Capture and crop page screenshot  doc/utilisation/3-1-3-ce-groupe-indicateur.png  id=formfield-form-widgets-internal_reference_no  id=form-buttons-save
     Go to  ${PLONE_URL}/activate_group_encoder?typ=contact
     Wait until element is visible  css=h1.documentFirstHeading
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/3-1-3-ce-filtre-contact.png  id=formfield-form-widgets-sender
@@ -306,7 +311,8 @@ CS en réponse
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     # set treating_groups value to enable transition
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  treating_groups  ${GRH}  str
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
@@ -316,13 +322,13 @@ CS en réponse
     Set field value  ${UID}  recipient_groups  ['${DF}']  list
     Set field value  ${UID}  assigned_user  agent  str
     Set field value  ${UID}  external_reference_no  2017/ESB/00123  str
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Click button  id=form-buttons-save
     Fire transition  ${UID}  propose_to_n_plus_1
     Enable autologin as  dirg
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note60}  Add pointy note  css=#viewlet-above-content-title .apButtonAction_reply  Bouton de réponse  position=top  color=blue
@@ -354,21 +360,22 @@ CS en réponse
     Sleep  0.5
     # Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-selection-modele.png  css=div.pb-ajax
     # Sleep  5
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=reponse-candidature-a-un-poste-douvrier-communal
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-genere.png  id=content
     ${note52}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(3)  Édition externe  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-edition-externe.png  css=#fieldset-versions table  ${note52}
     Remove element  id=${note52}
-    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001
+    Delete content  /plone/${om_path}/012999900000001
 
     # Mailing
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
     ${REC1} =  Path to uid  /${PLONE_SITE_ID}/contacts/marc-leduc
     ${REC2} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Dexter  lastname=Morgan  zip_code=5000  city=Namur  street=Place du Théâtre  number=5  email=dexter.morgan@mpd.am
     Set field value  ${UID}  recipients  ['${REC1}', '${REC2}']  references
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-creation-finie-multi-dest.png  css=#parent-fieldname-title span.pretty_link_content  id=formfield-form-widgets-ITask-assigned_user
     Click element  css=#viewlet-above-content-title a.overlay-template-selection
@@ -379,7 +386,7 @@ CS en réponse
     Sleep  0.5
     Click element  css=div.pb-ajax #tree-form li.fancytree-lastsib li.fancytree-lastsib span.fancytree-title
     Sleep  5
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-ged-genere-non-pub.png  id=content
@@ -388,19 +395,19 @@ CS en réponse
     Remove element  id=${note55}
     Click element  css=#fieldset-versions tr.selected td:nth-child(6)
     Sleep  5
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-ged-genere-pub-page-1.png  css=#parent-fieldname-title span.pretty_link_content  id=formfield-form-widgets-internal_reference_no  css=div.viewlet_workflowstate
     # Click element  css=#DV-container .DV-navControls .DV-next
     # Click element  css=#DV-container .DV-navControls .DV-next
     # Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-ged-genere-pub-page-3.png  id=content
-    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001-1
-    Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/012999900000001
+    Delete content  /plone/${om_path}/012999900000001-1
+    Delete content  /plone/${om_path}/012999900000001
 
     ### Add mainfile
     Set field value  ${UID}  recipients  ['${REC1}']  references
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     #Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
     ${note61}  Add pointy note  css=#viewlet-above-content-title select[name="Add element"]  Menu ajout d'un élément  position=right  color=blue
@@ -413,17 +420,17 @@ CS en réponse
     Wait until element is visible  id=formfield-form-widgets-file  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-2-ged-ajout.png  id=content
     Click button  id=form-buttons-cancel
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
+    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note62}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-2-ged-ajout-fini.png  id=portal-column-content  ${note62}
     Remove element  id=${note62}
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-2-visualisation.png  id=content
-    # Delete content  /plone/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/reponse-candidature-ouvrier-communal
+    # Delete content  /plone/${om_path}/reponse-candidature-ouvrier-communal
 
 CS nouveau
 # partie 2.3.2 Nouveau courrier sortant
@@ -449,35 +456,36 @@ CS nouveau
     Select checkbox  id=form-widgets-send_modes-0
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-moyenne
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
     ${VOIRIES} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-technique/voiries
     Set field value  ${UID}  treating_groups  ${VOIRIES}  str
     ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-voiries
     Set field value  ${UID}  sender  ${SENDER}  str
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-internal_reference_no
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
+    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-2-visualisation.png  css=table.actionspanel-no-style-table  id=fieldset-versions
 
     ## Chande send_modes to email
     Set field value  ${UID}  send_modes  ['post', 'email']  list
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-4-cs-mode-email.png  css=table.actionspanel-no-style-table  id=formfield-form-widgets-send_modes
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne/edit?edit-email=1#fieldsetlegend-email
+    Go to  ${PLONE_URL}/${om_path}/edit?edit-email=1#fieldsetlegend-email
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-4-cs-edit-email.png  css=h1.documentFirstHeading  id=content-core
     Click element  form-widgets-email_attachments-0
     Click button  id=form-buttons-save
     # Set field value  ${UID}  email_body  <meta charset="UTF-8"><p>Bonjour Monsieur,</p><p>Vous trouverez en pièce jointe un document concernant la réfection des trottoirs dans votre rue.</p><p>Cordialement</p><p>&nbsp;</p><p><span style="font-size:large;font-family:Quicksand,Arial">Fred Agent</span></p><p>&nbsp;</p><div style="float:left;"><div style="font-size:small; float:left;clear:both;width:350px"><span>Agent Voiries</span><br /><span>Direction technique</span><br /><span>Voiries</span><br /><a href="mailto:fred.agent@macommune.be" style="display: inline-block; padding-top: 1em;" target="_blank">fred.agent@macommune.be</a><br /><span>012/34.56.70</span><br /><span style="display: inline-block; padding-top: 0.5em;">Rue de la commune, 1</span><br /><span>0010 Ma ville</span><br /></div><div style="float:left;display: inline-grid;"><a href="" target="_blank"><img alt="" src="/++resource++imio.dms.mail/belleville.png" /></a><br /><span style="font-size:small;text-align: center;">Administration communale de Belleville</span></div><p>&nbsp;</p><div style="font-size: x-small;color:#424242;clear:both"><br />Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.</div>  text/html
-    # Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-moyenne
+    # Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-4-cs-email-visualisation.png  css=table.actionspanel-no-style-table  id=fieldset-versions  id=form-groups-email
     # Click element  css=input.apButtonAction_sendemail # not working on test env
@@ -490,19 +498,20 @@ CS depuis le scanner
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-3-3-cs-onglet-courrier-sortant.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail
-    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/lock-unlock
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=dmsoutgoingmail
+    Go to  ${PLONE_URL}/${om_path}
+    Go to  ${PLONE_URL}/${om_path}/lock-unlock
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Select collection  outgoing-mail/mail-searches/searchfor_scanned
     Capture and crop page screenshot  doc/utilisation/2-3-3-cs-recherche-scanne.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
-    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/lock-unlock?unlock=1
+    Go to  ${PLONE_URL}/${om_path}/lock-unlock?unlock=1
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
 
     ### Edit mail
     Capture and crop page screenshot  doc/utilisation/2-3-3-cs-lien-modifier-courrier.png  id=viewlet-above-content-title  id=viewlet-below-content-title
-    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/edit
+    Go to  ${PLONE_URL}/${om_path}/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-3-cs-edition-courrier.png  id=content
@@ -551,8 +560,9 @@ Tableaux de bord
     [TAGS]  RUN2042
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?number=25&redirect=
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock
-    ${UID0} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}/lock-unlock
+    ${UID0} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     ${PERS1} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
     Set field value  ${UID0}  title  Candidature à un poste d'ouvrier communal  str
@@ -563,14 +573,15 @@ Tableaux de bord
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-general.png  id=content
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/lock-unlock?unlock=1
+    Go to  ${PLONE_URL}/${im_path}/lock-unlock?unlock=1
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Click element   css=div.pagination a.next
     Wait until element is visible  css=.faceted-table-results  10
     Unselect checkbox  select_unselect_items
     # treating group
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
     Select checkbox  css=td.select_item_checkbox input[value='${UID1}']
     Click button  id=treatinggroup-batch-action-but
     Wait until element is visible  css=.pb-ajax #formfield-form-widgets-treating_group  10
@@ -598,7 +609,8 @@ Tableaux de bord
     Set field value  ${UID1}  title  Poste d'ouvrier communal  str
     Set field value  ${UID1}  treating_groups  ${GRH}  str
     Set field value  ${UID1}  sender  ['${PERS2}']  references
-    ${UID2} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-2
+    ${im2_path} =  Get mail path  oid=dmsincomingmail-2
+    ${UID2} =  Path to uid  /${PLONE_SITE_ID}/${im2_path}
     ${PERS3} =  Path to uid  /${PLONE_SITE_ID}/contacts/bernardlermitte
     Set field value  ${UID2}  title  Votre offre pour être ouvrier communal  str
     Set field value  ${UID2}  treating_groups  ${GRH}  str
@@ -628,7 +640,7 @@ Tableaux de bord
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Select collection  incoming-mail/mail-searches/searchfor_created
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-2
+    Go to  ${PLONE_URL}/${im2_path}
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-precedent-suivant.png  id=portal-breadcrumbs  css=#parent-fieldname-title span.pretty_link_content
 
 Recherche générale
@@ -637,7 +649,8 @@ Recherche générale
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
     Set field value  ${UID1}  title  Organisation de la braderie annuelle  str
     Capture and crop page screenshot  doc/utilisation/2-4-3-barre-recherche-generale.png  id=portal-globalnav
     Input text  searchGadget  kermes* boudin
@@ -653,7 +666,8 @@ Visualisation
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -668,7 +682,7 @@ Visualisation
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-5-onglet-courrier-entrant.png  css=.site-plone  id=portal-footer-wrapper
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-5-courrier-entrant.png  css=.site-plone  id=portal-footer-wrapper
@@ -695,7 +709,8 @@ Modification
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -703,13 +718,13 @@ Modification
     Set field value  ${UID}  sender  ['${SENDER}']  references
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  original_mail_date  20170314  date
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note20}  Add pointy note  css=table.actionspanel-no-style-table tr:first-child td  Lien d'édition  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-6-lien-modifier-courrier.png  id=portal-breadcrumbs  id=content-history  css=table.actionspanel-no-style-table  ${note20}
     Remove element  id=${note20}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Sleep  0.2
@@ -717,7 +732,7 @@ Modification
     Click button  id=form-buttons-cancel
     Fire transition  ${UID}  propose_to_n_plus_1
     Enable autologin as  chef
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-6-edition-limitee-courrier.png  id=content
