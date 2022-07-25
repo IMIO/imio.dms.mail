@@ -4,10 +4,12 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.helpers.cache import setup_ram_cache
+from imio.helpers.content import get_object
 from imio.helpers.content import transitions as do_transitions
 from imio.pyutils.system import runCommand
 from itertools import cycle
 from plone import api
+from plone.app.robotframework.remote import RemoteLibrary
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
@@ -102,6 +104,7 @@ class DmsmailLayer(PloneWithPackageLayer):
 
     def setUpPloneSite(self, portal):
         setLocal('request', portal.REQUEST)
+        # if not os.getenv('IS_ROBOT', False) and imio_global_cache:
         if imio_global_cache:
             sml = getSiteManager(portal)
             sml.unregisterUtility(provided=IRAMCache)
@@ -204,6 +207,19 @@ class DmsmailLayerNP1(DmsmailLayer):
         common_setup(portal)
 
 
+class DmsmailRemote(RemoteLibrary):
+
+    def get_mail_url(self, typ='dmsincomingmail', oid='', title=''):
+        """Get a mail path from his id or title
+        """
+        kwargs = {'ptype': typ}
+        if oid:
+            kwargs['oid'] = oid
+        if title:
+            kwargs['title'] = title
+        return get_object(**kwargs).absolute_url()
+
+
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
@@ -236,6 +252,8 @@ DMSMAIL_FUNCTIONAL_TESTING = FunctionalTesting(
 
 # testing_locales.zcml inclusion
 REMOTE_LIBRARY_BUNDLE_FIXTURE.__bases__ = (PLONE_DMS_FIXTURE, )
+REMOTE_LIBRARY_BUNDLE_FIXTURE.libraryBases = tuple([lib for lib in REMOTE_LIBRARY_BUNDLE_FIXTURE.libraryBases] +
+                                                   [DmsmailRemote])
 DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     bases=(DMSMAIL_NP1_FIXTURE,
            REMOTE_LIBRARY_BUNDLE_FIXTURE,
