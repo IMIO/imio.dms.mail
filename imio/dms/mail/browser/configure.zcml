@@ -849,4 +849,22 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
+    <!-- Manage correctly hidden parts in breadcrumb: overrides -->
+    <browser:page
+        for="*"
+        name="breadcrumbs_view"
+        class=".overrides.PhysicalNavigationBreadcrumbs"
+        permission="zope.Public"
+        allowed_attributes="breadcrumbs"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+    <browser:page
+        for="plone.app.layout.navigation.interfaces.INavigationRoot"
+        name="breadcrumbs_view"
+        class="Products.CMFPlone.browser.navigation.RootPhysicalNavigationBreadcrumbs"
+        permission="zope.Public"
+        allowed_attributes="breadcrumbs"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
 </configure>
