@@ -9,6 +9,7 @@ from imio.helpers.content import transitions as do_transitions
 from imio.pyutils.system import runCommand
 from itertools import cycle
 from plone import api
+from plone.api.validation import at_least_one_of
 from plone.app.robotframework.remote import RemoteLibrary
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
@@ -211,15 +212,12 @@ class DmsmailLayerNP1(DmsmailLayer):
 
 class DmsmailRemote(RemoteLibrary):
 
-    def get_mail_url(self, typ='dmsincomingmail', oid='', title=''):
-        """Get a mail path from his id or title
+    @at_least_one_of('oid', 'title')
+    def get_mail_path(self, ptype='dmsincomingmail', oid='', title=''):
+        """Get a mail path from its id or title
         """
-        kwargs = {'ptype': typ}
-        if oid:
-            kwargs['oid'] = oid
-        if title:
-            kwargs['title'] = title
-        return get_object(**kwargs).absolute_url()
+        return '/'.join(api.portal.get_tool('portal_url').getRelativeContentPath(
+            get_object(ptype=ptype, oid=oid, title=title)))
 
 
 DMSMAIL_FIXTURE = DmsmailLayer(
