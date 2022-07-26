@@ -744,7 +744,8 @@ Tache
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -755,7 +756,7 @@ Tache
     Set field value  ${UID}  original_mail_date  20170314  date
     Fire transition  ${UID}  propose_to_manager
     Enable autologin as  dirg
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Wait until element is visible  css=.DV-pageImage  10
     Sleep  0.5
     Select from list by label  name=Add element  Tâche
@@ -770,13 +771,13 @@ Tache
     Click button  id=form-buttons-save
     Wait until element is visible  css=.template-item_view.portaltype-task #formfield-form-widgets-ITask-due_date  10
     Capture and crop page screenshot  doc/utilisation/2-7-1-tache-ajout-complete.png  id=content
-    ${TUID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
+    ${TUID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}/placer-le-cv-dans-notre-referentiel
     Fire transition  ${TUID}  do_to_assign
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/placer-le-cv-dans-notre-referentiel
+    Go to  ${PLONE_URL}/${im_path}/placer-le-cv-dans-notre-referentiel
     Wait until element is visible  css=div.viewlet_workflowstate span.state-to_assign  10
     Capture and crop page screenshot  doc/utilisation/2-7-1-tache-ajout-to-assign.png  id=content
 # partie 2.7.2 Visualisation d'une tâche
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-7-2-tache-dans-courrier.png  id=content
@@ -791,7 +792,8 @@ Workflow ce
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -806,7 +808,7 @@ Workflow ce
     Capture and crop page screenshot  doc/utilisation/2-8-1-transition-tb.png  css=.faceted-table-results > thead  transition-batch-action  recipientgroup-batch-action  ${note2}
     Remove elements  id=${note1}  id=${note2}
     # ce
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-en-creation.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate
@@ -816,17 +818,17 @@ Workflow ce
     Remove elements  id=${note30}  id=${note31}
 # partie 2.8.2 ce
     Fire transition  ${UID}  propose_to_manager
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2-transition-vers-dg.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Enable autologin as  dirg
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-dg.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  propose_to_n_plus_1
     Enable autologin as  chef
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note32}  Add pointy note  css=#formfield-form-widgets-ITask-assigned_user .formHelp  Avertissement  position=bottom  color=blue
@@ -836,7 +838,7 @@ Workflow ce
     ${note33}  Add pointy note  css=select.apButtonAction_assign  Assigner un agent  position=right  color=blue
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-chef-assigne-bouton.png  css=table.actionspanel-no-style-table  ${note33}  css=div.viewlet_workflowstate
     Remove element  id=${note33}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     # Capture and crop page screenshot  doc/utilisation/2-8-2-edition-limitee-courrier.png  css=h1.documentFirstHeading  id=formfield-form-widgets-recipient_groups
@@ -845,23 +847,23 @@ Workflow ce
     Select from list by value  id=form-widgets-ITask-due_date-year  2015
     Click button  id=form-buttons-save
     Set field value  ${UID}  assigned_user  agent  field_type normal
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-chef-assigne.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-recipient_groups
     Fire transition  ${UID}  propose_to_agent
     Enable autologin as  agent
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-agent-a-traiter.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  treat
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-agent-traitement.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  close
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-agent-cloture.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
@@ -882,7 +884,7 @@ Workflow ce
     Capture and crop page screenshot  doc/utilisation/2-8-1-historique.png  id=content  css=.overlay-history
     Click element  css=#pb_1 .close
     Fire transition  ${UID}  close
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-1-transition-fleche-verte.png  css=#parent-fieldname-title .pretty_link_icons  css=#parent-fieldname-title .pretty_link_content
@@ -902,36 +904,37 @@ Workflow cs
     Set field value  ${UID}  recipients  ['${RECIPIENT}']  references
     Set field value  ${UID}  mail_type  courrier  str
     Sleep  1
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3-etat-en-creation.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     # transitions
     Fire transition  ${UID}  propose_to_n_plus_1
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  id=content-core
     Enable autologin as  chef
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3-etat-chef.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Fire transition  ${UID}  propose_to_be_signed
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-signature.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3-etat-a-la-signature.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
     Fire transition  ${UID}  mark_as_sent
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-8-3-etat-envoye.png  css=div.viewlet_workflowstate  id=content-history  id=portal-breadcrumbs
@@ -945,35 +948,36 @@ Workflow tâche
     Set field value  ${OM}  treating_groups  ${GRH}  str
     ${UID} =  Create content  type=task  container=${OM}  title=Recontacter en septembre
     Set field value  ${UID}  assigned_group  ${GRH}  str
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=reponse-candidature
+    Go to  ${PLONE_URL}/${om_path}/recontacter-en-septembre
     Wait until element is visible  css=#formfield-form-widgets-ITask-due_date label  10
     Capture and crop page screenshot  doc/utilisation/2-8-4-etat-en-creation.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     # transitions
     Fire transition  ${UID}  do_to_assign
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Go to  ${PLONE_URL}/${om_path}/recontacter-en-septembre
     Wait until element is visible  css=div.viewlet_workflowstate span.state-to_assign
     Capture and crop page screenshot  doc/utilisation/2-8-4-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Set field value  ${UID}  assigned_user  agent  str
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Go to  ${PLONE_URL}/${om_path}/recontacter-en-septembre
     Wait until element is visible  css=div.viewlet_workflowstate span.state-to_assign
     Capture and crop page screenshot  doc/utilisation/2-8-4-etat-a-assigner.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_to_do
     Enable autologin as  agent
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Go to  ${PLONE_URL}/${om_path}/recontacter-en-septembre
     Wait until element is visible  css=div.viewlet_workflowstate span.state-to_do
     Capture and crop page screenshot  doc/utilisation/2-8-4-etat-a-faire.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_in_progress
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Go to  ${PLONE_URL}/${om_path}/recontacter-en-septembre
     Wait until element is visible  css=div.viewlet_workflowstate span.state-in_progress
     Capture and crop page screenshot  doc/utilisation/2-8-4-etat-en-cours.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Fire transition  ${UID}  do_realized
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Go to  ${PLONE_URL}/${om_path}/recontacter-en-septembre
     Wait until element is visible  css=div.viewlet_workflowstate span.state-realized
     Capture and crop page screenshot  doc/utilisation/2-8-4-etat-realise.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     Enable autologin as  chef
     Fire transition  ${UID}  do_closed
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature/recontacter-en-septembre
+    Go to  ${PLONE_URL}/${om_path}/recontacter-en-septembre
     Wait until element is visible  css=div.viewlet_workflowstate span.state-closed
     Capture and crop page screenshot  doc/utilisation/2-8-4-etat-cloture.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
 
@@ -1009,7 +1013,8 @@ Contacts 2
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/electrabel
     ${TG} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale
     Set field value  ${UID}  title  Remplacement du compteur électrique  str
@@ -1081,10 +1086,11 @@ Contacts 3
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned2
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/outgoing-mail/dmsoutgoingmail
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=dmsoutgoingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
     ${TG} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/secretariat
     Set field value  ${UID}  treating_groups  ${TG}  str
-    Go to  ${PLONE_URL}/outgoing-mail/dmsoutgoingmail/edit
+    Go to  ${PLONE_URL}/${om_path}/edit
     Wait until element is visible  formfield-form-widgets-recipients  20
     Input text  name=form.widgets.IDublinCore.title  Convocation des candidats DF
     Select from list by index  id=form-widgets-treating_groups  1
@@ -1157,7 +1163,8 @@ ia-delib
     # Unexpected Zope exception: <class 'ZODB.POSException.InvalidObjectReference'> - ('Attempt to store an object from a foreign database connection',  ,  )
     Go to  ${PLONE_URL}/import_scanned
     Wait until element is visible  css=.faceted-table-results  10
-    ${UID0} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID0} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     ${PERS1} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
     Set field value  ${UID0}  title  Candidature à un poste d'ouvrier communal  str
@@ -1165,7 +1172,7 @@ ia-delib
     Set field value  ${UID0}  sender  ['${PERS1}']  references
     Set field value  ${UID0}  task_description  <p>Fais ceci</p>  text/html
     Fire transition  ${UID0}  propose_to_n_plus_1
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
 
