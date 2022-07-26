@@ -100,15 +100,6 @@
         allowed_interface="Products.CMFPlone.browser.interfaces.IPlone"
         />
 
-    <!-- Manage correctly hidden parts in breadcrumb -->
-    <browser:page
-        for="*"
-        name="breadcrumbs_view"
-        class=".browser.overrides.PhysicalNavigationBreadcrumbs"
-        permission="zope.Public"
-        allowed_attributes="breadcrumbs"
-        />
-
     <browser:viewlet
         name="plone.contentactions"
         for="*"

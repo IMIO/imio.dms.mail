@@ -4,10 +4,13 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.helpers.cache import setup_ram_cache
+from imio.helpers.content import get_object
 from imio.helpers.content import transitions as do_transitions
 from imio.pyutils.system import runCommand
 from itertools import cycle
 from plone import api
+from plone.api.validation import at_least_one_of
+from plone.app.robotframework.remote import RemoteLibrary
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
 from plone.app.testing import FunctionalTesting
@@ -104,6 +107,7 @@ class DmsmailLayer(PloneWithPackageLayer):
         portal.portal_registration.addMember(id='siteadmin', password='SiteAdm!n0')
         api.group.add_user(groupname='Administrators', username='siteadmin')
         setLocal('request', portal.REQUEST)
+        # if not os.getenv('IS_ROBOT', False) and imio_global_cache:
         if imio_global_cache:
             sml = getSiteManager(portal)
             sml.unregisterUtility(provided=IRAMCache)
@@ -206,6 +210,16 @@ class DmsmailLayerNP1(DmsmailLayer):
         end_setup(portal)
 
 
+class DmsmailRemote(RemoteLibrary):
+
+    @at_least_one_of('oid', 'title')
+    def get_mail_path(self, ptype='dmsincomingmail', oid='', title=''):
+        """Get a mail path from its id or title
+        """
+        return '/'.join(api.portal.get_tool('portal_url').getRelativeContentPath(
+            get_object(ptype=ptype, oid=oid, title=title)))
+
+
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
@@ -238,6 +252,8 @@ DMSMAIL_FUNCTIONAL_TESTING = FunctionalTesting(
 
 # testing_locales.zcml inclusion
 REMOTE_LIBRARY_BUNDLE_FIXTURE.__bases__ = (PLONE_DMS_FIXTURE, )
+REMOTE_LIBRARY_BUNDLE_FIXTURE.libraryBases = tuple([lib for lib in REMOTE_LIBRARY_BUNDLE_FIXTURE.libraryBases] +
+                                                   [DmsmailRemote])
 DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     bases=(DMSMAIL_NP1_FIXTURE,
            REMOTE_LIBRARY_BUNDLE_FIXTURE,

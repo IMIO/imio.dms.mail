@@ -11,6 +11,12 @@ Select collection
     Sleep  0.5
 #    [Return]  ${UID}
 
+Go to mail
+    [Documentation]  Go to a mail page from its id or title
+    [Arguments]  ${ptype}=dmsincomingmail  ${oid}=  ${title}=
+    ${path} =  Get mail path  ptype=${ptype}  oid=${oid}  title=${title}
+    Go to  ${PLONE_URL}/${path}
+
 ScrollUp
     Execute javascript  window.scrollTo(0, 0)
 
