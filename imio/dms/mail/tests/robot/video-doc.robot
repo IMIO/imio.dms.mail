@@ -29,8 +29,10 @@ Naviguer
     [TAGS]  RUN01
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -155,8 +157,10 @@ Traiter un courrier
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -197,7 +201,7 @@ Traiter un courrier
     Add clic  css=#faceted_table tr:nth-child(2) td.pretty_link
     Remove element  id=${note1}
 
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Wait until element is visible  css=.DV-pageImage  10
     ${main1}  Add main note  Lorsqu'on visualise un courrier, on peut trouver, dans la partie principale de la page, les éléments suivants (en partant de haut en bas).
     sleep  ${L_S}
@@ -276,7 +280,7 @@ Traiter un courrier
     Remove element  id=${note1}
 
 # modification
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Wait until element is visible  css=.DV-pageImage  10
 
 #    ${main1}  Add main note  Lorsqu'on modifie un courrier, on peut changer certains champs de la fiche.
@@ -360,7 +364,7 @@ Traiter un courrier
     Remove element  id=${note1}
 
     Fire transition  ${UID}  treat
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Wait until element is visible  css=.DV-pageImage  10
 
     ${note1}  Add pointy note  css=div.viewlet_workflowstate
@@ -426,8 +430,10 @@ Répondre à un courrier
     [TAGS]  RUN03
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -451,7 +457,7 @@ Répondre à un courrier
     Select collection  incoming-mail/mail-searches/to_treat
 
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Wait until element is visible  css=.DV-pageImage  10
 
     # start video
@@ -525,8 +531,9 @@ Répondre à un courrier
     sleep  ${L_S}
     Remove element  id=${note1}
 
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
-    Go to  ${PLONE_URL}/outgoing-mail/reponse-candidature-a-un-poste-douvrier-communal
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=reponse-candidature-a-un-poste-douvrier-communal
+    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
 
     ${main1}  Add main note  Une fois le document ajouté, la fiche se présente comme ci-dessous.
@@ -649,8 +656,9 @@ Créer un courrier sortant
     sleep  ${L_S}
     Remove element  id=${note1}
 
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
 
     ${main1}  Add main note  Une fois le document ajouté, la fiche se présente comme ci-dessous.
@@ -694,8 +702,9 @@ Créer un document bureautique
     ${date}=  Get Current Date  local  exclude_millis=yes
     ${convert}=  Convert Date  ${date}  result_format=%d/%m/%Y
     Set field value  ${UID}  mail_date  ${convert}  date%d/%m/%Y
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/${om_path}
 # start video
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
@@ -752,7 +761,7 @@ Créer un document bureautique
     Add clic  css=.fancytree-exp-nl span:nth-child(2)
     Click element  css=.fancytree-exp-nl span:nth-child(2)
 
-    GO to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    GO to  ${PLONE_URL}/${om_path}
 
     ${main1}  Add main note  Le document bureautique s'ouvre maintenant dans LibreOffice
     sleep  ${L_S}
@@ -810,8 +819,10 @@ Transférer un email entrant
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
     Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&redirect=&only=email1.pdf
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -826,7 +837,8 @@ Transférer un email entrant
     Set field value  ${UID1}  treating_groups  ${GRH}  str
     Set field value  ${UID1}  assigned_user  agent  str
     Fire transition  ${UID1}  propose_to_n_plus_1
-    ${UID2} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/reservation-de-la-salle-le-foyer
+    ${im2_path} =  Get mail path  ptype=dmsincoming_email  oid=reservation-de-la-salle-le-foyer
+    ${UID2} =  Path to uid  /${PLONE_SITE_ID}/${im2_path}
     ${EVEN} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/evenements
     Set field value  ${UID2}  treating_groups  ${EVEN}  str
     Enable autologin as  dirg
@@ -955,8 +967,9 @@ Envoyer un email sortant
     ${date}=  Get Current Date  local  exclude_millis=yes
     ${convert}=  Convert Date  ${date}  result_format=%d/%m/%Y
     Set field value  ${UID}  mail_date  ${convert}  date%d/%m/%Y
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/${om_path}
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
@@ -1059,7 +1072,7 @@ Envoyer un email sortant
     ${date}=  Get Current Date  local  exclude_millis=yes
     ${convert}=  Convert Date  ${date}  result_format=%Y-%m-%d %H:%M
     Set field value  ${UID}  email_status  Email envoyé le ${convert}  str
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    Go to  ${PLONE_URL}/${om_path}
     sleep  ${S_S}
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(11)
@@ -1078,7 +1091,7 @@ Envoyer un email sortant
     sleep  ${L_S}
     Remove element  id=${main1}
     Fire transition  ${UID}  mark_as_sent
-    Go to  ${PLONE_URL}/outgoing-mail/annonce-de-la-refection-des-trottoirs-rue-des-papillons
+    Go to  ${PLONE_URL}/${om_path}
     sleep  ${N_S}
 
     ${note1}  Add pointy note  css=div.viewlet_workflowstate
@@ -1097,8 +1110,10 @@ Valider un courrier entrant
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${SENDER1} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
@@ -1203,7 +1218,7 @@ Valider un courrier entrant
     sleep  ${N_S}
     Add clic  query-nextprev-prev
     Remove element  id=${note1}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail-1
+    Go to  ${PLONE_URL}/${im1_path}
 
     ${note1}  Add main note  Il suffit de refaire les mêmes manipulations sur ce courrier...
     sleep  ${L_S}
@@ -1249,13 +1264,14 @@ Ajouter un contact
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=&only=59.PDF
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
     Set field value  ${UID}  description  Candidature spontanée  str
     Set field value  ${UID}  treating_groups  ${GRH}  str
     Set field value  ${UID}  original_mail_date  20170314  date
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail/edit
+    Go to  ${PLONE_URL}/${im_path}/edit
     Wait until element is visible  css=.DV-pageImage  10
     # Start Video
     Run keyword if  '${RECORD}'=='1'  Pause
@@ -1553,8 +1569,10 @@ Ajouter une annexe
     [TAGS]  RUN10
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned?redirect=
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -1578,7 +1596,7 @@ Ajouter une annexe
     Select collection  incoming-mail/mail-searches/to_treat
 
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Wait until element is visible  css=.DV-pageImage  10
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
@@ -1604,7 +1622,7 @@ Ajouter une annexe
     sleep  ${N_S}
 
     # Vue d'ajout
-    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail/++add++dmsappendixfile
+    GO to  ${PLONE_URL}/${im_path}/++add++dmsappendixfile
 
     ${note1}  Add pointy note  css=#form-widgets-IBasic-title  Ajoutez le titre de l'annexe  position=left  color=blue
     sleep  ${S_S}
@@ -1655,8 +1673,10 @@ Ajouter une tâche
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -1680,7 +1700,7 @@ Ajouter une tâche
     Select collection  incoming-mail/mail-searches/to_treat
 
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/incoming-mail/dmsincomingmail
+    Go to  ${PLONE_URL}/${im_path}
     Wait until element is visible  css=.DV-pageImage  10
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
@@ -1706,7 +1726,7 @@ Ajouter une tâche
     sleep  ${N_S}
 
     # Vue d'ajout
-    GO to  ${PLONE_URL}/incoming-mail/dmsincomingmail/++add++task
+    GO to  ${PLONE_URL}/${im_path}/++add++task
     Wait until element is visible  css=body.template-task #formfield-form-widgets-ITask-enquirer  10
 
     ${main1}  Add main note  On peut compléter le formulaire. Les champs marqués d'un carré rouge sont obligatoires.
@@ -1806,8 +1826,10 @@ Utiliser les recherches
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Go to  ${PLONE_URL}/import_scanned?redirect=
-    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail-1
-    ${UID} =  Path to uid  /${PLONE_SITE_ID}/incoming-mail/dmsincomingmail
+    ${im1_path} =  Get mail path  oid=dmsincomingmail-1
+    ${im_path} =  Get mail path  oid=dmsincomingmail
+    ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Leduc  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marcleduc@hotmail.com  cell_phone=04724523453
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     Set field value  ${UID}  title  Candidature à un poste d'ouvrier communal  str
@@ -2046,3 +2068,5 @@ Suite Setup
     Run keyword if  '${RECORD}'=='0'  Set suite variable  \${N_S}  1
     Run keyword if  '${RECORD}'=='0'  Set suite variable  \${S_S}  1
     Run keyword if  '${RECORD}'=='0'  Set suite variable  \${C_S}  0.5
+    Run keyword if  '${RECORD}'=='0'  Set suite variable  \${W_WIDTH}  1920
+    Run keyword if  '${RECORD}'=='0'  Set suite variable  \${W_HEIGHT}  1080
