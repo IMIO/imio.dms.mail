@@ -1189,15 +1189,15 @@ Valider un courrier entrant
     ...  On peut soit "modifier" la fiche si plusieurs changements sont nécessaires.  position=top  color=blue  width=300
     sleep  ${N_S}
 
-    ${note2}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(8)
+    ${note2}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(7)
     ...  soit utiliser le bouton d'assignation.  position=top  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
     Remove element  id=${note2}
-    Add clic  css=table.actionspanel-no-style-table td:nth-child(8)
-    Click element  css=table.actionspanel-no-style-table td:nth-child(8) select
-    Add clic  css=table.actionspanel-no-style-table td:nth-child(8) select option:nth-child(1)
-    Select From List By Value  css=table.actionspanel-no-style-table td:nth-child(8) select  agent
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(7)
+    Click element  css=table.actionspanel-no-style-table td:nth-child(7) select
+    Add clic  css=table.actionspanel-no-style-table td:nth-child(7) select option:nth-child(1)
+    Select From List By Value  css=table.actionspanel-no-style-table td:nth-child(7) select  agent
     Wait until element is visible  css=table.actionspanel-no-style-table input.apButtonWF_propose_to_agent  10
 
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(4)
