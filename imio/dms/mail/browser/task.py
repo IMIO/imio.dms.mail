@@ -11,11 +11,13 @@ from Products.CMFPlone.utils import base_hasattr
 import copy
 
 
-def filter_task_assigned_users(org_uid):
+def filter_task_assigned_users(group):
+    """Filter assigned_user in dms incoming mail
+
+    :param group: receives the org uid (but must kept the name group)
+    :return: users vocabulary
     """
-        Filter assigned_user in dms incoming mail
-    """
-    voc = voc_selected_org_suffix_userids(org_uid, TASK_EDITOR_SERVICE_FUNCTIONS)
+    voc = voc_selected_org_suffix_userids(group, TASK_EDITOR_SERVICE_FUNCTIONS)
     if len(voc) == 1:
         req = api.env.getRequest()
         view = req.get('PUBLISHED', None)
