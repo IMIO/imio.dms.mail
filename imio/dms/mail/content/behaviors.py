@@ -11,14 +11,11 @@ from plone.autoform import directives
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.supermodel import model
 from zope.interface import alsoProvides
-from zope.interface import provider
-from zope.schema.interfaces import IContextAwareDefaultFactory
 
 
-@provider(IContextAwareDefaultFactory)
-def user_creating_group(context):
+def user_creating_group():
     """ default to current user creating group """
-    voc = ActiveCreatingGroupVocabulary()(context)
+    voc = ActiveCreatingGroupVocabulary()(None)
     creating_groups = set([term.value for term in voc])
     if not creating_groups:
         return None
