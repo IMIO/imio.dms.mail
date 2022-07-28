@@ -37,6 +37,7 @@ from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import IdmUtilsMethods
+from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
@@ -854,16 +855,14 @@ class Migrate_To_3_0(Migrator):  # noqa
             logger.info('Updates dmsincomingmails to ensure creating_group field is set')
         for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail'), 1):
             obj = brain.getObject()
-            if i == 1:
-                view = IdmUtilsMethods(obj, obj.REQUEST)
             obj.reindexObject(['markers'])
             if obj.assigned_user is None and brain.review_state == 'closed':
                 for status in obj.workflow_history['incomingmail_workflow']:
                     if status['action'] == 'close':
-                        username = status['actor']
-                        if view.is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=obj.treating_groups,
-                                                  user=api.user.get(username)):
-                            obj.assigned_user = username
+                        userid = status['actor']
+                        if is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=obj.treating_groups,
+                                             user=api.user.get(userid)):
+                            obj.assigned_user = userid
                             obj.reindexObject(['assigned_user'])
                         break
             if ensure:
