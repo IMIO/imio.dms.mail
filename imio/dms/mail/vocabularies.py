@@ -20,6 +20,7 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import list_wf_states
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.vocabularies import voc_cache_key as users_groups_cache_key
 from natsort import humansorted
 from operator import attrgetter
 from plone import api
@@ -105,7 +106,7 @@ class AssignedUsersWithDeactivatedVocabulary(object):
     """All users, activated first."""
     implements(IVocabularyFactory)
 
-    @ram.cache(voc_cache_key)
+    @ram.cache(users_groups_cache_key)
     def AssignedUsersWithDeactivatedVocabulary__call__(self, context):
         factory = getUtility(IVocabularyFactory, 'plone.principalsource.Users')
         vocab = factory(context)  # terms as username, userid, fullname
