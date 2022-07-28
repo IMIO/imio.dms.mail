@@ -31,6 +31,7 @@ from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import IdmUtilsMethods
+from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -335,11 +336,10 @@ def dmsdocument_transition(mail, event):
 def dmsincomingmail_transition(mail, event):
     """When closing an incoming mail, add the assigned_user if necessary."""
     if event.transition and event.transition.id == 'close' and mail.assigned_user is None:
-        username = event.status['actor']
-        view = IdmUtilsMethods(mail, mail.REQUEST)
-        if view.is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=mail.treating_groups,
-                                  user=api.user.get(username)):
-            mail.assigned_user = username
+        userid = event.status['actor']
+        if is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=mail.treating_groups,
+                             user=api.user.get(userid)):
+            mail.assigned_user = userid
             mail.reindexObject(['assigned_user'])
 
 
