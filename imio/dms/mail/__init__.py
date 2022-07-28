@@ -46,6 +46,11 @@ BACK_OR_AGAIN_ICONS = {'': False,
 PERIODS = {'month': '%Y%m', 'week': '%Y%U', 'day': '%Y%m%d'}
 MAIN_FOLDERS = {'dmsincomingmail': 'incoming-mail', 'dmsincoming_email': 'incoming-mail',
                 'dmsoutgoingmail': 'outgoing-mail'}
+GE_CONFIG = {  # group_encoder config
+    'imail_group_encoder': {'pt': ['dmsincomingmail', 'dmsincoming_email']},
+    'omail_group_encoder': {'pt': ['dmsoutgoingmail']},
+    'contact_group_encoder': {'pt': ['organization', 'person', 'held_position', 'contact_list']},
+}
 
 
 def _tr(msgid, domain='imio.dms.mail', mapping=None):

@@ -137,6 +137,20 @@ def get_dms_config(keys=None):
     return annot
 
 
+def ensure_set_field(obj, fieldname, value=None):
+    """Ensure a field is set on the object. Otherwise the defaut is used in getattr.
+
+    :param obj: object
+    :param fieldname: fieldname
+    :param value: value
+    :return: bool indicating change
+    """
+    if fieldname not in obj.__dict__:
+        setattr(obj, fieldname, value)
+        return True
+    return False
+
+
 def group_has_user(groupname, action=None):
     """ Check if group contains user
 

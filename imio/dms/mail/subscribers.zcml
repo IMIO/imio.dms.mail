@@ -254,6 +254,18 @@
 
     <subscriber
         for="collective.contact.widget.interfaces.IContactContent
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.contact_added"
+      />
+
+    <subscriber
+        for="collective.contact.contactlist.interfaces.IContactList
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.contact_added"
+      />
+
+    <subscriber
+        for="collective.contact.widget.interfaces.IContactContent
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.contact_modified"
         />
