@@ -10,7 +10,9 @@ from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -492,14 +494,14 @@ def imiodmsmail_settings_changed(event):
 
     if event.record.fieldName == 'imail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
-            configure_group_encoder(['dmsincomingmail', 'dmsincoming_email'])
+            configure_group_encoder(GE_CONFIG['imail_group_encoder']['pt'])
     if event.record.fieldName == 'omail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
             # configure_group_encoder(['dmsoutgoingmail', 'dmsoutgoing_email'])
-            configure_group_encoder(['dmsoutgoingmail'])
+            configure_group_encoder(GE_CONFIG['omail_group_encoder']['pt'])
     if event.record.fieldName == 'contact_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
-            configure_group_encoder(['organization', 'person', 'held_position', 'contact_list'], contacts_part=True)
+            configure_group_encoder(GE_CONFIG['contact_group_encoder']['pt'], contacts_part=True)
             # set permission on contacts directory
             portal = api.portal.get()
             portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
@@ -514,6 +516,14 @@ def imiodmsmail_settings_changed(event):
     if event.record.__name__ == 'imio.dms.mail.omail_folder_period' and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', event.newValue)
+
+
+def set_group_encoder_on_existing_types(portal_types, portal=None):
+    if portal is None:
+        portal = api.portal.get()
+    for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type=portal_types):
+        obj = brain._unrestrictedGetObject()
+        ensure_set_field(obj, 'creating_group')
 
 
 def configure_group_encoder(portal_types, contacts_part=False):
@@ -626,3 +636,6 @@ def configure_group_encoder(portal_types, contacts_part=False):
             fields.append({'field_name': 'IDmsMailCreatingGroup.creating_group', 'read_tal_condition': u'',
                            'write_tal_condition': u''})
             api.portal.set_registry_record(key, fields)
+
+    # set a value on existing content
+    set_group_encoder_on_existing_types(portal_types, portal=portal)

@@ -15,8 +15,10 @@ from dexterity.localroles.utils import update_security_index
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr as _
 from imio.dms.mail import BLDT_DIR
+from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail.browser.settings import set_group_encoder_on_existing_types
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -32,6 +34,7 @@ from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import create_period_folder_max
+from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import reimport_faceted_config
@@ -248,7 +251,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.update_dmsincomingmails()
 
         if self.is_in_part('f'):  # insert incoming emails
-            # do various adaptations for dmsincoming_email and dmsoutgoing_email
+            # do various adaptations for dmsincoming_email
             self.insert_incoming_emails()
 
         if self.is_in_part('g'):  # insert outgoing emails
@@ -292,6 +295,12 @@ class Migrate_To_3_0(Migrator):  # noqa
             if api.group.get('gestion_contacts') is None:
                 api.group.create('gestion_contacts', '1 Gestion doublons contacts')
             self.correct_groups()
+            for key in GE_CONFIG:
+                if api.portal.get_registry_record(
+                        'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(key)):
+                    logger.info('Updates types {} to ensure creating_group field is set'.format(GE_CONFIG[key]['pt']))
+                    set_group_encoder_on_existing_types(GE_CONFIG[key]['pt'], portal=self.portal)
+            # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             # update templates
@@ -504,10 +513,16 @@ class Migrate_To_3_0(Migrator):  # noqa
         """The partially added dmsoutgoing_email is not used... We clean what's configured..."""
         # Set send_modes on dmsoutgoingmails
         mt_2_sm = {dic['oid']: dic['nid'] for dic in self.config['om_mt']}
+        ensure = False
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
+            ensure = True
+            logger.info('Updates dmsoutgoingmails to ensure creating_group field is set')
         unk_mt = {}
         brains = self.catalog.searchResults(portal_type='dmsoutgoingmail')
         for brain in brains:
             obj = brain.getObject()
+            if ensure:
+                ensure_set_field(obj, 'creating_group')
             if not getattr(obj, 'send_modes'):
                 # set send_modes following mail_type
                 if self.config['om_mt'] and obj.mail_type:
@@ -833,6 +848,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record(key, list(values) + new_values)
 
     def update_dmsincomingmails(self):
+        ensure = False
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
+            ensure = True
+            logger.info('Updates dmsincomingmails to ensure creating_group field is set')
         for i, brain in enumerate(self.catalog(portal_type='dmsincomingmail'), 1):
             obj = brain.getObject()
             if i == 1:
@@ -847,6 +866,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                             obj.assigned_user = username
                             obj.reindexObject(['assigned_user'])
                         break
+            if ensure:
+                ensure_set_field(obj, 'creating_group')
 
     def move_dmsincomingmails(self):
         logger.info('Moving dmsincomingmails')
@@ -892,6 +913,10 @@ class Migrate_To_3_0(Migrator):  # noqa
         logger.info('Updated {} brains'.format(len(brains)))
         # Reindex internal_reference_no
         self.reindexIndexes(['internal_reference_no'], update_metadata=True)
+        # Ensure creating_group field is set
+        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
+            logger.info('Updates contacts to ensure creating_group field is set')
+            set_group_encoder_on_existing_types(GE_CONFIG['contact_group_encoder']['pt'], portal=self.portal)
 
     def update_catalog2(self):
         """ Update catalog or objects """
