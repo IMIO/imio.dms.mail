@@ -47,9 +47,9 @@ PERIODS = {'month': '%Y%m', 'week': '%Y%U', 'day': '%Y%m%d'}
 MAIN_FOLDERS = {'dmsincomingmail': 'incoming-mail', 'dmsincoming_email': 'incoming-mail',
                 'dmsoutgoingmail': 'outgoing-mail'}
 GE_CONFIG = {  # group_encoder config
-    'imail_group_encoder': {'pt': ['dmsincomingmail', 'dmsincoming_email']},
-    'omail_group_encoder': {'pt': ['dmsoutgoingmail']},
-    'contact_group_encoder': {'pt': ['organization', 'person', 'held_position', 'contact_list']},
+    'imail_group_encoder': {'pt': ['dmsincomingmail', 'dmsincoming_email'], 'idx': 'assigned_group'},
+    'omail_group_encoder': {'pt': ['dmsoutgoingmail'], 'idx': 'assigned_group'},
+    'contact_group_encoder': {'pt': ['organization', 'person', 'held_position', 'contact_list'], 'idx': None},
 }
 
 
