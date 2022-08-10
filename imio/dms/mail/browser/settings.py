@@ -494,14 +494,14 @@ def imiodmsmail_settings_changed(event):
 
     if event.record.fieldName == 'imail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
-            configure_group_encoder(GE_CONFIG['imail_group_encoder']['pt'])
+            configure_group_encoder('imail_group_encoder')
     if event.record.fieldName == 'omail_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
             # configure_group_encoder(['dmsoutgoingmail', 'dmsoutgoing_email'])
-            configure_group_encoder(GE_CONFIG['omail_group_encoder']['pt'])
+            configure_group_encoder('omail_group_encoder')
     if event.record.fieldName == 'contact_group_encoder':
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
-            configure_group_encoder(GE_CONFIG['contact_group_encoder']['pt'], contacts_part=True)
+            configure_group_encoder('contact_group_encoder', contacts_part=True)
             # set permission on contacts directory
             portal = api.portal.get()
             portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
@@ -516,19 +516,21 @@ def imiodmsmail_settings_changed(event):
         setattr(portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', event.newValue)
 
 
-def set_group_encoder_on_existing_types(portal_types, portal=None):
+def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):
     if portal is None:
         portal = api.portal.get()
     for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type=portal_types):
         obj = brain._unrestrictedGetObject()
-        ensure_set_field(obj, 'creating_group')
+        if ensure_set_field(obj, 'creating_group') and index is not None:
+            obj.reindexObject([index])
 
 
-def configure_group_encoder(portal_types, contacts_part=False):
+def configure_group_encoder(field_name, contacts_part=False):
     """
         Used to configure a creating function and group for some internal organizations.
         Update portal_type to add behavior, configure localroles field
     """
+    portal_types = GE_CONFIG[field_name]['pt']
     # function
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
@@ -636,4 +638,4 @@ def configure_group_encoder(portal_types, contacts_part=False):
             api.portal.set_registry_record(key, fields)
 
     # set a value on existing content
-    set_group_encoder_on_existing_types(portal_types, portal=portal)
+    set_group_encoder_on_existing_types(portal_types, portal=portal, index=GE_CONFIG[field_name]['idx'])

@@ -300,7 +300,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if api.portal.get_registry_record(
                         'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(key)):
                     logger.info('Updates types {} to ensure creating_group field is set'.format(GE_CONFIG[key]['pt']))
-                    set_group_encoder_on_existing_types(GE_CONFIG[key]['pt'], portal=self.portal)
+                    set_group_encoder_on_existing_types(GE_CONFIG[key]['pt'], portal=self.portal,
+                                                        index=GE_CONFIG[key]['idx'])
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -523,7 +524,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         for brain in brains:
             obj = brain.getObject()
             if ensure:
-                ensure_set_field(obj, 'creating_group')
+                ensure_set_field(obj, 'creating_group')  # assigned_group index
             if not getattr(obj, 'send_modes'):
                 # set send_modes following mail_type
                 if self.config['om_mt'] and obj.mail_type:
@@ -537,7 +538,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                         logger.error(u"Unknown mail_type '{}' on {}".format(obj.mail_type, obj.absolute_url()))
                 else:
                     obj.send_modes = ['post']
-            obj.reindexObject(idxs=['Subject', 'enabled', 'mail_type', 'markers'])
+            obj.reindexObject(idxs=['Subject', 'assigned_group', 'enabled', 'mail_type', 'markers'])
         if unk_mt:
             logger.error("THERE ARE UNKNOWN MAIL TYPES. WE HAVE TO UPDATE 30_config.dic !")
             for mt in unk_mt:
@@ -867,6 +868,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                         break
             if ensure:
                 ensure_set_field(obj, 'creating_group')
+                obj.reindexObject(['assigned_group'])
 
     def move_dmsincomingmails(self):
         logger.info('Moving dmsincomingmails')
@@ -915,7 +917,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         # Ensure creating_group field is set
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
             logger.info('Updates contacts to ensure creating_group field is set')
-            set_group_encoder_on_existing_types(GE_CONFIG['contact_group_encoder']['pt'], portal=self.portal)
+            set_group_encoder_on_existing_types(GE_CONFIG['contact_group_encoder']['pt'], portal=self.portal,
+                                                index=GE_CONFIG['contact_group_encoder']['idx'])
 
     def update_catalog2(self):
         """ Update catalog or objects """
