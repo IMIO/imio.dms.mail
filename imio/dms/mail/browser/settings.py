@@ -508,8 +508,6 @@ def imiodmsmail_settings_changed(event):
                                                  ('Manager', 'Site Administrator', 'Contributor'), acquire=1)
     if event.record.fieldName == 'groups_hidden_in_dashboard_filter':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
-    if event.record.fieldName == 'users_hidden_in_dashboard_filter':
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.record.__name__ == 'imio.dms.mail.imail_folder_period' and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', event.newValue)
