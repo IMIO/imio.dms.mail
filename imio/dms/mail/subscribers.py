@@ -697,12 +697,12 @@ def group_deleted(event):
         #     fti = getUtility(IDexterityFTI, name=portal_type)
         # except ComponentLookupError:
         #     return {}
-        config = getattr(fti, 'localroles', {}).get(field, None)
+        config = getattr(fti, 'localroles', {}).get(field_p, None)
         if not config:
             return {}
         for st in config:
             if suffix in config[st]:
-                return {idx: org}
+                return {idx_p: org}
         return {}
 
     # search in indexes following suffix use in type localroles
