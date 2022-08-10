@@ -614,8 +614,8 @@ def user_related_modification(event):
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
             event.record.interface != IContactPlonegroupConfig):
         return
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
+    invalidate_cachekey_volatile_for('_users_groups_value')
 
 
 def user_deleted(event):
@@ -753,7 +753,6 @@ def group_assignment(event):
         api.portal.show_message(message=_('You cannot add a group in a group !'),
                                 request=req, type='error')
         raise Redirect(req.get('HTTP_REFERER'))
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
@@ -828,7 +827,6 @@ def group_unassignment(event):
     """
         manage the remove of a user in a plone group
     """
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
