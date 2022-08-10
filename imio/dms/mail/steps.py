@@ -494,8 +494,8 @@ def remove_om_nplus1_wfadaptation(context):
     # update cache
     invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsoutgoingmail')
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary')
     invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.AssignedUsersForFacetedFilterVocabulary')
+    invalidate_cachekey_volatile_for('_users_groups_value')
     # update actionspanel back transitions registry
     lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
     lst_len = len(lst)
