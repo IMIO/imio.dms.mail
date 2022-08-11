@@ -6,7 +6,6 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from AccessControl.class_init import InitializeClass
-from browser.settings import IImioDmsMailConfig
 from collective.contact.core.interfaces import IContactable
 from collective.contact.plonegroup.browser.settings import SelectedOrganizationsElephantVocabulary
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
@@ -42,6 +41,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.interfaces import IImioDmsIncomingMailWfConditions
 from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
 
-from browser.settings import IImioDmsMailConfig
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
@@ -26,7 +25,6 @@ from operator import attrgetter
 from plone import api
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
-from plone.registry.interfaces import IRegistry
 from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
@@ -152,10 +150,10 @@ def get_settings_vta_table(field, active=(True, False), choose=False):
     """
         Create a vocabulary from registry table variable (value, title, active)
     """
-    settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+    key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(field)
     terms = []
     id_utility = queryUtility(IIDNormalizer)
-    for mail_type in (getattr(settings, field) or []):
+    for mail_type in (api.portal.get_registry_record(key, default=[]) or []):
         # value (stored), token (request), title
         if mail_type['active'] in active:
             val = mail_type['value']

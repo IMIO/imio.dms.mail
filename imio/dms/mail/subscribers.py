@@ -24,14 +24,13 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
-from imio.dms.mail.content.behaviors import user_creating_group
+from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
-from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import get_dms_config
@@ -210,13 +209,13 @@ def dmsdocument_added(mail, event):
         if replace_contact_list(mail, 'sender'):
             mail.reindexObject(['sender', ])
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
-            ensure_set_field(mail, 'creating_group', user_creating_group())
+            ensure_set_field(mail, 'creating_group', default_creating_group())
     elif mail.portal_type in GE_CONFIG['omail_group_encoder']['pt']:
         if replace_contact_list(mail, 'recipients'):
             mail.reindexObject(['recipients', ])
         reindex_replied(_get_replied_ids(mail, from_obj=True))
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
-            ensure_set_field(mail, 'creating_group', user_creating_group())
+            ensure_set_field(mail, 'creating_group', default_creating_group())
 
 
 def dmsdocument_modified(mail, event):
@@ -914,7 +913,7 @@ def mark_contact(contact, event):
 def contact_added(obj, event):
     """Ensure field is set"""
     if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
-        ensure_set_field(obj, 'creating_group', user_creating_group())
+        ensure_set_field(obj, 'creating_group', default_creating_group())
 
 
 def contact_modified(obj, event):
