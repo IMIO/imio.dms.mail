@@ -815,9 +815,19 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
             return False  # consumer will not can "close": ok
         return True
 
+    security.declarePublic('can_be_validated')
+
     def can_be_validated(self):
         """Used in guard expression for validated transitions."""
         return True
+
+    security.declarePublic('can_back_to_scanned')
+
+    def can_back_to_scanned(self):
+        """Used in guard expression for back_to_scanned"""
+        if is_in_user_groups(['expedition'], admin=True):
+            return True
+        return False
 
     security.declarePublic('can_do_transition')
 
