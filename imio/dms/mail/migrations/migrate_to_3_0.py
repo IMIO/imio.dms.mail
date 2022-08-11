@@ -19,6 +19,7 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import set_group_encoder_on_existing_types
+from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -530,7 +531,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         for brain in brains:
             obj = brain.getObject()
             if ensure:
-                ensure_set_field(obj, 'creating_group')  # assigned_group index
+                ensure_set_field(obj, 'creating_group', default_creating_group(obj.getOwner()))  # assigned_group index
             if not getattr(obj, 'send_modes'):
                 # set send_modes following mail_type
                 if self.config['om_mt'] and obj.mail_type:
@@ -696,7 +697,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                                            lst)
 
         trs = {'set_to_print': 'set_validated', 'back_to_print': 'back_to_validated'}
-        wkf = self.wfTool['outgoingmail_workflow']
         for i, brain in enumerate(self.catalog(portal_type='dmsoutgoingmail'), 1):
             obj = brain.getObject()
             # update history
@@ -873,8 +873,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                             obj.reindexObject(['assigned_user'])
                         break
             if ensure:
-                ensure_set_field(obj, 'creating_group')
-                obj.reindexObject(['assigned_group'])
+                if ensure_set_field(obj, 'creating_group', default_creating_group(obj.getOwner())):
+                    obj.reindexObject(['assigned_group'])
 
     def move_dmsincomingmails(self):
         logger.info('Moving dmsincomingmails')

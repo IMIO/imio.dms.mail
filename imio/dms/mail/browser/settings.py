@@ -12,6 +12,7 @@ from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
@@ -521,7 +522,7 @@ def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):
         portal = api.portal.get()
     for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type=portal_types):
         obj = brain._unrestrictedGetObject()
-        if ensure_set_field(obj, 'creating_group') and index is not None:
+        if ensure_set_field(obj, 'creating_group', default_creating_group(obj.getOwner())) and index is not None:
             obj.reindexObject([index])
 
 

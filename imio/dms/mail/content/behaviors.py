@@ -13,13 +13,14 @@ from plone.supermodel import model
 from zope.interface import alsoProvides
 
 
-def user_creating_group():
+def default_creating_group(user=None):
     """ default to current user creating group """
     voc = ActiveCreatingGroupVocabulary()(None)
     creating_groups = set([term.value for term in voc])
     if not creating_groups:
         return None
-    user = api.user.get_current()
+    if user is None:
+        user = api.user.get_current()
     # user is anonymous when some widget are accessed in source search or masterselect
     # check if we have a real user to avoid 404 because get_groups on None user
     if user.getId():
@@ -40,7 +41,7 @@ class IDmsMailCreatingGroup(model.Schema):
         title=_(u"Creating group"),
         required=True,
         vocabulary=u'imio.dms.mail.ActiveCreatingGroupVocabulary',
-        defaultFactory=user_creating_group,
+        defaultFactory=default_creating_group,
     )
 
     # directives.write_permission(creating_group='imio.dms.mail.write_creating_group_field')
