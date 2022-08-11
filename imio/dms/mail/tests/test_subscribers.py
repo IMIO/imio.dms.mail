@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
+from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
+from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
@@ -36,9 +39,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
     def setUp(self):
         self.portal = self.layer['portal']
         self.change_user('siteadmin')
-        intids = getUtility(IIntIds)
+        self.intids = getUtility(IIntIds)
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'c1',
-                                **{'sender': [RelationValue(intids.getId(self.portal.contacts['electrabel']))],
+                                **{'sender': [RelationValue(self.intids.getId(self.portal.contacts['electrabel']))],
                                    'mail_type': u'courrier', 'title': u'title'})
         self.omf = self.portal['outgoing-mail']
 
@@ -67,6 +70,31 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # can delete an unprotected
         api.content.delete(obj=copied, check_linkintegrity=False)
         self.assertNotIn('new_id', self.portal['templates']['om'])
+
+    def test_dmsdocument_added(self):
+        # we add an im with contact list
+        orgs = get_registry_organizations()
+        cl = self.portal.contacts['contact-lists-folder']['common']['list-agents-swde']
+        imail1 = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'id1',
+                            **{'title': u'IMail1', 'treating_groups': orgs[0],
+                               'sender': [RelationValue(self.intids.getId(cl))]})
+        self.assertEqual(len(imail1.sender), 2)
+        self.assertFalse(hasattr(imail1, 'creating_group'))
+        # we activate imail group encoder
+        api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder', True)
+        functions = get_registry_functions()
+        functions[-1]['fct_orgs'] = [orgs[0], orgs[2]]
+        set_registry_functions(functions)  # set contributor local roles
+        api.group.add_user(groupname='{}_{}'.format(orgs[0], CREATING_GROUP_SUFFIX), username='chef')  # dg
+        api.group.add_user(groupname='{}_{}'.format(orgs[2], CREATING_GROUP_SUFFIX), username='agent')  # dg/grh
+        imail2 = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'id2')
+        self.assertEqual(imail2.creating_group, orgs[0])  # user not in groups, take the first value
+        self.change_user('agent')
+        imail3 = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'id3')
+        self.assertEqual(imail3.creating_group, orgs[2])
+        self.change_user('chef')
+        imail4 = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'id4')
+        self.assertEqual(imail4.creating_group, orgs[0])
 
     def test_dmsdocument_modified(self):
         # owner changing test

@@ -31,7 +31,7 @@ def user_creating_group():
             if inter:
                 # ordered = [uid for uid in creating_groups if uid in inter]; return ordered[0]
                 return inter.pop()
-    return creating_groups.pop()
+    return [term.value for term in voc][0]  # take the first term (following plonegroup-organization items order)
 
 
 class IDmsMailCreatingGroup(model.Schema):
