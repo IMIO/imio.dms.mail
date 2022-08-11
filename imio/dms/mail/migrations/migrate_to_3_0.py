@@ -302,6 +302,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                     logger.info('Updates types {} to ensure creating_group field is set'.format(GE_CONFIG[key]['pt']))
                     set_group_encoder_on_existing_types(GE_CONFIG[key]['pt'], portal=self.portal,
                                                         index=GE_CONFIG[key]['idx'])
+            wf = self.wfTool['outgoingmail_workflow']
+            tr = wf.transitions['back_to_scanned']
+            guard = tr.getGuard()
+            if guard.changeFromProperties({'guard_expr': "python:object.wf_conditions().can_back_to_scanned()"}):
+                tr.guard = guard
+
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])

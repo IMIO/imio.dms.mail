@@ -258,6 +258,7 @@
   <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_scanned.png" i18n:translate="">om_back_to_scanned</action>
   <guard>
    <guard-permission>Review portal content</guard-permission>
+   <guard-expression>python:object.wf_conditions().can_back_to_scanned()</guard-expression>
   </guard>
  </transition>
  <transition transition_id="mark_as_sent" title="om_mark_as_sent" new_state="sent" trigger="USER" before_script="" after_script="" i18n:attributes="title">
