@@ -12,9 +12,9 @@ import copy
 
 
 def filter_task_assigned_users(group):
-    """Filter assigned_user in dms incoming mail
+    """Filter assigned_user on task
 
-    :param group: receives the org uid (but must kept the name group)
+    :param group: receives the org uid (but must keep the attribute name group)
     :return: users vocabulary
     """
     voc = voc_selected_org_suffix_userids(group, TASK_EDITOR_SERVICE_FUNCTIONS)
