@@ -1025,12 +1025,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             owner = obj.getOwner()
         except AttributeError:
             userid = obj.owner_info()['id']
-            user = self.portal.acl_users.getUserById(userid)
-            if user is not None:
-                obj.changeOwnership(user, recursive=False)
+            owner = self.portal.acl_users.getUserById(userid)
+            if owner is not None:
+                obj.changeOwnership(owner, recursive=False)
                 # obj.reindexObjectSecurity()  not needed because userid is not changed
-            else:
-                owner = None
         if ensure_set_field(obj, 'creating_group', default_creating_group(owner)) and index:
             obj.reindexObject(['assigned_group'])
 
