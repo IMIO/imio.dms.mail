@@ -10,6 +10,7 @@ from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import current_user_groups_ids
+from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -29,6 +30,7 @@ from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.dexterity.utils import createContentInContainer
+from Products.CMFPlone.utils import base_hasattr
 from z3c.relationfield import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
@@ -66,6 +68,35 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         set_dms_config(['a', 'b'], value='plone')
         self.assertTrue(isinstance(annot['imio.dms.mail']['a']['b'], str))
         self.assertEqual(get_dms_config(['a', 'b']), 'plone')
+
+    def test_ensure_set_field(self):
+        now1 = datetime.now()
+        imail = sub_create(self.imf, 'dmsincomingmail', now1, 'my-id')
+        # reception_date is not set and this attribute doesn't exist on object
+        self.assertNotIn('reception_date', imail.__dict__)
+        # but the following give a wrong information
+        self.assertTrue(hasattr(imail, 'reception_date'))
+        self.assertTrue(base_hasattr(imail, 'reception_date'))
+        self.assertEqual(imail.reception_date, None)
+        self.assertEqual(getattr(imail, 'reception_date', 'Missing'), None)
+        # we set really the attribute
+        self.assertTrue(ensure_set_field(imail, 'reception_date'))
+        self.assertIn('reception_date', imail.__dict__)
+        self.assertEqual(imail.reception_date, None)  # None is set by default
+        # we try to set again but it's not set because a value is already set
+        self.assertFalse(ensure_set_field(imail, 'reception_date', now1))
+        self.assertEqual(imail.reception_date, None)
+        # we set with another option
+        self.assertTrue(ensure_set_field(imail, 'reception_date', now1, replace_none=True))
+        self.assertEqual(imail.reception_date, now1)
+        # we cannot set anymore
+        now2 = datetime.now()
+        self.assertFalse(ensure_set_field(imail, 'reception_date', now2, replace_none=True))
+        self.assertEqual(imail.reception_date, now1)
+        # delete the attr
+        delattr(imail, 'reception_date')
+        self.assertTrue(ensure_set_field(imail, 'reception_date', now2))
+        self.assertEqual(imail.reception_date, now2)
 
     def test_group_has_user(self):
         self.assertFalse(group_has_user('xxx', 'delete'))

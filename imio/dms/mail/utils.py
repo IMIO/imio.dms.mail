@@ -137,15 +137,16 @@ def get_dms_config(keys=None):
     return annot
 
 
-def ensure_set_field(obj, fieldname, value=None):
+def ensure_set_field(obj, fieldname, value=None, replace_none=False):
     """Ensure a field is set on the object. Otherwise the defaut is used in getattr.
 
     :param obj: object
     :param fieldname: fieldname
     :param value: value
+    :param replace_none: if True, replace value if it's None
     :return: bool indicating change
     """
-    if fieldname not in obj.__dict__:
+    if fieldname not in obj.__dict__ or (replace_none and getattr(obj, fieldname) is None):
         setattr(obj, fieldname, value)
         return True
     return False
