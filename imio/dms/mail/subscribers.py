@@ -244,8 +244,8 @@ def dmsdocument_modified(mail, event):
             if userid not in creators:
                 creators.insert(0, userid)
             obj.setCreators(creators)
-            # change owner
-            obj.changeOwnership(user)
+            # change owner with acl_users user !! (otherwise getOwner() fails)
+            obj.changeOwnership(api.portal.get_tool('acl_users').getUserById(userid))
             # change Owner role
             owners = obj.users_with_local_role('Owner')
             if 'scanner' in owners:

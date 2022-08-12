@@ -18,7 +18,6 @@ from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
-from imio.dms.mail.browser.settings import set_group_encoder_on_existing_types
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
@@ -301,8 +300,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if api.portal.get_registry_record(
                         'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(key)):
                     logger.info('Updates types {} to ensure creating_group field is set'.format(GE_CONFIG[key]['pt']))
-                    set_group_encoder_on_existing_types(GE_CONFIG[key]['pt'], portal=self.portal,
-                                                        index=GE_CONFIG[key]['idx'])
+                    self.set_creating_group_on_types(GE_CONFIG[key]['pt'], GE_CONFIG[key]['idx'])
             wf = self.wfTool['outgoingmail_workflow']
             tr = wf.transitions['back_to_scanned']
             guard = tr.getGuard()
@@ -531,7 +529,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         for brain in brains:
             obj = brain.getObject()
             if ensure:
-                ensure_set_field(obj, 'creating_group', default_creating_group(obj.getOwner()))  # assigned_group index
+                self.ensure_creating_group(obj, index=False)  # assigned_group index
             if not getattr(obj, 'send_modes'):
                 # set send_modes following mail_type
                 if self.config['om_mt'] and obj.mail_type:
@@ -873,8 +871,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                             obj.reindexObject(['assigned_user'])
                         break
             if ensure:
-                if ensure_set_field(obj, 'creating_group', default_creating_group(obj.getOwner())):
-                    obj.reindexObject(['assigned_group'])
+                self.ensure_creating_group(obj, index=True)
 
     def move_dmsincomingmails(self):
         logger.info('Moving dmsincomingmails')
@@ -923,8 +920,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         # Ensure creating_group field is set
         if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
             logger.info('Updates contacts to ensure creating_group field is set')
-            set_group_encoder_on_existing_types(GE_CONFIG['contact_group_encoder']['pt'], portal=self.portal,
-                                                index=GE_CONFIG['contact_group_encoder']['idx'])
+            self.set_creating_group_on_types(GE_CONFIG['contact_group_encoder']['pt'],
+                                             GE_CONFIG['contact_group_encoder']['idx'])
 
     def update_catalog2(self):
         """ Update catalog or objects """
@@ -1022,6 +1019,25 @@ class Migrate_To_3_0(Migrator):  # noqa
                 count += 1
         if count:
             logger.info('TASKS class corrected : {}'.format(count))
+
+    def ensure_creating_group(self, obj, index=False):
+        try:
+            owner = obj.getOwner()
+        except AttributeError:
+            userid = obj.owner_info()['id']
+            user = self.portal.acl_users.getUserById(userid)
+            if user is not None:
+                obj.changeOwnership(user, recursive=False)
+                # obj.reindexObjectSecurity()  not needed because userid is not changed
+            else:
+                owner = None
+        if ensure_set_field(obj, 'creating_group', default_creating_group(owner)) and index:
+            obj.reindexObject(['assigned_group'])
+
+    def set_creating_group_on_types(self, types, index):
+        for brain in self.portal.portal_catalog.unrestrictedSearchResults(portal_type=types):
+            obj = brain._unrestrictedGetObject()
+            self.ensure_creating_group(obj, index=bool(index))
 
 
 def migrate(context):
