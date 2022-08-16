@@ -418,6 +418,29 @@ class IImioDmsMailConfig(model.Schema):
             if api.portal.get_registry_record(rec) and not getattr(data, fld):
                 raise Invalid(_(u"${tab} tab: unchecking '${field}' setting is not expected !!",
                                 mapping={'tab': _(tab), 'field': _('Activate group encoder')}))
+        constraints = {
+            'imail_fields': {'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender',
+                                      'treating_groups', 'ITask.assigned_user', 'recipient_groups', 'reception_date',
+                                      'mail_type', 'reply_to', 'internal_reference_no'],
+                             'not': ['ITask.due_date', 'ITask.task_description', 'external_reference_no',
+                                     'original_mail_date', 'IClassificationFolder.classification_categories',
+                                     'IClassificationFolder.classification_folders', 'document_in_service',
+                                     'IDmsMailCreatingGroup.creating_group']},
+        }
+        for conf in constraints:
+            dic = getattr(data, conf)
+            missing = {}
+            flds = [field['field_name'] for field in dic]
+            for mand in constraints[conf]['mand']:
+                if mand not in flds:
+                    missing_pt = missing.setdefault(conf, [])
+                    missing_pt.append(mand)
+        msg = u''
+        for conf in missing:
+            fields = [u"'{}'".format(_tr(mfld)) for mfld in missing[conf]]
+            msg += _tr(u"for '${conf}' config => ${fields}. ", mapping={'conf': _tr(conf), 'fields': ', '.join(fields)})
+        if msg:
+            raise Invalid(_(u'Missing mandatory fields: ${msg}', mapping={'msg': msg}))
 
 
 class SettingsEditForm(RegistryEditForm):
@@ -439,7 +462,7 @@ class SettingsEditForm(RegistryEditForm):
             def_values = [row['field_name'] for row in wdg.value]
             voc_name = wdg.field.value_type.schema['field_name'].vocabularyName
             voc = getUtility(IVocabularyFactory, voc_name)(self.context)
-            unconfigured = ['"{}"'.format(t.title) for t in voc._terms if t.value not in def_values]
+            unconfigured = [u'"{}"'.format(t.title) for t in voc._terms if t.value not in def_values]
             if unconfigured:
                 wdg.field = copy.copy(wdg.field)
                 wdg.field.description = u'{}<br />{}'.format(

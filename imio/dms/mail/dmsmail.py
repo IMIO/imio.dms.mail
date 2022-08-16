@@ -390,12 +390,13 @@ def imio_dmsincomingmail_updatefields(the_form):
     """
         Fields update method for add and edit
     """
-    the_form.fields['original_mail_date'].field = copy.copy(the_form.fields['original_mail_date'].field)
-    settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
-    if settings.original_mail_date_required:
-        the_form.fields['original_mail_date'].field.required = True
-    else:
-        the_form.fields['original_mail_date'].field.required = False
+    if 'original_mail_date' in the_form.fields:
+        the_form.fields['original_mail_date'].field = copy.copy(the_form.fields['original_mail_date'].field)
+        settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
+        if settings.original_mail_date_required:
+            the_form.fields['original_mail_date'].field.required = True
+        else:
+            the_form.fields['original_mail_date'].field.required = False
 
 
 def imio_dmsincomingmail_updatewidgets(the_form):
@@ -410,14 +411,15 @@ def imio_dmsincomingmail_updatewidgets(the_form):
         if not is_dim:
             the_form.widgets['internal_reference_no'].value = ''
 
-    if the_form.widgets['original_mail_date'].field.required:
-        if the_form.widgets['original_mail_date'].value == ('', '', ''):  # field value is None
-            date = originalMailDateDefaultValue(None)
-            the_form.widgets['original_mail_date'].value = (date.year, date.month, date.day)
-    else:
-        # if the context original_mail_date is already set, the widget value is good and must be kept
-        if not is_dim or the_form.context.original_mail_date is None:
-            the_form.widgets['original_mail_date'].value = ('', '', '')
+    if 'original_mail_date' in the_form.fields:
+        if the_form.widgets['original_mail_date'].field.required:
+            if the_form.widgets['original_mail_date'].value == ('', '', ''):  # field value is None
+                date = originalMailDateDefaultValue(None)
+                the_form.widgets['original_mail_date'].value = (date.year, date.month, date.day)
+        else:
+            # if the context original_mail_date is already set, the widget value is good and must be kept
+            if not is_dim or the_form.context.original_mail_date is None:
+                the_form.widgets['original_mail_date'].value = ('', '', '')
 
     if is_dim and the_form.context.treating_groups and the_form.context.assigned_user is None:
         updatewidgets_assigned_user_description(the_form)
@@ -468,7 +470,8 @@ class IMEdit(DmsDocumentEdit):
                 ])
 
         for field in display_fields:
-            self.widgets[field].mode = 'display'
+            if field in self.fields:
+                self.widgets[field].mode = 'display'
 
         if not sm.checkPermission('imio.dms.mail: Write treating group field', self.context) and \
                 not getattr(self.context, '_iem_agent', False):
@@ -480,7 +483,8 @@ class IMEdit(DmsDocumentEdit):
         state = api.content.get_state(obj=self.context)
 
         # Set a due date only if its still created and the value was not set before
-        if state == 'created' and self.widgets['ITask.due_date'].value == ('', '', ''):
+        if state == 'created' and 'ITask.due_date' in self.fields and \
+                self.widgets['ITask.due_date'].value == ('', '', ''):
             due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
             if due_date_extension > 0:
                 due_date = datetime.today() + timedelta(days=due_date_extension)
@@ -968,7 +972,8 @@ class OMEdit(BaseOMEdit):
                 'external_reference_no',
             ]
         for field in display_fields:
-            self.widgets[field].mode = 'display'
+            if field in self.fields:
+                self.widgets[field].mode = 'display'
 
         if not self.widgets['orig_sender_email'].value:
             self.widgets['orig_sender_email'].mode = HIDDEN_MODE
