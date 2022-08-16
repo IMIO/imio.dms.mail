@@ -426,6 +426,14 @@ class IImioDmsMailConfig(model.Schema):
                                      'original_mail_date', 'IClassificationFolder.classification_categories',
                                      'IClassificationFolder.classification_folders', 'document_in_service',
                                      'IDmsMailCreatingGroup.creating_group']},
+            'omail_fields': {'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients',
+                                      'treating_groups', 'ITask.assigned_user', 'sender', 'recipient_groups'
+                                      'send_modes', 'reply_to', 'outgoing_date', 'internal_reference_no',
+                                      'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
+                                      'email_attachments', 'email_body', 'IDmsMailCreatingGroup.creating_group'],
+                             'not': ['mail_type', 'mail_date', 'ITask.due_date', 'ITask.task_description',
+                                     'external_reference_no', 'IClassificationFolder.classification_categories',
+                                     'IClassificationFolder.classification_folders', 'document_in_service']},
         }
         for conf in constraints:
             dic = getattr(data, conf)

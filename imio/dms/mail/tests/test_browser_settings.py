@@ -33,7 +33,7 @@ class TestSettings(unittest.TestCase):
         self.portal = self.layer['portal']
         self.registry = getUtility(IRegistry)
 
-    def test_validate_settings(self):
+    def test_validate_settings1(self):
         """ Check invariant """
         invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
         # test omail_send_modes part
@@ -55,6 +55,29 @@ class TestSettings(unittest.TestCase):
                     u"pas prévu !"
         self.assertEqual(_tr(errors[0].message, mapping={'tab': _tr('Incoming mail'),
                                                          'field': _tr('Activate group encoder')}), error_msg)
+
+    def test_validate_settings2(self):
+        """ Check invariant """
+        invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
+        # test mandatory fields
+        im_mand = ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender', 'treating_groups',
+                   'ITask.assigned_user', 'recipient_groups', 'reception_date', 'mail_type', 'reply_to',
+                   'internal_reference_no']
+        om_mand = ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
+                   'ITask.assigned_user', 'sender', 'recipient_groups', 'send_modes', 'reply_to', 'outgoing_date',
+                   'internal_reference_no', 'email_status', 'email_subject', 'email_sender', 'email_recipient',
+                   'email_cc', 'email_attachments', 'email_body', 'IDmsMailCreatingGroup.creating_group']
+        data = {'omail_send_modes': [], 'imail_fields': [{'field_name': fld} for fld in im_mand],
+                'omail_fields':  [{'field_name': fld} for fld in om_mand]}
+        errors = invariants.validate(data)
+        # required fields are there
+        self.assertEqual(len(errors), 0)
+        im_mand.pop()
+        data['imail_fields'] = [{'field_name': fld, 'read_tal_condition': None, 'write_tal_condition': None}
+                                for fld in im_mand]
+        # missing one mandatory field
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
 
     def test_imiodmsmail_settings_changed(self):
         """ Test some settings change """
