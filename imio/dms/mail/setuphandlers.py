@@ -101,7 +101,7 @@ logger = logging.getLogger('imio.dms.mail: setuphandlers')
 GEDURL = os.getenv('PUBLIC_URL', '')
 
 
-def _no_more_used(msgid, domain='imio.dms.mail'):
+def _no_more_used(msgid, domain='imio.dms.mail'):  # TODO delete if no more necessary
     translation_domain = queryUtility(ITranslationDomain, domain)
     sp = api.portal.get().portal_properties.site_properties
     return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'))
