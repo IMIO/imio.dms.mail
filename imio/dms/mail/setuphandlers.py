@@ -35,6 +35,7 @@ from dexterity.localroles.utils import add_fti_configuration
 from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
+from imio.dms.mail import _tr as _
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.Extensions.demo import clean_examples
@@ -100,7 +101,7 @@ logger = logging.getLogger('imio.dms.mail: setuphandlers')
 GEDURL = os.getenv('PUBLIC_URL', '')
 
 
-def _(msgid, domain='imio.dms.mail'):
+def _no_more_used(msgid, domain='imio.dms.mail'):
     translation_domain = queryUtility(ITranslationDomain, domain)
     sp = api.portal.get().portal_properties.site_properties
     return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'))
