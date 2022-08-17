@@ -35,6 +35,7 @@ from plone.z3cform import layout
 from z3c.form import form
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.browser.radio import RadioFieldWidget
+from z3c.form.interfaces import WidgetActionExecutionError
 from zope import schema
 from zope.component import getUtility
 from zope.interface import implements
@@ -410,8 +411,11 @@ class IImioDmsMailConfig(model.Schema):
         for dic in data.omail_send_modes:
             if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
                     and not dic['value'].startswith('other'):
-                raise Invalid(_(u"Outgoingmail tab: send_modes field must have values starting with 'post', 'email' "
-                                u"or 'other'"))
+                # raise WidgetActionExecutionError("omail_send_modes",
+                #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have values "
+                #                                            u"starting with 'post', 'email' or 'other'")))
+                raise Invalid(_(u"Outgoingmail tab: send_modes field must have values "
+                                u"starting with 'post', 'email' or 'other'"))
         for tab, fld in (('Incoming mail', 'imail_group_encoder'), ('Outgoing mail', 'omail_group_encoder'),
                          ('Contacts', 'contact_group_encoder')):
             rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(fld)
@@ -419,36 +423,55 @@ class IImioDmsMailConfig(model.Schema):
                 raise Invalid(_(u"${tab} tab: unchecking '${field}' setting is not expected !!",
                                 mapping={'tab': _(tab), 'field': _('Activate group encoder')}))
         constraints = {
-            'imail_fields': {'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender',
+            'imail_fields': {'voc': IMFieldsVocabulary()(None),
+                             'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender',
                                       'treating_groups', 'ITask.assigned_user', 'recipient_groups', 'reception_date',
                                       'mail_type', 'reply_to', 'internal_reference_no'],
                              'not': ['ITask.due_date', 'ITask.task_description', 'external_reference_no',
                                      'original_mail_date', 'IClassificationFolder.classification_categories',
                                      'IClassificationFolder.classification_folders', 'document_in_service',
-                                     'IDmsMailCreatingGroup.creating_group']},
-            'omail_fields': {'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients',
+                                     'IDmsMailCreatingGroup.creating_group'],
+                             'pos': ['IDublinCore.title', 'IDublinCore.description']},
+            'omail_fields': {'voc': OMFieldsVocabulary()(None),
+                             'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients',
                                       'treating_groups', 'ITask.assigned_user', 'sender', 'recipient_groups'
                                       'send_modes', 'reply_to', 'outgoing_date', 'internal_reference_no',
                                       'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
                                       'email_attachments', 'email_body', 'IDmsMailCreatingGroup.creating_group'],
                              'not': ['mail_type', 'mail_date', 'ITask.due_date', 'ITask.task_description',
                                      'external_reference_no', 'IClassificationFolder.classification_categories',
-                                     'IClassificationFolder.classification_folders', 'document_in_service']},
+                                     'IClassificationFolder.classification_folders', 'document_in_service'],
+                             'pos': ['IDublinCore.title', 'IDublinCore.description']},
         }
         for conf in constraints:
             dic = getattr(data, conf)
             missing = {}
+            position = {}
             flds = [field['field_name'] for field in dic]
             for mand in constraints[conf]['mand']:
                 if mand not in flds:
-                    missing_pt = missing.setdefault(conf, [])
-                    missing_pt.append(mand)
+                    missing_cf = missing.setdefault(conf, [])
+                    missing_cf.append(mand)
+            for i, field in enumerate(constraints[conf]['pos']):
+                if field is None:
+                    continue
+                if flds[i] != field:
+                    pos_cf = position.setdefault(conf, [])
+                    pos_cf.append((field, i))
         msg = u''
         for conf in missing:
-            fields = [u"'{}'".format(_tr(mfld)) for mfld in missing[conf]]
+            fields = [u"'{}'".format(constraints[conf]['voc'].getTerm(mfld).title) for mfld in missing[conf]]
             msg += _tr(u"for '${conf}' config => ${fields}. ", mapping={'conf': _tr(conf), 'fields': ', '.join(fields)})
         if msg:
-            raise Invalid(_(u'Missing mandatory fields: ${msg}', mapping={'msg': msg}))
+            raise Invalid(_tr(u'Missing mandatory fields: ${msg}', mapping={'msg': msg}))
+        msg = u''
+        for conf in position:
+            fields = [_tr(u"'${field}': position ${position}",
+                          mapping={'field': constraints[conf]['voc'].getTerm(mfld).title, 'position': pos+1})
+                      for mfld, pos in position[conf]]
+            msg += _tr(u"for '${conf}' config => ${fields}. ", mapping={'conf': _tr(conf), 'fields': ', '.join(fields)})
+        if msg:
+            raise Invalid(_tr(u'Position required for fields: ${msg}', mapping={'msg': msg}))
 
 
 class SettingsEditForm(RegistryEditForm):

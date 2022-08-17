@@ -17,6 +17,8 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from z3c.form import validator
 from zope.component import getUtility
+from zope.component import queryUtility
+from zope.i18n import ITranslationDomain
 from zope.interface import Invalid
 from zope.schema.interfaces import IVocabularyFactory
 
@@ -60,24 +62,50 @@ class TestSettings(unittest.TestCase):
         """ Check invariant """
         invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
         # test mandatory fields
-        im_mand = ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender', 'treating_groups',
+        im_flds = ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender', 'treating_groups',
                    'ITask.assigned_user', 'recipient_groups', 'reception_date', 'mail_type', 'reply_to',
                    'internal_reference_no']
-        om_mand = ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
+        om_flds = ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
                    'ITask.assigned_user', 'sender', 'recipient_groups', 'send_modes', 'reply_to', 'outgoing_date',
                    'internal_reference_no', 'email_status', 'email_subject', 'email_sender', 'email_recipient',
                    'email_cc', 'email_attachments', 'email_body', 'IDmsMailCreatingGroup.creating_group']
-        data = {'omail_send_modes': [], 'imail_fields': [{'field_name': fld} for fld in im_mand],
-                'omail_fields':  [{'field_name': fld} for fld in om_mand]}
-        errors = invariants.validate(data)
+        data = {'omail_send_modes': [], 'imail_fields': [{'field_name': fld} for fld in im_flds],
+                'omail_fields': [{'field_name': fld} for fld in om_flds]}
         # required fields are there
+        errors = invariants.validate(data)
         self.assertEqual(len(errors), 0)
-        im_mand.pop()
-        data['imail_fields'] = [{'field_name': fld, 'read_tal_condition': None, 'write_tal_condition': None}
-                                for fld in im_mand]
         # missing one mandatory field
+        removed = im_flds.pop()
+        data['imail_fields'] = [{'field_name': fld} for fld in im_flds]
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
+        self.assertIn(u'Champs obligatoires manquants: ', errors[0].message)
+        self.assertIn(u'courrier entrant', errors[0].message)
+        self.assertIn(u'Référence interne', errors[0].message)
+        # test positions
+        im_flds.append(removed)
+        # we change required position
+        removed = im_flds.pop(1)
+        im_flds.append(removed)
+        data['imail_fields'] = [{'field_name': fld} for fld in im_flds]
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        self.assertIn(u'Position obligatoire pour les champs: ', errors[0].message)
+        self.assertIn(u'courrier entrant', errors[0].message)
+        self.assertIn(u"'Description': position 2.", errors[0].message)
+
+    def test_settings_translations(self):
+        # not needed anymore but kept as example
+        domain = 'imio.dms.mail'
+        td = queryUtility(ITranslationDomain, domain)
+        cat_name = td._catalogs.get('fr')[0]
+        cat = td._data.get(cat_name)
+        flds = ['zip_code']
+        missing = []
+        for fld in flds:
+            if cat.queryMessage(fld) is None:
+                missing.append(fld)
+        self.assertFalse(missing)
 
     def test_imiodmsmail_settings_changed(self):
         """ Test some settings change """
