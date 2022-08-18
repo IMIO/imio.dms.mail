@@ -14,6 +14,7 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -159,7 +160,7 @@ oemail_sender_email_values = SimpleVocabulary(
 
 
 class ITableListSchema(Interface):
-    value = schema.TextLine(title=_("Stored value/id"), required=True)
+    value = schema.TextLine(title=_("Stored value/id"), required=True, constraint=is_valid_identifier)
     dtitle = schema.TextLine(title=_("Displayed title"), required=True)
     active = schema.Bool(title=_("Active"), required=False)
 
@@ -408,6 +409,7 @@ class IImioDmsMailConfig(model.Schema):
 
     @invariant
     def validate_settings(data):  # noqa
+        # check omail_send_modes id
         for dic in data.omail_send_modes:
             if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
                     and not dic['value'].startswith('other'):
@@ -416,12 +418,14 @@ class IImioDmsMailConfig(model.Schema):
                 #                                            u"starting with 'post', 'email' or 'other'")))
                 raise Invalid(_(u"Outgoingmail tab: send_modes field must have values "
                                 u"starting with 'post', 'email' or 'other'"))
+        # check group_encoder deactivation
         for tab, fld in (('Incoming mail', 'imail_group_encoder'), ('Outgoing mail', 'omail_group_encoder'),
                          ('Contacts', 'contact_group_encoder')):
             rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(fld)
             if api.portal.get_registry_record(rec) and not getattr(data, fld):
                 raise Invalid(_(u"${tab} tab: unchecking '${field}' setting is not expected !!",
                                 mapping={'tab': _(tab), 'field': _('Activate group encoder')}))
+        # check fields
         constraints = {
             'imail_fields': {'voc': IMFieldsVocabulary()(None),
                              'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender',
@@ -444,10 +448,10 @@ class IImioDmsMailConfig(model.Schema):
                              'pos': ['IDublinCore.title', 'IDublinCore.description']},
         }
         for conf in constraints:
-            dic = getattr(data, conf)
+            value = getattr(data, conf)
             missing = {}
             position = {}
-            flds = [field['field_name'] for field in dic]
+            flds = [field['field_name'] for field in value]
             for mand in constraints[conf]['mand']:
                 if mand not in flds:
                     missing_cf = missing.setdefault(conf, [])

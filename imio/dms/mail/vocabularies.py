@@ -157,7 +157,7 @@ def get_settings_vta_table(field, active=(True, False), choose=False):
         # value (stored), token (request), title
         if mail_type['active'] in active:
             val = mail_type['value']
-            if val == 'None':
+            if val == 'none':
                 val = None
                 choose = False
             terms.append(SimpleTerm(val, id_utility.normalize(mail_type['value']), mail_type['dtitle']))

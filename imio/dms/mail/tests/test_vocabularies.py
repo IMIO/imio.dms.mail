@@ -106,7 +106,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         voc_list = [(t.value, t.title) for t in get_settings_vta_table('omail_send_modes', active=(False, ))]
         self.assertTrue(len(voc_list) == 0)
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes',
-                                       [{'value': u'None', 'dtitle': u'Travaille fieu', 'active': True},
+                                       [{'value': u'none', 'dtitle': u'Travaille fieu', 'active': True},
                                         {'value': u'post', 'dtitle': u'Lettre', 'active': False},
                                         {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
                                         {'value': u'email', 'dtitle': u'Email', 'active': True}])

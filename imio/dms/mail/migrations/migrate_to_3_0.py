@@ -38,6 +38,7 @@ from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import is_in_user_groups
+from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
@@ -50,9 +51,11 @@ from imio.pyutils.system import load_var
 from plone import api
 from plone.app.contenttypes.migration.dxmigration import migrate_base_class_to_new_class
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.i18n.normalizer import IIDNormalizer
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
@@ -290,6 +293,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # TEMPORARY to 3.0.30
             self.cleanRegistries()
             # TEMPORARY to 3.0.31
+            self.update_mailtype_config()
             self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator', 'Member'),
                                           acquire=0)
             self.update_tasks()
@@ -716,17 +720,33 @@ class Migrate_To_3_0(Migrator):  # noqa
         api.portal.set_registry_record(RECORD_NAME, [d for d in record if d['adaptation'] !=
                                                      u'imio.dms.mail.wfadaptations.OMToPrint'])
 
-    def update_config(self):
-        # modify settings following new structure
-        for mt in ('mail_types', 'omail_types'):
+    def update_mailtype_config(self):
+        idnormalizer = getUtility(IIDNormalizer)
+        for mt, ptype in (('mail_types', ['dmsincomingmail', 'dmsincoming_email']), ('omail_types', 'dmsoutgoingmail')):
             mtr = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(mt)
             mail_types = self.existing_settings[mt]
             new_mt = []
+            change = False
             for dic in mail_types:
+                new_dic = dict(dic)
                 if 'mt_value' in dic:
-                    new_mt.append({'value': dic['mt_value'], 'dtitle': dic['mt_title'], 'active': dic['mt_active']})
-            if new_mt:
+                    change = True
+                    new_dic = {'value': dic['mt_value'], 'dtitle': dic['mt_title'], 'active': dic['mt_active']}
+                if not is_valid_identifier(new_dic['value']):
+                    change = True
+                    old_value = new_dic['value']
+                    new_dic['value'] = safe_unicode(idnormalizer.normalize(old_value))
+                    for brain in self.catalog(portal_type=ptype, mail_type=old_value):
+                        obj = brain.getObject()
+                        obj.mail_type = new_dic['value']
+                        obj.reindexObject(['mail_type'])
+                new_mt.append(new_dic)
+            if change:
                 api.portal.set_registry_record(mtr, new_mt)
+
+    def update_config(self):
+        # modify settings following new structure and correct id if necessary
+        self.update_mailtype_config()
         # set default send_modes values
         if not api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes',
                                               default=[]):

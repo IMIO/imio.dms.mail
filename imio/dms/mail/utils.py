@@ -35,6 +35,7 @@ from persistent.list import PersistentList
 from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer
+from plone.i18n.normalizer import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
@@ -1166,3 +1167,8 @@ def do_next_transition(mail, ptype, treating_group='', state=None, config=None):
         treating_group = mail.treating_groups
     with api.env.adopt_roles(['Reviewer']):
         api.content.transition(mail, config[state][treating_group][0])
+
+
+def is_valid_identifier(identifier):
+    idnormalizer = getUtility(IIDNormalizer)
+    return idnormalizer.normalize(identifier) == identifier
