@@ -1,13 +1,42 @@
 Changelog
 =========
 
+3.0.31
+------
+
+- Can reply on "created" state
+- Corrected overiddes in zcml so tests can be run again
+- Added a specific RemoteLibrary with "get_mail_path" function to find a mail from its id or title.
+  So doc.robot and video-doc.robot can be run again
+- Replaced "get_groups" & "getGroups" by "get_plone_groups_for_user"
+- Replaced "get_selected_org_suffix_users" by "get_selected_org_suffix_principal_ids"
+- Replaced "voc_selected_org_suffix_users" by "voc_selected_org_suffix_userids"
+- Added group "gestion_contacts" to give access to duplicated batch action
+- Made sure creating_group attribute is set
+- Restricted transition "back_to_scanned"
+- Corrected "actions_panel_reply" template
+- Removed useless IContextAwareDefaultFactory when context is not required
+- Corrected task class on old objects
+- Constraint to avoid group in group
+- Overidded "collective.task.AssignedUsers" voc with "SimplySortedUsers" (value is userid and not username)
+- Corrected changeOwnership (scanner to first editor) to avoid fail in getOwner
+- Added contraints on fields settings
+- Added constraint on settings table value column
+
+3.0.30
+------
+
+- Added step "imiodmsmail-remove_om_nplus1_wfadaptation"
+- Invalidated "collective.eeafaceted.collectionwidget.cachedcollectionvocabulary" on group un/assignment
+- Used "dexterity.localroles.utils.fti_configuration"
+
 3.0 (2021-09-30)
 ----------------
 
 - Added dmsincoming_email type
   [sgeulette]
 - Added classificationFolder and ClassificationCategory types
-  [sgeulette] 
+  [sgeulette]
 - Added collective.ckeditortemplates
   [sgeulette]
 - Added lecteurs_globaux_cs group
