@@ -42,6 +42,12 @@ Changelog
 - Used imio_global_cache
 - Used "change_user" (logout/login updates correctly roles) and new "siteadmin" user in tests
 
+3.0.28
+------
+
+- Remove search overiddes (now done in plonetheme.imioapps)
+- Refined permission on "create from template" button
+
 3.0 (2021-09-30)
 ----------------
 
