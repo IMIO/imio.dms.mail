@@ -37,7 +37,7 @@ Changelog
 - Invalidated "OMActiveSendModesVocabulary" when settings is changed
 - Escaped rendered html to avoid xss
 - Used in/out mail date to display in contactback references
-- Added "template_infos" view that gives information on generated document
+- Added "various-utils/template_infos" view that gives information on generated document
 - Invalidated "OMSenderVocabulary" on group un/assignment
 - Used imio_global_cache
 - Used "change_user" (logout/login updates correctly roles) and new "siteadmin" user in tests
