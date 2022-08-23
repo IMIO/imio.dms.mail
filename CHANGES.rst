@@ -22,6 +22,7 @@ Changelog
 - Corrected changeOwnership (scanner to first editor) to avoid fail in getOwner
 - Added contraints on fields settings
 - Added constraint on settings table value column
+- Given local roles on contacts to _editeur group (not only _encodeur)
 
 3.0.30
 ------
