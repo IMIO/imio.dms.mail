@@ -497,14 +497,16 @@ def contact_plonegroup_change(event):
 
         portal = api.portal.get()
         # contributor on a contact can edit too
-        for folder in (portal['outgoing-mail'], portal['contacts'],
-                       portal['contacts']['contact-lists-folder']['common']):
+        for folder, editeur_too in ((portal['outgoing-mail'], False), (portal['contacts'], True),
+                                    (portal['contacts']['contact-lists-folder']['common'], True)):
             dic = folder.__ac_local_roles__
             for principal in dic.keys():
-                if principal.endswith('_encodeur'):
+                if principal.endswith('_encodeur') or (editeur_too and principal.endswith('_editeur')):
                     del dic[principal]
             for uid in s_orgs:
                 dic["%s_encodeur" % uid] = ['Contributor']
+                if editeur_too:
+                    dic["%s_editeur" % uid] = ['Contributor']  # an agent could add a contact on an email im
             folder._p_changed = True
         # we add a directory by organization in templates/om
         om_folder = portal.templates.om
@@ -541,6 +543,7 @@ def contact_plonegroup_change(event):
                 folder.setLayout('folder_tabular_view')
                 roles = ['Reader', 'Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
+                api.group.grant_roles(groupname='%s_editeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
         # we manage local roles to give needed permissions related to group_encoder
         options_config = {portal['incoming-mail']: ['imail_group_encoder'],
