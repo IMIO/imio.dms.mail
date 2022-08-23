@@ -337,16 +337,16 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
             for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
-                         'collective.contact.core', 'collective.contact.facetednav', 'collective.contact.importexport',
-                         'collective.contact.plonegroup', 'collective.contact.widget', 'collective.dms.basecontent',
-                         'collective.dms.batchimport', 'collective.dms.mailcontent',
-                         'collective.documentgenerator', 'collective.eeafaceted.batchactions',
-                         'collective.eeafaceted.collectionwidget', 'collective.eeafaceted.dashboard',
-                         'collective.eeafaceted.z3ctable', 'collective.js.tooltipster', 'collective.task',
-                         'collective.wfadaptations', 'collective.z3cform.chosen', 'dexterity.localroles',
-                         'dexterity.localrolesfield', 'eea.facetednavigation', 'eea.jquery', 'imio.actionspanel',
-                         'imio.dashboard', 'imio.dms.mail', 'imio.helpers', 'imio.history', 'imio.pm.wsclient',
-                         'plonetheme.imioapps']:
+                         'collective.contact.core', 'collective.contact.duplicated', 'collective.contact.facetednav',
+                         'collective.contact.importexport', 'collective.contact.plonegroup',
+                         'collective.contact.widget', 'collective.dms.basecontent', 'collective.dms.batchimport',
+                         'collective.dms.mailcontent', 'collective.documentgenerator',
+                         'collective.eeafaceted.batchactions', 'collective.eeafaceted.collectionwidget',
+                         'collective.eeafaceted.dashboard', 'collective.eeafaceted.z3ctable',
+                         'collective.js.tooltipster', 'collective.task', 'collective.wfadaptations',
+                         'collective.z3cform.chosen', 'dexterity.localroles', 'dexterity.localrolesfield',
+                         'eea.facetednavigation', 'eea.jquery', 'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail',
+                         'imio.helpers', 'imio.history', 'imio.pm.wsclient', 'plonetheme.imioapps']:
                 mark_last_version(self.portal, product=prod)
 
         self.log_mem('END')
