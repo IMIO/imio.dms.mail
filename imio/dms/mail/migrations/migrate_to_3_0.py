@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import transaction
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
+from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -310,7 +311,19 @@ class Migrate_To_3_0(Migrator):  # noqa
             guard = tr.getGuard()
             if guard.changeFromProperties({'guard_expr': "python:object.wf_conditions().can_back_to_scanned()"}):
                 tr.guard = guard
-
+            s_orgs = get_registry_organizations()
+            for folder in (self.contacts, self.contacts['contact-lists-folder']['common']):
+                dic = folder.__ac_local_roles__
+                for uid in s_orgs:
+                    dic["%s_editeur" % uid] = ['Contributor']  # an agent could add a contact on an email im
+                folder._p_changed = True
+            for fld in api.content.find(context=self.contacts['contact-lists-folder'], portal_type='Folder'):
+                folder = fld.getObject()
+                dic = folder.__ac_local_roles__
+                if '{}_encodeur'.format(folder.id) not in dic:
+                    continue
+                dic["%s_editeur" % folder.id] = ['Contributor', 'Editor', 'Reader']
+                folder._p_changed = True
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -474,6 +487,21 @@ class Migrate_To_3_0(Migrator):  # noqa
                 alsoProvides(folder, INextPrevNotNavigable)
                 noLongerProvides(folder, IActionsPanelFolder)
                 noLongerProvides(folder, IActionsPanelFolderAll)
+        # add _editeur as contact contributor
+        s_orgs = get_registry_organizations()
+        for folder in (self.contacts, self.contacts['contact-lists-folder']['common']):
+            dic = folder.__ac_local_roles__
+            for uid in s_orgs:
+                dic["%s_editeur" % uid] = ['Contributor']  # an agent could add a contact on an email im
+            folder._p_changed = True
+        for fld in api.content.find(context=self.contacts['contact-lists-folder'], portal_type='Folder'):
+            folder = fld.getObject()
+            dic = folder.__ac_local_roles__
+            if '{}_encodeur'.format(folder.id) not in dic:
+                continue
+            dic["%s_editeur" % folder.id] = ['Contributor', 'Editor', 'Reader']
+            folder._p_changed = True
+
         # protect objects
         for obj in (
                 self.portal['incoming-mail'], self.portal['incoming-mail']['mail-searches'],
