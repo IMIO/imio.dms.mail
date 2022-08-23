@@ -4,6 +4,7 @@ Changelog
 3.0.31
 ------
 
+- Last commit at e9b6e421ff28e31f8f6c75bb4a915b46d85fbc0d
 - Can reply on "created" state
 - Corrected overiddes in zcml so tests can be run again
 - Added a specific RemoteLibrary with "get_mail_path" function to find a mail from its id or title.
