@@ -5,6 +5,7 @@ Changelog
 ------
 
 - Improved code in subcribers to avoid error after using "sharing" tab
+- Commented migration code before deletion
 
 3.0.31
 ------
