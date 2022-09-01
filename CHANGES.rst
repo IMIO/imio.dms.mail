@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.32
+------
+
+- Improved code in subcribers to avoid error after using "sharing" tab
+
 3.0.31
 ------
 
