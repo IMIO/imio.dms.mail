@@ -289,41 +289,41 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.upgradeAll(omit=['imio.dms.mail:default'])
 
         if self.is_in_part('r'):  # update templates
-            # TEMPORARY to 3.0.29
-            self.install(['imio.helpers'])
-            # TEMPORARY to 3.0.30
-            self.cleanRegistries()
-            # TEMPORARY to 3.0.31
-            self.update_mailtype_config()
-            self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator', 'Member'),
-                                          acquire=0)
-            self.update_tasks()
-            if api.group.get('gestion_contacts') is None:
-                api.group.create('gestion_contacts', '1 Gestion doublons contacts')
-            self.correct_groups()
-            for key in GE_CONFIG:
-                if api.portal.get_registry_record(
-                        'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(key)):
-                    logger.info('Updates types {} to ensure creating_group field is set'.format(GE_CONFIG[key]['pt']))
-                    self.set_creating_group_on_types(GE_CONFIG[key]['pt'], GE_CONFIG[key]['idx'])
-            wf = self.wfTool['outgoingmail_workflow']
-            tr = wf.transitions['back_to_scanned']
-            guard = tr.getGuard()
-            if guard.changeFromProperties({'guard_expr': "python:object.wf_conditions().can_back_to_scanned()"}):
-                tr.guard = guard
-            s_orgs = get_registry_organizations()
-            for folder in (self.contacts, self.contacts['contact-lists-folder']['common']):
-                dic = folder.__ac_local_roles__
-                for uid in s_orgs:
-                    dic["%s_editeur" % uid] = ['Contributor']  # an agent could add a contact on an email im
-                folder._p_changed = True
-            for fld in api.content.find(context=self.contacts['contact-lists-folder'], portal_type='Folder'):
-                folder = fld.getObject()
-                dic = folder.__ac_local_roles__
-                if '{}_encodeur'.format(folder.id) not in dic:
-                    continue
-                dic["%s_editeur" % folder.id] = ['Contributor', 'Editor', 'Reader']
-                folder._p_changed = True
+            # # TEMPORARY to 3.0.29
+            # self.install(['imio.helpers'])
+            # # TEMPORARY to 3.0.30
+            # self.cleanRegistries()
+            # # TEMPORARY to 3.0.31
+            # self.update_mailtype_config()
+            # self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator', 'Member'),
+            #                               acquire=0)
+            # self.update_tasks()
+            # if api.group.get('gestion_contacts') is None:
+            #     api.group.create('gestion_contacts', '1 Gestion doublons contacts')
+            # self.correct_groups()
+            # for key in GE_CONFIG:
+            #     if api.portal.get_registry_record(
+            #             'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(key)):
+            #         logger.info('Updates types {} to ensure creating_group field is set'.format(GE_CONFIG[key]['pt']))
+            #         self.set_creating_group_on_types(GE_CONFIG[key]['pt'], GE_CONFIG[key]['idx'])
+            # wf = self.wfTool['outgoingmail_workflow']
+            # tr = wf.transitions['back_to_scanned']
+            # guard = tr.getGuard()
+            # if guard.changeFromProperties({'guard_expr': "python:object.wf_conditions().can_back_to_scanned()"}):
+            #     tr.guard = guard
+            # s_orgs = get_registry_organizations()
+            # for folder in (self.contacts, self.contacts['contact-lists-folder']['common']):
+            #     dic = folder.__ac_local_roles__
+            #     for uid in s_orgs:
+            #         dic["%s_editeur" % uid] = ['Contributor']  # an agent could add a contact on an email im
+            #     folder._p_changed = True
+            # for fld in api.content.find(context=self.contacts['contact-lists-folder'], portal_type='Folder'):
+            #     folder = fld.getObject()
+            #     dic = folder.__ac_local_roles__
+            #     if '{}_encodeur'.format(folder.id) not in dic:
+            #         continue
+            #     dic["%s_editeur" % folder.id] = ['Contributor', 'Editor', 'Reader']
+            #     folder._p_changed = True
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
