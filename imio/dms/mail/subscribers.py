@@ -54,6 +54,7 @@ from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
+from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
 from z3c.relationfield.event import removeRelations as orig_removeRelations
@@ -265,7 +266,11 @@ def dmsdocument_modified(mail, event):
 
     if not event.descriptions:
         return
-    mod_attr = [name for at in event.descriptions for name in at.attributes]
+    mod_attr = [name for at in event.descriptions if base_hasattr(at, 'attributes') for name in at.attributes]
+    # in plone.app.workflow.browser.sharing.py, the request is given in descriptions !
+    # notify(LocalrolesModifiedEvent(self.context, self.request))
+    if not mod_attr:
+        return
 
     # tasks: update parents_assigned_groups field on children tasks following treating_groups value
     updates = []
@@ -432,6 +437,8 @@ def dmsmainfile_modified(dmf, event):
         idx = ['markers', 'enabled']
     if event.descriptions:
         for desc in event.descriptions:
+            if not base_hasattr(desc, 'attributes'):
+                continue
             if desc.interface == IScanFields and 'IScanFields.scan_id' in desc.attributes:
                 idx.append('SearchableText')
                 break
