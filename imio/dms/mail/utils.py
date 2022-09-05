@@ -1024,7 +1024,7 @@ def create_period_folder_max(main_dir, dte, counter_dic, max_nb=1000):
     """Following date, get a period date string and create the subdirectory.
     If the children number is greater than max_nb, create another subfolder."""
     period = getattr(main_dir, 'folder_period', u'week')
-    dte_str = base_dte_str = dte.strftime(PERIODS[period])
+    dte_str = base_dte_str = dte.strftime(PERIODS.get(period, PERIODS['week']))
 
     def folder_status(folder):
         if folder in counter_dic:  # known folder status
