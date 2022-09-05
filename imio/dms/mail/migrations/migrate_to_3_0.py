@@ -324,6 +324,17 @@ class Migrate_To_3_0(Migrator):  # noqa
             #         continue
             #     dic["%s_editeur" % folder.id] = ['Contributor', 'Editor', 'Reader']
             #     folder._p_changed = True
+            # TEMPORARY to 3.0.33
+            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+            # define default preservation value
+            if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
+                    not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
+                api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
+            # define default folder_period
+            if not api.portal.get_registry_record('imio.dms.mail.imail_folder_period'):
+                api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
+            if not api.portal.get_registry_record('imio.dms.mail.omail_folder_period'):
+                api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -879,6 +890,12 @@ class Migrate_To_3_0(Migrator):  # noqa
         if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
                 not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
             api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
+        # define default folder_period
+        if not api.portal.get_registry_record('imio.dms.mail.imail_folder_period'):
+            api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
+        if not api.portal.get_registry_record('imio.dms.mail.omail_folder_period'):
+            api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
+
         # define subfolder period
         if not api.portal.get_registry_record('imio.dms.mail.imail_folder_period'):
             api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
