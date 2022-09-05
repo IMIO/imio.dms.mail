@@ -4,29 +4,8 @@
     <records interface="imio.dms.mail.browser.settings.IImioDmsMailConfig">
     </records>
 
-    <record name="imio.dms.mail.dv_clean_days">
-        <field type="plone.registry.field.Int">
-            <title>Document viewer preservation days number</title>
-        </field>
-    </record>
-
-    <record name="imio.dms.mail.dv_clean_date">
-        <field type="plone.registry.field.Date">
-            <title>Document viewer preservation date</title>
-        </field>
-    </record>
-
-    <record name="imio.dms.mail.imail_folder_period">
-        <field type="plone.registry.field.Text">
-            <title>Incoming mails folder period (month, week, day)</title>
-        </field>
-    </record>
-
-    <record name="imio.dms.mail.omail_folder_period">
-        <field type="plone.registry.field.Text">
-            <title>Outgoing mails folder period (month, week, day)</title>
-        </field>
-    </record>
+    <records interface="imio.dms.mail.browser.settings.IImioDmsMailConfig2" prefix="imio.dms.mail">
+    </records>
 
     <records interface="plone.app.querystring.interfaces.IQueryField"
              prefix="plone.app.querystring.field.organization_type">

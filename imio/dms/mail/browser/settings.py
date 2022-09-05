@@ -512,7 +512,7 @@ SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
 def imiodmsmail_settings_changed(event):
     """ Manage a record change """
     if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName
-            and event.record.interface != IImioDmsMailConfig):
+            and event.record.interface not in (IImioDmsMailConfig, IImioDmsMailConfig2)):
         return
     if event.record.fieldName == 'mail_types':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMMailTypesVocabulary')
@@ -567,10 +567,10 @@ def imiodmsmail_settings_changed(event):
                                                  ('Manager', 'Site Administrator', 'Contributor'), acquire=1)
     if event.record.fieldName == 'groups_hidden_in_dashboard_filter':
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
-    if event.record.__name__ == 'imio.dms.mail.imail_folder_period' and event.newValue is not None:
+    if event.record.fieldName == 'imail_folder_period' and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', event.newValue)
-    if event.record.__name__ == 'imio.dms.mail.omail_folder_period' and event.newValue is not None:
+    if event.record.fieldName == 'omail_folder_period' and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', event.newValue)
 
@@ -698,3 +698,26 @@ def configure_group_encoder(field_name, contacts_part=False):
 
     # set a value on existing content
     set_group_encoder_on_existing_types(portal_types, portal=portal, index=GE_CONFIG[field_name]['idx'])
+
+
+class IImioDmsMailConfig2(Interface):
+    """Schema used as registry record prefixed as 'imio.dms.mail'.
+
+    It avoids that values are overwrited by registry step!"""
+
+    dv_clean_days = schema.Int(
+        title=_(u'Document viewer preservation days number'),
+    )
+
+    dv_clean_date = schema.Date(
+        title=_(u'Document viewer preservation date'),
+    )
+
+    imail_folder_period = schema.TextLine(
+        title=_(u'Incoming mails folder period (month, week, day)'),
+    )
+
+    omail_folder_period = schema.TextLine(
+        title=_(u'Outgoing mails folder period (month, week, day)'),
+    )
+

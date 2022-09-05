@@ -1544,6 +1544,11 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
         registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'] = template.substitute(
             url=GEDURL)
 
+    # IImioDmsMailConfig2 settings
+    api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
+    api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
+    api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
+
     # general
     api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter',
                                    ['scanner'])
