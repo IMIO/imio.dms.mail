@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.33
+------
+
+- Replaced xml registry records with new interface schema to avoid overrides of values
+- Get week by default if an unknown string has been configured
+
 3.0.32
 ------
 
