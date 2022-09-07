@@ -447,7 +447,7 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
     """Remove document viewer annotation on old mails.
 
         * days_back: default behavior: we take closed items not modified from this range
-        * date_back: if present, we take items not modified from this date (whatever the state)
+        * date_back: if present (YYYYMMDD), we take items not modified from this date (whatever the state)
     """
     if not check_zope_admin():
         return "You must be a zope manager to run this script"
@@ -478,8 +478,8 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
         # mod_date = add_timezone(mod_date, force=True)
     else:
         mod_date = start - timedelta(days=int(days_back))
-    already_done = DateTime('2010/01/01').ISO8601()
-    already_eml = DateTime('2011/01/01').ISO8601()
+    already_done = DateTime('2010/01/01').ISO8601()  # when using image saying preview has been deleted
+    already_eml = DateTime('2011/01/01').ISO8601()  # when using image saying eml cannot be converted
     get_same_blob = True  # we will get previously blobs
     total = {'obj': 0, 'pages': 0, 'files': 0, 'size': 0}
     pc = portal.portal_catalog
