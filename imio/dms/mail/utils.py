@@ -494,7 +494,7 @@ def dv_clean(portal, days_back='365', date_back=None, batch='3000'):
         total['obj'] += bl
         for i, brain in enumerate(brains, 1):
             mail = brain.getObject()
-            for fobj in object_values(mail, ['DmsFile', 'DmsAppendixFile']):
+            for fobj in object_values(mail, ['DmsFile', 'DmsAppendixFile', 'ImioDmsFile']):
                 annot = IAnnotations(fobj).get('collective.documentviewer', '')
                 if not annot or not annot.get('successfully_converted'):
                     continue
