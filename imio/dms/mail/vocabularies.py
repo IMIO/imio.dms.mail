@@ -121,7 +121,7 @@ class AssignedUsersWithDeactivatedVocabulary(object):
                     group_suffix = '_'.join(parts[1:])
                     if group_suffix in functions and parts[0] not in active_orgs:  # not an active org
                         continue
-                term.title = term.title.decode('utf8')
+                term.title = safe_unicode(term.title.decode('utf8'))
                 a_terms.append(term)
                 break
             else:
