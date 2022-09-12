@@ -1080,5 +1080,6 @@ def zope_ready(event):
                 ret = ret.replace('<div>Those methods have been added: ', '').replace('</div>', '')
                 if ret:
                     logger.info('=> CPUtils added methods: "{}"'.format(ret.replace('<br />', ', ')))
+                change = True
     if change:
         transaction.commit()
