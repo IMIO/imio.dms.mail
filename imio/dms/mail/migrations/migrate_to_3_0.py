@@ -127,7 +127,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             else:  # will be set later in update_config
                 smodes = [dic['nid'] for dic in self.config['om_mt']]
             oids = [dic['oid'] for dic in self.config['om_mt']]
-            if not [mt for mt in mtypes if mt not in oids]:
+            if not [mt for mt in mtypes if mt not in oids]:  # configured mail types are handled in 30_config
                 logger.info('OM MAIL_TYPE WILL BE SET TO NONE')
                 self.none_mail_type = True
             stop = False
@@ -792,7 +792,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             smodes = []
             for dic in self.config['om_mt']:
                 if dic['nid'] not in [dc['value'] for dc in smodes]:  # avoid duplicates
-                    smodes.append({'value': dic['nid'], 'dtitle': dic['t'], 'active': True})
+                    smodes.append({'value': dic['nid'], 'dtitle': dic['t'], 'active': dic['a']})
             api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes', smodes)
         # im fields order to new field config
         im_fo = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields_order',
