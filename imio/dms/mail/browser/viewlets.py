@@ -14,6 +14,7 @@ from imio.helpers.xhtml import object_link
 from imio.prettylink.interfaces import IPrettyLink
 from plone import api
 from plone.app.layout.viewlets import ViewletBase
+from plone.app.layout.viewlets.common import FooterViewlet
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
@@ -133,3 +134,10 @@ class CKBatchActionsViewlet(BatchActionsViewlet):
     def available(self):
         """Global availability of the viewlet."""
         return self.view.__name__ == 'ck-templates-listing'
+
+
+class ImioFooterViewlet(FooterViewlet):
+
+    def update(self):
+        super(FooterViewlet, self).update()
+        self.version = api.portal.get_registry_record('imio.dms.mail.product_version', default='3.0')
