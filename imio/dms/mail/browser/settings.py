@@ -721,3 +721,6 @@ class IImioDmsMailConfig2(Interface):
         title=_(u'Outgoing mails folder period (month, week, day)'),
     )
 
+    product_version = schema.TextLine(
+        title=_(u'Current product version'),
+    )

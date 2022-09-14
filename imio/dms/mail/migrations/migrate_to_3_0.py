@@ -48,6 +48,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
 from imio.helpers.content import get_vocab_values
 from imio.migrator.migrator import Migrator
+from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
 from plone import api
 from plone.app.contenttypes.migration.dxmigration import migrate_base_class_to_new_class
@@ -324,7 +325,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             #         continue
             #     dic["%s_editeur" % folder.id] = ['Contributor', 'Editor', 'Reader']
             #     folder._p_changed = True
-            # TEMPORARY to 3.0.33
+            # TEMPORARY to 3.0.33, 3.0.34
             self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             # define default preservation value
             if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
@@ -338,6 +339,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+            api.portal.set_registry_record('imio.dms.mail.product_version', safe_unicode(get_git_tag(BLDT_DIR)))
             # update templates
             add_templates(self.portal)
             self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
