@@ -477,11 +477,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                      'lecteurs_globaux_cs': {'roles': ['Reader']}},
         }
         change1 = update_roles_in_fti('dmsoutgoingmail', to_add, notify=False)
-        to_add = {
+        to_add = {  # additional roles needed for outgoing emails
             'to_be_signed': {'encodeur': {'roles': ['Contributor', 'Editor', 'Reviewer']}},
             'sent': {'encodeur': {'roles': ['Reviewer']}},
         }
-        change2 = update_roles_in_fti('dmsoutgoingmail', to_add, keyname='treating_groups', notify=False)
+        send_modes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                    'omail_send_modes')
+        email_modes = [sm['value'] for sm in send_modes if sm['value'].startswith('email') and sm['active']]
+        change2 = False
+        if email_modes:
+            change2 = update_roles_in_fti('dmsoutgoingmail', to_add, keyname='treating_groups', notify=False)
         if change1 or change2:
             update_security_index(('dmsoutgoingmail',), trace=10000)
 
