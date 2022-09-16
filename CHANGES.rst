@@ -1,15 +1,28 @@
 Changelog
 =========
 
+3.0.34
+------
+
+- Last commit at 5a2c0b645d5d4565f39ac4b74ec6d1e4b6d95e64
+- Added om file class in dv_clean
+- Avoided unicodeerror in migration for ldap users
+- Made sure a commit will be done for all change in zope ready subscriber
+- Used activate info for send_modes from 30_config file
+- Corrected migration to add roles only when outgoing emails are activated
+- Showed tag version in footer
+
 3.0.33
 ------
 
+- Last commit at e0bbe5f3278911fdfbcd0219fcce132a25c8d3da
 - Replaced xml registry records with new interface schema to avoid overrides of values
 - Get week by default if an unknown string has been configured
 
 3.0.32
 ------
 
+- Last commit at e13d2805af6304076434901a195c7e25fdd06e4a
 - Improved code in subcribers to avoid error after using "sharing" tab
 - Commented migration code before deletion
 
