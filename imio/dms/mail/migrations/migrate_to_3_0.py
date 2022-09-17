@@ -37,7 +37,6 @@ from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
-from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import reimport_faceted_config
@@ -46,7 +45,6 @@ from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
-from imio.helpers.content import get_vocab_values
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -84,6 +82,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         Migrator.__init__(self, context, disable_linkintegrity_checks=disable_linkintegrity_checks)
         self.imf = self.portal['incoming-mail']
         self.omf = self.portal['outgoing-mail']
+        self.acl = self.portal['acl_users']
         self.contacts = self.portal['contacts']
         self.existing_settings = {}
         self.config = {'om_mt': [], 'flds': None}
@@ -687,10 +686,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             set_portlet(self.portal)
 
     def correct_groups(self):
-        valid_users = get_vocab_values(None, 'imio.helpers.SimplySortedUsers')
         for group in api.group.get_groups():
             for principal in api.user.get_users(group=group):
-                if principal.id not in valid_users:
+                user = self.acl.getUserById(principal.id)
+                if user is None:  # we have a group
                     logger.info("Removing principal '{}' from group '{}'".format(principal.id, group.id))
                     for user in api.user.get_users(group=principal):
                         api.group.add_user(user=user, group=group)
