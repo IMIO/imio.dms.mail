@@ -75,6 +75,7 @@ from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
+from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
 from zope.component import adapts
@@ -242,6 +243,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         title=_(u'Original document in service'),
         default=False
     )
+    directives.widget(document_in_service=RadioFieldWidget)
 
     directives.omitted('related_docs', 'recipients', 'notes')
     # directives.widget(recipient_groups=SelectFieldWidget)
