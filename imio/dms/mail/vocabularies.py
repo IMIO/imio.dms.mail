@@ -113,6 +113,9 @@ class AssignedUsersWithDeactivatedVocabulary(object):
         active_orgs = get_registry_organizations()
         functions = [dic['fct_id'] for dic in get_registry_functions()]
         for term in vocab:
+            # with ldap (tournai), some term have value, token and title not ascii !!
+            # term.value = safe_unicode(term.value)
+            term.token = safe_unicode(term.token)
             for groupid in get_plone_groups_for_user(user_id=term.token):  # token is the userid
                 if groupid == 'AuthenticatedUsers':
                     continue

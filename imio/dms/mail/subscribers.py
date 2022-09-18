@@ -758,6 +758,8 @@ def group_assignment(event):
     """
     # check if we have a user
     if event.principal not in get_vocab_values(None, 'imio.helpers.SimplySortedUsers'):
+        # TODO test can be wrong with ldap users not well handled
+        # use user = self.acl.getUserById(principal.id)
         req = getRequest()
         api.portal.show_message(message=_('You cannot add a group in a group !'),
                                 request=req, type='error')
