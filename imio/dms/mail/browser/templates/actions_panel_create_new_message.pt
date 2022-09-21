@@ -2,7 +2,8 @@
   <a tal:attributes="href string:${context/absolute_url}/edit?edit-email=1#fieldsetlegend-email"
      target="_parent">
      <input type="button" value="Write email" i18n:attributes="value"
-        tal:define="subject view/context/email_subject"
+        tal:define="subject view/context/email_subject;
+                    dummy view/saveHasActions;"
         tal:attributes="class python:'apButton apButtonAction apButtonAction_wemail{}'.format(subject and '_ok' or '');" />
   </a>
 </td>
