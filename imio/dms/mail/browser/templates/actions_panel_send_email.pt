@@ -1,5 +1,6 @@
 <td i18n:domain="imio.dms.mail"
-    tal:define="current_url string:${context/absolute_url};"
+    tal:define="current_url string:${context/absolute_url};
+                dummy view/saveHasActions;"
     tal:condition="view/may_send_email">
     <input type="button" value="Send email" i18n:attributes="value"
         tal:define="status view/context/email_status"

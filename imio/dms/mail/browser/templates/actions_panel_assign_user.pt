@@ -3,6 +3,7 @@
     tal:condition="users_voc/_terms">
     <form action='' tal:define="current_url string:${context/absolute_url};
                                 useIcons view/useIcons;
+                                dummy view/saveHasActions;
                                 select_class python:'apButton apButtonSelect apButtonAction apButtonAction_assign'">
       <select name="Assign"
           tal:attributes="class python:useIcons and select_class + ' apUseIcons' or select_class;
