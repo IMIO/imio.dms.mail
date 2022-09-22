@@ -1,6 +1,14 @@
 Changelog
 =========
 
+3.0.35
+------
+
+- Last commit at 61ce3816ee6620864955769b41f8d81d3afee325
+- Handled better ldap users
+- Changed document_in_service widget
+- Added saveHasActions in own actionspanel templates
+
 3.0.34
 ------
 
