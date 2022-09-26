@@ -60,10 +60,16 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         wtool = portal.portal_workflow
         wf = wtool['incomingmail_workflow']
         new_state_id = 'proposed_to_pre_manager'
+        propose_tr_id = 'propose_to_pre_manager'
         msg = self.check_state_in_workflow(wf, new_state_id)
         if not msg:
             return False, 'State %s already in workflow' % new_state_id
         wf_from_to = get_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'])  # i_e ok
+        if (new_state_id, propose_tr_id) not in wf_from_to['from']:
+            wf_from_to['from'].insert([tup[0] for tup in wf_from_to['from']].index('proposed_to_manager'),
+                                      (new_state_id, propose_tr_id))
+            set_dms_config(['wf_from_to', 'dmsincomingmail', 'n_plus'], wf_from_to)  # i_e ok
+
         next_states = [st for (st, tr) in wf_from_to['to']]
 
         # add state
@@ -87,7 +93,6 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         state.permission_roles = perms
 
         # add transitions
-        propose_tr_id = 'propose_to_pre_manager'
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
             title=parameters['forward_transition_title'].encode('utf8'),
@@ -171,6 +176,9 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # update state list
         invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.utils.list_wf_states.dmsincomingmail')
+        # update dms config
+        update_transitions_auc_config('dmsincomingmail')  # i_e ok
+        update_transitions_levels_config(['dmsincomingmail'])  # i_e ok
 
         # update actionspanel back transitions registry
         lst = api.portal.get_registry_record('imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions')
