@@ -242,7 +242,7 @@ def dmsdocument_modified(mail, event):
             # change creator metadata
             if 'scanner' in creators:
                 creators.remove('scanner')
-            if userid not in creators:
+            if userid is not None and userid not in creators:
                 creators.insert(0, userid)
             obj.setCreators(creators)
             # change owner with acl_users user !! (otherwise getOwner() fails)
