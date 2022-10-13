@@ -863,7 +863,8 @@ class VariousUtilsMethods(UtilsMethods):
         portal = api.portal.getSite()
         log_list(out, u"<p>Fullname='{}'. Email='{}'</p>".format(
             object_link(portal, view='@@usergroup-userprefs?searchstring={}'.format(userid),
-                        content=user.getProperty('fullname'), target='_blank'), user.getProperty('email')))
+                        content=safe_unicode(user.getProperty('fullname')), target='_blank'),
+            safe_unicode(user.getProperty('email'))))
         # get groups
         log_list(out, u"<h2>In groups ?</h2>")
         groups = [group for group in get_plone_groups_for_user(user=user) if group != 'AuthenticatedUsers']
