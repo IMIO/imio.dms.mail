@@ -120,6 +120,8 @@ Changelog
   [sgeulette]
 - Added replied icon on incoming mail
   [sgeulette]
+- Added receipt document
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------

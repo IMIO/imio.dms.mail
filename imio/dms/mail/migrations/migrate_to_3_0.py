@@ -325,16 +325,16 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     dic["%s_editeur" % folder.id] = ['Contributor', 'Editor', 'Reader']
             #     folder._p_changed = True
             # TEMPORARY to 3.0.33, 3.0.34
-            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
-            # define default preservation value
-            if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
-                    not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
-                api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
-            # define default folder_period
-            if not api.portal.get_registry_record('imio.dms.mail.imail_folder_period'):
-                api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
-            if not api.portal.get_registry_record('imio.dms.mail.omail_folder_period'):
-                api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
+            # self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+            # # define default preservation value
+            # if (not api.portal.get_registry_record('imio.dms.mail.dv_clean_days') and
+            #         not api.portal.get_registry_record('imio.dms.mail.dv_clean_date')):
+            #     api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
+            # # define default folder_period
+            # if not api.portal.get_registry_record('imio.dms.mail.imail_folder_period'):
+            #     api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
+            # if not api.portal.get_registry_record('imio.dms.mail.omail_folder_period'):
+            #     api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -342,7 +342,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             # update templates
             add_templates(self.portal)
             self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
-            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-update-templates'], profile='singles')
+            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',
+                                                         'imiodmsmail-update-templates'], profile='singles')
 
         if self.is_in_part('s'):  # update quick installer
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
