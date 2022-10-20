@@ -56,6 +56,7 @@ from imio.dms.mail.utils import object_modified_cachekey
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
 from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.content import object_values
 from imio.helpers.content import uuidsToCatalogBrains
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
@@ -685,6 +686,10 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     # Needed by collective.z3cform.rolefield. Need to be overriden here
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u'treating_groups'])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u'recipient_groups'])
+
+    def get_mainfiles(self):
+        """Overiddes dmsdocument method"""
+        return object_values(self, ['ImioDmsFile'])
 
     def wf_condition_may_set_scanned(self, state_change):  # noqa, pragma: no cover  NO MORE USED
         """ method used in wf condition """
