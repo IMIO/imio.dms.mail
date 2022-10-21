@@ -45,6 +45,7 @@ from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
+from imio.helpers.workflow import remove_state_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -335,6 +336,12 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
             # if not api.portal.get_registry_record('imio.dms.mail.omail_folder_period'):
             #     api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
+            # TEMPORARY to 3.0.36
+            ret1 = remove_state_transitions('outgoingmail_workflow', 'validated',
+                                            ['set_to_validated', 'back_to_validated'])
+            ret2 = remove_state_transitions('outgoingmail_workflow', 'proposed_to_n_plus_1')
+            if ret1 or ret2:
+                logger.info('REMOVED BAD TRANSITIONS in om_workflow')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
