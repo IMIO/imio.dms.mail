@@ -4,7 +4,7 @@ Changelog
 3.0.36
 ------
 
-- Last commit at 6e4fa215da320f56c89da5afd10a32911cd64d61
+- Last commit at 4eaaa6035ef1d17912c340f5b279ab59ec6f6809
 - Updated IMPreManagerValidation wf adaptation to allow back_to_creation
 - Avoided error when deleting mails via run-del-mails
 - Added receipt document with automated content
