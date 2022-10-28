@@ -1,6 +1,15 @@
 Changelog
 =========
 
+3.0.36
+------
+
+- Last commit at 6e4fa215da320f56c89da5afd10a32911cd64d61
+- Updated IMPreManagerValidation wf adaptation to allow back_to_creation
+- Avoided error when deleting mails via run-del-mails
+- Added receipt document with automated content
+- Added correction in migration DMS-902
+
 3.0.35
 ------
 
