@@ -385,6 +385,8 @@ class DbDocumentGenerationView(DashboardDocumentGenerationView):
 
 class OMPDGenerationView(PersistentDocumentGenerationView):
 
+    """Generation view used on an outgoingmail"""
+
     def _get_title(self, doc_name, gen_context):
         return self.pod_template.title
 
