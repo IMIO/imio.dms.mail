@@ -130,7 +130,7 @@ msgstr "En création"
 
 #: plone/app/layout/viewlets/footer.pt
 msgid "description_copyright"
-msgstr "iA.docs - Version <a href='https://docs.imio.be/imio-doc/ia.docs/changelog/index.html' target='_blank'>${version}</a>"
+msgstr "iA.docs - Version <a href='https://docs.imio.be/imio-doc/ia.docs/changelog/minor_versions.html' target='_blank'>${version}</a>"
 
 #: plone/app/layout/viewlets/footer.pt
 msgid "description_license"
