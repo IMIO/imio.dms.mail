@@ -704,6 +704,7 @@ class VariousUtilsMethods(UtilsMethods):
 
     def dv_images_clean(self):
         """Call dv_clean to remove old images following configuration"""
+        # admin check is done in called dv_clean function
         params = {
             'days_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_days', default=None),
             'date_back': api.portal.get_registry_record('imio.dms.mail.dv_clean_date', default=None)
