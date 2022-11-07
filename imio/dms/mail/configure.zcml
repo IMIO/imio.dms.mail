@@ -233,15 +233,20 @@
         class=".utils.VariousUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
+            all_collection_uid
             check_scan_id
             dv_images_clean
+            highest_scan_id
             initialize_service_folder
+            is_in_user_groups
             is_unprotected
             kofax_orgs
             list_last_scan
             pg_organizations
             template_infos
             unread_criteria
+            user_has_review_level
+            user_is_admin
             user_usages
         "
     />
