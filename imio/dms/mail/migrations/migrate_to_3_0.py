@@ -964,6 +964,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             if i % 10000 == 0:
                 logger.info('On dmsincomingmail brain {}'.format(i))
                 transaction.commit()
+            if obj.reception_date is None:
+                logger.warning("Found None reception_date on '{}'".format(brain.getPath()))
+                obj.reception_date = obj.creation_date.asdatetime().replace(tzinfo=None)
+                # will be reindexed after move
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
