@@ -89,6 +89,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.config = {'om_mt': [], 'flds': None}
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
+        self.batch_value = int(os.getenv('BATCH', '0'))
 
     def savepoint_flush(self):
         transaction.savepoint(True)
@@ -271,16 +272,16 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
 
-        if self.is_in_part('i'):  # move incoming mails
+        if self.is_in_part('i'):  # move incoming mails (long time)
             self.move_dmsincomingmails()
 
-        if self.is_in_part('j'):  # move outgoing mails
+        if self.is_in_part('j'):  # move outgoing mails (long time)
             self.move_dmsoutgoingmails()
 
         if self.is_in_part('m'):  # update held positions
             self.update_catalog1()
 
-        if self.is_in_part('n'):  # update dmsmainfile
+        if self.is_in_part('n'):  # update dmsmainfile (middle time)
             self.update_catalog2()
 
         if self.is_in_part('o'):  # update dmsommainfile
@@ -964,6 +965,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         counter_dic = {}
         for i, brain in enumerate(self.catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
                                                sort_on='organization_type', path={'query': imf_path, 'depth': 1}), 1):
+            if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
+                break
             obj = brain.getObject()
             if i % 10000 == 0:
                 logger.info('On dmsincomingmail brain {}'.format(i))
@@ -984,6 +987,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         counter_dic = {}
         for i, brain in enumerate(self.catalog(portal_type='dmsoutgoingmail', sort_on='created',
                                                path={'query': omf_path, 'depth': 1}), 1):
+            if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
+                break
             obj = brain.getObject()
             if i % 5000 == 0:
                 logger.info('On dmsoutgoingmail brain {}'.format(i))
