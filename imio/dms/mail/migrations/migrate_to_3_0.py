@@ -95,10 +95,14 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.portal._p_jar.cacheGC()
 
     def set_fingerpointing(self, activate=None, itself=True):
-        """Activate/deactivate some fingerpointing settings."""
+        """Activate/deactivate some fingerpointing settings.
+        :param activate: list of previous values ([True, True]) needed to reactivate and returned at deactivation
+        :param itself: change audit_registry value to not register this special change
+        :return: list of previous values
+        """
         ret = []
         fp_fields = ['audit_lifecycle', 'audit_workflow']
-        if itself:
+        if itself:  # registry
             if activate:
                 fp_fields.append('audit_registry')
                 activate.append(activate.pop(0))  # put at end the orig audit_registry value
