@@ -968,7 +968,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
                 break
             obj = brain.getObject()
-            if i % 10000 == 0:
+            if i % 1000 == 0:
                 logger.info('On dmsincomingmail brain {}'.format(i))
                 transaction.commit()
             if obj.reception_date is None:
@@ -990,7 +990,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
                 break
             obj = brain.getObject()
-            if i % 5000 == 0:
+            if i % 1000 == 0:
                 logger.info('On dmsoutgoingmail brain {}'.format(i))
             new_container = create_period_folder_max(self.omf, obj.creation_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
