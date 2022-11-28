@@ -272,10 +272,10 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
 
-        if self.is_in_part('i'):  # move incoming mails (long time)
+        if self.is_in_part('i'):  # move incoming mails
             self.move_dmsincomingmails()
 
-        if self.is_in_part('j'):  # move outgoing mails (long time)
+        if self.is_in_part('j'):  # move outgoing mails
             self.move_dmsoutgoingmails()
 
         if self.is_in_part('m'):  # update held positions
@@ -1021,10 +1021,20 @@ class Migrate_To_3_0(Migrator):  # noqa
         # Clean and update
         logger.info('Updating dmsmainfile')
         brains = self.catalog.searchResults(portal_type='dmsmainfile')
+        updated = 0
         for i, brain in enumerate(brains, 1):
             obj = brain.getObject()
-            if i % 10000 == 0:
+            roles = obj.rolesOfPermission('Modify portal content')
+            # already migrated ?
+            if [role['name'] for role in roles if role['selected'] == 'SELECTED' and
+                    role['name'] == 'DmsFile Contributor']:
+                continue
+            if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
+                break
+            updated += 1
+            if i % 1000 == 0:
                 logger.info('On file brain {}'.format(i))
+                transaction.commit()
             # we removed those useless attributes
             for attr in ('conversion_finished', 'just_added'):
                 if base_hasattr(obj, attr):
