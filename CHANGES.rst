@@ -1,6 +1,15 @@
 Changelog
 =========
 
+3.0.37
+------
+
+- Last commit at 4842f9ea6fddf75a0dcfb1f3051cb4450722eeeb
+- Footer version link goes now to minor versions doc page
+- Handled a None reception_date in migration
+- Added batch mode in long duration migration methods
+- Committed every 1000 items to reduce migration execution time
+
 3.0.36
 ------
 
