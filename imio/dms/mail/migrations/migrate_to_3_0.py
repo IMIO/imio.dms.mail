@@ -272,16 +272,16 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # self.catalog.refreshCatalog(clear=1)  # do not work because some indexes use catalog in construction !
 
-        if self.is_in_part('i'):  # move incoming mails
+        if self.is_in_part('i'):  # move incoming mails (long time, batchable)
             self.move_dmsincomingmails()
 
-        if self.is_in_part('j'):  # move outgoing mails
+        if self.is_in_part('j'):  # move outgoing mails (long time, batchable)
             self.move_dmsoutgoingmails()
 
         if self.is_in_part('m'):  # update held positions
             self.update_catalog1()
 
-        if self.is_in_part('n'):  # update dmsmainfile (middle time)
+        if self.is_in_part('n'):  # update dmsmainfile (middle time, batchable)
             self.update_catalog2()
 
         if self.is_in_part('o'):  # update dmsommainfile
@@ -958,7 +958,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if ensure:
                 self.ensure_creating_group(obj, index=True)
             if i % 1000 == 0:
-                logger.info('On dmsincomingmail brain {}'.format(i))
+                logger.info('On dmsincomingmail update {}'.format(i))
                 transaction.commit()
 
     def move_dmsincomingmails(self):
@@ -971,9 +971,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
                 break
             obj = brain.getObject()
-            if i % 1000 == 0:
-                logger.info('On dmsincomingmail brain {}'.format(i))
-                transaction.commit()
             if obj.reception_date is None:
                 logger.warning("Found None reception_date on '{}'".format(brain.getPath()))
                 obj.reception_date = obj.creation_date.asdatetime().replace(tzinfo=None)
@@ -981,6 +978,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
+            if i % 1000 == 0:
+                logger.info('On dmsincomingmail move {}'.format(i))
+                transaction.commit()
         self.set_fingerpointing(orig)
 
     def move_dmsoutgoingmails(self):
@@ -993,10 +993,11 @@ class Migrate_To_3_0(Migrator):  # noqa
             if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
                 break
             obj = brain.getObject()
-            if i % 1000 == 0:
-                logger.info('On dmsoutgoingmail brain {}'.format(i))
             new_container = create_period_folder_max(self.omf, obj.creation_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
+            if i % 1000 == 0:
+                logger.info('On dmsoutgoingmail move {}'.format(i))
+                transaction.commit()
         self.set_fingerpointing(orig)
 
     def update_catalog1(self):
@@ -1035,9 +1036,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
                 break
             updated += 1
-            if i % 1000 == 0:
-                logger.info('On file brain {}'.format(i))
-                transaction.commit()
             # we removed those useless attributes
             for attr in ('conversion_finished', 'just_added'):
                 if base_hasattr(obj, attr):
@@ -1050,6 +1048,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
+            if i % 1000 == 0:
+                logger.info('On dmsmainfile update {}'.format(i))
+                transaction.commit()
         logger.info('Updated {} brains'.format(len(brains)))
 
     def update_catalog3(self):
@@ -1059,8 +1060,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         brains = self.catalog.searchResults(portal_type='dmsommainfile')
         for i, brain in enumerate(brains, 1):
             obj = brain.getObject()
-            if i % 10000 == 0:
-                logger.info('On file brain {}'.format(i))
             # we removed those useless attributes
             for attr in ('conversion_finished', 'just_added'):
                 if base_hasattr(obj, attr):
@@ -1070,6 +1069,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
+            if i % 1000 == 0:
+                logger.info('On dmsommainfile update {}'.format(i))
+                transaction.commit()
         logger.info('Updated {} brains'.format(len(brains)))
 
     def update_catalog4(self):
@@ -1079,8 +1081,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         brains = self.catalog.searchResults(portal_type='dmsappendixfile')
         for i, brain in enumerate(brains, 1):
             obj = brain.getObject()
-            if i % 10000 == 0:
-                logger.info('On file brain {}'.format(i))
             # we removed those useless attributes
             for attr in ('conversion_finished', 'just_added'):
                 if base_hasattr(obj, attr):
@@ -1093,6 +1093,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
+            if i % 1000 == 0:
+                logger.info('On dmsappendixfile update {}'.format(i))
+                transaction.commit()
         logger.info('Updated {} brains'.format(len(brains)))
 
     def clean_examples(self):
