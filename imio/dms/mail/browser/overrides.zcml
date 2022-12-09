@@ -179,4 +179,13 @@
         class="plone.dexterity.browser.view.DefaultView"
         />
 
+    <browser:page
+        for="*"
+        name="solr-maintenance"
+        class="imio.dms.mail.browser.overrides.DocsSolrMaintenanceView"
+        allowed_interface="collective.solr.interfaces.ISolrMaintenanceView"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        zcml:condition="installed collective.solr"
+        permission="cmf.ManagePortal" />
+
 </configure>
