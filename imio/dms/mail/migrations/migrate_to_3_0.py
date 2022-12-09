@@ -957,6 +957,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                         break
             if ensure:
                 self.ensure_creating_group(obj, index=True)
+            if i % 1000 == 0:
+                logger.info('On dmsincomingmail brain {}'.format(i))
+                transaction.commit()
 
     def move_dmsincomingmails(self):
         logger.info('Moving dmsincomingmails')
