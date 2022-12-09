@@ -375,6 +375,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                          'imio.helpers', 'imio.history', 'imio.pm.wsclient', 'plonetheme.imioapps']:
                 mark_last_version(self.portal, product=prod)
 
+        if self.is_in_part('y'):  # sync solr (long time, batchable)
+            self.sync_solr()
+
         self.log_mem('END')
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         self.finish()
@@ -1145,6 +1148,21 @@ class Migrate_To_3_0(Migrator):  # noqa
         for brain in self.portal.portal_catalog.unrestrictedSearchResults(portal_type=types):
             obj = brain._unrestrictedGetObject()
             self.ensure_creating_group(obj, index=bool(index))
+
+    def sync_solr(self, clear=False):
+        full_key = 'collective.solr.port'
+        configured_port = api.portal.get_registry_record(full_key, default=None)
+        if configured_port is None:
+            return
+        logger.info('Syncing solr on %s' % self.portal.absolute_url_path())
+        response = self.portal.REQUEST.RESPONSE
+        original = response.write
+        response.write = lambda x: x  # temporarily ignore output
+        maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
+        if clear:
+            maintenance.clear()  # BATCHED
+        maintenance.sync()
+        response.write = original
 
 
 def migrate(context):
