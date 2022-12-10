@@ -380,6 +380,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                          'imio.helpers', 'imio.history', 'imio.pm.wsclient', 'plonetheme.imioapps']:
                 mark_last_version(self.portal, product=prod)
 
+        if self.is_in_part('x'):  # clear solr
+            active_solr = api.portal.get_registry_record('collective.solr.active', default=None)
+            if active_solr is not None:
+                if not active_solr:
+                    logger.info('Activating solr')
+                    api.portal.set_registry_record('collective.solr.active', True)
+                logger.info('Clearing solr on %s' % self.portal.absolute_url_path())
+                maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
+                maintenance.clear()
+
         if self.is_in_part('y'):  # sync solr (long time, batchable)
             self.sync_solr()
 
@@ -1162,7 +1172,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             obj = brain._unrestrictedGetObject()
             self.ensure_creating_group(obj, index=bool(index))
 
-    def sync_solr(self, clear=False):
+    def sync_solr(self):
         full_key = 'collective.solr.port'
         configured_port = api.portal.get_registry_record(full_key, default=None)
         if configured_port is None:
@@ -1176,9 +1186,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         original = response.write
         response.write = lambda x: x  # temporarily ignore output
         maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
-        if clear:
-            maintenance.clear()  # BATCHED
-        maintenance.sync()
+        maintenance.sync()  # BATCHED
         response.write = original
 
 
