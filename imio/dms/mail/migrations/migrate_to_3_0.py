@@ -166,6 +166,11 @@ class Migrate_To_3_0(Migrator):  # noqa
         if self.is_in_part('a'):  # install and upgrade products
             # check if oo port or solr port must be changed
             update_solr_config()
+            active_solr = api.portal.get_registry_record('collective.solr.active', default=None)
+            if active_solr:
+                logger.info('Deactivating solr')
+                api.portal.set_registry_record('collective.solr.active', False)
+
             self.upgradeProfile('collective.documentgenerator:default')
             update_oo_config()
 
@@ -1154,6 +1159,10 @@ class Migrate_To_3_0(Migrator):  # noqa
         configured_port = api.portal.get_registry_record(full_key, default=None)
         if configured_port is None:
             return
+        active_solr = api.portal.get_registry_record('collective.solr.active', default=None)
+        if not active_solr:
+            logger.info('Activating solr')
+            api.portal.set_registry_record('collective.solr.active', True)
         logger.info('Syncing solr on %s' % self.portal.absolute_url_path())
         response = self.portal.REQUEST.RESPONSE
         original = response.write
