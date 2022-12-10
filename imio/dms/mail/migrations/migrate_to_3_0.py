@@ -1041,7 +1041,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if [role['name'] for role in roles if role['selected'] == 'SELECTED' and
                     role['name'] == 'DmsFile Contributor']:
                 continue
-            if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
+            if self.batch_value and updated > self.batch_value:  # so it is possible to run this step partially
                 break
             updated += 1
             # we removed those useless attributes
@@ -1056,8 +1056,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
-            if i % 1000 == 0:
-                logger.info('On dmsmainfile update {}'.format(i))
+            if updated % 1000 == 0:
+                logger.info('On dmsmainfile update {}'.format(updated))
                 transaction.commit()
         logger.info('Updated {} brains'.format(len(brains)))
 
