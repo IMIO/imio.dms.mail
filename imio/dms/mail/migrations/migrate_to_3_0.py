@@ -974,9 +974,12 @@ class Migrate_To_3_0(Migrator):  # noqa
         orig = self.set_fingerpointing()
         imf_path = '/'.join(self.imf.getPhysicalPath())
         counter_dic = {}
-        for i, brain in enumerate(self.catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
-                                               sort_on='organization_type', path={'query': imf_path, 'depth': 1}), 1):
-            if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
+        brains = self.catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'],
+                              sort_on='organization_type', path={'query': imf_path, 'depth': 1})
+        moved = 0
+        for brain in brains:
+            moved += 1
+            if self.batch_value and moved > self.batch_value:  # so it is possible to run this step partially
                 break
             obj = brain.getObject()
             if obj.reception_date is None:
@@ -986,9 +989,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
-            if i % 1000 == 0:
-                logger.info('On dmsincomingmail move {}'.format(i))
+            if moved % 1000 == 0:
+                logger.info('On dmsincomingmail move {}'.format(moved))
                 transaction.commit()
+        logger.info('Moved {} on {} dmsincomingmails'.format(moved, len(brains)))
         self.set_fingerpointing(orig)
 
     def move_dmsoutgoingmails(self):
@@ -996,16 +1000,20 @@ class Migrate_To_3_0(Migrator):  # noqa
         orig = self.set_fingerpointing()
         omf_path = '/'.join(self.omf.getPhysicalPath())
         counter_dic = {}
-        for i, brain in enumerate(self.catalog(portal_type='dmsoutgoingmail', sort_on='created',
-                                               path={'query': omf_path, 'depth': 1}), 1):
-            if self.batch_value and i > self.batch_value:  # so it is possible to run this step partially
+        brains = self.catalog(portal_type='dmsoutgoingmail', sort_on='created',
+                              path={'query': omf_path, 'depth': 1})
+        moved = 0
+        for brain in brains:
+            moved += 1
+            if self.batch_value and moved > self.batch_value:  # so it is possible to run this step partially
                 break
             obj = brain.getObject()
             new_container = create_period_folder_max(self.omf, obj.creation_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
-            if i % 1000 == 0:
-                logger.info('On dmsoutgoingmail move {}'.format(i))
+            if moved % 1000 == 0:
+                logger.info('On dmsoutgoingmail move {}'.format(moved))
                 transaction.commit()
+        logger.info('Moved {} on {} dmsoutgoingmails'.format(moved, len(brains)))
         self.set_fingerpointing(orig)
 
     def update_catalog1(self):
@@ -1059,7 +1067,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if updated % 1000 == 0:
                 logger.info('On dmsmainfile update {}'.format(updated))
                 transaction.commit()
-        logger.info('Updated {} brains'.format(len(brains)))
+        logger.info('Updated {} on {} dmsmainfiles'.format(updated, len(brains)))
 
     def update_catalog3(self):
         """ Update catalog or objects """
@@ -1080,7 +1088,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if i % 1000 == 0:
                 logger.info('On dmsommainfile update {}'.format(i))
                 transaction.commit()
-        logger.info('Updated {} brains'.format(len(brains)))
+        logger.info('Updated {} dmsommainfiles'.format(len(brains)))
 
     def update_catalog4(self):
         """ Update catalog or objects """
@@ -1104,7 +1112,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if i % 1000 == 0:
                 logger.info('On dmsappendixfile update {}'.format(i))
                 transaction.commit()
-        logger.info('Updated {} brains'.format(len(brains)))
+        logger.info('Updated {} dmsappendixfiles'.format(len(brains)))
 
     def clean_examples(self):
         brains = find(unrestricted=True, context=self.portal['outgoing-mail'], portal_type='dmsoutgoingmail',
