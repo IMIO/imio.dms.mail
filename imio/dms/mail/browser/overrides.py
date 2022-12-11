@@ -424,6 +424,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
             zodb_conn.cacheGC()
             if self.batch_value and processed >= self.batch_value:
                 logger.info('EXITED following BATCH env value {}'.format(self.batch_value))
+                conn.commit()
                 sys.exit(0)
 
         cpi = checkpointIterator(checkPoint, batch)
