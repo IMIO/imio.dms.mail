@@ -184,6 +184,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if default_cke_templ_folder in self.portal:
                 api.content.delete(obj=self.portal[default_cke_templ_folder])
             self.upgradeProfile('collective.contact.core:default')
+            transaction.commit()
             self.upgradeProfile('collective.task:default')
             self.upgradeProfile('collective.dms.mailcontent:default')
             self.upgradeProfile('plonetheme.imioapps:default')
@@ -255,7 +256,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             if 'imio.dms.mail.wfadaptations.TaskServiceValidation' not in applied_adaptations:
                 update_task_workflow(self.portal)
             # update permissions, roles and reindex allowedRolesAndUsers
-            self.portal.portal_workflow.updateRoleMappings()
+            count = self.portal.portal_workflow.updateRoleMappings()
+            logger.info('Updated {} items'.format(count))
 
         if self.is_in_part('d'):  # update site
             # do various global adaptations
