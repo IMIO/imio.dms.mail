@@ -90,6 +90,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         load_var(os.path.join(BLDT_DIR, '30_config.dic'), self.config)
         self.none_mail_type = False
         self.batch_value = int(os.getenv('BATCH', '0'))
+        self.commit_value = int(os.getenv('COMMIT', '0'))
 
     def savepoint_flush(self):
         transaction.savepoint(True)
@@ -977,7 +978,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                         break
             if ensure:
                 self.ensure_creating_group(obj, index=True)
-            if i % 1000 == 0:
+            if self.commit_value and i % self.commit_value == 0:
                 logger.info('On dmsincomingmail update {}'.format(i))
                 transaction.commit()
 
@@ -1001,7 +1002,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
             # obj.reindexObject(['getObjPositionInParent', 'path'])
-            if moved % 1000 == 0:
+            if self.commit_value and moved % self.commit_value == 0:
                 logger.info('On dmsincomingmail move {}'.format(moved))
                 transaction.commit()
         logger.info('Moved {} on {} dmsincomingmails'.format(moved, len(brains)))
@@ -1022,7 +1023,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             obj = brain.getObject()
             new_container = create_period_folder_max(self.omf, obj.creation_date, counter_dic, max_nb=1000)
             api.content.move(obj, new_container)
-            if moved % 1000 == 0:
+            if self.commit_value and moved % self.commit_value == 0:
                 logger.info('On dmsoutgoingmail move {}'.format(moved))
                 transaction.commit()
         logger.info('Moved {} on {} dmsoutgoingmails'.format(moved, len(brains)))
@@ -1076,7 +1077,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
-            if updated % 1000 == 0:
+            if self.commit_value and updated % self.commit_value == 0:
                 logger.info('On dmsmainfile update {}'.format(updated))
                 transaction.commit()
         logger.info('Updated {} on {} dmsmainfiles'.format(updated, len(brains)))
@@ -1097,7 +1098,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
-            if i % 1000 == 0:
+            if self.commit_value and i % self.commit_value == 0:
                 logger.info('On dmsommainfile update {}'.format(i))
                 transaction.commit()
         logger.info('Updated {} dmsommainfiles'.format(len(brains)))
@@ -1121,7 +1122,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # we update SearchableText to include short relevant scan_id
             # we update sender_index that can be empty after a clear and rebuild !!
             obj.reindexObject(idxs=['SearchableText', 'sender_index', 'markers'])
-            if i % 1000 == 0:
+            if self.commit_value and i % self.commit_value == 0:
                 logger.info('On dmsappendixfile update {}'.format(i))
                 transaction.commit()
         logger.info('Updated {} dmsappendixfiles'.format(len(brains)))
