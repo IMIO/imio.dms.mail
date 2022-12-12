@@ -308,8 +308,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             # self.cleanRegistries()
             # # TEMPORARY to 3.0.31
             # self.update_mailtype_config()
-            # self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator', 'Member'),
-            #                               acquire=0)
+            # self.portal.manage_permission('Access inactive portal content', ('Manager', 'Site Administrator',
+            #                               'Member'), acquire=0)
             # self.update_tasks()
             # if api.group.get('gestion_contacts') is None:
             #     api.group.create('gestion_contacts', '1 Gestion doublons contacts')
@@ -349,12 +349,12 @@ class Migrate_To_3_0(Migrator):  # noqa
             # if not api.portal.get_registry_record('imio.dms.mail.omail_folder_period'):
             #     api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
             # TEMPORARY to 3.0.36
-            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
-            ret1 = remove_state_transitions('outgoingmail_workflow', 'validated',
-                                            ['set_to_validated', 'back_to_validated'])
-            ret2 = remove_state_transitions('outgoingmail_workflow', 'proposed_to_n_plus_1')
-            if ret1 or ret2:
-                logger.info('REMOVED BAD TRANSITIONS in om_workflow')
+            # self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+            # ret1 = remove_state_transitions('outgoingmail_workflow', 'validated',
+            #                                 ['set_to_validated', 'back_to_validated'])
+            # ret2 = remove_state_transitions('outgoingmail_workflow', 'proposed_to_n_plus_1')
+            # if ret1 or ret2:
+            #     logger.info('REMOVED BAD TRANSITIONS in om_workflow')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
