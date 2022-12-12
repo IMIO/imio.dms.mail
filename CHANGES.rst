@@ -1,6 +1,15 @@
 Changelog
 =========
 
+3.0.38
+------
+
+- Last commit at 463b758d8b92e0bfee0df76e505471a40fa98aaa
+- Use COMMIT env variable to get commit slice number in migration
+- Added clear and sync solr sections in migration
+- Overrided solr sync method, so it can be batched
+- Disabled solr at migration start and enabled before sync
+
 3.0.37
 ------
 
