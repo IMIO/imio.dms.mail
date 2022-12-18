@@ -438,19 +438,24 @@ class IImioDmsMailConfig(model.Schema):
                              'pos': ['IDublinCore.title', 'IDublinCore.description']},
             'omail_fields': {'voc': OMFieldsVocabulary()(None),
                              'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients',
-                                      'treating_groups', 'ITask.assigned_user', 'sender', 'recipient_groups'
+                                      'treating_groups', 'ITask.assigned_user', 'sender', 'recipient_groups',
                                       'send_modes', 'reply_to', 'outgoing_date', 'internal_reference_no',
                                       'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
-                                      'email_attachments', 'email_body', 'IDmsMailCreatingGroup.creating_group'],
+                                      'email_attachments', 'email_body'],
                              'not': ['mail_type', 'mail_date', 'ITask.due_date', 'ITask.task_description',
                                      'external_reference_no', 'IClassificationFolder.classification_categories',
-                                     'IClassificationFolder.classification_folders', 'document_in_service'],
+                                     'IClassificationFolder.classification_folders', 'document_in_service',
+                                     'IDmsMailCreatingGroup.creating_group'],
                              'pos': ['IDublinCore.title', 'IDublinCore.description']},
         }
+        missing = {}
+        position = {}
         for conf in constraints:
+            old_value = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields',
+                                                       default=[])
             value = getattr(data, conf)
-            missing = {}
-            position = {}
+            if value == old_value:  # tha validator passes multiple times here but not always with the new value
+                continue
             flds = [field['field_name'] for field in value]
             for mand in constraints[conf]['mand']:
                 if mand not in flds:
