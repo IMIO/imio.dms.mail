@@ -1000,7 +1000,15 @@ class Migrate_To_3_0(Migrator):  # noqa
                 obj.reception_date = obj.creation_date.asdatetime().replace(tzinfo=None)
                 # will be reindexed after move
             new_container = create_period_folder_max(self.imf, obj.reception_date, counter_dic, max_nb=1000)
-            api.content.move(obj, new_container)
+            try:
+                api.content.move(obj, new_container)
+            except Exception as exc:
+                try:
+                    logger.error("Cannot move '{}', '{}': {} '{}'".format(brain.UID, brain.getPath(),
+                                                                          exc.__class__.__name__, exc))
+                except Exception:
+                    logger.error("Cannot move '{}', '{}': {} '{}'".format(brain.UID, brain.Title,
+                                                                          exc.__class__.__name__, exc))
             # obj.reindexObject(['getObjPositionInParent', 'path'])
             if self.commit_value and moved % self.commit_value == 0:
                 logger.info('On dmsincomingmail move {}'.format(moved))
@@ -1022,7 +1030,15 @@ class Migrate_To_3_0(Migrator):  # noqa
                 break
             obj = brain.getObject()
             new_container = create_period_folder_max(self.omf, obj.creation_date, counter_dic, max_nb=1000)
-            api.content.move(obj, new_container)
+            try:
+                api.content.move(obj, new_container)
+            except Exception as exc:
+                try:
+                    logger.error("Cannot move '{}', '{}': {} '{}'".format(brain.UID, brain.getPath(),
+                                                                          exc.__class__.__name__, exc))
+                except Exception:
+                    logger.error("Cannot move '{}', '{}': {} '{}'".format(brain.UID, brain.Title,
+                                                                          exc.__class__.__name__, exc))
             if self.commit_value and moved % self.commit_value == 0:
                 logger.info('On dmsoutgoingmail move {}'.format(moved))
                 transaction.commit()
