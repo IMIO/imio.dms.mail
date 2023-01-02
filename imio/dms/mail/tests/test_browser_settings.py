@@ -38,6 +38,14 @@ class TestSettings(unittest.TestCase):
     def test_validate_settings1(self):
         """ Check invariant """
         invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
+        # test uniqueness
+        data = {'mail_types': [{'dtitle': u'Job', 'active': True, 'value': u'job'},
+                               {'dtitle': u'Pub', 'active': True, 'value': u'pub'}]}
+        self.assertFalse(invariants.validate(data))
+        data = {'mail_types': [{'dtitle': u'Job', 'active': True, 'value': u'job'},
+                               {'dtitle': u'Pub', 'active': True, 'value': u'job'}]}
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
         # test omail_send_modes part
         data = {'omail_send_modes': [{'dtitle': u'Lettre', 'active': True, 'value': u'email'}]}
         self.assertFalse(invariants.validate(data))
