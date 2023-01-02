@@ -411,8 +411,9 @@ class IImioDmsMailConfig(model.Schema):
     @invariant
     def validate_settings(data):  # noqa
         # check ITableListSchema id uniqueness
-        for tab, fieldname in (('Incoming mail', 'mail_types'), ('Outgoing mail', 'omail_types'),
-                               ('Outgoing mail', 'omail_send_modes')):
+        for tab, fieldname, title in (('Incoming mail', 'mail_types', u'Types of incoming mail'),
+                                      ('Outgoing mail', 'omail_types', u'Types of outgoing mail'),
+                                      ('Outgoing mail', 'omail_send_modes', u'Send modes')):
             ids = []
             try:
                 values = getattr(data, fieldname)
@@ -422,7 +423,7 @@ class IImioDmsMailConfig(model.Schema):
                 if entry['value'] in ids:
                     raise Invalid(_(u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be "
                                     u"unique",
-                                    mapping={'tab': _(tab), 'value': entry['value'], 'field': _(fieldname)}))
+                                    mapping={'tab': _(tab), 'value': entry['value'], 'field': _(title)}))
                 ids.append(entry['value'])
         # check omail_send_modes id
         try:
