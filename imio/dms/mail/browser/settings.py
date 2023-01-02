@@ -37,6 +37,7 @@ from z3c.form import form
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import WidgetActionExecutionError
+from z3c.form.validator import NoInputData
 from zope import schema
 from zope.component import getUtility
 from zope.interface import implements
@@ -409,22 +410,42 @@ class IImioDmsMailConfig(model.Schema):
 
     @invariant
     def validate_settings(data):  # noqa
+        # check ITableListSchema id uniqueness
+        for tab, fieldname in (('Incoming mail', 'mail_types'), ('Outgoing mail', 'omail_types'),
+                               ('Outgoing mail', 'omail_send_modes')):
+            ids = []
+            try:
+                values = getattr(data, fieldname)
+            except NoInputData:
+                continue
+            for entry in values:
+                if entry['value'] in ids:
+                    raise Invalid(_(u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be "
+                                    u"unique",
+                                    mapping={'tab': _(tab), 'value': entry['value'], 'field': _(fieldname)}))
+                ids.append(entry['value'])
         # check omail_send_modes id
-        for dic in data.omail_send_modes:
-            if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
-                    and not dic['value'].startswith('other'):
-                # raise WidgetActionExecutionError("omail_send_modes",
-                #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have values "
-                #                                            u"starting with 'post', 'email' or 'other'")))
-                raise Invalid(_(u"Outgoingmail tab: send_modes field must have values "
-                                u"starting with 'post', 'email' or 'other'"))
+        try:
+            for dic in data.omail_send_modes:
+                if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
+                        and not dic['value'].startswith('other'):
+                    # raise WidgetActionExecutionError("omail_send_modes",
+                    #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have values "
+                    #                                            u"starting with 'post', 'email' or 'other'")))
+                    raise Invalid(_(u"Outgoingmail tab: send_modes field must have values "
+                                    u"starting with 'post', 'email' or 'other'"))
+        except NoInputData:
+            pass
         # check group_encoder deactivation
         for tab, fld in (('Incoming mail', 'imail_group_encoder'), ('Outgoing mail', 'omail_group_encoder'),
                          ('Contacts', 'contact_group_encoder')):
             rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(fld)
-            if api.portal.get_registry_record(rec) and not getattr(data, fld):
-                raise Invalid(_(u"${tab} tab: unchecking '${field}' setting is not expected !!",
-                                mapping={'tab': _(tab), 'field': _('Activate group encoder')}))
+            try:
+                if api.portal.get_registry_record(rec) and not getattr(data, fld):
+                    raise Invalid(_(u"${tab} tab: unchecking '${field}' setting is not expected !!",
+                                    mapping={'tab': _(tab), 'field': _('Activate group encoder')}))
+            except NoInputData:
+                pass
         # check fields
         constraints = {
             'imail_fields': {'voc': IMFieldsVocabulary()(None),
@@ -453,8 +474,11 @@ class IImioDmsMailConfig(model.Schema):
         for conf in constraints:
             old_value = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields',
                                                        default=[])
-            value = getattr(data, conf)
-            if value == old_value:  # tha validator passes multiple times here but not always with the new value
+            try:
+                value = getattr(data, conf)
+            except NoInputData:
+                continue
+            if value == old_value:  # the validator passes multiple times here but not always with the new value
                 continue
             flds = [field['field_name'] for field in value]
             for mand in constraints[conf]['mand']:
