@@ -411,6 +411,9 @@ def postInstall(context):
 
     configure_ckeditor(site, custom='ged', filtering='disabled')
 
+    key = 'collective.documentgenerator.browser.controlpanel.IDocumentGeneratorControlPanelSchema.use_stream'
+    if api.portal.get_registry_record(key):
+        api.portal.set_registry_record(key, False)
     add_templates(site)
     add_oem_templates(site)
 
