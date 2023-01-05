@@ -3,7 +3,7 @@ from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
 from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
-from collective.messagesviewlet.browser.messagesviewlet import MessagesViewlet
+from collective.messagesviewlet.browser.messagesviewlet import GlobalMessagesViewlet
 from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
@@ -23,7 +23,7 @@ from zope.intid.interfaces import IIntIds
 
 
 class ContactContentBackrefsViewlet(ViewletBase):
-    #def update(self):
+    # def update(self):
     #    super(ContactContentBackrefsViewlet, self).update()
 
     def backrefs(self):
@@ -49,7 +49,7 @@ class ContactContentBackrefsViewlet(ViewletBase):
             # nevertheless what about heldposition references for a person: subquery ?
             if IContactContent.providedBy(relation.from_object):
                 continue
-            # PERFORMANCE TEST TO DO: use directly objects or use the path as request in the portal_catalog to find brain
+            # PERF TEST TODO: use directly objects or use the path as request in the portal_catalog to find brain
             ret.append(relation.from_path)
         all_obj = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.all_backrefs_view',
                                                  default=False)
@@ -91,7 +91,7 @@ class PrettyLinkTitleViewlet(ViewletBase):
         return plo
 
 
-class ContextInformationViewlet(MessagesViewlet):
+class ContextInformationViewlet(GlobalMessagesViewlet):
     """
         Viewlet displaying context information
     """
