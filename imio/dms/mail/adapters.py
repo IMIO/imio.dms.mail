@@ -43,6 +43,7 @@ from plone.app.contenttypes.indexers import _unicode_save_string_concat
 from plone.indexer import indexer
 from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo
+from Products.ATContentTypes.interfaces.folder import IATFolder
 from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.CatalogTool import sortable_title
@@ -451,6 +452,13 @@ def ready_for_email_index(obj):
         if doc.signed:
             return True
     if not docs:
+        return True
+    return False
+
+
+@indexer(IATFolder)
+def fancy_tree_folder_index(obj):
+    if '/templates/om/' in '/'.join(obj.getPhysicalPath()):
         return True
     return False
 

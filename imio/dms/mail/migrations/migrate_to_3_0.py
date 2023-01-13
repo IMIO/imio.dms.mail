@@ -356,6 +356,11 @@ class Migrate_To_3_0(Migrator):  # noqa
             # ret2 = remove_state_transitions('outgoingmail_workflow', 'proposed_to_n_plus_1')
             # if ret1 or ret2:
             #     logger.info('REMOVED BAD TRANSITIONS in om_workflow')
+            # TEMPORARY to 3.0.39
+            folders = api.content.find(context=self.portal.templates.om, portal_type='Folder')
+            for brain in folders:
+                folder = brain.getObject()
+                folder.reindexObject(['enabled'])
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -535,6 +540,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 folder = brain.getObject()
                 if folder == fld:
                     continue
+                folder.reindexObject(['enabled'])
                 alsoProvides(folder, IActionsPanelFolderOnlyAdd)
                 alsoProvides(folder, INextPrevNotNavigable)
                 noLongerProvides(folder, IActionsPanelFolder)
