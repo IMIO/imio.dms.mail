@@ -54,6 +54,7 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
                 'Folder',
                 'ConfigurablePODTemplate',
             ),
+            'enabled': True
         }
 
     def redirect_url(self, uid):
