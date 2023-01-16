@@ -77,6 +77,10 @@ msgstr "Type de fiche"
 msgid "Internal reference"
 msgstr "Référence interne"
 
+#: ../faceted_conf/om-faceted:
+msgid "Labels"
+msgstr "Etiquettes"
+
 #: ../faceted_conf/im-faceted:
 msgid "Mail type"
 msgstr "Type de courrier"
