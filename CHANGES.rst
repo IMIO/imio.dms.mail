@@ -7,7 +7,7 @@ Changelog
 - Added dmsincoming_email type
   [sgeulette]
 - Added classificationFolder and ClassificationCategory types
-  [sgeulette] 
+  [sgeulette]
 - Added collective.ckeditortemplates
   [sgeulette]
 - Added lecteurs_globaux_cs group
@@ -39,6 +39,8 @@ Changelog
 - Added replied icon on incoming mail
   [sgeulette]
 - Added receipt document
+  [sgeulette]
+- Added labels criterion
   [sgeulette]
 
 2.3 (2020-10-08)
