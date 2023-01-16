@@ -359,10 +359,12 @@ class Migrate_To_3_0(Migrator):  # noqa
             # TEMPORARY to 3.0.39
             folders = api.content.find(context=self.portal.templates.om, portal_type='Folder')
             for brain in folders:
-                folder = brain.getObject()
-                folder.reindexObject(['enabled'])
+                brain.getObject().reindexObject(['enabled'])
             # labels query field
             self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+            # labels index on om
+            for brain in self.catalog(portal_type='dmsoutgoingmail'):
+                brain.getObject().reindexObject(['labels'])
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])

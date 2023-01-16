@@ -217,6 +217,10 @@
         <implements interface="ftw.labels.interfaces.ILabelSupport" />
     </class>
 
+    <class class="imio.dms.mail.dmsmail.ImioDmsOutgoingMail">
+        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+    </class>
+
     <class class="collective.classification.folder.content.classification_folder.ClassificationFolder">
         <implements interface="ftw.labels.interfaces.ILabelSupport" />
     </class>
