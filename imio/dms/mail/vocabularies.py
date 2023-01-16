@@ -16,6 +16,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import get_context_with_request
 from imio.dms.mail.utils import list_wf_states
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
@@ -312,8 +313,8 @@ def encodeur_active_orgs(context):
 alsoProvides(encodeur_active_orgs, IContextSourceBinder)
 
 
-class LabelsVocabulary(object):
-    """ Labels vocabulary """
+class MyLabelsVocabulary(object):
+    """My Labels vocabulary. Creating a vocabulary for connected user labels"""
     implements(IVocabularyFactory)
 
     def __call__(self, context):
@@ -328,10 +329,27 @@ class LabelsVocabulary(object):
                 terms.append(SimpleVocabulary.createTerm('%s:%s' % (user.id, label['label_id']),
                                                          '%s_%s' % (user.id, label['label_id']),
                                                          safe_unicode(label['title'])))
-            else:
+        return SimpleVocabulary(terms)
+
+
+class LabelsVocabulary(object):
+    """Global labels vocabulary """
+    implements(IVocabularyFactory)
+
+    def LabelsVocabulary__call__(self, context):
+        terms = []
+        context = get_context_with_request(context)
+        try:
+            adapted = ILabelJar(context)
+        except:  # noqa
+            return SimpleVocabulary(terms)
+        for label in adapted.list():
+            if not label['by_user']:
                 terms.append(SimpleVocabulary.createTerm(label['label_id'], label['label_id'],
                                                          safe_unicode(label['title'])))
         return SimpleVocabulary(terms)
+
+    __call__ = LabelsVocabulary__call__
 
 
 class CreatingGroupVocabulary(object):

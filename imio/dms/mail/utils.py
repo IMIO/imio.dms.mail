@@ -41,6 +41,7 @@ from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
 from plone.z3cform.fieldsets.utils import remove
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
+from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_zope_admin
@@ -1174,3 +1175,31 @@ def do_next_transition(mail, ptype, treating_group='', state=None, config=None):
 def is_valid_identifier(identifier):
     idnormalizer = getUtility(IIDNormalizer)
     return idnormalizer.normalize(identifier) == identifier
+
+
+def get_context_with_request(context):
+    """When editing a dashboardcollection, the context is portal_registry.
+    We must have the right context to get the labels jar definition."""
+    # in case we have no REQUEST, it means that we are editing a DashboardCollection
+    # for which when this vocabulary is used for the 'labels' queryField, the context
+    # is portal_registry without a REQUEST...
+    if not hasattr(context, 'REQUEST'):
+        # sometimes, the DashboardCollection is the first parent in the REQUEST.PARENTS...
+        portal = getSite()
+        published = portal.REQUEST.get('PUBLISHED', None)
+        if base_hasattr(published, "getTagName"):  # plonemeeting specific ?
+            context = published
+        else:
+            context = base_hasattr(published, 'context') and published.context or None
+        if not context or context == portal:
+            # if not first parent, try to get it from HTTP_REFERER
+            referer = portal.REQUEST['HTTP_REFERER'].replace(portal.absolute_url() + '/', '')
+            referer = referer.replace('/edit', '')
+            # referer = referer.split('?_authenticator=')[0]
+            try:
+                context = portal.unrestrictedTraverse(referer)
+            except (KeyError, AttributeError):
+                return None
+            if not hasattr(context, 'portal_type') or not context.portal_type == 'DashboardCollection':
+                return None
+    return context
