@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2023-01-02 14:36+0000\n"
+"POT-Creation-Date: 2023-01-16 11:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,11 +21,11 @@ msgstr ""
 msgid "${element_title} (Inactive)"
 msgstr ""
 
-#: ./browser/settings.py:423
+#: ./browser/settings.py:424
 msgid "${tab} tab: multiple value '${value}' in '${field}' setting !! Must be unique"
 msgstr ""
 
-#: ./browser/settings.py:445
+#: ./browser/settings.py:446
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr ""
 
@@ -197,7 +197,7 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/views.py:236
+#: ./browser/views.py:237
 msgid "Cannot use localhost as smtp"
 msgstr ""
 
@@ -217,7 +217,7 @@ msgstr ""
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr ""
 
-#: ./vocabularies.py:168
+#: ./vocabularies.py:169
 msgid "Choose a value !"
 msgstr ""
 
@@ -271,11 +271,11 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:765
+#: ./utils.py:766
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
-#: ./browser/settings.py:754
+#: ./browser/settings.py:755
 msgid "Current product version"
 msgstr ""
 
@@ -295,11 +295,11 @@ msgstr ""
 msgid "Dms file must be an odt format"
 msgstr ""
 
-#: ./browser/settings.py:742
+#: ./browser/settings.py:743
 msgid "Document viewer preservation date"
 msgstr ""
 
-#: ./browser/settings.py:738
+#: ./browser/settings.py:739
 msgid "Document viewer preservation days number"
 msgstr ""
 
@@ -327,7 +327,7 @@ msgstr ""
 msgid "Email signature model"
 msgstr ""
 
-#: ./vocabularies.py:133
+#: ./vocabularies.py:134
 msgid "Empty value"
 msgstr ""
 
@@ -436,7 +436,7 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
-#: ./browser/settings.py:746
+#: ./browser/settings.py:747
 msgid "Incoming mails folder period (month, week, day)"
 msgstr ""
 
@@ -568,11 +568,11 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/settings.py:750
+#: ./browser/settings.py:751
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr ""
 
-#: ./browser/settings.py:435
+#: ./browser/settings.py:436
 msgid "Outgoingmail tab: send_modes field must have values starting with 'post', 'email' or 'other'"
 msgstr ""
 
@@ -767,7 +767,7 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:769
+#: ./utils.py:770
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -843,11 +843,11 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./browser/views.py:246
+#: ./browser/views.py:247
 msgid "Your email has been sent."
 msgstr ""
 
-#: ./browser/views.py:235
+#: ./browser/views.py:236
 msgid "Your email has not been sent: ${error}."
 msgstr ""
 

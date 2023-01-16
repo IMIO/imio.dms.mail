@@ -78,6 +78,10 @@ msgstr ""
 msgid "Internal reference"
 msgstr ""
 
+#: ../faceted_conf/om-faceted:
+msgid "Labels"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Mail type"
 msgstr ""
