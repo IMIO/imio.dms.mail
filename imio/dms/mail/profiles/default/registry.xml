@@ -8,6 +8,30 @@
     </records>
 
     <records interface="plone.app.querystring.interfaces.IQueryField"
+             prefix="plone.app.querystring.field.enabled">
+       <value key="title" i18n:translate="">Enabled</value>
+       <value key="enabled">True</value>
+       <value key="sortable">False</value>
+       <value key="operations">
+           <element>plone.app.querystring.operation.boolean.isTrue</element>
+           <element>plone.app.querystring.operation.boolean.isFalse</element>
+       </value>
+       <value key="group" i18n:domain="plone" i18n:translate="">Metadata</value>
+    </records>
+
+    <records interface="plone.app.querystring.interfaces.IQueryField"
+             prefix="plone.app.querystring.field.labels">
+        <value key="title" i18n:domain="eea" i18n:translate="">Labels</value>
+        <value key="enabled">True</value>
+        <value key="sortable">True</value>
+        <value key="operations">
+            <element>plone.app.querystring.operation.selection.is</element>
+        </value>
+        <value key="vocabulary">imio.dms.mail.LabelsVocabulary</value>
+        <value key="group" i18n:domain="plone" i18n:translate="">Metadata</value>
+    </records>
+
+    <records interface="plone.app.querystring.interfaces.IQueryField"
              prefix="plone.app.querystring.field.organization_type">
        <value key="title" i18n:translate="">Precise scan date</value>
        <value key="enabled">True</value>
@@ -27,18 +51,6 @@
        <value key="sortable">False</value>
        <value key="operations">
            <element>plone.app.querystring.operation.string.is</element>
-       </value>
-       <value key="group" i18n:domain="plone" i18n:translate="">Metadata</value>
-    </records>
-
-    <records interface="plone.app.querystring.interfaces.IQueryField"
-             prefix="plone.app.querystring.field.enabled">
-       <value key="title" i18n:translate="">Enabled</value>
-       <value key="enabled">True</value>
-       <value key="sortable">False</value>
-       <value key="operations">
-           <element>plone.app.querystring.operation.boolean.isTrue</element>
-           <element>plone.app.querystring.operation.boolean.isFalse</element>
        </value>
        <value key="group" i18n:domain="plone" i18n:translate="">Metadata</value>
     </records>

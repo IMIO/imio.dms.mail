@@ -361,6 +361,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             for brain in folders:
                 folder = brain.getObject()
                 folder.reindexObject(['enabled'])
+            # labels query field
+            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
