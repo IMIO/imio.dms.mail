@@ -1,7 +1,10 @@
 Screencast avce OBS Studio:
 ===========================
 Sources
+	ajouter > 
 fenetres composite: rogner en haut 84, décocher capturer le curseur
+ou
+fenêtre pipewire
 
 Paramètres
 output: mp4, h264, qualité indistinguable
