@@ -11,7 +11,6 @@ from AccessControl.class_init import InitializeClass
 from collective.contact.core.content.person import IPerson
 from collective.contact.plonegroup.subscribers import PloneGroupContactChecksAdapter
 from collective.contact.plonegroup.subscribers import search_value_in_objects
-# from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
 from collective.task.adapters import TaskContentAdapter
 from imio.dms.mail import _
 from imio.dms.mail.utils import get_dms_config
@@ -29,7 +28,6 @@ class IDmsPerson(IPerson):
         vocabulary=u'plone.app.vocabularies.Users',
     )
 
-    # directives.widget('userid', AjaxChosenFieldWidget, populate_select=True)
     directives.read_permission(userid='imio.dms.mail.write_userid_field')
     directives.write_permission(userid='imio.dms.mail.write_userid_field')
 

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+3.0.40
+------
+
+- Replaced chosen widget by select2
+
 3.0.39
 ------
 

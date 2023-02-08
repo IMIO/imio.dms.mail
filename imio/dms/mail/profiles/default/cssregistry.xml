@@ -161,9 +161,7 @@
 
  <stylesheet id="++resource++plone.formwidget.contenttree/contenttree.css" insert-after="++resource++plone.formwidget.autocomplete/jquery.autocomplete.css" />
 
- <stylesheet id="++resource++collective.js.chosen/chosen.css" insert-after="++resource++plone.formwidget.contenttree/contenttree.css" />
-
- <stylesheet id="++resource++plone.formwidget.datetime/styles.css" insert-after="++resource++collective.js.chosen/chosen.css" />
+ <stylesheet id="++resource++plone.formwidget.datetime/styles.css" insert-after="++resource++plone.formwidget.contenttree/contenttree.css" />
 
  <stylesheet id="style.css" insert-after="++resource++plone.formwidget.datetime/styles.css" />
 
@@ -185,7 +183,9 @@
 
  <stylesheet id="++resource++select2/select2.css" insert-after="++resource++collective.documentgenerator.css/documentgenerator.css" />
 
- <stylesheet id="imioapps.css" insert-after="++resource++select2/select2.css" />
+ <stylesheet id="++resource++select2-widget/select2-widget.css" insert-after="++resource++select2/select2.css" />
+
+ <stylesheet id="imioapps.css" insert-after="++resource++select2-widget/select2-widget.css" />
 
  <stylesheet id="dmsmailskin.css" insert-after="imioapps.css" />
 
