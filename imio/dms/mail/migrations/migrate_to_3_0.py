@@ -300,7 +300,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('q'):  # upgrade other products
             # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
-            self.upgradeAll(omit=['imio.dms.mail:default'])
+            self.upgradeAll(omit=[u'imio.dms.mail:default', u'collective.js.chosen:default',
+                                  u'collective.z3cform.chosen:default'])
 
         if self.is_in_part('r'):  # update templates
             # # TEMPORARY to 3.0.29
@@ -365,6 +366,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             # labels index on om
             for brain in self.catalog(portal_type='dmsoutgoingmail'):
                 brain.getObject().reindexObject(['labels'])
+            # upgrade classification.folder to replace chosen by select2
+            self.upgradeProfile('collective.dms.basecontent:default')
+            self.upgradeProfile('collective.classification.folder:default')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -387,7 +391,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                          'collective.eeafaceted.batchactions', 'collective.eeafaceted.collectionwidget',
                          'collective.eeafaceted.dashboard', 'collective.eeafaceted.z3ctable',
                          'collective.js.tooltipster', 'collective.task', 'collective.wfadaptations',
-                         'collective.z3cform.chosen', 'dexterity.localroles', 'dexterity.localrolesfield',
+                         'dexterity.localroles', 'dexterity.localrolesfield',
                          'eea.facetednavigation', 'eea.jquery', 'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail',
                          'imio.helpers', 'imio.history', 'imio.pm.wsclient', 'plonetheme.imioapps']:
                 mark_last_version(self.portal, product=prod)

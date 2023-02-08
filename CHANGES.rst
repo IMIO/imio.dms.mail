@@ -42,6 +42,8 @@ Changelog
   [sgeulette]
 - Added labels criterion
   [sgeulette]
+- Replaced chosen widget by select2
+  [sgeulette]
 
 2.3 (2020-10-08)
 ----------------
