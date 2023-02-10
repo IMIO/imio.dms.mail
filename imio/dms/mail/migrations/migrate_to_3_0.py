@@ -60,6 +60,7 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
+from unidecode import unidecode
 from zExceptions import Redirect
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
@@ -363,8 +364,18 @@ class Migrate_To_3_0(Migrator):  # noqa
             # labels query field
             self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             # labels index on om
-            for brain in self.catalog(portal_type='dmsoutgoingmail'):
-                brain.getObject().reindexObject(['labels'])
+            # remove accented chars grom orig_sender_email
+            for brain in self.catalog(portal_type=('dmsincoming_email', 'dmsoutgoingmail')):
+                obj = brain.getObject()
+                ose = getattr(obj, 'orig_sender_email')
+                if ose and ose != unidecode(ose):
+                    obj.orig_sender_email = unidecode(ose)
+                if brain.portal_type == 'dmsoutgoingmail':
+                    obj.reindexObject(['labels'])
+            # TEMPORARY to 3.0.40
+            # upgrade classification.folder to replace chosen by select2
+            # self.upgradeProfile('collective.dms.basecontent:default')
+            # self.upgradeProfile('collective.classification.folder:default')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
