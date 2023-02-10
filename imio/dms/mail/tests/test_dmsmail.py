@@ -457,6 +457,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         om = get_object(oid='reponse1', ptype='dmsoutgoingmail')
         # default option is getting agent email
         self.assertEqual(om.get_sender_email(), u'"Michel Chef" <michel.chef@macommune.be>')
+        pers = om.get_sender_info()['person']
+        pers.firstname = u'Michèle'
+        self.assertEqual(om.get_sender_email(), u'"Michele Chef" <michel.chef@macommune.be>')
         # get service email
         replyto_key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_email_default'
         api.portal.set_registry_record(replyto_key, u'service_email')
@@ -475,6 +478,8 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # we add an orig_email_sender
         om.orig_sender_email = u'"Dexter Morgan" <dexter.morgan@mpd.am>'
         self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <dexter.morgan@mpd.am>, contak@electrabel.eb')
+        om.orig_sender_email = u'"Dextèr Morgan" <dexter.morgan@mpd.am>'
+        self.assertEqual(om.get_recipient_emails(), u'contak@electrabel.eb')
         # we use the same email
         om.orig_sender_email = u'"Dexter Morgan" <contak@electrabel.eb>'
         self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <contak@electrabel.eb>')
