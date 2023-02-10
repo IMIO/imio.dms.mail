@@ -74,6 +74,7 @@ from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
+from unidecode import unidecode
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
@@ -85,6 +86,7 @@ from zope.component import getUtility
 from zope.interface import alsoProvides
 from zope.interface import implements
 from zope.interface import Invalid
+from zope.schema import ValidationError
 from zope.schema.fieldproperty import FieldProperty
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
@@ -189,7 +191,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     orig_sender_email = schema.TextLine(
         title=_(u"Original sender email"),
         required=False,
-        # constraint=validate_email_address,
+        constraint=validate_email_address,
     )
 
     sender = ContactList(
@@ -637,7 +639,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     orig_sender_email = schema.TextLine(
         title=_(u"Original sender email"),
         required=False,
-        # constraint=validate_email_address,
+        constraint=validate_email_address,
     )
 
     recipients = ContactList(
@@ -754,7 +756,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
             hpc = IContactable(sender_i['hp'])
             email = hpc.get_contact_details(keys=['email']).get('email', u'')
             if email:
-                return u'"{} {}" <{}>'.format(sender_i['hp'].firstname, sender_i['hp'].lastname, email)
+                realname = u"{} {}".format(sender_i['hp'].firstname, sender_i['hp'].lastname)
+                return u'"{}" <{}>'.format(unidecode(realname), email)
         elif rtv == 'service_email':
             orgc = IContactable(sender_i['org'])
             email = orgc.get_contact_details(keys=['email']).get('email', u'')
@@ -770,8 +773,11 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         emails = []
         uniques = []
         if self.orig_sender_email:
-            uniques.append(validate_email_address(self.orig_sender_email)[1])
-            emails.append(self.orig_sender_email)
+            try:
+                uniques.append(validate_email_address(self.orig_sender_email)[1])
+                emails.append(self.orig_sender_email)
+            except ValidationError:
+                pass
         # we don't use directly relation object to be sure to use the real object
         uids = [rel.to_object.UID() for rel in self.recipients or []]
         brains = uuidsToCatalogBrains(uids, unrestricted=True)
@@ -783,7 +789,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
             if email and email not in uniques:
                 uniques.append(email)
                 if hasattr(contact, 'firstname'):  # for person or held_position
-                    emails.append(u'"{} {}" <{}>'.format(contact.firstname, contact.lastname, email))
+                    realname = u"{} {}".format(contact.firstname, contact.lastname)
+                    emails.append(u'"{}" <{}>'.format(unidecode(realname), email))
                 else:
                     emails.append(email)
         return u', '.join(emails)
