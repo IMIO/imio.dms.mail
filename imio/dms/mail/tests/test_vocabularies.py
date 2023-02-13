@@ -14,7 +14,7 @@ from imio.dms.mail.vocabularies import AssignedUsersForFacetedFilterVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.vocabularies import get_settings_vta_table
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
-from imio.dms.mail.vocabularies import LabelsVocabulary
+from imio.dms.mail.vocabularies import MyLabelsVocabulary
 from imio.dms.mail.vocabularies import OMActiveMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMSenderVocabulary
@@ -183,7 +183,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     def test_LabelsVocabulary(self):
         self.change_user('agent')
-        voc_inst = LabelsVocabulary()
+        voc_inst = MyLabelsVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(voc_list, ['agent:lu', 'agent:suivi'])
 
