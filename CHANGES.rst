@@ -1,6 +1,16 @@
 Changelog
 =========
 
+3.0.39
+------
+
+- Last commit at f5877bc49de1483a6aa3e446dabadfe8918e64af
+- Improved settings validation
+- Modifications for messagesviewlet 1.0
+- Filtered templates listing with enabled
+- Added labels query fields, voc, criterias and enabled it on om
+- Removed accented characters from email string
+
 3.0.38
 ------
 
