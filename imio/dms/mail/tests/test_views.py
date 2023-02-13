@@ -38,7 +38,8 @@ class TestReplyForm(unittest.TestCase):
     def test_add(self):
         change_user(self.portal)
         imail1 = get_object(oid='courrier1', ptype='dmsincomingmail')
-        omail1 = api.content.create(container=self.portal, type='dmsoutgoingmail', id='newo1', title='TEST')
+        omail1 = api.content.create(container=self.portal['outgoing-mail'], type='dmsoutgoingmail', id='newo1',
+                                    title='TEST')
         view = imail1.unrestrictedTraverse('@@reply')
         view.add(omail1)
         self.assertIn('newo1', self.portal['outgoing-mail'][datetime.now().strftime(PERIODS['week'])])
