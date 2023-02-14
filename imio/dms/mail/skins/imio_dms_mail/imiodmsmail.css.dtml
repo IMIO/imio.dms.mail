@@ -46,7 +46,7 @@
 
 .template-dmsdocument-edit #content-core #fieldset-default .field,
 .template-dmsdocument-edit #form-widgets-treating_groups,
-.template-dmsdocument-edit #form_widgets_recipient_groups_select_chzn,
+.template-dmsdocument-edit #s2id_form_widgets_recipient_groups,
 .template-dmsdocument-edit .chzn-container-active .chzn-drop,
 .template-dmsdocument-edit .chzn-container-active .search-field,
 .template-dmsdocument-edit #form_widgets_sender_select_chzn,
@@ -66,6 +66,26 @@
 .template-dmsdocument-edit #form-widgets-IClassificationFolder-classification_folders-widgets-query,
 .template-edit #form-widgets-classification_categories-widgets-query {
     width: -moz-available;
+}
+
+.template-dmsdocument-edit #s2id_form_widgets_recipient_groups ul.select2-choices {
+    max-width: max-content !important;
+}
+.template-dmsdocument-edit #s2id_form_widgets_recipient_groups .select2-choices {
+    min-height: fit-content;
+}
+#s2id_form_widgets_recipient_groups li {
+    margin-bottom: 0;
+    line-height: 1em;
+}
+/* om sender */
+#content a.select2-choice:link, #content a.select2-choice:visited {
+    border: 1px solid #aaa;
+    color: black;
+}
+#s2id_form_widgets_sender .select2-choice {
+    line-height: 1.2em;
+    height: 1.2em;
 }
 
 #form_widgets_sender_select_chzn.chzn-container-single .chzn-single span {
