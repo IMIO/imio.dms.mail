@@ -155,7 +155,9 @@
 
   <javascript id="++resource++select2-widget/select2-widget.js" insert-after="++resource++select2/select2_locale_fr.js" />
 
-  <javascript id="++resource++jquery.tagcloud.js" insert-after="++resource++select2-widget/select2-widget.js" />
+  <javascript id="++resource++faceted.select2.view.js" insert-after="++resource++select2-widget/select2-widget.js" />
+
+  <javascript id="++resource++jquery.tagcloud.js" insert-after="++resource++faceted.select2.view.js" />
 
   <javascript id="++resource++eea.faceted-navigation.js" insert-after="++resource++jquery.tagcloud.js" />
 

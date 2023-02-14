@@ -29,7 +29,7 @@ from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
-from collective.z3cform.chosen.widget import AjaxChosenFieldWidget
+from collective.z3cform.select2.widget.widget import SingleSelect2FieldWidget
 from datetime import datetime
 from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
@@ -634,7 +634,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         required=True,
         vocabulary=u'imio.dms.mail.OMSenderVocabulary',
     )
-    directives.widget('sender', AjaxChosenFieldWidget, populate_select=True)
+    directives.widget('sender', SingleSelect2FieldWidget)
 
     orig_sender_email = schema.TextLine(
         title=_(u"Original sender email"),
@@ -890,7 +890,7 @@ def imio_dmsoutgoingmail_updatewidgets(the_form):
         default = treating_group = None
         if the_form.__name__ == 'reply':
             treating_group = the_form.widgets['treating_groups'].value
-        for term in the_form.widgets['sender'].bound_source:
+        for term in the_form.widgets['sender'].terms:
             if term.token.endswith('_%s' % current_user.id):
                 if not default:
                     default = term.token
