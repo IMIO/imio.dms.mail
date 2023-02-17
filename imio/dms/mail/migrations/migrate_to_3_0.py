@@ -387,11 +387,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                                                          'imiodmsmail-update-templates'], profile='singles')
 
         if self.is_in_part('s'):  # update quick installer
-            # TEMPORARY
-            brains = api.content.find(context=self.portal.templates.om)
-            for brain in brains:
-                brain.getObject().reindexObject(['enabled'])
-
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
