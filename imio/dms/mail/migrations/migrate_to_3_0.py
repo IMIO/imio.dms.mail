@@ -306,8 +306,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('r'):  # update templates
             # TEMPORARY to 3.0.39
-            folders = api.content.find(context=self.portal.templates.om, portal_type='Folder')
-            for brain in folders:
+            brains = api.content.find(context=self.portal.templates.om)
+            for brain in brains:
                 brain.getObject().reindexObject(['enabled'])
             # labels query field
             self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
@@ -335,6 +335,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                                                          'imiodmsmail-update-templates'], profile='singles')
 
         if self.is_in_part('s'):  # update quick installer
+            # TEMPORARY
+            brains = api.content.find(context=self.portal.templates.om)
+            for brain in brains:
+                brain.getObject().reindexObject(['enabled'])
+
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
