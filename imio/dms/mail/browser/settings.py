@@ -416,7 +416,7 @@ class IImioDmsMailConfig(model.Schema):
                                       ('Outgoing mail', 'omail_send_modes', u'Send modes')):
             ids = []
             try:
-                values = getattr(data, fieldname)
+                values = getattr(data, fieldname) or []
             except NoInputData:
                 continue
             for entry in values:
@@ -427,7 +427,7 @@ class IImioDmsMailConfig(model.Schema):
                 ids.append(entry['value'])
         # check omail_send_modes id
         try:
-            for dic in data.omail_send_modes:
+            for dic in data.omail_send_modes or []:
                 if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
                         and not dic['value'].startswith('other'):
                     # raise WidgetActionExecutionError("omail_send_modes",
@@ -473,10 +473,10 @@ class IImioDmsMailConfig(model.Schema):
         missing = {}
         position = {}
         for conf in constraints:
-            old_value = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields',
-                                                       default=[])
+            old_value = api.portal.get_registry_record(
+                'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(conf), default=[])
             try:
-                value = getattr(data, conf)
+                value = getattr(data, conf) or []
             except NoInputData:
                 continue
             if value == old_value:  # the validator passes multiple times here but not always with the new value
