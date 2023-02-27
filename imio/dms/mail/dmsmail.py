@@ -221,6 +221,7 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         )
     )
     # master select don't work with AjaxChosenFieldWidget widget
+    # TODO try when using select2 (DMS-379)
     # directives.widget('treating_groups', AjaxChosenFieldWidget, populate_select=True)
     # Using write_permission hides field. Using display in edit view is preferred
     # directives.write_permission(treating_groups='imio.dms.mail.write_treating_group_field')
