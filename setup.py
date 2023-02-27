@@ -77,6 +77,7 @@ setup(
 #          'collective.schedulefield',
         'collective.task',
         'collective.wfadaptations',
+        'collective.z3cform.select2',
         'communesplone.layout',
         'dexterity.localrolesfield',
         'ftw.labels',

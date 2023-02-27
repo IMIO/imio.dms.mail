@@ -46,6 +46,7 @@
     <include package="dexterity.localrolesfield"/>
     <include package="plone.app.lockingbehavior"/>
     <include package="collective.dexteritytextindexer"/>
+    <include package="collective.z3cform.select2" file="minimal.zcml" />
     <include package="plone.app.versioningbehavior"/>
     <include package="Products.cron4plone" />
     <include package=".browser" />
