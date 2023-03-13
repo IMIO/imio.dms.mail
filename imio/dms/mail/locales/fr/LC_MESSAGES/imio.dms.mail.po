@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2023-01-16 11:38+0000\n"
+"POT-Creation-Date: 2023-03-13 14:51+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -105,11 +105,15 @@ msgstr "Configuration de base fr pour imio.dms.mail"
 msgid "Added values"
 msgstr "Éléments à ajouter"
 
-#: ./content/configure.zcml:17
+#: ./content/configure.zcml:24
 msgid "Adds localrole creating group field"
 msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 
-#: ./dmsmail.py:109
+#: ./content/configure.zcml:31
+msgid "Adds text field for data transfer"
+msgstr "Ajouter un champ texte 'Reprise données'"
+
+#: ./dmsmail.py:111
 msgid "All"
 msgstr "Tout"
 
@@ -267,7 +271,7 @@ msgstr "Export des contacts"
 msgid "Create from template"
 msgstr "Créer depuis modèle"
 
-#: ./content/behaviors.py:41
+#: ./content/behaviors.py:42
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
@@ -283,13 +287,21 @@ msgstr "Version actuelle du produit"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
+#: ./content/behaviors.py:58
+msgid "Data transfer"
+msgstr "Reprise de données"
+
 #: ./browser/settings.py:165
 msgid "Displayed title"
 msgstr "Libellé"
 
-#: ./content/configure.zcml:17
+#: ./content/configure.zcml:24
 msgid "Dms Mail Creating Group"
 msgstr "Champ 'Groupe indicateur' pour la gestion de courrier"
+
+#: ./content/configure.zcml:31
+msgid "Dms Mail Data Transfer"
+msgstr "Champ 'Reprise données' pour le gestion de courrier"
 
 #: ./browser/settings.py:284
 msgid "Dms file must be an odt format"
@@ -465,7 +477,7 @@ msgid "Mail listing template sheet"
 msgstr "Listing courrier tabulé"
 
 #: ./browser/settings.py:185
-#: ./dmsmail.py:235
+#: ./dmsmail.py:238
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -531,7 +543,7 @@ msgstr "Organisations"
 msgid "Organizations searches"
 msgstr "Recherches organisations"
 
-#: ./dmsmail.py:244
+#: ./dmsmail.py:247
 msgid "Original document in service"
 msgstr "Le document original est dans le service"
 
@@ -539,12 +551,12 @@ msgstr "Le document original est dans le service"
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
-#: ./dmsmail.py:190
+#: ./dmsmail.py:192
 msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
 #: ./browser/batchactions.py:189
-#: ./dmsmail.py:668
+#: ./dmsmail.py:671
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -598,7 +610,7 @@ msgstr "Pipeline pour importer des contacts"
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la fonction creating_group !"
 
-#: ./overrides.py:27
+#: ./overrides.py:26
 msgid "Plone user"
 msgstr "Identifiant Plone"
 
@@ -622,7 +634,7 @@ msgstr "Condition d'affichage"
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
-#: ./dmsmail.py:227
+#: ./dmsmail.py:230
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -688,11 +700,11 @@ msgid "Send email with sender as reply to"
 msgstr "Envoi d'email: l'email d'expédition est placé dans 'Répondre à'"
 
 #: ./browser/settings.py:326
-#: ./dmsmail.py:662
+#: ./dmsmail.py:665
 msgid "Send modes"
 msgstr "Formes d'envoi"
 
-#: ./dmsmail.py:196
+#: ./dmsmail.py:198
 #: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr "Expéditeurs"
@@ -745,7 +757,7 @@ msgstr "Recherches tâches"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:1079
+#: ./dmsmail.py:1087
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -763,7 +775,7 @@ msgstr "Transition"
 
 #: ./browser/batchactions.py:46
 #: ./browser/table.py:118
-#: ./dmsmail.py:208
+#: ./dmsmail.py:210
 msgid "Treating groups"
 msgstr "Service traitant"
 
@@ -835,11 +847,11 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./dmsmail.py:1105
+#: ./dmsmail.py:1113
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service traitant n'a pas de validateur et l'état va être modifié !"
 
-#: ./dmsmail.py:388
+#: ./dmsmail.py:391
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 

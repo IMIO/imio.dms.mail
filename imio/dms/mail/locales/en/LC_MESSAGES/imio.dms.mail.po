@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2023-01-16 11:38+0000\n"
+"POT-Creation-Date: 2023-03-13 14:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -103,11 +103,15 @@ msgstr ""
 msgid "Added values"
 msgstr ""
 
-#: ./content/configure.zcml:17
+#: ./content/configure.zcml:24
 msgid "Adds localrole creating group field"
 msgstr ""
 
-#: ./dmsmail.py:109
+#: ./content/configure.zcml:31
+msgid "Adds text field for data transfer"
+msgstr ""
+
+#: ./dmsmail.py:111
 msgid "All"
 msgstr ""
 
@@ -265,7 +269,7 @@ msgstr ""
 msgid "Create from template"
 msgstr ""
 
-#: ./content/behaviors.py:41
+#: ./content/behaviors.py:42
 msgid "Creating group"
 msgstr ""
 
@@ -281,12 +285,20 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
+#: ./content/behaviors.py:58
+msgid "Data transfer"
+msgstr ""
+
 #: ./browser/settings.py:165
 msgid "Displayed title"
 msgstr ""
 
-#: ./content/configure.zcml:17
+#: ./content/configure.zcml:24
 msgid "Dms Mail Creating Group"
+msgstr ""
+
+#: ./content/configure.zcml:31
+msgid "Dms Mail Data Transfer"
 msgstr ""
 
 #: ./browser/settings.py:284
@@ -463,7 +475,7 @@ msgid "Mail listing template sheet"
 msgstr ""
 
 #: ./browser/settings.py:185
-#: ./dmsmail.py:235
+#: ./dmsmail.py:238
 msgid "Mail type"
 msgstr ""
 
@@ -529,7 +541,7 @@ msgstr ""
 msgid "Organizations searches"
 msgstr ""
 
-#: ./dmsmail.py:244
+#: ./dmsmail.py:247
 msgid "Original document in service"
 msgstr ""
 
@@ -537,12 +549,12 @@ msgstr ""
 msgid "Original mail date requirement"
 msgstr ""
 
-#: ./dmsmail.py:190
+#: ./dmsmail.py:192
 msgid "Original sender email"
 msgstr ""
 
 #: ./browser/batchactions.py:189
-#: ./dmsmail.py:668
+#: ./dmsmail.py:671
 msgid "Outgoing Date"
 msgstr ""
 
@@ -596,7 +608,7 @@ msgstr ""
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr ""
 
-#: ./overrides.py:27
+#: ./overrides.py:26
 msgid "Plone user"
 msgstr ""
 
@@ -620,7 +632,7 @@ msgstr ""
 msgid "Receipt template"
 msgstr ""
 
-#: ./dmsmail.py:227
+#: ./dmsmail.py:230
 msgid "Recipient groups"
 msgstr ""
 
@@ -686,11 +698,11 @@ msgid "Send email with sender as reply to"
 msgstr ""
 
 #: ./browser/settings.py:326
-#: ./dmsmail.py:662
+#: ./dmsmail.py:665
 msgid "Send modes"
 msgstr ""
 
-#: ./dmsmail.py:196
+#: ./dmsmail.py:198
 #: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr ""
@@ -743,7 +755,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:1079
+#: ./dmsmail.py:1087
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -761,7 +773,7 @@ msgstr ""
 
 #: ./browser/batchactions.py:46
 #: ./browser/table.py:118
-#: ./dmsmail.py:208
+#: ./dmsmail.py:210
 msgid "Treating groups"
 msgstr ""
 
@@ -833,11 +845,11 @@ msgstr ""
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./dmsmail.py:1105
+#: ./dmsmail.py:1113
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr ""
 
-#: ./dmsmail.py:388
+#: ./dmsmail.py:391
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 

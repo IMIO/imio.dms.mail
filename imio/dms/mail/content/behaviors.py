@@ -55,7 +55,7 @@ alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
 class IDmsMailDataTransfer(model.Schema):
 
     data_transfer = Text(
-        title=u'Data transfer',
+        title=_(u'Data transfer'),
         required=False,
         readonly=True,
     )
