@@ -333,6 +333,10 @@ body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dash
 
 /* Other */
 
+#formfield-form-widgets-IDmsMailDataTransfer-data_transfer span {
+    white-space: pre-wrap;
+}
+
 #portal-header #portal-globalnav li a {
     min-width: initial;
 }
