@@ -9,11 +9,25 @@
     <include package="plone.directives.form" file="meta.zcml" />
     <include package="plone.directives.form" />
 
-   <plone:behavior
+    <!--z3c:widgetTemplate
+        mode="filled"
+        widget="z3c.form.interfaces.ITextAreaWidget"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        template="textarea_display.pt"
+        /-->
+
+    <plone:behavior
         title="Dms Mail Creating Group"
         description="Adds localrole creating group field"
         provides=".behaviors.IDmsMailCreatingGroup"
         for="collective.dms.basecontent.dmsdocument.IDmsDocument"
+        />
+
+    <plone:behavior
+        title="Dms Mail Data Transfer"
+        description="Adds text field for data transfer"
+        provides=".behaviors.IDmsMailDataTransfer"
+        for=" plone.dexterity.interfaces.IDexterityContent"
         />
 
 </configure>
