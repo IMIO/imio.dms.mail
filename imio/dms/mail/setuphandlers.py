@@ -63,6 +63,7 @@ from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.content import transitions
+from imio.helpers.emailer import get_mail_host
 from imio.helpers.security import generate_password
 from imio.helpers.security import get_environment
 from itertools import cycle
@@ -1186,6 +1187,15 @@ def adaptDefaultPortal(context):
     if not cron_configlet.cronjobs:
         # Syntax: m h dom mon command.
         cron_configlet.cronjobs = [u'45 18 1,15 * portal/@@various-utils/dv_images_clean']
+
+    # configure MailHost
+    if get_environment() == 'prod':
+        mail_host = get_mail_host()
+        mail_host.smtp_queue = True
+        mail_host.smtp_queue_directory = "mailqueue"
+        # (re)start the mail queue
+        mail_host._stopQueueProcessorThread()
+        mail_host._startQueueProcessorThread()
 
 
 def changeSearchedTypes(site):
