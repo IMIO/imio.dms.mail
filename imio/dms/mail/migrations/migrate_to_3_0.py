@@ -45,6 +45,8 @@ from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
+from imio.helpers.emailer import get_mail_host
+from imio.helpers.security import get_environment
 from imio.helpers.workflow import remove_state_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
@@ -321,6 +323,15 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if brain.portal_type == 'dmsoutgoingmail':
                     obj.reindexObject(['labels'])
             # TEMPORARY to 3.0.40
+            # configure MailHost
+            if get_environment() == 'prod':
+                mail_host = get_mail_host()
+                mail_host.smtp_queue = True
+                mail_host.smtp_queue_directory = "mailqueue"
+                # (re)start the mail queue
+                mail_host._stopQueueProcessorThread()
+                mail_host._startQueueProcessorThread()
+
             # upgrade classification.folder to replace chosen by select2
             # self.upgradeProfile('collective.dms.basecontent:default')
             # self.upgradeProfile('collective.classification.folder:default')
