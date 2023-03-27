@@ -424,22 +424,23 @@ def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
         _updateDefaultCollectionFor(folder, default_UID)
 
 
-def separate_fullname(user, start='firstname'):
+def separate_fullname(user, fn_first=True, fullname=None):
     """ Separate firstname and lastname from fullname """
-    fullname = safe_unicode(user.getProperty('fullname'))
+    if not fullname:
+        fullname = safe_unicode(user.getProperty('fullname'))
     lastname = firstname = u''
     if fullname:
         parts = fullname.split()
         if len(parts) == 1:
             lastname = parts[0]
         elif len(parts) > 1:
-            if start == 'firstname':
+            if fn_first:
                 firstname = parts[0]
                 lastname = ' '.join(parts[1:])
             else:
                 lastname = parts[0]
                 firstname = ' '.join(parts[1:])
-    else:
+    elif user:
         lastname = safe_unicode(user.id)
     return firstname, lastname
 

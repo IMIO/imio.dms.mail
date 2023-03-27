@@ -51,7 +51,7 @@ import os
 logger = logging.getLogger('imio.dms.mail: steps')
 
 
-def create_persons_from_users(portal, start='firstname', functions=['encodeur'], userid=''):
+def create_persons_from_users(portal, fn_first=True, functions=['encodeur'], userid=''):
     """
         create own personnel from plone users
     """
@@ -74,7 +74,7 @@ def create_persons_from_users(portal, start='firstname', functions=['encodeur'],
                 continue
             if user.id not in users and user.id not in ['scanner']:
                 users[user.id] = {'pers': {}, 'orgs': []}
-                firstname, lastname = separate_fullname(user, start=start)
+                firstname, lastname = separate_fullname(user, fn_first=fn_first)
                 users[user.id]['pers'] = {'lastname': lastname, 'firstname': firstname, 'email':
                                           safe_unicode(user.getProperty('email')), 'use_parent_address': False}
             if org_uid and org_uid not in users[user.id]['orgs']:
@@ -158,7 +158,7 @@ def create_persons_from_users_step(context):
 def create_persons_from_users_step_inverted(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    return '\n'.join(create_persons_from_users(context.getSite(), start='lastname')).encode('utf8')
+    return '\n'.join(create_persons_from_users(context.getSite(), fn_first=False)).encode('utf8')
 
 
 def add_icons_to_contact_workflow(context):
