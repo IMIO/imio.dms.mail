@@ -797,7 +797,7 @@ def group_assignment(event):
     if orgs:
         user = api.user.get(userid)
         start = api.portal.get_registry_record('omail_fullname_used_form', IImioDmsMailConfig, default='firstname')
-        firstname, lastname = separate_fullname(user, start=start)
+        firstname, lastname = separate_fullname(user, fn_first=(start == 'firstname'))
         portal = api.portal.get()
         intids = getUtility(IIntIds)
         pf = portal['contacts']['personnel-folder']
