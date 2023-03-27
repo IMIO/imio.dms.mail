@@ -1085,13 +1085,14 @@ def sub_create(main_folder, ptype, dte, oid, **params):
 
 def update_solr_config():
     """ Update config following buildout var """
-    full_key = 'collective.solr.port'
-    configured_port = api.portal.get_registry_record(full_key, default=None)
-    if configured_port is None:
+    if api.portal.get_registry_record('collective.solr.port', default=None) is None:
         return
-    new_port = int(os.getenv('SOLR_PORT', ''))
-    if new_port and new_port != configured_port:
-        api.portal.set_registry_record(full_key, new_port)
+    for key in ('host', 'port', 'base'):
+        full_key = 'collective.solr.{}'.format(key)
+        value = api.portal.get_registry_record(full_key, default=None)
+        new_value = int(os.getenv('COLLECTIVE_SOLR_{}'.format(key.upper()), '0'))
+        if new_value and new_value != value:
+            api.portal.set_registry_record(full_key, new_value)
 
 
 def manage_fields(the_form, config_key, mode):
