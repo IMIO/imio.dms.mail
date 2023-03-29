@@ -1087,7 +1087,7 @@ def update_solr_config():
     """ Update config following buildout var """
     if api.portal.get_registry_record('collective.solr.port', default=None) is None:
         return
-    for key, cast in (('host', ''), ('port', 0), ('base', '')):
+    for key, cast in (('host', u''), ('port', 0), ('base', u'')):
         full_key = 'collective.solr.{}'.format(key)
         value = api.portal.get_registry_record(full_key, default=None)
         new_value = type(cast)(os.getenv('COLLECTIVE_SOLR_{}'.format(key.upper()), cast))
