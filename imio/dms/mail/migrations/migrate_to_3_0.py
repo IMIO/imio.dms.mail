@@ -308,20 +308,20 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         if self.is_in_part('r'):  # update templates
             # TEMPORARY to 3.0.39
-            brains = api.content.find(context=self.portal.templates.om)
-            for brain in brains:
-                brain.getObject().reindexObject(['enabled'])
-            # labels query field
-            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
-            # labels index on om
-            # remove accented chars grom orig_sender_email
-            for brain in self.catalog(portal_type=('dmsincoming_email', 'dmsoutgoingmail')):
-                obj = brain.getObject()
-                ose = getattr(obj, 'orig_sender_email')
-                if ose and ose != unidecode(ose):
-                    obj.orig_sender_email = unidecode(ose)
-                if brain.portal_type == 'dmsoutgoingmail':
-                    obj.reindexObject(['labels'])
+            # brains = api.content.find(context=self.portal.templates.om)
+            # for brain in brains:
+            #     brain.getObject().reindexObject(['enabled'])
+            # # labels query field
+            # self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+            # # labels index on om
+            # # remove accented chars grom orig_sender_email
+            # for brain in self.catalog(portal_type=('dmsincoming_email', 'dmsoutgoingmail')):
+            #     obj = brain.getObject()
+            #     ose = getattr(obj, 'orig_sender_email')
+            #     if ose and ose != unidecode(ose):
+            #         obj.orig_sender_email = unidecode(ose)
+            #     if brain.portal_type == 'dmsoutgoingmail':
+            #         obj.reindexObject(['labels'])
             # TEMPORARY to 3.0.40
             # configure MailHost
             if get_environment() == 'prod':
@@ -333,8 +333,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 mail_host._startQueueProcessorThread()
 
             # upgrade classification.folder to replace chosen by select2
-            # self.upgradeProfile('collective.dms.basecontent:default')
-            # self.upgradeProfile('collective.classification.folder:default')
+            self.upgradeProfile('collective.dms.basecontent:default')
+            self.upgradeProfile('collective.classification.folder:default')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
