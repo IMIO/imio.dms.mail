@@ -4,12 +4,17 @@ Changelog
 3.0.40
 ------
 
+- Last commit at dfeaa9114af48e50baa53f8a854d4b18db5dc2da
 - Replaced chosen widget by select2
+- Added data_transfer behavior
+- Used mail queue to avoid duplicated mails
+- Refactored separate_fullname
+- Updated solr_config setup with new variables
 
 3.0.39
 ------
 
-- Last commit at f5877bc49de1483a6aa3e446dabadfe8918e64af
+- Last commit at c16d09d9e3306af5cfc8b23c2c2bf0b404851f70
 - Improved settings validation
 - Modifications for messagesviewlet 1.0
 - Filtered templates listing with enabled
