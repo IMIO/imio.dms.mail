@@ -303,7 +303,7 @@
 
   <javascript id="++resource++collective.eeafaceted.batchactions/batch_actions.js" insert-after="++resource++collective.js.fancytree/jquery.fancytree.min.js" />
 
-  <javascript id="++resource++ftw.labels/select2.min.js" insert-after="++resource++collective.eeafaceted.batchactions/batch_actions.js" />
+  <javascript id="++resource++ftw.labels/select2.min.js" enabled="False" insert-after="++resource++collective.eeafaceted.batchactions/batch_actions.js" />
 
   <javascript id="++resource++ftw.labels/ftw-labels.js" insert-after="++resource++ftw.labels/select2.min.js" />
 
