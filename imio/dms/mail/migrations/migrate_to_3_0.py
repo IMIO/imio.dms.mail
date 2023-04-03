@@ -338,6 +338,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+            self.cleanRegistries()
             api.portal.set_registry_record('imio.dms.mail.product_version', safe_unicode(get_git_tag(BLDT_DIR)))
             # update templates
             add_templates(self.portal)
