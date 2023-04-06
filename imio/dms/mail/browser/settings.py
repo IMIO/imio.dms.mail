@@ -650,15 +650,15 @@ def configure_group_encoder(field_name, contacts_part=False):
             'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
             'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
         },
-        'dmsincoming_email': {
-            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
-            #                                                          CREATING_FIELD_ROLE]}},
-            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
-        },
+        # 'dmsincoming_email': {
+        #     'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
+        #                                                   'Base Field Writer', 'Treating Group Writer']}},
+        #     #                                                          CREATING_FIELD_ROLE]}},
+        #     'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
+        #     'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+        #     'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
+        #     'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+        # },
         'dmsoutgoingmail': {
             'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
             'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
@@ -675,8 +675,8 @@ def configure_group_encoder(field_name, contacts_part=False):
 
     # add localroles for possible proposed_to_n_plus_ states
     # only incoming mails
-    if 'dmsincomingmail' in portal_types:  # i_e ok
-        for typ in ('dmsincomingmail', 'dmsincoming_email'):
+    for typ in ('dmsincomingmail', 'dmsincoming_email'):
+        if typ in portal_types:
             states = list_wf_states(portal, typ)
             for st_id, st_tit in states:
                 if st_id.startswith('proposed_to_n_plus_'):
