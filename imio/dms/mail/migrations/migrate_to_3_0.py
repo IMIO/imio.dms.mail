@@ -324,17 +324,17 @@ class Migrate_To_3_0(Migrator):  # noqa
             #         obj.reindexObject(['labels'])
             # TEMPORARY to 3.0.40
             # configure MailHost
-            if get_environment() == 'prod':
-                mail_host = get_mail_host()
-                mail_host.smtp_queue = True
-                mail_host.smtp_queue_directory = "mailqueue"
-                # (re)start the mail queue
-                mail_host._stopQueueProcessorThread()
-                mail_host._startQueueProcessorThread()
-
-            # upgrade classification.folder to replace chosen by select2
-            self.upgradeProfile('collective.dms.basecontent:default')
-            self.upgradeProfile('collective.classification.folder:default')
+            # if get_environment() == 'prod':
+            #     mail_host = get_mail_host()
+            #     mail_host.smtp_queue = True
+            #     mail_host.smtp_queue_directory = "mailqueue"
+            #     # (re)start the mail queue
+            #     mail_host._stopQueueProcessorThread()
+            #     mail_host._startQueueProcessorThread()
+            #
+            # # upgrade classification.folder to replace chosen by select2
+            # self.upgradeProfile('collective.dms.basecontent:default')
+            # self.upgradeProfile('collective.classification.folder:default')
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
