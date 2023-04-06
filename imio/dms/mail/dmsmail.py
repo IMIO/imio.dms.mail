@@ -381,6 +381,8 @@ InitializeClass(ImioDmsIncomingMailWfConditionsAdapter)
 def updatewidgets_assigned_user_description(the_form):
     """ Set a description if the field must be completed """
     state = api.content.get_state(the_form.context)
+    if state in ('proposed_to_agent', 'in_treatment', 'closed'):  # after a data transfer
+        return
     treating_group = the_form.context.treating_groups
     transitions_levels = get_dms_config(['transitions_levels', 'dmsincomingmail'])  # i_e ok
     if state in transitions_levels and treating_group in transitions_levels[state]:
