@@ -30,6 +30,11 @@
     float:none !important;
 }
 
+/* Display description as multilines */
+.dms-description {
+  white-space: pre-wrap;
+}
+
 /* edit mode of dmsmail */
 
 .template-dmsdocument-edit #fieldset-versions {
