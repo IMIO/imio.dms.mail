@@ -345,6 +345,15 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',
                                                          'imiodmsmail-update-templates'], profile='singles')
+            
+            # add autolink plugin to ckeditor
+            ckprops = self.portal.portal_properties.ckeditor_properties
+            if ckprops.hasProperty('plugins'):
+                plugins_list = list(ckprops.getProperty('plugins'))
+                autolink_plugin = "autolink;/++resource++ckeditor/plugins/autolink/plugin.js"
+                if autolink_plugin not in plugins_list:
+                    plugins_list.append(autolink_plugin)
+                    ckprops.manage_changeProperties(plugins=plugins_list)
 
         if self.is_in_part('s'):  # update quick installer
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work

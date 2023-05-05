@@ -411,6 +411,14 @@ def postInstall(context):
     configure_actions_panel(site)
 
     configure_ckeditor(site, custom='ged', filtering='disabled')
+    # add autolink plugin to ckeditor
+    ckprops = site.portal_properties.ckeditor_properties
+    if ckprops.hasProperty('plugins'):
+        plugins_list = list(ckprops.getProperty('plugins'))
+        autolink_plugin = "autolink;/++resource++ckeditor/plugins/autolink/plugin.js"
+        if autolink_plugin not in plugins_list:
+            plugins_list.append(autolink_plugin)
+            ckprops.manage_changeProperties(plugins=plugins_list)
 
     key = 'collective.documentgenerator.browser.controlpanel.IDocumentGeneratorControlPanelSchema.use_stream'
     if api.portal.get_registry_record(key):
