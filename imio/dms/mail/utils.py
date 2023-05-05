@@ -678,8 +678,9 @@ class VariousUtilsMethods(UtilsMethods):
         if not self.user_is_admin() and not check_zope_admin():
             return
         import os
-        res = {'0': {}, '1': {}, '2': {}}
-        flow_titles = {'0': u'Courrier entrant', '1': u'Courrier sortant', '2': u'Courrier sortant généré'}
+        res = {'0': {}, '1': {}, '2': {}, 'Z': {}}
+        flow_titles = {'0': u'Courrier entrant', '1': u'Courrier sortant', '2': u'Courrier sortant généré',
+                       'Z': u'Email entrant'}
         pc = getToolByName(self.context, 'portal_catalog')
         brains = pc.unrestrictedSearchResults(portal_type=['dmsmainfile', 'dmsommainfile'])
         divisor = int(by)
