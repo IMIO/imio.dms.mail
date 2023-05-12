@@ -1,6 +1,18 @@
 Changelog
 =========
 
+3.0.43
+------
+
+- Last commit at bdf01b89014b2a65f7583333cdab561a57e8884a
+- Disabled ftwlabels select2 js
+- Do not display assigned user selection message if not needed
+- Added cleanRegistries in r part
+- A read only field cannot be set by transmogrify.dexterity
+- Displayed description as multilines in dms view
+- Added Z barcode type to avoid error in scan_id
+- Add autolink plugin to ckeditor properties
+
 3.0.40
 ------
 
