@@ -88,3 +88,7 @@ pmh = os.environ.get('ENABLE_PRINTING_MAILHOST', None)
 PMH_ENABLED = False
 if (pmh is not None and pmh.lower() in ('yes', 'y', 'true', 'on')) or (pmh is None and DevelopmentMode is True):
     PMH_ENABLED = True
+
+ARCHIVE_SITE = False
+if '_archives_' in BLDT_DIR:
+    ARCHIVE_SITE = True
