@@ -335,8 +335,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             # # upgrade classification.folder to replace chosen by select2
             # self.upgradeProfile('collective.dms.basecontent:default')
             # self.upgradeProfile('collective.classification.folder:default')
-            # END
-
             # add autolink plugin to ckeditor
             ckprops = self.portal.portal_properties.ckeditor_properties
             if ckprops.hasProperty('plugins'):
@@ -345,6 +343,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if autolink_plugin not in plugins_list:
                     plugins_list.append(autolink_plugin)
                     ckprops.manage_changeProperties(plugins=plugins_list)
+            # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             self.cleanRegistries()

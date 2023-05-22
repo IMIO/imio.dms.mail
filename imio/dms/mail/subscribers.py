@@ -18,6 +18,7 @@ from collective.wfadaptations.api import get_applied_adaptations
 from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
+from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
@@ -777,7 +778,7 @@ def group_assignment(event):
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
     orgs = organizations_with_suffixes([event.group_id], IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
-    if orgs:
+    if orgs and not ARCHIVE_SITE:
         days_back = 5
         start = datetime.datetime(1973, 2, 12)
         end = datetime.datetime.now() - datetime.timedelta(days=days_back)
