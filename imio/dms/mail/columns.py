@@ -183,6 +183,7 @@ class SenderColumn(ContactsColumn):
 
     attrName = 'sender_index'
     header = _cez('header_sender')
+    # TODO maybe replace this column with OMSenderVocabulary ?
 
 
 class TaskParentColumn(PrettyLinkColumn):

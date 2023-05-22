@@ -831,6 +831,7 @@ def group_assignment(event):
                                     position=RelationValue(intids.getId(org)), use_parent_address=True)
         if api.content.get_state(hp) == 'deactivated':
             api.content.transition(hp, 'activate')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
@@ -866,6 +867,7 @@ def group_unassignment(event):
         for hp in hps:
             if hp.get_organization().UID() == orgs[0] and api.content.get_state(hp) == 'active':
                 api.content.transition(hp, 'deactivate')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
@@ -896,6 +898,7 @@ def mark_contact(contact, event):
         # at site removal
         if event.object.portal_type == 'Plone Site':
             return
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
         return
     if '/plonegroup-organization' in contact.absolute_url_path():
@@ -910,6 +913,7 @@ def mark_contact(contact, event):
         if INotPloneGroupContact.providedBy(contact):
             noLongerProvides(contact, INotPloneGroupContact)
         # don't check for IPloneGroupContact because we can't add organization in this folder
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
     else:
         if not INotPloneGroupContact.providedBy(contact):
@@ -918,6 +922,7 @@ def mark_contact(contact, event):
             noLongerProvides(contact, IPloneGroupContact)
         if IPersonnelContact.providedBy(contact):
             noLongerProvides(contact, IPersonnelContact)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
     contact.reindexObject(idxs='object_provides')
@@ -936,6 +941,7 @@ def contact_modified(obj, event):
 #    if IObjectRemovedEvent.providedBy(event):
 #        return
     if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 
@@ -957,6 +963,7 @@ def personnel_contact_removed(del_obj, event):
         storage = ILinkIntegrityInfo(aq_get(del_obj, 'REQUEST', None))
         for brain in catalog.unrestrictedSearchResults(portal_type=['dmsoutgoingmail'], sender_index=[del_obj.UID()]):
             storage.addBreach(brain._unrestrictedGetObject(), del_obj)
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
 

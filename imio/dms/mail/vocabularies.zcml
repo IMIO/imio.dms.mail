@@ -55,6 +55,11 @@
         />
 
     <utility
+        name="imio.dms.mail.OMActiveSenderVocabulary"
+        factory="imio.dms.mail.vocabularies.OMActiveSenderVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.OMSenderVocabulary"
         factory="imio.dms.mail.vocabularies.OMSenderVocabulary"
         />
