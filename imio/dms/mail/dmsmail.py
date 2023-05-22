@@ -635,7 +635,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     sender = schema.Choice(
         title=_cdmsm(u'Sender'),
         required=True,
-        vocabulary=u'imio.dms.mail.OMSenderVocabulary',
+        vocabulary=u'imio.dms.mail.OMActiveSenderVocabulary',
     )
     directives.widget('sender', SingleSelect2FieldWidget)
 

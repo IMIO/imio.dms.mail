@@ -16,6 +16,7 @@ from imio.dms.mail.vocabularies import get_settings_vta_table
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
 from imio.dms.mail.vocabularies import MyLabelsVocabulary
 from imio.dms.mail.vocabularies import OMActiveMailTypesVocabulary
+from imio.dms.mail.vocabularies import OMActiveSenderVocabulary
 from imio.dms.mail.vocabularies import OMMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMSenderVocabulary
 from imio.dms.mail.vocabularies import PloneGroupInterfacesVocabulary
@@ -146,8 +147,8 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                                         ('imio.dms.mail.interfaces.IPersonnelContact',
                                          'IPersonnelContact')])
 
-    def test_OMSenderVocabulary(self):
-        voc_inst = OMSenderVocabulary()
+    def test_OMActiveSenderVocabulary(self):
+        voc_inst = OMActiveSenderVocabulary()
         self.assertEqual(len(voc_inst(self.omail)), 22)
         # get first part, as unique value, keeping order
         res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
@@ -156,11 +157,19 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                                u'Monsieur Stef Agent'])
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                        'omail_sender_firstname_sorting', False)
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
         # res is sorted by lastname
         self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Stef Agent', u'Monsieur Michel Chef',
                                u'Monsieur Maxime DG'])
+        # deactivation
+        voc_all_inst = OMSenderVocabulary()
+        self.assertEqual(len(voc_all_inst(self.omail)), 22)
+        pf = self.portal.contacts['personnel-folder']
+        api.content.transition(obj=pf['agent']['agent-grh'], transition='deactivate')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
+        self.assertEqual(len(voc_inst(self.omail)), 21)
+
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()

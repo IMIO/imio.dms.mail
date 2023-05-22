@@ -887,6 +887,8 @@ class OMMCTV(MissingChoiceTermsVocabulary, MissingTerms):
     def complete_voc(self):
         if self.field.getName() == 'mail_type':
             return getUtility(IVocabularyFactory, 'imio.dms.mail.OMMailTypesVocabulary')(self.context)
+        elif self.field.getName() == 'sender':
+            return getUtility(IVocabularyFactory, 'imio.dms.mail.OMSenderVocabulary')(self.context)
         else:
             return SimpleVocabulary([])
 
