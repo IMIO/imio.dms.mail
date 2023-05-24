@@ -2268,6 +2268,7 @@ def list_templates():
         (10, 'templates/d-im-listing', os.path.join(dpath, 'd-im-listing.odt')),
         (12, 'templates/d-im-listing-tab', os.path.join(dpath, 'd-im-listing.ods')),
         (20, 'templates/all-contacts-export', os.path.join(dpath, 'contacts-export.ods')),
+        (30, 'templates/export-users-groups', os.path.join(dpath, 'export-users-groups.ods')),
         (90, 'templates/om/style', os.path.join(dpath, 'om-styles.odt')),
         (100, 'templates/om/header', os.path.join(dpath, 'om-header.odt')),
         (105, 'templates/om/footer', os.path.join(dpath, 'om-footer.odt')),
@@ -2345,6 +2346,13 @@ def add_templates(site):
                        # cond: check c10 reception date (display link), check output_format (generation view)
                        'tal_condition': "python:request.get('c10[]', False) or request.get('output_format', False)"}},
         20: {'title': _(u'All contacts export'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
+             'attrs': {'pod_formats': ['ods'], 'rename_page_styles': False,
+                       'dashboard_collections': [b.UID for b in
+                                                 get_dashboard_collections(site['contacts']['orgs-searches'])
+                                                 if b.id == 'all_orgs'],
+                       'tal_condition': "python: False",
+                       'roles_bypassing_talcondition': ['Manager', 'Site Administrator']}},
+        30: {'title': _(u'Export users and groups'), 'type': 'DashboardPODTemplate', 'trans': ['show_internally'],
              'attrs': {'pod_formats': ['ods'], 'rename_page_styles': False,
                        'dashboard_collections': [b.UID for b in
                                                  get_dashboard_collections(site['contacts']['orgs-searches'])
