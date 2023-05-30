@@ -1,6 +1,14 @@
 Changelog
 =========
 
+3.0.44
+------
+
+- Last commit at
+- Added ARCHIVE_SITE variable
+- Used OMActiveSenderVocabulary on om sender field, used OMSenderVocabulary with deactivated too to handle missing values
+- Added `export-users-groups.ods` template
+
 3.0.43
 ------
 
