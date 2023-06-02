@@ -407,11 +407,16 @@ class ActiveCreatingGroupVocabulary(object):
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         vocab = factory(context)
 
-        # we get all orgs where there are plone groups with the creating group suffix and with users
-        to_keep = set(get_organizations(not_empty_suffix=CREATING_GROUP_SUFFIX, only_selected=False, the_objects=False,
-                                        caching=False))
-        to_keep |= set(get_organizations(not_empty_suffix=CONTACTS_PART_SUFFIX, only_selected=False, the_objects=False,
-                                         caching=False))
+        plonegroup_fcts = api.portal.get_registry_record('collective.contact.plonegroup.browser.settings.IContactPlonegroupConfig.functions')
+        group_encoder_fct = next((i for i in plonegroup_fcts if i['fct_id'] == 'group_encoder'), None)
+        contacts_part_fct =  next((i for i in plonegroup_fcts if i['fct_id'] == 'contacts_part'), None)
+        to_keep = list(group_encoder_fct['fct_orgs'])
+
+        if contacts_part_fct:
+            contacts_part_orgs = list(contacts_part_fct['fct_orgs'])
+            to_keep.extend(i for i in contacts_part_orgs if i not in to_keep)
+
+        # TODO currently iterate from vocab destroying the orgs list order
         for term in vocab:
             if term.value in to_keep:
                 terms.append(term)
