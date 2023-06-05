@@ -407,6 +407,7 @@ class ActiveCreatingGroupVocabulary(object):
         factory = getUtility(IVocabularyFactory, 'collective.contact.plonegroup.organization_services')
         vocab = factory(context)
 
+        # Need to join together group_encoder and contacts_part while keeping order and removing duplicates
         plonegroup_fcts = api.portal.get_registry_record('collective.contact.plonegroup.browser.settings.IContactPlonegroupConfig.functions')
         group_encoder_fct = next((i for i in plonegroup_fcts if i['fct_id'] == 'group_encoder'), None)
         contacts_part_fct =  next((i for i in plonegroup_fcts if i['fct_id'] == 'contacts_part'), None)
@@ -416,10 +417,9 @@ class ActiveCreatingGroupVocabulary(object):
             contacts_part_orgs = list(contacts_part_fct['fct_orgs'])
             to_keep.extend(i for i in contacts_part_orgs if i not in to_keep)
 
-        # TODO currently iterate from vocab destroying the orgs list order
-        for term in vocab:
-            if term.value in to_keep:
-                terms.append(term)
+        # Need to keep order while constructing vocabulary
+        values = vocab.by_value
+        terms = [values[uid] for uid in to_keep]
         return SimpleVocabulary(terms)
 
     __call__ = ActiveCreatingGroupVocabulary__call__
