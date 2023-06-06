@@ -36,6 +36,7 @@ from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
+from imio.helpers.security import check_zope_admin
 from imio.history.browser.views import IHDocumentBylineViewlet
 from imio.pyutils.system import read_dictcsv
 from logging import getLogger
@@ -57,7 +58,6 @@ from Products.CMFPlone.browser.navigation import PhysicalNavigationBreadcrumbs a
 from Products.CMFPlone.browser.ploneview import Plone as PloneView
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
-from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from time import clock

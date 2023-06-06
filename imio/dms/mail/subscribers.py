@@ -41,6 +41,7 @@ from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
+from imio.helpers.security import check_zope_admin
 from imio.helpers.security import get_zope_root
 from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
@@ -57,7 +58,6 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
-from Products.CPUtils.Extensions.utils import check_zope_admin
 from z3c.relationfield.event import removeRelations as orig_removeRelations
 from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue

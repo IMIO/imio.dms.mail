@@ -19,6 +19,7 @@ from imio.dms.mail.utils import sub_create
 from imio.helpers.content import find
 from imio.helpers.content import safe_encode
 from imio.helpers.content import transitions
+from imio.helpers.security import check_zope_admin
 from itertools import cycle
 from plone import api
 from plone.dexterity.utils import createContentInContainer
@@ -27,7 +28,6 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import check_role
-from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.CPUtils.Extensions.utils import log_list
 from z3c.relationfield import RelationValue
 from zope.component import getUtility

@@ -27,6 +27,7 @@ from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
 from imio.helpers.content import transitions
 from imio.helpers.content import uuidToObject
+from imio.helpers.security import check_zope_admin
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
 from natsort import natsorted
@@ -44,7 +45,6 @@ from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from Products.CPUtils.Extensions.utils import check_zope_admin
 from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
