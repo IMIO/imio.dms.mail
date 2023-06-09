@@ -23,6 +23,7 @@ from imio.dms.mail.interfaces import IProtectedItem
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
 from imio.helpers.content import transitions
@@ -1206,3 +1207,15 @@ def get_context_with_request(context):
             if not hasattr(context, 'portal_type') or not context.portal_type == 'DashboardCollection':
                 return None
     return context
+
+
+def invalidate_users_groups(portal=None, user=None, user_id=None, **kwargs):
+    invalidate_cachekey_volatile_for('_users_groups_value', get_again=True)
+    # for dmsmail tests only
+    if getattr(portal or api.portal.get(), '_v_ready', False):
+        if user is None:
+            user = user_id and api.user.get(user_id) or api.user.get_current()
+        # we ensure calling directly this method because if called elsewhere with current user (not refreshed),
+        # the cached value is not correct
+        # same reason as change_user method
+        get_plone_groups_for_user(user=user, **kwargs)

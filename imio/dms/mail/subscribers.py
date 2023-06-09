@@ -32,6 +32,7 @@ from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import get_dms_config
@@ -768,7 +769,8 @@ def group_assignment(event):
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
-    invalidate_cachekey_volatile_for('_users_groups_value', get_again=True)
+    # see comments in this method for tests
+    invalidate_users_groups(user_id=event.principal)
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)  # i_e ok
@@ -842,7 +844,9 @@ def group_unassignment(event):
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
     invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
-    invalidate_cachekey_volatile_for('_users_groups_value', get_again=True)
+    # see comments in this method for tests
+    invalidate_users_groups(user_id=event.principal)
+
     # we update dms config
     if 'n_plus_' in event.group_id:
         update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)  # i_e ok
