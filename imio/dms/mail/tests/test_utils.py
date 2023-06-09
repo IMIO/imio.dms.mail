@@ -16,8 +16,8 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
+from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import list_wf_states
-from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -31,10 +31,7 @@ from persistent.list import PersistentList
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from Products.CMFPlone.utils import base_hasattr
-from z3c.relationfield import RelationValue
 from zope.annotation.interfaces import IAnnotations
-from zope.component import getUtility
-from zope.intid import IIntIds
 
 import unittest
 
@@ -394,6 +391,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         set_dms_config(['review_levels', 'dmsincomingmail'],
                        OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
                                     ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
+        invalidate_users_groups(portal=self.portal, user_id='siteadmin')
         self.assertTrue(view.user_has_review_level('dmsincomingmail'))
         api.group.remove_user(groupname='111_n_plus_1', username='siteadmin')
         self.change_user('siteadmin')  # refresh getGroups
