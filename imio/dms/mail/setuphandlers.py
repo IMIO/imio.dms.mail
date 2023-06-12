@@ -108,12 +108,12 @@ def _no_more_used(msgid, domain='imio.dms.mail'):  # TODO delete if no more nece
     return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'))
 
 
-def add_db_col_folder(folder, id, title, displayed=''):
-    if base_hasattr(folder, id):
-        return folder[id]
+def add_db_col_folder(folder, cid, title, displayed=''):
+    if base_hasattr(folder, cid):
+        return folder[cid]
 
-    folder.invokeFactory('Folder', id=id, title=title, rights=displayed)
-    col_folder = folder[id]
+    folder.invokeFactory('Folder', id=cid, title=title, rights=displayed)
+    col_folder = folder[cid]
     col_folder.setConstrainTypesMode(1)
     col_folder.setLocallyAllowedTypes(['DashboardCollection'])
     col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
@@ -1046,10 +1046,10 @@ def adaptDefaultPortal(context):
     # site.portal_properties.site_properties.disable_folder_sections = True
     # remove default created objects like events, news, ...
     for obj, ids in {site: ('events', 'news'), site.portal_actions.user: ('contact-contactlist-mylists', )}.items():
-        for id in ids:
+        for oid in ids:
             try:
-                obj.manage_delObjects(ids=[id])
-                logger.info("'%s' deleted in '%s'" % (id, obj))
+                obj.manage_delObjects(ids=[oid])
+                logger.info("'%s' deleted in '%s'" % (oid, obj))
             except AttributeError:
                 continue
 
@@ -1865,13 +1865,13 @@ def addTestMails(context):
                       'mail_type': 'courrier',
                       'internal_reference_no': internalReferenceIncomingMailDefaultValue(data),
                       'reception_date': scan_date,
-                      'sender': [RelationValue(senders_cycle.next())],
-                      'treating_groups': orgas_cycle.next(),
+                      'sender': [RelationValue(next(senders_cycle))],
+                      'treating_groups': next(orgas_cycle),
                       'recipient_groups': [],
                       'description': 'Ceci est la description du courrier %d' % i,
                       }
             mail = sub_create(ifld, 'dmsincomingmail', scan_date, 'courrier%d' % i, **params)
-            filename = files_cycle.next()
+            filename = next(files_cycle)
             with open("%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
                 createContentInContainer(mail, 'dmsmainfile', title='', file=file_object,
@@ -1883,7 +1883,7 @@ def addTestMails(context):
                        enquirer=mail.treating_groups)
     mail.invokeFactory('task', id='tache2', title=u'Tâche 2', assigned_group=mail.treating_groups,
                        enquirer=mail.treating_groups)
-    mail.invokeFactory('task', id='tache3', title=u'Tâche autre service', assigned_group=orgas_cycle.next(),
+    mail.invokeFactory('task', id='tache3', title=u'Tâche autre service', assigned_group=next(orgas_cycle),
                        enquirer=mail.treating_groups)
     task3 = mail['tache3']
     task3.invokeFactory('task', id='tache3-1', title=u'Sous-tâche 1', assigned_group=task3.assigned_group,
@@ -1910,17 +1910,17 @@ def addTestMails(context):
             params = {'title': 'Réponse %d' % i,
                       'internal_reference_no': internalReferenceOutgoingMailDefaultValue(data),
                       'mail_date': mailDateDefaultValue(data),
-                      'treating_groups': orgas_cycle.next(),
+                      'treating_groups': next(orgas_cycle),
                       'mail_type': 'type1',
-                      'sender': senders_cycle.next(),
-                      'assigned_user': users_cycle.next(),
+                      'sender': next(senders_cycle),
+                      'assigned_user': next(users_cycle),
                       # temporary in comment because it doesn't pass in test and case probably errors when deleting site
                       # 'in_reply_to': [RelationValue(intids.getId(inmail))],
-                      'recipients': [RelationValue(recipients_cycle.next())],
+                      'recipients': [RelationValue(next(recipients_cycle))],
                       'send_modes': ['post'],
                       }
             mail = sub_create(ofld, 'dmsoutgoingmail', datetime.datetime.now(), 'reponse%d' % i, **params)
-            filename = files_cycle.next()
+            filename = next(files_cycle)
             with open(u"%s/%s" % (filespath, filename), 'rb') as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
                 createContentInContainer(mail, 'dmsommainfile', id='1', title='', file=file_object)
@@ -1958,7 +1958,7 @@ def addTestUsersAndGroups(context):
         except ValueError as exc:
             if str(exc).startswith('The login name you selected is already in use'):
                 continue
-            logger("Error creating user '%s': %s" % (uid, exc))
+            logger.error("Error creating user '%s': %s" % (uid, exc))
 
     if api.group.get('encodeurs') is None:
         api.group.create('encodeurs', '1 Encodeurs courrier entrant')
@@ -2039,10 +2039,10 @@ def addOwnOrganization(context):
     ]
     idnormalizer = queryUtility(IIDNormalizer)
     for (department, services) in sublevels:
-        id = own_orga.invokeFactory('organization', idnormalizer.normalize(department),
-                                    **{'title': department,
-                                       'organization_type': (len(services) and u'department' or u'service')})
-        dep = own_orga[id]
+        oid = own_orga.invokeFactory('organization', idnormalizer.normalize(department),
+                                     **{'title': department,
+                                        'organization_type': (len(services) and u'department' or u'service')})
+        dep = own_orga[oid]
         for service in services:
             dep.invokeFactory('organization', idnormalizer.normalize(service),
                               **{'title': service, 'organization_type': u'service'})
@@ -2289,10 +2289,10 @@ def add_templates(site):
                                     ('templates/om', _(u'Outgoing mail'), [IOMTemplatesFolder, IActionsPanelFolderAll]),
                                     ('templates/om/common', _(u'Common templates'), [])]:
         parts = path.split('/')
-        id = parts[-1]
+        tid = parts[-1]
         parent = site.unrestrictedTraverse('/'.join(parts[:-1]))
-        if not base_hasattr(parent, id):
-            folderid = parent.invokeFactory("Folder", id=id, title=title)
+        if not base_hasattr(parent, tid):
+            folderid = parent.invokeFactory("Folder", id=tid, title=title)
             tplt_fld = getattr(parent, folderid)
             tplt_fld.setLocallyAllowedTypes(template_types)
             tplt_fld.setImmediatelyAddableTypes(template_types)
@@ -2379,7 +2379,7 @@ def add_templates(site):
               'attrs': {'style_template': [cids[90].UID()], 'rename_page_styles': True}},
     }
 
-    templates = combine_data(data, test=lambda x: x >= 100 and x < 200)
+    templates = combine_data(data, test=lambda x: 100 <= x < 200)
     cids = create(templates, pos=False, cids=cids)
 
     data = {
