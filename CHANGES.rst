@@ -1,6 +1,14 @@
 Changelog
 =========
 
+3.0.45
+------
+
+- Last commit at
+- Improved `export-users-groups.ods` template
+- Replaced check_zope_admin import
+- Added invalidate_users_groups method to do special things in tests
+
 3.0.44
 ------
 
