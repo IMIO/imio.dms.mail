@@ -1,10 +1,16 @@
 Changelog
 =========
 
-3.0.45
+3.0.46
 ------
 
 - Last commit at 412b2e096aa7cebef3416dc59b0f7caf96c1741b
+- Added archives.css
+
+3.0.45
+------
+
+- Last commit at 4fc248a74e19b1c38a814c1d6f9fa0b9f0eea22f
 - Improved `export-users-groups.ods` template
 - Replaced check_zope_admin import
 - Added invalidate_users_groups method to do special things in tests
