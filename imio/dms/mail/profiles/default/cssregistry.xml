@@ -9,6 +9,10 @@
     enabled="1" expression="" id="imiodmsmail_print.css" media="print"
     rel="stylesheet" rendering="link" />
 
+ <stylesheet title="" cacheable="True" compression="safe" cookable="True"
+    enabled="0" expression="" id="imiodmsmail_archives.css" media="screen"
+    rel="stylesheet" rendering="import" />
+
  <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" remove="true" />
 
  <stylesheet id="++resource++jquery.css" insert-bottom="" />
@@ -219,7 +223,9 @@
 
  <stylesheet id="imiodmsmail.css" insert-after="++resource++collective.classification.folder-faceted.css" />
 
- <stylesheet id="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" insert-after="imiodmsmail.css" />
+ <stylesheet id="imiodmsmail_archives.css" insert-after="imiodmsmail.css" />
+
+ <stylesheet id="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" insert-after="imiodmsmail_archives.css" />
 
  <stylesheet id="++resource++collective.js.tooltipster/tooltipster-sideTip-light.min.css" insert-after="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" />
 
