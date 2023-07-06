@@ -31,7 +31,9 @@
 }
 
 /* Display description as multilines */
-.dms-description {
+.dms-description,
+.template-facetednavigation_view.portaltype-classificationfolder #faceted-results tbody  tr:nth-child(5) td.table_widget_value,
+.template-facetednavigation_view.portaltype-classificationsubfolder #faceted-results tbody  tr:nth-child(5) td.table_widget_value {
   white-space: pre-wrap;
 }
 
