@@ -336,13 +336,15 @@ class Migrate_To_3_0(Migrator):  # noqa
             # self.upgradeProfile('collective.dms.basecontent:default')
             # self.upgradeProfile('collective.classification.folder:default')
             # add autolink plugin to ckeditor
-            ckprops = self.portal.portal_properties.ckeditor_properties
-            if ckprops.hasProperty('plugins'):
-                plugins_list = list(ckprops.getProperty('plugins'))
-                autolink_plugin = "autolink;/++resource++ckeditor/plugins/autolink/plugin.js"
-                if autolink_plugin not in plugins_list:
-                    plugins_list.append(autolink_plugin)
-                    ckprops.manage_changeProperties(plugins=plugins_list)
+            # ckprops = self.portal.portal_properties.ckeditor_properties
+            # if ckprops.hasProperty('plugins'):
+            #     plugins_list = list(ckprops.getProperty('plugins'))
+            #     autolink_plugin = "autolink;/++resource++ckeditor/plugins/autolink/plugin.js"
+            #     if autolink_plugin not in plugins_list:
+            #         plugins_list.append(autolink_plugin)
+            #         ckprops.manage_changeProperties(plugins=plugins_list)
+            # TEMPORARY to 3.0.47
+            self.runProfileSteps('imio.dms.mail', steps=['actions',])
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
