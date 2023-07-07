@@ -4,7 +4,7 @@ Changelog
 3.0.47
 ------
 
-- Last commit at 065000fba0c760706d5117f92523e0b1f1ef3b2f
+- Last commit at 4475f70e1e04e0d1f4c90f83d0dd3c85b30a2e2c
 - Styled classification_informations to display text as multiline
 - Changed documentation urls
 
