@@ -26,9 +26,9 @@ from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
-from imio.helpers.content import transitions
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
+from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
 from natsort import natsorted
@@ -1066,7 +1066,7 @@ def create_period_folder(main_dir, dte, subfolder=''):
             main_dir.setConstrainTypesMode(1)
             alsoProvides(subfolder, INextPrevNotNavigable)
             alsoProvides(subfolder, IHideFromBreadcrumbs)
-            transitions(subfolder, transitions=['show_internally'])
+            do_transitions(subfolder, ['show_internally'])
         return subfolder
     return main_dir[dte_str]
 

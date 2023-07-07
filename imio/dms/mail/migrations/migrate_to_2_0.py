@@ -22,7 +22,7 @@ from imio.dms.mail.setuphandlers import createTaskCollections
 from imio.dms.mail.steps import create_persons_from_users
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.helpers.catalog import addOrUpdateColumns
-from imio.helpers.content import transitions
+from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.dexterity.interfaces import IDexterityFTI
@@ -151,7 +151,7 @@ class Migrate_To_2_0(Migrator):
 
         # publish outgoing-mail folder
         if api.content.get_state(self.omf) != 'internally_published':
-            transitions(self.omf, ["show_internally"])
+            do_transitions(self.omf, ["show_internally"])
         # add group
         if api.group.get('expedition') is None:
             api.group.create('expedition', '1 Expédition courrier sortant')
