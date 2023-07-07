@@ -18,8 +18,8 @@ from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import find
 from imio.helpers.content import safe_encode
-from imio.helpers.content import transitions
 from imio.helpers.security import check_zope_admin
+from imio.helpers.workflow import do_transitions
 from itertools import cycle
 from plone import api
 from plone.dexterity.utils import createContentInContainer
@@ -173,9 +173,9 @@ def import_scanned(self, number=2, only='', ptype='dmsincomingmail', redirect='1
             state = api.content.get_state(document)
             i = 0
             while state != to_state and i < 10:
-                transitions(document, ['propose_to_agent', 'propose_to_n_plus_1', 'propose_to_n_plus_2',
-                                       'propose_to_n_plus_3', 'propose_to_n_plus_4', 'propose_to_n_plus_5',
-                                       'propose_to_manager', 'propose_to_pre_manager'])
+                do_transitions(document, ['propose_to_agent', 'propose_to_n_plus_1', 'propose_to_n_plus_2',
+                                          'propose_to_n_plus_3', 'propose_to_n_plus_4', 'propose_to_n_plus_5',
+                                          'propose_to_manager', 'propose_to_pre_manager'])
                 state = api.content.get_state(document)
                 i += 1
         count += 1

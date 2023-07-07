@@ -62,10 +62,10 @@ from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
-from imio.helpers.content import transitions
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.security import generate_password
 from imio.helpers.security import get_environment
+from imio.helpers.workflow import do_transitions
 from itertools import cycle
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
@@ -117,7 +117,7 @@ def add_db_col_folder(folder, cid, title, displayed=''):
     col_folder.setConstrainTypesMode(1)
     col_folder.setLocallyAllowedTypes(['DashboardCollection'])
     col_folder.setImmediatelyAddableTypes(['DashboardCollection'])
-    transitions(col_folder, transitions=['show_internally'])
+    do_transitions(col_folder, ['show_internally'])
     alsoProvides(col_folder, ICollectionCategories)
     alsoProvides(col_folder, IProtectedItem)
     return col_folder
@@ -141,14 +141,14 @@ def setup_classification(site):
         alsoProvides(folders, IProtectedItem)
         adapted = ILabelJar(folders)
         adapted.add("Suivi", "yellow", True)  # label_id = suivi
-        transitions(folders, transitions=['show_internally'])
+        do_transitions(folders, ['show_internally'])
 
     if not base_hasattr(site, 'tree'):
         site.invokeFactory("ClassificationContainer", id='tree', title=_(u'classification_tree_tab'))
         blacklistPortletCategory(site, site['tree'])
         site['tree'].manage_addLocalRoles('AuthenticatedUsers', ['Reader'])
         alsoProvides(site['tree'], IProtectedItem)
-        # transitions(site['tree'], transitions=['show_internally'])
+        # do_transitions(site['tree'], ['show_internally'])
 
     roles_config = {
         'static_config': {
@@ -260,7 +260,7 @@ def postInstall(context):
         im_folder.setConstrainTypesMode(1)
         im_folder.setLocallyAllowedTypes(['dmsincomingmail', 'dmsincoming_email'])
         im_folder.setImmediatelyAddableTypes(['dmsincomingmail', 'dmsincoming_email'])
-        transitions(im_folder, transitions=['show_internally'])
+        do_transitions(im_folder, ['show_internally'])
         logger.info('incoming-mail folder created')
 
     if not base_hasattr(site, 'outgoing-mail'):
@@ -290,7 +290,7 @@ def postInstall(context):
         om_folder.setLocallyAllowedTypes(['dmsoutgoingmail'])
         # om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
         om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail'])
-        transitions(om_folder, transitions=['show_internally'])
+        do_transitions(om_folder, ['show_internally'])
         logger.info('outgoing-mail folder created')
 
     if not base_hasattr(site, 'tasks'):
@@ -316,7 +316,7 @@ def postInstall(context):
         tsk_folder.setConstrainTypesMode(1)
         tsk_folder.setLocallyAllowedTypes(['task'])
         tsk_folder.setImmediatelyAddableTypes(['task'])
-        transitions(tsk_folder, transitions=['show_internally'])
+        do_transitions(tsk_folder, ['show_internally'])
         logger.info('tasks folder created')
 
     # Directory creation
@@ -389,7 +389,7 @@ def postInstall(context):
                                  default_UID=col_folder['all_cls'].UID())
 
         site.portal_types.directory.filter_content_types = True
-        transitions(contacts, transitions=['show_internally'])
+        do_transitions(contacts, ['show_internally'])
         logger.info('contacts folder created')
 
     setup_classification(site)
@@ -1070,7 +1070,7 @@ def adaptDefaultPortal(context):
             frontpage.setText(_("front_page_text"), mimetype='text/html')
             # remove the presentation mode
             frontpage.setPresentation(False)
-            transitions(frontpage, transitions=['show_internally'])
+            do_transitions(frontpage, ['show_internally'])
             frontpage.reindexObject()
             logger.info('front page adapted')
         # set front-page folder as not next/prev navigable
@@ -1822,7 +1822,7 @@ def add_test_folders(context):
                 csf_dic['classification_categories'] = list(cf_obj.classification_categories)
             csf_obj = createContentInContainer(cf_obj, 'ClassificationSubfolder', **csf_dic)
             if not csf_dic['archived']:
-                transitions(csf_obj, transitions=['deactivate'])
+                do_transitions(csf_obj, ['deactivate'])
 
 
 def addTestMails(context):
@@ -2183,7 +2183,7 @@ def addContactListsFolder(context):
     clf.invokeFactory("Folder", id='common', title=u"Listes communes")
     clf['common'].setLayout('folder_tabular_view')
     alsoProvides(clf['common'], IProtectedItem)
-    transitions(clf['common'], transitions=['show_internally'])
+    do_transitions(clf['common'], ['show_internally'])
     intids = getUtility(IIntIds)
     if 'sergerobinet' in contacts and 'bernardlermitte' in contacts:
         api.content.create(container=clf['common'], type='contact_list', id='list-agents-swde',

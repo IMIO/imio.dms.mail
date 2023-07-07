@@ -40,7 +40,7 @@ from imio.dms.mail.setuphandlers import createPersonsCollections
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
-from imio.helpers.content import transitions
+from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.app.contenttypes.migration.dxmigration import migrate_base_class_to_new_class
@@ -91,7 +91,7 @@ class Migrate_To_2_1(Migrator):
         self.portal.portal_membership.memberareaCreationFlag = 0
         self.portal.portal_membership.setMemberAreaType('member_area')
 
-        transitions(members, 'show_internally')
+        do_transitions(members, 'show_internally')
 
         # add index_html to Members area
         if 'index_html' not in members.objectIds():

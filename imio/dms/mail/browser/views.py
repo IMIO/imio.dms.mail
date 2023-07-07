@@ -9,13 +9,13 @@ from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.helpers.content import richtextval
-from imio.helpers.content import transitions
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import add_attachment
 from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
+from imio.helpers.workflow import do_transitions
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
@@ -272,7 +272,7 @@ class SendEmail(BrowserView):
             state = api.content.get_state(self.context)
             i = 0
             while state != 'sent' and i < 10:
-                transitions(self.context, trans.get(state, []))
+                do_transitions(self.context, trans.get(state, []))
                 state = api.content.get_state(self.context)
                 i += 1
 

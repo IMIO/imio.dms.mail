@@ -5,7 +5,7 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import get_object
-from imio.helpers.content import transitions as do_transitions
+from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import runCommand
 from itertools import cycle
 from plone import api
