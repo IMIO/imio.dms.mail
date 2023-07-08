@@ -1087,7 +1087,6 @@ def zope_ready(event):
         # Store or refresh folders tree
         if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
             with api.env.adopt_user('admin'):
-                change = True
                 logger.info('=> Storing folders tree annotation')
                 set_folders_tree(site)
                 ret = zope_app.cputils_install(zope_app)
