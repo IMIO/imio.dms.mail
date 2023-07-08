@@ -15,6 +15,7 @@ from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr as _
+from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
@@ -348,6 +349,11 @@ class Migrate_To_3_0(Migrator):  # noqa
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+            if ARCHIVE_SITE:
+                cssr = self.portal.portal_css
+                if not cssr.getResource('imiodmsmail_archives.css').getEnabled():
+                    cssr.updateStylesheet('imiodmsmail_archives.css', enabled=True)
+                    cssr.cookResources()
             self.cleanRegistries()
             api.portal.set_registry_record('imio.dms.mail.product_version', safe_unicode(get_git_tag(BLDT_DIR)))
             # update templates
