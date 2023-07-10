@@ -4,6 +4,7 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_principa
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.widget.schema import ContactChoice
 from collective.dms.basecontent.dmsdocument import IDmsDocument
+from collective.eeafaceted.batchactions.browser.views import BaseARUOBatchActionForm
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
 from collective.eeafaceted.batchactions.browser.views import ContactBaseBatchActionForm
 from collective.eeafaceted.batchactions.utils import filter_on_permission, cannot_modify_field_msg
@@ -16,6 +17,7 @@ from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
 from imio.dms.mail.utils import is_in_user_groups
 from imio.helpers.cache import get_current_user_id
+from imio.helpers.content import get_vocab
 from imio.helpers.content import uuidsToObjects
 from plone import api
 from plone.formwidget.masterselect import MasterSelectField
@@ -69,80 +71,17 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
                     modified(obj, Attributes(IDmsDocument, 'treating_groups'))
 
 
-class RecipientGroupBatchActionForm(BaseBatchActionForm):
+class RecipientGroupBatchActionForm(BaseARUOBatchActionForm):
 
     label = _(u"Batch recipient groups change")
+    modified_attr_name = 'recipient_groups'
+    call_modified_event = True
     # id = 'recipientgroup-batchaction-form'
     weight = 40
 
-    def _update(self):
-        self.do_apply = is_permitted(self.brains)
-        self.fields += Fields(MasterSelectField(
-            __name__='action_choice',
-            title=_(u'Batch action choice'),
-            description=(not self.do_apply and cannot_modify_field_msg or u''),
-            vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add items')),
-                                         SimpleTerm(value=u'remove', title=_(u'Remove items')),
-                                         SimpleTerm(value=u'replace', title=_(u'Replace some items by others')),
-                                         SimpleTerm(value=u'overwrite', title=_(u'Overwrite'))]),
-            slave_fields=(
-                {'name': 'removed_values',
-                 'slaveID': '#form-widgets-removed_values',
-                 'action': 'hide',
-                 'hide_values': (u'add', u'overwrite'),
-                 'siblings': True,
-                 },
-                {'name': 'added_values',
-                 'slaveID': '#form-widgets-added_values',
-                 'action': 'hide',
-                 'hide_values': (u'remove'),
-                 'siblings': True,
-                 },
-            ),
-            required=self.do_apply,
-            default=u'add'
-        ))
-        if self.do_apply:
-            self.fields += Fields(schema.List(
-                __name__='removed_values',
-                title=_(u"Removed values"),
-                description=_(u"Select the values to remove (CTRL+click)"),
-                required=False,
-                value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
-            ))
-            self.fields += Fields(schema.List(
-                __name__='added_values',
-                title=_(u"Added values"),
-                description=_(u"Select the values to add (CTRL+click)"),
-                required=False,
-                value_type=schema.Choice(vocabulary=u'collective.dms.basecontent.recipient_groups'),
-            ))
-            self.fields["removed_values"].widgetFactory = SelectFieldWidget
-            self.fields["added_values"].widgetFactory = SelectFieldWidget
-
-    def _update_widgets(self):
-        if self.do_apply:
-            #        self.widgets['action_choice'].size = 4
-            self.widgets['removed_values'].multiple = 'multiple'
-            self.widgets['removed_values'].size = 5
-            self.widgets['added_values'].multiple = 'multiple'
-            self.widgets['added_values'].size = 5
-
-    def _apply(self, **data):
-        if ((data.get('removed_values', None) and data['action_choice'] in ('remove', 'replace')) or
-           (data.get('added_values', None)) and data['action_choice'] in ('add', 'replace', 'overwrite')):
-            for brain in self.brains:
-                obj = brain.getObject()
-                if data['action_choice'] in ('overwrite', ):
-                    items = set(data['added_values'])
-                else:
-                    items = set(obj.recipient_groups or [])
-                    if data['action_choice'] in ('remove', 'replace'):
-                        items = items.difference(data['removed_values'])
-                    if data['action_choice'] in ('add', 'replace'):
-                        items = items.union(data['added_values'])
-                obj.recipient_groups = list(items)
-                modified(obj)
+    def _vocabulary(self):
+        """A SimpleVocabulary instance or a vocabulary name."""
+        return u'collective.dms.basecontent.recipient_groups'
 
 
 class AssignedUserBatchActionForm(aubaf):
@@ -200,78 +139,20 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
                 modified(obj)
 
 
-class SendModesBatchActionForm(BaseBatchActionForm):
+class SendModesBatchActionForm(BaseARUOBatchActionForm):
 
     label = _(u"Batch send modes change")
+    modified_attr_name = 'send_modes'
+    call_modified_event = False
+    indexes = ['Subject']
+    required = True
     weight = 60
 
-    def available(self):
+    def _vocabulary(self):
+        return u'imio.dms.mail.OMActiveSendModesVocabulary'
+
+    def _may_apply(self):
         return api.user.has_permission('Manage portal', obj=self.context)
-
-    def _update(self):
-        self.fields += Fields(MasterSelectField(
-            __name__='action_choice',
-            title=_(u'Batch action choice'),
-            vocabulary=SimpleVocabulary([SimpleTerm(value=u'add', title=_(u'Add items')),
-                                         SimpleTerm(value=u'remove', title=_(u'Remove items')),
-                                         SimpleTerm(value=u'replace', title=_(u'Replace some items by others')),
-                                         SimpleTerm(value=u'overwrite', title=_(u'Overwrite'))]),
-            slave_fields=(
-                {'name': 'removed_values',
-                 'slaveID': '#form-widgets-removed_values',
-                 'action': 'hide',
-                 'hide_values': (u'add', u'overwrite'),
-                 'siblings': True,
-                 },
-                {'name': 'added_values',
-                 'slaveID': '#form-widgets-added_values',
-                 'action': 'hide',
-                 'hide_values': (u'remove',),
-                 'siblings': True,
-                 },
-            ),
-            required=self.do_apply,
-            default=u'add'
-        ))
-        self.fields += Fields(schema.List(
-            __name__='removed_values',
-            title=_(u"Removed values"),
-            description=_(u"Select the values to remove (CTRL+click)"),
-            required=False,
-            value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary'),
-        ))
-        self.fields += Fields(schema.List(
-            __name__='added_values',
-            title=_(u"Added values"),
-            description=_(u"Select the values to add (CTRL+click)"),
-            required=False,
-            value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMActiveSendModesVocabulary'),
-        ))
-        self.fields["removed_values"].widgetFactory = SelectFieldWidget
-        self.fields["added_values"].widgetFactory = SelectFieldWidget
-
-    def _update_widgets(self):
-        #        self.widgets['action_choice'].size = 4
-        self.widgets['removed_values'].multiple = 'multiple'
-        self.widgets['removed_values'].size = 5
-        self.widgets['added_values'].multiple = 'multiple'
-        self.widgets['added_values'].size = 5
-
-    def _apply(self, **data):
-        if ((data.get('removed_values', None) and data['action_choice'] in ('remove', 'replace')) or
-           (data.get('added_values', None)) and data['action_choice'] in ('add', 'replace', 'overwrite')):
-            for brain in self.brains:
-                obj = brain.getObject()
-                if data['action_choice'] in ('overwrite', ):
-                    items = set(data['added_values'])
-                else:
-                    items = set(obj.send_modes or [])
-                    if data['action_choice'] in ('remove', 'replace'):
-                        items = items.difference(data['removed_values'])
-                    if data['action_choice'] in ('add', 'replace'):
-                        items = items.union(data['added_values'])
-                obj.send_modes = list(items)
-                modified(obj)
 
 
 class RecipientsBatchActionForm(ContactBaseBatchActionForm):
