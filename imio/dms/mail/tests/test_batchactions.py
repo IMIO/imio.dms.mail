@@ -87,23 +87,23 @@ class BatchActions(unittest.TestCase):
                                                              self.pgof['direction-financiere'].UID()})
         self.assertSetEqual(set(self.im2.recipient_groups), {self.pgof['direction-generale']['secretariat'].UID(),
                                                              self.pgof['direction-financiere'].UID()})
-        # test replace action
-        view.widgets.extract = lambda *a, **kw: ({'action_choice': 'replace', 'removed_values':
-                                                  [self.pgof['direction-financiere'].UID(),
-                                                   self.pgof['direction-financiere']['budgets'].UID()],
-                                                  'added_values': [self.pgof['direction-generale'].UID(),
-                                                  self.pgof['direction-generale']['secretariat'].UID()]}, [])
+        # test replace action (only applied when all removed values are found on the object)
+        view.widgets.extract = lambda *a, **kw: (
+            {'action_choice': 'replace', 'removed_values': [self.pgof['direction-financiere'].UID(),
+                                                            self.pgof['direction-financiere']['budgets'].UID()],
+             'added_values': [self.pgof['direction-generale'].UID(),
+                              self.pgof['direction-generale']['secretariat'].UID()]}, [])
         view.handleApply(view, 'apply')
         self.assertSetEqual(set(self.im1.recipient_groups), {self.pgof['direction-generale'].UID(),
                                                              self.pgof['direction-generale']['secretariat'].UID()})
-        self.assertSetEqual(set(self.im2.recipient_groups), {self.pgof['direction-generale'].UID(),
-                                                             self.pgof['direction-generale']['secretariat'].UID()})
+        # not changed because all values to remove are not found
+        self.assertSetEqual(set(self.im2.recipient_groups), {self.pgof['direction-generale']['secretariat'].UID(),
+                                                             self.pgof['direction-financiere'].UID()})
         # test overwrite action
-        view.widgets.extract = lambda *a, **kw: ({'action_choice': 'replace', 'removed_values':
-                                                  [self.pgof['direction-financiere'].UID(),
-                                                   self.pgof['direction-financiere']['budgets'].UID()],
-                                                  'added_values': [self.pgof['direction-generale'].UID(),
-                                                  self.pgof['direction-generale']['secretariat'].UID()]}, [])
+        view.widgets.extract = lambda *a, **kw: (
+            {'action_choice': 'overwrite',
+             'added_values': [self.pgof['direction-generale'].UID(),
+                              self.pgof['direction-generale']['secretariat'].UID()]}, [])
         view.handleApply(view, 'apply')
         self.assertSetEqual(set(self.im1.recipient_groups), {self.pgof['direction-generale'].UID(),
                                                              self.pgof['direction-generale']['secretariat'].UID()})
