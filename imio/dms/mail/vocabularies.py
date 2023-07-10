@@ -300,6 +300,17 @@ class OMActiveMailTypesVocabulary(object):
     __call__ = OMActiveMailTypesVocabulary__call__
 
 
+class OMSendModesVocabulary(object):
+    """ All send modes vocabulary """
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def OMSendModesVocabulary__call__(self, context):
+        return get_settings_vta_table('omail_send_modes')
+
+    __call__ = OMSendModesVocabulary__call__
+
+
 class OMActiveSendModesVocabulary(object):
     """ Active send modes vocabulary """
     implements(IVocabularyFactory)

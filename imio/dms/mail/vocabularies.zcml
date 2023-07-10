@@ -45,6 +45,11 @@
         />
 
     <utility
+        name="imio.dms.mail.OMSendModesVocabulary"
+        factory="imio.dms.mail.vocabularies.OMSendModesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.OMActiveSendModesVocabulary"
         factory="imio.dms.mail.vocabularies.OMActiveSendModesVocabulary"
         />
