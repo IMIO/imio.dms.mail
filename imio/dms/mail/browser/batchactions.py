@@ -80,8 +80,10 @@ class RecipientGroupBatchActionForm(BaseARUOBatchActionForm):
     weight = 40
 
     def _vocabulary(self):
-        """A SimpleVocabulary instance or a vocabulary name."""
         return u'collective.dms.basecontent.recipient_groups'
+
+    def _remove_vocabulary(self):
+        return u'collective.contact.plonegroup.organization_services'
 
 
 class AssignedUserBatchActionForm(aubaf):
@@ -150,6 +152,9 @@ class SendModesBatchActionForm(BaseARUOBatchActionForm):
 
     def _vocabulary(self):
         return u'imio.dms.mail.OMActiveSendModesVocabulary'
+
+    def _remove_vocabulary(self):
+        return u'imio.dms.mail.OMSendModesVocabulary'
 
     def _may_apply(self):
         return api.user.has_permission('Manage portal', obj=self.context)
