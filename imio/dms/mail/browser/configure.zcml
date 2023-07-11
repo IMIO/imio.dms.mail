@@ -339,9 +339,21 @@
     <!-- BATCH ACTIONS CONTACTS -->
     <browser:page
         for="imio.dms.mail.interfaces.IOrganizationsDashboardBatchActions"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOrganizationsDashboardBatchActions"
         name="duplicated-batch-action"
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IPersonsDashboardBatchActions"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
 
     <browser:page
         for="imio.dms.mail.interfaces.IPersonsDashboardBatchActions"
@@ -351,11 +363,23 @@
 
     <browser:page
         for="imio.dms.mail.interfaces.IHeldPositionsDashboardBatchActions"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IHeldPositionsDashboardBatchActions"
         name="duplicated-batch-action"
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
 
     <!-- BATCH ACTIONS IM MAILS -->
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
+
     <browser:page
         for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
         name="treatinggroup-batch-action"
@@ -401,10 +425,16 @@
     <!--browser:page
         for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
         name="im-delete-batch-action"
-        class="collective.eeafaceted.batchactions.browser.views.DeleteBatchActionForm"
+        class=".batchactions.DocsDeleteBatchActionForm"
         permission="zope2.View" TESTER LINK INTEGRITY/-->
 
     <!-- BATCH ACTIONS OM MAILS -->
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
+
     <browser:page
         for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="treatinggroup-batch-action"
@@ -450,6 +480,12 @@
     <!-- BATCH ACTIONS TASKS -->
     <browser:page
         for="imio.dms.mail.interfaces.ITaskDashboardBatchActions"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.ITaskDashboardBatchActions"
         name="assignedgroup-batch-action"
         class=".batchactions.AssignedGroupBatchActionForm"
         permission="zope2.View"
@@ -465,9 +501,21 @@
     <!-- BATCH ACTIONS VARIOUS -->
     <browser:page
         for="imio.dms.mail.interfaces.IOMTemplatesFolder"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMTemplatesFolder"
         name="copy-to-batch-action"
         class=".batchactions.CopyToBatchActionForm"
         permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMCKTemplatesFolder"
+        name="delete-batch-action"
+        class=".batchactions.DocsDeleteBatchActionForm"
+        permission="cmf.ManagePortal" />
 
     <browser:page
         for="imio.dms.mail.interfaces.IOMCKTemplatesFolder"
