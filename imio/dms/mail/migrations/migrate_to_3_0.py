@@ -24,6 +24,7 @@ from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
+from imio.dms.mail.interfaces import IClassificationFoldersDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import add_templates
@@ -346,6 +347,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             #         ckprops.manage_changeProperties(plugins=plugins_list)
             # TEMPORARY to 3.0.47
             self.runProfileSteps('imio.dms.mail', steps=['actions',])
+            # TEMPORARY to 3.0.48
+            alsoProvides(self.portal["folders"], INextPrevNotNavigable)
+            alsoProvides(self.portal["folders"]['folder-searches'], IClassificationFoldersDashboardBatchActions)
             # END
 
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
