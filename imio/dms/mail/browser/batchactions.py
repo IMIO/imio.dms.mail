@@ -7,7 +7,6 @@ from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.eeafaceted.batchactions.browser.views import BaseARUOBatchActionForm
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
 from collective.eeafaceted.batchactions.browser.views import ContactBaseBatchActionForm
-from collective.eeafaceted.batchactions.browser.views import DeleteBatchActionForm
 from collective.eeafaceted.batchactions.utils import filter_on_permission, cannot_modify_field_msg
 from collective.eeafaceted.batchactions.utils import is_permitted
 from collective.task.browser.batchactions import AssignedGroupBatchActionForm as agbaf
@@ -32,13 +31,6 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
-
-# All batch actions dashboard
-
-class DocsDeleteBatchActionForm(DeleteBatchActionForm):
-
-    available_for_zope_admin = True
-
 
 # IM and OM batch actions
 
