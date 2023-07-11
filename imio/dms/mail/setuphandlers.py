@@ -42,7 +42,7 @@ from imio.dms.mail.Extensions.demo import clean_examples
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 # from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
-from imio.dms.mail.interfaces import IClassificationFoldersDashboard
+from imio.dms.mail.interfaces import IClassificationFoldersDashboardBatchActions
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
 from imio.dms.mail.interfaces import IIMDashboardBatchActions
@@ -139,6 +139,7 @@ def setup_classification(site):
         folders = site["folders"]
         alsoProvides(folders, ILabelRoot)
         alsoProvides(folders, IProtectedItem)
+        alsoProvides(folders, INextPrevNotNavigable)
         adapted = ILabelJar(folders)
         adapted.add("Suivi", "yellow", True)  # label_id = suivi
         do_transitions(folders, ['show_internally'])
@@ -188,7 +189,7 @@ def setup_classification(site):
     # Setup dashboard collections
     collection_folder = add_db_col_folder(site["folders"], "folder-searches", _("Folders searches"), _("Folders"))
     alsoProvides(collection_folder, INextPrevNotNavigable)
-    alsoProvides(collection_folder, IClassificationFoldersDashboard)
+    alsoProvides(collection_folder, IClassificationFoldersDashboardBatchActions)
     create_classification_folders_collections(collection_folder)
 
     fti.allowed_content_types = original_allowed
