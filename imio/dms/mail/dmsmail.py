@@ -94,7 +94,9 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
+import datetime
 
+now = datetime.datetime.today()
 
 def creating_group_filter(context):
     """Catalog criteria vocabulary used in contact search on some Contact fields.
@@ -670,7 +672,11 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     )
     directives.widget('send_modes', CheckBoxFieldWidget, multiple='multiple', size=5)
 
-    outgoing_date = schema.Datetime(title=_(u'Outgoing Date'), required=False)
+    outgoing_date = schema.Datetime(
+        title=_(u'Outgoing Date'),
+        required=False,
+        min=datetime.datetime(1990, 1, 1),
+        max=datetime.datetime(now.year + 1, 12, 31),)
     directives.widget('outgoing_date', DatetimeFieldWidget, show_today_link=True, show_time=True)
 
     directives.omitted('related_docs', 'notes')
