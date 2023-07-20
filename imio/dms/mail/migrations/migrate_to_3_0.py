@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import timedelta
+
 import transaction
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -41,6 +43,7 @@ from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_valid_identifier
+from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
@@ -352,6 +355,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             alsoProvides(self.portal["folders"]['folder-searches'], IClassificationFoldersDashboardBatchActions)
             # END
 
+            if message_status('doc', older=timedelta(days=90), to_state='inactive'):
+                logger.info("doc message deactivated")
             self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
             if ARCHIVE_SITE:
                 cssr = self.portal.portal_css
