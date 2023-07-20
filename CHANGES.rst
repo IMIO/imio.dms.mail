@@ -1,6 +1,17 @@
 Changelog
 =========
 
+3.0.48
+------
+
+- Last commit at
+- Be sure archives css is enabled after migration
+- Used BaseARUOBatchActionForm for multiple changes batch action
+- Used a different vocabulary for old values in batch actions
+- Added zope admin delete action
+- Added batch actions on folders
+- Added min & max for outgoing_date
+
 3.0.47
 ------
 
