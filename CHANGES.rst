@@ -11,6 +11,8 @@ Changelog
 - Added zope admin delete action
 - Added batch actions on folders
 - Added min & max for outgoing_date
+- Deactivated doc message older than 90 days
+- Added version message
 
 3.0.47
 ------
