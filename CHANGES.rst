@@ -4,7 +4,7 @@ Changelog
 3.0.48
 ------
 
-- Last commit at
+- Last commit at ac7f3af67e12d8ffe7560f53f76b4425f9b0b72b
 - Be sure archives css is enabled after migration
 - Used BaseARUOBatchActionForm for multiple changes batch action
 - Used a different vocabulary for old values in batch actions
