@@ -364,7 +364,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                     cssr.updateStylesheet('imiodmsmail_archives.css', enabled=True)
                     cssr.cookResources()
             self.cleanRegistries()
-            api.portal.set_registry_record('imio.dms.mail.product_version', safe_unicode(get_git_tag(BLDT_DIR)))
+            # version
+            version = safe_unicode(get_git_tag(BLDT_DIR))
+            api.portal.set_registry_record('imio.dms.mail.product_version', version)
+            if 'new-version' in self.portal['messages-config']:
+                api.content.delete(self.portal['messages-config']['new-version'])
+            # not added if already exists
+            add_message('new-version', 'Maj version',
+                        u'<p><strong>iA.docs a été mis à jour à la version {}</strong>. Vous pouvez consulter les '
+                        u'changements en cliquant sur le numéro de version en bas de page.</p>'.format(version),
+                        msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
             # update templates
             self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',
