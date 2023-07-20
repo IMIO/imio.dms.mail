@@ -1138,6 +1138,26 @@ def manage_fields(the_form, config_key, mode):
                 group.fields = group.fields.omit(field_name)
 
 
+def message_status(mid, older=None, to_state='inactive', transitions=['deactivate'], container='default'):
+    site = api.portal.get()
+    if container == 'default':
+        container = site['messages-config']
+    # We pass if id already exists
+    if mid not in container:
+        return False
+    obj = container[mid]
+    change = True
+    if older is not None:
+        with api.env.adopt_roles(['Manager']):
+            history = site.portal_workflow.getInfoFor(obj, 'review_history')
+        last_mod = history[-1]['time'].asdatetime().date()
+        if datetime.now().date() - last_mod <= older:
+            change = False
+    if change and api.content.get_state(obj) != to_state:
+        do_transitions(obj, transitions)
+    return api.content.get_state(obj) == to_state
+
+
 def is_n_plus_level_obsolete(mail, ptype, treating_group='', state=None, config=None, state_start='proposed_to_n_plus'):
     """Check if current treating_groups has validators on the state.
 
