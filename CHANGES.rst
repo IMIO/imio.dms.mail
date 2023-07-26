@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.49
+------
+
+- Last commit at
+- Upgraded setup versions and dependency
+
 3.0.48
 ------
 
