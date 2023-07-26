@@ -4,7 +4,7 @@ Changelog
 3.0.49
 ------
 
-- Last commit at
+- Last commit at 1bb009eeb279c46eb82c7d8624e97f5bd40725f3
 - Upgraded setup versions and dependency
 
 3.0.48
