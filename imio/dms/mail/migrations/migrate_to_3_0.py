@@ -29,7 +29,6 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IClassificationFoldersDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_oem_templates
-from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import createOMailCollections
@@ -50,9 +49,6 @@ from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.content import find
-from imio.helpers.emailer import get_mail_host
-from imio.helpers.security import get_environment
-from imio.helpers.workflow import remove_state_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -365,15 +361,18 @@ class Migrate_To_3_0(Migrator):  # noqa
                     cssr.cookResources()
             self.cleanRegistries()
             # version
-            version = safe_unicode(get_git_tag(BLDT_DIR))
-            api.portal.set_registry_record('imio.dms.mail.product_version', version)
+            old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
+            new_version = safe_unicode(get_git_tag(BLDT_DIR))
+            api.portal.set_registry_record('imio.dms.mail.product_version', new_version)
             if 'new-version' in self.portal['messages-config']:
                 api.content.delete(self.portal['messages-config']['new-version'])
             # not added if already exists
-            add_message('new-version', 'Maj version',
-                        u'<p><strong>iA.docs a été mis à jour à la version {}</strong>. Vous pouvez consulter les '
-                        u'changements en cliquant sur le numéro de version en bas de page.</p>'.format(version),
-                        msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
+            if old_version != new_version:
+                add_message('new-version', 'Maj version',
+                            u'<p><strong>iA.docs a été mis à jour de la version {} à la version {}</strong>. Vous '
+                            u'pouvez consulter les changements en cliquant sur le numéro de version en bas de page.'
+                            u'</p>'.format(old_version, new_version),
+                            msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
             # update templates
             self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',
