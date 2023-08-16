@@ -1089,6 +1089,7 @@ def zope_ready(event):
             with api.env.adopt_user('admin'):
                 logger.info('=> Storing folders tree annotation')
                 set_folders_tree(site)
+                logger.info('=> Folders storage updated')
                 ret = zope_app.cputils_install(zope_app)
                 ret = ret.replace('<div>Those methods have been added: ', '').replace('</div>', '')
                 if ret:
