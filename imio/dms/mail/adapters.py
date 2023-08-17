@@ -923,6 +923,10 @@ class DateDataManager(AttributeField):
     """ DataManager for datetime widget """
 
     def set(self, value):
+        """The goal is to add seconds on dmsdocument and dmsfile datetime fields. For all fields ?"""
+        if value is None:
+            super(DateDataManager, self).set(value)
+            return
         value_s = value.strftime("%Y%m%d%H%M")
         stored = self.query(default=None)
         stored_s = stored is not None and stored.strftime("%Y%m%d%H%M") or ''
