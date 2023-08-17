@@ -345,10 +345,19 @@ class Migrate_To_3_0(Migrator):  # noqa
             #         plugins_list.append(autolink_plugin)
             #         ckprops.manage_changeProperties(plugins=plugins_list)
             # TEMPORARY to 3.0.47
-            self.runProfileSteps('imio.dms.mail', steps=['actions',])
+            # self.runProfileSteps('imio.dms.mail', steps=['actions',])
             # TEMPORARY to 3.0.48
-            alsoProvides(self.portal["folders"], INextPrevNotNavigable)
-            alsoProvides(self.portal["folders"]['folder-searches'], IClassificationFoldersDashboardBatchActions)
+            # alsoProvides(self.portal["folders"], INextPrevNotNavigable)
+            # alsoProvides(self.portal["folders"]['folder-searches'], IClassificationFoldersDashboardBatchActions)
+            # TEMPORARY to 3.0.50
+            brains = self.catalog(portal_type='DashboardCollection',
+                                  path='/'.join(self.portal.folders.getPhysicalPath()))
+            for brain in brains:
+                col = brain.getObject()
+                buf = list(col.customViewFields)
+                if u'select_row' not in buf:
+                    buf.insert(0, u'select_row')
+                    col.customViewFields = tuple(buf)
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):
