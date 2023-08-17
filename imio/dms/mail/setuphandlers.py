@@ -927,6 +927,7 @@ def create_classification_folders_collections(folder):
             'cond': u"",
             'bypass': [],
             "flds": (
+                u'select_row',
                 u"pretty_link",
                 u"internal_reference_no",
                 u"classification_tree_identifiers",
@@ -958,6 +959,7 @@ def create_classification_folders_collections(folder):
             'cond': u"",
             'bypass': [],
             "flds": (
+                u'select_row',
                 u"pretty_link",
                 u"internal_reference_no",
                 u"classification_tree_identifiers",
@@ -989,6 +991,7 @@ def create_classification_folders_collections(folder):
             'cond': u"",
             'bypass': [],
             "flds": (
+                u'select_row',
                 u"pretty_link",
                 u"internal_reference_no",
                 u"classification_tree_identifiers",
@@ -1020,6 +1023,7 @@ def create_classification_folders_collections(folder):
             'cond': u"",
             'bypass': [],
             "flds": (
+                u'select_row',
                 u"pretty_link",
                 u"internal_reference_no",
                 u"classification_tree_identifiers",
