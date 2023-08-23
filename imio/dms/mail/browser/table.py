@@ -30,7 +30,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         if not IScanFields.providedBy(obj):
             return
         scan_infos = [
-            ('scan_id', item.scan_id and escape(item.scan_id) or ''),
+            ('scan_id', obj.scan_id and escape(obj.scan_id) or ''),
             ('scan_date', obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ''),
             ('Version', obj.version or ''),
         ]
@@ -43,7 +43,8 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
     def getLinkContent(self, item):
         iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
         content = super(VersionsTitleColumn, self).getLinkContent(item)  # escaped
-        if item.signed:
+        obj = item.getObject()
+        if obj.signed:
             return u"""%s <img title="%s" src="%s" />""" % (
                 content,
                 translate(u"Signed version", domain='collective.dms.basecontent', context=item.REQUEST),
