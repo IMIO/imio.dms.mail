@@ -8,6 +8,7 @@ from html import escape
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.helpers.adapters import NoEscapeLinkColumn
+from imio.helpers.content import base_getattr
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
@@ -44,7 +45,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
         content = super(VersionsTitleColumn, self).getLinkContent(item)  # escaped
         obj = item.getObject()
-        if obj.signed:
+        if base_getattr(obj, 'signed'):
             return u"""%s <img title="%s" src="%s" />""" % (
                 content,
                 translate(u"Signed version", domain='collective.dms.basecontent', context=item.REQUEST),
