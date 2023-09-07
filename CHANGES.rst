@@ -1,6 +1,15 @@
 Changelog
 =========
 
+3.0.50
+------
+
+- Last commit at
+- Added select_row column on folders tables
+- Corrected date data manager when value is None
+- Get signed attribute from obj not from brain
+- Removed 2.3 upgrade to keep only last one
+
 3.0.49
 ------
 
