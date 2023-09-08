@@ -359,6 +359,12 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     color: white;
 }
 
+#portal-globalnav .tabs_count_total{
+    color:#FFB627;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .portaltype-dmsincomingmail #fieldset-versions table.listing {
     border-top: 1px solid #ddd;
     border-collapse: inherit;

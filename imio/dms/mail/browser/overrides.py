@@ -295,6 +295,7 @@ class FacetedCollectionPortletRenderer(Renderer):
 class ClassificationJSONCollectionsCount(JSONCollectionsCount):
 
     def get_context(self, faceted_context):
+        # TODO : yet necessary ???
         ignored_types = ("ClassificationSubfolder", "ClassificationFolder")
         # look up parents until we found the criteria holder or we reach the 'Plone Site'
         while faceted_context and not faceted_context.portal_type == 'Plone Site':
