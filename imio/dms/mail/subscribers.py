@@ -337,7 +337,8 @@ def dmsdocument_transition(mail, event):
     """
         update indexes after a transition
     """
-    mail.reindexObject(['state_group'])
+    # TODO must use in a second time the future imio.helpers reindex_object
+    mail.portal_catalog.reindexObject(mail, ['state_group'], update_metadata=0)
 
 
 def dmsincomingmail_transition(mail, event):
@@ -347,14 +348,16 @@ def dmsincomingmail_transition(mail, event):
         if is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=mail.treating_groups,
                              user=api.user.get(userid)):
             mail.assigned_user = userid
-            mail.reindexObject(['assigned_user'])
+            # TODO must use in a second time the future imio.helpers reindex_object
+            mail.portal_catalog.reindexObject(mail, ['assigned_user'], update_metadata=0)
 
 
 def dmsoutgoingmail_transition(mail, event):
     """When closing an outgoing mail, add the outgoing_date if necessary."""
     if event.transition and event.transition.id == 'mark_as_sent' and mail.outgoing_date is None:
         mail.outgoing_date = datetime.datetime.now()
-        mail.reindexObject(idxs=('in_out_date',))
+        # TODO must use in a second time the future imio.helpers reindex_object
+        mail.portal_catalog.reindexObject(mail, idxs=('in_out_date',), update_metadata=0)
 
 
 def reference_document_removed(obj, event):
@@ -392,7 +395,8 @@ def task_transition(task, event):
     """
         update indexes after a transition
     """
-    task.reindexObject(['state_group'])
+    # TODO must use in a second time the future imio.helpers reindex_object
+    task.portal_catalog.reindexObject(task, ['state_group'], update_metadata=0)
 
     if event.transition:
         if event.transition.id == 'do_to_assign':
@@ -475,6 +479,9 @@ def dexterity_transition(obj, event):
         Dexterity content transition
     """
     obj.setModificationDate(DateTime())
+    # metadata will be reindexed after by transition
+    # TODO must use in a second time the future imio.helpers reindex_object
+    obj.portal_catalog.reindexObject(obj, ['modified', 'ModificationDate', 'Date'], update_metadata=0)
 
 
 # CONFIGURATION
