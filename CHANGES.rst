@@ -4,7 +4,7 @@ Changelog
 3.0.50
 ------
 
-- Last commit at
+- Last commit at 72a928b41d251e909d8b3100ae72e6e800344667
 - Added select_row column on folders tables
 - Corrected date data manager when value is None
 - Get signed attribute from obj not from brain
