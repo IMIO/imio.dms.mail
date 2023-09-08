@@ -356,7 +356,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 #collections-count-refresh {
     vertical-align: middle;
     margin-left: 1em;
-    color: white;
+    color: #FFB627;
 }
 
 #portal-globalnav .tabs_count_total{
