@@ -521,10 +521,10 @@ CS depuis le scanner
     Remove element  id=${note1}
     Input text  name=form.widgets.IDublinCore.title  Accusé de réception population
     Select from list by index  id=form-widgets-treating_groups  1
-    Click element  form_widgets_sender_select_chzn
-    Input text  css=.chzn-search input  agent
+    Click element  s2id_form_widgets_sender
+    Input text  s2id_autogen1_search  agent
+    Click element  css=#select2-results-1 .select2-results-dept-0
     Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Marc  lastname=Citoyen  zip_code=4020  city=Liège  street=Rue des Papillons  number=25/41  email=marccitoyen@hotmail.com
-    Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_1
     Input text  name=form.widgets.recipients.widgets.query  Citoyen
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li:first-of-type
@@ -620,9 +620,9 @@ Tableaux de bord
     Click button  id=reply-batch-action-but
     Wait until element is visible  css=.template-multiple-reply div#formfield-form-widgets-ITask-due_date
     Select from list by index  id=form-widgets-treating_groups  1
-    Click element  form_widgets_sender_select_chzn
-    Input text  css=.chzn-search input  agent
-    Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_2
+    Click element  s2id_form_widgets_sender
+    Input text  s2id_autogen1_search  agent
+    Click element  css=#select2-results-1 .select2-results-dept-0
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-lot-reponse.png  content
     Click button  id=form-buttons-cancel
     Wait until element is visible  css=.faceted-table-results  10
@@ -1094,9 +1094,9 @@ Contacts 3
     Wait until element is visible  formfield-form-widgets-recipients  20
     Input text  name=form.widgets.IDublinCore.title  Convocation des candidats DF
     Select from list by index  id=form-widgets-treating_groups  1
-    Click element  form_widgets_sender_select_chzn
-    Input text  css=.chzn-search input  agent
-    Click element  css=.chzn-results #form_widgets_sender_select_chzn_o_1
+    Click element  s2id_form_widgets_sender
+    Input text  s2id_autogen1_search  agent
+    Click element  css=#select2-results-1 .select2-results-dept-0
     Input text  name=form.widgets.recipients.widgets.query  liste candidats
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li:first-child
