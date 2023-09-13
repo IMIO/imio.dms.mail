@@ -359,9 +359,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                     buf.insert(0, u'select_row')
                     col.customViewFields = tuple(buf)
             # TEMPORARY to 3.0.51
-            self.reindexIndexes(['email'], update_metadata=True,
-                                portal_types=['dmsincoming_email', 'dmsoutgoingmail', 'held_position', 'organization',
-                                              'person'])
+            # self.reindexIndexes(['email'], update_metadata=True,
+            #                     portal_types=['dmsincoming_email', 'dmsoutgoingmail', 'held_position', 'organization',
+            #                                   'person'])
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):
@@ -395,17 +395,19 @@ class Migrate_To_3_0(Migrator):  # noqa
             # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
             self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
 
-            for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.compoundcriterion',
-                         'collective.contact.core', 'collective.contact.duplicated', 'collective.contact.facetednav',
-                         'collective.contact.importexport', 'collective.contact.plonegroup',
-                         'collective.contact.widget', 'collective.dms.basecontent', 'collective.dms.batchimport',
-                         'collective.dms.mailcontent', 'collective.documentgenerator',
-                         'collective.eeafaceted.batchactions', 'collective.eeafaceted.collectionwidget',
-                         'collective.eeafaceted.dashboard', 'collective.eeafaceted.z3ctable',
-                         'collective.js.tooltipster', 'collective.task', 'collective.wfadaptations',
-                         'dexterity.localroles', 'dexterity.localrolesfield',
-                         'eea.facetednavigation', 'eea.jquery', 'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail',
-                         'imio.helpers', 'imio.history', 'imio.pm.wsclient', 'plonetheme.imioapps']:
+            for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.ckeditortemplates',
+                         'collective.classification.folder', 'collective.classification.tree',
+                         'collective.compoundcriterion', 'collective.contact.core', 'collective.contact.duplicated',
+                         'collective.contact.facetednav', 'collective.contact.importexport',
+                         'collective.contact.plonegroup', 'collective.contact.widget', 'collective.dms.basecontent',
+                         'collective.dms.batchimport', 'collective.dms.mailcontent', 'collective.dms.scanbehavior',
+                         'collective.documentgenerator', 'collective.eeafaceted.batchactions',
+                         'collective.eeafaceted.collectionwidget', 'collective.eeafaceted.dashboard',
+                         'collective.eeafaceted.z3ctable', 'collective.js.tooltipster', 'collective.messagesviewlet',
+                         'collective.task', 'collective.wfadaptations', 'collective.z3cform.select2',
+                         'dexterity.localroles', 'dexterity.localrolesfield', 'eea.facetednavigation', 'eea.jquery',
+                         'imio.actionspanel', 'imio.dashboard', 'imio.dms.mail', 'imio.helpers', 'imio.history',
+                         'imio.pm.wsclient', 'plonetheme.imioapps']:
                 mark_last_version(self.portal, product=prod)
 
         if self.is_in_part('x'):  # clear solr
