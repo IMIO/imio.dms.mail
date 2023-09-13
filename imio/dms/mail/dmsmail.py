@@ -543,7 +543,8 @@ class CustomAddForm(DefaultAddForm):
     def updateWidgets(self, prefix=None):
         super(CustomAddForm, self).updateWidgets()
         imio_dmsincomingmail_updatewidgets(self)
-        self.widgets['orig_sender_email'].mode = HIDDEN_MODE
+        if self.portal_type == 'dmsincomingmail':
+            self.widgets['orig_sender_email'].mode = HIDDEN_MODE
         # Set a due date by default if it was set in the configuration
         due_date_extension = api.portal.get_registry_record(name='due_date_extension', interface=IImioDmsMailConfig)
         if due_date_extension > 0:
