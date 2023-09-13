@@ -358,6 +358,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if u'select_row' not in buf:
                     buf.insert(0, u'select_row')
                     col.customViewFields = tuple(buf)
+            # TEMPORARY to 3.0.51
+            self.reindexIndexes(['email'], update_metadata=True,
+                                portal_types=['dmsincoming_email', 'dmsoutgoingmail', 'held_position', 'organization',
+                                              'person'])
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):
