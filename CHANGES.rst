@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.51
+------
+
+- Last commit at ffea0790bdb9e47f7a53b2252473bbfa55fd4dfe
+- Display orig_sender_email field when adding a dms incoming email
+
 3.0.50
 ------
 
