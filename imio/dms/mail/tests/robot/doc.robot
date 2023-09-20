@@ -58,6 +58,7 @@ CE numerisation
     Capture and crop page screenshot  doc/utilisation/2-2-1-edition-texte-ocerise.png  css=h1.documentFirstHeading  ${note1}  id=fieldset-versions
     #Clear highlight  css=.DV-textView
     Remove element  id=${note1}
+    Click element  css=.DV-documentView span.DV-trigger
     Input text  name=form.widgets.IDublinCore.title  Candidature à un poste d'ouvrier communal
     Input text  name=form.widgets.IDublinCore.description  Lettre de candidature spontanée
 
@@ -132,7 +133,7 @@ CE numerisation
     Input text  name=form.widgets.IContactDetails.zip_code  5032
     Input text  name=form.widgets.IContactDetails.city  Isnes
     Click button  css=#pb_2 #form-buttons-save
-    Sleep  1
+    Sleep  2
     Capture and crop page screenshot  doc/utilisation/2-2-1-expediteur-1-creation-sous-orga-finie.png  id=pb_1
 
     ### Create person
@@ -869,10 +870,10 @@ Workflow ce
     Capture and crop page screenshot  doc/utilisation/2-8-2-etat-agent-cloture.png  css=div.viewlet_workflowstate  id=content-history  css=table.actionspanel-no-style-table
     # back & history
     Click button  css=input.apButtonWF_back_to_treatment
-    Wait until element is visible  css=form#confirmTransitionForm  10
+    Wait until element is visible  css=form#commentsForm  10
     Input text  name=comment  Réouverture pour apporter une réponse complémentaire.\nSuite à un appel téléphonique.
     # CHANGE locator when overlay bug is resolved
-    Capture and crop page screenshot  doc/utilisation/2-8-1-transition-retour.png  id=content  css=form#confirmTransitionForm
+    Capture and crop page screenshot  doc/utilisation/2-8-1-transition-retour.png  id=content  css=form#commentsForm
     Click button  name=form.buttons.save
     Wait until element is visible  css=.highlight-history-link  10
     # CHANGE locator when overlay bug is resolved
@@ -902,7 +903,7 @@ Workflow cs
     Set field value  ${UID}  assigned_user  agent  str
     Set field value  ${UID}  sender  ${SENDER}  str
     Set field value  ${UID}  recipients  ['${RECIPIENT}']  references
-    Set field value  ${UID}  mail_type  courrier  str
+    # Set field value  ${UID}  mail_type  courrier  str
     Sleep  1
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=reponse-candidature
     Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
@@ -1127,7 +1128,7 @@ Gestion modèles
     Remove element  id=${note40}
     Remove element  id=${note41}
     Click element  css=#select_unselect_items
-    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:last-child td:first-child input
+    Click element  css=.listing.nosort.templates-listing.icons-on tbody tr:nth-last-child(2) td:first-child input
     Click element  css=#transition-batch-action-but
     Wait until element is visible  css=.pb-ajax  10
     Capture and crop page screenshot  doc/utilisation/2-10-2-changer-etat-par-lot.png  css=.pb-ajax
@@ -1313,4 +1314,4 @@ Suite Setup
     Set autologin username  dirg
     Go to  ${PLONE_URL}/robot_init
     Disable autologin
-#    Pause
+    Pause

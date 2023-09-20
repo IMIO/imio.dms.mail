@@ -378,15 +378,15 @@ Traiter un courrier
     Add clic  css=table.actionspanel-no-style-table td:nth-child(2)
     Remove element  id=${note1}
     Click element  css=table.actionspanel-no-style-table td:nth-child(2)
-    Wait until element is visible  css=#confirmTransitionForm
+    Wait until element is visible  css=#commentsForm
 
-    ${note1}  Add pointy note  css=#confirmTransitionForm
+    ${note1}  Add pointy note  css=#commentsForm
     ...  Quand on revient en arrière, on peut laisser un commentaire.  position=left  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
     Input text  name=comment  Je vais et je viens...
     Sleep  ${S_S}
-    Click element  css=#confirmTransitionForm input:nth-child(1)
+    Click element  css=#commentsForm input:nth-child(1)
     Wait until element is visible  css=.DV-pageImage  10
 
     ${note1}  Add pointy note  css=#parent-fieldname-title span.pretty_link_icons img:nth-child(1)
