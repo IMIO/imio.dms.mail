@@ -30,7 +30,10 @@ CONTACTS_PART_SUFFIX = u'contacts_part'
 EMPTY_STRING = '__empty_string__'
 EMPTY_DATE = date(1950, 1, 1)
 PRODUCT_DIR = os.path.dirname(__file__)
-BLDT_DIR = '/'.join(os.environ.get('INSTANCE_HOME', '').split('/')[:-2])
+if os.environ.get('ZOPE_HOME', ''):
+    BLDT_DIR = '/'.join(os.getenv('INSTANCE_HOME', '').split('/')[:-2])
+else:  # test env
+    BLDT_DIR = os.getenv('PWD', '')
 
 ALL_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
 IM_EDITOR_SERVICE_FUNCTIONS = ['editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']

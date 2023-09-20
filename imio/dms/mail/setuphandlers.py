@@ -36,6 +36,7 @@ from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
+from imio.dms.mail import BLDT_DIR
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.Extensions.demo import clean_examples
@@ -65,7 +66,9 @@ from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.security import generate_password
 from imio.helpers.security import get_environment
+from imio.helpers.security import is_develop_environment
 from imio.helpers.workflow import do_transitions
+from imio.pyutils.system import get_git_tag
 from itertools import cycle
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
@@ -1573,6 +1576,9 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
     api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
     api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
     api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
+    if not api.portal.get_registry_record('imio.dms.mail.product_version'):
+        api.portal.set_registry_record('imio.dms.mail.product_version',
+                                       safe_unicode(get_git_tag(BLDT_DIR, is_develop_environment())))
 
     # general
     api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter',
