@@ -4,7 +4,7 @@ Changelog
 3.0.52
 ------
 
-- Last commit at
+- Last commit at ecc653949f69cb4e20f8c5c3363ead0eb0755fa5
 - Updated robot doc to generate new images
 - Set product_version on site creation. Used correct path when running tests
 
