@@ -1,6 +1,13 @@
 Changelog
 =========
 
+3.0.52
+------
+
+- Last commit at
+- Updated robot doc to generate new images
+- Set product_version on site creation. Used correct path when running tests
+
 3.0.51
 ------
 
