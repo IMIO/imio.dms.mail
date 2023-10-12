@@ -2458,10 +2458,7 @@ def add_oem_templates(site):
     tplt_fld.setConstrainTypesMode(1)
     tplt_fld.setExcludeFromNav(False)
     api.content.transition(obj=tplt_fld, transition='show_internally')
-    alsoProvides(tplt_fld, IActionsPanelFolderAll)
-    alsoProvides(tplt_fld, INextPrevNotNavigable)
-    alsoProvides(tplt_fld, IProtectedItem)
-    for itf in []:
+    for itf in [IActionsPanelFolderAll, INextPrevNotNavigable, IProtectedItem]:
         alsoProvides(tplt_fld, itf)
     logger.info("'templates/{}' folder created".format(folder_id))
     site.templates.moveObjectToPosition(folder_id, 1)
