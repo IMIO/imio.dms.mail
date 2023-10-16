@@ -634,26 +634,7 @@ class UtilsMethods(BrowserView):
         """Test if one or all of a given group list is part of the current user groups.
         Test if one or all of a suffix list is part of the current user groups.
         """
-        if user is None:
-            user = api.user.get_current()
-        # for admin, we bypass the check
-        if admin and user_is_admin(user):
-            return True
-        u_groups = current_user_groups_ids(user)
-        # u_suffixes = [sfx for sfx in suffixes for grp in u_groups if grp.endswith('_{}'.format(sfx))]
-        u_suffixes = []
-        for sfx in suffixes:
-            for grp in u_groups:
-                if org_uid:
-                    if grp == '{}_{}'.format(org_uid, sfx):
-                        u_suffixes.append(sfx)
-                elif grp.endswith('_{}'.format(sfx)):
-                    u_suffixes.append(sfx)
-        if test == 'any':
-            return any(x in u_groups for x in groups) or any(sfx in u_suffixes for sfx in suffixes)
-        elif test == 'all':
-            return all(x in u_groups for x in groups) and all(sfx in u_suffixes for sfx in suffixes)
-        return False
+        return is_in_user_groups(groups=groups, admin=admin, test=test, suffixes=suffixes, org_uid=org_uid, user=user)
 
     def user_has_review_level(self, portal_type=None):
         """ Test if the current user has a review level """
