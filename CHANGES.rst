@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.54
+------
+
+- Last commit at 745394fb5bcc9ea5b4769c3579fc164d4f0fcf71
+- Rewriting code
+
 3.0.53
 ------
 
