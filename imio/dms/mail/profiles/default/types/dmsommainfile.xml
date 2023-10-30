@@ -2,7 +2,7 @@
 <object name="dmsommainfile" meta_type="Dexterity FTI" i18n:domain="plone"
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <property name="title" i18n:translate="">DmsMainFile</property>
- <property name="description" i18n:translate="">Dms main file of a Dms document</property>
+ <property name="description" i18n:translate="">Dms main file of an outgoing mail</property>
  <property name="icon_expr">string:${portal_url}/++resource++dmsmainfile_icon.png</property>
  <property name="factory">dmsommainfile</property>
  <property name="add_view_expr">string:${folder_url}/++add++dmsommainfile</property>
