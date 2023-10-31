@@ -932,7 +932,8 @@ def create_classification_folders_collections(folder):
             "flds": (
                 u'select_row',
                 u"classification_tree_identifiers",
-                u"pretty_link",
+                u"classification_folder_title",
+                u"classification_subfolder_title",
                 u"internal_reference_no",
                 u"classification_treating_group",
                 u"ModificationDate",
@@ -964,7 +965,8 @@ def create_classification_folders_collections(folder):
             "flds": (
                 u'select_row',
                 u"classification_tree_identifiers",
-                u"pretty_link",
+                u"classification_folder_title",
+                u"classification_subfolder_title",
                 u"internal_reference_no",
                 u"classification_treating_group",
                 u"ModificationDate",
@@ -996,7 +998,8 @@ def create_classification_folders_collections(folder):
             "flds": (
                 u'select_row',
                 u"classification_tree_identifiers",
-                u"pretty_link",
+                u"classification_folder_title",
+                u"classification_subfolder_title",
                 u"internal_reference_no",
                 u"classification_treating_group",
                 u"ModificationDate",
@@ -1028,7 +1031,8 @@ def create_classification_folders_collections(folder):
             "flds": (
                 u'select_row',
                 u"classification_tree_identifiers",
-                u"pretty_link",
+                u"classification_folder_title",
+                u"classification_subfolder_title",
                 u"internal_reference_no",
                 u"classification_treating_group",
                 u"ModificationDate",
