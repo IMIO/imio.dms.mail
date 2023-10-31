@@ -362,6 +362,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             # self.reindexIndexes(['email'], update_metadata=True,
             #                     portal_types=['dmsincoming_email', 'dmsoutgoingmail', 'held_position', 'organization',
             #                                   'person'])
+            # TEMPORARY to 3.0.55
+            reimport_faceted_config(self.portal.folders['folder-searches'], xml='classificationfolders-searches.xml',
+                                    default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
+
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):
