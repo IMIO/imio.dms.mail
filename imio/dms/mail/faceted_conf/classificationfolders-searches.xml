@@ -4,19 +4,33 @@
   xmlns:i18n="http://xml.zope.org/namespaces/i18n">
  <criteria>
   <criterion name="c0">
-   <property name="widget">resultsperpage</property>
-   <property name="title">Results per page</property>
-   <property name="default">20</property>
+   <property name="widget">sorting</property>
+   <property name="title">Sorting</property>
+   <property name="vocabulary">eea.faceted.vocabularies.TextCatalogIndexes</property>
+   <property name="default">ClassificationFolderSort</property>
    <property name="position">right</property>
    <property name="section">default</property>
    <property name="hidden">True</property>
-   <property name="custom_css"></property>
-   <property name="start">0</property>
-   <property name="end">20</property>
-   <property name="step">5</property>
   </criterion>
 
   <criterion name="c1" i18n:attributes="title">
+   <property name="widget">collection-link</property>
+   <property name="title">Base collections</property>
+   <property name="position">top</property>
+   <property name="section">default</property>
+   <property name="hidden">True</property>
+   <property name="count">False</property>
+   <property name="sortcountable">False</property>
+   <property name="hidezerocount">False</property>
+   <property
+      name="vocabulary">collective.eeafaceted.collectionwidget.cachedcollectionvocabulary</property>
+   <property name="hidealloption">True</property>
+   <property name="maxitems">0</property>
+   <property name="sortreversed">False</property>
+   <property name="default"></property>
+  </criterion>
+
+  <criterion name="c2" i18n:attributes="title">
    <property name="widget">text</property>
    <property name="title">Search</property>
    <property name="index">SearchableText</property>
@@ -27,40 +41,7 @@
    <property name="hidden">False</property>
   </criterion>
 
-  <criterion name="c2">
-   <property name="widget">sorting</property>
-   <property name="title">Sorting</property>
-   <property name="vocabulary">eea.faceted.vocabularies.TextCatalogIndexes</property>
-   <property name="default">ClassificationFolderSort</property>
-   <property name="position">right</property>
-   <property name="section">default</property>
-   <property name="hidden">True</property>
-  </criterion>
-
   <criterion name="c3">
-   <property name="widget">criteria</property>
-   <property name="title">Current search</property>
-   <property name="position">center</property>
-   <property name="section">default</property>
-   <property name="hidden">True</property>
-   <property name="custom_css"></property>
-  </criterion>
-
-  <criterion name="c4">
-   <property name="widget">path</property>
-   <property name="title">location</property>
-   <property name="default"
-             tal:content="python:'/' + '/'.join(context.getPhysicalPath()[2:])"
-   />
-   <property name="index">path</property>
-   <property name="depth">-1</property>
-   <property name="position">right</property>
-   <property name="section">default</property>
-   <property name="hidden">True</property>
-   <property name="theme">apple</property>
-  </criterion>
-
-  <criterion name="c5">
    <property name="widget">checkbox</property>
    <property name="title">Portal type</property>
    <property name="index">portal_type</property>
@@ -83,7 +64,7 @@
    <property name="sortreversed">False</property>
   </criterion>
 
-  <criterion name="c6" i18n:attributes="title">
+  <criterion name="c4" i18n:attributes="title">
    <property name="widget">autocomplete</property>
    <property name="title">Classification Code</property>
    <property name="position">center</property>
@@ -96,22 +77,39 @@
    <property name="multivalued">True</property>
   </criterion>
 
-  <criterion name="c7" i18n:attributes="title">
-   <property name="widget">collection-link</property>
-   <property name="title">Base collections</property>
-   <property name="position">top</property>
+  <criterion name="c5">
+   <property name="widget">resultsperpage</property>
+   <property name="title">Per page</property>
+   <property name="default">20</property>
+   <property name="position">center</property>
+   <property name="section">default</property>
+   <property name="hidden">False</property>
+   <property name="custom_css"></property>
+   <property name="start">40</property>
+   <property name="end">400</property>
+   <property name="step">40</property>
+  </criterion>
+
+  <criterion name="c6">
+   <property name="widget">path</property>
+   <property name="title">location</property>
+   <property name="default">/folders</property>
+   <property name="index">path</property>
+   <property name="depth">-1</property>
+   <property name="position">right</property>
    <property name="section">default</property>
    <property name="hidden">True</property>
-   <property name="count">False</property>
-   <property name="sortcountable">False</property>
-   <property name="hidezerocount">False</property>
-   <property
-      name="vocabulary">collective.eeafaceted.collectionwidget.cachedcollectionvocabulary</property>
-   <property name="hidealloption">True</property>
-   <property name="maxitems">0</property>
-   <property name="sortreversed">False</property>
-   <property name="default"></property>
+   <property name="theme">apple</property>
   </criterion>
+
+  <!--criterion name="c7">
+   <property name="widget">criteria</property>
+   <property name="title">Current search</property>
+   <property name="position">center</property>
+   <property name="section">default</property>
+   <property name="hidden">True</property>
+   <property name="custom_css"></property>
+  </criterion-->
 
   <!-- advanced widgets -->
 
