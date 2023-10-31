@@ -377,6 +377,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                     buf.insert(2, u'classification_subfolder_title')
                     buf.insert(2, u'classification_folder_title')
                     col.customViewFields = tuple(buf)
+                if u'ModificationDate' in buf:
+                    buf.remove(u'ModificationDate')
+                    buf.remove(u'review_state')
+                    col.customViewFields = tuple(buf)
 
             # END
 
