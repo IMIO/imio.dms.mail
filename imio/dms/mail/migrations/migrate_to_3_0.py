@@ -372,6 +372,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                     buf.remove(u'classification_tree_identifiers')
                     buf.insert(1, u'classification_tree_identifiers')
                     col.customViewFields = tuple(buf)
+                if u'classification_folder_title' not in buf:
+                    buf.remove(u'pretty_link')
+                    buf.insert(2, u'classification_subfolder_title')
+                    buf.insert(2, u'classification_folder_title')
+                    col.customViewFields = tuple(buf)
 
             # END
 
