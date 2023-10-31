@@ -26,7 +26,6 @@ from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
-from imio.dms.mail.interfaces import IClassificationFoldersDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
@@ -63,7 +62,6 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
-from unidecode import unidecode
 from zExceptions import Redirect
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
@@ -365,6 +363,15 @@ class Migrate_To_3_0(Migrator):  # noqa
             # TEMPORARY to 3.0.55
             reimport_faceted_config(self.portal.folders['folder-searches'], xml='classificationfolders-searches.xml',
                                     default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
+            brains = self.catalog(portal_type='DashboardCollection',
+                                  path='/'.join(self.portal.folders.getPhysicalPath()))
+            for brain in brains:
+                col = brain.getObject()
+                buf = list(col.customViewFields)
+                if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
+                    buf.remove(u'classification_tree_identifiers')
+                    buf.insert(1, u'classification_tree_identifiers')
+                    col.customViewFields = tuple(buf)
 
             # END
 
