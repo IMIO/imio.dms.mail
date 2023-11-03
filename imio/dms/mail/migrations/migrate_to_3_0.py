@@ -47,7 +47,9 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.helpers.catalog import reindexIndexes
 from imio.helpers.content import find
+from imio.helpers.setup import load_type_from_package
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -382,6 +384,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                     buf.remove(u'review_state')
                     col.customViewFields = tuple(buf)
 
+            # TEMPORARY for plonegroup change
+            load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
+            load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
+            reindexIndexes(self.portal, idxs=['mail_type'])  # remove userid values
+            pf = self.portal.contacts['personnel-folder']
+            pf.manage_permission('collective.contact.plonegroup: Write userid field',
+                                 ('Manager', 'Site Administrator'), acquire=0)
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):

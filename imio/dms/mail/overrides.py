@@ -20,6 +20,7 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from zope import schema
 
 
+# TODO: must be removed soon !!
 class IDmsPerson(IPerson):
 
     userid = schema.Choice(

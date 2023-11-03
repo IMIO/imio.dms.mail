@@ -812,7 +812,7 @@ def group_assignment(event):
         intids = getUtility(IIntIds)
         pf = portal['contacts']['personnel-folder']
         # exists already
-        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
+        exist = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type='person')
         if userid in pf:
             pers = pf[userid]
         elif exist:
@@ -865,7 +865,7 @@ def group_unassignment(event):
         userid = event.principal
         portal = api.portal.get()
         pf = portal['contacts']['personnel-folder']
-        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
+        exist = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type='person')
         if userid in pf:
             pers = pf[userid]
         elif exist:
