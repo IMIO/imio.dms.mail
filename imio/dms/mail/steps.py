@@ -85,7 +85,7 @@ def create_persons_from_users(portal, fn_first=True, functions=['encodeur'], use
     # logger.info(users)
     for userid in users:
         email = users[userid]['pers'].pop('email')
-        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
+        exist = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type='person')
         if userid in pf:
             pers = pf[userid]
         elif exist:

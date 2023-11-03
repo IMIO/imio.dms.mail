@@ -571,6 +571,7 @@ def heldposition_userid_index(obj):
     return common_marker
 
 
+# TODO: must be removed soon !!
 @indexer(IDmsPerson)
 def person_userid_index(obj):
     """Indexer of 'mail_type' for IDmsPerson. Stores userid !"""
