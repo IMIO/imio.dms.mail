@@ -20,25 +20,24 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from zope import schema
 
 
-# TODO: must be removed soon !!
-class IDmsPerson(IPerson):
-
-    userid = schema.Choice(
-        title=_(u'Plone user'),
-        required=False,
-        vocabulary=u'plone.app.vocabularies.Users',
-    )
-
-    directives.read_permission(userid='imio.dms.mail.write_userid_field')
-    directives.write_permission(userid='imio.dms.mail.write_userid_field')
-
-
-class DmsPersonSchemaPolicy(DexteritySchemaPolicy):
-    """ """
-    def bases(self, schemaName, tree):
-        return (IDmsPerson, )
-
-
+# class IDmsPerson(IPerson):
+#
+#     userid = schema.Choice(
+#         title=_(u'Plone user'),
+#         required=False,
+#         vocabulary=u'plone.app.vocabularies.Users',
+#     )
+#
+#     directives.read_permission(userid='imio.dms.mail.write_userid_field')
+#     directives.write_permission(userid='imio.dms.mail.write_userid_field')
+#
+#
+# class DmsPersonSchemaPolicy(DexteritySchemaPolicy):
+#     """ """
+#     def bases(self, schemaName, tree):
+#         return (IDmsPerson, )
+#
+#
 class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
 
     def check_items_on_delete(self):

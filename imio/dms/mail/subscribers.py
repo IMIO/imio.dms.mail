@@ -669,7 +669,7 @@ def user_deleted(event):
     # search in assigned_user index
     for (idx, domain, criterias) in (('assigned_user', 'collective.eeafaceted.z3ctable', {}),
                                      ('Creator', 'plone', {}),
-                                     ('mail_type', 'collective.eeafaceted.z3ctable',
+                                     ('userid', 'collective.contact.plonegroup',
                                       {'object_provides': IPersonnelContact.__identifier__})):
         criterias.update({idx: princ})
         brains = portal.portal_catalog.unrestrictedSearchResults(**criterias)

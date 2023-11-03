@@ -236,7 +236,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         agent.reindexObject()
         self.assertRaises(Redirect, api.user.delete, username='testuser')
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'Mail type' index.")
+        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'userid' index.")
 
     def test_group_deleted(self):
         request = self.portal.REQUEST

@@ -874,7 +874,7 @@ class VariousUtilsMethods(UtilsMethods):
         intids = getUtility(IIntIds)
         catalog = getUtility(ICatalog)
         pc = portal.portal_catalog
-        brains = pc.unrestrictedSearchResults(mail_type=userid, portal_type='held_position', sort_on='path')
+        brains = pc.unrestrictedSearchResults(userid=userid, portal_type='held_position', sort_on='path')
         if brains:
             persons = {}
             for brain in brains:

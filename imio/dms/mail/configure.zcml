@@ -17,8 +17,6 @@
                 title="imio.dms.mail: Write mail base fields"/>
     <permission id="imio.dms.mail.write_treating_group_field"
                 title="imio.dms.mail: Write treating group field"/>
-    <permission id="imio.dms.mail.write_userid_field"
-                title="imio.dms.mail: Write userid field"/>
     <!--permission id="imio.dms.mail.write_creating_group_field"
                 title="imio.dms.mail: Write creating group field"/-->
 
@@ -67,11 +65,6 @@
     <utility
         factory=".dmsfile.ImioDmsFileSchemaPolicy"
         name="schema_policy_imiodmsfile"
-    />
-
-    <utility
-        factory=".overrides.DmsPersonSchemaPolicy"
-        name="schema_policy_dmsperson"
     />
 
     <interface interface=".browser.settings.IImioDmsMailConfig" />
