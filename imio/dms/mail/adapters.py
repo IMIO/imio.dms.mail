@@ -23,7 +23,6 @@ from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
-from imio.dms.mail.overrides import IDmsPerson
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -568,15 +567,6 @@ def heldposition_userid_index(obj):
     parent = obj.aq_parent
     if base_hasattr(parent, 'userid') and parent.userid:
         return parent.userid
-    return common_marker
-
-
-# TODO: must be removed soon !!
-@indexer(IDmsPerson)
-def person_userid_index(obj):
-    """Indexer of 'mail_type' for IDmsPerson. Stores userid !"""
-    if base_hasattr(obj, 'userid') and obj.userid:
-        return obj.userid
     return common_marker
 
 

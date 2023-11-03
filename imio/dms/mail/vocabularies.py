@@ -229,7 +229,6 @@ def get_internal_held_positions_vocabulary(states):
 
     terms = []
     for brain in brains:
-        # the userid is stored in mail_type index !!
         hp = brain._unrestrictedGetObject()
         person = hp.get_person()
         org = hp.get_organization()
@@ -237,7 +236,7 @@ def get_internal_held_positions_vocabulary(states):
             continue
         terms.append((person, hp,
                       SimpleVocabulary.createTerm(
-                          brain.UID, '{}_{}_{}'.format(brain.UID, org.UID(), brain.mail_type or ''),
+                          brain.UID, '{}_{}_{}'.format(brain.UID, org.UID(), person.userid or ''),
                           hp.get_full_title(first_index=1))))
 
     def sort_terms(t):
