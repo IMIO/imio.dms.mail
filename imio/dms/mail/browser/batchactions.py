@@ -16,11 +16,8 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
 from imio.dms.mail.utils import is_in_user_groups
-from imio.helpers.cache import get_current_user_id
-from imio.helpers.content import get_vocab
 from imio.helpers.content import uuidsToObjects
 from plone import api
-from plone.formwidget.masterselect import MasterSelectField
 from z3c.form.browser.select import SelectFieldWidget
 from z3c.form.field import Fields
 from zope import schema
