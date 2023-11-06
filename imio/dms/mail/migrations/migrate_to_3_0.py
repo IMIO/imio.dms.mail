@@ -389,7 +389,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
             reindexIndexes(self.portal, idxs=['mail_type'])  # remove userid values
             pf = self.portal.contacts['personnel-folder']
-            pf.manage_permission('collective.contact.plonegroup: Write userid field',
+            pf.manage_permission('collective.contact.plonegroup: Write user link fields',
+                                 ('Manager', 'Site Administrator'), acquire=0)
+            pf.manage_permission('collective.contact.plonegroup: Read user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
             # END
 

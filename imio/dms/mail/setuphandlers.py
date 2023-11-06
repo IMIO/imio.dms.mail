@@ -2078,7 +2078,9 @@ def addOwnPersonnel(context):
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
     alsoProvides(pf, IActionsPanelFolder)
-    pf.manage_permission('collective.contact.plonegroup: Write userid field', ('Manager', 'Site Administrator'),
+    pf.manage_permission('collective.contact.plonegroup: Read user link fields', ('Manager', 'Site Administrator'),
+                         acquire=0)
+    pf.manage_permission('collective.contact.plonegroup: Write user link fields', ('Manager', 'Site Administrator'),
                          acquire=0)
     # Set restrictions
     pf.setConstrainTypesMode(1)
