@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
-
+from collective.contact.plonegroup.behaviors import PrimaryOrganizationsVocabulary
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
@@ -552,3 +552,12 @@ class TreatingGroupsForFacetedFilterVocabulary(object):
         return SimpleVocabulary([term for term in vocab._terms if term.value not in hidden_orgs])
 
     __call__ = TreatingGroupsForFacetedFilterVocabulary__call__
+
+
+class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
+
+    def __call__(self, context, userid=None):
+        """ """
+        return super(DmsPrimaryOrganizationsVocabulary, self).__call__(
+            context, userid=userid, suffixes=ALL_EDITOR_SERVICE_FUNCTIONS,
+            base_voc='collective.dms.basecontent.treating_groups')
