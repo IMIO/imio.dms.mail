@@ -104,15 +104,14 @@ class TestContactSuggest(unittest.TestCase):
         # no term
         self.assertEqual(view(), '[]')
         # search held position
-        view.request['term'] = 'directeur'
+        view.request['term'] = 'agent evenements'
         ret = json.loads(view())
         self.assertEqual(ret.pop(0),
-                         {'text': u'Monsieur Maxime DG, Directeur du personnel (Mon organisation / Direction générale '
-                                  u'/ GRH)',
-                          'id': self.pf['dirg']['directeur-du-personnel'].UID()})
+                         {'text': u'Monsieur Fred Agent, Agent Événements (Mon organisation / Événements)',
+                          'id': self.pf['agent']['agent-evenements'].UID()})
         self.assertEqual(ret.pop(0),
-                         {'text': u'Monsieur Maxime DG, Directeur général (Mon organisation / Direction générale)',
-                          'id': self.pf['dirg']['directeur-general'].UID()})
+                         {'text': u'Monsieur Stef Agent, Agent Événements (Mon organisation / Événements)',
+                          'id': self.pf['agent1']['agent-evenements'].UID()})
         # search organization
         view.request['term'] = 'direction générale grh'
         ret = json.loads(view())
@@ -126,10 +125,6 @@ class TestContactSuggest(unittest.TestCase):
                          {"text": u"Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale "
                                   u"/ GRH)",
                           "id": self.pf['chef']['responsable-grh'].UID()})
-        self.assertEqual(ret.pop(0),
-                         {'text': u'Monsieur Maxime DG, Directeur du personnel (Mon organisation / Direction générale '
-                                  u'/ GRH)',
-                          'id': self.pf['dirg']['directeur-du-personnel'].UID()})
         self.assertEqual(ret.pop(0),
                          {'text': u'Mon organisation / Direction générale / GRH [TOUT]',
                           u'id': 'l:%s' % self.pgo['direction-generale']['grh'].UID()})
@@ -273,7 +268,7 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.assertIn(u'>Responsable GRH<', rendered)
         self.assertIn(u'>Direction générale<', rendered)
         self.assertIn(u'>GRH<', rendered)
-        self.assertIn(u'>michel.chef@macommune.be<', rendered)
+        self.assertIn(u'>chef@macommune.be<', rendered)
         self.assertIn(u'>012/34.56.79<', rendered)
         self.assertIn(u'>Rue Léon Morel, 1<', rendered)
         self.assertIn(u'>5032 Isnes<', rendered)

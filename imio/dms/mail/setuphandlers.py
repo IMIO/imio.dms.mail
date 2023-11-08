@@ -1641,6 +1641,37 @@ def configureContactPloneGroup(context):
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
+        # internal persons and held_positions have been created
+        # This part was previously done in addOwnPersonnel
+        persons = {
+            'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
+                              'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
+                              'number': u'2', 'primary_organization': dep0.UID()},
+                     'hps': {'phone': u'012345679', 'label': u'Responsable {}'}},
+            'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
+                               'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
+                               'number': u'3', 'primary_organization': services0[0].UID()},
+                      'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
+            'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
+                                'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
+                                'number': u'1', 'primary_organization': departments[5].UID()},
+                       'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
+        }
+        pf = contacts['personnel-folder']
+        normalizer = getUtility(IIDNormalizer)
+        for pers_id in persons:
+            if pers_id not in pf:
+                raise 'Person {} not created in personnel-folder'.format(pers_id)
+            person = pf[pers_id]
+            for fld, val in persons[pers_id]['pers'].items():
+                setattr(person, fld, val)
+            person.reindexObject()
+            for hp in person.objectValues():
+                setattr(hp, 'phone', persons[pers_id]['hps']['phone'])
+                setattr(hp, 'label', persons[pers_id]['hps']['label'].format(hp.get_organization().title))
+                # setattr(hp, 'id', normalizer.normalize(hp.label))
+                api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
+                hp.reindexObject()
 
 
 def addTestDirectory(context):
@@ -2086,7 +2117,7 @@ def addOwnPersonnel(context):
     pf.setConstrainTypesMode(1)
     pf.setLocallyAllowedTypes(['person'])
     pf.setImmediatelyAddableTypes(['person'])
-
+    return
     intids = getUtility(IIntIds)
     own_orga = contacts['plonegroup-organization']
     inb = api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
@@ -2148,7 +2179,7 @@ def addOwnPersonnel(context):
                             'number': u'1', 'use_parent_address': False},
                    'fcts': hp_dic_list('agent1')},
     }
-
+    # aucun utilisateur créé à ce stade...
     normalizer = getUtility(IIDNormalizer)
     for person in persons:
         pers = api.content.create(container=pf, type='person', id=person, userid=person, **persons[person]['pers'])

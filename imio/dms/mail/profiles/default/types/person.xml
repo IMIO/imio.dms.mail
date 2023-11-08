@@ -5,5 +5,4 @@
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   <element value="collective.contact.plonegroup.behaviors.IPlonegroupUserLink" />
  </property>
- <!--property name="schema_policy">schema_policy_dmsperson</property-->
 </object>
