@@ -84,6 +84,7 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
+from Products.MimetypesRegistry import MimeTypeException
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
@@ -1669,7 +1670,6 @@ def configureContactPloneGroup(context):
             for hp in person.objectValues():
                 setattr(hp, 'phone', persons[pers_id]['hps']['phone'])
                 setattr(hp, 'label', persons[pers_id]['hps']['label'].format(hp.get_organization().title))
-                # setattr(hp, 'id', normalizer.normalize(hp.label))
                 api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
                 hp.reindexObject()
 
@@ -2471,8 +2471,11 @@ def add_transforms(site):
                          ('pdf_to_html', 'Products.PortalTransforms.transforms.pdf_to_html'),
                          ('odt_to_text', 'imio.dms.mail.transforms')):
         if name not in pt.objectIds():
-            pt.manage_addTransform(name, module)
-            logger.info("Added '%s' transform" % name)
+            try:
+                pt.manage_addTransform(name, module)
+                logger.info("Added '%s' transform" % name)
+            except MimeTypeException as err:
+                logger.info("CANNOT ADD '{}' transform: {}".format(name, err))
 
 
 def add_oem_templates(site):
