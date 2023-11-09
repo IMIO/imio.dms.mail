@@ -1651,7 +1651,7 @@ def configureContactPloneGroup(context):
                      'hps': {'phone': u'012345679', 'label': u'Responsable {}'}},
             'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
                                'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
-                               'number': u'3', 'primary_organization': services0[0].UID()},
+                               'number': u'3', 'primary_organization': services0[3].UID()},
                       'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
             'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
                                 'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",

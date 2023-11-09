@@ -803,6 +803,7 @@ def group_assignment(event):
             user_ids.append(userid)  # _p_changed is managed
             obj.reindexObject(idxs=['labels'])
     # we manage the personnel-folder person and held position
+    # TODO include other functions used in email consuming (not only encodeur)
     orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
     if orgs:
         user = api.user.get(userid)

@@ -28,14 +28,14 @@ class IDirectoryFacetedNavigable(IFacetedNavigable, IDirectory):
 
 class IExternalContact(Interface):
 
-    """Marker interface for external organizations."""
+    """Marker interface for external organizations. MUST BE REMOVED"""
 
 
 class IInternalContact(Interface):
 
     """Marker interface for internal organizations
 
-    i.e. organizations in plonegroup-organization."""
+    i.e. organizations in plonegroup-organization.  MUST BE REMOVED"""
 
 
 class IDocsDashboard(Interface):
