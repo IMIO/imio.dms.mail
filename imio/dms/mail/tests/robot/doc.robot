@@ -1215,7 +1215,8 @@ Configuration
     Wait until element is visible  css=.subsection-personnel-folder #content dt span.summary  10
     Capture and crop page screenshot  doc/configuration/5-4-config-propre-personnel.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef/edit
-    Wait until element is visible  formfield-form-widgets-userid  10
+    Click element  id=fieldsetlegend-app_parameters
+    Wait until element is visible  formfield-form-widgets-IPlonegroupUserLink-userid  10
     Capture and crop page screenshot  doc/configuration/5-4-config-personnel-chef-edit.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef
     Wait until element is visible  css=.subsection-personnel-folder-chef #person #held_positions  10
