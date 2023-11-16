@@ -314,11 +314,13 @@ class TestOMServiceValidation1(unittest.TestCase):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
         all_titles = [t.title for t in factory(self.omail)]
         change_user(self.portal, 'agent')
+        # agent primary organization first (communication)
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
-                             [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
+                             [all_titles[3]] + [t for i, t in enumerate(all_titles) if i not in (0, 3, 4, 7)])
+        # state is not more created
         org1, org2 = get_registry_organizations()[0:2]
         with api.env.adopt_roles(['Manager']):
-            self.omail.treating_groups = org2
+            self.omail.treating_groups = org2  # secretariat
             api.group.add_user(groupname='{}_n_plus_1'.format(org2), username='siteadmin')
             api.content.transition(obj=self.omail, transition='propose_to_n_plus_1')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)

@@ -6,6 +6,7 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_organizations
+from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
@@ -322,6 +323,11 @@ class OMActiveSendModesVocabulary(object):
 
 
 def encodeur_active_orgs(context):
+    """This vocabulary source is used on the OM treating_groups field.
+
+    :param context:
+    :return: a filtered vocabulary with the user treating groups
+    """
     current_user = api.user.get_current()
     factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
     voc = factory(context)
@@ -329,7 +335,8 @@ def encodeur_active_orgs(context):
     if current_user.getId() is None:
         return voc
     # the expedition group must have all values
-    if 'expedition' in get_plone_groups_for_user(user=current_user):
+    groups = get_plone_groups_for_user(user=current_user)
+    if 'expedition' in groups:
         return voc
     # we filter orgs if
     #   * current user is not admin
@@ -339,7 +346,13 @@ def encodeur_active_orgs(context):
             (context.portal_type != 'dmsoutgoingmail' or api.content.get_state(context) == 'created')):
         orgs = organizations_with_suffixes(get_plone_groups_for_user(user=current_user), OM_EDITOR_SERVICE_FUNCTIONS,
                                            group_as_str=True)
-        return SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
+        pers = get_person_from_userid(current_user.id)
+        if pers and pers.primary_organization and pers.primary_organization in orgs:
+            return SimpleVocabulary(
+                [voc.vocab.getTerm(pers.primary_organization)] +
+                [term for term in voc.vocab._terms if term.value in orgs and term.value != pers.primary_organization])
+        else:
+            return SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
     return voc
 
 
