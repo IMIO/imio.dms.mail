@@ -393,6 +393,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                                  ('Manager', 'Site Administrator'), acquire=0)
             pf.manage_permission('collective.contact.plonegroup: Read user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
+            # TODO select primary org when user has only one org
+
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):

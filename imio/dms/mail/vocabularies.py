@@ -214,7 +214,7 @@ class PloneGroupInterfacesVocabulary(object):
 
 
 def get_internal_held_positions_vocabulary(states):
-    """Returns a vocabulary with internal held positions, following given stats list.
+    """Returns a vocabulary with internal held positions, following given states list.
     The vocabulary is sorted following firstname sort option.
     """
     catalog = api.portal.get_tool('portal_catalog')
