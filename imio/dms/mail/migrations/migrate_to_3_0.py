@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
-
-import transaction
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.relationhelpers.api import rebuild_relations
 from collective.task.content.task import Task
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
@@ -76,6 +75,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 import json
 import logging
 import os
+import transaction
 
 
 logger = logging.getLogger('imio.dms.mail')
@@ -384,7 +384,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                     buf.remove(u'review_state')
                     col.customViewFields = tuple(buf)
 
-            # TEMPORARY for plonegroup change
+            # TEMPORARY to 3.0.56 (plonegroup change)
             load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
             load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
             reindexIndexes(self.portal, idxs=['mail_type'])  # remove userid values
@@ -393,6 +393,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                                  ('Manager', 'Site Administrator'), acquire=0)
             pf.manage_permission('collective.contact.plonegroup: Read user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
+            rebuild_relations()
             # TODO select primary org when user has only one org
 
             # END
