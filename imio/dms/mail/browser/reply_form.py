@@ -34,10 +34,13 @@ class ReplyForm(BaseReplyForm):
             return
         prefix = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                 'omail_response_prefix', default='') or ''
-        self.widgets['IDublinCore.title'].value = u"%s%s" % (prefix, safe_unicode(self.context.title))
-        self.widgets['send_modes'].value = self.get_send_modes()
+        if prefix and not self.widgets['IDublinCore.title'].value.startswith(prefix):
+            self.widgets['IDublinCore.title'].value = u"%s%s" % (prefix, self.widgets["IDublinCore.title"].value)
+        if not self.widgets['send_modes'].value:
+            self.widgets['send_modes'].value = self.get_send_modes()
         if self.context.orig_sender_email:
-            self.widgets['orig_sender_email'].value = self.context.orig_sender_email
+            if not self.widgets['orig_sender_email'].value:
+                self.widgets['orig_sender_email'].value = self.context.orig_sender_email
         else:
             self.widgets['orig_sender_email'].mode = HIDDEN_MODE
 
@@ -46,7 +49,7 @@ class ReplyForm(BaseReplyForm):
             if getattr(self.context, fieldname, None):
                 widget = self.widgets[widgetname]
                 widget.value = getattr(self.context, fieldname)
-                # Terms must be updated to ensure that `displayValue` work correctly
+                # Terms must be updated to ensure that `displayValue` works correctly
                 terms = []
                 for key in widget.value:
                     terms.append(widget.source.getTerm(key))
