@@ -36,6 +36,7 @@
     <include package="collective.contact.contactlist" />
     <include package="collective.ckeditortemplates" />
     <include package="collective.js.fancytree" />
+    <include package="collective.relationhelpers" />
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
     <include package="collective.fontawesome"/>
