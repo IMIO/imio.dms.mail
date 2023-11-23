@@ -36,6 +36,7 @@ from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import create_period_folder_max
+from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
@@ -46,8 +47,10 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.catalog import reindexIndexes
 from imio.helpers.content import find
+from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_type_from_package
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
@@ -393,9 +396,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                                  ('Manager', 'Site Administrator'), acquire=0)
             pf.manage_permission('collective.contact.plonegroup: Read user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
-            rebuild_relations()
-            # TODO select primary org when user has only one org
-
+            rebuild_relations()  # rebuild relations to update rel objects referencing removed schema interface
+            # add personnel persons and hps for all functions
+            for udic in get_user_from_criteria(self.portal, email=''):
+                groups = get_plone_groups_for_user(user_id=udic['userid'])
+                create_personnel_content(udic['userid'], groups, primary=True)
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):

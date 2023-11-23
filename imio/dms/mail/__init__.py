@@ -35,6 +35,8 @@ if os.environ.get('ZOPE_HOME', ''):
 else:  # test env
     BLDT_DIR = os.getenv('PWD', '')
 
+ALL_SERVICE_FUNCTIONS = ['contacts_part', 'editeur', 'encodeur', 'group_encoder', 'lecteur',
+                         'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
 ALL_EDITOR_SERVICE_FUNCTIONS = ['encodeur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
 IM_EDITOR_SERVICE_FUNCTIONS = ['editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']
 IM_READER_SERVICE_FUNCTIONS = ['lecteur', 'editeur', 'n_plus_1', 'n_plus_2', 'n_plus_3', 'n_plus_4', 'n_plus_5']

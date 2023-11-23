@@ -163,13 +163,13 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         # res is sorted by lastname
         self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Stef Agent', u'Monsieur Michel Chef'])
         # deactivation
-        voc_all_inst = OMSenderVocabulary()
-        self.assertEqual(len(voc_all_inst(self.omail)), 20)
         pf = self.portal.contacts['personnel-folder']
         api.content.transition(obj=pf['agent']['agent-grh'], transition='deactivate')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         self.assertEqual(len(voc_inst(self.omail)), 19)
-
+        # full sender vocabulary
+        voc_all_inst = OMSenderVocabulary()
+        self.assertEqual(len(voc_all_inst(self.omail)), 28)
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
