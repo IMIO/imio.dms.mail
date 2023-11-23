@@ -563,7 +563,7 @@ def mail_type_index(obj):
 
 @indexer(IHeldPosition)
 def heldposition_userid_index(obj):
-    """Indexer of 'mail_type' for IHeldPosition. Stores parent userid !"""
+    """Indexer of 'userid' for IHeldPosition. Stores parent userid !"""
     parent = obj.aq_parent
     if base_hasattr(parent, 'userid') and parent.userid:
         return parent.userid

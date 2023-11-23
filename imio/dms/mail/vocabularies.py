@@ -11,7 +11,7 @@ from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
 from imio.dms.mail import _tr
-from imio.dms.mail import ALL_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
@@ -572,5 +572,5 @@ class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
     def __call__(self, context, userid=None):
         """ """
         return super(DmsPrimaryOrganizationsVocabulary, self).__call__(
-            context, userid=userid, suffixes=ALL_EDITOR_SERVICE_FUNCTIONS,
+            context, userid=userid, suffixes=ALL_SERVICE_FUNCTIONS,
             base_voc='collective.dms.basecontent.treating_groups')
