@@ -63,7 +63,7 @@ class Migrate_To_2_2(Migrator):
 
     def check_roles(self):
         # check user roles
-        for user in api.user.get_users():
+        for user in api.user.get_users():  # doesnt contain ldap users !! use get_user_from_criteria
             roles = api.user.get_roles(user=user)
             for role in roles:
                 if role in ['Member', 'Authenticated'] or (role == 'Batch importer' and user.id == 'scanner'):
