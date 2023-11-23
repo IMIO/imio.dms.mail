@@ -168,7 +168,7 @@ def im_n_plus_1_wfadaptation(context):
         add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
                                'incomingmail_workflow', True, **n_plus_1_params)
     # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
+    if 'chef' in [ud['userid'] for ud in get_user_from_criteria(site, email='')]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 
@@ -192,7 +192,7 @@ def om_n_plus_1_wfadaptation(context):
         add_applied_adaptation('imio.dms.mail.wfadaptations.OMServiceValidation',
                                'outgoingmail_workflow', True, **n_plus_1_params)
     # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
+    if 'chef' in [ud['userid'] for ud in get_user_from_criteria(site, email='')]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 
@@ -211,7 +211,7 @@ def task_n_plus_1_wfadaptation(context):
         add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation',
                                'task_workflow', True, **{})
     # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
+    if 'chef' in [ud['userid'] for ud in get_user_from_criteria(site, email='')]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 
