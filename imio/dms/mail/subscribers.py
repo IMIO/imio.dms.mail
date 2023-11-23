@@ -915,6 +915,10 @@ def contact_modified(obj, event):
 #    if IObjectRemovedEvent.providedBy(event):
 #        return
     if IPersonnelContact.providedBy(obj):
+        mod_attr = [name for at in event.descriptions if base_hasattr(at, 'attributes') for name in at.attributes]
+        if 'IPlonegroupUserLink.userid' in mod_attr:
+            for hp in obj.objectValues():
+                hp.reindexObject(['userid'])
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 
