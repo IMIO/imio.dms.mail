@@ -390,6 +390,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # TEMPORARY to 3.0.56 (plonegroup change)
             load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
             load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
+            self.upgradeProfile('collective.contact.plonegroup:default')
             reindexIndexes(self.portal, idxs=['mail_type'])  # remove userid values
             pf = self.portal.contacts['personnel-folder']
             pf.manage_permission('collective.contact.plonegroup: Write user link fields',
