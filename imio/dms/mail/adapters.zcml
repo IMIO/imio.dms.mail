@@ -112,9 +112,7 @@
     <adapter name="mail_date" factory=".adapters.mail_date_index" />
     <adapter name="mail_date" factory=".adapters.om_mail_date_index" />
     <adapter name="userid" factory=".adapters.heldposition_userid_index" />
-    <!--adapter name="mail_type" factory=".adapters.heldposition_userid_index" /-->
     <adapter name="mail_type" factory=".adapters.mail_type_index" />
-    <!--adapter name="mail_type" factory=".adapters.person_userid_index" /-->
     <adapter name="mail_type" factory=".adapters.task_enquirer_index" />
     <adapter name="markers" factory=".adapters.markers_im_index" />
     <adapter name="markers" factory=".adapters.markers_om_index" />
