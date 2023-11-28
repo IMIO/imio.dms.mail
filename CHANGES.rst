@@ -1,6 +1,32 @@
 Changelog
 =========
 
+3.0.55
+------
+
+- Last commit at
+- Changed dmsommainfile description type
+- Folders dashboards: added classification folder types criteria
+- Folders dashboards: put classification_tree_identifiers column before title
+- Folders dashboards: used separate folder title columns in folders dashboards
+- Folders dashboards: removed ModificationDate and review_state columns from folders dashboard
+- Folders dashboards: added 'results per page' widget
+- Plonegroup behavior: updated to use plonegroup userid behavior
+- Plonegroup behavior: updated userid queries. Removed old code
+- Plonegroup behavior: removed IDmsPerson
+- Plonegroup behavior: updated user link permissions
+- Plonegroup behavior: overrided collective.contact.plonegroup.primary_organizations vocabulary
+- Plonegroup behavior: used user primary org to set this org first in om treating_groups vocabulary
+- Plonegroup behavior: updated relations after interface remove
+- Plonegroup behavior: updated held_position userid index if person userid is modified
+- Refactored internal persons and held_positions demo creation
+- Default values: OM default sender value improvement
+- Default values: ensured to reuse already modified values when a form validation occurs
+- Default values: Improved assigned user default value
+- Included collective.relationhelpers in zcml to access product templates
+- Added utils.create_personnel_content to be used in subscribers, steps and migrations
+- Replaced get_users() by get_user_from_criteria
+
 3.0.54
 ------
 
