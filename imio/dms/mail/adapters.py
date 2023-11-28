@@ -933,7 +933,7 @@ class AssignedUserDataManager(AttributeField):
     """
         DataManager for assigned_user widget.
         To handle assigned_user default value as slave of MS.
-        When voc contains only one value, it's selected.
+        When request contains _default_assigned_user_ variable, this value is selected.
     """
 
     def query(self, default=NO_VALUE):

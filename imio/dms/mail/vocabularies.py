@@ -326,7 +326,7 @@ def encodeur_active_orgs(context):
     """This vocabulary source is used on the OM treating_groups field.
 
     :param context:
-    :return: a filtered vocabulary with the user treating groups
+    :return: a filtered vocabulary with the user treating groups (primary organization user is the first)
     """
     current_user = api.user.get_current()
     factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')

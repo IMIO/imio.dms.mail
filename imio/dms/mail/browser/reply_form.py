@@ -36,6 +36,8 @@ class ReplyForm(BaseReplyForm):
                                                 'omail_response_prefix', default='') or ''
         if prefix and not self.widgets['IDublinCore.title'].value.startswith(prefix):
             self.widgets['IDublinCore.title'].value = u"%s%s" % (prefix, self.widgets["IDublinCore.title"].value)
+        if not self.widgets['ITask.assigned_user'].value:
+            self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
         if not self.widgets['send_modes'].value:
             self.widgets['send_modes'].value = self.get_send_modes()
         if self.context.orig_sender_email:

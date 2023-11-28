@@ -97,6 +97,7 @@ import copy
 
 now = datetime.today()
 
+
 def creating_group_filter(context):
     """Catalog criteria vocabulary used in contact search on some Contact fields.
 
@@ -585,7 +586,8 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
         No need to manage '_default_assigned_user_' because assigned_user is here mandatory:
         the first voc value is selected
     """
-    return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current().getId())
+    # return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current().getId())
+    return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS)
 
 
 def recipients_filter_default(context):
@@ -1026,8 +1028,8 @@ class OMCustomAddForm(BaseOMAddForm):
         super(OMCustomAddForm, self).updateWidgets()
         imio_dmsoutgoingmail_updatewidgets(self)
         self.widgets['orig_sender_email'].mode = HIDDEN_MODE
-        # the following doesn't work
-        # self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
+        # a selected value will be reused by masterselect
+        self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
 
     def add(self, obj):
         if not self.request.get('_auto_ref', True):
