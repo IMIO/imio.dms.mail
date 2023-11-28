@@ -18,6 +18,7 @@ from collective.wfadaptations.api import get_applied_adaptations
 from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
+from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
@@ -30,6 +31,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
+from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import invalidate_users_groups
@@ -669,7 +671,7 @@ def user_deleted(event):
     # search in assigned_user index
     for (idx, domain, criterias) in (('assigned_user', 'collective.eeafaceted.z3ctable', {}),
                                      ('Creator', 'plone', {}),
-                                     ('mail_type', 'collective.eeafaceted.z3ctable',
+                                     ('userid', 'collective.contact.plonegroup',
                                       {'object_provides': IPersonnelContact.__identifier__})):
         criterias.update({idx: princ})
         brains = portal.portal_catalog.unrestrictedSearchResults(**criterias)
@@ -765,10 +767,9 @@ def group_assignment(event):
     """
         manage the add of a user in a plone group
     """
+    portal = api.portal.get()
     # check if we have a user
-    if event.principal not in get_vocab_values(None, 'imio.helpers.SimplySortedUsers'):
-        # TODO test can be wrong with ldap users not well handled
-        # use user = self.acl.getUserById(principal.id)
+    if portal.acl_users.getUserById(event.principal) is None:
         req = getRequest()
         api.portal.show_message(message=_('You cannot add a group in a group !'),
                                 request=req, type='error')
@@ -803,45 +804,7 @@ def group_assignment(event):
             user_ids.append(userid)  # _p_changed is managed
             obj.reindexObject(idxs=['labels'])
     # we manage the personnel-folder person and held position
-    orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
-    if orgs:
-        user = api.user.get(userid)
-        start = api.portal.get_registry_record('omail_fullname_used_form', IImioDmsMailConfig, default='firstname')
-        firstname, lastname = separate_fullname(user, fn_first=(start == 'firstname'))
-        portal = api.portal.get()
-        intids = getUtility(IIntIds)
-        pf = portal['contacts']['personnel-folder']
-        # exists already
-        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
-        if userid in pf:
-            pers = pf[userid]
-        elif exist:
-            pers = exist[0]._unrestrictedGetObject()
-        else:
-            pers = api.content.create(container=pf, type='person', id=userid, userid=userid, lastname=lastname,
-                                      firstname=firstname, use_parent_address=False)
-        if api.content.get_state(pers) == 'deactivated':
-            api.content.transition(pers, 'activate')
-        hps = [b._unrestrictedGetObject() for b in
-               portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
-                                                               portal_type='held_position')]
-        hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
-        uid = orgs[0]
-        org = uuidToObject(uid, unrestricted=True)
-        if not org:
-            return
-        if uid in pers:
-            hp = pers[uid]
-        elif org in hps_orgs:
-            hp = hps_orgs[org]
-        else:
-            hp = api.content.create(container=pers, id=uid, type='held_position',
-                                    email=safe_unicode(user.getProperty('email').lower()),
-                                    position=RelationValue(intids.getId(org)), use_parent_address=True)
-        if api.content.get_state(hp) == 'deactivated':
-            api.content.transition(hp, 'activate')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+    create_personnel_content(userid, [event.group_id], ALL_SERVICE_FUNCTIONS)
 
 
 def group_unassignment(event):
@@ -860,12 +823,12 @@ def group_unassignment(event):
         update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='remove',  # i_e ok
                                          group_id=event.group_id)
     # we manage the personnel-folder person and held position
-    orgs = organizations_with_suffixes([event.group_id], ['encodeur'], group_as_str=True)
+    orgs = organizations_with_suffixes([event.group_id], ALL_SERVICE_FUNCTIONS, group_as_str=True)
     if orgs:
         userid = event.principal
         portal = api.portal.get()
         pf = portal['contacts']['personnel-folder']
-        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
+        exist = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type='person')
         if userid in pf:
             pers = pf[userid]
         elif exist:
@@ -952,6 +915,11 @@ def contact_modified(obj, event):
 #    if IObjectRemovedEvent.providedBy(event):
 #        return
     if IPersonnelContact.providedBy(obj):
+        mod_attr = [name for at in getattr(event, 'descriptions', []) if base_hasattr(at, 'attributes')
+                    for name in at.attributes]
+        if 'IPlonegroupUserLink.userid' in mod_attr:
+            for hp in obj.objectValues():
+                hp.reindexObject(['userid'])
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
 

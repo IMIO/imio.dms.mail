@@ -73,7 +73,7 @@ class Migrate_To_0_3_1(Migrator):
             gp.setGroupProperties({'title': '1 Encodeurs courrier'})
         if api.group.get('dir_general') is None:
             api.group.create('dir_general', '1 Directeur général')
-        for user in api.user.get_users():
+        for user in api.user.get_users():  # doesnt contain ldap users !! use get_user_from_criteria
             if user.has_role('General Manager'):
                 api.group.add_user(groupname='dir_general', user=user)
         # remove General Manager role
@@ -139,7 +139,7 @@ class Migrate_To_0_3_1(Migrator):
             good_values = voc.by_token
         for brain in brains:
             im = brain.getObject()
-            #new_incomingmail(im, None)
+            # new_incomingmail(im, None)
             if isinstance(im.treating_groups, list):
                 if len(im.treating_groups) > 1:
                     logger.error("More than one treating_groups %s for %s object" % (im.treating_groups, im))
@@ -155,7 +155,7 @@ class Migrate_To_0_3_1(Migrator):
                                 good_values.keys()[0], im))
                     im.treating_groups = good_values.keys()[0]
                 elif im.treating_groups[0] in good_values:
-                #elif catalog(UID=im.treating_groups[0]):
+                    # elif catalog(UID=im.treating_groups[0]):
                     im.treating_groups = im.treating_groups[0]
                 else:
                     logger.warn("Replaced old value %s by first good value %s for %s object" % (im.treating_groups[0],
@@ -168,8 +168,8 @@ class Migrate_To_0_3_1(Migrator):
                                                     })
         addOrUpdateColumns(self.portal, columns=('treating_groups', 'recipient_groups'))
         # a global recatalog is made after
-        #brains = catalog.searchResults(portal_type='organization')
-        #for brain in brains:
+        # brains = catalog.searchResults(portal_type='organization')
+        # for brain in brains:
         #    brain.getObject().reindexObject(idxs=['organization_type'])
 
         setupFacetedContacts(self.portal)

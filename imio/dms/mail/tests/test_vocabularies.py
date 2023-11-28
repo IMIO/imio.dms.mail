@@ -2,6 +2,8 @@
 from collections import OrderedDict
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from datetime import datetime
+from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.utils import get_person_from_userid
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.settings import configure_group_encoder
@@ -41,7 +43,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer['portal']
         self.change_user('siteadmin')
         self.imail = sub_create(self.portal['incoming-mail'], 'dmsincomingmail', datetime.now(), 'my-id')
-        self.omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id')
+        self.omail = sub_create(self.portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'my-id', title=u'OM1')
         self.maxDiff = None
 
     def test_IMReviewStatesVocabulary(self):
@@ -149,27 +151,25 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     def test_OMActiveSenderVocabulary(self):
         voc_inst = OMActiveSenderVocabulary()
-        self.assertEqual(len(voc_inst(self.omail)), 22)
+        self.assertEqual(len(voc_inst(self.omail)), 20)
         # get first part, as unique value, keeping order
         res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
         # res is sorted by firstname
-        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Maxime DG', u'Monsieur Michel Chef',
-                               u'Monsieur Stef Agent'])
+        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Michel Chef', u'Monsieur Stef Agent'])
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                        'omail_sender_firstname_sorting', False)
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
         # res is sorted by lastname
-        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Stef Agent', u'Monsieur Michel Chef',
-                               u'Monsieur Maxime DG'])
+        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Stef Agent', u'Monsieur Michel Chef'])
         # deactivation
-        voc_all_inst = OMSenderVocabulary()
-        self.assertEqual(len(voc_all_inst(self.omail)), 22)
         pf = self.portal.contacts['personnel-folder']
         api.content.transition(obj=pf['agent']['agent-grh'], transition='deactivate')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        self.assertEqual(len(voc_inst(self.omail)), 21)
-
+        self.assertEqual(len(voc_inst(self.omail)), 19)
+        # full sender vocabulary
+        voc_all_inst = OMSenderVocabulary()
+        self.assertEqual(len(voc_all_inst(self.omail)), 28)
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
@@ -184,9 +184,28 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
     def test_encodeur_active_orgs0(self):
         factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
         all_titles = [t.title for t in factory(self.omail)]
+        # expedition group or Manager
         self.change_user('encodeur')
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+        self.change_user('admin')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+        # normal user
         self.change_user('agent')
+        # omail context but state not created
+        with api.env.adopt_roles(['Manager']):
+            self.omail.treating_groups = get_registry_organizations()[1]  # secretariat
+            api.content.transition(obj=self.omail, transition='mark_as_sent')
+        self.assertEqual(api.content.get_state(self.omail), 'sent')
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+        # omail context with created state
+        with api.env.adopt_roles(['Manager']):
+            api.content.transition(obj=self.omail, transition='back_to_creation')
+        self.assertEqual(api.content.get_state(self.omail), 'created')
+        # agent primary organization first (communication)
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
+                             [all_titles[3]] + [t for i, t in enumerate(all_titles) if i not in (0, 3, 4, 7)])
+        # agent primary organization is None
+        get_person_from_userid('agent').primary_organization = None
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)],
                              [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)])
 

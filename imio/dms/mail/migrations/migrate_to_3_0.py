@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import timedelta
-
-import transaction
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.relationhelpers.api import rebuild_relations
 from collective.task.content.task import Task
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
@@ -37,6 +36,7 @@ from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import create_period_folder_max
+from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
@@ -47,7 +47,11 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.catalog import reindexIndexes
 from imio.helpers.content import find
+from imio.helpers.security import get_user_from_criteria
+from imio.helpers.setup import load_type_from_package
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -74,6 +78,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 import json
 import logging
 import os
+import transaction
 
 
 logger = logging.getLogger('imio.dms.mail')
@@ -382,6 +387,21 @@ class Migrate_To_3_0(Migrator):  # noqa
                     buf.remove(u'review_state')
                     col.customViewFields = tuple(buf)
 
+            # TEMPORARY to 3.0.56 (plonegroup change)
+            load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
+            load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
+            self.upgradeProfile('collective.contact.plonegroup:default')
+            reindexIndexes(self.portal, idxs=['mail_type'])  # remove userid values
+            pf = self.portal.contacts['personnel-folder']
+            pf.manage_permission('collective.contact.plonegroup: Write user link fields',
+                                 ('Manager', 'Site Administrator'), acquire=0)
+            pf.manage_permission('collective.contact.plonegroup: Read user link fields',
+                                 ('Manager', 'Site Administrator'), acquire=0)
+            rebuild_relations()  # rebuild relations to update rel objects referencing removed schema interface
+            # add personnel persons and hps for all functions
+            for udic in get_user_from_criteria(self.portal, email=''):
+                groups = get_plone_groups_for_user(user_id=udic['userid'])
+                create_personnel_content(udic['userid'], groups, primary=True)
             # END
 
             if message_status('doc', older=timedelta(days=90), to_state='inactive'):

@@ -97,6 +97,7 @@ import copy
 
 now = datetime.today()
 
+
 def creating_group_filter(context):
     """Catalog criteria vocabulary used in contact search on some Contact fields.
 
@@ -585,7 +586,8 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
         No need to manage '_default_assigned_user_' because assigned_user is here mandatory:
         the first voc value is selected
     """
-    return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current().getId())
+    # return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current().getId())
+    return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS)
 
 
 def recipients_filter_default(context):
@@ -890,15 +892,21 @@ def imio_dmsoutgoingmail_updatewidgets(the_form):
         Widgets update method for add, edit and reply !
     """
     # context can be the folder in add or an im in reply.
-    current_user = api.user.get_current()
+    if the_form.request.get('masterID'):  # in MS anonymous call, no need to go further
+        return
 
+    current_user = api.user.get_current()
     # sender can be None if om is created by worker.
-    if the_form.context.portal_type not in ('dmsoutgoingmail', 'dmsoutgoing_email') \
-            or not the_form.context.sender:
-        # we search for a held position related to current user and take the first one !
+    if (the_form.context.portal_type != 'dmsoutgoingmail' or not the_form.context.sender) and \
+            not the_form.widgets['sender'].value:
+        # we search for a held position related to current user
         default = treating_group = None
-        if the_form.__name__ == 'reply':
+        if the_form.widgets['treating_groups'].value:
             treating_group = the_form.widgets['treating_groups'].value
+        else:
+            tg_voc = [te for te in the_form.widgets['treating_groups'].terms.terms]
+            if tg_voc:
+                treating_group = tg_voc[0].value  # primary org can be the first value in vocabulary
         for term in the_form.widgets['sender'].terms:
             if term.token.endswith('_%s' % current_user.id):
                 if not default:
@@ -1020,8 +1028,8 @@ class OMCustomAddForm(BaseOMAddForm):
         super(OMCustomAddForm, self).updateWidgets()
         imio_dmsoutgoingmail_updatewidgets(self)
         self.widgets['orig_sender_email'].mode = HIDDEN_MODE
-        # the following doesn't work
-        # self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
+        # a selected value will be reused by masterselect
+        self.widgets['ITask.assigned_user'].value = [api.user.get_current().getId()]
 
     def add(self, obj):
         if not self.request.get('_auto_ref', True):

@@ -74,6 +74,7 @@ setup(
         'collective.messagesviewlet',
         'collective.portlet.actions',
         'collective.querynextprev',
+        'collective.relationhelpers',
 #          'collective.schedulefield',
         'collective.task',
         'collective.wfadaptations',

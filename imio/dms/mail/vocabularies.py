@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 """Vocabularies."""
-
+from collective.contact.plonegroup.behaviors import PrimaryOrganizationsVocabulary
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_organizations
+from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
 from imio.dms.mail import _tr
-from imio.dms.mail import ALL_EDITOR_SERVICE_FUNCTIONS
+from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import EMPTY_STRING
@@ -213,7 +214,7 @@ class PloneGroupInterfacesVocabulary(object):
 
 
 def get_internal_held_positions_vocabulary(states):
-    """Returns a vocabulary with internal held positions, following given stats list.
+    """Returns a vocabulary with internal held positions, following given states list.
     The vocabulary is sorted following firstname sort option.
     """
     catalog = api.portal.get_tool('portal_catalog')
@@ -229,7 +230,6 @@ def get_internal_held_positions_vocabulary(states):
 
     terms = []
     for brain in brains:
-        # the userid is stored in mail_type index !!
         hp = brain._unrestrictedGetObject()
         person = hp.get_person()
         org = hp.get_organization()
@@ -237,7 +237,7 @@ def get_internal_held_positions_vocabulary(states):
             continue
         terms.append((person, hp,
                       SimpleVocabulary.createTerm(
-                          brain.UID, '{}_{}_{}'.format(brain.UID, org.UID(), brain.mail_type or ''),
+                          brain.UID, '{}_{}_{}'.format(brain.UID, org.UID(), person.userid or ''),
                           hp.get_full_title(first_index=1))))
 
     def sort_terms(t):
@@ -323,6 +323,11 @@ class OMActiveSendModesVocabulary(object):
 
 
 def encodeur_active_orgs(context):
+    """This vocabulary source is used on the OM treating_groups field.
+
+    :param context:
+    :return: a filtered vocabulary with the user treating groups (primary organization user is the first)
+    """
     current_user = api.user.get_current()
     factory = getUtility(IVocabularyFactory, u'collective.dms.basecontent.treating_groups')
     voc = factory(context)
@@ -330,7 +335,8 @@ def encodeur_active_orgs(context):
     if current_user.getId() is None:
         return voc
     # the expedition group must have all values
-    if 'expedition' in get_plone_groups_for_user(user=current_user):
+    groups = get_plone_groups_for_user(user=current_user)
+    if 'expedition' in groups:
         return voc
     # we filter orgs if
     #   * current user is not admin
@@ -340,7 +346,13 @@ def encodeur_active_orgs(context):
             (context.portal_type != 'dmsoutgoingmail' or api.content.get_state(context) == 'created')):
         orgs = organizations_with_suffixes(get_plone_groups_for_user(user=current_user), OM_EDITOR_SERVICE_FUNCTIONS,
                                            group_as_str=True)
-        return SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
+        pers = get_person_from_userid(current_user.id)
+        if pers and pers.primary_organization and pers.primary_organization in orgs:
+            return SimpleVocabulary(
+                [voc.vocab.getTerm(pers.primary_organization)] +
+                [term for term in voc.vocab._terms if term.value in orgs and term.value != pers.primary_organization])
+        else:
+            return SimpleVocabulary([term for term in voc.vocab._terms if term.value in orgs])
     return voc
 
 
@@ -553,3 +565,12 @@ class TreatingGroupsForFacetedFilterVocabulary(object):
         return SimpleVocabulary([term for term in vocab._terms if term.value not in hidden_orgs])
 
     __call__ = TreatingGroupsForFacetedFilterVocabulary__call__
+
+
+class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
+
+    def __call__(self, context, userid=None):
+        """ """
+        return super(DmsPrimaryOrganizationsVocabulary, self).__call__(
+            context, userid=userid, suffixes=ALL_SERVICE_FUNCTIONS,
+            base_voc='collective.dms.basecontent.treating_groups')

@@ -17,29 +17,27 @@ from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from ftw.labels.interfaces import ILabeling
+from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import get_dms_config
-from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
-from imio.helpers.content import uuidToObject
+from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_workflow_from_package
 from imio.pyutils.utils import append
 from persistent.list import PersistentList
 from plone import api
-from Products.CMFPlone.utils import safe_unicode
-from z3c.relationfield import RelationValue
 from zope.component import getGlobalSiteManager
-from zope.component import getUtility
-from zope.intid import IIntIds
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
@@ -51,77 +49,18 @@ import os
 logger = logging.getLogger('imio.dms.mail: steps')
 
 
-def create_persons_from_users(portal, fn_first=True, functions=['encodeur'], userid=''):
-    """
-        create own personnel from plone users
-    """
-    pf = portal['contacts']['personnel-folder']
-    users = {}
-    groups = api.group.get_groups()
-    for group in groups:
-        if '_' not in group.id or group.id in ['createurs_dossier', 'dir_general', 'lecteurs_globaux_ce',
-                                               'lecteurs_globaux_cs']:
-            continue
-        parts = group.id.split('_')
-        org_uid = function = None
-        if len(parts) > 1:
-            org_uid = parts[0]
-            function = '_'.join(parts[1:])
-        if function and function not in functions:
-            continue
-        for user in api.user.get_users(group=group):
-            if userid and user.id != userid:
-                continue
-            if user.id not in users and user.id not in ['scanner']:
-                users[user.id] = {'pers': {}, 'orgs': []}
-                firstname, lastname = separate_fullname(user, fn_first=fn_first)
-                users[user.id]['pers'] = {'lastname': lastname, 'firstname': firstname, 'email':
-                                          safe_unicode(user.getProperty('email')), 'use_parent_address': False}
-            if org_uid and org_uid not in users[user.id]['orgs']:
-                users[user.id]['orgs'].append(org_uid)
-
-    intids = getUtility(IIntIds)
+def create_persons_from_users(portal, fn_first=True, functions=ALL_SERVICE_FUNCTIONS, userid=''):
+    """create own personnel from plone users"""
     out = []
-    # logger.info(users)
-    for userid in users:
-        email = users[userid]['pers'].pop('email')
-        exist = portal.portal_catalog.unrestrictedSearchResults(mail_type=userid, portal_type='person')
-        if userid in pf:
-            pers = pf[userid]
-        elif exist:
-            pers = exist[0]._unrestrictedGetObject()
-        else:
-            out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, users[userid]['pers']['firstname'],
-                                                                          users[userid]['pers']['lastname']))
-            logger.info(out[-1])
-            pers = api.content.create(container=pf, type='person', id=userid, userid=userid, **users[userid]['pers'])
-        if api.content.get_state(pers) == 'deactivated':
-            api.content.transition(pers, 'activate')
-        hps = [b._unrestrictedGetObject() for b in
-               portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
-                                                               portal_type='held_position')]
-        orgs = dict([(hp.get_organization(), hp) for hp in hps])
-        for uid in users[userid]['orgs']:
-            org = uuidToObject(uid, unrestricted=True)
-            if not org:
-                continue
-            if uid in pers:
-                hp = pers[uid]
-            elif org in orgs:
-                hp = orgs[org]
-            else:
-                out.append(u" -> hp created with org '%s'" % org.get_full_title())
-                logger.info(out[-1])
-                hp = api.content.create(container=pers, id=uid, type='held_position', **{'email': email,
-                                        'position': RelationValue(intids.getId(org)), 'use_parent_address': True})
-            if api.content.get_state(hp) == 'deactivated':
-                api.content.transition(hp, 'activate')
+    for udic in get_user_from_criteria(portal, email=''):  # all users
+        groups = get_plone_groups_for_user(user_id=udic['userid'])
+        out.extend(create_personnel_content(udic['userid'], groups, primary=True, fn_first=fn_first))
     return out
-
 
 # #############
 # Singles steps
 # #############
+
 
 def create_templates_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
@@ -229,7 +168,7 @@ def im_n_plus_1_wfadaptation(context):
         add_applied_adaptation('imio.dms.mail.wfadaptations.IMServiceValidation',
                                'incomingmail_workflow', True, **n_plus_1_params)
     # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
+    if 'chef' in [ud['userid'] for ud in get_user_from_criteria(site, email='')]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 
@@ -253,7 +192,7 @@ def om_n_plus_1_wfadaptation(context):
         add_applied_adaptation('imio.dms.mail.wfadaptations.OMServiceValidation',
                                'outgoingmail_workflow', True, **n_plus_1_params)
     # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
+    if 'chef' in [ud['userid'] for ud in get_user_from_criteria(site, email='')]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 
@@ -272,7 +211,7 @@ def task_n_plus_1_wfadaptation(context):
         add_applied_adaptation('imio.dms.mail.wfadaptations.TaskServiceValidation',
                                'task_workflow', True, **{})
     # Add users to activated groups
-    if 'chef' in [u.id for u in api.user.get_users()]:
+    if 'chef' in [ud['userid'] for ud in get_user_from_criteria(site, email='')]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_n_plus_1" % uid)
 

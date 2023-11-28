@@ -3,6 +3,7 @@
 from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
@@ -13,9 +14,9 @@ from datetime import datetime
 from DateTime import DateTime
 from datetime import timedelta
 from imio.dms.mail import _tr as _
+from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
@@ -50,6 +51,7 @@ from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
 from Products.ZCatalog.ProgressHandler import ZLogHandler
+from z3c.relationfield import RelationValue
 from zc.relation.interfaces import ICatalog
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
@@ -874,7 +876,7 @@ class VariousUtilsMethods(UtilsMethods):
         intids = getUtility(IIntIds)
         catalog = getUtility(ICatalog)
         pc = portal.portal_catalog
-        brains = pc.unrestrictedSearchResults(mail_type=userid, portal_type='held_position', sort_on='path')
+        brains = pc.unrestrictedSearchResults(userid=userid, portal_type='held_position', sort_on='path')
         if brains:
             persons = {}
             for brain in brains:
@@ -1050,6 +1052,79 @@ def create_period_folder(main_dir, dte, subfolder=''):
             do_transitions(subfolder, ['show_internally'])
         return subfolder
     return main_dir[dte_str]
+
+
+def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, primary=False, fn_first=None):
+    """Create directory personnel content for a userid.
+
+    :param userid: userid
+    :param groups: groups to consider
+    :param functions: functions to consider
+    :param primary: set person primary_organization if set to True and only one org
+    :param fn_first: bool indicating firstname is starting fullname. When None, the value is taken from configuration
+    """
+    out = []  # used in portal_setup step context
+    orgs = organizations_with_suffixes(groups, functions, group_as_str=True)
+    if orgs:
+        # or event.group_id in ('dir_general', 'encodeurs', 'expedition', 'lecteurs_globaux_ce', 'lecteurs_globaux_cs'):
+        portal = api.portal.get()
+        user = api.user.get(userid)
+        user_groups = get_plone_groups_for_user(user=user)
+        if fn_first is None:
+            start = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
+                                                   'omail_fullname_used_form', default='firstname')
+            fn_first = (start == 'firstname')
+        firstname, lastname = separate_fullname(user, fn_first=fn_first)
+        intids = getUtility(IIntIds)
+        pf = portal['contacts']['personnel-folder']
+        # exists already
+        persons = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type='person')
+        if persons:
+            if len(persons) > 1:
+                logger.warn("Found multiple personnel persons linked to userid '{}' : {}".format(userid,
+                            '\n'.join([br.getURL() for br in persons])))
+            pers = persons[0]._unrestrictedGetObject()
+        elif userid in pf:
+            pers = pf[userid]
+        else:
+            pers = api.content.create(container=pf, type='person', id=userid, userid=userid, lastname=lastname,
+                                      firstname=firstname, use_parent_address=False)
+            out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, firstname, lastname))
+        if primary and len(orgs) == 1:
+            pers.primary_organization = orgs[0]
+        hps = [b._unrestrictedGetObject() for b in
+               portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
+                                                               portal_type='held_position')]
+        hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
+        for uid in orgs:
+            org = uuidToObject(uid, unrestricted=True)
+            if not org:
+                return
+            if uid in pers:
+                hp = pers[uid]
+            elif org in hps_orgs:
+                hp = hps_orgs[org]
+            else:
+                hp = api.content.create(container=pers, id=uid, type='held_position',
+                                        email=safe_unicode(user.getProperty('email').lower()),
+                                        position=RelationValue(intids.getId(org)), use_parent_address=True)
+                out.append(u" -> hp created for userid '{}' with org '{}'".format(userid, org.get_full_title()))
+
+            # activate hp only if the corresponding group has encodeur function (OM senders)
+            if api.content.get_state(hp) == 'active' and '{}_encodeur'.format(uid) not in user_groups:
+                api.content.transition(hp, 'deactivate')
+            if api.content.get_state(hp) == 'deactivated' and '{}_encodeur'.format(uid) in user_groups:
+                api.content.transition(hp, 'activate')
+        # change person state following hps states
+        if portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
+                                                           portal_type='held_position', review_state='active'):
+            api.content.transition(pers, to_state='active')
+        else:
+            api.content.transition(pers, to_state='deactivated')
+
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+    return out
 
 
 def add_content_in_subfolder(view, obj, dte):

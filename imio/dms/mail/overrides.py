@@ -8,34 +8,11 @@
 #
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-from collective.contact.core.content.person import IPerson
 from collective.contact.plonegroup.subscribers import PloneGroupContactChecksAdapter
 from collective.contact.plonegroup.subscribers import search_value_in_objects
 from collective.task.adapters import TaskContentAdapter
-from imio.dms.mail import _
 from imio.dms.mail.utils import get_dms_config
 from plone import api
-from plone.autoform import directives
-from plone.dexterity.schema import DexteritySchemaPolicy
-from zope import schema
-
-
-class IDmsPerson(IPerson):
-
-    userid = schema.Choice(
-        title=_(u'Plone user'),
-        required=False,
-        vocabulary=u'plone.app.vocabularies.Users',
-    )
-
-    directives.read_permission(userid='imio.dms.mail.write_userid_field')
-    directives.write_permission(userid='imio.dms.mail.write_userid_field')
-
-
-class DmsPersonSchemaPolicy(DexteritySchemaPolicy):
-    """ """
-    def bases(self, schemaName, tree):
-        return (IDmsPerson, )
 
 
 class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):

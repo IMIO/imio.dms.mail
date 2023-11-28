@@ -23,7 +23,6 @@ from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
-from imio.dms.mail.overrides import IDmsPerson
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -564,18 +563,10 @@ def mail_type_index(obj):
 
 @indexer(IHeldPosition)
 def heldposition_userid_index(obj):
-    """Indexer of 'mail_type' for IHeldPosition. Stores parent userid !"""
+    """Indexer of 'userid' for IHeldPosition. Stores parent userid !"""
     parent = obj.aq_parent
     if base_hasattr(parent, 'userid') and parent.userid:
         return parent.userid
-    return common_marker
-
-
-@indexer(IDmsPerson)
-def person_userid_index(obj):
-    """Indexer of 'mail_type' for IDmsPerson. Stores userid !"""
-    if base_hasattr(obj, 'userid') and obj.userid:
-        return obj.userid
     return common_marker
 
 
@@ -942,7 +933,7 @@ class AssignedUserDataManager(AttributeField):
     """
         DataManager for assigned_user widget.
         To handle assigned_user default value as slave of MS.
-        When voc contains only one value, it's selected.
+        When request contains _default_assigned_user_ variable, this value is selected.
     """
 
     def query(self, default=NO_VALUE):

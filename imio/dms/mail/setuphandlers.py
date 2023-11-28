@@ -84,6 +84,7 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
+from Products.MimetypesRegistry import MimeTypeException
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
@@ -1641,6 +1642,36 @@ def configureContactPloneGroup(context):
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
+        # internal persons and held_positions have been created
+        # This part was previously done in addOwnPersonnel
+        persons = {
+            'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
+                              'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
+                              'number': u'2', 'primary_organization': dep0.UID()},
+                     'hps': {'phone': u'012345679', 'label': u'Responsable {}'}},
+            'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
+                               'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
+                               'number': u'3', 'primary_organization': services0[3].UID()},
+                      'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
+            'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
+                                'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
+                                'number': u'1', 'primary_organization': departments[5].UID()},
+                       'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
+        }
+        pf = contacts['personnel-folder']
+        normalizer = getUtility(IIDNormalizer)
+        for pers_id in persons:
+            if pers_id not in pf:
+                raise 'Person {} not created in personnel-folder'.format(pers_id)
+            person = pf[pers_id]
+            for fld, val in persons[pers_id]['pers'].items():
+                setattr(person, fld, val)
+            person.reindexObject()
+            for hp in person.objectValues():
+                setattr(hp, 'phone', persons[pers_id]['hps']['phone'])
+                setattr(hp, 'label', persons[pers_id]['hps']['label'].format(hp.get_organization().title))
+                api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
+                hp.reindexObject()
 
 
 def addTestDirectory(context):
@@ -2078,81 +2109,14 @@ def addOwnPersonnel(context):
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
     alsoProvides(pf, IActionsPanelFolder)
-    pf.manage_permission('imio.dms.mail: Write userid field', ('Manager', 'Site Administrator'),
+    pf.manage_permission('collective.contact.plonegroup: Read user link fields', ('Manager', 'Site Administrator'),
+                         acquire=0)
+    pf.manage_permission('collective.contact.plonegroup: Write user link fields', ('Manager', 'Site Administrator'),
                          acquire=0)
     # Set restrictions
     pf.setConstrainTypesMode(1)
     pf.setLocallyAllowedTypes(['person'])
     pf.setImmediatelyAddableTypes(['person'])
-
-    intids = getUtility(IIntIds)
-    own_orga = contacts['plonegroup-organization']
-    inb = api.portal.get_registry_record('collective.dms.mailcontent.browser.settings.IDmsMailConfig.'
-                                         'incomingmail_number')
-    # Test if we are already in production
-    if inb > 20:
-        return
-    # selected orgs
-    # u'Direction générale', (u'Secrétariat', u'GRH', u'Communication')
-    # u'Direction financière', (u'Budgets', u'Comptabilité')
-    # u'Direction technique', (u'Bâtiments', u'Voiries')
-    # u'Événements'
-    # Assignments defined in configureContactPloneGroup
-    orgs = {
-        'chef': {
-            'o': [own_orga['direction-generale'], own_orga['direction-generale']['secretariat'],
-                  own_orga['direction-generale']['grh'], own_orga['direction-generale']['communication'],
-                  own_orga['direction-financiere'], own_orga['direction-financiere']['budgets'],
-                  own_orga['direction-financiere']['comptabilite'], own_orga['direction-technique'],
-                  own_orga['direction-technique']['batiments'], own_orga['direction-technique']['voiries'],
-                  own_orga['evenements']],
-            'e': u'michel.chef@macommune.be', 'p': u'012345679', 'l': u'Responsable {}'},
-        'agent': {
-            'o': [own_orga['direction-generale']['secretariat'], own_orga['direction-generale']['grh'],
-                  own_orga['direction-generale']['communication'], own_orga['direction-financiere']['budgets'],
-                  own_orga['direction-financiere']['comptabilite'], own_orga['direction-technique']['batiments'],
-                  own_orga['direction-technique']['voiries']],
-            'e': u'fred.agent@macommune.be', 'p': u'012345670', 'l': u'Agent {}'},
-        'agent1': {
-            'o': [own_orga['evenements']], 'l': u'Agent {}'}
-    }
-
-    def hp_dic_list(key):
-        return [{'position': RelationValue(intids.getId(o)), 'email': orgs[key].get('e'),
-                 'phone': orgs[key].get('p'), 'use_parent_address': True,
-                 'label': orgs[key]['l'].format(o.title)} for o in orgs[key]['o']]
-
-    persons = {
-        'dirg': {'pers': {'lastname': u'DG', 'firstname': u'Maxime', 'gender': u'M', 'person_title': u'Monsieur',
-                          'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'électron",
-                          'number': u'1', 'use_parent_address': False},
-                 'fcts': [{'position': RelationValue(intids.getId(own_orga['direction-generale'])),
-                           'label': u'Directeur général', 'email': u'maxime.dirg@macommune.be', 'phone': u'012345678',
-                           'use_parent_address': True},
-                          {'position': RelationValue(intids.getId(own_orga['direction-generale']['grh'])),
-                           'label': u'Directeur du personnel', 'start_date': datetime.date(2012, 9, 1),
-                           'end_date': datetime.date(2016, 6, 14), 'use_parent_address': True,
-                           'email': u'maxime.dirg@macommune.be', 'phone': u'012345678'}]},
-        'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
-                          'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
-                          'number': u'2', 'use_parent_address': False},
-                 'fcts': hp_dic_list('chef')},
-        'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
-                           'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
-                           'number': u'3', 'use_parent_address': False},
-                  'fcts': hp_dic_list('agent')},
-        'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
-                            'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
-                            'number': u'1', 'use_parent_address': False},
-                   'fcts': hp_dic_list('agent1')},
-    }
-
-    normalizer = getUtility(IIDNormalizer)
-    for person in persons:
-        pers = api.content.create(container=pf, type='person', id=person, userid=person, **persons[person]['pers'])
-        for fct_dic in persons[person]['fcts']:
-            api.content.create(container=pers, id=normalizer.normalize(fct_dic['label']), type='held_position',
-                               **fct_dic)
 
 
 def addContactListsFolder(context):
@@ -2438,8 +2402,11 @@ def add_transforms(site):
                          ('pdf_to_html', 'Products.PortalTransforms.transforms.pdf_to_html'),
                          ('odt_to_text', 'imio.dms.mail.transforms')):
         if name not in pt.objectIds():
-            pt.manage_addTransform(name, module)
-            logger.info("Added '%s' transform" % name)
+            try:
+                pt.manage_addTransform(name, module)
+                logger.info("Added '%s' transform" % name)
+            except MimeTypeException as err:
+                logger.info("CANNOT ADD '{}' transform: {}".format(name, err))
 
 
 def add_oem_templates(site):

@@ -76,4 +76,9 @@
       name="collective.task.AssignedUsers"
     />
 
+    <utility
+      factory=".vocabularies.DmsPrimaryOrganizationsVocabulary"
+      name="collective.contact.plonegroup.primary_organizations"
+    />
+
 </configure>
