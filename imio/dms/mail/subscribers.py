@@ -915,7 +915,8 @@ def contact_modified(obj, event):
 #    if IObjectRemovedEvent.providedBy(event):
 #        return
     if IPersonnelContact.providedBy(obj):
-        mod_attr = [name for at in event.descriptions if base_hasattr(at, 'attributes') for name in at.attributes]
+        mod_attr = [name for at in getattr(event, 'descriptions', []) if base_hasattr(at, 'attributes')
+                    for name in at.attributes]
         if 'IPlonegroupUserLink.userid' in mod_attr:
             for hp in obj.objectValues():
                 hp.reindexObject(['userid'])
