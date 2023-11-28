@@ -1069,6 +1069,7 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
         # or event.group_id in ('dir_general', 'encodeurs', 'expedition', 'lecteurs_globaux_ce', 'lecteurs_globaux_cs'):
         portal = api.portal.get()
         user = api.user.get(userid)
+        user_groups = get_plone_groups_for_user(user=user)
         if fn_first is None:
             start = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                                    'omail_fullname_used_form', default='firstname')
@@ -1110,9 +1111,9 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
                 out.append(u" -> hp created for userid '{}' with org '{}'".format(userid, org.get_full_title()))
 
             # activate hp only if the corresponding group has encodeur function (OM senders)
-            if api.content.get_state(hp) == 'active' and '{}_encodeur'.format(uid) not in groups:
+            if api.content.get_state(hp) == 'active' and '{}_encodeur'.format(uid) not in user_groups:
                 api.content.transition(hp, 'deactivate')
-            if api.content.get_state(hp) == 'deactivated' and '{}_encodeur'.format(uid) in groups:
+            if api.content.get_state(hp) == 'deactivated' and '{}_encodeur'.format(uid) in user_groups:
                 api.content.transition(hp, 'activate')
         # change person state following hps states
         if portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
