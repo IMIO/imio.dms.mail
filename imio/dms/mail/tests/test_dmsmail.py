@@ -428,7 +428,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual([t.title for t in voc._terms], [u'Fred Agent', u'Michel Chef'])
         self.change_user('chef')
         voc = filter_dmsoutgoingmail_assigned_users(selected_orgs[1])
-        self.assertListEqual([t.title for t in voc._terms], [u'Michel Chef', u'Fred Agent'])
+        self.assertListEqual([t.title for t in voc._terms], [u'Fred Agent', u'Michel Chef'])
 
     def test_recipients_filter_default(self):
         self.assertIsNone(recipients_filter_default(self.portal))
