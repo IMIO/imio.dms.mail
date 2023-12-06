@@ -4,7 +4,7 @@ Changelog
 3.0.55
 ------
 
-- Last commit at
+- Last commit at b0c51b9dbd77fdd37589e7417ad022a8588fc32e
 - Changed dmsommainfile description type
 - Folders dashboards: added classification folder types criteria
 - Folders dashboards: put classification_tree_identifiers column before title
@@ -25,7 +25,8 @@ Changelog
 - Default values: Improved assigned user default value
 - Included collective.relationhelpers in zcml to access product templates
 - Added utils.create_personnel_content to be used in subscribers, steps and migrations
-- Replaced get_users() by get_user_from_criteria
+- Replaced get_users() by get_user_from_criteria()
+- Improved code for ldap user without email
 
 3.0.54
 ------
