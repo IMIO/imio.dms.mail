@@ -1105,8 +1105,9 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
             elif org in hps_orgs:
                 hp = hps_orgs[org]
             else:
+                email = user.getProperty('email') or ''
                 hp = api.content.create(container=pers, id=uid, type='held_position',
-                                        email=safe_unicode(user.getProperty('email').lower()),
+                                        email=safe_unicode(email.lower()),
                                         position=RelationValue(intids.getId(org)), use_parent_address=True)
                 out.append(u" -> hp created for userid '{}' with org '{}'".format(userid, org.get_full_title()))
 
