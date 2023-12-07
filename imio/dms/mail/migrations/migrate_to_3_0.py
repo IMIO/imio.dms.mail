@@ -48,7 +48,6 @@ from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import get_plone_groups_for_user
-from imio.helpers.catalog import reindexIndexes
 from imio.helpers.content import find
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_type_from_package
@@ -391,7 +390,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
             load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
             self.upgradeProfile('collective.contact.plonegroup:default')
-            reindexIndexes(self.portal, idxs=['mail_type', 'userid'])  # remove userid values
+            self.reindexIndexes(['mail_type', 'userid'], update_metadata=True,
+                                portal_types=['held_position', 'person'])  # remove userid values
             pf = self.portal.contacts['personnel-folder']
             pf.manage_permission('collective.contact.plonegroup: Write user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
