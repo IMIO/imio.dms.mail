@@ -27,6 +27,8 @@ Changelog
 - Added utils.create_personnel_content to be used in subscribers, steps and migrations
 - Replaced get_users() by get_user_from_criteria()
 - Improved code for ldap user without email
+- Improved tab cont js to avoid error in anonymous
+- Loaded ftw.labels js as authenticated
 
 3.0.54
 ------
