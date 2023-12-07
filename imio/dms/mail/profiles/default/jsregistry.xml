@@ -305,7 +305,7 @@
 
   <javascript id="++resource++ftw.labels/select2.min.js" enabled="False" insert-after="++resource++collective.eeafaceted.batchactions/batch_actions.js" />
 
-  <javascript id="++resource++ftw.labels/ftw-labels.js" insert-after="++resource++ftw.labels/select2.min.js" />
+  <javascript id="++resource++ftw.labels/ftw-labels.js" authenticated="True" insert-after="++resource++ftw.labels/select2.min.js" />
 
   <javascript id="++resource++collective.contact.contactlist/javascript.js" insert-after="++resource++ftw.labels/ftw-labels.js"  enabled="False"/>
 
