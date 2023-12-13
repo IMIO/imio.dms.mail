@@ -52,6 +52,7 @@ from imio.dms.mail.interfaces import IOMCKTemplatesFolder
 from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
+from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
@@ -2105,6 +2106,7 @@ def addOwnPersonnel(context):
     contacts.moveObjectToPosition('personnel-folder', 4)
     pf = contacts['personnel-folder']
     alsoProvides(pf, IProtectedItem)
+    alsoProvides(pf, IPersonnelFolder)
     blacklistPortletCategory(pf)
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
