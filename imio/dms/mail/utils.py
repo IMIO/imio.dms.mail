@@ -1116,12 +1116,12 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
                 api.content.transition(hp, 'deactivate')
             if api.content.get_state(hp) == 'deactivated' and '{}_encodeur'.format(uid) in user_groups:
                 api.content.transition(hp, 'activate')
-        # change person state following hps states
-        if portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
-                                                           portal_type='held_position', review_state='active'):
-            api.content.transition(pers, to_state='active')
-        else:
-            api.content.transition(pers, to_state='deactivated')
+        # change person state following hps states: no otherwise the person is not more selectable in contacts
+        # if portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
+        #                                                    portal_type='held_position', review_state='active'):
+        #     api.content.transition(pers, to_state='active')
+        # else:
+        #     api.content.transition(pers, to_state='deactivated')
 
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
