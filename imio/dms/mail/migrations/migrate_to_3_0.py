@@ -390,7 +390,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
             load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
             self.upgradeProfile('collective.contact.plonegroup:default')
-            self.reindexIndexes(['mail_type', 'userid'], update_metadata=True,
+            # not important if person mailtype metadata is not cleaned. Otherwise all objects are considered
+            self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
                                 portal_types=['held_position', 'person'])  # remove userid values
             pf = self.portal.contacts['personnel-folder']
             pf.manage_permission('collective.contact.plonegroup: Write user link fields',
@@ -413,6 +414,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                     cssr.updateStylesheet('imiodmsmail_archives.css', enabled=True)
                     cssr.cookResources()
             self.cleanRegistries()
+            # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
+            self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
             # version
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
@@ -432,9 +435,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                                                          'imiodmsmail-update-templates'], profile='singles')
 
         if self.is_in_part('s'):  # update quick installer
-            # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
-            self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
-
             for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.ckeditortemplates',
                          'collective.classification.folder', 'collective.classification.tree',
                          'collective.compoundcriterion', 'collective.contact.core', 'collective.contact.duplicated',
