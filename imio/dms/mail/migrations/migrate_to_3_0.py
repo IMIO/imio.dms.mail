@@ -128,7 +128,7 @@ class Migrate_To_3_0(Migrator):  # noqa
     def run(self):
         logger.info('Migrating to imio.dms.mail 3.0...')
         self.log_mem('START')
-        if self.config['om_mt']:
+        if self.config.get('om_mt'):
             logger.info('Loaded config {}'.format(self.config))
             mtypes = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types',
                                                     default=[])
@@ -155,7 +155,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if stop:
                 raise Exception('Bad config file 30_config.dic')
 
-        if self.config['flds'] is None:  # not in config file
+        if 'flds' in self.config and self.config['flds'] is None:
             if 'folders' not in self.portal:  # first time migration
                 self.config['flds'] = True
             else:
