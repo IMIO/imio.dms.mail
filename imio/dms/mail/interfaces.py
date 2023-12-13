@@ -160,6 +160,11 @@ class IPersonnelContact(Interface):
     """
 
 
+class IPersonnelFolder(Interface):
+
+    """Marker interface for folder displaying personnel-listing"""
+
+
 class IMemberAreaFolder(IDexterityContainer):
     """
         Marker interface for member area folder.

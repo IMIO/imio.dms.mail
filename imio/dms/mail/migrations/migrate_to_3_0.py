@@ -25,6 +25,7 @@ from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
+from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
@@ -390,15 +391,18 @@ class Migrate_To_3_0(Migrator):  # noqa
             load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
             load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
             self.upgradeProfile('collective.contact.plonegroup:default')
-            # not important if person mailtype metadata is not cleaned. Otherwise all objects are considered
+            # not important if person mailtype metadata is not cleaned. Otherwise, all objects are considered
             self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
                                 portal_types=['held_position', 'person'])  # remove userid values
             pf = self.portal.contacts['personnel-folder']
+            alsoProvides(pf, IPersonnelFolder)
             pf.manage_permission('collective.contact.plonegroup: Write user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
             pf.manage_permission('collective.contact.plonegroup: Read user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
-            rebuild_relations()  # rebuild relations to update rel objects referencing removed schema interface
+
+            # rebuild relations to update rel objects referencing removed schema interface (long process)
+            rebuild_relations()
             # add personnel persons and hps for all functions
             for udic in get_user_from_criteria(self.portal, email=''):
                 groups = get_plone_groups_for_user(user_id=udic['userid'])
