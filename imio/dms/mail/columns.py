@@ -522,3 +522,33 @@ class PrimaryOrganizationColumn(VocabularyColumn):
     weight = 20
     attrName = 'primary_organization'
     vocabulary = u'collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary'
+
+
+class HPColumn(PrettyLinkColumn):
+    """Personnel table. xss ok"""
+
+    header = _cez("header_hps")
+    weight = 25
+    sort_index = -1  # not sortable
+    ul_class = 'hp_col'
+    sort_index = -1  # not sortable
+
+    def renderCell(self, item):
+        """ """
+        hps = item.objectValues()  # no need to use object_values with one sub items type
+        if not hps:
+            return '-'
+        ret = []
+        for hp in hps:
+            ret.append(u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
+                       u"<span class='pretty_link_content state-%s'>%s</span></a>"
+                       % (hp.absolute_url(), api.content.get_state(obj=hp),
+                          safe_unicode(escape(hp.get_organization().get_full_title())))
+                       )
+        l_ret = len(ret)
+        if l_ret == 1:
+            return ret[0]
+        elif l_ret > 1:
+            return '<ul class="%s"><li>%s</li></ul>' % (self.ul_class, '</li>\n<li>'.join(ret))
+        else:
+            return '-'
