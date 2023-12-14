@@ -335,12 +335,12 @@
       />
 
   <adapter
-      name="ReviewStateColumn"
+      name="HPColumn"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.PersonnelTable"
       provides="z3c.table.interfaces.IColumn"
-      factory="collective.documentgenerator.browser.table.ReviewStateColumn"
+      factory=".columns.HPColumn"
       />
 
   <adapter
