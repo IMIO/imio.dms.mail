@@ -488,3 +488,28 @@ class ActionsColumn(DGActionsColumn):
               'showArrows': False, 'showTransitions': False, 'edit_action_class': 'dg_edit_action',
               'edit_action_target': '_blank'}
     cssClasses = {'td': 'actions-column'}
+
+
+class UseridColumn(LinkColumn):
+    """Personnel table. xss ok"""
+
+    header = _cez("header_userid")
+    weight = 15
+    cssClasses = {'td': 'userid-column'}
+    linkTarget = '_blank'
+
+    def __init__(self, context, request, table):
+        super(UseridColumn, self).__init__(context, request, table)
+        self.purl = api.portal.get_tool('portal_url')()
+
+    def getLinkURL(self, item):
+        """Setup link url."""
+        return '{}/@@usergroup-usermembership?userid={}'.format(self.purl, item.userid)
+
+    def getLinkContent(self, item):
+        return item.userid
+
+    def renderCell(self, item):
+        if item.userid:
+            return super(UseridColumn, self).renderCell(item)
+        return '-'

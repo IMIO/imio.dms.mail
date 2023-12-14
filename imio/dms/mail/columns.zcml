@@ -317,6 +317,15 @@
       />
 
   <adapter
+      name="UseridColumn"
+      for="zope.interface.Interface
+           zope.interface.Interface
+           imio.dms.mail.browser.table.PersonnelTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory=".columns.UseridColumn"
+      />
+
+  <adapter
       name="ReviewStateColumn"
       for="zope.interface.Interface
            zope.interface.Interface
