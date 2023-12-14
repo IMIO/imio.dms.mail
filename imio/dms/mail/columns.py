@@ -449,14 +449,14 @@ class PathColumn(LinkColumn, BaseColumn):
 
 
 class TitleColumn(LinkColumn):
-    """CKTemplates table. xss ok"""
+    """CKTemplates table. Personnel table. xss ok"""
 
     header = PMF("Title")
     weight = 10
     cssClasses = {'td': 'title-column'}
 
     def getLinkCSS(self, item):
-        return ' state-%s"' % (api.content.get_state(obj=item))
+        return ' class="state-%s"' % (api.content.get_state(obj=item))
 
     def getLinkContent(self, item):
         return item.title
@@ -513,3 +513,12 @@ class UseridColumn(LinkColumn):
         if item.userid:
             return super(UseridColumn, self).renderCell(item)
         return '-'
+
+
+class PrimaryOrganizationColumn(VocabularyColumn):
+    """Personnel table. xss ok"""
+
+    header = _cez("header_primary_org")
+    weight = 20
+    attrName = 'primary_organization'
+    vocabulary = u'collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary'

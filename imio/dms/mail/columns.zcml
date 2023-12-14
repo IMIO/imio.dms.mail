@@ -326,6 +326,15 @@
       />
 
   <adapter
+      name="PrimaryOrganizationColumn"
+      for="zope.interface.Interface
+           zope.interface.Interface
+           imio.dms.mail.browser.table.PersonnelTable"
+      provides="z3c.table.interfaces.IColumn"
+      factory=".columns.PrimaryOrganizationColumn"
+      />
+
+  <adapter
       name="ReviewStateColumn"
       for="zope.interface.Interface
            zope.interface.Interface
