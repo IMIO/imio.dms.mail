@@ -93,7 +93,7 @@ $(document).ready(function(){
 
     $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a><br /><a href="@@various-utils/kofax_orgs" target="_blank">Listing des services pour Kofax</a></span>');
 
-    $('body.section-contacts.subsection-personnel-folder #parent-fieldname-title').after('<span id="pers_fold"><a href="cputils_order_folder?key=get_full_name&verbose=">Trier par prénom et nom</a><br /><a href="cputils_order_folder?key=get_sortable_title&verbose=">Trier par nom et prénom</a></span>');
+    // $('body.section-contacts.subsection-personnel-folder #parent-fieldname-title').after('<span id="pers_fold"><a href="cputils_order_folder?key=get_full_name&verbose=">Trier par prénom et nom</a><br /><a href="cputils_order_folder?key=get_sortable_title&verbose=">Trier par nom et prénom</a></span>');
 
     // replace error message with interpreted html to render links
     $('.template-usergroup-userprefs .portalMessage.error dd, .template-usergroup-groupprefs .portalMessage.error dd').html(function(index, html){
