@@ -88,3 +88,13 @@ msgstr ""
 
 msgid "relative_path"
 msgstr ""
+
+msgid "header_userid"
+msgstr ""
+
+msgid "header_primary_org"
+msgstr ""
+
+msgid "header_hps"
+msgstr ""
+
