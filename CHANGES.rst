@@ -4,7 +4,7 @@ Changelog
 3.0.55
 ------
 
-- Last commit at b0c51b9dbd77fdd37589e7417ad022a8588fc32e
+- Last commit at 6fb38c82d4c7530c45245be5c994ac3499ba26a0
 - Changed dmsommainfile description type
 - Folders dashboards: added classification folder types criteria
 - Folders dashboards: put classification_tree_identifiers column before title
@@ -29,6 +29,8 @@ Changelog
 - Improved code for ldap user without email
 - Improved tab cont js to avoid error in anonymous
 - Loaded ftw.labels js as authenticated
+- Removed 30_config_dic
+- Added personnel table layout
 
 3.0.54
 ------
