@@ -448,8 +448,8 @@ class PathColumn(LinkColumn, BaseColumn):
 # ck-templates-listing columns
 
 
-class TitleColumn(LinkColumn):
-    """CKTemplates table. Personnel table. xss ok"""
+class CKTemplatesTitleColumn(LinkColumn):
+    """CKTemplates table. xss ok"""
 
     header = PMF("Title")
     weight = 10
@@ -479,7 +479,7 @@ class CKPathColumn(LinkColumn):
         return annot.get('dmsmail.cke_tpl_tit', '-') or '-'
 
 
-class ActionsColumn(DGActionsColumn):
+class CKTemplatesActionsColumn(DGActionsColumn):
     """CKTemplates table. xss ok"""
 
 #    header = _("Actions")
@@ -488,6 +488,20 @@ class ActionsColumn(DGActionsColumn):
               'showArrows': False, 'showTransitions': False, 'edit_action_class': 'dg_edit_action',
               'edit_action_target': '_blank'}
     cssClasses = {'td': 'actions-column'}
+
+
+class PersonTitleColumn(LinkColumn):
+    """Personnel table. xss ok"""
+
+    header = PMF("Title")
+    weight = 10
+    cssClasses = {'td': 'title-column'}
+
+    def getLinkCSS(self, item):
+        return ' class="state-%s"' % (api.content.get_state(obj=item))
+
+    def getLinkContent(self, item):
+        return item.title
 
 
 class UseridColumn(LinkColumn):
@@ -529,9 +543,7 @@ class HPColumn(PrettyLinkColumn):
 
     header = _cez("header_hps")
     weight = 25
-    sort_index = -1  # not sortable
     ul_class = 'hp_col'
-    sort_index = -1  # not sortable
 
     def renderCell(self, item):
         """ """
@@ -552,3 +564,13 @@ class HPColumn(PrettyLinkColumn):
             return '<ul class="%s"><li>%s</li></ul>' % (self.ul_class, '</li>\n<li>'.join(ret))
         else:
             return '-'
+
+
+class PersonnelActionsColumn(DGActionsColumn):
+    """Personnel table. xss ok"""
+
+    weight = 70
+    params = {'useIcons': True, 'showHistory': False, 'showActions': False, 'showOwnDelete': False,
+              'showArrows': False, 'showTransitions': False, 'edit_action_class': 'dg_edit_action',
+              'edit_action_target': '_blank'}
+    cssClasses = {'td': 'actions-column'}

@@ -342,7 +342,6 @@ class PersonnelListing(BrowserView):
         super(PersonnelListing, self).__init__(context, request)
         self.table = self.__table__(self.context, self.request)
 
-
     def query_dict(self):
         # crit = {'portal_type': ['person'], 'object_provides': self.provides}
         crit = {'portal_type': ['person']}
@@ -351,7 +350,7 @@ class PersonnelListing(BrowserView):
             crit['path'] = {'query': container_path}
             if self.depth is not None:
                 crit['path']['depth'] = self.depth
-        crit['sort_on'] = 'title'
+        crit['sort_on'] = 'sortable_title'
         return crit
 
     def update(self):
