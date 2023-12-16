@@ -180,17 +180,6 @@ class PersonnelTable(Table):
     sortOn = None
     results = []
 
-    def __init__(self, context, request):
-        super(PersonnelTable, self).__init__(context, request)
-        self.portal = api.portal.getSite()
-        self.context_path = self.context.absolute_url_path()
-        self.context_path_level = len(self.context_path.split('/'))
-        self.paths = {'.': '-'}
-
-    @CachedProperty
-    def wtool(self):
-        return api.portal.get_tool('portal_workflow')
-
     @CachedProperty
     def values(self):
         return self.results

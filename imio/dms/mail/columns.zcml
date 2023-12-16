@@ -262,12 +262,12 @@
       />
 
   <adapter
-      name="TitleColumn"
+      name="title"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.CKTemplatesTable"
       provides="z3c.table.interfaces.IColumn"
-      factory=".columns.TitleColumn"
+      factory=".columns.CKTemplatesTitleColumn"
       />
 
   <adapter
@@ -289,12 +289,12 @@
       />
 
   <adapter
-      name="ActionsColumn"
+      name="actions"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.CKTemplatesTable"
       provides="z3c.table.interfaces.IColumn"
-      factory=".columns.ActionsColumn"
+      factory=".columns.CKTemplatesActionsColumn"
       />
 
   <!-- personnel-listing columns -->
@@ -308,16 +308,16 @@
       />
 
   <adapter
-      name="TitleColumn"
+      name="title"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.PersonnelTable"
       provides="z3c.table.interfaces.IColumn"
-      factory=".columns.TitleColumn"
+      factory=".columns.PersonTitleColumn"
       />
 
   <adapter
-      name="UseridColumn"
+      name="userid"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.PersonnelTable"
@@ -326,7 +326,7 @@
       />
 
   <adapter
-      name="PrimaryOrganizationColumn"
+      name="primary_organization"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.PersonnelTable"
@@ -335,7 +335,7 @@
       />
 
   <adapter
-      name="HPColumn"
+      name="hps"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.PersonnelTable"
@@ -344,12 +344,12 @@
       />
 
   <adapter
-      name="ActionsColumn"
+      name="actions"
       for="zope.interface.Interface
            zope.interface.Interface
            imio.dms.mail.browser.table.PersonnelTable"
       provides="z3c.table.interfaces.IColumn"
-      factory=".columns.ActionsColumn"
+      factory=".columns.PersonnelActionsColumn"
       />
 
   <!-- collective.classification columns -->
