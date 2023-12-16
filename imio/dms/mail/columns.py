@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
 from AccessControl import getSecurityManager
+from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
 from collective.dms.basecontent.browser.column import IconColumn
 from collective.dms.basecontent.browser.column import LinkColumn as lc_base
@@ -552,16 +553,14 @@ class HPColumn(PrettyLinkColumn):
             return '-'
         ret = []
         for hp in hps:
-            ret.append(u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
-                       u"<span class='pretty_link_content state-%s'>%s</span></a>"
-                       % (hp.absolute_url(), api.content.get_state(obj=hp),
-                          safe_unicode(escape(hp.get_organization().get_full_title())))
-                       )
-        l_ret = len(ret)
-        if l_ret == 1:
-            return ret[0]
-        elif l_ret > 1:
-            return '<ul class="%s"><li>%s</li></ul>' % (self.ul_class, '</li>\n<li>'.join(ret))
+            org = hp.get_organization()
+            is_plonegroup = IPloneGroupContact.providedBy(org) and 1 or 0
+            ret.append(u"<li class='plonegroup_{}'><a href='{}' target='_blank' class='pretty_link link-tooltip'>"
+                       u"<span class='pretty_link_content state-{}'>{}</span></a></li>".format(
+                is_plonegroup, hp.absolute_url(), api.content.get_state(obj=hp),
+                safe_unicode(escape(org.get_full_title(first_index=is_plonegroup)))))
+        if ret:
+            return '<ul class="%s">%s</ul>' % (self.ul_class, '\n'.join(ret))
         else:
             return '-'
 
