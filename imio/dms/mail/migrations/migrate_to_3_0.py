@@ -403,6 +403,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                                  ('Manager', 'Site Administrator'), acquire=0)
 
             # rebuild relations to update rel objects referencing removed schema interface (long process)
+            transaction.commit()
             rebuild_relations()
             # add personnel persons and hps for all functions
             for udic in get_user_from_criteria(self.portal, email=''):
