@@ -33,11 +33,17 @@ msgstr "Assigned user"
 msgid "header_due_date"
 msgstr "Due date"
 
+msgid "header_hps"
+msgstr "Held positions"
+
 msgid "header_mail_type"
 msgstr "Mail type"
 
 msgid "header_outgoing_date"
 msgstr "Outgoing date"
+
+msgid "header_primary_org"
+msgstr "Primary organization"
 
 msgid "header_reception_date"
 msgstr "Reception date"
@@ -59,6 +65,9 @@ msgstr "Linked mail"
 
 msgid "header_treating_groups"
 msgstr "Treating group"
+
+msgid "header_userid"
+msgstr "Userid"
 
 msgid "mail_type"
 msgstr "Mail type"

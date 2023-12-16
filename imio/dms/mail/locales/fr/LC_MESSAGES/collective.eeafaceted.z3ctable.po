@@ -33,11 +33,17 @@ msgstr "Utilisateur assigné"
 msgid "header_due_date"
 msgstr "Échéance"
 
+msgid "header_hps"
+msgstr "Fonctions occupées"
+
 msgid "header_mail_type"
 msgstr "Type de courrier"
 
 msgid "header_outgoing_date"
 msgstr "Date d'expédition"
+
+msgid "header_primary_org"
+msgstr "Organisation principale"
 
 msgid "header_reception_date"
 msgstr "Date de réception"
@@ -59,6 +65,9 @@ msgstr "Courrier associé"
 
 msgid "header_treating_groups"
 msgstr "Service traitant"
+
+msgid "header_userid"
+msgstr "ID Utilisateur"
 
 msgid "mail_type"
 msgstr "Type de courrier"

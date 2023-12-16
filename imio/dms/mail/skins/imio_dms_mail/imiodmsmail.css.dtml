@@ -303,7 +303,7 @@ td.td_cell_actions select.apButtonAction_assign {
 
 table.personnel-listing li.plonegroup_0 {
   list-style-type: circle;
-}
+}  /* Different bullet for an hp not in plonegroup orgs */
 
 body.portaltype-folder.section-contacts.subsection-personnel-folder #content #plone-document-byline,
 body.portaltype-folder.section-contacts.subsection-personnel-folder div.viewlet_workflowstate {
