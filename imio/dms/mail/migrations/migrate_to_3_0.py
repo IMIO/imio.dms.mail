@@ -396,6 +396,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                                 portal_types=['held_position', 'person'])  # remove userid values
             pf = self.portal.contacts['personnel-folder']
             alsoProvides(pf, IPersonnelFolder)
+            pf.layout = 'personnel-listing'
             pf.manage_permission('collective.contact.plonegroup: Write user link fields',
                                  ('Manager', 'Site Administrator'), acquire=0)
             pf.manage_permission('collective.contact.plonegroup: Read user link fields',

@@ -2107,6 +2107,7 @@ def addOwnPersonnel(context):
     pf = contacts['personnel-folder']
     alsoProvides(pf, IProtectedItem)
     alsoProvides(pf, IPersonnelFolder)
+    pf.layout = 'personnel-listing'
     blacklistPortletCategory(pf)
     site.portal_types.directory.filter_content_types = True
     api.content.transition(obj=pf, transition='show_internally')
