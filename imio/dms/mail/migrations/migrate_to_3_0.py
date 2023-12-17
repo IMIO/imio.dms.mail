@@ -5,7 +5,6 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
-from collective.relationhelpers.api import rebuild_relations
 from collective.task.content.task import Task
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
@@ -27,6 +26,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.relations_utils import rebuild_relations
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
@@ -366,79 +366,84 @@ class Migrate_To_3_0(Migrator):  # noqa
             #                     portal_types=['dmsincoming_email', 'dmsoutgoingmail', 'held_position', 'organization',
             #                                   'person'])
             # TEMPORARY to 3.0.55
-            reimport_faceted_config(self.portal.folders['folder-searches'], xml='classificationfolders-searches.xml',
-                                    default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
-            brains = self.catalog(portal_type='DashboardCollection',
-                                  path='/'.join(self.portal.folders.getPhysicalPath()))
-            for brain in brains:
-                col = brain.getObject()
-                buf = list(col.customViewFields)
-                if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
-                    buf.remove(u'classification_tree_identifiers')
-                    buf.insert(1, u'classification_tree_identifiers')
-                    col.customViewFields = tuple(buf)
-                if u'classification_folder_title' not in buf:
-                    buf.remove(u'pretty_link')
-                    buf.insert(2, u'classification_subfolder_title')
-                    buf.insert(2, u'classification_folder_title')
-                    col.customViewFields = tuple(buf)
-                if u'ModificationDate' in buf:
-                    buf.remove(u'ModificationDate')
-                    buf.remove(u'review_state')
-                    col.customViewFields = tuple(buf)
-
-            # plonegroup change
-            load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
-            load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
-            self.upgradeProfile('collective.contact.plonegroup:default')
-            # not important if person mailtype metadata is not cleaned. Otherwise, all objects are considered
-            self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
-                                portal_types=['held_position', 'person'])  # remove userid values
             pf = self.portal.contacts['personnel-folder']
-            alsoProvides(pf, IPersonnelFolder)
-            pf.layout = 'personnel-listing'
-            pf.manage_permission('collective.contact.plonegroup: Write user link fields',
-                                 ('Manager', 'Site Administrator'), acquire=0)
-            pf.manage_permission('collective.contact.plonegroup: Read user link fields',
-                                 ('Manager', 'Site Administrator'), acquire=0)
+            if not IPersonnelFolder.providedBy(pf):
+                reimport_faceted_config(self.portal.folders['folder-searches'],
+                                        xml='classificationfolders-searches.xml',
+                                        default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
+                brains = self.catalog(portal_type='DashboardCollection',
+                                      path='/'.join(self.portal.folders.getPhysicalPath()))
+                for brain in brains:
+                    col = brain.getObject()
+                    buf = list(col.customViewFields)
+                    if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
+                        buf.remove(u'classification_tree_identifiers')
+                        buf.insert(1, u'classification_tree_identifiers')
+                        col.customViewFields = tuple(buf)
+                    if u'classification_folder_title' not in buf:
+                        buf.remove(u'pretty_link')
+                        buf.insert(2, u'classification_subfolder_title')
+                        buf.insert(2, u'classification_folder_title')
+                        col.customViewFields = tuple(buf)
+                    if u'ModificationDate' in buf:
+                        buf.remove(u'ModificationDate')
+                        buf.remove(u'review_state')
+                        col.customViewFields = tuple(buf)
+
+                # plonegroup change
+                load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
+                load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
+                self.upgradeProfile('collective.contact.plonegroup:default')
+                # not important if person mailtype metadata is not cleaned. Otherwise, all objects are considered
+                self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
+                                    portal_types=['held_position', 'person'])  # remove userid values
+                alsoProvides(pf, IPersonnelFolder)
+                pf.layout = 'personnel-listing'
+                pf.manage_permission('collective.contact.plonegroup: Write user link fields',
+                                     ('Manager', 'Site Administrator'), acquire=0)
+                pf.manage_permission('collective.contact.plonegroup: Read user link fields',
+                                     ('Manager', 'Site Administrator'), acquire=0)
+                transaction.commit()  # avoid ConflictError after rebuild_relations
 
             # rebuild relations to update rel objects referencing removed schema interface (long process)
-            transaction.commit()
-            rebuild_relations()
-            # add personnel persons and hps for all functions
-            for udic in get_user_from_criteria(self.portal, email=''):
-                groups = get_plone_groups_for_user(user_id=udic['userid'])
-                create_personnel_content(udic['userid'], groups, primary=True)
-            # END
+            treated = rebuild_relations(self.portal)
 
-            if message_status('doc', older=timedelta(days=90), to_state='inactive'):
-                logger.info("doc message deactivated")
-            self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
-            if ARCHIVE_SITE:
-                cssr = self.portal.portal_css
-                if not cssr.getResource('imiodmsmail_archives.css').getEnabled():
-                    cssr.updateStylesheet('imiodmsmail_archives.css', enabled=True)
-                    cssr.cookResources()
-            self.cleanRegistries()
-            # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
-            self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
-            # version
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            api.portal.set_registry_record('imio.dms.mail.product_version', new_version)
-            if 'new-version' in self.portal['messages-config']:
-                api.content.delete(self.portal['messages-config']['new-version'])
-            # not added if already exists
-            if old_version != new_version:
-                add_message('new-version', 'Maj version',
-                            u'<p><strong>iA.docs a été mis à jour de la version {} à la version {}</strong>. Vous '
-                            u'pouvez consulter les changements en cliquant sur le numéro de version en bas de page.'
-                            u'</p>'.format(old_version, new_version),
-                            msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
-            # update templates
-            self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
-            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',
-                                                         'imiodmsmail-update-templates'], profile='singles')
+            if not treated and old_version != new_version:
+                # add personnel persons and hps for all functions
+                for udic in get_user_from_criteria(self.portal, email=''):
+                    groups = get_plone_groups_for_user(user_id=udic['userid'])
+                    create_personnel_content(udic['userid'], groups, primary=True)
+                # END
+                if message_status('doc', older=timedelta(days=90), to_state='inactive'):
+                    logger.info("doc message deactivated")
+                self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
+                if ARCHIVE_SITE:
+                    cssr = self.portal.portal_css
+                    if not cssr.getResource('imiodmsmail_archives.css').getEnabled():
+                        cssr.updateStylesheet('imiodmsmail_archives.css', enabled=True)
+                        cssr.cookResources()
+                self.cleanRegistries()
+                # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
+                self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
+                # version
+                old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
+                new_version = safe_unicode(get_git_tag(BLDT_DIR))
+                api.portal.set_registry_record('imio.dms.mail.product_version', new_version)
+                if 'new-version' in self.portal['messages-config']:
+                    api.content.delete(self.portal['messages-config']['new-version'])
+                # not added if already exists
+                if old_version != new_version:
+                    add_message('new-version', 'Maj version',
+                                u'<p><strong>iA.docs a été mis à jour de la version {} à la version {}</strong>. Vous '
+                                u'pouvez consulter les changements en cliquant sur le numéro de version en bas de page.'
+                                u'</p>'.format(old_version, new_version),
+                                msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
+                # update templates
+                self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
+                self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',
+                                                             'imiodmsmail-update-templates'], profile='singles')
 
         if self.is_in_part('s'):  # update quick installer
             for prod in ['collective.behavior.talcondition', 'collective.ckeditor', 'collective.ckeditortemplates',
