@@ -6,6 +6,7 @@ from collective.relationhelpers.api import logger
 from collective.relationhelpers.api import purge_relations
 from collective.relationhelpers.api import RELATIONS_KEY
 from collective.relationhelpers.api import store_relations
+from imio.helpers.catalog import get_intid
 from plone.app.linkintegrity.handlers import modifiedDexterity as modifiedContent
 from plone.app.linkintegrity.handlers import referencedRelationship
 from plone.app.relationfield.event import update_behavior_relations
@@ -26,7 +27,7 @@ import os
 import transaction
 
 
-def load_pickle(infile, var):
+def load_pickle(infile, var):  # get it next from imio.pyutils.system
     """
         load a dictionary, a set or a list from a pickle file
     """
@@ -110,7 +111,7 @@ def restore_relations(portal, batch_value):
             continue
 
         from_attribute = item['from_attribute']
-        to_id = intids.getId(target_obj)
+        to_id = get_intid(target_obj, intids)
 
         if from_attribute == referencedRelationship:
             # Ignore linkintegrity for now. We'll rebuilt it at the end!
