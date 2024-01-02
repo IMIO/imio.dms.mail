@@ -200,7 +200,8 @@ def rebuild_relations(portal, flush_and_rebuild_intids=False):
 
     count, all_len, restored_len = restore_relations(portal, batch_value)
     logger.info('Treated {} / {}'.format(restored_len, all_len))
+    finished = all_len == restored_len or not count
 
-    # if count == 0 and RELATIONS_KEY in IAnnotations(portal):
-    #     del IAnnotations(portal)[RELATIONS_KEY]
-    return count
+    if finished and RELATIONS_KEY in IAnnotations(portal):
+        del IAnnotations(portal)[RELATIONS_KEY]
+    return finished
