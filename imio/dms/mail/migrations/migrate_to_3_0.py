@@ -406,11 +406,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                 transaction.commit()  # avoid ConflictError after rebuild_relations
 
             # rebuild relations to update rel objects referencing removed schema interface (long process)
-            treated = rebuild_relations(self.portal)
+            finished = rebuild_relations(self.portal)
 
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            if not treated and old_version != new_version:
+            if finished and old_version != new_version:
                 # add personnel persons and hps for all functions
                 for udic in get_user_from_criteria(self.portal, email=''):
                     groups = get_plone_groups_for_user(user_id=udic['userid'])
