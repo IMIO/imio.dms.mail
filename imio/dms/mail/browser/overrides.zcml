@@ -188,4 +188,16 @@
         zcml:condition="installed collective.solr"
         permission="cmf.ManagePortal" />
 
+    <unconfigure package="collective.iconifiedcategory" zcml:condition="installed collective.iconifiedcategory">
+        <browser:viewlet
+         name="iconifiedcategory.childs"
+         for="*"
+         manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+         layer="collective.iconifiedcategory.interfaces.ICollectiveIconifiedCategoryLayer"
+         class="collective.iconifiedcategory.browser.viewlets.CategorizedChildViewlet"
+         template="browser/templates/categorized-child-viewlet.pt"
+         permission="zope2.View"
+        />
+    </unconfigure>
+
 </configure>
