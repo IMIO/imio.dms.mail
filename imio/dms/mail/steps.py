@@ -476,7 +476,7 @@ def configure_wsclient(context):
     prefix = 'imio.pm.wsclient.browser.settings.IWS4PMClientSettings'
     if not api.portal.get_registry_record('{}.pm_url'.format(prefix), default=False):
         pmurl = gedurl = os.getenv('PUBLIC_URL', '')
-        pmurl = pmurl.replace('-ged', '-pm')
+        pmurl = pmurl.replace('-docs', '-pm')
         if pmurl != gedurl:
             api.portal.set_registry_record('{}.pm_url'.format(prefix), u'{}/ws4pm.wsdl'.format(pmurl))
         api.portal.set_registry_record('{}.pm_username'.format(prefix), u'admin')
