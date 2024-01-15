@@ -277,11 +277,7 @@
 
   <javascript id="++resource++imio.dashboard/imio.dashboard.js" insert-after="++resource++collective.eeafaceted.z3ctable/collective.eeafaceted.z3ctable.js" />
 
-  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
-
-  <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
-
-  <javascript id="++resource++quickupload_static/swfobject.js" insert-after="++resource++imio.dms.mail/outgoingmail.js" />
+  <javascript id="++resource++quickupload_static/swfobject.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
 
   <javascript id="++resource++quickupload_static/jquery.uploadify.js" insert-after="++resource++quickupload_static/swfobject.js" />
 
@@ -318,5 +314,14 @@
   <javascript id="++resource++collective.js.tooltipster/tooltipster.bundle.min.js" insert-after="++resource++jquery.datatables.min.js" />
 
   <javascript id="++resource++collective.js.tooltipster/tooltipster_helper.js" insert-after="++resource++collective.js.tooltipster/tooltipster.bundle.min.js" />
+
+  <javascript id="++resource++collective.iconifiedcategory/iconifiedcategory.js" insert-after="++resource++collective.js.tooltipster/tooltipster_helper.js" />
+
+  <javascript id="++resource++imio.annex.quickupload/helpers.js" insert-after="++resource++collective.iconifiedcategory/iconifiedcategory.js" />
+
+  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.annex.quickupload/helpers.js" />
+
+  <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
+
 
 </object>
