@@ -221,11 +221,7 @@
 
  <stylesheet id="++resource++collective.classification.folder-faceted.css" insert-after="++resource++jquery.datatables/media/css/jquery.dataTables_themeroller.css" />
 
- <stylesheet id="imiodmsmail.css" insert-after="++resource++collective.classification.folder-faceted.css" />
-
- <stylesheet id="imiodmsmail_archives.css" insert-after="imiodmsmail.css" />
-
- <stylesheet id="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" insert-after="imiodmsmail_archives.css" />
+ <stylesheet id="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" insert-after="++resource++collective.classification.folder-faceted.css" />
 
  <stylesheet id="++resource++collective.js.tooltipster/tooltipster-sideTip-light.min.css" insert-after="++resource++collective.js.tooltipster/tooltipster.bundle.min.css" />
 
@@ -235,6 +231,16 @@
 
  <stylesheet id="++resource++collective.js.tooltipster/tooltipster-sideTip-shadow.min.css" insert-after="++resource++collective.js.tooltipster/tooltipster-sideTip-punk.min.css" />
 
- <stylesheet id="ploneCustom.css" insert-after="++resource++collective.js.tooltipster/tooltipster-sideTip-shadow.min.css" />
+ <stylesheet id="collective-iconifiedcategory.css" insert-after="++resource++collective.js.tooltipster/tooltipster-sideTip-shadow.min.css" />
+
+ <stylesheet id="++resource++collective.iconifiedcategory/iconifiedcategory.css" insert-after="collective-iconifiedcategory.css" />
+
+ <stylesheet id="++resource++imio.annex.quickupload/quickupload.css" insert-after="++resource++collective.iconifiedcategory/iconifiedcategory.css" />
+
+ <stylesheet id="imiodmsmail.css" insert-after="++resource++imio.annex.quickupload/quickupload.css" />
+
+ <stylesheet id="imiodmsmail_archives.css" insert-after="imiodmsmail.css" />
+
+ <stylesheet id="ploneCustom.css" insert-after="imiodmsmail_archives.css" />
 
 </object>
