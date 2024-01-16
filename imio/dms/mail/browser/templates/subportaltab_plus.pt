@@ -1,0 +1,5 @@
+<div id="subportaltab-plus">
+  <h3 tal:repeat="tab python:view.get_tabs()">
+    <a tal:attributes="href python:tab[1]" tal:content="python:tab[0]"></a>
+  </h3>
+</div>
