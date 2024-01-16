@@ -52,6 +52,7 @@ from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import find
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_type_from_package
+from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -366,48 +367,57 @@ class Migrate_To_3_0(Migrator):  # noqa
             #                     portal_types=['dmsincoming_email', 'dmsoutgoingmail', 'held_position', 'organization',
             #                                   'person'])
             # TEMPORARY to 3.0.55
-            pf = self.portal.contacts['personnel-folder']
-            if not IPersonnelFolder.providedBy(pf):
-                reimport_faceted_config(self.portal.folders['folder-searches'],
-                                        xml='classificationfolders-searches.xml',
-                                        default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
-                brains = self.catalog(portal_type='DashboardCollection',
-                                      path='/'.join(self.portal.folders.getPhysicalPath()))
-                for brain in brains:
-                    col = brain.getObject()
-                    buf = list(col.customViewFields)
-                    if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
-                        buf.remove(u'classification_tree_identifiers')
-                        buf.insert(1, u'classification_tree_identifiers')
-                        col.customViewFields = tuple(buf)
-                    if u'classification_folder_title' not in buf:
-                        buf.remove(u'pretty_link')
-                        buf.insert(2, u'classification_subfolder_title')
-                        buf.insert(2, u'classification_folder_title')
-                        col.customViewFields = tuple(buf)
-                    if u'ModificationDate' in buf:
-                        buf.remove(u'ModificationDate')
-                        buf.remove(u'review_state')
-                        col.customViewFields = tuple(buf)
-
-                # plonegroup change
-                load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
-                load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
-                self.upgradeProfile('collective.contact.plonegroup:default')
-                # not important if person mailtype metadata is not cleaned. Otherwise, all objects are considered
-                self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
-                                    portal_types=['held_position', 'person'])  # remove userid values
-                alsoProvides(pf, IPersonnelFolder)
-                pf.layout = 'personnel-listing'
-                pf.manage_permission('collective.contact.plonegroup: Write user link fields',
-                                     ('Manager', 'Site Administrator'), acquire=0)
-                pf.manage_permission('collective.contact.plonegroup: Read user link fields',
-                                     ('Manager', 'Site Administrator'), acquire=0)
-                transaction.commit()  # avoid ConflictError after rebuild_relations
-
-            # rebuild relations to update rel objects referencing removed schema interface (long process)
-            finished = rebuild_relations(self.portal)
-
+            # pf = self.portal.contacts['personnel-folder']
+            # if not IPersonnelFolder.providedBy(pf):
+            #     reimport_faceted_config(self.portal.folders['folder-searches'],
+            #                             xml='classificationfolders-searches.xml',
+            #                             default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
+            #     brains = self.catalog(portal_type='DashboardCollection',
+            #                           path='/'.join(self.portal.folders.getPhysicalPath()))
+            #     for brain in brains:
+            #         col = brain.getObject()
+            #         buf = list(col.customViewFields)
+            #         if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
+            #             buf.remove(u'classification_tree_identifiers')
+            #             buf.insert(1, u'classification_tree_identifiers')
+            #             col.customViewFields = tuple(buf)
+            #         if u'classification_folder_title' not in buf:
+            #             buf.remove(u'pretty_link')
+            #             buf.insert(2, u'classification_subfolder_title')
+            #             buf.insert(2, u'classification_folder_title')
+            #             col.customViewFields = tuple(buf)
+            #         if u'ModificationDate' in buf:
+            #             buf.remove(u'ModificationDate')
+            #             buf.remove(u'review_state')
+            #             col.customViewFields = tuple(buf)
+            #
+            #     # plonegroup change
+            #     load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
+            #     load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
+            #     self.upgradeProfile('collective.contact.plonegroup:default')
+            #     # not important if person mailtype metadata is not cleaned. Otherwise, all objects are considered
+            #     self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
+            #                         portal_types=['held_position', 'person'])  # remove userid values
+            #     alsoProvides(pf, IPersonnelFolder)
+            #     pf.layout = 'personnel-listing'
+            #     pf.manage_permission('collective.contact.plonegroup: Write user link fields',
+            #                          ('Manager', 'Site Administrator'), acquire=0)
+            #     pf.manage_permission('collective.contact.plonegroup: Read user link fields',
+            #                          ('Manager', 'Site Administrator'), acquire=0)
+            #     transaction.commit()  # avoid ConflictError after rebuild_relations
+            #
+            # # rebuild relations to update rel objects referencing removed schema interface (long process)
+            # finished = rebuild_relations(self.portal)
+            # TEMPORARY to 3.0.56
+            if 'plus' not in self.portal:
+                obj = api.content.create(container=self.portal, type='Document', id='plus', title=u'● ● ●')
+                do_transitions(obj, ['show_internally'])
+                order_1st_level(self.portal)
+                for oid in ('contacts', 'templates', 'tree'):
+                    obj = self.portal[oid]
+                    obj.exclude_from_nav = True
+                    obj.reindexObject()
+            finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
             if finished and old_version != new_version:

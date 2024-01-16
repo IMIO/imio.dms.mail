@@ -130,7 +130,7 @@ def add_db_col_folder(folder, cid, title, displayed=''):
 
 def order_1st_level(site):
     """Order 1st level folders."""
-    ordered = ['incoming-mail', 'outgoing-mail', 'folders', 'tasks', 'contacts', 'templates', 'tree']
+    ordered = ['incoming-mail', 'outgoing-mail', 'folders', 'tasks', 'plus', 'contacts', 'templates', 'tree']
     for i, oid in enumerate(ordered):
         site.moveObjectToPosition(oid, i)
 
@@ -140,7 +140,7 @@ def setup_classification(site):
     alsoProvides(site.REQUEST, IImioDmsMailLayer)
 
     if not base_hasattr(site, 'folders'):
-        site.invokeFactory("ClassificationFolders", id='folders', title=_(u'folders_tab'))
+        site.invokeFactory("ClassificationFolders", id='folders', title=_(u'folders_tab'), exclude_from_nav=True)
         folders = site["folders"]
         alsoProvides(folders, ILabelRoot)
         alsoProvides(folders, IProtectedItem)
@@ -150,7 +150,8 @@ def setup_classification(site):
         do_transitions(folders, ['show_internally'])
 
     if not base_hasattr(site, 'tree'):
-        site.invokeFactory("ClassificationContainer", id='tree', title=_(u'classification_tree_tab'))
+        site.invokeFactory("ClassificationContainer", id='tree', title=_(u'classification_tree_tab'),
+                           exclude_from_nav=True)
         blacklistPortletCategory(site, site['tree'])
         site['tree'].manage_addLocalRoles('AuthenticatedUsers', ['Reader'])
         alsoProvides(site['tree'], IProtectedItem)
@@ -324,6 +325,10 @@ def postInstall(context):
         do_transitions(tsk_folder, ['show_internally'])
         logger.info('tasks folder created')
 
+    if 'plus' not in site:
+        obj = api.content.create(container=site, type='Document', id='plus', title=u'● ● ●')
+        do_transitions(obj, ['show_internally'])
+
     # Directory creation
     if not base_hasattr(site, 'contacts'):
         position_types = [{'name': u'Président', 'token': u'president'},
@@ -348,6 +353,7 @@ def postInstall(context):
                   'position_types': position_types,
                   'organization_types': organization_types,
                   'organization_levels': organization_levels,
+                  'exclude_from_nav': True,
                   }
         site.invokeFactory('directory', 'contacts', **params)
         contacts = site['contacts']
