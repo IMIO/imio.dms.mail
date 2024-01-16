@@ -399,3 +399,18 @@ class RenderEmailSignature(BrowserView):
     def __call__(self):
         rendered = self.pt.pt_render(self.namespace)
         return richtextval(rendered)
+
+
+class PlusPortaltabContent(BrowserView):
+    """View used in sub portal tab 'plus' to get sub menu items"""
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+        self.portal = api.portal.get()
+
+    def get_tabs(self):
+        res = self.portal.portal_catalog(id=('contacts', 'templates', 'tree', 'annexes_types'),
+                                         path={"query": '/'.join(self.portal.getPhysicalPath()), "depth": 1},
+                                         sort_on='getObjPositionInParent')
+        return [(b.Title, b.getPath()) for b in res]

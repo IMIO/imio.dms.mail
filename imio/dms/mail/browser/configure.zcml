@@ -69,6 +69,14 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="*"
+        name="plus-portaltab-content"
+        class=".views.PlusPortaltabContent"
+        template="templates/subportaltab_plus.pt"
+        permission="zope2.View"
+        />
+
     <!-- ACTIONSPANEL -->
     <configure package="imio.actionspanel">
         <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
