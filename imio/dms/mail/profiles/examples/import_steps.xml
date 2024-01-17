@@ -2,6 +2,13 @@
 
 <import-steps>
 <import-step
+            id="imiodmsmail-add-annexes-types"
+            handler="imio.dms.mail.examples.add_annexes_types"
+            title="Add annexes types for imio.dms.mail"
+            version="2024-01-17T15:00:00.00000">
+Add some objects (annexes types) for test purpose
+</import-step>
+<import-step
             id="imiodmsmail-addTestDirectory"
             handler="imio.dms.mail.setuphandlers.addTestDirectory"
             title="Add test directory for imio.dms.mail"
@@ -15,6 +22,7 @@ Add some objects (directory) for test purpose
             version="2021-08-20T15:00:00.00000">
 Add some objects (tree categories and folders) for test purpose
            <dependency step="imiodmsmail-configureContactPloneGroup"/>
+           <dependency step="imiodmsmail-add-annexes-types"/>
 </import-step>
 <import-step
             id="imiodmsmail-addTestMails"
