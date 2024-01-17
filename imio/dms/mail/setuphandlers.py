@@ -328,6 +328,7 @@ def postInstall(context):
     if 'plus' not in site:
         obj = api.content.create(container=site, type='Document', id='plus', title=u'● ● ●')
         do_transitions(obj, ['show_internally'])
+        alsoProvides(obj, IProtectedItem)
 
     # Directory creation
     if not base_hasattr(site, 'contacts'):

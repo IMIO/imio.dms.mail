@@ -96,7 +96,7 @@ $(document).ready(function(){
     tooltipster_helper(selector='#portaltab-plus a',
                        view_name='@@plus-portaltab-content',
                        data_parameters=[],
-                       options={position: 'bottom', theme: 'tooltipster-light subportaltab-plus', arrow: false,
+                       options={position: 'bottom', theme: 'tooltipster-light sub-portaltab', arrow: false,
                        functionPosition_callback: function (instance, helper, position){position.coord.top -= 6;return position;},});
 
     $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a><br /><a href="@@various-utils/kofax_orgs" target="_blank">Listing des services pour Kofax</a></span>');
