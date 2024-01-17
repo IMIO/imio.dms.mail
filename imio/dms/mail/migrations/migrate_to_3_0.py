@@ -412,6 +412,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if 'plus' not in self.portal:
                 obj = api.content.create(container=self.portal, type='Document', id='plus', title=u'● ● ●')
                 do_transitions(obj, ['show_internally'])
+                alsoProvides(obj, IProtectedItem)
                 order_1st_level(self.portal)
                 for oid in ('contacts', 'templates', 'tree'):
                     obj = self.portal[oid]
