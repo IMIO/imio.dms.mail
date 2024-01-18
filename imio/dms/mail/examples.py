@@ -18,23 +18,27 @@ def add_annexes_types(context):
     site = context.getSite()
     logger.info('Adding annexes types')
     ccc = site['annexes_types']
-    category_group = api.content.create(
-        type='ContentCategoryGroup',
-        title='Annexes',
-        container=ccc,
-        # confidentiality_activated=True,
-        # to_be_printed_activated=True,
-        # signed_activated=True,
-        # publishable_activated=True,
-    )
+    if 'annexes' not in ccc:
+        category_group = api.content.create(
+            type='ContentCategoryGroup',
+            title='Annexes',
+            container=ccc,
+            id='annexes',
+            # confidentiality_activated=True,
+            # to_be_printed_activated=True,
+            # signed_activated=True,
+            # publishable_activated=True,
+        )
     icats = (
         ('annex', u'Annexe', u'attach.png'),
         ('deliberation', u'Délibération', u'deliberation_signed.png'),
         ('cahier-charges', u'Cahier des charges', u'cahier.png'),
         ('legal-advice', u'Avis légal', u'legalAdvice.png'),
-        ('budget', u'Article budgétaire', u'budget.png'),
+        ('budget', u'Facture', u'budget.png'),
     )
     for oid, title, img in icats:
+        if oid in ccc['annexes']:
+            continue
         icon_path = os.path.join(context._profile_path, 'images', img)
         with open(icon_path, 'rb') as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -43,7 +47,8 @@ def add_annexes_types(context):
             title=title,
             container=category_group,
             icon=icon,
-            # predefined_title=u'',
+            id=oid,
+            predefined_title=title,
             # confidential=True,
             # to_print=True,
             # to_sign=True,
@@ -52,5 +57,3 @@ def add_annexes_types(context):
             # only_pdf=True,
             # show_preview=1,
         )
-        # TODO avoid dv
-        # remove wkf

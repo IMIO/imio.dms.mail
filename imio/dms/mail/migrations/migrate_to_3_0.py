@@ -418,6 +418,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                     obj = self.portal[oid]
                     obj.exclude_from_nav = True
                     obj.reindexObject()
+            self.runProfileSteps('imio.dms.mail', steps=['workflow'])
+            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-annexes-types'], profile='examples')
+
             finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
