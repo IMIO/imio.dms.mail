@@ -26,6 +26,7 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
 from collective.dms.mailcontent.dmsmail import receptionDateDefaultValue
 from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
+from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
@@ -140,7 +141,7 @@ def setup_classification(site):
     alsoProvides(site.REQUEST, IImioDmsMailLayer)
 
     if not base_hasattr(site, 'folders'):
-        site.invokeFactory("ClassificationFolders", id='folders', title=_(u'folders_tab'), exclude_from_nav=True)
+        site.invokeFactory("ClassificationFolders", id='folders', title=_(u'folders_tab'))
         folders = site["folders"]
         alsoProvides(folders, ILabelRoot)
         alsoProvides(folders, IProtectedItem)
@@ -435,8 +436,13 @@ def postInstall(context):
     key = 'collective.documentgenerator.browser.controlpanel.IDocumentGeneratorControlPanelSchema.use_stream'
     if api.portal.get_registry_record(key):
         api.portal.set_registry_record(key, False)
+
+    configure_documentviewer(site)  # before templates to avoid auto-layout default config
+
     add_templates(site)
     add_oem_templates(site)
+    site.templates.exclude_from_nav = True
+    site.templates.reindexObject()
 
     add_transforms(site)
 
@@ -2172,18 +2178,15 @@ def addContactListsFolder(context):
                                      RelationValue(intids.getId(contacts['bernardlermitte']['agent-swde']))])
 
 
-def configureDocumentViewer(context):
+def configure_documentviewer(site):
     """
         Set the settings of document viewer product
     """
-    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
-        return
-    from collective.documentviewer.settings import GlobalSettings
-    site = context.getSite()
     gsettings = GlobalSettings(site)
     gsettings.storage_location = os.path.join(os.getcwd(), 'var', 'dv_files')
     gsettings.storage_type = 'Blob'
     gsettings.pdf_image_format = 'jpg'
+    gsettings.auto_select_layout = False
     if 'excel' not in gsettings.auto_layout_file_types:
         gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ['excel', 'image']
     gsettings.show_search = True
