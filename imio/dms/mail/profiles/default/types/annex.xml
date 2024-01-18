@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<object name="annex" meta_type="Dexterity FTI">
+ <property name="default_view">documentviewer</property>
+</object>

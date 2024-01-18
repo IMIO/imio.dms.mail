@@ -3,6 +3,7 @@ from datetime import timedelta
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentviewer.settings import GlobalSettings
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.content.task import Task
@@ -410,6 +411,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # finished = rebuild_relations(self.portal)
             # TEMPORARY to 3.0.56
             if 'plus' not in self.portal:
+                logger.info('Added plus page and excluded some folders')
                 obj = api.content.create(container=self.portal, type='Document', id='plus', title=u'● ● ●')
                 do_transitions(obj, ['show_internally'])
                 alsoProvides(obj, IProtectedItem)
@@ -418,8 +420,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                     obj = self.portal[oid]
                     obj.exclude_from_nav = True
                     obj.reindexObject()
-            self.runProfileSteps('imio.dms.mail', steps=['workflow'])
+            gsettings = GlobalSettings(self.portal)
+            gsettings.auto_select_layout = False
+            self.runProfileSteps('imio.dms.mail', steps=['typeinfo', 'workflow'])
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-annexes-types'], profile='examples')
+            for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
+                brain.getObject().setLayout('view')
 
             finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
