@@ -315,4 +315,28 @@
         handler=".subscribers.zope_ready"
         />
 
+    <!-- collective.documentviewer -->
+    <!--unconfigure>
+        <subscriber
+            for="plone.dexterity.interfaces.IDexterityContent
+                 zope.lifecycleevent.interfaces.IObjectAddedEvent"
+            handler="collective.documentviewer.subscribers.handle_file_creation" />
+
+        <subscriber
+            for="plone.dexterity.interfaces.IDexterityContent
+                 zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+            handler="collective.documentviewer.subscribers.handle_file_creation" />
+    </unconfigure>
+
+    <subscriber
+        for="plone.dexterity.interfaces.IDexterityContent
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.dv_handle_file_creation" />
+
+    <subscriber
+        for="plone.dexterity.interfaces.IDexterityContent
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.dv_handle_file_creation" /-->
+
+
 </configure>

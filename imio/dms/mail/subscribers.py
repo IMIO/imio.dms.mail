@@ -12,6 +12,7 @@ from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
+from collective.documentviewer.subscribers import handle_file_creation
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -21,6 +22,7 @@ from imio.dms.mail import _
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -360,6 +362,14 @@ def dmsoutgoingmail_transition(mail, event):
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=('in_out_date',), update_metadata=0)
+
+
+def dv_handle_file_creation(obj, event):
+    """Intermediate function to avoid converting some files in documentviewer"""
+    if obj.portal_type in DV_AVOIDED_TYPES:
+        return
+    # Can be yet improved by rejecting a specific marker interfaces
+    handle_file_creation(obj, event)
 
 
 def reference_document_removed(obj, event):
