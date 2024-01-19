@@ -36,7 +36,7 @@ class TestSetuphandlers(unittest.TestCase):
         # check old Topic activation
         self.assertTrue('Collection (old-style)' in [pt.title for pt in self.portal.allowedContentTypes()])
 
-    def test_configureBatchImport(self):
+    def test_configure_batch_import(self):
         registry = getUtility(IRegistry)
         fs_root_directory = registry['collective.dms.batchimport.batchimport.ISettings.fs_root_directory']
         self.assertTrue(fs_root_directory.endswith('batchimport/toprocess'))
@@ -45,7 +45,7 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertEquals(code_to_type_mapping[0]['code'], u'in')
         self.assertEquals(code_to_type_mapping[0]['portal_type'], u'dmsincomingmail')
 
-    def test_addTestDirectory(self):
+    def test_add_test_directory(self):
         # checking directory
         self.assertTrue(hasattr(self.portal, 'contacts'))
         contacts = self.portal['contacts']
@@ -67,7 +67,7 @@ class TestSetuphandlers(unittest.TestCase):
                             object_provides='collective.contact.plonegroup.interfaces.INotPloneGroupContact')
         self.assertEquals(len(held_positions), 3)
 
-    def test_addTestMails(self):
+    def test_add_test_mails(self):
         # checking incoming mails
         pc = self.portal.portal_catalog
         imails = pc(portal_type=('dmsincomingmail',), path={"query": 'plone/incoming-mail'})
@@ -76,7 +76,7 @@ class TestSetuphandlers(unittest.TestCase):
         omails = pc(portal_type=('dmsoutgoingmail',), path={"query": 'plone/outgoing-mail'})
         self.assertEquals(len(omails), 9)
 
-    def test_addTestUsersAndGroups(self):
+    def test_add_test_users_and_groups(self):
         # checking groups
         acl_users = getToolByName(self.portal, 'acl_users')
         lecteurs = [gd for gd in acl_users.searchGroups() if gd['groupid'].endswith('_lecteur')]

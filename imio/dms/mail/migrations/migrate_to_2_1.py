@@ -341,7 +341,7 @@ class Migrate_To_2_1(Migrator):
         # order
         contacts.moveObjectToPosition('personnel-folder', 4)
         # contact lists folder
-        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-addContactListsFolder'])
+        self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-add_test_contact_lists'])
         cl_folder = contacts['contact-lists-folder']
         cl_folder.manage_addLocalRoles('encodeurs', ['Contributor', 'Editor', 'Reader'])
         cl_folder.manage_addLocalRoles('expedition', ['Contributor', 'Editor', 'Reader'])
