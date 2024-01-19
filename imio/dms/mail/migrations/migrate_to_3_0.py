@@ -249,7 +249,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             else:
                 self.runProfileSteps('imio.dms.mail', profile='singles',
                                      steps=['imiodmsmail-deactivate_classification'], run_dependencies=False)
-            self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'],
+            self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configure_imio_dms_mail'],
                                  run_dependencies=False)
             # clean example users wrongly added by previous migration
             self.clean_examples()

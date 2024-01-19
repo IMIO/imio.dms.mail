@@ -252,7 +252,7 @@ class Migrate_To_2_0(Migrator):
                                                      'propertiestool', 'typeinfo', 'workflow'])
         self.portal.portal_workflow.updateRoleMappings()
         self.runProfileSteps('imio.dms.mail', profile='examples',
-                             steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configureImioDmsMail'])
+                             steps=['imiodmsmail-addOwnPersonnel', 'imiodmsmail-configure_imio_dms_mail'])
 
         # create persons from users
         create_persons_from_users(self.portal)
