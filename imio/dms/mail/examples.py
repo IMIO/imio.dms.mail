@@ -48,239 +48,6 @@ logger = logging.getLogger('imio.dms.mail: examples')
 PUBLIC_URL = os.getenv('PUBLIC_URL', '')
 
 
-def configure_batch_import(context):
-    """
-        Add batch import configuration
-    """
-    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
-        return
-    logger.info('Configure batch import')
-    registry = getUtility(IRegistry)
-    import imio.dms.mail as imiodmsmail
-    productpath = imiodmsmail.__path__[0]
-
-    if not registry.get('collective.dms.batchimport.batchimport.ISettings.fs_root_directory'):
-        registry['collective.dms.batchimport.batchimport.ISettings.fs_root_directory'] = \
-            os.path.join(productpath, u'batchimport/toprocess')
-    if not registry.get('collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'):
-        registry['collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'] = \
-            os.path.join(productpath, u'batchimport/toprocess')
-    if not registry.get('collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'):
-        registry['collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'] = \
-            [{'code': u'in', 'portal_type': u'dmsincomingmail'}]  # i_e ok
-
-
-def configure_contact_plone_group(context):
-    """
-        Add french test contact plonegroup configuration
-    """
-    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
-        return
-    logger.info('Configure contact plonegroup')
-    site = context.getSite()
-    if not get_registry_functions():
-        set_registry_functions([
-            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False,
-             'enabled': True},
-            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
-            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
-        ])
-    if not get_registry_groups_mgt():
-        set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
-    if not get_registry_organizations():
-        contacts = site['contacts']
-        own_orga = contacts['plonegroup-organization']
-        # full list of orgs defined in add_test_plonegroup_services ~1600
-        departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
-        dep0 = departments[0]
-        dep1 = departments[1]
-        dep2 = departments[2]
-        services0 = dep0.listFolderContents(contentFilter={'portal_type': 'organization'})
-        services1 = dep1.listFolderContents(contentFilter={'portal_type': 'organization'})
-        services2 = dep2.listFolderContents(contentFilter={'portal_type': 'organization'})
-        orgas = [dep0, services0[0], services0[1], services0[3], dep1, services1[0], services1[1],
-                 dep2, services2[0], services2[1], departments[5]]
-        # selected orgs
-        # u'Direction générale', (u'Secrétariat', u'GRH', u'Communication')
-        # u'Direction financière', (u'Budgets', u'Comptabilité')
-        # u'Direction technique', (u'Bâtiments', u'Voiries')
-        # u'Événements'
-        set_registry_organizations([org.UID() for org in orgas])
-        # Add users to activated groups
-        for org in orgas:
-            uid = org.UID()
-            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
-            if org.organization_type == 'service':
-                site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
-                site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_encodeur" % uid)
-                site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
-        site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
-        site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
-        # internal persons and held_positions have been created
-        persons = {
-            'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
-                              'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
-                              'number': u'2', 'primary_organization': dep0.UID()},
-                     'hps': {'phone': u'012345679', 'label': u'Responsable {}'}},
-            'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
-                               'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
-                               'number': u'3', 'primary_organization': services0[3].UID()},
-                      'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
-            'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
-                                'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
-                                'number': u'1', 'primary_organization': departments[5].UID()},
-                       'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
-        }
-        pf = contacts['personnel-folder']
-        normalizer = getUtility(IIDNormalizer)
-        for pers_id in persons:
-            if pers_id not in pf:
-                raise 'Person {} not created in personnel-folder'.format(pers_id)
-            person = pf[pers_id]
-            for fld, val in persons[pers_id]['pers'].items():
-                setattr(person, fld, val)
-            person.reindexObject()
-            for hp in person.objectValues():
-                setattr(hp, 'phone', persons[pers_id]['hps']['phone'])
-                setattr(hp, 'label', persons[pers_id]['hps']['label'].format(hp.get_organization().title))
-                api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
-                hp.reindexObject()
-
-
-def configure_imio_dms_mail(context):
-    """
-        Add french test imio dms mail configuration
-    """
-    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
-        return
-    logger.info('Configure imio dms mail')
-    registry = getUtility(IRegistry)
-
-    # IM
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'] = [
-            {'value': u'courrier', 'dtitle': u'Courrier', 'active': True},
-            {'value': u'recommande', 'dtitle': u'Recommandé', 'active': True},
-            {'value': u'certificat', 'dtitle': u'Certificat médical', 'active': True},
-            {'value': u'fax', 'dtitle': u'Fax', 'active': True},
-            {'value': u'retour-recommande', 'dtitle': u'Retour recommandé', 'active': True},
-            {'value': u'facture', 'dtitle': u'Facture', 'active': True},
-        ]
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = ['proposed_to_agent']
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields'):
-        fields = [
-            'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender', 'treating_groups',
-            'ITask.assigned_user', 'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
-            'ITask.task_description', 'external_reference_no', 'original_mail_date',
-            'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
-            'internal_reference_no'
-        ]
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields'] = [
-            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
-            for v in fields
-        ]
-
-    # OM
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'] = [
-            {'value': u'type1', 'dtitle': u'Type 1', 'active': True},
-        ]
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'] = _(u'Response: ')
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes'):
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes'] = [
-            {'value': u'post', 'dtitle': u'Lettre', 'active': True},
-            {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
-            {'value': u'email', 'dtitle': u'Email', 'active': True},
-        ]
-    if registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send') is None:
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send'] = False
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields'):
-        fields = [
-            'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
-            'ITask.assigned_user', 'sender', 'recipient_groups', 'send_modes', 'mail_type', 'mail_date', 'reply_to',
-            'ITask.task_description', 'ITask.due_date', 'outgoing_date', 'external_reference_no',
-            'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
-            'internal_reference_no', 'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
-            'email_attachments', 'email_body']
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields'] = [
-            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
-            for v in fields
-        ]
-
-    # IEM
-    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'):
-        from string import Template
-        template = Template(
-u"""
-<meta charset="UTF-8">
-<tal:global define="ctct_det python: dghv.get_ctct_det(sender['hp']);
-                    label python: sender['hp'].label;
-                    services python: dghv.separate_full_title(sender['org_full_title']);">
-<p style="font-weight: bold;" tal:condition="nothing">!! Attention: ne pas modifier ceci directement mais passer par "Source" !!</p>
-<br />
-<p><span style="font-size:large;font-family:Quicksand,Arial" 
-tal:content="python:u'{} {}'.format(sender['person'].firstname, sender['person'].lastname)">Prénom Nom</span></p>
-
-<div style="float:left;">
-<div style="font-size:small; float:left;clear:both;width:350px">
-<span tal:condition="label" tal:content="label">Fonction</span><br />
-<span tal:content="python:services[0]">Département</span><br />
-<span tal:condition="python:services[1]" tal:content="python:services[1]">Service</span><br />
-
-<a style="display: inline-block; padding-top: 1em;" href="mailto" target="_blank" 
-tal:attributes="href python:'mailto:{}'.format(ctct_det['email'])" tal:content="python:ctct_det['email']">email</a>
-<br /><span tal:content="python: dghv.display_phone(phone=ctct_det['phone'], check=False, pattern='/.')">Téléphone</span><br />
-
-<span style="display: inline-block; padding-top: 0.5em;" 
-tal:content="python:u'{}, {}'.format(ctct_det['address']['street'], ctct_det['address']['number'])">Rue, numéro</span><br />
-<span tal:content="python:u'{} {}'.format(ctct_det['address']['zip_code'], ctct_det['address']['city'])">CP Localité</span><br />
-<!--a href="https://www.google.be/maps/" target="_blank">Plan</a-->
-</div></div>
-
-<div style="float:left;display: inline-grid;"><a href="$url" target="_blank"><img alt="" src="$url/++resource++imio.dms.mail/belleville.png" /></a><br />
-<span style="font-size:small;text-align: center;">Administration communale de Belleville</span><br />
-</div>
-
-<p>&nbsp;</p>
-
-<div style="font-size: x-small;color:#424242;clear:both"><br />
-Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.
-</div>
-</tal:global>""")  # noqa
-        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'] = template.substitute(
-            url=PUBLIC_URL)
-
-    # IImioDmsMailConfig2 settings
-    api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
-    api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
-    api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
-    if not api.portal.get_registry_record('imio.dms.mail.product_version'):
-        api.portal.set_registry_record('imio.dms.mail.product_version',
-                                       safe_unicode(get_git_tag(BLDT_DIR, is_develop_environment())))
-
-    # general
-    api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter',
-                                   ['scanner'])
-
-    # mailcontent
-    # Hide internal reference for outgoingmmail. Increment number automatically
-    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
-    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
-
-    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == \
-            u"python:'in/'+number":
-        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression'] = \
-            u"python:'E%04d'%int(number)"
-    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression') == \
-            u"python:'out/'+number":
-        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression'] = \
-            u"python:'S%04d'%int(number)"
-
-
 def add_test_annexes_types(context):
     """
         Add french test data: ContentCategoryGroup and ContentCategory
@@ -750,3 +517,236 @@ def add_test_users_and_groups(context):
         api.group.add_user(groupname='createurs_dossier', username='chef')
     if api.group.get('lecteurs_globaux_cs') is None:
         api.group.create('lecteurs_globaux_cs', '2 Lecteurs Globaux CS')
+
+
+def configure_batch_import(context):
+    """
+        Add batch import configuration
+    """
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    logger.info('Configure batch import')
+    registry = getUtility(IRegistry)
+    import imio.dms.mail as imiodmsmail
+    productpath = imiodmsmail.__path__[0]
+
+    if not registry.get('collective.dms.batchimport.batchimport.ISettings.fs_root_directory'):
+        registry['collective.dms.batchimport.batchimport.ISettings.fs_root_directory'] = \
+            os.path.join(productpath, u'batchimport/toprocess')
+    if not registry.get('collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'):
+        registry['collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory'] = \
+            os.path.join(productpath, u'batchimport/toprocess')
+    if not registry.get('collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'):
+        registry['collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping'] = \
+            [{'code': u'in', 'portal_type': u'dmsincomingmail'}]  # i_e ok
+
+
+def configure_contact_plone_group(context):
+    """
+        Add french test contact plonegroup configuration
+    """
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    logger.info('Configure contact plonegroup')
+    site = context.getSite()
+    if not get_registry_functions():
+        set_registry_functions([
+            {'fct_title': u'Créateur CS', 'fct_id': u'encodeur', 'fct_orgs': [], 'fct_management': False,
+             'enabled': True},
+            {'fct_title': u'Lecteur', 'fct_id': u'lecteur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
+            {'fct_title': u'Éditeur', 'fct_id': u'editeur', 'fct_orgs': [], 'fct_management': False, 'enabled': True},
+        ])
+    if not get_registry_groups_mgt():
+        set_registry_groups_mgt(['dir_general', 'encodeurs', 'expedition'])
+    if not get_registry_organizations():
+        contacts = site['contacts']
+        own_orga = contacts['plonegroup-organization']
+        # full list of orgs defined in add_test_plonegroup_services ~1600
+        departments = own_orga.listFolderContents(contentFilter={'portal_type': 'organization'})
+        dep0 = departments[0]
+        dep1 = departments[1]
+        dep2 = departments[2]
+        services0 = dep0.listFolderContents(contentFilter={'portal_type': 'organization'})
+        services1 = dep1.listFolderContents(contentFilter={'portal_type': 'organization'})
+        services2 = dep2.listFolderContents(contentFilter={'portal_type': 'organization'})
+        orgas = [dep0, services0[0], services0[1], services0[3], dep1, services1[0], services1[1],
+                 dep2, services2[0], services2[1], departments[5]]
+        # selected orgs
+        # u'Direction générale', (u'Secrétariat', u'GRH', u'Communication')
+        # u'Direction financière', (u'Budgets', u'Comptabilité')
+        # u'Direction technique', (u'Bâtiments', u'Voiries')
+        # u'Événements'
+        set_registry_organizations([org.UID() for org in orgas])
+        # Add users to activated groups
+        for org in orgas:
+            uid = org.UID()
+            site.acl_users.source_groups.addPrincipalToGroup('chef', "%s_encodeur" % uid)
+            if org.organization_type == 'service':
+                site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_editeur" % uid)
+                site.acl_users.source_groups.addPrincipalToGroup('agent', "%s_encodeur" % uid)
+                site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
+        site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
+        site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
+        # internal persons and held_positions have been created
+        persons = {
+            'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
+                              'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
+                              'number': u'2', 'primary_organization': dep0.UID()},
+                     'hps': {'phone': u'012345679', 'label': u'Responsable {}'}},
+            'agent': {'pers': {'lastname': u'Agent', 'firstname': u'Fred', 'gender': u'M', 'person_title': u'Monsieur',
+                               'zip_code': u'7000', 'city': u'Mons', 'street': u"Rue de la place",
+                               'number': u'3', 'primary_organization': services0[3].UID()},
+                      'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
+            'agent1': {'pers': {'lastname': u'Agent', 'firstname': u'Stef', 'gender': u'M', 'person_title': u'Monsieur',
+                                'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue du désespoir",
+                                'number': u'1', 'primary_organization': departments[5].UID()},
+                       'hps': {'phone': u'012345670', 'label': u'Agent {}'}},
+        }
+        pf = contacts['personnel-folder']
+        normalizer = getUtility(IIDNormalizer)
+        for pers_id in persons:
+            if pers_id not in pf:
+                raise 'Person {} not created in personnel-folder'.format(pers_id)
+            person = pf[pers_id]
+            for fld, val in persons[pers_id]['pers'].items():
+                setattr(person, fld, val)
+            person.reindexObject()
+            for hp in person.objectValues():
+                setattr(hp, 'phone', persons[pers_id]['hps']['phone'])
+                setattr(hp, 'label', persons[pers_id]['hps']['label'].format(hp.get_organization().title))
+                api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
+                hp.reindexObject()
+
+
+def configure_imio_dms_mail(context):
+    """
+        Add french test imio dms mail configuration
+    """
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    logger.info('Configure imio dms mail')
+    registry = getUtility(IRegistry)
+
+    # IM
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types'] = [
+            {'value': u'courrier', 'dtitle': u'Courrier', 'active': True},
+            {'value': u'recommande', 'dtitle': u'Recommandé', 'active': True},
+            {'value': u'certificat', 'dtitle': u'Certificat médical', 'active': True},
+            {'value': u'fax', 'dtitle': u'Fax', 'active': True},
+            {'value': u'retour-recommande', 'dtitle': u'Retour recommandé', 'active': True},
+            {'value': u'facture', 'dtitle': u'Facture', 'active': True},
+        ]
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states'] = ['proposed_to_agent']
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields'):
+        fields = [
+            'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender', 'treating_groups',
+            'ITask.assigned_user', 'recipient_groups', 'reception_date', 'ITask.due_date', 'mail_type', 'reply_to',
+            'ITask.task_description', 'external_reference_no', 'original_mail_date',
+            'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
+            'internal_reference_no'
+        ]
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields'] = [
+            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
+            for v in fields
+        ]
+
+    # OM
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types'] = [
+            {'value': u'type1', 'dtitle': u'Type 1', 'active': True},
+        ]
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile'] = True
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix'] = _(u'Response: ')
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes'):
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes'] = [
+            {'value': u'post', 'dtitle': u'Lettre', 'active': True},
+            {'value': u'post_registered', 'dtitle': u'Lettre recommandée', 'active': True},
+            {'value': u'email', 'dtitle': u'Email', 'active': True},
+        ]
+    if registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send') is None:
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send'] = False
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields'):
+        fields = [
+            'IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients', 'treating_groups',
+            'ITask.assigned_user', 'sender', 'recipient_groups', 'send_modes', 'mail_type', 'mail_date', 'reply_to',
+            'ITask.task_description', 'ITask.due_date', 'outgoing_date', 'external_reference_no',
+            'IClassificationFolder.classification_categories', 'IClassificationFolder.classification_folders',
+            'internal_reference_no', 'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
+            'email_attachments', 'email_body']
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields'] = [
+            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""}
+            for v in fields
+        ]
+
+    # IEM
+    if not registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'):
+        from string import Template
+        template = Template(
+u"""
+<meta charset="UTF-8">
+<tal:global define="ctct_det python: dghv.get_ctct_det(sender['hp']);
+                    label python: sender['hp'].label;
+                    services python: dghv.separate_full_title(sender['org_full_title']);">
+<p style="font-weight: bold;" tal:condition="nothing">!! Attention: ne pas modifier ceci directement mais passer par "Source" !!</p>
+<br />
+<p><span style="font-size:large;font-family:Quicksand,Arial" 
+tal:content="python:u'{} {}'.format(sender['person'].firstname, sender['person'].lastname)">Prénom Nom</span></p>
+
+<div style="float:left;">
+<div style="font-size:small; float:left;clear:both;width:350px">
+<span tal:condition="label" tal:content="label">Fonction</span><br />
+<span tal:content="python:services[0]">Département</span><br />
+<span tal:condition="python:services[1]" tal:content="python:services[1]">Service</span><br />
+
+<a style="display: inline-block; padding-top: 1em;" href="mailto" target="_blank" 
+tal:attributes="href python:'mailto:{}'.format(ctct_det['email'])" tal:content="python:ctct_det['email']">email</a>
+<br /><span tal:content="python: dghv.display_phone(phone=ctct_det['phone'], check=False, pattern='/.')">Téléphone</span><br />
+
+<span style="display: inline-block; padding-top: 0.5em;" 
+tal:content="python:u'{}, {}'.format(ctct_det['address']['street'], ctct_det['address']['number'])">Rue, numéro</span><br />
+<span tal:content="python:u'{} {}'.format(ctct_det['address']['zip_code'], ctct_det['address']['city'])">CP Localité</span><br />
+<!--a href="https://www.google.be/maps/" target="_blank">Plan</a-->
+</div></div>
+
+<div style="float:left;display: inline-grid;"><a href="$url" target="_blank"><img alt="" src="$url/++resource++imio.dms.mail/belleville.png" /></a><br />
+<span style="font-size:small;text-align: center;">Administration communale de Belleville</span><br />
+</div>
+
+<p>&nbsp;</p>
+
+<div style="font-size: x-small;color:#424242;clear:both"><br />
+Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.
+</div>
+</tal:global>""")  # noqa
+        registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature'] = template.substitute(
+            url=PUBLIC_URL)
+
+    # IImioDmsMailConfig2 settings
+    api.portal.set_registry_record('imio.dms.mail.dv_clean_days', 180)
+    api.portal.set_registry_record('imio.dms.mail.imail_folder_period', u'week')
+    api.portal.set_registry_record('imio.dms.mail.omail_folder_period', u'week')
+    if not api.portal.get_registry_record('imio.dms.mail.product_version'):
+        api.portal.set_registry_record('imio.dms.mail.product_version',
+                                       safe_unicode(get_git_tag(BLDT_DIR, is_develop_environment())))
+
+    # general
+    api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter',
+                                   ['scanner'])
+
+    # mailcontent
+    # Hide internal reference for outgoingmmail. Increment number automatically
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn'] = u'hide'
+    registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number'] = True
+
+    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression') == \
+            u"python:'in/'+number":
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression'] = \
+            u"python:'E%04d'%int(number)"
+    if registry.get('collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression') == \
+            u"python:'out/'+number":
+        registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression'] = \
+            u"python:'S%04d'%int(number)"
