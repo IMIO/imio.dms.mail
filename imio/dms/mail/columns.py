@@ -20,6 +20,7 @@ from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
 from collective.task.interfaces import ITaskMethods
 from imio.dms.mail import _
+from imio.dms.mail import _tr
 from imio.helpers.content import uuidToCatalogBrain
 from html import escape
 from plone import api
@@ -539,12 +540,13 @@ class PrimaryOrganizationColumn(VocabularyColumn):
     vocabulary = u'collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary'
 
 
-class HPColumn(PrettyLinkColumn):
+class HPColumn(BaseColumn):
     """Personnel table. xss ok"""
 
     header = _cez("header_hps")
     weight = 25
     ul_class = 'hp_col'
+    # the_object = True
 
     def renderCell(self, item):
         """ """
@@ -555,10 +557,14 @@ class HPColumn(PrettyLinkColumn):
         for hp in hps:
             org = hp.get_organization()
             is_plonegroup = IPloneGroupContact.providedBy(org) and 1 or 0
-            ret.append(u"<li class='plonegroup_{}'><a href='{}' target='_blank' class='pretty_link link-tooltip'>"
-                       u"<span class='pretty_link_content state-{}'>{}</span></a></li>".format(
-                is_plonegroup, hp.absolute_url(), api.content.get_state(obj=hp),
-                safe_unicode(escape(org.get_full_title(first_index=is_plonegroup)))))
+            if org is None:
+                ret.append(u"<li class='plonegroup_0'>{}</li>".format(_tr('personnel_hp_bad_organization',
+                                                                          domain='collective.eeafaceted.z3ctable')))
+            else:
+                ret.append(u"<li class='plonegroup_{}'><a href='{}' target='_blank' class='pretty_link link-tooltip'>"
+                           u"<span class='pretty_link_content state-{}'>{}</span></a></li>".format(
+                    is_plonegroup, hp.absolute_url(), api.content.get_state(obj=hp),
+                    safe_unicode(escape(org.get_full_title(first_index=is_plonegroup)))))
         if ret:
             return '<ul class="%s">%s</ul>' % (self.ul_class, '\n'.join(ret))
         else:

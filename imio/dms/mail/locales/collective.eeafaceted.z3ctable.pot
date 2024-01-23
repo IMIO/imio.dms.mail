@@ -98,3 +98,6 @@ msgstr ""
 msgid "header_hps"
 msgstr ""
 
+#: ./columns.py
+msgid "personnel_hp_bad_organization"
+msgstr ""

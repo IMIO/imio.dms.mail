@@ -75,6 +75,10 @@ msgstr "Type de courrier"
 msgid "outgoing_date"
 msgstr "Date d'expédition"
 
+#: ./columns.py
+msgid "personnel_hp_bad_organization"
+msgstr "Organisation effacée sur la fonction occupée !! Modifier ou effacer la fonction occupée (via la personne)."
+
 msgid "reception_date"
 msgstr "Date de réception"
 
