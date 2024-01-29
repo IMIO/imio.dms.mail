@@ -426,6 +426,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-annexes-types'], profile='examples')
             for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
                 brain.getObject().setLayout('view')
+            self.reindexIndexes(['classification_folders'], update_metadata=True,
+                                portal_types=['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'])
 
             finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
