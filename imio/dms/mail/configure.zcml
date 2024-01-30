@@ -207,6 +207,9 @@
     <class class="imio.dashboard.content.dashboardcollection.DashboardCollection">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
+    <class class="imio.annex.content.annex.Annex">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
 
     <class class="imio.dms.mail.dmsmail.ImioDmsIncomingMail">
         <implements interface="ftw.labels.interfaces.ILabelSupport" />
