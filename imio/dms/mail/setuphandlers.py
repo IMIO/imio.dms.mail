@@ -1182,7 +1182,7 @@ def adaptDefaultPortal(context):
         registry['externaleditor.externaleditor_enabled_types'] = ['PODTemplate', 'ConfigurablePODTemplate',
                                                                    'DashboardPODTemplate', 'SubTemplate',
                                                                    'StyleTemplate', 'dmsommainfile',
-                                                                   'MailingLoopTemplate']
+                                                                   'MailingLoopTemplate', 'annex']
 
     # Default roles for ftw labels
     site.manage_permission('ftw.labels: Manage Labels Jar', ('Manager', 'Site Administrator'),

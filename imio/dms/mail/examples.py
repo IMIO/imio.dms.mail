@@ -86,6 +86,7 @@ def add_test_annexes_types(context):
         api.content.create(
             type='ContentCategory',
             title=title,
+            description=u'',
             container=category_group,
             icon=icon,
             id=oid,
