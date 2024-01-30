@@ -71,13 +71,13 @@ def add_test_annexes_types(context):
     else:
         category_group = ccc['annexes']
     icats = (
-        ('annex', u'Annexe', u'attach.png'),
-        ('deliberation', u'Délibération', u'deliberation_signed.png'),
-        ('cahier-charges', u'Cahier des charges', u'cahier.png'),
-        ('legal-advice', u'Avis légal', u'legalAdvice.png'),
-        ('budget', u'Facture', u'budget.png'),
+        ('annex', u'Annexe', u'attach.png', True),
+        ('deliberation', u'Délibération', u'deliberation_signed.png', True),
+        ('cahier-charges', u'Cahier des charges', u'cahier.png', False),
+        ('legal-advice', u'Avis légal', u'legalAdvice.png', False),
+        ('budget', u'Facture', u'budget.png', False),
     )
-    for oid, title, img in icats:
+    for oid, title, img, show_pv in icats:
         if oid in ccc['annexes']:
             continue
         icon_path = os.path.join(context._profile_path, 'images', img)
@@ -97,7 +97,7 @@ def add_test_annexes_types(context):
             # signed=True,
             # publishable=True,
             # only_pdf=True,
-            # show_preview=1,
+            show_preview=show_pv,
         )
 
 
