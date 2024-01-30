@@ -310,6 +310,57 @@ class OnlyAddActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = ['paste']
 
 
+class AnnexActionsPanelView(ActionsPanelView):
+    """This manage the view displaying actions on some folder."""
+
+    def __init__(self, context, request):
+        super(AnnexActionsPanelView, self).__init__(context, request)
+        # portal_actions.object_buttons action ids to ignore
+        self.IGNORABLE_ACTIONS = ('documentviewer_convert', 'view_preview')
+
+    @ram.cache(actionspanelview_cachekey)
+    def AnnexActionsPanelView__call__(self,
+                                      # useIcons=True,
+                                      showTransitions=False,
+                                      # appendTypeNameToTransitionLabel=False,
+                                      # showEdit=True,
+                                      showExtEdit=True,
+                                      # showOwnDelete=True,
+                                      # showOwnDeleteWithComments=False,
+                                      # showActions=True,
+                                      # showAddContent=False,
+                                      # showHistory=False,
+                                      # showHistoryLastEventHasComments=True,
+                                      # showArrows=False,
+                                      # showFolderContents=False,
+                                      # arrowsPortalTypeAware=False,
+                                      # markingInterface=None,
+                                      # forceRedirectOnOwnDelete=True,
+                                      # forceRedirectAfterTransition=False,
+                                      **kwargs):
+        return super(AnnexActionsPanelView, self).__call__(
+            # useIcons=useIcons,
+            showTransitions=showTransitions,
+            # appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            # showEdit=showEdit,
+            showExtEdit=showExtEdit,
+            # showOwnDelete=showOwnDelete,
+            # showOwnDeleteWithComments=False,
+            # showActions=showActions,
+            # showAddContent=showAddContent,
+            # showHistory=showHistory,
+            # showHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            # showArrows=showArrows,
+            # showFolderContents=False,
+            # arrowsPortalTypeAware=arrowsPortalTypeAware,
+            # markingInterface=None,
+            # forceRedirectOnOwnDelete=True,
+            # forceRedirectAfterTransition=False,
+            **kwargs)
+
+    __call__ = AnnexActionsPanelView__call__
+
+
 class CPODTActionsPanelView(BasicActionsPanelView, ConfigurablePODTemplateActionsPanelView):
     """
         This manage the view on ConfigurablePODTemplate
