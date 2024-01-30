@@ -169,6 +169,14 @@
         layer="collective.eeafaceted.dashboard.interfaces.IFacetedDashboardLayer"
         permission="zope2.View"
         />
+
+      <browser:page
+        for="imio.annex.content.annex.IAnnex"
+        name="json_collections_count"
+        class="imio.dms.mail.browser.overrides.ClassificationJSONCollectionsCount"
+        layer="collective.eeafaceted.dashboard.interfaces.IFacetedDashboardLayer"
+        permission="zope2.View"
+        />
     </configure>
 
     <browser:page
