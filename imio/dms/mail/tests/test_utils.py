@@ -9,6 +9,7 @@ from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import create_period_folder_max
+from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
@@ -473,3 +474,55 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         for i in range(0, 9):
             create_period_folder_max(self.imf, dte, counter_dic, max_nb=9)
         self.assertIn('{}-2'.format(foldername), self.imf)
+
+    def test_create_personnel_content(self):
+        pf = self.contacts['personnel-folder']
+        ev_uid = self.contacts['plonegroup-organization']['evenements'].UID()
+        self.portal.portal_registration.addMember(id='newuser', password='TestUser=6')
+        self.assertNotIn('newuser', pf)
+        # add newuser in ev editeur group
+        api.group.add_user(groupname='{}_editeur'.format(ev_uid), username='newuser')
+        self.assertIn('newuser', pf)
+        self.assertEqual(pf.newuser.userid, 'newuser')
+        self.assertIsNone(pf.newuser.primary_organization)
+        self.assertListEqual(pf.newuser.objectIds(), [ev_uid])
+        self.assertEqual(pf.newuser[ev_uid].get_organization().UID(), ev_uid)
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'deactivated')
+        # add newuser in ev encodeur group
+        api.group.add_user(groupname='{}_encodeur'.format(ev_uid), username='newuser')
+        self.assertListEqual(pf.newuser.objectIds(), [ev_uid])
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'active')
+        # add newuser in sc editeur group
+        sc_uid = self.contacts['plonegroup-organization']['direction-generale']['secretariat'].UID()
+        api.group.add_user(groupname='{}_editeur'.format(sc_uid), username='newuser')
+        self.assertListEqual(pf.newuser.objectIds(), [ev_uid, sc_uid])
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'active')
+        self.assertEqual(api.content.get_state(pf.newuser[sc_uid]), 'deactivated')
+        # add newuser in sc encodeur group
+        api.group.add_user(groupname='{}_encodeur'.format(sc_uid), username='newuser')
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'active')
+        self.assertEqual(api.content.get_state(pf.newuser[sc_uid]), 'active')
+        # use primary arg but multiple hps => not set
+        create_personnel_content('newuser', ['{}_editeur'.format(sc_uid)], primary=True)
+        self.assertListEqual(pf.newuser.objectIds(), [ev_uid, sc_uid])
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'active')
+        self.assertEqual(api.content.get_state(pf.newuser[sc_uid]), 'active')
+        self.assertIsNone(pf.newuser.primary_organization)
+        # remove newuser from sc editeur group
+        api.group.remove_user(groupname='{}_editeur'.format(sc_uid), username='newuser')
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'active')
+        self.assertEqual(api.content.get_state(pf.newuser[sc_uid]), 'active')
+        # remove newuser from ev encodeur group
+        api.group.remove_user(groupname='{}_encodeur'.format(ev_uid), username='newuser')
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'deactivated')
+        self.assertEqual(api.content.get_state(pf.newuser[sc_uid]), 'active')
+        # remove newuser from sc encodeur group
+        api.group.remove_user(groupname='{}_encodeur'.format(sc_uid), username='newuser')
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'deactivated')
+        self.assertEqual(api.content.get_state(pf.newuser[sc_uid]), 'deactivated')
+        # delete sc hp and use primary arg with one hp => set
+        api.content.delete(obj=pf.newuser[sc_uid])
+        create_personnel_content('newuser', ['{}_editeur'.format(ev_uid)], primary=True)
+        self.assertListEqual(pf.newuser.objectIds(), [ev_uid])
+        self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), 'deactivated')
+        self.assertEqual(pf.newuser.primary_organization, ev_uid)

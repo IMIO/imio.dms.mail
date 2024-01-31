@@ -833,26 +833,7 @@ def group_unassignment(event):
         update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='remove',  # i_e ok
                                          group_id=event.group_id)
     # we manage the personnel-folder person and held position
-    orgs = organizations_with_suffixes([event.group_id], ALL_SERVICE_FUNCTIONS, group_as_str=True)
-    if orgs:
-        userid = event.principal
-        portal = api.portal.get()
-        pf = portal['contacts']['personnel-folder']
-        exist = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type='person')
-        if userid in pf:
-            pers = pf[userid]
-        elif exist:
-            pers = exist[0]._unrestrictedGetObject()
-        else:
-            return
-        hps = [b._unrestrictedGetObject() for b in
-               portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
-                                                               portal_type='held_position')]
-        for hp in hps:
-            if hp.get_organization().UID() == orgs[0] and api.content.get_state(hp) == 'active':
-                api.content.transition(hp, 'deactivate')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+    create_personnel_content(event.principal, [event.group_id], ALL_SERVICE_FUNCTIONS)
 
 
 # CONTACT
