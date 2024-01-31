@@ -1055,12 +1055,12 @@ def create_period_folder(main_dir, dte, subfolder=''):
 
 
 def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, primary=False, fn_first=None):
-    """Create directory personnel content for a userid.
+    """Create or handle directory personnel content for a userid.
 
     :param userid: userid
     :param groups: groups to consider
     :param functions: functions to consider
-    :param primary: set person primary_organization if set to True and only one org
+    :param primary: set person primary_organization if only one org (to be used only when passing all user groups)
     :param fn_first: bool indicating firstname is starting fullname. When None, the value is taken from configuration
     """
     out = []  # used in portal_setup step context
@@ -1083,19 +1083,25 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
             if len(persons) > 1:
                 logger.warn("Found multiple personnel persons linked to userid '{}' : {}".format(userid,
                             '\n'.join([br.getURL() for br in persons])))
-            pers = persons[0]._unrestrictedGetObject()
+            if userid in pf:
+                pers = pf[userid]
+            else:
+                pers = persons[0]._unrestrictedGetObject()
         elif userid in pf:
             pers = pf[userid]
         else:
             pers = api.content.create(container=pf, type='person', id=userid, userid=userid, lastname=lastname,
                                       firstname=firstname, use_parent_address=False)
             out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, firstname, lastname))
-        if primary and len(orgs) == 1:
-            pers.primary_organization = orgs[0]
         hps = [b._unrestrictedGetObject() for b in
                portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
                                                                portal_type='held_position')]
         hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
+        if len(hps) != len(hps_orgs):
+            logger.warn("Found multiple held positions for the same org in userid '{}' : {}".format(userid,
+                        ' | '.join([hp.get_full_title() for hp in hps])))
+        elif primary and len(hps_orgs) == 1:
+            pers.primary_organization = orgs[0]
         for uid in orgs:
             org = uuidToObject(uid, unrestricted=True)
             if not org:

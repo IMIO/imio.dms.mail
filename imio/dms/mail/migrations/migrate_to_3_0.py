@@ -410,6 +410,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             # # rebuild relations to update rel objects referencing removed schema interface (long process)
             # finished = rebuild_relations(self.portal)
             # TEMPORARY to 3.0.56
+            # add personnel persons and hps for all functions: redo again after bug correction
+            for udic in get_user_from_criteria(self.portal, email=''):
+                groups = get_plone_groups_for_user(user_id=udic['userid'])
+                create_personnel_content(udic['userid'], groups, primary=True)
             if 'plus' not in self.portal:
                 logger.info('Added plus page and excluded some folders')
                 obj = api.content.create(container=self.portal, type='Document', id='plus', title=u'● ● ●')
@@ -433,16 +437,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                 eet = ['PODTemplate', 'ConfigurablePODTemplate', 'DashboardPODTemplate', 'SubTemplate',
                        'StyleTemplate', 'dmsommainfile', 'MailingLoopTemplate', 'annex']
                 api.portal.set_registry_record('externaleditor.externaleditor_enabled_types', eet)
+            # END
 
             finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
             if finished and old_version != new_version:
-                # add personnel persons and hps for all functions
-                for udic in get_user_from_criteria(self.portal, email=''):
-                    groups = get_plone_groups_for_user(user_id=udic['userid'])
-                    create_personnel_content(udic['userid'], groups, primary=True)
-                # END
                 if message_status('doc', older=timedelta(days=90), to_state='inactive'):
                     logger.info("doc message deactivated")
                 self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
