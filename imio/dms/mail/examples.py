@@ -68,6 +68,7 @@ def add_test_annexes_types(context):
             # signed_activated=True,
             # publishable_activated=True,
         )
+        do_transitions(category_group, ['show_internally'])
     else:
         category_group = ccc['annexes']
     icats = (
