@@ -43,7 +43,7 @@
    <bound-workflow workflow_id="active_inactive_workflow"/>
   </type>
   <type type_id="ContentCategoryGroup">
-   <bound-workflow workflow_id=""/>
+   <bound-workflow workflow_id="(Default)"/>
   </type>
   <type type_id="ContentCategory">
    <bound-workflow workflow_id=""/>

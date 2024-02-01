@@ -427,8 +427,14 @@ class Migrate_To_3_0(Migrator):  # noqa
                     obj.reindexObject()
             gsettings = GlobalSettings(self.portal)
             gsettings.auto_select_layout = False
+            self.cleanRegistries()
             self.upgradeProfile('collective.classification.folder:default')
-            self.runProfileSteps('imio.dms.mail', steps=['typeinfo', 'workflow'])
+            # default view
+            for wkf in ('ConfigurablePODTemplate', 'DashboardPODTemplate', 'PODTemplate', 'SubTemplate',
+                        'dmsappendixfile', 'dmsmainfile', 'dmsommainfile'):  # annex ?
+                load_type_from_package(wkf, 'profile-imio.dms.mail:default')
+            self.wfTool.setChainForPortalTypes(('ContentCategoryGroup',), '(Default)')
+            self.wfTool.setChainForPortalTypes(('ContentCategory',), ())
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
             for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
                 brain.getObject().setLayout('view')
