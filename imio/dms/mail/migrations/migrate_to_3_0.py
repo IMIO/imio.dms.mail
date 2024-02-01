@@ -53,6 +53,7 @@ from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import find
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_type_from_package
+from imio.helpers.setup import remove_gs_step
 from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
@@ -68,6 +69,7 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
+from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zExceptions import Redirect
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
@@ -412,6 +414,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # finished = rebuild_relations(self.portal)
             # TEMPORARY to 3.0.56
             # add personnel persons and hps for all functions: redo again after bug correction
+            remove_gs_step('imiodmsmail-refreshCatalog')  # because dependencies have changed
             for udic in get_user_from_criteria(self.portal, email=''):
                 groups = get_plone_groups_for_user(user_id=udic['userid'])
                 create_personnel_content(udic['userid'], groups, primary=True)
@@ -454,6 +457,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 zope_app = self.portal
                 while not isinstance(zope_app, OFS.Application.Application):
                     zope_app = zope_app.aq_parent
+                if 'cputils_install' not in zope_app.objectIds():
+                    manage_addExternalMethod(zope_app, 'cputils_install', '', 'CPUtils.utils', 'install')
                 ret = zope_app.cputils_install(zope_app)
                 ret = ret.replace('<div>Those methods have been added: ', '').replace('</div>', '')
                 if ret:
