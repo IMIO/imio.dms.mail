@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
@@ -12,6 +11,7 @@ from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
 from datetime import datetime
+from datetime import timedelta
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from eea.facetednavigation.criteria.interfaces import ICriteria
@@ -79,6 +79,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import json
 import logging
+import OFS
 import os
 import transaction
 
@@ -442,7 +443,15 @@ class Migrate_To_3_0(Migrator):  # noqa
             finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            if finished and old_version != new_version:
+            # if finished and old_version != new_version:
+            if finished:
+                zope_app = self.portal
+                while not isinstance(zope_app, OFS.Application.Application):
+                    zope_app = zope_app.aq_parent
+                ret = zope_app.cputils_install(zope_app)
+                ret = ret.replace('<div>Those methods have been added: ', '').replace('</div>', '')
+                if ret:
+                    logger.info('CPUtils added methods: "{}"'.format(ret.replace('<br />', ', ')))
                 if message_status('doc', older=timedelta(days=90), to_state='inactive'):
                     logger.info("doc message deactivated")
                 self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -455,8 +464,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                 # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
                 self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
                 # version
-                old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
-                new_version = safe_unicode(get_git_tag(BLDT_DIR))
                 api.portal.set_registry_record('imio.dms.mail.product_version', new_version)
                 if 'new-version' in self.portal['messages-config']:
                     api.content.delete(self.portal['messages-config']['new-version'])
