@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2024-01-23 08:53+0000\n"
+"POT-Creation-Date: 2024-02-05 15:33+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -255,7 +255,7 @@ msgstr "Contacts"
 msgid "Contacts export"
 msgstr "Export des contacts"
 
-#: ./browser/templates/actions_panel_create_from_template.pt:7
+#: ./browser/templates/actions_panel_create_from_template.pt:6
 msgid "Create from template"
 msgstr "Créer depuis modèle"
 
@@ -489,6 +489,10 @@ msgstr "Dossier utilisateur"
 msgid "Missing mandatory fields: ${msg}"
 msgstr "Champs obligatoires manquants: ${msg}"
 
+#: ./browser/templates/actions_panel_folder_annexes.pt:5
+msgid "Multiple annexes"
+msgstr "Annexes multiples"
+
 #: ./browser/settings.py:130
 msgid "No check"
 msgstr "Utilisateur assigné non obligatoire"
@@ -626,7 +630,7 @@ msgstr "Services en copie"
 msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
 
-#: ./columns.py:469
+#: ./columns.py:470
 msgid "Relative path"
 msgstr "Chemin relatif"
 
@@ -634,7 +638,6 @@ msgstr "Chemin relatif"
 msgid "Remark icon"
 msgstr "Le champ \"description du travail\" n'est pas vide"
 
-#: ./browser/templates/actions_panel_create_from_template.pt:8
 #: ./browser/templates/actions_panel_reply.pt:5
 msgid "Reply"
 msgstr "Répondre"
@@ -647,7 +650,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./examples.py:664
+#: ./examples.py:665
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -755,7 +758,7 @@ msgstr "Types de courrier entrant"
 msgid "Types of outgoing mail"
 msgstr "Types de courrier sortant"
 
-#: ./columns.py:341
+#: ./columns.py:342
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 
