@@ -273,6 +273,34 @@ class DmsTaskActionsPanelView(ActionsPanelView):
     __call__ = DmsTaskActionsPanelView__call__
 
 
+class ClassificationFolderActionsPanelView(ActionsPanelView):
+
+    def __init__(self, context, request):
+        super(ClassificationFolderActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete', 'rename']
+        self.SECTIONS_TO_RENDER += (
+            'render_multiple_annexes_button',
+        )
+
+    def may_multiple_annexes(self):
+        if not self.isInFacetedNavigation() and self.member.has_permission('Add portal content',
+                                                                           self.context):
+            return True
+        return False
+
+    def render_multiple_annexes_button(self):
+        if self.may_multiple_annexes():
+            return ViewPageTemplateFile(
+                "templates/actions_panel_folder_annexes.pt")(self)
+        return ''
+
+    @ram.cache(actionspanelview_cachekey)
+    def ClassificationFolderActionsPanelView__call__(self, **kwargs):
+        return super(ClassificationFolderActionsPanelView, self).__call__(**kwargs)
+
+    __call__ = ClassificationFolderActionsPanelView__call__
+
+
 class BasicActionsPanelView(ActionsPanelView):
     """
         This manage the view displaying actions on contact, folder, some template, ...
