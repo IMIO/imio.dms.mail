@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2024-01-23 08:53+0000\n"
+"POT-Creation-Date: 2024-02-05 15:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -253,7 +253,7 @@ msgstr ""
 msgid "Contacts export"
 msgstr ""
 
-#: ./browser/templates/actions_panel_create_from_template.pt:7
+#: ./browser/templates/actions_panel_create_from_template.pt:6
 msgid "Create from template"
 msgstr ""
 
@@ -487,6 +487,10 @@ msgstr ""
 msgid "Missing mandatory fields: ${msg}"
 msgstr ""
 
+#: ./browser/templates/actions_panel_folder_annexes.pt:5
+msgid "Multiple annexes"
+msgstr ""
+
 #: ./browser/settings.py:130
 msgid "No check"
 msgstr ""
@@ -624,7 +628,7 @@ msgstr ""
 msgid "Refresh tab count"
 msgstr ""
 
-#: ./columns.py:469
+#: ./columns.py:470
 msgid "Relative path"
 msgstr ""
 
@@ -632,7 +636,6 @@ msgstr ""
 msgid "Remark icon"
 msgstr ""
 
-#: ./browser/templates/actions_panel_create_from_template.pt:8
 #: ./browser/templates/actions_panel_reply.pt:5
 msgid "Reply"
 msgstr ""
@@ -645,7 +648,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./examples.py:664
+#: ./examples.py:665
 msgid "Response: "
 msgstr ""
 
@@ -753,7 +756,7 @@ msgstr ""
 msgid "Types of outgoing mail"
 msgstr ""
 
-#: ./columns.py:341
+#: ./columns.py:342
 msgid "Update preview"
 msgstr ""
 
