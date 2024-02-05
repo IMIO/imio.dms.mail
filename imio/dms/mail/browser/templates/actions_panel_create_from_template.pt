@@ -2,11 +2,10 @@
   <a tal:attributes="href string:${context/absolute_url}/@@create-from-template"
      target="_parent"
      class="overlay overlay-ajax overlay-template-selection"
-     tal:define="useIcons view/useIcons;
-                 dummy view/saveHasActions;">
-     <input tal:condition="not: useIcons" type="button" value="Create from template" class="apButton apButtonAction apButtonAction_create-from-template" i18n:attributes="value" />
-     <img tal:condition="useIcons" i18n:attributes="title" title="Reply"
-          tal:attributes="src string: ${view/portal_url}/++resource++imio.dms.mail/models_icon.png;"/>
+     tal:define="dummy view/saveHasActions;">
+     <input type="button" value="Create from template" class="apButton apButtonAction apButtonAction_create-from-template" i18n:attributes="value" />
+     <!--img tal:condition="useIcons" i18n:attributes="title" title="Create from template"
+          tal:attributes="src string: ${view/portal_url}/++resource++imio.dms.mail/models_icon.png;"/-->
   </a>
 </td>
 <td class="noPadding">

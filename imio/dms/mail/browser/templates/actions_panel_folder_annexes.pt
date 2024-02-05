@@ -1,0 +1,9 @@
+<td class="noPadding" i18n:domain="imio.dms.mail">
+  <a tal:attributes="href string:${context/absolute_url}/@@quick_upload?typeupload=annex"
+     target="_parent"
+     class="overlay overlay-ajax overlay-multiple-annexes">
+     <input type="button" value="Multiple annexes" i18n:attributes="value" class="apButton apButtonAction apButtonAction_annexes"
+        tal:define="dummy view/saveHasActions;"/>
+  </a>
+</td>
+<td class="noPadding">

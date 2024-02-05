@@ -352,7 +352,7 @@
         <browser:page
             name="actions_panel"
             for="collective.classification.folder.content.classification_folder.IClassificationFolder"
-            class="imio.dms.mail.browser.actionspanel.BasicActionsPanelView"
+            class="imio.dms.mail.browser.actionspanel.ClassificationFolderActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View"
