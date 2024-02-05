@@ -438,6 +438,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 load_type_from_package(wkf, 'profile-imio.dms.mail:default')
             self.wfTool.setChainForPortalTypes(('ContentCategoryGroup',), '(Default)')
             self.wfTool.setChainForPortalTypes(('ContentCategory',), ())
+            self.runProfileSteps('imio.dms.mail', steps=['actions'])
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
             for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
                 brain.getObject().setLayout('view')
