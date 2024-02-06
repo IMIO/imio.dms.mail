@@ -274,7 +274,7 @@ class DocsCKTemplateListingView(CKTemplateListingView):
         annot = IAnnotations(template)
         if 'dmsmail.cke_tpl_tit' in annot and annot['dmsmail.cke_tpl_tit']:
             title = u'{} > {}'.format(annot['dmsmail.cke_tpl_tit'], title)
-        return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html})
+        return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html()})
 
 
 class FacetedCollectionPortletRenderer(Renderer):
