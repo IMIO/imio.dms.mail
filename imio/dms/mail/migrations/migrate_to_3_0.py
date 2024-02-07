@@ -432,6 +432,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             gsettings.auto_select_layout = False
             self.cleanRegistries()
             self.upgradeProfile('collective.classification.folder:default')
+            self.upgradeProfile('collective.messagesviewlet:default')
+            self.upgradeProfile('collective.contact.facetednav:default')
             # default view
             for wkf in ('ConfigurablePODTemplate', 'DashboardPODTemplate', 'PODTemplate', 'SubTemplate',
                         'dmsappendixfile', 'dmsmainfile', 'dmsommainfile'):  # annex ?
@@ -448,6 +450,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                 eet = ['PODTemplate', 'ConfigurablePODTemplate', 'DashboardPODTemplate', 'SubTemplate',
                        'StyleTemplate', 'dmsommainfile', 'MailingLoopTemplate', 'annex']
                 api.portal.set_registry_record('externaleditor.externaleditor_enabled_types', eet)
+            collection_folder = self.portal['folders']['folder-searches']
+            reimport_faceted_config(collection_folder, xml='classificationfolders-searches.xml',
+                                    default_UID=collection_folder["all_folders"].UID())
             # END
 
             finished = True  # can be eventually returned and set by batched method

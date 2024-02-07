@@ -15,6 +15,10 @@ msgstr ""
 "Domain: eea\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
+#: ../faceted_conf/classificationfolders-searches:
+msgid "Archived"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Assigned user"
 msgstr ""
@@ -23,6 +27,7 @@ msgstr ""
 msgid "Base collections"
 msgstr ""
 
+#: ../faceted_conf/classificationfolders-searches:
 #: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
 msgid "Classification Code"
@@ -114,6 +119,7 @@ msgstr ""
 msgid "Reception date"
 msgstr ""
 
+#: ../faceted_conf/classificationfolders-searches:
 #: ../faceted_conf/im-faceted:
 msgid "Recipient groups"
 msgstr ""
@@ -138,6 +144,7 @@ msgstr ""
 msgid "Title only"
 msgstr ""
 
+#: ../faceted_conf/classificationfolders-searches:
 #: ../faceted_conf/im-faceted:
 msgid "Treating groups"
 msgstr ""
