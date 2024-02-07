@@ -18,10 +18,15 @@ msgstr ""
 msgid "Assigned user"
 msgstr ""
 
+#: ../faceted_conf/classificationfolders-searches:
+msgid "Archived"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "Base collections"
 msgstr ""
 
+#: ../faceted_conf/classificationfolders-searches:
 #: ../faceted_conf/im-faceted:
 #: ../faceted_conf/om-faceted:
 msgid "Classification Code"
@@ -115,6 +120,7 @@ msgstr ""
 msgid "Reception date"
 msgstr ""
 
+#: ../faceted_conf/classificationfolders-searches:
 #: ../faceted_conf/im-faceted:
 msgid "Recipient groups"
 msgstr ""
@@ -139,6 +145,7 @@ msgstr ""
 msgid "Title only"
 msgstr ""
 
+#: ../faceted_conf/classificationfolders-searches:
 #: ../faceted_conf/im-faceted:
 msgid "Treating groups"
 msgstr ""

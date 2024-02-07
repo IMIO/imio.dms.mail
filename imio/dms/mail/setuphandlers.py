@@ -161,8 +161,9 @@ def setup_classification(site):
         logger.warn(msg)
 
     fti = getUtility(IDexterityFTI, name=site["folders"].portal_type)
-    original_allowed = copy.deepcopy(fti.allowed_content_types)
-    fti.allowed_content_types += ("Folder", )
+    if "Folder" not in fti.allowed_content_types:
+        original_allowed = copy.deepcopy(fti.allowed_content_types)
+        fti.allowed_content_types += ("Folder", )
 
     # Setup dashboard collections
     collection_folder = add_db_col_folder(site["folders"], "folder-searches", _("Folders searches"), _("Folders"))
