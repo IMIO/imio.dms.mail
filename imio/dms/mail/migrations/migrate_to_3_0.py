@@ -453,6 +453,17 @@ class Migrate_To_3_0(Migrator):  # noqa
             collection_folder = self.portal['folders']['folder-searches']
             reimport_faceted_config(collection_folder, xml='classificationfolders-searches.xml',
                                     default_UID=collection_folder["all_folders"].UID())
+            brains = self.catalog(portal_type='DashboardCollection',
+                                  path='/'.join(self.portal.folders.getPhysicalPath()))
+            for brain in brains:
+                col = brain.getObject()
+                buf = list(col.customViewFields)
+                if u'classification_folder_archived' not in buf:
+                    buf.insert(buf.index(u'classification_folder_title'), u'classification_folder_archived')
+                    col.customViewFields = tuple(buf)
+                if u'classification_subfolder_archived' not in buf:
+                    buf.insert(buf.index(u'classification_subfolder_title'), u'classification_subfolder_archived')
+                    col.customViewFields = tuple(buf)
             # END
 
             finished = True  # can be eventually returned and set by batched method
