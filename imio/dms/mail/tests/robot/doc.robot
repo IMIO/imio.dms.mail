@@ -1212,7 +1212,7 @@ Configuration
     Wait until element is visible  css=table.suborganizations-listing  10
     Capture and crop page screenshot  doc/configuration/5-4-config-propre-organisation.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder
-    Wait until element is visible  css=.subsection-personnel-folder #content dt span.summary  10
+    Wait until element is visible  css=.td_cell_hps  10
     Capture and crop page screenshot  doc/configuration/5-4-config-propre-personnel.png  id=content
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef/edit
     Click element  id=fieldsetlegend-app_parameters
@@ -1315,4 +1315,4 @@ Suite Setup
     Set autologin username  dirg
     Go to  ${PLONE_URL}/robot_init
     Disable autologin
-    Pause
+    # Pause
