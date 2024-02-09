@@ -124,7 +124,7 @@ def item_moved(obj, event):
         if IProtectedItem.providedBy(obj) and not check_zope_admin():
             api.portal.show_message(
                 message=_(u"You cannot delete, cut or rename this item '${title}' !",
-                          mapping={'title': obj.Title().decode('utf8')}),
+                          mapping={'title': safe_unicode(obj.Title())}),
                 request=obj.REQUEST, type='error')
             raise Redirect(obj.REQUEST.get('HTTP_REFERER'))
 
