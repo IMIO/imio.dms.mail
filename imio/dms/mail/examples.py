@@ -594,9 +594,9 @@ def configure_contact_plone_group(context):
         # internal persons and held_positions have been created
         persons = {
             'encodeur': {'pers': {'lastname': u'Encodeur', 'firstname': u'Jean', 'gender': u'M', 'person_title': u'Monsieur',
-                              'zip_code': u'1435', 'city': u'Mont-Saint-Guibert', 'street': u"Rue Saint-Jean",
-                              'number': u'8', 'primary_organization': services0[0].UID()},
-                     'hps': {'phone': u'012345679', 'label': u'Encodeur {}'}},
+                                  'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'église",
+                                  'number': u'4', 'primary_organization': services0[0].UID()},
+                         'hps': {'phone': u'012345679', 'label': u'Encodeur {}'}},
             'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
                               'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
                               'number': u'2', 'primary_organization': dep0.UID()},
