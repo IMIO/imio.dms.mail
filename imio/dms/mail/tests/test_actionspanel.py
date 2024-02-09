@@ -69,7 +69,8 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
                          u'callViewAndReload(base_url=\'{}\', view_name=\'@@update_item\', params={{\'assigned_user\': '
                          u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign">\n'
                          u'        <option style="display:none" value="#">Assign</option>\n        \n        '
-                         u'<option value="agent">Fred Agent</option>\n      </select>\n    </form>\n</td>'
+                         u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
+                         u'</option>\n      </select>\n    </form>\n</td>'
                          u'\n'.format(self.im2.absolute_url()))
         self.view.useIcons = True
         self.assertEqual(self.view.renderAssignUser(),
@@ -77,7 +78,8 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
                          u'callViewAndReload(base_url=\'{}\', view_name=\'@@update_item\', params={{\'assigned_user\': '
                          u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign '
                          u'apUseIcons">\n        \n        <option style="display:none" value="#"></option>\n        '
-                         u'<option value="agent">Fred Agent</option>\n      </select>\n    </form>\n</td>'
+                         u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
+                         u'</option>\n      </select>\n    </form>\n</td>'
                          u'\n'.format(self.im2.absolute_url()))
         # without treating_groups
         new = api.content.create(self.portal['incoming-mail'], 'dmsincomingmail', 'c1')

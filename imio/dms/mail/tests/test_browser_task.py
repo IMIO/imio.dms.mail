@@ -24,7 +24,7 @@ class TestBrowserTask(unittest.TestCase, ImioTestHelpers):
         voc = filter_task_assigned_users(selected_orgs[0])
         self.assertListEqual([t.title for t in voc._terms], [])  # direction generale => no user
         voc = filter_task_assigned_users(selected_orgs[1])
-        self.assertListEqual([t.title for t in voc._terms], [u'Fred Agent'])
+        self.assertListEqual([t.title for t in voc._terms], [u'Fred Agent', u'Jean Encodeur'])
 
     def test_AssignedUsersVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, 'collective.task.AssignedUsers')

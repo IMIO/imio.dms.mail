@@ -224,13 +224,14 @@ class TestDocumentGenerator(unittest.TestCase):
         # Test get_persons
         res = [
             (1, self.ctct['personnel-folder']['agent']), (2, self.ctct['personnel-folder']['agent1']), (3, self.chef),
-            (4, self.ctct['jeancourant']), (5, self.ctct['personnel-folder']['lecteur']),
-            (6, self.ctct['bernardlermitte']), (7, self.ctct['notencoded']), (8, self.ctct['sergerobinet'])]
+            (4, self.ctct['jeancourant']), (5, self.ctct['personnel-folder']['encodeur']),
+            (6, self.ctct['personnel-folder']['lecteur']), (7, self.ctct['bernardlermitte']),
+            (8, self.ctct['notencoded']), (9, self.ctct['sergerobinet'])]
         self.assertListEqual(view.get_persons(), res)
 
         # Test get_held_positions
         res = [
-            (1, 6, 27, self.ctct['bernardlermitte']['agent-swde']),
+            (1, 7, 27, self.ctct['bernardlermitte']['agent-swde']),
             (2, 4, 1, self.ctct['jeancourant']['agent-electrabel'])]
         self.assertListEqual(view.get_held_positions()[:2], res)
 
