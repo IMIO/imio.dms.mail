@@ -1,10 +1,16 @@
 # -*- coding: utf-8 -*-
-
+from datetime import datetime
+from imio.dms.mail.examples import add_special_model_mail
+from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import create_period_folder
+from plone import api
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
+from zExceptions import Redirect
 from zope.component import getUtility
+from zope.interface import noLongerProvides
 
 import unittest
 
@@ -17,7 +23,25 @@ class TestExamples(unittest.TestCase):
         # you'll want to use this to set up anything you need for your tests
         # below
         self.portal = self.layer['portal']
+        self.omd = self.portal['outgoing-mail']
         change_user(self.portal)
+
+    def test_add_special_model_mail(self):
+        dtm = datetime.now()
+        folder = create_period_folder(self.omd, dtm)
+        # nothing exist
+        self.assertNotIn('test_creation_modele', folder)
+        add_special_model_mail(self.portal)
+        self.assertIn('test_creation_modele', folder)
+        self.assertIn('1', folder['test_creation_modele'])
+        self.assertEqual(folder['test_creation_modele']['1'].scan_id, '012999900000000')
+        # file doesn't exist
+        self.assertRaises(Redirect, api.content.delete, folder['test_creation_modele']['1'])
+        noLongerProvides(folder['test_creation_modele']['1'], IProtectedItem)
+        api.content.delete(folder['test_creation_modele']['1'])
+        self.assertNotIn('1', folder['test_creation_modele'])
+        add_special_model_mail(self.portal)
+        self.assertIn('1', folder['test_creation_modele'])
 
     def test_add_test_directory(self):
         # checking directory

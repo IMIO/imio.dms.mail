@@ -12,6 +12,7 @@ from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefa
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
 from collective.dms.mailcontent.dmsmail import receptionDateDefaultValue
+from DateTime.DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import PRODUCT_DIR
@@ -25,6 +26,7 @@ from imio.helpers.workflow import do_transitions
 from imio.helpers.security import generate_password
 from imio.pyutils.system import get_git_tag
 from itertools import cycle
+from imio.zamqp.core import base
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
@@ -46,6 +48,44 @@ import os
 
 logger = logging.getLogger('imio.dms.mail: examples')
 PUBLIC_URL = os.getenv('PUBLIC_URL', '')
+
+
+def add_special_model_mail(portal):
+    """Add special model mail.
+
+    :param portal: the portal
+    :return: the model mail
+    """
+    params = {'title': u'Courrier test pour création de modèles (ne pas effacer)',
+              'internal_reference_no': internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
+              'mail_date': datetime.date.today(),
+              'mail_type': 'type1',
+              }
+    pc = api.portal.get_tool('portal_catalog')
+    brains = pc(portal_type='dmsoutgoingmail', id='test_creation_modele')
+    if not brains:
+        brains2 = pc(portal_type='dmsoutgoingmail', sort_on='created', sort_limit=1)
+        good_dtm = datetime.datetime.now()
+        if brains2:
+            good_dtm = brains2[0].created.asdatetime() - datetime.timedelta(hours=2)
+            params['mail_date'] = good_dtm.date()
+        obj = sub_create(portal['outgoing-mail'], 'dmsoutgoingmail', good_dtm, 'test_creation_modele', **params)
+        obj.creation_date = DateTime(good_dtm)
+        obj.reindexObject()
+    else:
+        obj = brains[0].getObject()
+    if not obj.objectIds():
+        filename = u'Réponse salle.odt'
+        with open('%s/batchimport/toprocess/outgoing-mail/%s' % (PRODUCT_DIR, filename), 'rb') as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            filo = createContentInContainer(obj, 'dmsommainfile', id='1', title=u'Modèle de base', file=file_object)
+            client_id = base.get_config('client_id')
+            filo.scan_id = '%s2%s00000000' % (client_id[0:2], client_id[2:6])
+            if not IProtectedItem.providedBy(filo):
+                alsoProvides(filo, IProtectedItem)
+    if not IProtectedItem.providedBy(obj):
+        alsoProvides(obj, IProtectedItem)
+    return obj
 
 
 def add_test_annexes_types(context):

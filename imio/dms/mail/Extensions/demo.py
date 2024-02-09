@@ -13,6 +13,8 @@ from datetime import date
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.examples import add_special_model_mail
+from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -31,6 +33,7 @@ from Products.CPUtils.Extensions.utils import check_role
 from Products.CPUtils.Extensions.utils import log_list
 from z3c.relationfield import RelationValue
 from zope.component import getUtility
+from zope.interface import alsoProvides
 from zope.intid import IIntIds
 
 import copy
@@ -275,19 +278,10 @@ def clean_examples(self, doit='1'):
     brains = find(unrestricted=True, portal_type='dmsoutgoingmail')
     for brain in brains:
         log_list(out, "Deleting om '%s'" % brain.getPath())
-        if doit:
+        if doit and brain.id != 'test_creation_modele':
             api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     if doit:
         registry['collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number'] = 1
-    # Create test om
-    params = {'title': u'Courrier test pour création de modèles (ne pas effacer)',
-              'internal_reference_no': internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
-              'mail_date': date.today(),
-              'mail_type': 'type1',
-              }
-    if doit:
-        sub_create(portal['outgoing-mail'], 'dmsoutgoingmail', datetime.now(), 'test_creation_modele', **params)
-
     # Delete im
     brains = find(unrestricted=True, portal_type=['dmsincomingmail', 'dmsincoming_email'])
     for brain in brains:
@@ -392,6 +386,9 @@ def clean_examples(self, doit='1'):
     if doit:
         caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree", portal['tree'].UID())
         portal.portal_properties.site_properties.enable_link_integrity_checks = True
+    # Create test om
+    if doit:
+        add_special_model_mail(portal)
     return '\n'.join(out)
 
 

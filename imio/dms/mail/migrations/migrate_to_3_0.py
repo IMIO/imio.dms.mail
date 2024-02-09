@@ -22,6 +22,7 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.content.behaviors import default_creating_group
+from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -502,6 +503,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                                 u'pouvez consulter les changements en cliquant sur le numéro de version en bas de page.'
                                 u'</p>'.format(old_version, new_version),
                                 msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
+                # model om mail
+                add_special_model_mail(self.portal)
                 # update templates
                 self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
                 self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',
