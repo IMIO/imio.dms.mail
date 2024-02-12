@@ -629,8 +629,14 @@ def configure_contact_plone_group(context):
                 site.acl_users.source_groups.addPrincipalToGroup('lecteur', "%s_lecteur" % uid)
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_editeur" % departments[5].UID())
         site.acl_users.source_groups.addPrincipalToGroup('agent1', "%s_encodeur" % departments[5].UID())
+        site.acl_users.source_groups.addPrincipalToGroup('encodeur', "%s_editeur" % services0[0].UID())
+        site.acl_users.source_groups.addPrincipalToGroup('encodeur', "%s_encodeur" % services0[0].UID())
         # internal persons and held_positions have been created
         persons = {
+            'encodeur': {'pers': {'lastname': u'Encodeur', 'firstname': u'Jean', 'gender': u'M', 'person_title': u'Monsieur',
+                                  'zip_code': u'5000', 'city': u'Namur', 'street': u"Rue de l'église",
+                                  'number': u'4', 'primary_organization': services0[0].UID()},
+                         'hps': {'phone': u'012345679', 'label': u'Encodeur {}'}},
             'chef': {'pers': {'lastname': u'Chef', 'firstname': u'Michel', 'gender': u'M', 'person_title': u'Monsieur',
                               'zip_code': u'4000', 'city': u'Liège', 'street': u"Rue du cimetière",
                               'number': u'2', 'primary_organization': dep0.UID()},

@@ -151,25 +151,25 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     def test_OMActiveSenderVocabulary(self):
         voc_inst = OMActiveSenderVocabulary()
-        self.assertEqual(len(voc_inst(self.omail)), 20)
+        self.assertEqual(len(voc_inst(self.omail)), 21)
         # get first part, as unique value, keeping order
         res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
         # res is sorted by firstname
-        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Michel Chef', u'Monsieur Stef Agent'])
+        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Jean Encodeur', u'Monsieur Michel Chef', u'Monsieur Stef Agent'])
         api.portal.set_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
                                        'omail_sender_firstname_sorting', False)
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
         res = OrderedDict.fromkeys([' '.join(s.title.split()[:3]).strip(',') for s in voc_inst(self.omail)]).keys()
         # res is sorted by lastname
-        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Stef Agent', u'Monsieur Michel Chef'])
+        self.assertEqual(res, [u'Monsieur Fred Agent', u'Monsieur Stef Agent', u'Monsieur Michel Chef', u'Monsieur Jean Encodeur'])
         # deactivation
         pf = self.portal.contacts['personnel-folder']
         api.content.transition(obj=pf['agent']['agent-grh'], transition='deactivate')
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        self.assertEqual(len(voc_inst(self.omail)), 19)
+        self.assertEqual(len(voc_inst(self.omail)), 20)
         # full sender vocabulary
         voc_all_inst = OMSenderVocabulary()
-        self.assertEqual(len(voc_all_inst(self.omail)), 28)
+        self.assertEqual(len(voc_all_inst(self.omail)), 29)
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()

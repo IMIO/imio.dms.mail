@@ -586,8 +586,7 @@ def filter_dmsoutgoingmail_assigned_users(org_uid):
         No need to manage '_default_assigned_user_' because assigned_user is here mandatory:
         the first voc value is selected
     """
-    # return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current().getId())
-    return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS)
+    return voc_selected_org_suffix_userids(org_uid, OM_EDITOR_SERVICE_FUNCTIONS, api.user.get_current().getId())
 
 
 def recipients_filter_default(context):
