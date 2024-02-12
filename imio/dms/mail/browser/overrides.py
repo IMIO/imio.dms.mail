@@ -274,7 +274,7 @@ class DocsCKTemplateListingView(CKTemplateListingView):
         annot = IAnnotations(template)
         if 'dmsmail.cke_tpl_tit' in annot and annot['dmsmail.cke_tpl_tit']:
             title = u'{} > {}'.format(annot['dmsmail.cke_tpl_tit'], title)
-        return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html})
+        return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html()})
 
 
 class FacetedCollectionPortletRenderer(Renderer):
@@ -296,7 +296,7 @@ class ClassificationJSONCollectionsCount(JSONCollectionsCount):
 
     def get_context(self, faceted_context):
         # TODO : yet necessary ???
-        ignored_types = ("ClassificationSubfolder", "ClassificationFolder")
+        ignored_types = ("ClassificationSubfolder", "ClassificationFolder", "annex")
         # look up parents until we found the criteria holder or we reach the 'Plone Site'
         while faceted_context and not faceted_context.portal_type == 'Plone Site':
             if IFacetedNavigable.providedBy(faceted_context) and faceted_context.portal_type not in ignored_types:

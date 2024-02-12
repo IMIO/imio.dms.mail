@@ -69,6 +69,14 @@
         permission="zope2.View"
         />
 
+    <browser:page
+        for="*"
+        name="plus-portaltab-content"
+        class=".views.PlusPortaltabContent"
+        template="templates/subportaltab_plus.pt"
+        permission="zope2.View"
+        />
+
     <!-- ACTIONSPANEL -->
     <configure package="imio.actionspanel">
         <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
@@ -152,6 +160,13 @@
             for="collective.ckeditortemplates.cktemplate.ICKTemplate"
             name="actions_panel"
             class="imio.dms.mail.browser.actionspanel.BasicActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
+        <browser:page
+            for="imio.annex.content.annex.IAnnex"
+            name="actions_panel"
+            class="imio.dms.mail.browser.actionspanel.AnnexActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
@@ -337,7 +352,7 @@
         <browser:page
             name="actions_panel"
             for="collective.classification.folder.content.classification_folder.IClassificationFolder"
-            class="imio.dms.mail.browser.actionspanel.BasicActionsPanelView"
+            class="imio.dms.mail.browser.actionspanel.ClassificationFolderActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View"

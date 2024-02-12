@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
-<object name="dmsappendixfile" meta_type="Dexterity FTI">
- <property name="behaviors" purge="False">
-  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
- </property>
+<object name="DashboardPODTemplate" meta_type="Dexterity FTI">
  <property name="default_view">documentviewer</property>
  <property name="view_methods">
   <element value="view"/>

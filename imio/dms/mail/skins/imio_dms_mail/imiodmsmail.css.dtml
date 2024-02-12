@@ -484,6 +484,10 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-size: 18px 18px;
 }
 
+.apButtonAction_annexes {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/new_multiple.png');
+}
+
 .apButtonAction_reply {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/reply_icon.png');
 }

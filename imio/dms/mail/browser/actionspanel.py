@@ -273,6 +273,34 @@ class DmsTaskActionsPanelView(ActionsPanelView):
     __call__ = DmsTaskActionsPanelView__call__
 
 
+class ClassificationFolderActionsPanelView(ActionsPanelView):
+
+    def __init__(self, context, request):
+        super(ClassificationFolderActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete', 'rename']
+        self.SECTIONS_TO_RENDER += (
+            'render_multiple_annexes_button',
+        )
+
+    def may_multiple_annexes(self):
+        if not self.isInFacetedNavigation() and self.member.has_permission('Add portal content',
+                                                                           self.context):
+            return True
+        return False
+
+    def render_multiple_annexes_button(self):
+        if self.may_multiple_annexes():
+            return ViewPageTemplateFile(
+                "templates/actions_panel_folder_annexes.pt")(self)
+        return ''
+
+    @ram.cache(actionspanelview_cachekey)
+    def ClassificationFolderActionsPanelView__call__(self, **kwargs):
+        return super(ClassificationFolderActionsPanelView, self).__call__(**kwargs)
+
+    __call__ = ClassificationFolderActionsPanelView__call__
+
+
 class BasicActionsPanelView(ActionsPanelView):
     """
         This manage the view displaying actions on contact, folder, some template, ...
@@ -308,6 +336,57 @@ class OnlyAddActionsPanelView(ActionsPanelView):
         super(OnlyAddActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         self.ACCEPTABLE_ACTIONS = ['paste']
+
+
+class AnnexActionsPanelView(ActionsPanelView):
+    """This manage the view displaying actions on some folder."""
+
+    def __init__(self, context, request):
+        super(AnnexActionsPanelView, self).__init__(context, request)
+        # portal_actions.object_buttons action ids to ignore
+        self.IGNORABLE_ACTIONS = ('documentviewer_convert', 'view_preview')
+
+    @ram.cache(actionspanelview_cachekey)
+    def AnnexActionsPanelView__call__(self,
+                                      # useIcons=True,
+                                      showTransitions=False,
+                                      # appendTypeNameToTransitionLabel=False,
+                                      # showEdit=True,
+                                      showExtEdit=True,
+                                      # showOwnDelete=True,
+                                      # showOwnDeleteWithComments=False,
+                                      # showActions=True,
+                                      # showAddContent=False,
+                                      # showHistory=False,
+                                      # showHistoryLastEventHasComments=True,
+                                      # showArrows=False,
+                                      # showFolderContents=False,
+                                      # arrowsPortalTypeAware=False,
+                                      # markingInterface=None,
+                                      # forceRedirectOnOwnDelete=True,
+                                      # forceRedirectAfterTransition=False,
+                                      **kwargs):
+        return super(AnnexActionsPanelView, self).__call__(
+            # useIcons=useIcons,
+            showTransitions=showTransitions,
+            # appendTypeNameToTransitionLabel=appendTypeNameToTransitionLabel,
+            # showEdit=showEdit,
+            showExtEdit=showExtEdit,
+            # showOwnDelete=showOwnDelete,
+            # showOwnDeleteWithComments=False,
+            # showActions=showActions,
+            # showAddContent=showAddContent,
+            # showHistory=showHistory,
+            # showHistoryLastEventHasComments=showHistoryLastEventHasComments,
+            # showArrows=showArrows,
+            # showFolderContents=False,
+            # arrowsPortalTypeAware=arrowsPortalTypeAware,
+            # markingInterface=None,
+            # forceRedirectOnOwnDelete=True,
+            # forceRedirectAfterTransition=False,
+            **kwargs)
+
+    __call__ = AnnexActionsPanelView__call__
 
 
 class CPODTActionsPanelView(BasicActionsPanelView, ConfigurablePODTemplateActionsPanelView):

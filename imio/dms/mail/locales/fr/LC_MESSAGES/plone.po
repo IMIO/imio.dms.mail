@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2021-07-22 12:35+0000\n"
+"POT-Creation-Date: 2024-02-05 09:05+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -109,10 +109,6 @@ msgid "back_to_pre_manager"
 msgstr "Renvoyer pour prévalidation DG"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "back_to_service"
-msgstr "Renvoyer au service"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_treatment"
 msgstr "Remettre en traitement"
 
@@ -168,6 +164,10 @@ msgstr "Courrier sortant à valider"
 msgid "in_treatment"
 msgstr "En cours de traitement"
 
+#: ../profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "internally_published"
+msgstr "Publié en interne"
+
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_agent"
 msgstr "Proposer à l'agent"
@@ -184,10 +184,6 @@ msgstr "Remettre en création"
 msgid "om_back_to_scanned"
 msgstr "Remettre en scanné"
 
-#: profiles/default/workflows/outgoingmail_workflow/definition.xml
-msgid "om_back_to_service_chief"
-msgstr "Renvoyer au chef de service"
-
 msgid "om_back_to_validated"
 msgstr "Remettre en validé"
 
@@ -202,14 +198,6 @@ msgstr "Indiquer comme envoyé"
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_propose_to_be_signed"
 msgstr "Mettre à signer"
-
-#: profiles/default/workflows/outgoingmail_workflow/definition.xml
-msgid "om_propose_to_service_chief"
-msgstr "Proposer au chef de service"
-
-#: profiles/default/workflows/outgoingmail_workflow/definition.xml
-msgid "om_proposed_to_service_chief"
-msgstr "À valider par le chef de service"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_scanned"
@@ -243,10 +231,6 @@ msgstr "Proposer au DG"
 
 msgid "propose_to_pre_manager"
 msgstr "Proposer pour prévalidation DG"
-
-#: profiles/default/workflows/incomingmail_workflow/definition.xml
-msgid "propose_to_service"
-msgstr "Proposer au service"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "proposed_to_agent"

@@ -56,6 +56,7 @@ GE_CONFIG = {  # group_encoder config
     'omail_group_encoder': {'pt': ['dmsoutgoingmail'], 'idx': 'assigned_group'},
     'contact_group_encoder': {'pt': ['organization', 'person', 'held_position', 'contact_list'], 'idx': None},
 }
+DV_AVOIDED_TYPES = ('ContentCategory',)  # not used now (subscriber disabled: used default_view instead)
 
 
 def _tr(msgid, domain='imio.dms.mail', mapping=None):

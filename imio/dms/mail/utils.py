@@ -1054,14 +1054,16 @@ def create_period_folder(main_dir, dte, subfolder=''):
     return main_dir[dte_str]
 
 
-def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, primary=False, fn_first=None):
-    """Create directory personnel content for a userid.
+def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, primary=False, fn_first=None,
+                             assignment=True):
+    """Create or handle directory personnel content for a userid.
 
     :param userid: userid
     :param groups: groups to consider
     :param functions: functions to consider
-    :param primary: set person primary_organization if set to True and only one org
+    :param primary: set person primary_organization if only one org (to be used only when passing all user groups)
     :param fn_first: bool indicating firstname is starting fullname. When None, the value is taken from configuration
+    :param assignment: bool indicating if we are doing an assignment
     """
     out = []  # used in portal_setup step context
     orgs = organizations_with_suffixes(groups, functions, group_as_str=True)
@@ -1083,19 +1085,27 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
             if len(persons) > 1:
                 logger.warn("Found multiple personnel persons linked to userid '{}' : {}".format(userid,
                             '\n'.join([br.getURL() for br in persons])))
-            pers = persons[0]._unrestrictedGetObject()
+            if userid in pf:
+                pers = pf[userid]
+            else:
+                pers = persons[0]._unrestrictedGetObject()
         elif userid in pf:
             pers = pf[userid]
-        else:
+        elif assignment:
             pers = api.content.create(container=pf, type='person', id=userid, userid=userid, lastname=lastname,
                                       firstname=firstname, use_parent_address=False)
             out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, firstname, lastname))
-        if primary and len(orgs) == 1:
-            pers.primary_organization = orgs[0]
+        else:
+            return out  # in unassignment, if pers doesn't exit, nothing more to do
         hps = [b._unrestrictedGetObject() for b in
                portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
                                                                portal_type='held_position')]
         hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
+        if len(hps) != len(hps_orgs):
+            logger.warn("Found multiple held positions for the same org in userid '{}' : {}".format(userid,
+                        ' | '.join([hp.get_full_title() for hp in hps])))
+        elif primary and len(hps_orgs) == 1:
+            pers.primary_organization = orgs[0]
         for uid in orgs:
             org = uuidToObject(uid, unrestricted=True)
             if not org:
@@ -1104,13 +1114,14 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
                 hp = pers[uid]
             elif org in hps_orgs:
                 hp = hps_orgs[org]
-            else:
+            elif assignment:
                 email = user.getProperty('email') or ''
                 hp = api.content.create(container=pers, id=uid, type='held_position',
                                         email=safe_unicode(email.lower()),
                                         position=RelationValue(intids.getId(org)), use_parent_address=True)
                 out.append(u" -> hp created for userid '{}' with org '{}'".format(userid, org.get_full_title()))
-
+            else:
+                continue  # in unassignment, if hp doesn't exit, nothing more to do
             # activate hp only if the corresponding group has encodeur function (OM senders)
             if api.content.get_state(hp) == 'active' and '{}_encodeur'.format(uid) not in user_groups:
                 api.content.transition(hp, 'deactivate')

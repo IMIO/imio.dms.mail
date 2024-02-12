@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-from datetime import timedelta
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentviewer.settings import GlobalSettings
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.content.task import Task
@@ -11,6 +11,7 @@ from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
 from datetime import datetime
+from datetime import timedelta
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from eea.facetednavigation.criteria.interfaces import ICriteria
@@ -21,6 +22,7 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.content.behaviors import default_creating_group
+from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -52,6 +54,8 @@ from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import find
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_type_from_package
+from imio.helpers.setup import remove_gs_step
+from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -66,6 +70,7 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
 from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
+from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zExceptions import Redirect
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
@@ -77,6 +82,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import json
 import logging
+import OFS
 import os
 import transaction
 
@@ -247,7 +253,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             else:
                 self.runProfileSteps('imio.dms.mail', profile='singles',
                                      steps=['imiodmsmail-deactivate_classification'], run_dependencies=False)
-            self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configureImioDmsMail'],
+            self.runProfileSteps('imio.dms.mail', profile='examples', steps=['imiodmsmail-configure_imio_dms_mail'],
                                  run_dependencies=False)
             # clean example users wrongly added by previous migration
             self.clean_examples()
@@ -366,56 +372,115 @@ class Migrate_To_3_0(Migrator):  # noqa
             #                     portal_types=['dmsincoming_email', 'dmsoutgoingmail', 'held_position', 'organization',
             #                                   'person'])
             # TEMPORARY to 3.0.55
-            pf = self.portal.contacts['personnel-folder']
-            if not IPersonnelFolder.providedBy(pf):
-                reimport_faceted_config(self.portal.folders['folder-searches'],
-                                        xml='classificationfolders-searches.xml',
-                                        default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
-                brains = self.catalog(portal_type='DashboardCollection',
-                                      path='/'.join(self.portal.folders.getPhysicalPath()))
-                for brain in brains:
-                    col = brain.getObject()
-                    buf = list(col.customViewFields)
-                    if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
-                        buf.remove(u'classification_tree_identifiers')
-                        buf.insert(1, u'classification_tree_identifiers')
-                        col.customViewFields = tuple(buf)
-                    if u'classification_folder_title' not in buf:
-                        buf.remove(u'pretty_link')
-                        buf.insert(2, u'classification_subfolder_title')
-                        buf.insert(2, u'classification_folder_title')
-                        col.customViewFields = tuple(buf)
-                    if u'ModificationDate' in buf:
-                        buf.remove(u'ModificationDate')
-                        buf.remove(u'review_state')
-                        col.customViewFields = tuple(buf)
+            # pf = self.portal.contacts['personnel-folder']
+            # if not IPersonnelFolder.providedBy(pf):
+            #     reimport_faceted_config(self.portal.folders['folder-searches'],
+            #                             xml='classificationfolders-searches.xml',
+            #                             default_UID=self.portal.folders['folder-searches']['all_folders'].UID())
+            #     brains = self.catalog(portal_type='DashboardCollection',
+            #                           path='/'.join(self.portal.folders.getPhysicalPath()))
+            #     for brain in brains:
+            #         col = brain.getObject()
+            #         buf = list(col.customViewFields)
+            #         if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
+            #             buf.remove(u'classification_tree_identifiers')
+            #             buf.insert(1, u'classification_tree_identifiers')
+            #             col.customViewFields = tuple(buf)
+            #         if u'classification_folder_title' not in buf:
+            #             buf.remove(u'pretty_link')
+            #             buf.insert(2, u'classification_subfolder_title')
+            #             buf.insert(2, u'classification_folder_title')
+            #             col.customViewFields = tuple(buf)
+            #         if u'ModificationDate' in buf:
+            #             buf.remove(u'ModificationDate')
+            #             buf.remove(u'review_state')
+            #             col.customViewFields = tuple(buf)
+            #
+            #     # plonegroup change
+            #     load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
+            #     load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
+            #     self.upgradeProfile('collective.contact.plonegroup:default')
+            #     # not important if person mailtype metadata is not cleaned. Otherwise, all objects are considered
+            #     self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
+            #                         portal_types=['held_position', 'person'])  # remove userid values
+            #     alsoProvides(pf, IPersonnelFolder)
+            #     pf.layout = 'personnel-listing'
+            #     pf.manage_permission('collective.contact.plonegroup: Write user link fields',
+            #                          ('Manager', 'Site Administrator'), acquire=0)
+            #     pf.manage_permission('collective.contact.plonegroup: Read user link fields',
+            #                          ('Manager', 'Site Administrator'), acquire=0)
+            #     transaction.commit()  # avoid ConflictError after rebuild_relations
+            #
+            # # rebuild relations to update rel objects referencing removed schema interface (long process)
+            # finished = rebuild_relations(self.portal)
+            # TEMPORARY to 3.0.56
+            # add personnel persons and hps for all functions: redo again after bug correction
+            remove_gs_step('imiodmsmail-refreshCatalog')  # because dependencies have changed
+            for udic in get_user_from_criteria(self.portal, email=''):
+                groups = get_plone_groups_for_user(user_id=udic['userid'])
+                create_personnel_content(udic['userid'], groups, primary=True)
+            if 'plus' not in self.portal:
+                logger.info('Added plus page and excluded some folders')
+                obj = api.content.create(container=self.portal, type='Document', id='plus', title=u'● ● ●')
+                do_transitions(obj, ['show_internally'])
+                alsoProvides(obj, IProtectedItem)
+                order_1st_level(self.portal)
+                for oid in ('contacts', 'templates', 'tree'):
+                    obj = self.portal[oid]
+                    obj.exclude_from_nav = True
+                    obj.reindexObject()
+            gsettings = GlobalSettings(self.portal)
+            gsettings.auto_select_layout = False
+            self.cleanRegistries()
+            self.upgradeProfile('collective.classification.folder:default')
+            self.upgradeProfile('collective.messagesviewlet:default')
+            self.upgradeProfile('collective.contact.facetednav:default')
+            # default view
+            for wkf in ('ConfigurablePODTemplate', 'DashboardPODTemplate', 'PODTemplate', 'SubTemplate',
+                        'dmsappendixfile', 'dmsmainfile', 'dmsommainfile'):  # annex ?
+                load_type_from_package(wkf, 'profile-imio.dms.mail:default')
+            self.wfTool.setChainForPortalTypes(('ContentCategoryGroup',), '(Default)')
+            self.wfTool.setChainForPortalTypes(('ContentCategory',), ())
+            self.runProfileSteps('imio.dms.mail', steps=['actions'])
+            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
+            for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
+                brain.getObject().setLayout('view')
+            self.reindexIndexes(['classification_folders'], update_metadata=True,
+                                portal_types=['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'])
+            if 'annex' not in api.portal.get_registry_record('externaleditor.externaleditor_enabled_types'):
+                eet = ['PODTemplate', 'ConfigurablePODTemplate', 'DashboardPODTemplate', 'SubTemplate',
+                       'StyleTemplate', 'dmsommainfile', 'MailingLoopTemplate', 'annex']
+                api.portal.set_registry_record('externaleditor.externaleditor_enabled_types', eet)
+            collection_folder = self.portal['folders']['folder-searches']
+            reimport_faceted_config(collection_folder, xml='classificationfolders-searches.xml',
+                                    default_UID=collection_folder["all_folders"].UID())
+            brains = self.catalog(portal_type='DashboardCollection',
+                                  path='/'.join(self.portal.folders.getPhysicalPath()))
+            for brain in brains:
+                col = brain.getObject()
+                buf = list(col.customViewFields)
+                if u'classification_folder_archived' not in buf:
+                    buf.insert(buf.index(u'classification_folder_title'), u'classification_folder_archived')
+                    col.customViewFields = tuple(buf)
+                if u'classification_subfolder_archived' not in buf:
+                    buf.insert(buf.index(u'classification_subfolder_title'), u'classification_subfolder_archived')
+                    col.customViewFields = tuple(buf)
+            # END
 
-                # plonegroup change
-                load_type_from_package('person', 'profile-collective.contact.core:default')  # schema policy
-                load_type_from_package('person', 'profile-imio.dms.mail:default')  # behaviors
-                self.upgradeProfile('collective.contact.plonegroup:default')
-                # not important if person mailtype metadata is not cleaned. Otherwise, all objects are considered
-                self.reindexIndexes(['mail_type', 'userid'], update_metadata=False,
-                                    portal_types=['held_position', 'person'])  # remove userid values
-                alsoProvides(pf, IPersonnelFolder)
-                pf.layout = 'personnel-listing'
-                pf.manage_permission('collective.contact.plonegroup: Write user link fields',
-                                     ('Manager', 'Site Administrator'), acquire=0)
-                pf.manage_permission('collective.contact.plonegroup: Read user link fields',
-                                     ('Manager', 'Site Administrator'), acquire=0)
-                transaction.commit()  # avoid ConflictError after rebuild_relations
-
-            # rebuild relations to update rel objects referencing removed schema interface (long process)
-            finished = rebuild_relations(self.portal)
-
+            finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            if finished and old_version != new_version:
-                # add personnel persons and hps for all functions
-                for udic in get_user_from_criteria(self.portal, email=''):
-                    groups = get_plone_groups_for_user(user_id=udic['userid'])
-                    create_personnel_content(udic['userid'], groups, primary=True)
-                # END
+            # if finished and old_version != new_version:
+            if finished:
+                zope_app = self.portal
+                while not isinstance(zope_app, OFS.Application.Application):
+                    zope_app = zope_app.aq_parent
+                if 'cputils_install' not in zope_app.objectIds():
+                    manage_addExternalMethod(zope_app, 'cputils_install', '', 'CPUtils.utils', 'install')
+                ret = zope_app.cputils_install(zope_app)
+                ret = ret.replace('<div>Those methods have been added: ', '').replace('</div>', '')
+                if ret:
+                    logger.info('CPUtils added methods: "{}"'.format(ret.replace('<br />', ', ')))
                 if message_status('doc', older=timedelta(days=90), to_state='inactive'):
                     logger.info("doc message deactivated")
                 self.runProfileSteps('imio.dms.mail', steps=['cssregistry', 'jsregistry'])
@@ -428,8 +493,6 @@ class Migrate_To_3_0(Migrator):  # noqa
                 # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
                 self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
                 # version
-                old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
-                new_version = safe_unicode(get_git_tag(BLDT_DIR))
                 api.portal.set_registry_record('imio.dms.mail.product_version', new_version)
                 if 'new-version' in self.portal['messages-config']:
                     api.content.delete(self.portal['messages-config']['new-version'])
@@ -440,6 +503,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                                 u'pouvez consulter les changements en cliquant sur le numéro de version en bas de page.'
                                 u'</p>'.format(old_version, new_version),
                                 msg_type='significant', can_hide=True, req_roles=['Authenticated'], activate=True)
+                # model om mail
+                add_special_model_mail(self.portal)
                 # update templates
                 self.portal['templates'].moveObjectToPosition('d-im-listing-tab', 3)
                 self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-create-templates',

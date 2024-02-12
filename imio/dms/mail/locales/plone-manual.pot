@@ -113,6 +113,10 @@ msgstr ""
 msgid "dmsincomingmail-in-copy-group-unread"
 msgstr ""
 
+#: ../profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "internally_published"
+msgstr ""
+
 #: configure.zcml
 msgid "task-validation"
 msgstr ""
