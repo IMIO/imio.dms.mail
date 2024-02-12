@@ -1054,7 +1054,8 @@ def create_period_folder(main_dir, dte, subfolder=''):
     return main_dir[dte_str]
 
 
-def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, primary=False, fn_first=None):
+def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, primary=False, fn_first=None,
+                             assignment=True):
     """Create or handle directory personnel content for a userid.
 
     :param userid: userid
@@ -1062,6 +1063,7 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
     :param functions: functions to consider
     :param primary: set person primary_organization if only one org (to be used only when passing all user groups)
     :param fn_first: bool indicating firstname is starting fullname. When None, the value is taken from configuration
+    :param assignment: bool indicating if we are doing an assignment
     """
     out = []  # used in portal_setup step context
     orgs = organizations_with_suffixes(groups, functions, group_as_str=True)
@@ -1089,10 +1091,12 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
                 pers = persons[0]._unrestrictedGetObject()
         elif userid in pf:
             pers = pf[userid]
-        else:
+        elif assignment:
             pers = api.content.create(container=pf, type='person', id=userid, userid=userid, lastname=lastname,
                                       firstname=firstname, use_parent_address=False)
             out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, firstname, lastname))
+        else:
+            return out  # in unassignment, if pers doesn't exit, nothing more to do
         hps = [b._unrestrictedGetObject() for b in
                portal.portal_catalog.unrestrictedSearchResults(path='/'.join(pers.getPhysicalPath()),
                                                                portal_type='held_position')]
@@ -1110,13 +1114,14 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
                 hp = pers[uid]
             elif org in hps_orgs:
                 hp = hps_orgs[org]
-            else:
+            elif assignment:
                 email = user.getProperty('email') or ''
                 hp = api.content.create(container=pers, id=uid, type='held_position',
                                         email=safe_unicode(email.lower()),
                                         position=RelationValue(intids.getId(org)), use_parent_address=True)
                 out.append(u" -> hp created for userid '{}' with org '{}'".format(userid, org.get_full_title()))
-
+            else:
+                continue  # in unassignment, if hp doesn't exit, nothing more to do
             # activate hp only if the corresponding group has encodeur function (OM senders)
             if api.content.get_state(hp) == 'active' and '{}_encodeur'.format(uid) not in user_groups:
                 api.content.transition(hp, 'deactivate')

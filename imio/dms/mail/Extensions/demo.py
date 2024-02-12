@@ -9,13 +9,12 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
-from datetime import date
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
-from imio.dms.mail.utils import sub_create
 from imio.helpers.content import find
 from imio.helpers.content import safe_encode
 from imio.helpers.security import check_zope_admin
