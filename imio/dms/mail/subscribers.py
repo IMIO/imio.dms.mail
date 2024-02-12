@@ -833,7 +833,7 @@ def group_unassignment(event):
         update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='remove',  # i_e ok
                                          group_id=event.group_id)
     # we manage the personnel-folder person and held position
-    create_personnel_content(event.principal, [event.group_id], ALL_SERVICE_FUNCTIONS)
+    create_personnel_content(event.principal, [event.group_id], ALL_SERVICE_FUNCTIONS, assignment=False)
 
 
 # CONTACT
