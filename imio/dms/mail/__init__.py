@@ -61,9 +61,7 @@ DV_AVOIDED_TYPES = ('ContentCategory',)  # not used now (subscriber disabled: us
 
 def _tr(msgid, domain='imio.dms.mail', mapping=None):
     translation_domain = queryUtility(ITranslationDomain, domain)
-    sp = api.portal.get().portal_properties.site_properties
-    return translation_domain.translate(msgid, target_language=sp.getProperty('default_language', 'fr'),
-                                        mapping=mapping)
+    return translation_domain.translate(msgid, target_language=api.portal.get_current_language(), mapping=mapping)
 
 
 def add_path(path):
