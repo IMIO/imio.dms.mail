@@ -1,6 +1,45 @@
 Changelog
 =========
 
+3.0.56
+------
+
+- Last commit at
+- Corrected pm url in wsclient configuration settings
+- Used objects param because bool(category) is False
+- Ordered css and js
+- Added sub menu tooltip
+- Created plus page and hidden other tabs
+- Added content categories examples
+- Improved annexes types creation. Removed workflow
+- Added possible method to filter document conversion (view used instead)
+- Handled types for dv conversion manually
+- Moved examples methods from setuphandlers.py to examples.py
+- Moved tests to right module
+- Improved personnel table
+- Reindex possibly bad index
+- Avoided json_collections_count view error on annex
+- Corrected annex migration
+- Added INextPrevNotNavigable to Annex class
+- Configured annex actionspanel view
+- Do not set documentviewer as defaut view on annex (done dynamically by iconifiedcategory)
+- Set different annexes types preview in examples
+- Corrected group unassignment bug SUP-34782
+- Called cputils_install during migration
+- Defined wf chain manually. Reloaded type individually
+- Improved migration (removed gs step, added cputils_install if necessary)
+- Removed useless messages and added one new (translations)
+- Used pm icon for document conversion action
+- Added multiple annexes button on classification folder
+- Resolved ckeditortemplates error
+- Added archived faceted widget
+- Added archived color column
+- Corrected robot test
+- Added group to encodeur example, fixed assigned_user on created OM, fixed and improved tests
+- Added examples method to add special model om
+- Fixed bug when cleaning examples
+- Simplified translation method
+
 3.0.55
 ------
 
