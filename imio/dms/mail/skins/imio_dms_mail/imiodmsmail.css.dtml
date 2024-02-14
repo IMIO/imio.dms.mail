@@ -357,6 +357,10 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     margin-left: 1em;
 }
 
+.template-view.portaltype-annex div.documentActions, .template-view.portaltype-annex div.iconifiedDocumentActions {
+    display: none;
+}
+
 #collections-count-refresh {
     vertical-align: middle;
     margin-left: 1em;

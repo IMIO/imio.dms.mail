@@ -352,7 +352,7 @@ class AnnexActionsPanelView(ActionsPanelView):
                                       showTransitions=False,
                                       # appendTypeNameToTransitionLabel=False,
                                       # showEdit=True,
-                                      showExtEdit=True,
+                                      showExtEdit=False,
                                       # showOwnDelete=True,
                                       # showOwnDeleteWithComments=False,
                                       # showActions=True,
