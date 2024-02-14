@@ -30,7 +30,6 @@ from Products.CPUtils.Extensions.utils import check_role
 from Products.CPUtils.Extensions.utils import log_list
 from z3c.relationfield import RelationValue
 from zope.component import getUtility
-from zope.interface import alsoProvides
 from zope.intid import IIntIds
 
 import copy
