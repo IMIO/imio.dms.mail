@@ -277,7 +277,7 @@ class ClassificationFolderActionsPanelView(ActionsPanelView):
 
     def __init__(self, context, request):
         super(ClassificationFolderActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete', 'rename']
+        self.ACCEPTABLE_ACTIONS = ['cut', 'copy', 'paste', 'delete']
         self.SECTIONS_TO_RENDER += (
             'render_multiple_annexes_button',
         )
