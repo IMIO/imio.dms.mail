@@ -315,20 +315,6 @@
         handler=".subscribers.zope_ready"
         />
 
-    <!-- collective.iconifiedcategory -->
-    <unconfigure>
-        <subscriber
-            for="plone.dexterity.interfaces.IDexterityContent
-                 OFS.interfaces.IObjectClonedEvent"
-            handler="collective.iconifiedcategory.content.events.categorized_content_container_cloned"
-        />
-        <subscriber
-            for="Products.Archetypes.interfaces.base.IBaseObject
-                 OFS.interfaces.IObjectClonedEvent"
-            handler="collective.iconifiedcategory.content.events.categorized_content_container_cloned"
-        />
-    </unconfigure>
-
     <!-- collective.documentviewer -->
     <!--unconfigure>
         <subscriber
