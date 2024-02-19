@@ -55,7 +55,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
         if not self.member.has_permission('Add portal content', self.ogm):
             return False
         # check fields
-        for attr in ('title', 'sender'):
+        for attr in ('title', 'sender', 'treating_groups'):
             if getattr(self.context, attr) is None:
                 return False
         return True
