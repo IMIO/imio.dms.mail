@@ -39,6 +39,9 @@ Changelog
 - Added examples method to add special model om
 - Fixed bug when cleaning examples
 - Simplified translation method
+- Do not use external edit on annex
+- Removed folder rename button
+- Checked if treating_groups is defined before reply
 
 3.0.55
 ------
