@@ -4,7 +4,7 @@ Changelog
 3.0.56
 ------
 
-- Last commit at
+- Last commit at 59f9872375cf047b191184725870f8f74ffaa23f
 - Corrected pm url in wsclient configuration settings
 - Used objects param because bool(category) is False
 - Ordered css and js
