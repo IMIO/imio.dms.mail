@@ -163,6 +163,15 @@
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
+        <!-- Annex -->
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="imio.annex.content.annex.IAnnex"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.AnnexActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
         <browser:page
             for="imio.annex.content.annex.IAnnex"
             name="actions_panel"
@@ -170,7 +179,6 @@
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
-
         <!-- Folder -->
         <browser:viewlet
             name="imio.actionspanel"
