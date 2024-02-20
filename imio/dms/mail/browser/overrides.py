@@ -31,6 +31,7 @@ from collective.eeafaceted.dashboard.browser.facetedcollectionportlet import Ren
 from collective.eeafaceted.dashboard.browser.views import JSONCollectionsCount
 from collective.task.behaviors import ITask
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
+from imio.annex.content.annex import IAnnex
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactsDashboard
@@ -143,18 +144,19 @@ class Plone(PloneView):
         interfaces = (
             ITask,
             IContactContent,
+            IClassificationFolders,
+            IClassificationFolder,
+            IClassificationSubfolder,
             ICKTemplate,
             IContactList,
             IDmsAppendixFile,
             IDmsFile,
+            IAnnex,
             IATBTreeFolder,
             IPODTemplate,
             IStyleTemplate,
             IClassificationContainer,
             IClassificationCategory,
-            IClassificationFolders,
-            IClassificationFolder,
-            IClassificationSubfolder,
         )
         for interface in interfaces:
             if interface.providedBy(context):

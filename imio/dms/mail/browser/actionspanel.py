@@ -338,6 +338,19 @@ class OnlyAddActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = ['paste']
 
 
+class AnnexActionsPanelViewlet(ActionsPanelViewlet):
+    """Override render method for annex."""
+
+    params = {
+        'useIcons': False,
+        'showEdit': True,
+        'showOwnDelete': False,
+        'showAddContent': False,
+        'showActions': True,
+        'showTransitions': False,
+    }
+
+
 class AnnexActionsPanelView(ActionsPanelView):
     """This manage the view displaying actions on some folder."""
 
@@ -345,6 +358,8 @@ class AnnexActionsPanelView(ActionsPanelView):
         super(AnnexActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to ignore
         self.IGNORABLE_ACTIONS = ('documentviewer_convert', 'view_preview')
+        if not self.isInFacetedNavigation():
+            self.IGNORABLE_ACTIONS += ('view_element',)
 
     @ram.cache(actionspanelview_cachekey)
     def AnnexActionsPanelView__call__(self,
