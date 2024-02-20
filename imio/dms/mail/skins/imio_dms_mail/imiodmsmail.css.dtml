@@ -388,6 +388,12 @@ dl.portletActionsPortlet dd.portletItem span {
     line-height: 1em;
 }
 
+.template-view.portaltype-annex #form-widgets-file span a,
+.template-edit.portaltype-annex #form-widgets-file span a {
+    pointer-events: none; cursor: pointer;
+    color: inherit;
+}  /* Disable link */
+
 #pers_fold {
     float: right;
     padding-right: 1em;
