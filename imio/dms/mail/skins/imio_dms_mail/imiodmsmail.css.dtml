@@ -54,10 +54,6 @@
 .template-dmsdocument-edit #content-core #fieldset-default .field,
 .template-dmsdocument-edit #form-widgets-treating_groups,
 .template-dmsdocument-edit #s2id_form_widgets_recipient_groups,
-.template-dmsdocument-edit .chzn-container-active .chzn-drop,
-.template-dmsdocument-edit .chzn-container-active .search-field,
-.template-dmsdocument-edit #form_widgets_sender_select_chzn,
-.template-dmsdocument-edit .chzn-container-active .search-field input,
 .template-dmsdocument-edit #form-widgets-email_subject,
 .template-dmsdocument-edit #form-widgets-email_sender,
 .template-dmsdocument-edit #form-widgets-email_recipient,
@@ -94,14 +90,6 @@
     line-height: 1.2em;
     height: 1.2em;
 }
-
-#form_widgets_sender_select_chzn.chzn-container-single .chzn-single span {
-    white-space: normal;
-}
-
-/*#form_widgets_sender_select_chzn.chzn-container-single .chzn-single {
-    height: auto;  only for this field: doesn't work on select tag
-}*/
 
 .overlay.overlay-ajax.overlay-contact-addnew {
     left: 5px !important;
@@ -140,16 +128,6 @@
 }
 
 /* edit mode of OMdmsmail */
-
-#content #form_widgets_sender_select_chzn a:link,
-#content #form_widgets_sender_select_chzn a:visited {
-    border: 1px solid #aaa;
-    color: inherit;
-}
-
-.chzn-container {
-    font-size: inherit;
-}
 
 .template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-email_body div.richTextWidget  #cke_2_contents {
     height: 20em;
