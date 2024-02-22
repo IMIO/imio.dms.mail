@@ -85,15 +85,18 @@
 }
 
 .template-dmsdocument-edit .select2-container ul.select2-choices {
-    max-width: max-content !important;
+    max-width: initial !important;
 }
+
 .template-dmsdocument-edit .select2-container .select2-choices {
     min-height: fit-content;
 }
+
 #s2id_form_widgets_recipient_groups li {
     margin-bottom: 0;
     line-height: 1em;
 }
+
 /* om sender */
 #content a.select2-choice:link, #content a.select2-choice:visited {
     border: 1px solid #aaa;
