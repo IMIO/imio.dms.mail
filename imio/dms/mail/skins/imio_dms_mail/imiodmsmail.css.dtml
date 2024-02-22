@@ -54,6 +54,7 @@
 .template-dmsdocument-edit #content-core #fieldset-default .field,
 .template-dmsdocument-edit #form-widgets-treating_groups,
 .template-dmsdocument-edit #s2id_form_widgets_recipient_groups,
+.template-dmsdocument-edit #s2id_form_widgets_sender,
 .template-dmsdocument-edit #form-widgets-email_subject,
 .template-dmsdocument-edit #form-widgets-email_sender,
 .template-dmsdocument-edit #form-widgets-email_recipient,
@@ -62,19 +63,31 @@
     width: 100% !important;
 }
 
+.template-dmsdocument-edit .select2-container .select2-chosen span {
+    white-space: normal;
+}  /* to keep width right */
+
+.template-dmsdocument-edit #form-widgets-sender-autocomplete .querySelectSearchInput,
+.template-dmsdocument-edit #form-widgets-recipients-autocomplete .querySelectSearchInput {
+    width: 100%;
+}
+
 .template-dmsdocument-edit #form-widgets-IDublinCore-description,
+.template-dmsdocument-edit #form-widgets-sender-widgets-query,
+.template-dmsdocument-edit #form-widgets-recipients-widgets-query,
 .template-dmsdocument-edit #form-widgets-reply_to-widgets-query,
 .template-dmsdocument-edit #form-widgets-external_reference_no,
 .template-dmsdocument-edit #form-widgets-IClassificationFolder-classification_categories-widgets-query,
 .template-dmsdocument-edit #form-widgets-IClassificationFolder-classification_folders-widgets-query,
+.template-dmsdocument-edit #form-widgets-internal_reference_no,
 .template-edit #form-widgets-classification_categories-widgets-query {
     width: -moz-available;
 }
 
-.template-dmsdocument-edit #s2id_form_widgets_recipient_groups ul.select2-choices {
+.template-dmsdocument-edit .select2-container ul.select2-choices {
     max-width: max-content !important;
 }
-.template-dmsdocument-edit #s2id_form_widgets_recipient_groups .select2-choices {
+.template-dmsdocument-edit .select2-container .select2-choices {
     min-height: fit-content;
 }
 #s2id_form_widgets_recipient_groups li {
@@ -87,8 +100,9 @@
     color: black;
 }
 #s2id_form_widgets_sender .select2-choice {
-    line-height: 1.2em;
-    height: 1.2em;
+    line-height: initial;
+    height: fit-content;
+    padding: 4px 2px;
 }
 
 .overlay.overlay-ajax.overlay-contact-addnew {
