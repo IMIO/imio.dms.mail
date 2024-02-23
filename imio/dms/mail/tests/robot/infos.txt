@@ -6,6 +6,9 @@ fenetres composite: rogner en haut 84, décocher capturer le curseur
 ou
 fenêtre pipewire
 
+filtres: ajouter
+	Rogner / encadrer : 108
+
 Paramètres
 output: mp4, h264, qualité indistinguable
 audio : désactiver son
@@ -17,6 +20,7 @@ Firefox
 =======
 zoomer à 120% après le Pause
 
+Utiliser le bouton supérieur pour lancer/arrêter la capture
 
 Youtube
 =======
