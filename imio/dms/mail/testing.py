@@ -27,6 +27,7 @@ from plone.testing import z2
 from plone.testing import zca
 from Products.CMFPlone.utils import _createObjectByType
 from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from profilehooks import timecall
 from Testing import ZopeTestCase as ztc
@@ -155,6 +156,10 @@ class DmsmailLayer(PloneWithPackageLayer):
         # avoid redirection after document generation
         from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
         OMPDGenerationView.redirects = lambda a, b: None
+
+        # set ia.docs version if passed with `env version=xx make robot-server`
+        if os.getenv('version'):
+            api.portal.set_registry_record('imio.dms.mail.product_version', safe_unicode(os.getenv('version')))
 
         caller = inspect.stack()[1][3]
         if caller == 'setUp':

@@ -62,11 +62,14 @@ Naviguer
     sleep  ${L_S}
     Remove element  ${tit1}
     Highlight  id=portal-globalnav
-    ${main1}  Add main note  Le bandeau principal permet un accès rapide aux différentes parties de l'application : courrier entrant, courrier sortant, tâches, annuaire de contacts et modèles de courriers.
+    Mouse over  id=portaltab-plus
+    ${main1}  Add main note  Le bandeau principal permet un accès rapide aux différentes parties de l'application : courrier entrant, courrier sortant, dossiers, tâches et des sous-menus.
     sleep  ${L_S}
     Remove element  id=${main1}
     Clear Highlight  id=portal-globalnav
-    ${note1}  Add pointy note  id=portaltab-incoming-mail  On entre dans la partie "courrier entrant" en cliquant sur l'onglet.  position=bottom  color=blue  width=300
+    Mouse out  id=portaltab-plus
+    Mouse over  id=portaltab-incoming-mail
+    ${note1}  Add pointy note  id=portaltab-incoming-mail  On entre dans la partie "courrier entrant" en cliquant sur le 1er onglet.  position=bottom  color=blue  width=300
     sleep  ${N_S}
     Add clic  id=portaltab-incoming-mail
     Remove element  id=${note1}
@@ -75,11 +78,12 @@ Naviguer
     Wait until element is visible  css=.faceted-table-results  10
     sleep  ${S_S}
 
-    ${note1}  Add pointy note  id=collections-count-refresh  Une fois dans un des 3 premiers onglets, cette icône permet d'afficher le nombre d'éléments à gérer. On peut donc cliquer de temps en temps dessus afin de vérifier s'il y a des choses à gérer.  position=bottom  color=blue  width=400
+    ${note1}  Add pointy note  id=collections-count-refresh  Cette icône permet d'afficher le nombre d'éléments à gérer dans les onglets concernés. On peut donc cliquer de temps en temps dessus afin de vérifier s'il y a des choses à gérer.  position=bottom  color=blue  width=400
     sleep  ${L_S}
     Remove element  id=${note1}
     Add clic  id=collections-count-refresh
     Click element  id=collections-count-refresh
+    Mouse over  id=portaltab-incoming-mail
     ${note1}  Add pointy note  id=portaltab-incoming-mail  Le nombre de courriers entrants à gérer est à 2. On voit qu'il y a quelque chose à faire dans cette partie.  position=bottom  color=blue
     sleep  ${L_S}
     Remove element  id=${note1}
