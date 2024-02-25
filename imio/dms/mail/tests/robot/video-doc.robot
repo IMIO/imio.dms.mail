@@ -498,7 +498,7 @@ Répondre à un courrier
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  id=formfield-form-widgets-sender
-    ...  L'expéditeur est déduit de l'utilisateur connecté. Il correspondra aux données d'expédition renseignées dans le courrier généré ou l'email.  position=right  color=blue  width=800
+    ...  L'expéditeur est déduit de l'utilisateur connecté. Ce profil utilisateur sélectionné sera utilisé pour les données d'expédition renseignées dans le courrier généré ou l'email.  position=right  color=blue  width=800
     sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -616,14 +616,14 @@ Créer un courrier sortant
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  id=formfield-form-widgets-sender
-    ...  L'expéditeur est déduit de l'utilisateur connecté. Il correspondra aux données d'expédition renseignées dans le courrier généré ou l'email.  position=right  color=blue  width=800
+    ...  L'expéditeur est déduit de l'utilisateur connecté. Ce profil utilisateur sera utilisé pour les données d'expédition renseignées dans le courrier généré ou l'email.  position=right  color=blue  width=800
     sleep  ${L_S}
     Remove element  id=${note1}
-    Click element  id=form_widgets_sender_select_chzn
+    Click element  id=s2id_form_widgets_sender
     sleep  ${S_S}
-    Input text  css=.chzn-search input  voiries
+    Input text  id=s2id_autogen1_search  voiries
     sleep  ${S_S}
-    Click element  css=#form_widgets_sender_select_chzn ul.chzn-results li[class=active-result]
+    Click element  css=#select2-results-1 li:first-child
 
     ${note1}  Add pointy note  id=formfield-form-widgets-send_modes
     ...  Le champ "Formes d'envoi" est important car il va déterminer la méthode d'envoi du courrier. Si une valeur avec email est sélectionnée, alors des boutons complémentaires vont apparaître pour gérer l'email. Cet aspect est expliqué dans le guide "Envoi d'un email sortant".  position=right  color=blue  width=1000
