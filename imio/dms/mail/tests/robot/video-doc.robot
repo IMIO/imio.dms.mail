@@ -1163,7 +1163,7 @@ Valider un courrier entrant
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  css=#c1_widget li:nth-child(4)
-    ...  La recherche "À valider" est affichée quand on est validateur. On l'utilise...  position=right  color=blue  width=500
+    ...  La recherche "À valider" est affichée quand on est validateur.  position=right  color=blue  width=500
     Highlight  css=#c1_widget li:nth-child(4)
     sleep  ${L_S}
     Clear highlight  css=#c1_widget li:nth-child(4)
@@ -1320,7 +1320,7 @@ Ajouter un contact
 
     Input text  name=form.widgets.sender.widgets.query  led marc
     ${note1}  Add pointy note  formfield-form-widgets-sender
-    ...  Si on indique plusieurs termes, il n'est pas nécessaire de terminer les premiers par une astérisque "*" (contrairement aux filtres et recherches texte ailleurs).  position=top  color=blue  width=600
+    ...  Si on indique plusieurs termes, il n'est pas nécessaire de terminer les premiers par un astérisque "*" (contrairement aux filtres et recherches texte ailleurs).  position=top  color=blue  width=600
     sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -1366,7 +1366,7 @@ Ajouter un contact
     Wait until element is visible  id=pb_2  10
     Update element style  id=formfield-form-widgets-activity  display  none
 
-    ${note1}  Add main note  Par défaut, l'intitulé est repris du terme recherché précédemment. On complète le reste de la fiche signalétique: tout n'est pas nécessaire ! L'adresse postale et l'adresse email sont importantes afin de savoir répondre...
+    ${note1}  Add main note  Par défaut, l'intitulé est repris du terme recherché précédemment. On complète le reste de la fiche signalétique: tout n'est pas nécessaire ! L'adresse postale et l'adresse email sont importantes pour certaines fonctionnalités...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -1450,7 +1450,7 @@ Ajouter un contact
     Input text  name=oform.widgets.person.widgets.query  Marc Leduc
     Wait until element is visible  css=#oform-widgets-person-autocomplete .addnew  10
     ${note1}  Add pointy note  css=#oform-widgets-person-widgets-query
-    ...  Pas de résultat: on va la créer...  position=top  color=blue  width=300
+    ...  Pas de résultat: on va créer une nouvelle personne...  position=top  color=blue  width=300
     sleep  ${N_S}
     Remove element  id=${note1}
 
@@ -1459,7 +1459,7 @@ Ajouter un contact
     ${pb}  set variable  pb_6
     Wait until element is visible  ${pb}  10
 
-    ${note1}  Add main note  Par défaut, les prénom et nom sont repris de la recherche précédente. On complète le reste de la fiche signalétique: tout n'est pas nécessaire ! L'adresse postale et l'adresse email sont importantes afin de savoir répondre...
+    ${note1}  Add main note  Par défaut, les prénom et nom sont repris de la recherche précédente. On complète le reste de la fiche signalétique: tout n'est pas nécessaire ! L'adresse postale et l'adresse email sont importantes pour certaines fonctionnalités...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -1535,13 +1535,12 @@ Ajouter un contact
     Wait until element is visible  css=#oform-widgets-plone_0_held_position-label  10
     Input text  name=oform.widgets.plone_0_held_position.label  Agent
     sleep  ${S_S}
-
-    # ScrollDown
-    ScrollDown
-    # Scroll Element Into View  css=#oform #oform-buttons-save
+    Update element style  css=#pb_1 .pb-ajax  max-height  fit-content
+    Execute javascript  window.scroll(0, document.querySelector('#formfield-oform-widgets-fax').getBoundingClientRect().top)
 
     Add clic  oform-buttons-save
     Click button  id=oform-buttons-save
+    sleep  ${S_S}
     ScrollUp
     sleep  ${N_S}
 
@@ -1901,7 +1900,7 @@ Utiliser les recherches
     Remove element  id=${main1}
 
     ${note1}  Add pointy note  css=#c2_widget form
-    ...  Pour affiner le résultat, on peut filtrer sur plusieurs mots de la manière suivante. Les premiers mots (non complets) doivent être suffixés avec une astérisque "*". Pour le dernier mot, elle est implicite.  position=bottom  color=blue  width=500
+    ...  Pour affiner le résultat, on peut filtrer sur plusieurs mots de la manière suivante. Les premiers mots (non complets) doivent être suffixés avec un astérisque "*". Pour le dernier mot, elle est implicite.  position=bottom  color=blue  width=500
     Input text  id=c2  candid* post* ouvri
     sleep  ${L_S}
     Add clic  id=c2_button
