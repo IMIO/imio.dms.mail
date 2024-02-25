@@ -691,7 +691,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         folder = portal['outgoing-mail']['mail-searches']
         for state_id, state_tit, next_col in (
                 (new_state_id, parameters['state_title'], to_states[-1]),
-                (val_state_id, _(val_state_id, domain='plone'), 'to_be_signed')):
+                (val_state_id, _(u'om_{}'.format(val_state_id), domain='plone'), 'to_be_signed')):
             col_id = 'searchfor_{}'.format(state_id)
             col_title = _(u'searchfor: ${state}', mapping={'state': state_tit.lower()})
             if col_id not in folder:
