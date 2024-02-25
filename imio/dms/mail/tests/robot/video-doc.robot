@@ -707,7 +707,7 @@ Créer un document bureautique
     ${convert}=  Convert Date  ${date}  result_format=%d/%m/%Y
     Set field value  ${UID}  mail_date  ${convert}  date%d/%m/%Y
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
-    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    # Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/${om_path}
 # start video
     Run keyword if  '${RECORD}'=='1'  Pause
@@ -727,7 +727,7 @@ Créer un document bureautique
     Remove element  id=${note1}
 
     ${note1}  Add pointy note  css=.DV-pageCollection
-    ...  Le document bureautique généré est prérempli avec les données déjà encodées dans la fiche. Celles-ci peuvent être modifiées ou complétées.  position=left  color=blue  width=300
+    ...  Le document bureautique généré est prérempli avec les données déjà encodées dans la fiche. Celles-ci peuvent être modifiées ou complétées.  position=top  color=blue  width=300
     sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -899,7 +899,11 @@ Transférer un email entrant
 
     ${main1}  Add main note  Les données de la fiche ont été préremplies avec les données de l'email. Si l'agent qui a transféré est bien défini dans iA.docs, le service traitant est sélectionné et la fiche est mise "À traiter" (suivant la configuration). Sinon la fiche reste en création.
     sleep  ${L_S}
-    sleep  ${S_S}
+    sleep  ${N_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  S'il y a des pièces jointes au mail d'origine, elles sont intégrées en tant qu'annexes de la fiche.
+    sleep  ${L_S}
     Remove element  id=${main1}
 
     ${main1}  Add main note  Si l'expéditeur d'origine a été trouvé dans l'annuaire (via son adresse email), il est sélectionné. Ce n'est pas le cas ici, on va modifier la fiche.
@@ -928,7 +932,7 @@ Transférer un email entrant
     ...  Aucun contact de ce nom trouvé! Imaginons qu'on crée un nouveau contact via le lien "Créer Contact"... Cet aspect est expliqué plus en détails dans le guide "Ajouter un contact".   position=right  color=blue  width=800
     sleep  ${L_S}
     Remove element  id=${note1}
-    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Stéphan  lastname=Geulette  zip_code=5032  city=Isnes  street=Rue Léon Morel  number=1  email=stephan.geulette@email.be
+    ${SENDER} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Stéphan  lastname=Geulette  zip_code=5032  city=Isnes  street=Rue Léon Morel  number=1  email=s.geul@mail.com
     Input text  name=form.widgets.sender.widgets.query  geulette
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     sleep  ${S_S}
@@ -1013,7 +1017,7 @@ Envoyer un email sortant
     sleep  ${S_S}
 
     ${note1}  Add pointy note  formfield-form-widgets-email_attachments
-    ...  On peut sélectionner une pièce jointe déjà dans la fiche (le fichier ged ou les annexes).  position=top  color=blue  width=400
+    ...  On peut sélectionner une pièce jointe liée à la fiche.  position=top  color=blue  width=400
     Highlight  formfield-form-widgets-email_attachments
     sleep  ${N_S}
     Clear highlight  formfield-form-widgets-email_attachments
@@ -1040,7 +1044,7 @@ Envoyer un email sortant
     click element  css=div.cke_tpl_list a:nth-child(1) span.cke_tpl_title
 
     ${note1}  Add pointy note  id=formfield-form-widgets-email_body
-    ...  Le modèle s'est inséré au début du texte (ou à la place du curseur si on était déjà dans le texte).   position=top  color=blue  width=500
+    ...  Le modèle s'est inséré au début du texte (ou à la place du curseur si on était déjà dans le texte).  position=top  color=blue  width=500
     sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -1058,15 +1062,14 @@ Envoyer un email sortant
     sleep  ${N_S}
     Remove element  id=${note1}
 
+    Execute javascript  window.scroll(0, document.querySelector('#formfield-form-widgets-internal_reference_no').getBoundingClientRect().top)
+
     ${note1}  Add pointy note  form-groups-email
-    ...  Les informations de l'email sont affichées ci-dessous.  position=top  color=blue  width=300
-    sleep  ${L_S}
+    ...  Les informations de l'email sont affichées en bas de page.  position=top  color=blue  width=300
+    sleep  ${N_S}
     Remove element  id=${note1}
 
-    ScrollDown
-    sleep  ${N_S}
     ScrollUp
-
     ${note1}  Add pointy note  css=table.actionspanel-no-style-table td:nth-child(10)
     ...  Un bouton intitulé "Envoyer email" s'affiche. On peut cliquer dessus pour envoyer l'email.  position=bottom  color=blue  width=300
     sleep  ${N_S}
@@ -1084,6 +1087,8 @@ Envoyer un email sortant
     sleep  ${N_S}
     Remove element  id=${note1}
 
+    Execute javascript  window.scroll(0, document.querySelector('#formfield-form-widgets-internal_reference_no').getBoundingClientRect().top)
+
     ${note1}  Add pointy note  formfield-form-widgets-email_status
     ...  La date d'envoi est indiquée.  position=top  color=blue  width=300
     Highlight  formfield-form-widgets-email_status
@@ -1091,6 +1096,7 @@ Envoyer un email sortant
     Clear highlight  formfield-form-widgets-email_status
     Remove element  id=${note1}
 
+    ScrollUp
     ${main1}  Add main note  Suivant la configuration de l'outil, la fiche peut être clôturée automatiquement après l'envoi réussi de l'email...
     sleep  ${L_S}
     Remove element  id=${main1}
