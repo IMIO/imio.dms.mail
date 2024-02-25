@@ -1611,7 +1611,7 @@ Ajouter une annexe
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # Ajouter une annexe
-    ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe...
+    ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe dans une fiche courrier...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -1637,7 +1637,7 @@ Ajouter une annexe
     sleep  ${S_S}
     Remove element  id=${note1}
 
-    Input text  id=form-widgets-IBasic-title  Annexe au dossier de Mr. Dupont Jean-Marc
+    Input text  id=form-widgets-IBasic-title  CV de Marc Leduc
 
     ${note1}  Add pointy note  css=#form-widgets-file-input  Ajoutez votre fichier à annexer  position=left  color=blue
     sleep  ${S_S}
@@ -1718,6 +1718,10 @@ Ajouter une tâche
     ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une tâche...
     Sleep  ${L_S}
     Remove element  id=${note1}
+
+    ${main0}  Add main note  Une tâche est utile pour subdiviser le travail, au sein du service traitant ou à destination d'un autre service.
+    Sleep  ${L_S}
+    Remove element  id=${main0}
 
     ${main1}  Add main note  L'action est identique qu'on soit sur une fiche courrier entrant, sortant ou une tâche elle-même.
     Sleep  ${L_S}
