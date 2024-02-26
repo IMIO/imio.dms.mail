@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2024-02-07 13:23+0000\n"
+"POT-Creation-Date: 2024-02-26 10:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -107,7 +107,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: ./setuphandlers.py:1625
+#: ./setuphandlers.py:1633
 msgid "All contacts export"
 msgstr ""
 
@@ -139,7 +139,7 @@ msgstr ""
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr ""
 
-#: ./setuphandlers.py:1669
+#: ./setuphandlers.py:1677
 msgid "Base template"
 msgstr ""
 
@@ -227,7 +227,7 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:1567
+#: ./setuphandlers.py:1575
 msgid "Common templates"
 msgstr ""
 
@@ -301,15 +301,11 @@ msgstr ""
 msgid "Document viewer preservation days number"
 msgstr ""
 
-#: ./profiles/default/actions.xml
-msgid "Documentation iA.Docs"
-msgstr ""
-
 #: ./browser/settings.py:204
 msgid "Due date extension"
 msgstr ""
 
-#: ./setuphandlers.py:1739
+#: ./setuphandlers.py:1747
 msgid "Email general template"
 msgstr ""
 
@@ -341,11 +337,11 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: ./setuphandlers.py:1653
+#: ./setuphandlers.py:1661
 msgid "Ending template"
 msgstr ""
 
-#: ./setuphandlers.py:1632
+#: ./setuphandlers.py:1640
 msgid "Export users and groups"
 msgstr ""
 
@@ -374,12 +370,16 @@ msgstr ""
 msgid "Folders searches"
 msgstr ""
 
-#: ./setuphandlers.py:1649
+#: ./setuphandlers.py:1657
 msgid "Footer template"
 msgstr ""
 
 #: ./browser/settings.py:345
 msgid "From where to get sender default email"
+msgstr ""
+
+#: ./profiles/default/actions.xml
+msgid "Full documentation"
 msgstr ""
 
 #: ./browser/settings.py:393
@@ -394,7 +394,7 @@ msgstr ""
 msgid "Has response icon"
 msgstr ""
 
-#: ./setuphandlers.py:1647
+#: ./setuphandlers.py:1655
 msgid "Header template"
 msgstr ""
 
@@ -446,7 +446,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:1651
+#: ./setuphandlers.py:1659
 msgid "Intro template"
 msgstr ""
 
@@ -458,11 +458,11 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./setuphandlers.py:1611
+#: ./setuphandlers.py:1619
 msgid "Mail listing template"
 msgstr ""
 
-#: ./setuphandlers.py:1618
+#: ./setuphandlers.py:1626
 msgid "Mail listing template sheet"
 msgstr ""
 
@@ -475,7 +475,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:1655
+#: ./setuphandlers.py:1663
 msgid "Mailing template"
 msgstr ""
 
@@ -550,17 +550,17 @@ msgid "Original sender email"
 msgstr ""
 
 #: ./browser/batchactions.py:126
-#: ./dmsmail.py:678
+#: ./dmsmail.py:677
 msgid "Outgoing Date"
 msgstr ""
 
-#: ./setuphandlers.py:1724
+#: ./setuphandlers.py:1732
 msgid "Outgoing email"
 msgstr ""
 
 #: ./browser/settings.py:256
 #: ./migrations/migrate_to_0_2.py:119
-#: ./setuphandlers.py:1566
+#: ./setuphandlers.py:1574
 msgid "Outgoing mail"
 msgstr ""
 
@@ -596,7 +596,7 @@ msgstr ""
 msgid "Pipeline to use to import contacts"
 msgstr ""
 
-#: ./wfadaptations.py:339
+#: ./wfadaptations.py:340
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr ""
 
@@ -608,7 +608,7 @@ msgstr ""
 msgid "Precise scan date"
 msgstr ""
 
-#: ./setuphandlers.py:1663
+#: ./setuphandlers.py:1671
 msgid "Print template"
 msgstr "To print"
 
@@ -616,7 +616,7 @@ msgstr "To print"
 msgid "Read TAL condition"
 msgstr ""
 
-#: ./setuphandlers.py:1678
+#: ./setuphandlers.py:1686
 msgid "Receipt template"
 msgstr ""
 
@@ -648,7 +648,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./examples.py:665
+#: ./examples.py:711
 msgid "Response: "
 msgstr ""
 
@@ -665,7 +665,7 @@ msgid "Send email with sender as reply to"
 msgstr ""
 
 #: ./browser/settings.py:326
-#: ./dmsmail.py:671
+#: ./dmsmail.py:670
 msgid "Send modes"
 msgstr ""
 
@@ -698,7 +698,7 @@ msgstr ""
 msgid "Stored value/id"
 msgstr ""
 
-#: ./setuphandlers.py:1639
+#: ./setuphandlers.py:1647
 msgid "Style template"
 msgstr ""
 
@@ -722,7 +722,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:1103
+#: ./dmsmail.py:1102
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -730,7 +730,7 @@ msgstr ""
 msgid "This contact '${title}' has missing address fields: ${keys}"
 msgstr ""
 
-#: ./wfadaptations.py:57
+#: ./wfadaptations.py:58
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr ""
 
@@ -766,6 +766,10 @@ msgstr ""
 
 #: ./browser/settings.py:405
 msgid "Users hidden in dashboards filter"
+msgstr ""
+
+#: ./profiles/default/actions.xml
+msgid "Video guides"
 msgstr ""
 
 #: ./browser/settings.py:106
@@ -812,7 +816,7 @@ msgstr ""
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./dmsmail.py:1129
+#: ./dmsmail.py:1128
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr ""
 
@@ -926,7 +930,7 @@ msgstr ""
 msgid "folders_tab"
 msgstr "Folders"
 
-#: ./setuphandlers.py:1042
+#: ./setuphandlers.py:1048
 msgid "followed"
 msgstr ""
 
@@ -1014,11 +1018,11 @@ msgstr ""
 msgid "import_folders"
 msgstr ""
 
-#: ./setuphandlers.py:1011
+#: ./setuphandlers.py:1015
 msgid "in_copy"
 msgstr ""
 
-#: ./setuphandlers.py:980
+#: ./setuphandlers.py:982
 msgid "in_my_group"
 msgstr ""
 
@@ -1094,12 +1098,11 @@ msgid "outgoing_mail_tab"
 msgstr "Out. mail"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./browser/tabular_view.py:58
 #: ./subscribers.py:332
 msgid "redirected_after_edition"
 msgstr ""
 
-#: ./wfadaptations.py:696
+#: ./wfadaptations.py:697
 msgid "searchfor: ${state}"
 msgstr "State: ${state}"
 
@@ -1210,7 +1213,7 @@ msgstr "To assign"
 msgid "tasks_to_close"
 msgstr "To close"
 
-#: ./setuphandlers.py:1565
+#: ./setuphandlers.py:1573
 msgid "templates_tab"
 msgstr "Templates"
 

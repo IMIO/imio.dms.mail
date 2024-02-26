@@ -494,10 +494,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                 self.registry['collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete'] = False
                 # version
                 api.portal.set_registry_record('imio.dms.mail.product_version', new_version)
-                if 'new-version' in self.portal['messages-config']:
-                    api.content.delete(self.portal['messages-config']['new-version'])
-                # not added if already exists
                 if old_version != new_version:
+                    if 'new-version' in self.portal['messages-config']:
+                        api.content.delete(self.portal['messages-config']['new-version'])
                     add_message('new-version', 'Maj version',
                                 u'<p><strong>iA.docs a été mis à jour de la version {} à la version {}</strong>. Vous '
                                 u'pouvez consulter les changements en cliquant sur le numéro de version en bas de page.'

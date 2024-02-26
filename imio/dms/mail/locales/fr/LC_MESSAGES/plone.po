@@ -130,7 +130,7 @@ msgstr "iA.docs ● Version <a href='https://docs.imio.be/iadocs/changelog/minor
 
 #: plone/app/layout/viewlets/footer.pt
 msgid "description_license"
-msgstr " ● <a href='https://docs.imio.be/iadocs/guides/index.html' target='_blank'>Guides vidéo</a> ● <a href='https://docs.imio.be/iadocs/index.html' target='_blank'>Documentation complète</a>"
+msgstr " ● <a href='https://docs.imio.be/iadocs/guides/index.html' target='_blank'>Guides Vidéo</a> ● <a href='https://docs.imio.be/iadocs/index.html' target='_blank'>Documentation complète</a>"
 
 #: configure.zcml
 msgid "dmsincomingmail-in-copy-group"
