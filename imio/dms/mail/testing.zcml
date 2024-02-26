@@ -10,6 +10,7 @@
    <!--include package="imio.dms.mail"/-->
    <include package="collective.ckeditor"/>
    <include package="collective.iconifieddocumentactions"/>
+   <include package="imio.annex"/>
    <include package="collective.messagesviewlet"/>
    <include package="collective.MockMailHost"/>
    <include package="collective.documentgenerator"/>
@@ -17,6 +18,7 @@
 
    <includeOverrides file="overrides.zcml" />
    <includeOverrides package="collective.eeafaceted.dashboard" file="overrides.zcml" />
+   <includeOverrides package="imio.annex" file="overrides.zcml" />
 
     <genericsetup:registerProfile
       name="testing"
