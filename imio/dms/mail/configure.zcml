@@ -177,6 +177,7 @@
         <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />
     </class>
 
+    <!-- INextPrevNotNavigable -->
     <class class="collective.contact.core.content.organization.Organization">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
@@ -192,9 +193,6 @@
     <class class="collective.documentgenerator.content.pod_template.PODTemplate">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
-    <class class="collective.documentgenerator.content.pod_template.PODTemplate">
-        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
-    </class>
     <class class="collective.documentgenerator.content.pod_template.ConfigurablePODTemplate">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
@@ -204,10 +202,40 @@
     <class class="collective.documentgenerator.content.style_template.StyleTemplate">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
+    <class class="collective.iconifiedcategory.content.categoryconfiguration.CategoryConfiguration">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.iconifiedcategory.content.categorygroup.CategoryGroup">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.iconifiedcategory.content.category.Category">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.iconifiedcategory.content.subcategory.Subcategory">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.dms.basecontent.dmsfile.DmsFile">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.dms.basecontent.dmsfile.DmsAppendixFile">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="imio.dms.mail.dmsfile.ImioDmsFile">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
     <class class="imio.dashboard.content.dashboardcollection.DashboardCollection">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
     <class class="imio.annex.content.annex.Annex">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.messagesviewlet.messagesconfig.MessagesConfig">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.classification.tree.contents.container.ClassificationContainer">
+        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
+    </class>
+    <class class="collective.ckeditortemplates.cktemplate.CKTemplate">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
 
