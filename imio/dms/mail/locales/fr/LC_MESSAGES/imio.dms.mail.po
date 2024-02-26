@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2024-02-07 13:23+0000\n"
+"POT-Creation-Date: 2024-02-26 10:47+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -109,7 +109,7 @@ msgstr "Ajouter un champ texte 'Reprise données'"
 msgid "All"
 msgstr "Tout"
 
-#: ./setuphandlers.py:1625
+#: ./setuphandlers.py:1633
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -141,7 +141,7 @@ msgstr "Vérification sur l'utilisateur assigné"
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr "Utilisateur obligatoire seulement au niveau n+1"
 
-#: ./setuphandlers.py:1669
+#: ./setuphandlers.py:1677
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -229,7 +229,7 @@ msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:1567
+#: ./setuphandlers.py:1575
 msgid "Common templates"
 msgstr "Modèles communs"
 
@@ -303,15 +303,11 @@ msgstr "Date de conservation pour les prévisualisations"
 msgid "Document viewer preservation days number"
 msgstr "Nombre de jours de conservation pour les prévisualisations"
 
-#: ./profiles/default/actions.xml
-msgid "Documentation iA.Docs"
-msgstr "Documentation iA.Docs"
-
 #: ./browser/settings.py:204
 msgid "Due date extension"
 msgstr "Échéance par défaut"
 
-#: ./setuphandlers.py:1739
+#: ./setuphandlers.py:1747
 msgid "Email general template"
 msgstr "Modèle générique"
 
@@ -343,11 +339,11 @@ msgstr "Un rédacteur de courrier sortant peut éditer les modèles bureautiques
 msgid "Enabled"
 msgstr "Activé"
 
-#: ./setuphandlers.py:1653
+#: ./setuphandlers.py:1661
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
-#: ./setuphandlers.py:1632
+#: ./setuphandlers.py:1640
 msgid "Export users and groups"
 msgstr "Exportation des utilisateurs et groupes"
 
@@ -376,13 +372,17 @@ msgstr "Dossiers"
 msgid "Folders searches"
 msgstr "Recherches dossiers et chemises"
 
-#: ./setuphandlers.py:1649
+#: ./setuphandlers.py:1657
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
 #: ./browser/settings.py:345
 msgid "From where to get sender default email"
 msgstr "Valeur par défaut de l'adresse email d'expédition"
+
+#: ./profiles/default/actions.xml
+msgid "Full documentation"
+msgstr "Documentation complète"
 
 #: ./browser/settings.py:393
 msgid "General config tab"
@@ -396,7 +396,7 @@ msgstr "Services à ne pas afficher dans les filtres \"Service traitant\", \"Ser
 msgid "Has response icon"
 msgstr "Une réponse est liée"
 
-#: ./setuphandlers.py:1647
+#: ./setuphandlers.py:1655
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -448,7 +448,7 @@ msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:1651
+#: ./setuphandlers.py:1659
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -460,11 +460,11 @@ msgstr "Nom Prénom"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./setuphandlers.py:1611
+#: ./setuphandlers.py:1619
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
-#: ./setuphandlers.py:1618
+#: ./setuphandlers.py:1626
 msgid "Mail listing template sheet"
 msgstr "Listing courrier tabulé"
 
@@ -477,7 +477,7 @@ msgstr "Type de courrier"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:1655
+#: ./setuphandlers.py:1663
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -552,17 +552,17 @@ msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
 #: ./browser/batchactions.py:126
-#: ./dmsmail.py:678
+#: ./dmsmail.py:677
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
-#: ./setuphandlers.py:1724
+#: ./setuphandlers.py:1732
 msgid "Outgoing email"
 msgstr "Email sortant"
 
 #: ./browser/settings.py:256
 #: ./migrations/migrate_to_0_2.py:119
-#: ./setuphandlers.py:1566
+#: ./setuphandlers.py:1574
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
@@ -598,7 +598,7 @@ msgstr "Recherches personnes"
 msgid "Pipeline to use to import contacts"
 msgstr "Pipeline pour importer des contacts"
 
-#: ./wfadaptations.py:339
+#: ./wfadaptations.py:340
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la fonction creating_group !"
 
@@ -610,7 +610,7 @@ msgstr "Position obligatoire pour les champs: ${msg}"
 msgid "Precise scan date"
 msgstr "Date précise de scan"
 
-#: ./setuphandlers.py:1663
+#: ./setuphandlers.py:1671
 msgid "Print template"
 msgstr "Pour impression"
 
@@ -618,7 +618,7 @@ msgstr "Pour impression"
 msgid "Read TAL condition"
 msgstr "Condition d'affichage"
 
-#: ./setuphandlers.py:1678
+#: ./setuphandlers.py:1686
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -650,7 +650,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./examples.py:665
+#: ./examples.py:711
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -667,7 +667,7 @@ msgid "Send email with sender as reply to"
 msgstr "Envoi d'email: l'email d'expédition est placé dans 'Répondre à'"
 
 #: ./browser/settings.py:326
-#: ./dmsmail.py:671
+#: ./dmsmail.py:670
 msgid "Send modes"
 msgstr "Formes d'envoi"
 
@@ -700,7 +700,7 @@ msgstr "États pour lesquels afficher l'icône de \"remarque\" "
 msgid "Stored value/id"
 msgstr "Valeur stockée"
 
-#: ./setuphandlers.py:1639
+#: ./setuphandlers.py:1647
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -724,7 +724,7 @@ msgstr "Recherches tâches"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:1103
+#: ./dmsmail.py:1102
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -732,7 +732,7 @@ msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 msgid "This contact '${title}' has missing address fields: ${keys}"
 msgstr "Ce contact ${title} a des champs d'adresse vides: ${keys}"
 
-#: ./wfadaptations.py:57
+#: ./wfadaptations.py:58
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr "Cette adaptation de workflow est seulement valable pour le workflow '${workflow}' !"
 
@@ -769,6 +769,10 @@ msgstr "Format du nom complet de l'utilisateur"
 #: ./browser/settings.py:405
 msgid "Users hidden in dashboards filter"
 msgstr "Utilisateurs à ne pas afficher dans les filtres \"Utilisateur assigné\" ou \"Auteur\" des tableaux de bord"
+
+#: ./profiles/default/actions.xml
+msgid "Video guides"
+msgstr "Guides Vidéo"
 
 #: ./browser/settings.py:106
 msgid "Write TAL condition"
@@ -814,7 +818,7 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./dmsmail.py:1129
+#: ./dmsmail.py:1128
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service traitant n'a pas de validateur et l'état va être modifié !"
 
@@ -928,7 +932,7 @@ msgstr "Créer une personne"
 msgid "folders_tab"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1042
+#: ./setuphandlers.py:1048
 msgid "followed"
 msgstr "Étiquette: Suivi"
 
@@ -1016,11 +1020,11 @@ msgstr "Gestion du courrier, données de test"
 msgid "import_folders"
 msgstr "Importer des fardes et chemises"
 
-#: ./setuphandlers.py:1011
+#: ./setuphandlers.py:1015
 msgid "in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:980
+#: ./setuphandlers.py:982
 msgid "in_my_group"
 msgstr "Dans mon service"
 
@@ -1096,12 +1100,11 @@ msgid "outgoing_mail_tab"
 msgstr "Sortant"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./browser/tabular_view.py:58
 #: ./subscribers.py:332
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
-#: ./wfadaptations.py:696
+#: ./wfadaptations.py:697
 msgid "searchfor: ${state}"
 msgstr "État: ${state}"
 
@@ -1212,7 +1215,7 @@ msgstr "À assigner"
 msgid "tasks_to_close"
 msgstr "À clôturer"
 
-#: ./setuphandlers.py:1565
+#: ./setuphandlers.py:1573
 msgid "templates_tab"
 msgstr "Modèles"
 
