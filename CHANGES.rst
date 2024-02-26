@@ -4,7 +4,7 @@ Changelog
 3.0.56
 ------
 
-- Last commit at 59f9872375cf047b191184725870f8f74ffaa23f
+- Last commit at 733c2feac7153b58070e58f9b2f94f8a0629fd66
 - Corrected pm url in wsclient configuration settings
 - Used objects param because bool(category) is False
 - Ordered css and js
@@ -42,6 +42,16 @@ Changelog
 - Do not use external edit on annex
 - Removed folder rename button
 - Checked if treating_groups is defined before reply
+- Removed green bar and added actionspanel viewlet on annex
+- Disabled not working link on annex file DMS-1005
+- Removed z3cform.chosen css
+- Improved css to fit left edition column and set fields to column width
+- Enlarge to 100% multi select2 field
+- Updated video doc
+- Corrected search translation
+- Improved footer
+- Added video guides action, improved translations
+- Added INextPrevNotNavigable on several classes
 
 3.0.55
 ------
