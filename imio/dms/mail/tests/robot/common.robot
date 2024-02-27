@@ -25,8 +25,8 @@ ScrollDown
 
 Add main note
     [Documentation]  Add a note under the portal top
-    [Arguments]  ${text}  ${locator}=id=portal-top
-    ${id}  Add note  ${locator}  ${text}  position=bottom  background=#ffc700  color=black  width=400  border=groove
+    [Arguments]  ${text}  ${locator}=id=portal-top  ${width}=400
+    ${id}  Add note  ${locator}  ${text}  position=bottom  background=#ffc700  color=black  width=${width}  border=groove
     [return]  ${id}
 
 Add title

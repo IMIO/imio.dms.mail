@@ -688,7 +688,7 @@ Créer un courrier sortant
 
 Créer un document bureautique
 # partie guide utilisation : Créer un courrier bureautique
-# Setup
+    # Setup
     [TAGS]  RUN05
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  agent
@@ -709,10 +709,10 @@ Créer un document bureautique
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
     # Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/${om_path}
-# start video
+    # start video
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
-# visualisation TODO à corriger
+    # visualisation
     ${main1}  Add title  Tutoriel vidéo iA.docs : Comment créer un document bureautique
     sleep  ${L_S}
     Remove element  id=${main1}
@@ -721,25 +721,8 @@ Créer un document bureautique
     sleep  ${L_S}
     Remove element  id=${main1}
 
-    ${note1}  Add pointy note  css=table a.version-link:first-child
-    ...  On constate qu'un document est déjà présent sur la fiche: Modèle de base  position=left  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add pointy note  css=.DV-pageCollection
-    ...  Le document bureautique généré est prérempli avec les données déjà encodées dans la fiche. Celles-ci peuvent être modifiées ou complétées.  position=top  color=blue  width=300
-    sleep  ${L_S}
-    Remove element  id=${note1}
-
-   ${note1}  Add pointy note  css=#formfield-form-widgets-send_modes label
-    ...  Pour pouvoir créer un document bureautique à partir d'un modèle, il faut que le champ "Formes d'envoi" contienne une entrée "lettre".  position=top  color=blue  width=400
-    Highlight  css=#form-widgets-send_modes label
-    sleep  ${L_S}
-    Clear Highlight  css=#form-widgets-send_modes label
-    Remove element  id=${note1}
-
     ${note1}  Add pointy note  css=.apButton.apButtonAction.apButtonAction_create-from-template
-    ...  Il faut ensuite sélectionner le bouton "Créer depuis modèle"  position=bottom  color=blue  width=400
+    ...  Il faut utiliser le bouton "Créer depuis modèle" pour générer un document  position=bottom  color=blue  width=400
     Highlight  css=.apButton.apButtonAction.apButtonAction_create-from-template
     sleep  ${L_S}
     Clear Highlight  css=.apButton.apButtonAction.apButtonAction_create-from-template
@@ -748,12 +731,9 @@ Créer un document bureautique
     Add clic  css=.apButton.apButtonAction.apButtonAction_create-from-template
     Click element  css=.apButton.apButtonAction.apButtonAction_create-from-template
 
-    ${main1}  Add main note  Les modèles sont communs ou spécifiques à des services. On en choisit un
+    ${main1}  Add main note  Les modèles sont communs ou spécifiques à des services. On clique sur celui désiré  width=800
     sleep  ${L_S}
     Remove element  id=${main1}
-
-    Run keyword if  '${RECORD}'=='1'  Pause
-    sleep  ${S_S}
 
     Add clic  css=.fancytree-exp-cl span.fancytree-expander
     Click element  css=.fancytree-exp-cl span.fancytree-expander
@@ -766,53 +746,28 @@ Créer un document bureautique
     Click element  css=.fancytree-exp-nl span:nth-child(2)
 
     GO to  ${PLONE_URL}/${om_path}
-
-    ${main1}  Add main note  Le document bureautique s'ouvre maintenant dans LibreOffice
+    ${main1}  Add main note  Le document bureautique est directement ajouté à la fiche et s'ouvre automatiquement dans l'outil bureautique LibreOffice de votre poste de travail
     sleep  ${L_S}
-    Remove element  id=${main1}
-
-    ${main1}  Add main note  La partie édition du document dans LibreOffice ne sera pas détaillée dans cette vidéo
-    sleep  ${L_S}
-    Remove element  id=${main1}
-
-    ${main1}  Add main note  Mais votre document sera généré selon le template sélectionné
-    sleep  ${L_S}
-    Remove element  id=${main1}
-
-    ${main1}  Add main note  Il vous suffira de remplacer la ligne "Texte" dans LibreOffice par le contenu de votre document et de sauvegarder
-    sleep  ${L_S}
-    Remove element  id=${main1}
-
-    ${main1}  Add main note  Le document sera ajouté à la fiche courrier
-    sleep  ${L_S}
-    Remove element  id=${main1}
-
-    # Wait until element is visible  css=table a.version-link:first-child  10
-    # ${note1}  Add pointy note  css=table a.version-link:first-child
-    # ...  On voit bien qu'un nouveau document est apparu dans la liste des documents de la fiche courrier et que c'est un "Modèle type"  position=left  color=blue  width=300
-    # sleep  ${N_S}
-    # Remove element  id=${note1}
-    Wait until element is visible  css=table tbody tr:first-child  10
-    ${note1}  Add pointy note  css=table tbody tr:first-child
-    ...  On voit bien qu'un nouveau document est apparu dans la liste des documents de la fiche courrier et que c'est un "Modèle type"  position=left  color=blue  width=300
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
+    Remove element  id=${main1}
 
-    ${note1}  Add pointy note  css=.DV-cover
-    ...  La visualisation du document bureautique nous montre qu'un document a bien été créé à partir d'un template  position=left  color=blue  width=300
-    sleep  ${N_S}
+    ${main1}  Add main note  La partie édition du document dans LibreOffice n'est pas montrée dans cette vidéo, mais vous pouvez apporter toutes les modifications désirées
+    sleep  ${L_S}
+    sleep  ${S_S}
+    Remove element  id=${main1}
+
+    ${main1}  Add main note  Une fois le document enregistré dans LibreOffice, il est automatiquement mis à jour dans la fiche et la prévisualisation s'adapte après quelques secondes
+    sleep  ${L_S}
+    sleep  ${S_S}
+    Remove element  id=${main1}
+
+    ${note1}  Add main note  Pour en savoir plus sur la création et la modification de templates, veuillez vous reporter au point "2.10 - Gestion des modèles"
+    sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${note1}  Add main note  Pour en savoir plus sur la création et la modification de templates, veuillez vous reporter au point "2.10 - Gestion des modèles" de la documentation écrite
-    sleep  ${N_S}
-    Remove element  id=${note1}
-
-    ${note1}  Add main note  Ou rendez-vous sur la vidéo "Gérer les modèles"
-    sleep  ${N_S}
-    Remove element  id=${note1}
+#    ${note1}  Add main note  Ou rendez-vous sur la vidéo "Gérer les modèles"
+#    sleep  ${N_S}
+#    Remove element  id=${note1}
 
     Add end message
 
