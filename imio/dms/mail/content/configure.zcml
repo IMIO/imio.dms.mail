@@ -20,14 +20,12 @@
         title="Dms Mail Creating Group"
         description="Adds localrole creating group field"
         provides=".behaviors.IDmsMailCreatingGroup"
-        for="collective.dms.basecontent.dmsdocument.IDmsDocument"
         />
 
     <plone:behavior
         title="Dms Mail Data Transfer"
         description="Adds text field for data transfer"
         provides=".behaviors.IDmsMailDataTransfer"
-        for=" plone.dexterity.interfaces.IDexterityContent"
         />
 
 </configure>
