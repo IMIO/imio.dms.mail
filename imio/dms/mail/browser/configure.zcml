@@ -704,7 +704,7 @@
         <browser:viewlet
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
             name="dms.files"
-            manager="collective.dms.basecontent.browser.viewlets.DmsAboveContentViewletManager"
+            manager="collective.dms.basecontent.browser.viewlets.IDmsAboveContent"
             class="imio.dms.mail.browser.viewlets.OMVersionsViewlet"
             template="browser/templates/versionsviewlet.pt"
             permission="zope2.View"
