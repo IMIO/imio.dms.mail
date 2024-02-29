@@ -205,13 +205,23 @@
 
   <unconfigure package="collective.dms.basecontent">
     <!-- remove state column -->
-    <adapter name="dms.state"
-      factory="collective.dms.basecontent.browser.listing.StateColumn"
-      provides="z3c.table.interfaces.IColumn"/>
+    <adapter
+        for="zope.interface.Interface
+             zope.interface.Interface
+             collective.dms.basecontent.browser.listing.BaseTable"
+        factory="collective.dms.basecontent.browser.listing.StateColumn"
+        provides="z3c.table.interfaces.IColumn"
+        name="dms.state"
+        />
     <!-- remove label column on versions table -->
-    <adapter name="dms.label"
-      factory="collective.dms.basecontent.browser.listing.VersionLabelColumn"
-      provides="z3c.table.interfaces.IColumn"/>
+    <adapter
+        for="zope.interface.Interface
+             zope.interface.Interface
+             collective.dms.basecontent.browser.listing.VersionLabelColumn"
+        factory="collective.dms.basecontent.browser.listing.VersionLabelColumn"
+        provides="z3c.table.interfaces.IColumn"
+        name="dms.label"
+        />
   </unconfigure>
 
   <!--adapter
