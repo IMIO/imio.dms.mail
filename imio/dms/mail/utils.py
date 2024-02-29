@@ -1102,8 +1102,8 @@ def create_personnel_content(userid, groups, functions=ALL_SERVICE_FUNCTIONS, pr
                                                                portal_type='held_position')]
         hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
         if len(hps) != len(hps_orgs):
-            logger.warn("Found multiple held positions for the same org in userid '{}' : {}".format(userid,
-                        ' | '.join([hp.get_full_title() for hp in hps])))
+            logger.warn(u"Found multiple held positions for the same org in userid '{}' : {}".format(userid,
+                        u' | '.join([hp.get_full_title() for hp in hps])))
         elif primary and len(hps_orgs) == 1:
             pers.primary_organization = orgs[0]
         for uid in orgs:
