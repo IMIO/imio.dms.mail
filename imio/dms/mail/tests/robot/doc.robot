@@ -1292,6 +1292,90 @@ Configuration
     # Wait until element is visible  css=.table-faceted-results  20
     # Capture and crop page screenshot  doc/configuration/5-10-import-reussi.png  content
 
+Annexes dossiers
+    [TAGS]  RUN212
+    Enable autologin as  Manager
+    Set autologin username  dirg
+    # Create folder
+    Go to  ${PLONE_URL}/folders
+    Sleep  2
+    Capture and crop page screenshot  doc/utilisation/2-12-folder-view.png  id=faceted-results
+    Click Element  css:.pretty_link_icons:first-child img 
+    Input Text  id=form-widgets-title  Dossier de test
+    Input Text  id=form-widgets-classification_categories-widgets-query  con
+    Click Element  css:.ac_results li:nth-child(3)      
+    Select from list by index  id=form-widgets-treating_groups  9  # Service traitant
+    Input Text  id=s2id_autogen1  GRH       # Service en copie
+    Click Element  css:.select2-result-label
+    Input Text  id=form-widgets-classification_informations  Une information capitale
+    Select checkbox  id:form-widgets-archived-0
+    Click button  id=form-buttons-save
+    Sleep  2
+    Capture and crop page screenshot  doc/utilisation/2-12-created-folder-view.png  id=portal-column-content
+    # Add annexes as files to folder
+    Click button  css:.apButton.apButtonAction.apButtonAction_annexes
+    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/annexe.pdf
+    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/Document Kickoff.odt
+    Input Text  css:ul li:nth-of-type(1) form input[id="form-widgets-title"]   annexe.pdf
+    Input Text  css:ul li:nth-of-type(2) form input[id="form-widgets-title"]   document kickoff.odt
+    # Select category of annexes
+    Click Element  css:ul li:nth-of-type(2) div[class="select2-container single-select2-widget required choice-field"]
+    Input Text  css:.select2-drop.select2-display-none.select2-with-searchbox.select2-drop-active input  delibe
+    Click Element  css:ul[id="select2-results-2"] li span[class="plone-annexes_types-annexes-deliberation"]
+    Input Text  css:ul li:nth-of-type(2) form textarea[id="form-widgets-description"]  Description de la délibération
+    Capture and crop page screenshot  doc/utilisation/2-12-annexe-category.png  id=pb_1
+    # Upload annexes
+    Click button  id=uploadify-upload
+    Go to  ${PLONE_URL}/folders/dossier-de-test/
+    Sleep  10
+    Capture and crop page screenshot  doc/utilisation/2-12-folder-with-annexes.png  id=portal-column-content
+    # Create subfolder
+    Go to  ${PLONE_URL}/folders/dossier-de-test/++add++ClassificationSubfolder
+    Input Text  id=form-widgets-title  Chemise de test
+    Input Text  id=form-widgets-internal_reference_no  F0013-01
+    Click button  id=form-buttons-save
+    # Add annexes as files to subfolder
+    Click button  css:.apButton.apButtonAction.apButtonAction_annexes
+    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/annexe.pdf
+    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/Document Kickoff.odt
+    Input Text  css:ul li:nth-of-type(1) form input[id="form-widgets-title"]   annexe.pdf
+    Input Text  css:ul li:nth-of-type(2) form input[id="form-widgets-title"]   document kickoff.odt
+    # Select category of annexes
+    Click Element  css:ul li:nth-of-type(2) div[class="select2-container single-select2-widget required choice-field"]
+    Input Text  css:.select2-drop.select2-display-none.select2-with-searchbox.select2-drop-active input  delibe
+    Click Element  css:ul[id="select2-results-2"] li span[class="plone-annexes_types-annexes-deliberation"]
+    Click button  id=uploadify-upload
+    # Link a CE in the new subfolder
+    Go to  ${PLONE_URL}/incoming-mail
+    Click Element  id=newIMCreation
+    Input Text  id=form-widgets-IDublinCore-title  Création d'une fiche courrier entrant
+    # Sender Field
+    Input text  name=form.widgets.sender.widgets.query  Elec
+    Click element  css=.ac_results:not([style*="display: none"]) li:nth-child(2)
+    # Treating group
+    Click Element  id=form-widgets-treating_groups
+    Select from list by index  id=form-widgets-treating_groups  3
+    # Others fields
+    Select from list by value  id=form-widgets-mail_type  courrier
+    Click element  css=#formfield-form-widgets-original_mail_date label
+    Select from list by value  id=form-widgets-original_mail_date-day  6
+    Select from list by value  id=form-widgets-original_mail_date-month  6
+    Select from list by value  id=form-widgets-original_mail_date-year  2012
+    # Classification code
+    Input Text  name=form.widgets.IClassificationFolder.classification_categories.widgets.query  Con
+    scroll down
+    Scrolldown
+    Click element  css=.ac_results:not([style*="display: none"]) li:nth-child(3)
+    # Folder
+    Input Text  name=form.widgets.IClassificationFolder.classification_folders.widgets.query  Test
+    Click element  css=.ac_results:not([style*="display: none"]) li:nth-child(2)
+    Click button  id=form-buttons-save
+    # Check the result and screenshots
+    Go to  ${PLONE_URL}/tree
+    Capture and crop page screenshot  doc/utilisation/2-12-tree.png  id=content
+    Go to  ${PLONE_URL}/folders/
+    Click Element  css:.pretty_link_content.state-active
+
 Debug
     [TAGS]  DBG
     Pass execution  Only for debug purpose
@@ -1299,7 +1383,6 @@ Debug
     Set autologin username  dirg
     Go to  ${PLONE_URL}/@@imiodmsmail-settings#fieldsetlegend-contact
     debug
-
 
 *** Keywords ***
 Suite Setup
