@@ -7,6 +7,8 @@ from collective.relationhelpers.api import purge_relations
 from collective.relationhelpers.api import RELATIONS_KEY
 from collective.relationhelpers.api import store_relations
 from imio.helpers.catalog import get_intid
+from imio.pyutils.system import dump_pickle
+from imio.pyutils.system import load_pickle
 from plone.app.linkintegrity.handlers import modifiedDexterity as modifiedContent
 from plone.app.linkintegrity.handlers import referencedRelationship
 from plone.app.relationfield.event import update_behavior_relations
@@ -22,29 +24,8 @@ from zope.annotation import IAnnotations
 from zope.component import getUtility
 from zope.intid import IIntIds
 
-import cPickle
 import os
 import transaction
-
-
-def load_pickle(infile, var):  # get it next from imio.pyutils.system
-    """
-        load a dictionary, a set or a list from a pickle file
-    """
-    if os.path.exists(infile):
-        with open(infile, 'rb') as fh:
-            if isinstance(var, (dict, set)):
-                var.update(cPickle.load(fh))
-            elif isinstance(var, list):
-                var.extend(cPickle.load(fh))
-
-
-def dump_pickle(outfile, var):
-    """
-        dump a dictionary, a set or a list to a file
-    """
-    with open(outfile, 'wb') as fh:
-        cPickle.dump(var, fh, -1)
 
 
 def remove_duplicates(all_relations):
