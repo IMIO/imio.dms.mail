@@ -1375,7 +1375,7 @@ Annexes dossiers
     Capture and crop page screenshot  doc/utilisation/2-12-tree.png  id=content
     Go to  ${PLONE_URL}/folders/
     Click Element  css:.pretty_link_content.state-active
-
+    
 Debug
     [TAGS]  DBG
     Pass execution  Only for debug purpose
