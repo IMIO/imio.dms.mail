@@ -12,7 +12,7 @@
         <option tal:condition="useIcons" style="display:none" value=#></option>
         <option tal:repeat="term users_voc"
                 tal:attributes="value term/value;"
-                tal:content="term/title">
+                tal:content="structure term/title">
         </option>
       </select>
     </form>
