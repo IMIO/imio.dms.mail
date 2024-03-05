@@ -445,8 +445,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
             for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
                 brain.getObject().setLayout('view')
-            self.reindexIndexes(['classification_folders'], update_metadata=True,
-                                portal_types=['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'])
             if 'annex' not in api.portal.get_registry_record('externaleditor.externaleditor_enabled_types'):
                 eet = ['PODTemplate', 'ConfigurablePODTemplate', 'DashboardPODTemplate', 'SubTemplate',
                        'StyleTemplate', 'dmsommainfile', 'MailingLoopTemplate', 'annex']
@@ -465,13 +463,15 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if u'classification_subfolder_archived' not in buf:
                     buf.insert(buf.index(u'classification_subfolder_title'), u'classification_subfolder_archived')
                     col.customViewFields = tuple(buf)
+            finished = self.reindexIndexes(['classification_folders'], update_metadata=True,
+                                           portal_types=['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'])
             # END
 
-            finished = True  # can be eventually returned and set by batched method
+            # finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            # if finished and old_version != new_version:
             if finished:
+            # if finished and old_version != new_version:
                 zope_app = self.portal
                 while not isinstance(zope_app, OFS.Application.Application):
                     zope_app = zope_app.aq_parent
