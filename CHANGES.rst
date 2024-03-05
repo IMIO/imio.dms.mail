@@ -4,7 +4,7 @@ Changelog
 3.0.56
 ------
 
-- Last commit at 733c2feac7153b58070e58f9b2f94f8a0629fd66
+- Last commit at 578fbe818ae4636300d1c4b5cb8ed7267bd2c4c1
 - Corrected pm url in wsclient configuration settings
 - Used objects param because bool(category) is False
 - Ordered css and js
@@ -52,6 +52,17 @@ Changelog
 - Improved footer
 - Added video guides action, improved translations
 - Added INextPrevNotNavigable on several classes
+- Added imio.annex overrides.zcml in testing
+- Corrected video on document creation
+- Corrected behavior zcml definition to avoid warning when Plone starts
+- Commented interfaces before real deletion
+- Used new basecontent viewlet manager interface
+- Updated unconfigure adapter definition after basecontent grok removal
+- Corrected migration error
+- Adding test for fold's annexes
+- Used last pyutils functions
+- Replaced entity in assigned user button
+- Used batched reindexIndexes
 
 3.0.55
 ------
