@@ -1,6 +1,12 @@
 Changelog
 =========
 
+3.0.57
+------
+
+- Last commit at
+- Replaced checkbox by multiselect in several faceted widgets
+
 3.0.56
 ------
 
