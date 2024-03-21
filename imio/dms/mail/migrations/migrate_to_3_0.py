@@ -415,63 +415,73 @@ class Migrate_To_3_0(Migrator):  # noqa
             # finished = rebuild_relations(self.portal)
             # TEMPORARY to 3.0.56
             # add personnel persons and hps for all functions: redo again after bug correction
-            remove_gs_step('imiodmsmail-refreshCatalog')  # because dependencies have changed
-            for udic in get_user_from_criteria(self.portal, email=''):
-                groups = get_plone_groups_for_user(user_id=udic['userid'])
-                create_personnel_content(udic['userid'], groups, primary=True)
-            if 'plus' not in self.portal:
-                logger.info('Added plus page and excluded some folders')
-                obj = api.content.create(container=self.portal, type='Document', id='plus', title=u'● ● ●')
-                do_transitions(obj, ['show_internally'])
-                alsoProvides(obj, IProtectedItem)
-                order_1st_level(self.portal)
-                for oid in ('contacts', 'templates', 'tree'):
-                    obj = self.portal[oid]
-                    obj.exclude_from_nav = True
-                    obj.reindexObject()
-            gsettings = GlobalSettings(self.portal)
-            gsettings.auto_select_layout = False
-            self.cleanRegistries()
-            self.upgradeProfile('collective.classification.folder:default')
-            self.upgradeProfile('collective.messagesviewlet:default')
-            self.upgradeProfile('collective.contact.facetednav:default')
-            # default view
-            for wkf in ('ConfigurablePODTemplate', 'DashboardPODTemplate', 'PODTemplate', 'SubTemplate',
-                        'dmsappendixfile', 'dmsmainfile', 'dmsommainfile'):  # annex ?
-                load_type_from_package(wkf, 'profile-imio.dms.mail:default')
-            self.wfTool.setChainForPortalTypes(('ContentCategoryGroup',), '(Default)')
-            self.wfTool.setChainForPortalTypes(('ContentCategory',), ())
-            self.runProfileSteps('imio.dms.mail', steps=['actions'])
-            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
-            for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
-                brain.getObject().setLayout('view')
-            if 'annex' not in api.portal.get_registry_record('externaleditor.externaleditor_enabled_types'):
-                eet = ['PODTemplate', 'ConfigurablePODTemplate', 'DashboardPODTemplate', 'SubTemplate',
-                       'StyleTemplate', 'dmsommainfile', 'MailingLoopTemplate', 'annex']
-                api.portal.set_registry_record('externaleditor.externaleditor_enabled_types', eet)
-            collection_folder = self.portal['folders']['folder-searches']
-            reimport_faceted_config(collection_folder, xml='classificationfolders-searches.xml',
-                                    default_UID=collection_folder["all_folders"].UID())
-            brains = self.catalog(portal_type='DashboardCollection',
-                                  path='/'.join(self.portal.folders.getPhysicalPath()))
-            for brain in brains:
-                col = brain.getObject()
-                buf = list(col.customViewFields)
-                if u'classification_folder_archived' not in buf:
-                    buf.insert(buf.index(u'classification_folder_title'), u'classification_folder_archived')
-                    col.customViewFields = tuple(buf)
-                if u'classification_subfolder_archived' not in buf:
-                    buf.insert(buf.index(u'classification_subfolder_title'), u'classification_subfolder_archived')
-                    col.customViewFields = tuple(buf)
-            finished = self.reindexIndexes(['classification_folders'], update_metadata=True,
-                                           portal_types=['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'])
+            # remove_gs_step('imiodmsmail-refreshCatalog')  # because dependencies have changed
+            # for udic in get_user_from_criteria(self.portal, email=''):
+            #     groups = get_plone_groups_for_user(user_id=udic['userid'])
+            #     create_personnel_content(udic['userid'], groups, primary=True)
+            # if 'plus' not in self.portal:
+            #     logger.info('Added plus page and excluded some folders')
+            #     obj = api.content.create(container=self.portal, type='Document', id='plus', title=u'● ● ●')
+            #     do_transitions(obj, ['show_internally'])
+            #     alsoProvides(obj, IProtectedItem)
+            #     order_1st_level(self.portal)
+            #     for oid in ('contacts', 'templates', 'tree'):
+            #         obj = self.portal[oid]
+            #         obj.exclude_from_nav = True
+            #         obj.reindexObject()
+            # gsettings = GlobalSettings(self.portal)
+            # gsettings.auto_select_layout = False
+            # self.cleanRegistries()
+            # self.upgradeProfile('collective.classification.folder:default')
+            # self.upgradeProfile('collective.messagesviewlet:default')
+            # self.upgradeProfile('collective.contact.facetednav:default')
+            # # default view
+            # for wkf in ('ConfigurablePODTemplate', 'DashboardPODTemplate', 'PODTemplate', 'SubTemplate',
+            #             'dmsappendixfile', 'dmsmainfile', 'dmsommainfile'):  # annex ?
+            #     load_type_from_package(wkf, 'profile-imio.dms.mail:default')
+            # self.wfTool.setChainForPortalTypes(('ContentCategoryGroup',), '(Default)')
+            # self.wfTool.setChainForPortalTypes(('ContentCategory',), ())
+            # self.runProfileSteps('imio.dms.mail', steps=['actions'])
+            # self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
+            # for brain in self.catalog(portal_type=('MailingLoopTemplate', 'StyleTemplate')):
+            #     brain.getObject().setLayout('view')
+            # if 'annex' not in api.portal.get_registry_record('externaleditor.externaleditor_enabled_types'):
+            #     eet = ['PODTemplate', 'ConfigurablePODTemplate', 'DashboardPODTemplate', 'SubTemplate',
+            #            'StyleTemplate', 'dmsommainfile', 'MailingLoopTemplate', 'annex']
+            #     api.portal.set_registry_record('externaleditor.externaleditor_enabled_types', eet)
+            # collection_folder = self.portal['folders']['folder-searches']
+            # reimport_faceted_config(collection_folder, xml='classificationfolders-searches.xml',
+            #                         default_UID=collection_folder["all_folders"].UID())
+            # brains = self.catalog(portal_type='DashboardCollection',
+            #                       path='/'.join(self.portal.folders.getPhysicalPath()))
+            # for brain in brains:
+            #     col = brain.getObject()
+            #     buf = list(col.customViewFields)
+            #     if u'classification_folder_archived' not in buf:
+            #         buf.insert(buf.index(u'classification_folder_title'), u'classification_folder_archived')
+            #         col.customViewFields = tuple(buf)
+            #     if u'classification_subfolder_archived' not in buf:
+            #         buf.insert(buf.index(u'classification_subfolder_title'), u'classification_subfolder_archived')
+            #         col.customViewFields = tuple(buf)
+            # finished = self.reindexIndexes(['classification_folders'], update_metadata=True,
+            #                                portal_types=['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'])
+            # TEMPORARY to 3.0.57
+            faceted_configs = (
+                (self.imf['mail-searches'], 'im-mail', 'all_mails'),
+                (self.omf['mail-searches'], 'om-mail', 'all_mails'),
+                (self.portal['tasks']['task-searches'], 'im-task', 'all_tasks'),
+                (self.portal['folders']['folder-searches'], 'classificationfolders', 'all_folders'),
+            )
+            for folder, xml_start, default_id in faceted_configs:
+                reimport_faceted_config(folder, xml='{}-searches.xml'.format(xml_start),
+                                        default_UID=folder[default_id].UID())
+
             # END
 
-            # finished = True  # can be eventually returned and set by batched method
+            finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record('imio.dms.mail.product_version', default=u'unknown')
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            if finished:
-            # if finished and old_version != new_version:
+            if finished and old_version != new_version:
                 zope_app = self.portal
                 while not isinstance(zope_app, OFS.Application.Application):
                     zope_app = zope_app.aq_parent

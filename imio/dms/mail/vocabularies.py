@@ -574,3 +574,13 @@ class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
         return super(DmsPrimaryOrganizationsVocabulary, self).__call__(
             context, userid=userid, suffixes=ALL_SERVICE_FUNCTIONS,
             base_voc='collective.dms.basecontent.treating_groups')
+
+
+class ActiveInactiveStatesVocabulary(object):
+    """States of active_inactive_workflow"""
+
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary([SimpleTerm('active', title=pmf(u'Active')),
+                                 SimpleTerm('deactivated', title=pmf(u'Deactivated'))])
