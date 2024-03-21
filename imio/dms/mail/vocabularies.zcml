@@ -124,4 +124,9 @@
         factory="imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.ActiveInactiveStatesVocabulary"
+        factory="imio.dms.mail.vocabularies.ActiveInactiveStatesVocabulary"
+        />
+
 </configure>
