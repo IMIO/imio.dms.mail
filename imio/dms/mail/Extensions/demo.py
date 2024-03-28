@@ -16,9 +16,9 @@ from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
 from imio.helpers.content import find
-from imio.helpers.content import safe_encode
 from imio.helpers.security import check_zope_admin
 from imio.helpers.workflow import do_transitions
+from imio.pyutils.utils import safe_encode
 from itertools import cycle
 from plone import api
 from plone.dexterity.utils import createContentInContainer
