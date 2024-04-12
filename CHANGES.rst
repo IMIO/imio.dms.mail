@@ -6,6 +6,8 @@ Changelog
 
 - Last commit at
 - Replaced checkbox by multiselect in several faceted widgets
+- Added folders state advanced filter
+- Import safe_encode from pyutils
 
 3.0.56
 ------
