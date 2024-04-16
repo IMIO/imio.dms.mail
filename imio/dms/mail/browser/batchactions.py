@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
+from collective.classification.folder.content.classification_folder import IClassificationFolder
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.widget.schema import ContactChoice
@@ -248,3 +249,26 @@ class DuplicatedBatchActionForm(BaseBatchActionForm):
         view = getMultiAdapter((self.context.getParentNode(), self.request), name='merge-contacts')
         with api.env.adopt_roles(['Manager']):
             return view()
+
+
+class FoldersTreatingGroupBatchActionForm(BaseBatchActionForm):
+
+    label = _(u"Batch treating group change")
+    weight = 20
+
+    def _update(self):
+        self.do_apply = is_permitted(self.brains)
+        self.fields += Fields(schema.Choice(
+            __name__='treating_group',
+            title=_(u"Treating groups"),
+            description=(not self.do_apply and cannot_modify_field_msg or u''),
+            required=self.do_apply,
+            vocabulary=(self.do_apply and u'collective.dms.basecontent.treating_groups' or SimpleVocabulary([])),
+        ))
+
+    def _apply(self, **data):
+        if data['treating_group']:
+            for brain in self.brains:
+                obj = brain.getObject()
+                obj.treating_groups = data['treating_group']
+                modified(obj, Attributes(IClassificationFolder, 'treating_groups'))
