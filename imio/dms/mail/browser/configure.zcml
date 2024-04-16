@@ -472,6 +472,15 @@
         permission="zope2.View"
         />
 
+    <!-- BATCH ACTIONS FOLDERS -->
+    <browser:page
+        for="imio.dms.mail.interfaces.IClassificationFoldersDashboardBatchActions"
+        name="treatinggroup-batch-action"
+        class=".batchactions.FoldersTreatingGroupBatchActionForm"
+        permission="zope2.View"
+        />
+
+
     <!-- BATCH ACTIONS TASKS -->
     <browser:page
         for="imio.dms.mail.interfaces.ITaskDashboardBatchActions"
