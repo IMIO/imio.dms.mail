@@ -4,10 +4,11 @@ Changelog
 3.0.57
 ------
 
-- Last commit at
+- Last commit at 03d33c732c31b69f5d4aa1b4897a5aa2cf2265d2
 - Replaced checkbox by multiselect in several faceted widgets
 - Added folders state advanced filter
 - Import safe_encode from pyutils
+- Added treatinggroup-batch-action button on folders
 
 3.0.56
 ------
