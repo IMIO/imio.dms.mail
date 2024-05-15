@@ -413,4 +413,4 @@ class PlusPortaltabContent(BrowserView):
         res = self.portal.portal_catalog(id=('contacts', 'templates', 'tree', 'annexes_types'),
                                          path={"query": '/'.join(self.portal.getPhysicalPath()), "depth": 1},
                                          sort_on='getObjPositionInParent')
-        return [(b.Title, b.getPath()) for b in res]
+        return [(b.Title, b.getURL()) for b in res]
