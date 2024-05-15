@@ -9,6 +9,7 @@ Changelog
 - Added folders state advanced filter
 - Import safe_encode from pyutils
 - Added treatinggroup-batch-action button on folders
+- Corrected menu tab links
 
 3.0.56
 ------
