@@ -553,16 +553,17 @@ def contact_plonegroup_change(event):
                     roles += ['Contributor', 'Editor']
                 api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
-                if base_model and base_model.has_been_modified():
-                    logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
-                    try:
-                        api.content.copy(source=base_model, target=folder)
-                    except Redirect as exc:
-                        if 'controller.getViewCursor()' in repr(exc):  # missing blob (empty blobstorage)
-                            logger.error("Error copying %s in %s: %s" % (base_model, '/'.join(folder.getPhysicalPath()),
-                                                                         exc))
-                        else:
-                            raise exc
+                # There is a risk to copy an unfinished template !
+                # if base_model and base_model.has_been_modified():
+                #     logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
+                #     try:
+                #         api.content.copy(source=base_model, target=folder)
+                #     except Redirect as exc:
+                #         if 'controller.getViewCursor()' in repr(exc):  # missing blob (empty blobstorage)
+                #             logger.error("Error copying %s in %s: %s" %
+                #                          (base_model, '/'.join(folder.getPhysicalPath()), exc))
+                #         else:
+                #             raise exc
             if uid not in oem_folder:
                 folder = api.content.create(container=oem_folder, type='Folder', id=uid, title=full_title)
                 roles = ['Reader']
