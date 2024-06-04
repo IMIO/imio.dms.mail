@@ -76,43 +76,53 @@ import time
 # Compound criterions #
 #######################
 
-default_criterias = {'dmsincomingmail': {'review_state': {'query': ['proposed_to_manager',  # i_e ok
-                                                                    'proposed_to_pre_manager',
-                                                                    'proposed_to_n_plus_5', 'proposed_to_n_plus_4',
-                                                                    'proposed_to_n_plus_3', 'proposed_to_n_plus_2',
-                                                                    'proposed_to_n_plus_1']}},
-                     'task': {'review_state': {'query': ['to_assign', 'realized']}}}
+default_criterias = {
+    "dmsincomingmail": {
+        "review_state": {
+            "query": [
+                "proposed_to_manager",  # i_e ok
+                "proposed_to_pre_manager",
+                "proposed_to_n_plus_5",
+                "proposed_to_n_plus_4",
+                "proposed_to_n_plus_3",
+                "proposed_to_n_plus_2",
+                "proposed_to_n_plus_1",
+            ]
+        }
+    },
+    "task": {"review_state": {"query": ["to_assign", "realized"]}},
+}
 
 
 def highest_validation_criterion(portal_type):
     """
-        Return a query criterion corresponding to current user highest validation level
-        NO MORE USED
+    Return a query criterion corresponding to current user highest validation level
+    NO MORE USED
     """
-    if portal_type == 'dmsincoming_email':
-        portal_type = 'dmsincomingmail'  # i_e ok
+    if portal_type == "dmsincoming_email":
+        portal_type = "dmsincomingmail"  # i_e ok
     groups = get_plone_groups_for_user(user=api.user.get_current())
     highest_level = highest_review_level(portal_type, str(groups))
     if highest_level is None:
         return default_criterias[portal_type]
     ret = {}
-    review_levels = get_dms_config(['review_levels'])
+    review_levels = get_dms_config(["review_levels"])
     criterias = review_levels[portal_type][highest_level]
-    if 'st' in criterias:
-        ret['review_state'] = {'query': criterias['st']}
-    if 'org' in criterias:
+    if "st" in criterias:
+        ret["review_state"] = {"query": criterias["st"]}
+    if "org" in criterias:
         organizations = []
         for groupid in groups:
             if groupid.endswith(highest_level):
-                organizations.append(groupid[:-len(highest_level)])
-        ret[criterias['org']] = {'query': organizations}
+                organizations.append(groupid[: -len(highest_level)])
+        ret[criterias["org"]] = {"query": organizations}
     return ret
 
 
 class IncomingMailHighestValidationCriterion(object):
     """
-        Return catalog criteria following highest validation group member
-        NOT USED
+    Return catalog criteria following highest validation group member
+    NOT USED
     """
 
     def __init__(self, context):
@@ -120,13 +130,13 @@ class IncomingMailHighestValidationCriterion(object):
 
     @property
     def query(self):
-        return highest_validation_criterion('dmsincomingmail')  # i_e ok
+        return highest_validation_criterion("dmsincomingmail")  # i_e ok
 
 
 class TaskHighestValidationCriterion(object):
     """
-        Return catalog criteria following highest validation group member
-        NOT USED
+    Return catalog criteria following highest validation group member
+    NOT USED
     """
 
     def __init__(self, context):
@@ -134,37 +144,37 @@ class TaskHighestValidationCriterion(object):
 
     @property
     def query(self):
-        return highest_validation_criterion('task')
+        return highest_validation_criterion("task")
 
 
 def validation_criterion(context, portal_type):
-    """ Return a query criterion corresponding to current user validation level """
-    if portal_type == 'dmsincoming_email':
-        portal_type = 'dmsincomingmail'  # i_e ok
+    """Return a query criterion corresponding to current user validation level"""
+    if portal_type == "dmsincoming_email":
+        portal_type = "dmsincomingmail"  # i_e ok
     groups = get_plone_groups_for_user(user=api.user.get_current())
-    config = get_dms_config(['review_levels', portal_type])
+    config = get_dms_config(["review_levels", portal_type])
     # set_dms_config(['review_levels', 'dmsincomingmail'],  # i_e ok
     #            OrderedDict([('dir_general', {'st': ['proposed_to_manager']}),
     #                         ('_n_plus_1', {'st': ['proposed_to_n_plus_1'], 'org': 'treating_groups'})]))
-    ret = {'state_group': {'query': []}}
+    ret = {"state_group": {"query": []}}
     for group_or_suffix in config:
-        if not group_or_suffix.startswith('_'):
+        if not group_or_suffix.startswith("_"):
             if group_or_suffix in groups:
-                for state in config[group_or_suffix]['st']:
-                    ret['state_group']['query'].append(state)
+                for state in config[group_or_suffix]["st"]:
+                    ret["state_group"]["query"].append(state)
         else:
             # get orgs of user groups with suffix
             orgs = organizations_with_suffixes(groups, [group_or_suffix[1:]], group_as_str=True)
             if orgs:
-                for state in config[group_or_suffix]['st']:
+                for state in config[group_or_suffix]["st"]:
                     for org in orgs:
-                        ret['state_group']['query'].append('%s,%s' % (state, org))
+                        ret["state_group"]["query"].append("%s,%s" % (state, org))
     return ret
 
 
 class IncomingMailValidationCriterion(object):
     """
-        Return catalog criteria following validation group member
+    Return catalog criteria following validation group member
     """
 
     def __init__(self, context):
@@ -172,12 +182,12 @@ class IncomingMailValidationCriterion(object):
 
     @property
     def query(self):
-        return validation_criterion(self.context, 'dmsincomingmail')  # i_e ok
+        return validation_criterion(self.context, "dmsincomingmail")  # i_e ok
 
 
 class TaskValidationCriterion(object):
     """
-        Return catalog criteria following validation group member
+    Return catalog criteria following validation group member
     """
 
     def __init__(self, context):
@@ -185,12 +195,12 @@ class TaskValidationCriterion(object):
 
     @property
     def query(self):
-        return validation_criterion(self.context, 'task')
+        return validation_criterion(self.context, "task")
 
 
 class OutgoingMailValidationCriterion(object):
     """
-        Return catalog criteria following validation group member
+    Return catalog criteria following validation group member
     """
 
     def __init__(self, context):
@@ -198,12 +208,12 @@ class OutgoingMailValidationCriterion(object):
 
     @property
     def query(self):
-        return validation_criterion(self.context, 'dmsoutgoingmail')
+        return validation_criterion(self.context, "dmsoutgoingmail")
 
 
 class IncomingMailInTreatingGroupCriterion(object):
     """
-        Return catalog criteria following treating group member
+    Return catalog criteria following treating group member
     """
 
     def __init__(self, context):
@@ -214,12 +224,12 @@ class IncomingMailInTreatingGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'treating_groups': {'query': orgs}}
+        return {"treating_groups": {"query": orgs}}
 
 
 class OutgoingMailInTreatingGroupCriterion(object):
     """
-        Return catalog criteria following treating group member
+    Return catalog criteria following treating group member
     """
 
     def __init__(self, context):
@@ -230,12 +240,12 @@ class OutgoingMailInTreatingGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'treating_groups': {'query': orgs}}
+        return {"treating_groups": {"query": orgs}}
 
 
 class IncomingMailInCopyGroupCriterion(object):
     """
-        Return catalog criteria following recipient group member
+    Return catalog criteria following recipient group member
     """
 
     def __init__(self, context):
@@ -246,12 +256,12 @@ class IncomingMailInCopyGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'recipient_groups': {'query': orgs}}
+        return {"recipient_groups": {"query": orgs}}
 
 
 class IncomingMailInCopyGroupUnreadCriterion(object):
     """
-        Return catalog criteria following recipient group member
+    Return catalog criteria following recipient group member
     """
 
     def __init__(self, context):
@@ -263,12 +273,12 @@ class IncomingMailInCopyGroupUnreadCriterion(object):
         groups = get_plone_groups_for_user(user=user)
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'recipient_groups': {'query': orgs}, 'labels': {'not': ['%s:lu' % user.id]}}
+        return {"recipient_groups": {"query": orgs}, "labels": {"not": ["%s:lu" % user.id]}}
 
 
 class IncomingMailFollowedCriterion(object):
     """
-        Return catalog criteria for 'suivi' label
+    Return catalog criteria for 'suivi' label
     """
 
     def __init__(self, context):
@@ -276,12 +286,12 @@ class IncomingMailFollowedCriterion(object):
 
     @property
     def query(self):
-        return {'labels': {'query': '%s:suivi' % api.user.get_current().id}}
+        return {"labels": {"query": "%s:suivi" % api.user.get_current().id}}
 
 
 class OutgoingMailInCopyGroupCriterion(object):
     """
-        Return catalog criteria following recipient group member
+    Return catalog criteria following recipient group member
     """
 
     def __init__(self, context):
@@ -292,12 +302,12 @@ class OutgoingMailInCopyGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'recipient_groups': {'query': orgs}}
+        return {"recipient_groups": {"query": orgs}}
 
 
 class TaskInAssignedGroupCriterion(object):
     """
-        Return catalog criteria following assigned group member
+    Return catalog criteria following assigned group member
     """
 
     def __init__(self, context):
@@ -308,12 +318,12 @@ class TaskInAssignedGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'assigned_group': {'query': orgs}}
+        return {"assigned_group": {"query": orgs}}
 
 
 class TaskInProposingGroupCriterion(object):
     """
-        Return catalog criteria following enquirer group member
+    Return catalog criteria following enquirer group member
     """
 
     def __init__(self, context):
@@ -324,35 +334,33 @@ class TaskInProposingGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'mail_type': {'query': orgs}}
+        return {"mail_type": {"query": orgs}}
 
 
 ################
 # GUI cleaning #
 ################
 
-class ActionsSubMenuItem(OrigActionsSubMenuItem):
 
+class ActionsSubMenuItem(OrigActionsSubMenuItem):
     def available(self):
         # plone.api.user.has_permission doesn't work with zope admin
-        if not getSecurityManager().checkPermission('Manage portal', self.context):
+        if not getSecurityManager().checkPermission("Manage portal", self.context):
             return False
         return super(ActionsSubMenuItem, self).available()
 
 
 class FactoriesSubMenuItem(OrigFactoriesSubMenuItem):
-
     def available(self):
         # plone.api.user.has_permission doesn't work with zope admin
-        if not getSecurityManager().checkPermission('Manage portal', self.context):
+        if not getSecurityManager().checkPermission("Manage portal", self.context):
             return False
         return super(FactoriesSubMenuItem, self).available()
 
 
 class WorkflowMenu(OrigWorkflowMenu):
-
     def getMenuItems(self, context, request):
-        if not getSecurityManager().checkPermission('Manage portal', context):
+        if not getSecurityManager().checkPermission("Manage portal", context):
             return []
         return super(WorkflowMenu, self).getMenuItems(context, request)
 
@@ -363,51 +371,65 @@ class WorkflowMenu(OrigWorkflowMenu):
 
 
 class IMPrettyLinkAdapter(PrettyLinkAdapter):
-
     def _leadingIcons(self):
         icons = []
         if self.context.task_description and self.context.task_description.raw:
             registry = getUtility(IRegistry)
-            if api.content.get_state(self.context) in (registry.get(
-                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states') or []):
-                icons.append(("++resource++imio.dms.mail/remark.gif", translate("Remark icon", domain="imio.dms.mail",
-                                                                                context=self.request)))
+            if api.content.get_state(self.context) in (
+                registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states") or []
+            ):
+                icons.append(
+                    (
+                        "++resource++imio.dms.mail/remark.gif",
+                        translate("Remark icon", domain="imio.dms.mail", context=self.request),
+                    )
+                )
         back_or_again_icon = self.context.get_back_or_again_icon()
         if back_or_again_icon:
-            icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
-                                                        context=self.request)))
+            icons.append(
+                (back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail", context=self.request))
+            )
         annot = IAnnotations(self.context)
-        if 'hasResponse' in annot.get('dmsmail.markers', []):
-            icons.append(('++resource++imio.dms.mail/replied_icon.png', translate("Has response icon",
-                          domain="imio.dms.mail", context=self.request)))
+        if "hasResponse" in annot.get("dmsmail.markers", []):
+            icons.append(
+                (
+                    "++resource++imio.dms.mail/replied_icon.png",
+                    translate("Has response icon", domain="imio.dms.mail", context=self.request),
+                )
+            )
         return icons
 
 
 class OMPrettyLinkAdapter(PrettyLinkAdapter):
-
     def _leadingIcons(self):
         icons = []
         if self.context.task_description and self.context.task_description.raw:
             registry = getUtility(IRegistry)
-            if api.content.get_state(self.context) in (registry.get(
-                    'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states') or []):
-                icons.append(("++resource++imio.dms.mail/remark.gif", translate("Remark icon", domain="imio.dms.mail",
-                                                                                context=self.request)))
+            if api.content.get_state(self.context) in (
+                registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states") or []
+            ):
+                icons.append(
+                    (
+                        "++resource++imio.dms.mail/remark.gif",
+                        translate("Remark icon", domain="imio.dms.mail", context=self.request),
+                    )
+                )
         back_or_again_icon = self.context.get_back_or_again_icon()
         if back_or_again_icon:
-            icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
-                                                        context=self.request)))
+            icons.append(
+                (back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail", context=self.request))
+            )
         return icons
 
 
 class TaskPrettyLinkAdapter(PrettyLinkAdapter):
-
     def _leadingIcons(self):
         icons = []
         back_or_again_icon = BACK_OR_AGAIN_ICONS[back_or_again_state(self.context)]
         if back_or_again_icon:
-            icons.append((back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail",
-                                                        context=self.request)))
+            icons.append(
+                (back_or_again_icon, translate(back_or_again_icon, domain="imio.dms.mail", context=self.request))
+            )
         return icons
 
 
@@ -415,10 +437,11 @@ class TaskPrettyLinkAdapter(PrettyLinkAdapter):
 # Indexes adapters #
 ####################
 
+
 @indexer(IDmsMailCreatingGroup)
 def creating_group_index(obj):
     """Indexer of 'assigned_group' for IDmsMailCreatingGroup. Stores creating_group !"""
-    if base_hasattr(obj, 'creating_group') and obj.creating_group:
+    if base_hasattr(obj, "creating_group") and obj.creating_group:
         return obj.creating_group
     return common_marker
 
@@ -457,7 +480,7 @@ def ready_for_email_index(obj):
 
 @indexer(IATFolder)
 def fancy_tree_folder_index(obj):
-    if '/templates/om/' in '/'.join(obj.getPhysicalPath()):
+    if "/templates/om/" in "/".join(obj.getPhysicalPath()):
         return True
     return False
 
@@ -467,7 +490,7 @@ def get_full_title_index(obj):
     """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""
     # No acquisition pb because get_full_title isn't an attr
     if obj.title:
-        return obj.title.encode('utf8')
+        return obj.title.encode("utf8")
     return common_marker
 
 
@@ -477,17 +500,17 @@ def get_obj_size(obj):
     try:
         primary_field_info = IPrimaryFieldInfo(obj)
     except TypeError:
-        logger.warn(u'Lookup of PrimaryField failed for %s' % obj.absolute_url())
+        logger.warn(u"Lookup of PrimaryField failed for %s" % obj.absolute_url())
         return
-    const = {'KB': 1024, 'MB': 1048576, 'GB': 1073741824}
-    order = ('GB', 'MB', 'KB')
+    const = {"KB": 1024, "MB": 1048576, "GB": 1073741824}
+    order = ("GB", "MB", "KB")
     size = primary_field_info.value.size
     if size < 1024:
-        return '1 KB'
+        return "1 KB"
     for c in order:
         if size / const[c] > 0:
             break
-    return '%.1f %s' % (float(size / float(const[c])), c)  # noqa
+    return "%.1f %s" % (float(size / float(const[c])), c)  # noqa
 
 
 @indexer(IDmsAppendixFile)
@@ -545,7 +568,7 @@ def mail_date_index(obj):
 @indexer(IImioDmsOutgoingMail)
 def om_mail_date_index(obj):
     """Indexer of 'mail_date' for IImioDmsOutgoingMail."""
-    if base_hasattr(obj, 'mail_date'):
+    if base_hasattr(obj, "mail_date"):
         if obj.mail_date:
             return obj.mail_date
         else:
@@ -556,7 +579,7 @@ def om_mail_date_index(obj):
 @indexer(IContentish)
 def mail_type_index(obj):
     """Indexer of 'mail_type' for IContentish."""
-    if base_hasattr(obj, 'mail_type') and obj.mail_type:
+    if base_hasattr(obj, "mail_type") and obj.mail_type:
         return obj.mail_type
     return common_marker
 
@@ -565,7 +588,7 @@ def mail_type_index(obj):
 def heldposition_userid_index(obj):
     """Indexer of 'userid' for IHeldPosition. Stores parent userid !"""
     parent = obj.aq_parent
-    if base_hasattr(parent, 'userid') and parent.userid:
+    if base_hasattr(parent, "userid") and parent.userid:
         return parent.userid
     return common_marker
 
@@ -573,7 +596,7 @@ def heldposition_userid_index(obj):
 @indexer(ITaskContent)
 def task_enquirer_index(obj):
     """Indexer of 'mail_type' for ITaskContent. Stores enquirer !"""
-    if base_hasattr(obj, 'enquirer') and obj.enquirer:
+    if base_hasattr(obj, "enquirer") and obj.enquirer:
         return obj.enquirer
     return common_marker
 
@@ -585,14 +608,14 @@ def im_markers(obj):
     """
     markers = []
     # Set hasResponse
-    rels = get_relations(obj, 'reply_to', backrefs=True)  # get only "normal" response
+    rels = get_relations(obj, "reply_to", backrefs=True)  # get only "normal" response
     for relation in rels:
-        if not relation.isBroken() and relation.from_object.portal_type == 'dmsoutgoingmail':
-            markers.append('hasResponse')
+        if not relation.isBroken() and relation.from_object.portal_type == "dmsoutgoingmail":
+            markers.append("hasResponse")
             break
     # Stores on obj
     annot = IAnnotations(obj)
-    annot['dmsmail.markers'] = markers
+    annot["dmsmail.markers"] = markers
     return markers
 
 
@@ -609,12 +632,12 @@ def om_markers(obj):
     """
     markers = []
     # Set lastDmsFileIsOdt
-    dfiles = object_values(obj, ['ImioDmsFile'])
+    dfiles = object_values(obj, ["ImioDmsFile"])
     if dfiles and dfiles[-1].is_odt():
-        markers.append('lastDmsFileIsOdt')
+        markers.append("lastDmsFileIsOdt")
     # Stores on obj
     annot = IAnnotations(obj)
-    annot['dmsmail.markers'] = markers
+    annot["dmsmail.markers"] = markers
     return markers
 
 
@@ -631,11 +654,11 @@ def markers_dmf_index(obj):
     * isEml
     """
     markers = []
-    if obj.file and (obj.file.filename.endswith('.eml') or obj.file.contentType == 'message/rfc822'):
-        markers.append('isEml')
+    if obj.file and (obj.file.filename.endswith(".eml") or obj.file.contentType == "message/rfc822"):
+        markers.append("isEml")
     # Stores on obj
     annot = IAnnotations(obj)
-    annot['dmsmail.markers'] = markers
+    annot["dmsmail.markers"] = markers
     return markers
 
 
@@ -681,8 +704,8 @@ def org_sortable_title_index(obj):
     """Indexer of 'sortable_title' for IOrganization. Stores organization chain concatenated by | !"""
     # sortable_title(org) returns <plone.indexer.delegate.DelegatingIndexer object> that must be called
     parts = [sortable_title(org)() for org in obj.get_organizations_chain() if org.title]
-    parts and parts.append('')
-    return '|'.join(parts)
+    parts and parts.append("")
+    return "|".join(parts)
 
 
 @indexer(IDmsDocument)
@@ -696,18 +719,18 @@ def state_group_index(obj):
     # No acquisition pb because state_group isn't an attr
     state = api.content.get_state(obj=obj)
     portal_type = obj.portal_type
-    if portal_type == 'dmsincoming_email':
-        portal_type = 'dmsincomingmail'  # i_e ok
+    if portal_type == "dmsincoming_email":
+        portal_type = "dmsincomingmail"  # i_e ok
     # elif portal_type == 'dmsoutgoing_email':
     #     portal_type = 'dmsoutgoingmail'
     # set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})]))
-    config = get_dms_config(['review_states', portal_type])
-    if state not in config or not config[state]['group'].startswith('_'):
+    config = get_dms_config(["review_states", portal_type])
+    if state not in config or not config[state]["group"].startswith("_"):
         return state
     else:
-        return "%s,%s" % (state, getattr(obj, config[state]['org']))
+        return "%s,%s" % (state, getattr(obj, config[state]["org"]))
 
 
 @indexer(ITaskContent)
@@ -730,7 +753,7 @@ def imio_contact_source(contact):
     """Metadata of 'contact_source' for IContactContent. Cleans value !"""
     # we get first a <plone.indexer.delegate.DelegatingIndexer object>
     value = contact_source(contact)().strip()
-    return value.replace(', ,', '').replace('  ,', '').replace(',  ', '')
+    return value.replace(", ,", "").replace("  ,", "").replace(",  ", "")
 
 
 class ScanSearchableExtender(object):
@@ -741,7 +764,7 @@ class ScanSearchableExtender(object):
         self.context = context
 
     def remove_extension(self, filename):
-        if filename[-4:-3] == '.':
+        if filename[-4:-3] == ".":
             return filename[:-4]
         return filename
 
@@ -763,23 +786,20 @@ class ScanSearchableExtender(object):
         return u" ".join(items)
 
     def __call__(self):
-        """ Extend the searchable text with a custom string """
+        """Extend the searchable text with a custom string"""
         primary_field = IPrimaryFieldInfo(self.context)
         if primary_field.value is None:
             return self.searchable_text()
         mimetype = primary_field.value.contentType
-        transforms = getToolByName(self.context, 'portal_transforms')
+        transforms = getToolByName(self.context, "portal_transforms")
         value = str(primary_field.value.data)
         filename = primary_field.value.filename
         try:
-            transformed_value = transforms.convertTo('text/plain', value,
-                                                     mimetype=mimetype,
-                                                     filename=filename)
+            transformed_value = transforms.convertTo("text/plain", value, mimetype=mimetype, filename=filename)
             if not transformed_value:
                 return self.searchable_text()
-            ret = _unicode_save_string_concat(self.searchable_text(),
-                                              transformed_value.getData())
-            if ret.startswith(' '):
+            ret = _unicode_save_string_concat(self.searchable_text(), transformed_value.getData())
+            if ret.startswith(" "):
                 ret = ret[1:]
             return ret
         except:  # noqa
@@ -788,9 +808,10 @@ class ScanSearchableExtender(object):
 
 class IdmSearchableExtender(object):
     """
-        Extends SearchableText of scanned dms document.
-        Concatenate the contained dmsmainfiles scan_id infos.
+    Extends SearchableText of scanned dms document.
+    Concatenate the contained dmsmainfiles scan_id infos.
     """
+
     adapts(IImioDmsIncomingMail)
     implements(IDynamicTextIndexExtender)
 
@@ -812,12 +833,14 @@ class IdmSearchableExtender(object):
             if sid_infos[0]:
                 index += sid_infos
         if index:
-            return u' '.join(index)
+            return u" ".join(index)
 
 
 class OdmSearchableExtender(IdmSearchableExtender):
-    """ See IdmSearchableExtender """
+    """See IdmSearchableExtender"""
+
     adapts(IImioDmsOutgoingMail)
+
 
 #########################
 # vocabularies adapters #
@@ -861,25 +884,25 @@ class MissingTerms(MissingTermsMixin):
 
 
 class IMMCTV(MissingChoiceTermsVocabulary, MissingTerms):
-    """ Managing missing terms for IImioDmsIncomingMail. """
+    """Managing missing terms for IImioDmsIncomingMail."""
 
     def complete_voc(self):
-        if self.field.getName() == 'mail_type':
-            return getUtility(IVocabularyFactory, 'imio.dms.mail.IMMailTypesVocabulary')(self.context)
-        elif self.field.getName() == 'assigned_user':
-            return getUtility(IVocabularyFactory, 'plone.app.vocabularies.Users')(self.context)
+        if self.field.getName() == "mail_type":
+            return getUtility(IVocabularyFactory, "imio.dms.mail.IMMailTypesVocabulary")(self.context)
+        elif self.field.getName() == "assigned_user":
+            return getUtility(IVocabularyFactory, "plone.app.vocabularies.Users")(self.context)
         else:
             return SimpleVocabulary([])
 
 
 class OMMCTV(MissingChoiceTermsVocabulary, MissingTerms):
-    """ Managing missing terms for IImioDmsOutgoingMail. """
+    """Managing missing terms for IImioDmsOutgoingMail."""
 
     def complete_voc(self):
-        if self.field.getName() == 'mail_type':
-            return getUtility(IVocabularyFactory, 'imio.dms.mail.OMMailTypesVocabulary')(self.context)
-        elif self.field.getName() == 'sender':
-            return getUtility(IVocabularyFactory, 'imio.dms.mail.OMSenderVocabulary')(self.context)
+        if self.field.getName() == "mail_type":
+            return getUtility(IVocabularyFactory, "imio.dms.mail.OMMailTypesVocabulary")(self.context)
+        elif self.field.getName() == "sender":
+            return getUtility(IVocabularyFactory, "imio.dms.mail.OMSenderVocabulary")(self.context)
         else:
             return SimpleVocabulary([])
 
@@ -888,19 +911,15 @@ class OMMCTV(MissingChoiceTermsVocabulary, MissingTerms):
 # validation adapters #
 #########################
 
+
 class ContactAutocompleteValidator(SimpleFieldValidator):
 
-    adapts(
-        Interface,
-        Interface,
-        Interface,
-        IField,
-        IContactAutocompleteWidget)
+    adapts(Interface, Interface, Interface, IField, IContactAutocompleteWidget)
 
     def validate(self, value, force=False):
         """
-            Force validation when value is empty to force required validation.
-            Because field is considered as not changed.
+        Force validation when value is empty to force required validation.
+        Because field is considered as not changed.
         """
         force = not value and True
         return super(ContactAutocompleteValidator, self).validate(value, force)
@@ -910,8 +929,9 @@ class ContactAutocompleteValidator(SimpleFieldValidator):
 # DataManager adapters #
 #########################
 
+
 class DateDataManager(AttributeField):
-    """ DataManager for datetime widget """
+    """DataManager for datetime widget"""
 
     def set(self, value):
         """The goal is to add seconds on dmsdocument and dmsfile datetime fields. For all fields ?"""
@@ -920,7 +940,7 @@ class DateDataManager(AttributeField):
             return
         value_s = value.strftime("%Y%m%d%H%M")
         stored = self.query(default=None)
-        stored_s = stored is not None and stored.strftime("%Y%m%d%H%M") or ''
+        stored_s = stored is not None and stored.strftime("%Y%m%d%H%M") or ""
         # store value if value is really changed
         if value_s != stored_s:
             # adding seconds
@@ -931,16 +951,19 @@ class DateDataManager(AttributeField):
 
 class AssignedUserDataManager(AttributeField):
     """
-        DataManager for assigned_user widget.
-        To handle assigned_user default value as slave of MS.
-        When request contains _default_assigned_user_ variable, this value is selected.
+    DataManager for assigned_user widget.
+    To handle assigned_user default value as slave of MS.
+    When request contains _default_assigned_user_ variable, this value is selected.
     """
 
     def query(self, default=NO_VALUE):
         """See z3c.form.interfaces.IDataManager"""
-        if (self.field.__name__ == 'assigned_user' and not getattr(self.adapted_context, 'assigned_user')
-                and '_default_assigned_user_' in self.context.REQUEST):
-            return self.context.REQUEST.get('_default_assigned_user_')
+        if (
+            self.field.__name__ == "assigned_user"
+            and not getattr(self.adapted_context, "assigned_user")
+            and "_default_assigned_user_" in self.context.REQUEST
+        ):
+            return self.context.REQUEST.get("_default_assigned_user_")
         return super(AssignedUserDataManager, self).query(default=default)
 
 
@@ -952,7 +975,6 @@ class AssignedUserDataManager(AttributeField):
 @adapter(Interface)
 @implementer(IServiceInCharge)
 class ServiceInChargeAdapter(object):
-
     def __init__(self, context):
         self.context = context
 
@@ -963,7 +985,6 @@ class ServiceInChargeAdapter(object):
 @adapter(Interface)
 @implementer(IServiceInCopy)
 class ServiceInCopyAdapter(object):
-
     def __init__(self, context):
         self.context = context
 
@@ -982,7 +1003,7 @@ class ClassificationFolderInCopyGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'recipient_groups': {'query': orgs}}
+        return {"recipient_groups": {"query": orgs}}
 
 
 class ClassificationFolderInTreatingGroupCriterion(object):
@@ -996,4 +1017,4 @@ class ClassificationFolderInTreatingGroupCriterion(object):
         groups = get_plone_groups_for_user(user=api.user.get_current())
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
-        return {'treating_groups': {'query': orgs}}
+        return {"treating_groups": {"query": orgs}}

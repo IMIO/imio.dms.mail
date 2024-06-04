@@ -68,6 +68,7 @@ from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
+
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
@@ -95,43 +96,51 @@ try:
 except ImportError:
     imio_global_cache = None
 
-logger = logging.getLogger('imio.dms.mail: events')
+logger = logging.getLogger("imio.dms.mail: events")
 
 
 def item_copied(obj, event):
     """OFS.item copying"""
-    if get_site_root_relative_path(event.original) in ('/templates/om', '/templates/oem'):
-        api.portal.show_message(message=_(u"You cannot copy this item '${title}' ! If you are in a table, you have to "
-                                          u"use the buttons below the table.",
-                                          mapping={'title': event.original.Title().decode('utf8')}),
-                                request=event.original.REQUEST, type='error')
-        raise Redirect(event.original.REQUEST.get('HTTP_REFERER'))
+    if get_site_root_relative_path(event.original) in ("/templates/om", "/templates/oem"):
+        api.portal.show_message(
+            message=_(
+                u"You cannot copy this item '${title}' ! If you are in a table, you have to "
+                u"use the buttons below the table.",
+                mapping={"title": event.original.Title().decode("utf8")},
+            ),
+            request=event.original.REQUEST,
+            type="error",
+        )
+        raise Redirect(event.original.REQUEST.get("HTTP_REFERER"))
     # we can't modify obj because it's sometimes the original object, not yet in the target directory
-    event.original.REQUEST.set('_copying_', True)
+    event.original.REQUEST.set("_copying_", True)
 
 
 def item_added(obj, event):
     """OFS.item added"""
     req = api.env.getRequest()
-    if req and req.get('_copying_', False) and IProtectedItem.providedBy(obj):
+    if req and req.get("_copying_", False) and IProtectedItem.providedBy(obj):
         noLongerProvides(obj, IProtectedItem)
 
 
 def item_moved(obj, event):
     """OFS.item removed, cut or renamed (event also called for added and pasted)"""
-    if (IObjectWillBeRemovedEvent.providedBy(event)  # deletion
-            or event.oldParent):  # cut or rename
+    if IObjectWillBeRemovedEvent.providedBy(event) or event.oldParent:  # deletion  # cut or rename
         if IProtectedItem.providedBy(obj) and not check_zope_admin():
             api.portal.show_message(
-                message=_(u"You cannot delete, cut or rename this item '${title}' !",
-                          mapping={'title': safe_unicode(obj.Title())}),
-                request=obj.REQUEST, type='error')
-            raise Redirect(obj.REQUEST.get('HTTP_REFERER'))
+                message=_(
+                    u"You cannot delete, cut or rename this item '${title}' !",
+                    mapping={"title": safe_unicode(obj.Title())},
+                ),
+                request=obj.REQUEST,
+                type="error",
+            )
+            raise Redirect(obj.REQUEST.get("HTTP_REFERER"))
 
 
 def replace_contact_list(obj, fieldname):
     """
-        Replace ContactList in contact field
+    Replace ContactList in contact field
     """
     value = getattr(obj, fieldname)
     if not value:
@@ -142,7 +151,7 @@ def replace_contact_list(obj, fieldname):
     for relation in value:
         if not relation.isBroken() and relation.to_object:
             to_obj = relation.to_object
-            if to_obj.portal_type == 'contact_list':
+            if to_obj.portal_type == "contact_list":
                 changed = True
                 intids = getUtility(IIntIds)
                 # contact_list.contacts is a ContactList field
@@ -158,20 +167,21 @@ def replace_contact_list(obj, fieldname):
         orig_updateRelations(obj, None)
     return changed
 
+
 # DMSDOCUMENT
 
 
 def reindex_replied(objs):
     """Reindex replied incoming mails"""
     for im in objs:
-        im.reindexObject(['markers'])
+        im.reindexObject(["markers"])
         # it also modify the im annotation
         # actionspanel cache depends now on imio.helpers.cache.obj_modified (testing annotations too)
 
 
 def _get_replied_ids(obj, from_obj=False):
     objs = []
-    if obj.portal_type == 'dmsoutgoingmail':
+    if obj.portal_type == "dmsoutgoingmail":
         intids = queryUtility(IIntIds)
         if from_obj:
             rels = obj.reply_to or []
@@ -179,9 +189,9 @@ def _get_replied_ids(obj, from_obj=False):
             catalog = queryUtility(ICatalog)
             if catalog is None:  # to avoid error when deleting site
                 return objs
-            rels = catalog.findRelations({'from_id': intids.queryId(obj), 'from_attribute': 'reply_to'})
+            rels = catalog.findRelations({"from_id": intids.queryId(obj), "from_attribute": "reply_to"})
         for rel in rels:
-            if not rel.isBroken() and rel.to_object.portal_type != 'dmsoutgoingmail':
+            if not rel.isBroken() and rel.to_object.portal_type != "dmsoutgoingmail":
                 objs.append(intids.getObject(rel.to_id))
     return objs
 
@@ -210,69 +220,77 @@ def update_relations(obj, event):
 
 def dmsdocument_added(mail, event):
     """
-        Replace ContactList in contact field.
+    Replace ContactList in contact field.
     """
-    if mail.portal_type in GE_CONFIG['imail_group_encoder']['pt']:
-        if replace_contact_list(mail, 'sender'):
-            mail.reindexObject(['sender', ])
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
-            ensure_set_field(mail, 'creating_group', default_creating_group())
-    elif mail.portal_type in GE_CONFIG['omail_group_encoder']['pt']:
-        if replace_contact_list(mail, 'recipients'):
-            mail.reindexObject(['recipients', ])
+    if mail.portal_type in GE_CONFIG["imail_group_encoder"]["pt"]:
+        if replace_contact_list(mail, "sender"):
+            mail.reindexObject(
+                [
+                    "sender",
+                ]
+            )
+        if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"):
+            ensure_set_field(mail, "creating_group", default_creating_group())
+    elif mail.portal_type in GE_CONFIG["omail_group_encoder"]["pt"]:
+        if replace_contact_list(mail, "recipients"):
+            mail.reindexObject(
+                [
+                    "recipients",
+                ]
+            )
         reindex_replied(_get_replied_ids(mail, from_obj=True))
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
-            ensure_set_field(mail, 'creating_group', default_creating_group())
+        if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder"):
+            ensure_set_field(mail, "creating_group", default_creating_group())
 
 
 def dmsdocument_modified(mail, event):
     """
-        Replace the batch creator by the editor.
-        Replace ContactList in contact field.
-        Updates contained tasks.
+    Replace the batch creator by the editor.
+    Replace ContactList in contact field.
+    Updates contained tasks.
     """
     # owner
     moi = mail.owner_info()
-    if moi and moi.get('id') == 'scanner':
+    if moi and moi.get("id") == "scanner":
         user = api.user.get_current()
         userid = user.getId()
         # pass if the container is modified when creating a sub element
-        if userid == 'scanner':
+        if userid == "scanner":
             return
-        pcat = getToolByName(mail, 'portal_catalog')
-        path = '/'.join(mail.getPhysicalPath())
+        pcat = getToolByName(mail, "portal_catalog")
+        path = "/".join(mail.getPhysicalPath())
         brains = pcat.unrestrictedSearchResults(path=path)
         for brain in brains:
             obj = brain._unrestrictedGetObject()
             creators = list(obj.creators)
             # change creator metadata
-            if 'scanner' in creators:
-                creators.remove('scanner')
+            if "scanner" in creators:
+                creators.remove("scanner")
             if userid is not None and userid not in creators:
                 creators.insert(0, userid)
             obj.setCreators(creators)
             # change owner with acl_users user !! (otherwise getOwner() fails)
-            obj.changeOwnership(api.portal.get_tool('acl_users').getUserById(userid))
+            obj.changeOwnership(api.portal.get_tool("acl_users").getUserById(userid))
             # change Owner role
-            owners = obj.users_with_local_role('Owner')
-            if 'scanner' in owners:
-                obj.manage_delLocalRoles(['scanner'])
+            owners = obj.users_with_local_role("Owner")
+            if "scanner" in owners:
+                obj.manage_delLocalRoles(["scanner"])
             if userid not in owners:
                 roles = list(obj.get_local_roles_for_userid(userid))
-                roles.append('Owner')
+                roles.append("Owner")
                 obj.manage_setLocalRoles(userid, roles)
             obj.reindexObject()
         # mail.reindexObjectSecurity()  not needed with previous reindex ?!
 
     # contact list
-    if mail.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
-        replace_contact_list(mail, 'sender')
-    elif mail.portal_type == 'dmsoutgoingmail':
-        replace_contact_list(mail, 'recipients')
+    if mail.portal_type in ("dmsincomingmail", "dmsincoming_email"):
+        replace_contact_list(mail, "sender")
+    elif mail.portal_type == "dmsoutgoingmail":
+        replace_contact_list(mail, "recipients")
 
     if not event.descriptions:
         return
-    mod_attr = [name for at in event.descriptions if base_hasattr(at, 'attributes') for name in at.attributes]
+    mod_attr = [name for at in event.descriptions if base_hasattr(at, "attributes") for name in at.attributes]
     # in plone.app.workflow.browser.sharing.py, the request is given in descriptions !
     # notify(LocalrolesModifiedEvent(self.context, self.request))
     if not mod_attr:
@@ -284,8 +302,7 @@ def dmsdocument_modified(mail, event):
     fields = adapted.get_parents_fields()
     for field in fields:
         for dic in fields[field]:
-            fieldname = (dic['prefix'] and '%s.%s' % (dic['prefix'], dic['at'])
-                         or dic['at'])
+            fieldname = dic["prefix"] and "%s.%s" % (dic["prefix"], dic["at"]) or dic["at"]
             if fieldname in mod_attr:
                 updates.append(field)
                 break
@@ -293,7 +310,7 @@ def dmsdocument_modified(mail, event):
         adapted.set_lower_parents_value(field, fields[field])
 
     # check if the treating_groups is changed while the state is on a service validation level
-    if 'treating_groups' in mod_attr:
+    if "treating_groups" in mod_attr:
         doit = True
         while doit:
             obsolete, state, config = mail.is_n_plus_level_obsolete()
@@ -318,50 +335,52 @@ def dmsdocument_removed(mail, event):
 
 
 def im_edit_finished(mail, event):
-    """
-    """
+    """ """
     user = api.user.get_current()
-    if not user.has_permission('View', mail):
+    if not user.has_permission("View", mail):
         portal = api.portal.get()
         redirect_to_url = api.portal.get().absolute_url()
-        col_path = '%s/incoming-mail/mail-searches/all_mails' % portal.absolute_url_path()
-        brains = portal.portal_catalog.unrestrictedSearchResults(path={'query': col_path, 'depth': 0})
+        col_path = "%s/incoming-mail/mail-searches/all_mails" % portal.absolute_url_path()
+        brains = portal.portal_catalog.unrestrictedSearchResults(path={"query": col_path, "depth": 0})
         if brains:
-            redirect_to_url = '%s/incoming-mail/mail-searches#c1=%s' % (redirect_to_url, brains[0].UID)
+            redirect_to_url = "%s/incoming-mail/mail-searches#c1=%s" % (redirect_to_url, brains[0].UID)
         # add a specific portal_message before redirecting the user
-        msg = _('redirected_after_edition',
-                default="You have been redirected here because you do not have "
-                        "access anymore to the element you just edited.")
-        portal['plone_utils'].addPortalMessage(msg, 'warning')
+        msg = _(
+            "redirected_after_edition",
+            default="You have been redirected here because you do not have "
+            "access anymore to the element you just edited.",
+        )
+        portal["plone_utils"].addPortalMessage(msg, "warning")
         response = mail.REQUEST.response
         response.redirect(redirect_to_url)
 
 
 def dmsdocument_transition(mail, event):
     """
-        update indexes after a transition
+    update indexes after a transition
     """
     # TODO must use in a second time the future imio.helpers reindex_object
-    mail.portal_catalog.reindexObject(mail, ['state_group'], update_metadata=0)
+    mail.portal_catalog.reindexObject(mail, ["state_group"], update_metadata=0)
 
 
 def dmsincomingmail_transition(mail, event):
     """When closing an incoming mail, add the assigned_user if necessary."""
-    if event.transition and event.transition.id == 'close' and mail.assigned_user is None:
-        userid = event.status['actor']
-        if is_in_user_groups(suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=mail.treating_groups,
-                             user=api.user.get(userid)):
+    if event.transition and event.transition.id == "close" and mail.assigned_user is None:
+        userid = event.status["actor"]
+        if is_in_user_groups(
+            suffixes=IM_EDITOR_SERVICE_FUNCTIONS, org_uid=mail.treating_groups, user=api.user.get(userid)
+        ):
             mail.assigned_user = userid
             # TODO must use in a second time the future imio.helpers reindex_object
-            mail.portal_catalog.reindexObject(mail, ['assigned_user'], update_metadata=0)
+            mail.portal_catalog.reindexObject(mail, ["assigned_user"], update_metadata=0)
 
 
 def dmsoutgoingmail_transition(mail, event):
     """When closing an outgoing mail, add the outgoing_date if necessary."""
-    if event.transition and event.transition.id == 'mark_as_sent' and mail.outgoing_date is None:
+    if event.transition and event.transition.id == "mark_as_sent" and mail.outgoing_date is None:
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
-        mail.portal_catalog.reindexObject(mail, idxs=('in_out_date',), update_metadata=0)
+        mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
 
 
 def dv_handle_file_creation(obj, event):
@@ -374,11 +393,11 @@ def dv_handle_file_creation(obj, event):
 
 def reference_document_removed(obj, event):
     """
-        Check if there is a relation with another Document.
-        Like collective.contact.core.subscribers.referenceRemoved.
-        Where referenceObjectRemoved is also used
+    Check if there is a relation with another Document.
+    Like collective.contact.core.subscribers.referenceRemoved.
+    Where referenceObjectRemoved is also used
     """
-    request = aq_get(obj, 'REQUEST', None)
+    request = aq_get(obj, "REQUEST", None)
     if not request:
         return
     # if '_link_integrity_check_' not in request:
@@ -394,24 +413,25 @@ def reference_document_removed(obj, event):
     obj_id = intids.queryId(obj)
 
     # find all relations that point to us
-    for rel in catalog.findRelations({'to_id': obj_id, 'from_attribute': 'reply_to'}):
+    for rel in catalog.findRelations({"to_id": obj_id, "from_attribute": "reply_to"}):
         storage.addBreach(rel.from_object, rel.to_object)
     # find relations we point
-    for rel in catalog.findRelations({'from_id': obj_id, 'from_attribute': 'reply_to'}):
+    for rel in catalog.findRelations({"from_id": obj_id, "from_attribute": "reply_to"}):
         storage.addBreach(rel.to_object, rel.from_object)
 
 
 # VARIOUS
 
+
 def task_transition(task, event):
     """
-        update indexes after a transition
+    update indexes after a transition
     """
     # TODO must use in a second time the future imio.helpers reindex_object
-    task.portal_catalog.reindexObject(task, ['state_group'], update_metadata=0)
+    task.portal_catalog.reindexObject(task, ["state_group"], update_metadata=0)
 
     if event.transition:
-        if event.transition.id == 'do_to_assign':
+        if event.transition.id == "do_to_assign":
             task.auto_to_do_flag = False
             # Set auto_to_do_flag on task if :
             # assigned_user is set OR
@@ -419,14 +439,17 @@ def task_transition(task, event):
             # users in level n_plus_1
             if task.assigned_user:
                 task.auto_to_do_flag = True
-            elif not [dic for dic in get_applied_adaptations()
-                      if dic['adaptation'] == 'imio.dms.mail.wfadaptations.TaskServiceValidation']:
+            elif not [
+                dic
+                for dic in get_applied_adaptations()
+                if dic["adaptation"] == "imio.dms.mail.wfadaptations.TaskServiceValidation"
+            ]:
                 task.auto_to_do_flag = True
             else:
-                transitions_levels = get_dms_config(['transitions_levels', 'task'])
-                if task.assigned_group and transitions_levels['created'][task.assigned_group][0] != 'do_to_assign':
+                transitions_levels = get_dms_config(["transitions_levels", "task"])
+                if task.assigned_group and transitions_levels["created"][task.assigned_group][0] != "do_to_assign":
                     task.auto_to_do_flag = True
-        elif event.transition.id == 'back_in_to_assign':
+        elif event.transition.id == "back_in_to_assign":
             # Remove auto_to_do_flag on task.
             task.auto_to_do_flag = False
 
@@ -434,36 +457,37 @@ def task_transition(task, event):
 def dmsmainfile_added(obj, event):
     """Remove left portlet."""
     blacklistPortletCategory(obj)
-    if obj.portal_type == 'dmsmainfile':
+    if obj.portal_type == "dmsmainfile":
         # we manage modification following restricted roles and without acquisition.
         # so an editor can't change a dmsmainfile
-        obj.manage_permission('Modify portal content', ('DmsFile Contributor', 'Manager', 'Site Administrator'),
-                              acquire=0)
-        if obj.file and (obj.file.filename.endswith('.eml') or obj.file.contentType == 'message/rfc822'):
+        obj.manage_permission(
+            "Modify portal content", ("DmsFile Contributor", "Manager", "Site Administrator"), acquire=0
+        )
+        if obj.file and (obj.file.filename.endswith(".eml") or obj.file.contentType == "message/rfc822"):
             eml_preview(obj)
-    elif obj.portal_type == 'dmsommainfile':
+    elif obj.portal_type == "dmsommainfile":
         # we update parent index
-        obj.__parent__.reindexObject(['enabled', 'markers'])
+        obj.__parent__.reindexObject(["enabled", "markers"])
 
 
 def dmsmainfile_modified(dmf, event):
     """
-        Update the SearchableText mail index
+    Update the SearchableText mail index
     """
     idx = []
-    if dmf.portal_type == 'dmsommainfile':
-        idx = ['markers', 'enabled']
+    if dmf.portal_type == "dmsommainfile":
+        idx = ["markers", "enabled"]
     if event.descriptions:
         for desc in event.descriptions:
-            if not base_hasattr(desc, 'attributes'):
+            if not base_hasattr(desc, "attributes"):
                 continue
-            if desc.interface == IScanFields and 'IScanFields.scan_id' in desc.attributes:
-                idx.append('SearchableText')
+            if desc.interface == IScanFields and "IScanFields.scan_id" in desc.attributes:
+                idx.append("SearchableText")
                 break
-            if desc.interface == IDmsFile and 'file' in desc.attributes:
-                if dmf.file.filename.endswith('.eml') or dmf.file.contentType == 'message/rfc822':
+            if desc.interface == IDmsFile and "file" in desc.attributes:
+                if dmf.file.filename.endswith(".eml") or dmf.file.contentType == "message/rfc822":
                     eml_preview(dmf)
-                    if u'.' in dmf.title and dmf.title != dmf.file.filename:
+                    if u"." in dmf.title and dmf.title != dmf.file.filename:
                         dmf.title = dmf.file.filename
                         dmf.reindexObject()
     # we update parent index
@@ -474,13 +498,12 @@ def dmsmainfile_modified(dmf, event):
 def dmsappendixfile_added(obj, event):
     """Set delete permission when a dmsappendixfile is added.
     Remove left portlet."""
-    obj.manage_permission('Delete objects', ('Contributor', 'Editor', 'Manager', 'Site Administrator'), acquire=1)
+    obj.manage_permission("Delete objects", ("Contributor", "Editor", "Manager", "Site Administrator"), acquire=1)
     blacklistPortletCategory(obj)
 
 
 def imiodmsfile_added(obj, event):
-    """when an om file is added
-    """
+    """when an om file is added"""
     # we check if the file is added manually or generated
     if obj.scan_id and obj.id == obj.scan_id:  # generated
         obj.generated = 1
@@ -488,15 +511,16 @@ def imiodmsfile_added(obj, event):
 
 def dexterity_transition(obj, event):
     """
-        Dexterity content transition
+    Dexterity content transition
     """
     obj.setModificationDate(DateTime())
     # metadata will be reindexed after by transition
     # TODO must use in a second time the future imio.helpers reindex_object
-    obj.portal_catalog.reindexObject(obj, ['modified', 'ModificationDate', 'Date'], update_metadata=0)
+    obj.portal_catalog.reindexObject(obj, ["modified", "ModificationDate", "Date"], update_metadata=0)
 
 
 # CONFIGURATION
+
 
 def contact_plonegroup_change(event):
     """Event handler when contact.plonegroup records are modified.
@@ -507,51 +531,57 @@ def contact_plonegroup_change(event):
     * add a directory by organization in templates/om, templates/oem and contacts/contact-lists-folder.
     * set local roles on contacts, incoming-mail for group_encoder.
     """
-    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
-            event.record.interface == IContactPlonegroupConfig):
+    if (
+        IRecordModifiedEvent.providedBy(event)
+        and event.record.interfaceName
+        and event.record.interface == IContactPlonegroupConfig
+    ):
         registry = getUtility(IRegistry)
         s_orgs = get_registry_organizations()
         s_fcts = get_registry_functions()
         if not s_fcts or not s_orgs:
             return
         # we update dms config
-        update_transitions_auc_config('dmsincomingmail')  # i_e ok
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'])  # i_e ok
+        update_transitions_auc_config("dmsincomingmail")  # i_e ok
+        update_transitions_levels_config(["dmsincomingmail", "dmsoutgoingmail", "task"])  # i_e ok
         # invalidate vocabularies caches
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.CreatingGroupVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary")
 
         portal = api.portal.get()
         # contributor on a contact can edit too
-        for folder, editeur_too in ((portal['outgoing-mail'], False), (portal['contacts'], True),
-                                    (portal['contacts']['contact-lists-folder']['common'], True)):
+        for folder, editeur_too in (
+            (portal["outgoing-mail"], False),
+            (portal["contacts"], True),
+            (portal["contacts"]["contact-lists-folder"]["common"], True),
+        ):
             dic = folder.__ac_local_roles__
             for principal in dic.keys():
-                if principal.endswith('_encodeur') or (editeur_too and principal.endswith('_editeur')):
+                if principal.endswith("_encodeur") or (editeur_too and principal.endswith("_editeur")):
                     del dic[principal]
             for uid in s_orgs:
-                dic["%s_encodeur" % uid] = ['Contributor']
+                dic["%s_encodeur" % uid] = ["Contributor"]
                 if editeur_too:
-                    dic["%s_editeur" % uid] = ['Contributor']  # an agent could add a contact on an email im
+                    dic["%s_editeur" % uid] = ["Contributor"]  # an agent could add a contact on an email im
             folder._p_changed = True
         # we add a directory by organization in templates/om
         om_folder = portal.templates.om
         oem_folder = portal.templates.oem
-        base_model = om_folder.get('main', None)
-        cl_folder = portal.contacts['contact-lists-folder']
+        base_model = om_folder.get("main", None)
+        cl_folder = portal.contacts["contact-lists-folder"]
         for uid in s_orgs:
             obj = uuidToObject(uid, unrestricted=True)
-            full_title = obj.get_full_title(separator=' - ', first_index=1)
+            full_title = obj.get_full_title(separator=" - ", first_index=1)
             if uid not in om_folder:
-                folder = api.content.create(container=om_folder, type='Folder', id=uid, title=full_title)
+                folder = api.content.create(container=om_folder, type="Folder", id=uid, title=full_title)
                 # alsoProvides(folder, IActionsPanelFolderOnlyAdd)  # made now in subscriber
                 # alsoProvides(folder, INextPrevNotNavigable)
-                roles = ['Reader']
-                if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit']:
-                    roles += ['Contributor', 'Editor']
-                api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
+                roles = ["Reader"]
+                if registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit"]:
+                    roles += ["Contributor", "Editor"]
+                api.group.grant_roles(groupname="%s_encodeur" % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
                 # There is a risk to copy an unfinished template !
                 # if base_model and base_model.has_been_modified():
@@ -565,35 +595,43 @@ def contact_plonegroup_change(event):
                 #         else:
                 #             raise exc
             if uid not in oem_folder:
-                folder = api.content.create(container=oem_folder, type='Folder', id=uid, title=full_title)
-                roles = ['Reader']
-                if registry['imio.dms.mail.browser.settings.IImioDmsMailConfig.org_email_templates_encoder_can_edit']:
-                    roles += ['Contributor', 'Editor']
-                api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
+                folder = api.content.create(container=oem_folder, type="Folder", id=uid, title=full_title)
+                roles = ["Reader"]
+                if registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.org_email_templates_encoder_can_edit"]:
+                    roles += ["Contributor", "Editor"]
+                api.group.grant_roles(groupname="%s_encodeur" % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
                 # if base_model and base_model.has_been_modified():
                 #    logger.info("Copying %s in %s" % (base_model, '/'.join(folder.getPhysicalPath())))
                 #    api.content.copy(source=base_model, target=folder)
             if uid not in cl_folder:
-                folder = api.content.create(container=cl_folder, type='Folder', id=uid, title=full_title)
-                folder.setLayout('folder_tabular_view')
-                roles = ['Reader', 'Contributor', 'Editor']
-                api.group.grant_roles(groupname='%s_encodeur' % uid, roles=roles, obj=folder)
-                api.group.grant_roles(groupname='%s_editeur' % uid, roles=roles, obj=folder)
+                folder = api.content.create(container=cl_folder, type="Folder", id=uid, title=full_title)
+                folder.setLayout("folder_tabular_view")
+                roles = ["Reader", "Contributor", "Editor"]
+                api.group.grant_roles(groupname="%s_encodeur" % uid, roles=roles, obj=folder)
+                api.group.grant_roles(groupname="%s_editeur" % uid, roles=roles, obj=folder)
                 folder.reindexObjectSecurity()
         # we manage local roles to give needed permissions related to group_encoder
-        options_config = {portal['incoming-mail']: ['imail_group_encoder'],
-                          portal['outgoing-mail']: ['omail_group_encoder'],
-                          portal['contacts']: ['imail_group_encoder', 'omail_group_encoder', 'contact_group_encoder'],
-                          portal['contacts']['contact-lists-folder']['common']: ['imail_group_encoder',
-                                                                                 'omail_group_encoder',
-                                                                                 'contact_group_encoder']}
-        ge_config = {opt: api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(
-            opt), default=False) for opt in ('imail_group_encoder', 'omail_group_encoder', 'contact_group_encoder')}
+        options_config = {
+            portal["incoming-mail"]: ["imail_group_encoder"],
+            portal["outgoing-mail"]: ["omail_group_encoder"],
+            portal["contacts"]: ["imail_group_encoder", "omail_group_encoder", "contact_group_encoder"],
+            portal["contacts"]["contact-lists-folder"]["common"]: [
+                "imail_group_encoder",
+                "omail_group_encoder",
+                "contact_group_encoder",
+            ],
+        }
+        ge_config = {
+            opt: api.portal.get_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(opt), default=False
+            )
+            for opt in ("imail_group_encoder", "omail_group_encoder", "contact_group_encoder")
+        }
 
-        group_encoder_config = [dic for dic in s_fcts if dic['fct_id'] == CREATING_GROUP_SUFFIX]  # noqa F812
+        group_encoder_config = [dic for dic in s_fcts if dic["fct_id"] == CREATING_GROUP_SUFFIX]  # noqa F812
         if group_encoder_config:
-            orgs = group_encoder_config[0]['fct_orgs']
+            orgs = group_encoder_config[0]["fct_orgs"]
             for folder in options_config:
                 if any([ge_config[opt] for opt in options_config[folder]]):
                     dic = folder.__ac_local_roles__
@@ -601,133 +639,169 @@ def contact_plonegroup_change(event):
                         if principal.endswith(CREATING_GROUP_SUFFIX):
                             del dic[principal]
                     for uid in orgs:
-                        dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ['Contributor']
+                        dic["{}_{}".format(uid, CREATING_GROUP_SUFFIX)] = ["Contributor"]
                     folder._p_changed = True
 
 
 def plonegroup_contact_changed(organization, event):
     """
-        Manage an organization change
+    Manage an organization change
     """
     # zope.lifecycleevent.ObjectRemovedEvent : delete
     # zope.lifecycleevent.ObjectModifiedEvent : edit, rename
     # is the container who's modified at creation ?
     # bypass if we are removing the Plone Site
-    if IContainerModifiedEvent.providedBy(event) or \
-       event.object.portal_type == 'Plone Site':
+    if IContainerModifiedEvent.providedBy(event) or event.object.portal_type == "Plone Site":
         return
     # invalidate vocabularies caches
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary')
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.CreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.TreatingGroupsWithDeactivatedVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary")
     # is the current organization a part of own organization
-    organization_path = '/'.join(organization.getPhysicalPath())
-    if not organization_path.startswith(get_own_organization_path('unfound')):
+    organization_path = "/".join(organization.getPhysicalPath())
+    if not organization_path.startswith(get_own_organization_path("unfound")):
         return
     portal = api.portal.getSite()
     pcat = portal.portal_catalog
-    brains = pcat.unrestrictedSearchResults(portal_type='organization', path=organization_path)
+    brains = pcat.unrestrictedSearchResults(portal_type="organization", path=organization_path)
     for brain in brains:
         obj = brain._unrestrictedGetObject()
-        full_title = obj.get_full_title(separator=' - ', first_index=1)
-        for base_folder in (portal['templates']['om'], portal.contacts['contact-lists-folder']):
+        full_title = obj.get_full_title(separator=" - ", first_index=1)
+        for base_folder in (portal["templates"]["om"], portal.contacts["contact-lists-folder"]):
             folder = base_folder.get(brain.UID)
             if folder and folder.title != full_title:
                 folder.title = full_title
-                folder.reindexObject(idxs=['Title', 'SearchableText', 'sortable_title'])
+                folder.reindexObject(idxs=["Title", "SearchableText", "sortable_title"])
                 modified(folder)
 
 
 def user_related_modification(event):
     """
-        Manage user modification
-          * ignored Products.PluggableAuthService.interfaces.events.IPrincipalCreatedEvent
-          * ignored Products.PluggableAuthService.interfaces.events.IPrincipalDeletedEvent
+    Manage user modification
+      * ignored Products.PluggableAuthService.interfaces.events.IPrincipalCreatedEvent
+      * ignored Products.PluggableAuthService.interfaces.events.IPrincipalDeletedEvent
     """
     # we pass if the config change is not related to users
     if IConfigurationChangedEvent.providedBy(event) and not isinstance(event.context, UserDataConfiglet):
         return
 
     # we pass if the registry change is not related to plonegroup
-    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName and
-            event.record.interface != IContactPlonegroupConfig):
+    if (
+        IRecordModifiedEvent.providedBy(event)
+        and event.record.interfaceName
+        and event.record.interface != IContactPlonegroupConfig
+    ):
         return
-    invalidate_cachekey_volatile_for('_users_groups_value')
+    invalidate_cachekey_volatile_for("_users_groups_value")
 
 
 def user_deleted(event):
     """
-        Raises exception if user cannot be deleted
+    Raises exception if user cannot be deleted
     """
     princ = event.principal
     portal = api.portal.get()
     request = portal.REQUEST
 
     # is protected user
-    if princ in ('scanner',):
-        api.portal.show_message(message=_("You cannot delete the user name '${user}'.", mapping={'user': princ}),
-                                request=request, type='error')
-        raise Redirect(request.get('ACTUAL_URL'))
+    if princ in ("scanner",):
+        api.portal.show_message(
+            message=_("You cannot delete the user name '${user}'.", mapping={"user": princ}),
+            request=request,
+            type="error",
+        )
+        raise Redirect(request.get("ACTUAL_URL"))
 
     # check groups
     pg = portal.acl_users.source_groups._principal_groups  # BTree principal id: group ids tuple
     groups = pg.get(princ, [])
     if groups:
-        api.portal.show_message(message=_("You cannot delete the user name '${user}', used in following groups.",
-                                          mapping={'user': princ}), request=request, type='error')
+        api.portal.show_message(
+            message=_("You cannot delete the user name '${user}', used in following groups.", mapping={"user": princ}),
+            request=request,
+            type="error",
+        )
         titles = []
         for groupid in groups:
             grp = api.group.get(groupname=groupid)
-            titles.append('"%s"' % (grp and safe_unicode(grp.getProperty('title')) or groupid))
-        api.portal.show_message(message=_('<a href="${url}" target="_blank">Linked groups</a> : ${list}',
-                                          mapping={'list': ', '.join(titles), 'url': '%s/@@usergroup-usermembership?'
-                                                   'userid=%s' % (portal.absolute_url(), princ)}),
-                                request=request, type='error')
-        raise Redirect(request.get('ACTUAL_URL'))
+            titles.append('"%s"' % (grp and safe_unicode(grp.getProperty("title")) or groupid))
+        api.portal.show_message(
+            message=_(
+                '<a href="${url}" target="_blank">Linked groups</a> : ${list}',
+                mapping={
+                    "list": ", ".join(titles),
+                    "url": "%s/@@usergroup-usermembership?" "userid=%s" % (portal.absolute_url(), princ),
+                },
+            ),
+            request=request,
+            type="error",
+        )
+        raise Redirect(request.get("ACTUAL_URL"))
 
     # search in assigned_user index
-    for (idx, domain, criterias) in (('assigned_user', 'collective.eeafaceted.z3ctable', {}),
-                                     ('Creator', 'plone', {}),
-                                     ('userid', 'collective.contact.plonegroup',
-                                      {'object_provides': IPersonnelContact.__identifier__})):
+    for (idx, domain, criterias) in (
+        ("assigned_user", "collective.eeafaceted.z3ctable", {}),
+        ("Creator", "plone", {}),
+        ("userid", "collective.contact.plonegroup", {"object_provides": IPersonnelContact.__identifier__}),
+    ):
         criterias.update({idx: princ})
         brains = portal.portal_catalog.unrestrictedSearchResults(**criterias)
         if brains:
-            msg = _("You cannot delete the user name '${user}', used in '${idx}' index.",
-                    mapping={'user': princ, 'idx': translate(idx, domain=domain, context=request)})
-            api.portal.show_message(message=msg, request=request, type='error')
+            msg = _(
+                "You cannot delete the user name '${user}', used in '${idx}' index.",
+                mapping={"user": princ, "idx": translate(idx, domain=domain, context=request)},
+            )
+            api.portal.show_message(message=msg, request=request, type="error")
             logger.error(translate(msg))
-            msg = _("Linked objects: ${list}", mapping={'list': ', '.join(['<a href="%s" '
-                    'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains])})
-            api.portal.show_message(message=msg, request=request, type='error')
+            msg = _(
+                "Linked objects: ${list}",
+                mapping={
+                    "list": ", ".join(
+                        ['<a href="%s" ' 'target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title)) for b in brains]
+                    )
+                },
+            )
+            api.portal.show_message(message=msg, request=request, type="error")
             logger.error(translate(msg))
-            raise Redirect(request.get('ACTUAL_URL'))
+            raise Redirect(request.get("ACTUAL_URL"))
 
 
 def group_deleted(event):
     """
-        Raises exception if group cannot be deleted
+    Raises exception if group cannot be deleted
     """
     group = event.principal
     portal = api.portal.get()
     request = portal.REQUEST
 
     # is protected group
-    if group in ('createurs_dossier', 'dir_general', 'encodeurs', 'expedition', 'lecteurs_globaux_cs',
-                 'lecteurs_globaux_ce', 'Administrators', 'Reviewers', 'Site Administrators'):
-        api.portal.show_message(message=_("You cannot delete the group '${group}'.", mapping={'group': group}),
-                                request=request, type='error')
-        raise Redirect(request.get('ACTUAL_URL'))
+    if group in (
+        "createurs_dossier",
+        "dir_general",
+        "encodeurs",
+        "expedition",
+        "lecteurs_globaux_cs",
+        "lecteurs_globaux_ce",
+        "Administrators",
+        "Reviewers",
+        "Site Administrators",
+    ):
+        api.portal.show_message(
+            message=_("You cannot delete the group '${group}'.", mapping={"group": group}),
+            request=request,
+            type="error",
+        )
+        raise Redirect(request.get("ACTUAL_URL"))
 
-    parts = group.split('_')
+    parts = group.split("_")
     if len(parts) == 1:
         return
-    group_suffix = '_'.join(parts[1:])
+    group_suffix = "_".join(parts[1:])
 
     # invalidate vocabularies caches
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.CreatingGroupVocabulary')
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.CreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
 
     def get_query(portal_type, field_p, idx_p, org, suffix):
         fti = getUtility(IDexterityFTI, name=portal_type)
@@ -735,7 +809,7 @@ def group_deleted(event):
         #     fti = getUtility(IDexterityFTI, name=portal_type)
         # except ComponentLookupError:
         #     return {}
-        config = getattr(fti, 'localroles', {}).get(field_p, None)
+        config = getattr(fti, "localroles", {}).get(field_p, None)
         if not config:
             return {}
         for st in config:
@@ -744,64 +818,90 @@ def group_deleted(event):
         return {}
 
     # search in indexes following suffix use in type localroles
-    if group_suffix in [fct['fct_id'] for fct in get_registry_functions()]:
+    if group_suffix in [fct["fct_id"] for fct in get_registry_functions()]:
         for (idx, field, pts, domain) in (
-                ('assigned_group', 'assigned_group', ['task'], 'collective.eeafaceted.z3ctable'),
-                ('treating_groups', 'treating_groups',
-                 # ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'], here under too
-                 ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
-                 'collective.eeafaceted.z3ctable'),
-                ('recipient_groups', 'recipient_groups',
-                 ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
-                 'collective.eeafaceted.z3ctable'),
-                ('assigned_group', 'creating_group',
-                 ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'],
-                 'collective.eeafaceted.z3ctable')):
+            ("assigned_group", "assigned_group", ["task"], "collective.eeafaceted.z3ctable"),
+            (
+                "treating_groups",
+                "treating_groups",
+                # ['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail', 'dmsoutgoing_email'], here under too
+                ["dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail"],
+                "collective.eeafaceted.z3ctable",
+            ),
+            (
+                "recipient_groups",
+                "recipient_groups",
+                ["dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail"],
+                "collective.eeafaceted.z3ctable",
+            ),
+            (
+                "assigned_group",
+                "creating_group",
+                ["dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail"],
+                "collective.eeafaceted.z3ctable",
+            ),
+        ):
             for pt in pts:
                 query = get_query(pt, field, idx, parts[0], group_suffix)
                 if not query:
                     continue
-                query.update({'portal_type': pt})
+                query.update({"portal_type": pt})
                 brains = portal.portal_catalog.unrestrictedSearchResults(**query)
                 if brains:
-                    api.portal.show_message(message=_("You cannot delete the group '${group}', used in '${idx}' index.",
-                                                      mapping={'group': group, 'idx': translate(idx, domain=domain,
-                                                                                                context=request)}),
-                                            request=request, type='error')
-                    api.portal.show_message(message=_("Linked objects: ${list}", mapping={'list': ', '.join(['<a '
-                                            'href="%s" target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title))
-                                            for b in brains])}),
-                                            request=request, type='error')
-                    raise Redirect(request.get('ACTUAL_URL'))
+                    api.portal.show_message(
+                        message=_(
+                            "You cannot delete the group '${group}', used in '${idx}' index.",
+                            mapping={"group": group, "idx": translate(idx, domain=domain, context=request)},
+                        ),
+                        request=request,
+                        type="error",
+                    )
+                    api.portal.show_message(
+                        message=_(
+                            "Linked objects: ${list}",
+                            mapping={
+                                "list": ", ".join(
+                                    [
+                                        "<a " 'href="%s" target="_blank">%s</a>' % (b.getURL(), safe_unicode(b.Title))
+                                        for b in brains
+                                    ]
+                                )
+                            },
+                        ),
+                        request=request,
+                        type="error",
+                    )
+                    raise Redirect(request.get("ACTUAL_URL"))
 
     # we update dms config
-    if 'n_plus_' in group:
-        update_transitions_auc_config('dmsincomingmail', action='delete', group_id=group)  # i_e ok
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='delete',  # i_e ok
-                                         group_id=group)
+    if "n_plus_" in group:
+        update_transitions_auc_config("dmsincomingmail", action="delete", group_id=group)  # i_e ok
+        update_transitions_levels_config(
+            ["dmsincomingmail", "dmsoutgoingmail", "task"], action="delete", group_id=group  # i_e ok
+        )
 
 
 def group_assignment(event):
     """
-        manage the add of a user in a plone group
+    manage the add of a user in a plone group
     """
     portal = api.portal.get()
     # check if we have a user
     if portal.acl_users.getUserById(event.principal) is None:
         req = getRequest()
-        api.portal.show_message(message=_('You cannot add a group in a group !'),
-                                request=req, type='error')
-        raise Redirect(req.get('HTTP_REFERER'))
+        api.portal.show_message(message=_("You cannot add a group in a group !"), request=req, type="error")
+        raise Redirect(req.get("HTTP_REFERER"))
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
-    invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
     # we update dms config
-    if 'n_plus_' in event.group_id:
-        update_transitions_auc_config('dmsincomingmail', action='add', group_id=event.group_id)  # i_e ok
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='add',  # i_e ok
-                                         group_id=event.group_id)
+    if "n_plus_" in event.group_id:
+        update_transitions_auc_config("dmsincomingmail", action="add", group_id=event.group_id)  # i_e ok
+        update_transitions_levels_config(
+            ["dmsincomingmail", "dmsoutgoingmail", "task"], action="add", group_id=event.group_id  # i_e ok
+        )
     # we manage the 'lu' label for a new assignment
     # same functions as IncomingMailInCopyGroupUnreadCriterion
     userid = event.principal
@@ -810,84 +910,90 @@ def group_assignment(event):
         days_back = 5
         start = datetime.datetime(1973, 2, 12)
         end = datetime.datetime.now() - datetime.timedelta(days=days_back)
-        catalog = api.portal.get_tool('portal_catalog')
-        for brain in catalog(portal_type=['dmsincomingmail', 'dmsincoming_email'], recipient_groups=orgs,
-                             labels={'not': ['%s:lu' % userid]},
-                             created={'query': (start, end), 'range': 'min:max'}):
+        catalog = api.portal.get_tool("portal_catalog")
+        for brain in catalog(
+            portal_type=["dmsincomingmail", "dmsincoming_email"],
+            recipient_groups=orgs,
+            labels={"not": ["%s:lu" % userid]},
+            created={"query": (start, end), "range": "min:max"},
+        ):
             # if not brain.recipient_groups:
             #    continue
             obj = brain.getObject()
             labeling = ILabeling(obj)
-            user_ids = labeling.storage.setdefault('lu', PersistentList())  # _p_changed is managed
+            user_ids = labeling.storage.setdefault("lu", PersistentList())  # _p_changed is managed
             user_ids.append(userid)  # _p_changed is managed
-            obj.reindexObject(idxs=['labels'])
+            obj.reindexObject(idxs=["labels"])
     # we manage the personnel-folder person and held position
     create_personnel_content(userid, [event.group_id], ALL_SERVICE_FUNCTIONS)
 
 
 def group_unassignment(event):
     """
-        manage the remove of a user in a plone group
+    manage the remove of a user in a plone group
     """
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary')
-    invalidate_cachekey_volatile_for('collective.eeafaceted.collectionwidget.cachedcollectionvocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
 
     # we update dms config
-    if 'n_plus_' in event.group_id:
-        update_transitions_auc_config('dmsincomingmail', action='remove', group_id=event.group_id)  # i_e ok
-        update_transitions_levels_config(['dmsincomingmail', 'dmsoutgoingmail', 'task'], action='remove',  # i_e ok
-                                         group_id=event.group_id)
+    if "n_plus_" in event.group_id:
+        update_transitions_auc_config("dmsincomingmail", action="remove", group_id=event.group_id)  # i_e ok
+        update_transitions_levels_config(
+            ["dmsincomingmail", "dmsoutgoingmail", "task"], action="remove", group_id=event.group_id  # i_e ok
+        )
     # we manage the personnel-folder person and held position
     create_personnel_content(event.principal, [event.group_id], ALL_SERVICE_FUNCTIONS, assignment=False)
 
 
 # CONTACT
 
+
 def organization_modified(obj, event):
     """
-        Update the sortable_title index
+    Update the sortable_title index
     """
     # at site removal
     if IObjectRemovedEvent.providedBy(event):
         return
     # zope.container.contained.ContainerModifiedEvent: descriptions is () when it's called after children creation
-    if hasattr(event, 'descriptions') and not event.descriptions:
+    if hasattr(event, "descriptions") and not event.descriptions:
         return
     # zope.lifecycleevent.ObjectAddedEvent: oldParent is None when creation
-    if hasattr(event, 'oldParent') and not event.oldParent:
+    if hasattr(event, "oldParent") and not event.oldParent:
         return
-    pc = api.portal.get_tool('portal_catalog')
-    for brain in pc.unrestrictedSearchResults(portal_type='organization', path='/'.join(obj.getPhysicalPath()),
-                                              sort_on='path')[1:]:
-        brain._unrestrictedGetObject().reindexObject(idxs=['sortable_title'])
+    pc = api.portal.get_tool("portal_catalog")
+    for brain in pc.unrestrictedSearchResults(
+        portal_type="organization", path="/".join(obj.getPhysicalPath()), sort_on="path"
+    )[1:]:
+        brain._unrestrictedGetObject().reindexObject(idxs=["sortable_title"])
 
 
 def mark_contact(contact, event):
-    """ Set a marker interface on contact content. """
+    """Set a marker interface on contact content."""
     if IObjectRemovedEvent.providedBy(event):
         # at site removal
-        if event.object.portal_type == 'Plone Site':
+        if event.object.portal_type == "Plone Site":
             return
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
         return
-    if '/plonegroup-organization' in contact.absolute_url_path():
+    if "/plonegroup-organization" in contact.absolute_url_path():
         if not IPloneGroupContact.providedBy(contact):
             alsoProvides(contact, IPloneGroupContact)
         if INotPloneGroupContact.providedBy(contact):
             noLongerProvides(contact, INotPloneGroupContact)
         # don't check for IPersonnelContact because we can only add organization in this folder
-    elif '/personnel-folder/' in contact.absolute_url_path():
+    elif "/personnel-folder/" in contact.absolute_url_path():
         if not IPersonnelContact.providedBy(contact):
             alsoProvides(contact, IPersonnelContact)
         if INotPloneGroupContact.providedBy(contact):
             noLongerProvides(contact, INotPloneGroupContact)
         # don't check for IPloneGroupContact because we can't add organization in this folder
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
     else:
         if not INotPloneGroupContact.providedBy(contact):
             alsoProvides(contact, INotPloneGroupContact)
@@ -895,40 +1001,43 @@ def mark_contact(contact, event):
             noLongerProvides(contact, IPloneGroupContact)
         if IPersonnelContact.providedBy(contact):
             noLongerProvides(contact, IPersonnelContact)
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
 
-    contact.reindexObject(idxs='object_provides')
+    contact.reindexObject(idxs="object_provides")
 
 
 def contact_added(obj, event):
     """Ensure field is set"""
-    if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
-        ensure_set_field(obj, 'creating_group', default_creating_group())
+    if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder"):
+        ensure_set_field(obj, "creating_group", default_creating_group())
 
 
 def contact_modified(obj, event):
-    """For IObjectModifiedEvent and IAfterTransitionEvent (on add too)
-    """
+    """For IObjectModifiedEvent and IAfterTransitionEvent (on add too)"""
     # at site removal
-#    if IObjectRemovedEvent.providedBy(event):
-#        return
+    #    if IObjectRemovedEvent.providedBy(event):
+    #        return
     if IPersonnelContact.providedBy(obj):
-        mod_attr = [name for at in getattr(event, 'descriptions', []) if base_hasattr(at, 'attributes')
-                    for name in at.attributes]
-        if 'IPlonegroupUserLink.userid' in mod_attr:
+        mod_attr = [
+            name
+            for at in getattr(event, "descriptions", [])
+            if base_hasattr(at, "attributes")
+            for name in at.attributes
+        ]
+        if "IPlonegroupUserLink.userid" in mod_attr:
             for hp in obj.objectValues():
-                hp.reindexObject(['userid'])
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+                hp.reindexObject(["userid"])
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
 
 
 def personnel_contact_removed(del_obj, event):
     """
-        Check if a personnel held_position is used as sender.
+    Check if a personnel held_position is used as sender.
     """
     # only interested by held_position user
-    if del_obj.portal_type == 'person':
+    if del_obj.portal_type == "person":
         return
     try:
         portal = api.portal.get()
@@ -938,11 +1047,11 @@ def personnel_contact_removed(del_obj, event):
         # When deleting site, the portal is no more found...
         return
     if pp.site_properties.enable_link_integrity_checks:
-        storage = ILinkIntegrityInfo(aq_get(del_obj, 'REQUEST', None))
-        for brain in catalog.unrestrictedSearchResults(portal_type=['dmsoutgoingmail'], sender_index=[del_obj.UID()]):
+        storage = ILinkIntegrityInfo(aq_get(del_obj, "REQUEST", None))
+        for brain in catalog.unrestrictedSearchResults(portal_type=["dmsoutgoingmail"], sender_index=[del_obj.UID()]):
             storage.addBreach(brain._unrestrictedGetObject(), del_obj)
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSenderVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSenderVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
 
 
 def cktemplate_moved(obj, event):
@@ -953,29 +1062,31 @@ def cktemplate_moved(obj, event):
     # TODO move it to ckeditortemplates
     if IObjectRemovedEvent.providedBy(event):
         return
-    path = '/'.join(obj.getPhysicalPath()[:-1])
+    path = "/".join(obj.getPhysicalPath()[:-1])
     # skip rename or inplace copy
-    if event.oldParent == event.newParent or \
-            (event.oldParent and path == '/'.join(event.oldParent.getPhysicalPath())):
+    if event.oldParent == event.newParent or (event.oldParent and path == "/".join(event.oldParent.getPhysicalPath())):
         return
-    if '/templates/oem' not in path:
+    if "/templates/oem" not in path:
         return  # oem has been renamed
-    index = path.index('/templates/oem') + 14
-    subpath = path[index + 1:]
-    parts = subpath and subpath.split('/') or []
-    value = u''
+    index = path.index("/templates/oem") + 14
+    subpath = path[index + 1 :]
+    parts = subpath and subpath.split("/") or []
+    value = u""
     if parts:
         pcat = obj.portal_catalog
-        brains = pcat.unrestrictedSearchResults(path='{}/{}'.format(path[:index], parts[0]), sort_on='path', )
+        brains = pcat.unrestrictedSearchResults(
+            path="{}/{}".format(path[:index], parts[0]),
+            sort_on="path",
+        )
         titles = {br.getPath(): br.Title for br in brains}
         values = []
         current_path = path[:index]
         for part in parts:
-            current_path += '/{}'.format(part)
-            values.append(titles[current_path].decode('utf8'))
-        value = u' - '.join(values)
+            current_path += "/{}".format(part)
+            values.append(titles[current_path].decode("utf8"))
+        value = u" - ".join(values)
     annot = IAnnotations(obj)
-    annot['dmsmail.cke_tpl_tit'] = value
+    annot["dmsmail.cke_tpl_tit"] = value
 
 
 def conversion_finished(obj, event):
@@ -984,22 +1095,22 @@ def conversion_finished(obj, event):
 
 
 def wsclient_configuration_changed(event):
-    """ call original subscriber and do more stuff """
+    """call original subscriber and do more stuff"""
     if IRecordModifiedEvent.providedBy(event):
         # generated_actions changed, we need to update generated actions in portal_actions
-        if event.record.fieldName == 'generated_actions':
+        if event.record.fieldName == "generated_actions":
             notify_configuration_changed(event)
             portal = api.portal.get()
             ids = []
             object_buttons = portal.portal_actions.object_buttons
             portlet_actions = portal.portal_actions.object_portlet
             for object_button in object_buttons.objectValues():
-                if object_button.id.startswith('plonemeeting_wsclient_action_'):
+                if object_button.id.startswith("plonemeeting_wsclient_action_"):
                     ids.append(object_button.id)
                     if object_button.id in portlet_actions:
                         api.content.delete(portlet_actions[object_button.id])
                     api.content.copy(object_button, portlet_actions)
-            existing_pos = portlet_actions.getObjectPosition('im-listing')
+            existing_pos = portlet_actions.getObjectPosition("im-listing")
             for i, aid in enumerate(ids):
                 portlet_actions.moveObjectToPosition(aid, existing_pos + i)
 
@@ -1008,25 +1119,29 @@ def member_area_added(obj, event):
     obj.setConstrainTypesMode(1)
     obj.setLocallyAllowedTypes([])
     obj.setImmediatelyAddableTypes([])
-    if 'contact-lists' not in obj:
-        folder = api.content.create(container=obj, type='Folder', id='contact-lists',
-                                    title=translate('Contact lists', domain='imio.dms.mail', context=obj.REQUEST))
+    if "contact-lists" not in obj:
+        folder = api.content.create(
+            container=obj,
+            type="Folder",
+            id="contact-lists",
+            title=translate("Contact lists", domain="imio.dms.mail", context=obj.REQUEST),
+        )
         folder.setConstrainTypesMode(1)
-        folder.setLocallyAllowedTypes(['contact_list'])
-        folder.setImmediatelyAddableTypes(['contact_list'])
-        folder.manage_setLocalRoles(obj.getId(), ['Reader', 'Contributor', 'Editor'])
+        folder.setLocallyAllowedTypes(["contact_list"])
+        folder.setImmediatelyAddableTypes(["contact_list"])
+        folder.manage_setLocalRoles(obj.getId(), ["Reader", "Contributor", "Editor"])
 
 
 def folder_added(folder, event):
     portal = api.portal.get()
     folder_path = folder.absolute_url_path()
-    for main_folder in (portal.get('templates', None), portal.get('contacts', None)):
+    for main_folder in (portal.get("templates", None), portal.get("contacts", None)):
         if main_folder is None:  # creating site
             return
         main_path = main_folder.absolute_url_path()
         if folder_path.startswith(main_path):
-            sub_path = folder_path[len(main_path)+1:]
-            for sub_name in ('om/', 'oem/', 'contact-lists-folder/'):
+            sub_path = folder_path[len(main_path) + 1 :]
+            for sub_name in ("om/", "oem/", "contact-lists-folder/"):
                 if sub_path.startswith(sub_name):  # only interested by sulfolders
                     alsoProvides(folder, IActionsPanelFolderOnlyAdd)
                     alsoProvides(folder, INextPrevNotNavigable)
@@ -1036,7 +1151,7 @@ def folder_added(folder, event):
 def zope_ready(event):
     """Not going here in test"""
     zope_app = get_zope_root()
-    site = set_site_from_package_config('imio.dms.mail', zope_app=zope_app)
+    site = set_site_from_package_config("imio.dms.mail", zope_app=zope_app)
     change = False
     if site:
         # Use our ramcache with patched storage
@@ -1045,29 +1160,31 @@ def zope_ready(event):
                 sml = getSiteManager(site)
                 sml.unregisterUtility(provided=IRAMCache)
                 sml.registerUtility(component=imio_global_cache, provided=IRAMCache)
-                logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+                logger.info("=> Ram cache is now {}".format(getUtility(IRAMCache)))
                 setup_ram_cache()
                 change = True
         else:  # temporary
             from zope.ramcache.ram import RAMCache
+
             if not isinstance(getUtility(IRAMCache), RAMCache):
                 sml = getSiteManager(site)
                 sml.unregisterUtility(provided=IRAMCache)
                 from plone.memoize.ram import global_cache
+
                 sml.registerUtility(component=global_cache, provided=IRAMCache)
-                logger.info('=> Ram cache is now {}'.format(getUtility(IRAMCache)))
+                logger.info("=> Ram cache is now {}".format(getUtility(IRAMCache)))
                 change = True
 
         # Store or refresh folders tree
-        if os.getenv('INSTANCE_HOME', '').endswith('/instance1'):
-            with api.env.adopt_user('admin'):
-                logger.info('=> Storing folders tree annotation')
+        if os.getenv("INSTANCE_HOME", "").endswith("/instance1"):
+            with api.env.adopt_user("admin"):
+                logger.info("=> Storing folders tree annotation")
                 set_folders_tree(site)
-                logger.info('=> Folders storage updated')
+                logger.info("=> Folders storage updated")
                 ret = zope_app.cputils_install(zope_app)
-                ret = ret.replace('<div>Those methods have been added: ', '').replace('</div>', '')
+                ret = ret.replace("<div>Those methods have been added: ", "").replace("</div>", "")
                 if ret:
-                    logger.info('=> CPUtils added methods: "{}"'.format(ret.replace('<br />', ', ')))
+                    logger.info('=> CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
                 change = True
     if change:
         transaction.commit()

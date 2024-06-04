@@ -35,6 +35,7 @@ from plone.supermodel import model
 from plone.z3cform import layout
 from z3c.form import form
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
+
 # from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import WidgetActionExecutionError
 from z3c.form.validator import NoInputData
@@ -43,6 +44,7 @@ from zope.component import getUtility
 from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
+
 # from zope.interface import provider
 # from zope.schema.interfaces import IContextSourceBinder
 from zope.interface import invariant
@@ -55,7 +57,7 @@ import copy
 import logging
 
 
-logger = logging.getLogger('imio.dms.mail: settings')
+logger = logging.getLogger("imio.dms.mail: settings")
 
 
 def get_pt_fields_voc(pt, excluded):
@@ -64,7 +66,7 @@ def get_pt_fields_voc(pt, excluded):
         if name in excluded:
             continue
         terms.append(SimpleTerm(name, title=_tr(field.title)))
-    return SimpleVocabulary(humansorted(terms, key=attrgetter('title')))
+    return SimpleVocabulary(humansorted(terms, key=attrgetter("title")))
 
 
 # @provider(IContextSourceBinder)
@@ -73,28 +75,55 @@ class IMFieldsVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        return get_pt_fields_voc('dmsincomingmail',  # i_e ok
-                                 ['IDublinCore.contributors', 'IDublinCore.creators', 'IDublinCore.effective',
-                                  'IDublinCore.expires', 'IDublinCore.language', 'IDublinCore.rights',
-                                  'IDublinCore.subjects', 'INameFromTitle.title', 'ITask.assigned_group',
-                                  'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'recipients', 'related_docs'])
+        return get_pt_fields_voc(
+            "dmsincomingmail",  # i_e ok
+            [
+                "IDublinCore.contributors",
+                "IDublinCore.creators",
+                "IDublinCore.effective",
+                "IDublinCore.expires",
+                "IDublinCore.language",
+                "IDublinCore.rights",
+                "IDublinCore.subjects",
+                "INameFromTitle.title",
+                "ITask.assigned_group",
+                "ITask.enquirer",
+                "IVersionable.changeNote",
+                "notes",
+                "recipients",
+                "related_docs",
+            ],
+        )
 
 
 class OMFieldsVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        return get_pt_fields_voc('dmsoutgoingmail',
-                                 ['IDublinCore.contributors', 'IDublinCore.creators', 'IDublinCore.effective',
-                                  'IDublinCore.expires', 'IDublinCore.language', 'IDublinCore.rights',
-                                  'IDublinCore.subjects', 'INameFromTitle.title', 'ITask.assigned_group',
-                                  'ITask.enquirer', 'IVersionable.changeNote', 'notes', 'related_docs'])
+        return get_pt_fields_voc(
+            "dmsoutgoingmail",
+            [
+                "IDublinCore.contributors",
+                "IDublinCore.creators",
+                "IDublinCore.effective",
+                "IDublinCore.expires",
+                "IDublinCore.language",
+                "IDublinCore.rights",
+                "IDublinCore.subjects",
+                "INameFromTitle.title",
+                "ITask.assigned_group",
+                "ITask.enquirer",
+                "IVersionable.changeNote",
+                "notes",
+                "related_docs",
+            ],
+        )
 
 
 class IIMFieldsSchema(Interface):
     field_name = schema.Choice(
-        title=_(u'Field name'),
-        vocabulary=u'imio.dms.mail.IMFieldsVocabulary',
+        title=_(u"Field name"),
+        vocabulary=u"imio.dms.mail.IMFieldsVocabulary",
     )
 
     read_tal_condition = schema.TextLine(
@@ -110,8 +139,8 @@ class IIMFieldsSchema(Interface):
 
 class IOMFieldsSchema(Interface):
     field_name = schema.Choice(
-        title=_(u'Field name'),
-        vocabulary=u'imio.dms.mail.OMFieldsVocabulary',
+        title=_(u"Field name"),
+        vocabulary=u"imio.dms.mail.OMFieldsVocabulary",
     )
 
     read_tal_condition = schema.TextLine(
@@ -127,35 +156,37 @@ class IOMFieldsSchema(Interface):
 
 assigned_user_check_levels = SimpleVocabulary(
     [
-        SimpleTerm(value=u'no_check', title=_(u'No check')),
-        SimpleTerm(value=u'n_plus_1', title=_(u'Assigned user mandatory only if there is a n+1 validation')),
-        SimpleTerm(value=u'mandatory', title=_(u'Assigned user always mandatory'))
+        SimpleTerm(value=u"no_check", title=_(u"No check")),
+        SimpleTerm(value=u"n_plus_1", title=_(u"Assigned user mandatory only if there is a n+1 validation")),
+        SimpleTerm(value=u"mandatory", title=_(u"Assigned user always mandatory")),
     ]
 )
 
 fullname_forms = SimpleVocabulary(
     [
-        SimpleTerm(value=u'firstname', title=_(u'Firstname Lastname')),
-        SimpleTerm(value=u'lastname', title=_(u'Lastname Firstname'))
+        SimpleTerm(value=u"firstname", title=_(u"Firstname Lastname")),
+        SimpleTerm(value=u"lastname", title=_(u"Lastname Firstname")),
     ]
 )
 
 iemail_manual_forward_transitions = SimpleVocabulary(
     [
-        SimpleTerm(value=u'created', title=_(u'A user forwarded email will stay at creation level')),
-        SimpleTerm(value=u'manager', title=_(u'A user forwarded email will go to manager level')),
-        SimpleTerm(value=u'n_plus_h', title=_(u'A user forwarded email will go to highest N+ level, '
-                                              u'otherwise to agent')),
-        SimpleTerm(value=u'n_plus_l', title=_(u'A user forwarded email will go to lowest N+ level, '
-                                              u'otherwise to agent')),
-        SimpleTerm(value=u'agent', title=_(u'A user forwarded email will go to agent level')),
+        SimpleTerm(value=u"created", title=_(u"A user forwarded email will stay at creation level")),
+        SimpleTerm(value=u"manager", title=_(u"A user forwarded email will go to manager level")),
+        SimpleTerm(
+            value=u"n_plus_h", title=_(u"A user forwarded email will go to highest N+ level, " u"otherwise to agent")
+        ),
+        SimpleTerm(
+            value=u"n_plus_l", title=_(u"A user forwarded email will go to lowest N+ level, " u"otherwise to agent")
+        ),
+        SimpleTerm(value=u"agent", title=_(u"A user forwarded email will go to agent level")),
     ]
 )
 
 oemail_sender_email_values = SimpleVocabulary(
     [
-        SimpleTerm(value=u'agent_email', title=_(u'Sender held position email is used')),
-        SimpleTerm(value=u'service_email', title=_(u'Sender held position service email is used'))
+        SimpleTerm(value=u"agent_email", title=_(u"Sender held position email is used")),
+        SimpleTerm(value=u"service_email", title=_(u"Sender held position service email is used")),
     ]
 )
 
@@ -172,146 +203,156 @@ class IImioDmsMailConfig(model.Schema):
     """
 
     model.fieldset(
-        'incomingmail',
-        label=_(u'Incoming mail'),
-        fields=['mail_types', 'assigned_user_check', 'original_mail_date_required', 'due_date_extension',
-                'imail_remark_states', 'imail_fields', 'imail_group_encoder']
+        "incomingmail",
+        label=_(u"Incoming mail"),
+        fields=[
+            "mail_types",
+            "assigned_user_check",
+            "original_mail_date_required",
+            "due_date_extension",
+            "imail_remark_states",
+            "imail_fields",
+            "imail_group_encoder",
+        ],
     )
 
     mail_types = schema.List(
-        title=_(u'Types of incoming mail'),
-        description=_(u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' "
-                      u"value."),
-        value_type=DictRow(title=_("Mail type"),
-                           schema=ITableListSchema))
+        title=_(u"Types of incoming mail"),
+        description=_(
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' " u"value."
+        ),
+        value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
+    )
 
-    widget('mail_types', DataGridFieldFactory, allow_reorder=True)
+    widget("mail_types", DataGridFieldFactory, allow_reorder=True)
 
     assigned_user_check = schema.Choice(
-        title=_(u'Assigned user check'),
-        description=_(u'Check if there is an assigned user before proposing incoming mail to an agent.'),
+        title=_(u"Assigned user check"),
+        description=_(u"Check if there is an assigned user before proposing incoming mail to an agent."),
         vocabulary=assigned_user_check_levels,
-        default=u'n_plus_1'
+        default=u"n_plus_1",
     )
 
     original_mail_date_required = schema.Bool(
-        title=_(u'Original mail date requirement'),
+        title=_(u"Original mail date requirement"),
         description=_(u"Check if the incoming mail 'original mail date' field must be required."),
-        default=True
+        default=True,
     )
 
     due_date_extension = schema.Int(
-        title=_(u'Due date extension'),
-        description=_(u'Extends the due date by a number of days. 0 means no due date will be set by default.'),
+        title=_(u"Due date extension"),
+        description=_(u"Extends the due date by a number of days. 0 means no due date will be set by default."),
         default=0,
-        min=0
+        min=0,
     )
 
     imail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
-        value_type=schema.Choice(vocabulary=u'imio.dms.mail.IMReviewStatesVocabulary'),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.IMReviewStatesVocabulary"),
     )
 
     imail_fields = schema.List(
-        title=_(u"${type} fields display", mapping={'type': _('Incoming mail')}),
+        title=_(u"${type} fields display", mapping={"type": _("Incoming mail")}),
         description=_(u"Configure this carefully. You can order with arrows."),
         required=False,
-        value_type=DictRow(title=_(u'Field'), schema=IIMFieldsSchema, required=False),
+        value_type=DictRow(title=_(u"Field"), schema=IIMFieldsSchema, required=False),
     )
     widget(
-        'imail_fields',
+        "imail_fields",
         DataGridFieldFactory,
-        display_table_css_class='listing',
+        display_table_css_class="listing",
         allow_reorder=True,
         auto_append=False,
     )
 
     imail_group_encoder = schema.Bool(
-        title=_(u'Activate group encoder'),
-        description=_(u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
-                      u"When activating this option, a group encoder function is added in the configuration, "
-                      u"a new field is added to the mail form to choose the creating group and permissions are given "
-                      u"to the selected creating group. Mails are then separately handled following the creating "
-                      u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
-                      u"multiple scanners and separated 'encoder' groups. "
-                      u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."),
-        default=False
+        title=_(u"Activate group encoder"),
+        description=_(
+            u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
+            u"When activating this option, a group encoder function is added in the configuration, "
+            u"a new field is added to the mail form to choose the creating group and permissions are given "
+            u"to the selected creating group. Mails are then separately handled following the creating "
+            u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
+            u"multiple scanners and separated 'encoder' groups. "
+            u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
+        ),
+        default=False,
     )
 
-    model.fieldset(
-        'incoming_email',
-        label=_(u'Incoming email'),
-        fields=['iemail_manual_forward_transition']
-    )
+    model.fieldset("incoming_email", label=_(u"Incoming email"), fields=["iemail_manual_forward_transition"])
 
     iemail_manual_forward_transition = schema.Choice(
-        title=_(u'Email manual forward transition'),
-        description=_(u'Choose to which state a manually forwarded email will go.'),
+        title=_(u"Email manual forward transition"),
+        description=_(u"Choose to which state a manually forwarded email will go."),
         vocabulary=iemail_manual_forward_transitions,
-        default=u'agent'
+        default=u"agent",
     )
 
     model.fieldset(
-        'outgoingmail',
-        label=_(u'Outgoing mail'),
-        fields=['omail_types', 'omail_remark_states', 'omail_response_prefix', 'omail_odt_mainfile',
-                'omail_sender_firstname_sorting', 'org_templates_encoder_can_edit',
-                'org_email_templates_encoder_can_edit', 'omail_fullname_used_form', 'omail_send_modes',
-                'omail_close_on_email_send', 'omail_replyto_email_send', 'omail_sender_email_default',
-                'omail_email_signature', 'omail_fields', 'omail_group_encoder']
+        "outgoingmail",
+        label=_(u"Outgoing mail"),
+        fields=[
+            "omail_types",
+            "omail_remark_states",
+            "omail_response_prefix",
+            "omail_odt_mainfile",
+            "omail_sender_firstname_sorting",
+            "org_templates_encoder_can_edit",
+            "org_email_templates_encoder_can_edit",
+            "omail_fullname_used_form",
+            "omail_send_modes",
+            "omail_close_on_email_send",
+            "omail_replyto_email_send",
+            "omail_sender_email_default",
+            "omail_email_signature",
+            "omail_fields",
+            "omail_group_encoder",
+        ],
     )
 
     omail_types = schema.List(
-        title=_(u'Types of outgoing mail'),
-        description=_(u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' "
-                      u"value."),
-        value_type=DictRow(title=_("Mail type"),
-                           schema=ITableListSchema))
+        title=_(u"Types of outgoing mail"),
+        description=_(
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' " u"value."
+        ),
+        value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
+    )
 
-    widget('omail_types', DataGridFieldFactory, allow_reorder=True)
+    widget("omail_types", DataGridFieldFactory, allow_reorder=True)
 
     omail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
-        value_type=schema.Choice(vocabulary=u'imio.dms.mail.OMReviewStatesVocabulary'),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMReviewStatesVocabulary"),
     )
 
-    omail_response_prefix = schema.TextLine(
-        title=_("Response prefix"),
-        required=False
-    )
+    omail_response_prefix = schema.TextLine(title=_("Response prefix"), required=False)
 
-    omail_odt_mainfile = schema.Bool(
-        title=_(u'Dms file must be an odt format'),
-        default=True
-    )
+    omail_odt_mainfile = schema.Bool(title=_(u"Dms file must be an odt format"), default=True)
 
-    omail_sender_firstname_sorting = schema.Bool(
-        title=_(u'Sender list is sorted on firstname'),
-        default=True
-    )
+    omail_sender_firstname_sorting = schema.Bool(title=_(u"Sender list is sorted on firstname"), default=True)
 
     org_templates_encoder_can_edit = schema.Bool(
-        title=_(u'Enable edition of service office templates for encoder'),
+        title=_(u"Enable edition of service office templates for encoder"),
         description=_(u"Check if a service encoder can edit his service office templates."),
-        default=True
+        default=True,
     )
 
     org_email_templates_encoder_can_edit = schema.Bool(
-        title=_(u'Enable edition of service email templates for encoder'),
+        title=_(u"Enable edition of service email templates for encoder"),
         description=_(u"Check if a service encoder can edit his service email templates."),
-        default=True
+        default=True,
     )
 
     omail_fields = schema.List(
-        title=_(u"${type} fields display", mapping={'type': _('Outgoing mail')}),
+        title=_(u"${type} fields display", mapping={"type": _("Outgoing mail")}),
         description=_(u"Configure this carefully. You can order with arrows."),
         required=False,
-        value_type=DictRow(title=_(u'Field'), schema=IOMFieldsSchema, required=False),
+        value_type=DictRow(title=_(u"Field"), schema=IOMFieldsSchema, required=False),
     )
     widget(
-        'omail_fields',
+        "omail_fields",
         DataGridFieldFactory,
-        display_table_css_class='listing',
+        display_table_css_class="listing",
         allow_reorder=True,
         auto_append=False,
     )
@@ -319,199 +360,259 @@ class IImioDmsMailConfig(model.Schema):
     omail_fullname_used_form = schema.Choice(
         title=_(u"User fullname used format"),
         vocabulary=fullname_forms,
-        default='firstname',
+        default="firstname",
     )
 
     omail_send_modes = schema.List(
-        title=_(u'Send modes'),
-        description=_(u"Once created and used, value doesn't be changed anymore. "
-                      u"None can be used for a 'choose' value."),
-        value_type=DictRow(title=_("Send modes"),
-                           schema=ITableListSchema))
-
-    widget('omail_send_modes', DataGridFieldFactory, allow_reorder=True)
-
-    omail_close_on_email_send = schema.Bool(
-        title=_(u'Close outgoing mail on email send'),
-        default=True
+        title=_(u"Send modes"),
+        description=_(
+            u"Once created and used, value doesn't be changed anymore. " u"None can be used for a 'choose' value."
+        ),
+        value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
     )
 
-    omail_replyto_email_send = schema.Bool(
-        title=_(u'Send email with sender as reply to'),
-        default=False
-    )
+    widget("omail_send_modes", DataGridFieldFactory, allow_reorder=True)
+
+    omail_close_on_email_send = schema.Bool(title=_(u"Close outgoing mail on email send"), default=True)
+
+    omail_replyto_email_send = schema.Bool(title=_(u"Send email with sender as reply to"), default=False)
 
     omail_sender_email_default = schema.Choice(
-        title=_(u'From where to get sender default email'),
+        title=_(u"From where to get sender default email"),
         vocabulary=oemail_sender_email_values,
-        default=u'agent_email'
+        default=u"agent_email",
     )
 
-    widget('omail_email_signature', WysiwygFieldWidget)
+    widget("omail_email_signature", WysiwygFieldWidget)
     # widget('omail_email_signature', klass='pat-tinymce') in plone 5 ?
     omail_email_signature = schema.Text(
-        title=_(u'Email signature model'),
-        description=_(u'TAL compliant with variables: view, context, user, dghv, sender, request and modules.'),
+        title=_(u"Email signature model"),
+        description=_(u"TAL compliant with variables: view, context, user, dghv, sender, request and modules."),
         required=False,
     )
 
     omail_group_encoder = schema.Bool(
-        title=_(u'Activate group encoder'),
-        description=_(u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
-                      u"When activating this option, a group encoder function is added in the configuration, "
-                      u"a new field is added to the mail form to choose the creating group and permissions are given "
-                      u"to the selected creating group. Mails are then separately handled following the creating "
-                      u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
-                      u"multiple scanners and separated 'encoder' groups. "
-                      u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."),
-        default=False
+        title=_(u"Activate group encoder"),
+        description=_(
+            u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
+            u"When activating this option, a group encoder function is added in the configuration, "
+            u"a new field is added to the mail form to choose the creating group and permissions are given "
+            u"to the selected creating group. Mails are then separately handled following the creating "
+            u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
+            u"multiple scanners and separated 'encoder' groups. "
+            u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
+        ),
+        default=False,
     )
 
-    model.fieldset(
-        'contact',
-        label=_(u"Contacts"),
-        fields=['all_backrefs_view', 'contact_group_encoder']
-    )
+    model.fieldset("contact", label=_(u"Contacts"), fields=["all_backrefs_view", "contact_group_encoder"])
 
-    all_backrefs_view = schema.Bool(
-        title=_(u'A user can see all mail titles linked to a contact.'),
-        default=False
-    )
+    all_backrefs_view = schema.Bool(title=_(u"A user can see all mail titles linked to a contact."), default=False)
 
     contact_group_encoder = schema.Bool(
-        title=_(u'Activate group encoder'),
-        description=_(u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
-                      u"When activating this option, a group encoder function is added in the configuration, a "
-                      u"new field is added to the contact form to choose the creating group and permissions are given "
-                      u"to the selected creating group. Contacts are then separately handled following the creating "
-                      u"groups. <br />This option can be combined with the mail creating group option."),
-        default=False
+        title=_(u"Activate group encoder"),
+        description=_(
+            u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
+            u"When activating this option, a group encoder function is added in the configuration, a "
+            u"new field is added to the contact form to choose the creating group and permissions are given "
+            u"to the selected creating group. Contacts are then separately handled following the creating "
+            u"groups. <br />This option can be combined with the mail creating group option."
+        ),
+        default=False,
     )
 
     model.fieldset(
-        'general',
+        "general",
         label=_(u"General config tab"),
-        fields=['groups_hidden_in_dashboard_filter', 'users_hidden_in_dashboard_filter']
+        fields=["groups_hidden_in_dashboard_filter", "users_hidden_in_dashboard_filter"],
     )
 
     groups_hidden_in_dashboard_filter = schema.List(
         title=_(u"Groups hidden in dashboards filter"),
         required=False,
-        value_type=schema.Choice(vocabulary=u'imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary'),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary"),
     )
-    widget('groups_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size=10)
+    widget("groups_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
 
     users_hidden_in_dashboard_filter = schema.List(
         title=_(u"Users hidden in dashboards filter"),
         required=False,
-        value_type=schema.Choice(vocabulary=u'imio.dms.mail.AssignedUsersWithDeactivatedVocabulary'),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.AssignedUsersWithDeactivatedVocabulary"),
     )
-    widget('users_hidden_in_dashboard_filter', OrderedSelectFieldWidget, size=10)
+    widget("users_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
 
     @invariant
     def validate_settings(data):  # noqa
         # check ITableListSchema id uniqueness
-        for tab, fieldname, title in (('Incoming mail', 'mail_types', u'Types of incoming mail'),
-                                      ('Outgoing mail', 'omail_types', u'Types of outgoing mail'),
-                                      ('Outgoing mail', 'omail_send_modes', u'Send modes')):
+        for tab, fieldname, title in (
+            ("Incoming mail", "mail_types", u"Types of incoming mail"),
+            ("Outgoing mail", "omail_types", u"Types of outgoing mail"),
+            ("Outgoing mail", "omail_send_modes", u"Send modes"),
+        ):
             ids = []
             try:
                 values = getattr(data, fieldname) or []
             except NoInputData:
                 continue
             for entry in values:
-                if entry['value'] in ids:
-                    raise Invalid(_(u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be "
-                                    u"unique",
-                                    mapping={'tab': _(tab), 'value': entry['value'], 'field': _(title)}))
-                ids.append(entry['value'])
+                if entry["value"] in ids:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be " u"unique",
+                            mapping={"tab": _(tab), "value": entry["value"], "field": _(title)},
+                        )
+                    )
+                ids.append(entry["value"])
         # check omail_send_modes id
         try:
             for dic in data.omail_send_modes or []:
-                if not dic['value'].startswith('email') and not dic['value'].startswith('post') \
-                        and not dic['value'].startswith('other'):
+                if (
+                    not dic["value"].startswith("email")
+                    and not dic["value"].startswith("post")
+                    and not dic["value"].startswith("other")
+                ):
                     # raise WidgetActionExecutionError("omail_send_modes",
                     #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have values "
                     #                                            u"starting with 'post', 'email' or 'other'")))
-                    raise Invalid(_(u"Outgoingmail tab: send_modes field must have values "
-                                    u"starting with 'post', 'email' or 'other'"))
+                    raise Invalid(
+                        _(
+                            u"Outgoingmail tab: send_modes field must have values "
+                            u"starting with 'post', 'email' or 'other'"
+                        )
+                    )
         except NoInputData:
             pass
         # check group_encoder deactivation
-        for tab, fld in (('Incoming mail', 'imail_group_encoder'), ('Outgoing mail', 'omail_group_encoder'),
-                         ('Contacts', 'contact_group_encoder')):
-            rec = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(fld)
+        for tab, fld in (
+            ("Incoming mail", "imail_group_encoder"),
+            ("Outgoing mail", "omail_group_encoder"),
+            ("Contacts", "contact_group_encoder"),
+        ):
+            rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(fld)
             try:
                 if api.portal.get_registry_record(rec) and not getattr(data, fld):
-                    raise Invalid(_(u"${tab} tab: unchecking '${field}' setting is not expected !!",
-                                    mapping={'tab': _(tab), 'field': _('Activate group encoder')}))
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: unchecking '${field}' setting is not expected !!",
+                            mapping={"tab": _(tab), "field": _("Activate group encoder")},
+                        )
+                    )
             except NoInputData:
                 pass
         # check fields
         constraints = {
-            'imail_fields': {'voc': IMFieldsVocabulary()(None),
-                             'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'sender',
-                                      'treating_groups', 'ITask.assigned_user', 'recipient_groups', 'reception_date',
-                                      'mail_type', 'reply_to', 'internal_reference_no'],
-                             'not': ['ITask.due_date', 'ITask.task_description', 'external_reference_no',
-                                     'original_mail_date', 'IClassificationFolder.classification_categories',
-                                     'IClassificationFolder.classification_folders', 'document_in_service',
-                                     'IDmsMailCreatingGroup.creating_group'],
-                             'pos': ['IDublinCore.title', 'IDublinCore.description']},
-            'omail_fields': {'voc': OMFieldsVocabulary()(None),
-                             'mand': ['IDublinCore.title', 'IDublinCore.description', 'orig_sender_email', 'recipients',
-                                      'treating_groups', 'ITask.assigned_user', 'sender', 'recipient_groups',
-                                      'send_modes', 'reply_to', 'outgoing_date', 'internal_reference_no',
-                                      'email_status', 'email_subject', 'email_sender', 'email_recipient', 'email_cc',
-                                      'email_attachments', 'email_body'],
-                             'not': ['mail_type', 'mail_date', 'ITask.due_date', 'ITask.task_description',
-                                     'external_reference_no', 'IClassificationFolder.classification_categories',
-                                     'IClassificationFolder.classification_folders', 'document_in_service',
-                                     'IDmsMailCreatingGroup.creating_group'],
-                             'pos': ['IDublinCore.title', 'IDublinCore.description']},
+            "imail_fields": {
+                "voc": IMFieldsVocabulary()(None),
+                "mand": [
+                    "IDublinCore.title",
+                    "IDublinCore.description",
+                    "orig_sender_email",
+                    "sender",
+                    "treating_groups",
+                    "ITask.assigned_user",
+                    "recipient_groups",
+                    "reception_date",
+                    "mail_type",
+                    "reply_to",
+                    "internal_reference_no",
+                ],
+                "not": [
+                    "ITask.due_date",
+                    "ITask.task_description",
+                    "external_reference_no",
+                    "original_mail_date",
+                    "IClassificationFolder.classification_categories",
+                    "IClassificationFolder.classification_folders",
+                    "document_in_service",
+                    "IDmsMailCreatingGroup.creating_group",
+                ],
+                "pos": ["IDublinCore.title", "IDublinCore.description"],
+            },
+            "omail_fields": {
+                "voc": OMFieldsVocabulary()(None),
+                "mand": [
+                    "IDublinCore.title",
+                    "IDublinCore.description",
+                    "orig_sender_email",
+                    "recipients",
+                    "treating_groups",
+                    "ITask.assigned_user",
+                    "sender",
+                    "recipient_groups",
+                    "send_modes",
+                    "reply_to",
+                    "outgoing_date",
+                    "internal_reference_no",
+                    "email_status",
+                    "email_subject",
+                    "email_sender",
+                    "email_recipient",
+                    "email_cc",
+                    "email_attachments",
+                    "email_body",
+                ],
+                "not": [
+                    "mail_type",
+                    "mail_date",
+                    "ITask.due_date",
+                    "ITask.task_description",
+                    "external_reference_no",
+                    "IClassificationFolder.classification_categories",
+                    "IClassificationFolder.classification_folders",
+                    "document_in_service",
+                    "IDmsMailCreatingGroup.creating_group",
+                ],
+                "pos": ["IDublinCore.title", "IDublinCore.description"],
+            },
         }
         missing = {}
         position = {}
         for conf in constraints:
             old_value = api.portal.get_registry_record(
-                'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}'.format(conf), default=[])
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(conf), default=[]
+            )
             try:
                 value = getattr(data, conf) or []
             except NoInputData:
                 continue
             if value == old_value:  # the validator passes multiple times here but not always with the new value
                 continue
-            flds = [field['field_name'] for field in value]
-            for mand in constraints[conf]['mand']:
+            flds = [field["field_name"] for field in value]
+            for mand in constraints[conf]["mand"]:
                 if mand not in flds:
                     missing_cf = missing.setdefault(conf, [])
                     missing_cf.append(mand)
-            for i, field in enumerate(constraints[conf]['pos']):
+            for i, field in enumerate(constraints[conf]["pos"]):
                 if field is None:
                     continue
                 if flds[i] != field:
                     pos_cf = position.setdefault(conf, [])
                     pos_cf.append((field, i))
-        msg = u''
+        msg = u""
         for conf in missing:
-            fields = [u"'{}'".format(constraints[conf]['voc'].getTerm(mfld).title) for mfld in missing[conf]]
-            msg += _tr(u"for '${conf}' config => ${fields}. ", mapping={'conf': _tr(conf), 'fields': ', '.join(fields)})
+            fields = [u"'{}'".format(constraints[conf]["voc"].getTerm(mfld).title) for mfld in missing[conf]]
+            msg += _tr(u"for '${conf}' config => ${fields}. ", mapping={"conf": _tr(conf), "fields": ", ".join(fields)})
         if msg:
-            raise Invalid(_tr(u'Missing mandatory fields: ${msg}', mapping={'msg': msg}))
-        msg = u''
+            raise Invalid(_tr(u"Missing mandatory fields: ${msg}", mapping={"msg": msg}))
+        msg = u""
         for conf in position:
-            fields = [_tr(u"'${field}': position ${position}",
-                          mapping={'field': constraints[conf]['voc'].getTerm(mfld).title, 'position': pos+1})
-                      for mfld, pos in position[conf]]
-            msg += _tr(u"for '${conf}' config => ${fields}. ", mapping={'conf': _tr(conf), 'fields': ', '.join(fields)})
+            fields = [
+                _tr(
+                    u"'${field}': position ${position}",
+                    mapping={"field": constraints[conf]["voc"].getTerm(mfld).title, "position": pos + 1},
+                )
+                for mfld, pos in position[conf]
+            ]
+            msg += _tr(u"for '${conf}' config => ${fields}. ", mapping={"conf": _tr(conf), "fields": ", ".join(fields)})
         if msg:
-            raise Invalid(_tr(u'Position required for fields: ${msg}', mapping={'msg': msg}))
+            raise Invalid(_tr(u"Position required for fields: ${msg}", mapping={"msg": msg}))
 
 
 class SettingsEditForm(RegistryEditForm):
     """
     Define form logic
     """
+
     form.extends(RegistryEditForm)
     schema = IImioDmsMailConfig
 
@@ -519,90 +620,98 @@ class SettingsEditForm(RegistryEditForm):
         super(SettingsEditForm, self).update()
         # !! groups are updated outside and after updateWidgets
         # we will display unconfigured fields
-        filt_groups = {'incomingmail': 'imail_fields', 'outgoingmail': 'omail_fields'}
+        filt_groups = {"incomingmail": "imail_fields", "outgoingmail": "omail_fields"}
         for grp in self.groups:
             if grp.__name__ not in filt_groups:
                 continue
             wdg = grp.widgets[filt_groups[grp.__name__]]
-            def_values = [row['field_name'] for row in wdg.value]
-            voc_name = wdg.field.value_type.schema['field_name'].vocabularyName
+            def_values = [row["field_name"] for row in wdg.value]
+            voc_name = wdg.field.value_type.schema["field_name"].vocabularyName
             voc = getUtility(IVocabularyFactory, voc_name)(self.context)
             unconfigured = [u'"{}"'.format(t.title) for t in voc._terms if t.value not in def_values]
             if unconfigured:
                 wdg.field = copy.copy(wdg.field)
-                wdg.field.description = u'{}<br />{}'.format(
-                    _tr(u'Configure this carefully. You can order with arrows.'),
-                    _tr(u"<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>",
-                        mapping={'list': u', '.join(unconfigured)}))
+                wdg.field.description = u"{}<br />{}".format(
+                    _tr(u"Configure this carefully. You can order with arrows."),
+                    _tr(
+                        u"<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>",
+                        mapping={"list": u", ".join(unconfigured)},
+                    ),
+                )
 
 
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
 
 
 def imiodmsmail_settings_changed(event):
-    """ Manage a record change """
-    if (IRecordModifiedEvent.providedBy(event) and event.record.interfaceName
-            and event.record.interface not in (IImioDmsMailConfig, IImioDmsMailConfig2)):
+    """Manage a record change"""
+    if (
+        IRecordModifiedEvent.providedBy(event)
+        and event.record.interfaceName
+        and event.record.interface not in (IImioDmsMailConfig, IImioDmsMailConfig2)
+    ):
         return
-    if event.record.fieldName == 'mail_types':
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMMailTypesVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.IMActiveMailTypesVocabulary')
-    if event.record.fieldName == 'omail_types':
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMMailTypesVocabulary')
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary')
-    if event.record.fieldName == 'omail_send_modes':
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMActiveSendModesVocabulary')
-    if event.record.fieldName == 'assigned_user_check':
-        update_transitions_auc_config('dmsincomingmail')  # i_e ok
-        n_plus_x = 'imio.dms.mail.wfadaptations.IMServiceValidation' in \
-                   [adapt['adaptation'] for adapt in get_applied_adaptations()]
+    if event.record.fieldName == "mail_types":
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.IMMailTypesVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.IMActiveMailTypesVocabulary")
+    if event.record.fieldName == "omail_types":
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMMailTypesVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary")
+    if event.record.fieldName == "omail_send_modes":
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSendModesVocabulary")
+    if event.record.fieldName == "assigned_user_check":
+        update_transitions_auc_config("dmsincomingmail")  # i_e ok
+        n_plus_x = "imio.dms.mail.wfadaptations.IMServiceValidation" in [
+            adapt["adaptation"] for adapt in get_applied_adaptations()
+        ]
         snoi = False
-        if event.newValue == u'no_check' or not n_plus_x:
+        if event.newValue == u"no_check" or not n_plus_x:
             snoi = True
         portal = api.portal.get()
-        folder = portal['incoming-mail']['mail-searches']
-        if folder['to_treat_in_my_group'].showNumberOfItems != snoi:
-            folder['to_treat_in_my_group'].showNumberOfItems = snoi  # noqa
-            folder['to_treat_in_my_group'].reindexObject()
-    if event.record.fieldName in ('org_templates_encoder_can_edit', 'org_email_templates_encoder_can_edit'):
-        folder_id = ('email' in event.record.fieldName) and 'oem' or 'om'
+        folder = portal["incoming-mail"]["mail-searches"]
+        if folder["to_treat_in_my_group"].showNumberOfItems != snoi:
+            folder["to_treat_in_my_group"].showNumberOfItems = snoi  # noqa
+            folder["to_treat_in_my_group"].reindexObject()
+    if event.record.fieldName in ("org_templates_encoder_can_edit", "org_email_templates_encoder_can_edit"):
+        folder_id = ("email" in event.record.fieldName) and "oem" or "om"
         portal = api.portal.get()
         main_folder = portal.templates[folder_id]
         s_orgs = get_registry_organizations()
-        roles = ['Reader']
-        all_roles = ['Reader', 'Contributor', 'Editor']
+        roles = ["Reader"]
+        all_roles = ["Reader", "Contributor", "Editor"]
         if api.portal.get_registry_record(event.record.__name__):
             roles = list(all_roles)
         for uid in s_orgs:
             if uid not in main_folder:
                 continue
             folder = main_folder[uid]
-            groupname = '{}_encodeur'.format(uid)
+            groupname = "{}_encodeur".format(uid)
             api.group.revoke_roles(groupname=groupname, roles=all_roles, obj=folder)
             api.group.grant_roles(groupname=groupname, roles=roles, obj=folder)
 
-    if event.record.fieldName == 'imail_group_encoder':
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder'):
-            configure_group_encoder('imail_group_encoder')
-    if event.record.fieldName == 'omail_group_encoder':
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder'):
+    if event.record.fieldName == "imail_group_encoder":
+        if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"):
+            configure_group_encoder("imail_group_encoder")
+    if event.record.fieldName == "omail_group_encoder":
+        if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder"):
             # configure_group_encoder(['dmsoutgoingmail', 'dmsoutgoing_email'])
-            configure_group_encoder('omail_group_encoder')
-    if event.record.fieldName == 'contact_group_encoder':
-        if api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder'):
-            configure_group_encoder('contact_group_encoder', contacts_part=True)
+            configure_group_encoder("omail_group_encoder")
+    if event.record.fieldName == "contact_group_encoder":
+        if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder"):
+            configure_group_encoder("contact_group_encoder", contacts_part=True)
             # set permission on contacts directory
             portal = api.portal.get()
-            portal['contacts'].manage_permission('imio.dms.mail: Write mail base fields',
-                                                 ('Manager', 'Site Administrator', 'Contributor'), acquire=1)
-    if event.record.fieldName == 'groups_hidden_in_dashboard_filter':
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary')
-    if event.record.fieldName == 'imail_folder_period' and event.newValue is not None:
+            portal["contacts"].manage_permission(
+                "imio.dms.mail: Write mail base fields", ("Manager", "Site Administrator", "Contributor"), acquire=1
+            )
+    if event.record.fieldName == "groups_hidden_in_dashboard_filter":
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.TreatingGroupsForFacetedFilterVocabulary")
+    if event.record.fieldName == "imail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
-        setattr(portal[MAIN_FOLDERS['dmsincomingmail']], 'folder_period', event.newValue)
-    if event.record.fieldName == 'omail_folder_period' and event.newValue is not None:
+        setattr(portal[MAIN_FOLDERS["dmsincomingmail"]], "folder_period", event.newValue)
+    if event.record.fieldName == "omail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
-        setattr(portal[MAIN_FOLDERS['dmsoutgoingmail']], 'folder_period', event.newValue)
+        setattr(portal[MAIN_FOLDERS["dmsoutgoingmail"]], "folder_period", event.newValue)
 
 
 def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):
@@ -610,25 +719,39 @@ def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):
         portal = api.portal.get()
     for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type=portal_types):
         obj = brain._unrestrictedGetObject()
-        if ensure_set_field(obj, 'creating_group', default_creating_group(obj.getOwner())) and index is not None:
+        if ensure_set_field(obj, "creating_group", default_creating_group(obj.getOwner())) and index is not None:
             obj.reindexObject([index])
 
 
 def configure_group_encoder(field_name, contacts_part=False):
     """
-        Used to configure a creating function and group for some internal organizations.
-        Update portal_type to add behavior, configure localroles field
+    Used to configure a creating function and group for some internal organizations.
+    Update portal_type to add behavior, configure localroles field
     """
-    portal_types = GE_CONFIG[field_name]['pt']
+    portal_types = GE_CONFIG[field_name]["pt"]
     # function
     functions = get_registry_functions()
-    if CREATING_GROUP_SUFFIX not in [fct['fct_id'] for fct in functions]:
-        functions.append({'fct_title': u'Indicateur du service', 'fct_id': CREATING_GROUP_SUFFIX, 'fct_orgs': [],
-                          'fct_management': False, 'enabled': True})
+    if CREATING_GROUP_SUFFIX not in [fct["fct_id"] for fct in functions]:
+        functions.append(
+            {
+                "fct_title": u"Indicateur du service",
+                "fct_id": CREATING_GROUP_SUFFIX,
+                "fct_orgs": [],
+                "fct_management": False,
+                "enabled": True,
+            }
+        )
         set_registry_functions(functions)
-    if contacts_part and CONTACTS_PART_SUFFIX not in [fct['fct_id'] for fct in functions]:
-        functions.append({'fct_title': u'Contacts par défaut', 'fct_id': CONTACTS_PART_SUFFIX, 'fct_orgs': [],
-                          'fct_management': False, 'enabled': True})
+    if contacts_part and CONTACTS_PART_SUFFIX not in [fct["fct_id"] for fct in functions]:
+        functions.append(
+            {
+                "fct_title": u"Contacts par défaut",
+                "fct_id": CONTACTS_PART_SUFFIX,
+                "fct_orgs": [],
+                "fct_management": False,
+                "enabled": True,
+            }
+        )
         set_registry_functions(functions)
     # role and permission
     portal = api.portal.get()
@@ -641,29 +764,57 @@ def configure_group_encoder(field_name, contacts_part=False):
 
     # local roles config
     config = {
-        'dmsincomingmail': {  # i_e ok
-            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
+        "dmsincomingmail": {  # i_e ok
+            "created": {
+                CREATING_GROUP_SUFFIX: {
+                    "roles": [
+                        "Contributor",
+                        "Editor",
+                        "DmsFile Contributor",
+                        "Base Field Writer",
+                        "Treating Group Writer",
+                    ]
+                }
+            },
             #                                                          CREATING_FIELD_ROLE]}},
-            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+            "proposed_to_manager": {CREATING_GROUP_SUFFIX: {"roles": ["Base Field Writer", "Reader"]}},
+            "proposed_to_agent": {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}},
+            "in_treatment": {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}},
+            "closed": {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}},
         },
-        'dmsincoming_email': {
-            'created': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
+        "dmsincoming_email": {
+            "created": {
+                CREATING_GROUP_SUFFIX: {
+                    "roles": [
+                        "Contributor",
+                        "Editor",
+                        "DmsFile Contributor",
+                        "Base Field Writer",
+                        "Treating Group Writer",
+                    ]
+                }
+            },
             #                                                          CREATING_FIELD_ROLE]}},
-            'proposed_to_manager': {CREATING_GROUP_SUFFIX: {'roles': ['Base Field Writer', 'Reader']}},
-            'proposed_to_agent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'in_treatment': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}},
-            'closed': {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+            "proposed_to_manager": {CREATING_GROUP_SUFFIX: {"roles": ["Base Field Writer", "Reader"]}},
+            "proposed_to_agent": {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}},
+            "in_treatment": {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}},
+            "closed": {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}},
         },
-        'dmsoutgoingmail': {
-            'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
-            'sent': {CREATING_GROUP_SUFFIX: {'roles': ['Reader', 'Reviewer']}},
-            'scanned': {CREATING_GROUP_SUFFIX: {'roles': ['Contributor', 'Editor', 'Reviewer', 'DmsFile Contributor',
-                                                          'Base Field Writer', 'Treating Group Writer']}},
+        "dmsoutgoingmail": {
+            "to_be_signed": {CREATING_GROUP_SUFFIX: {"roles": ["Editor", "Reviewer"]}},
+            "sent": {CREATING_GROUP_SUFFIX: {"roles": ["Reader", "Reviewer"]}},
+            "scanned": {
+                CREATING_GROUP_SUFFIX: {
+                    "roles": [
+                        "Contributor",
+                        "Editor",
+                        "Reviewer",
+                        "DmsFile Contributor",
+                        "Base Field Writer",
+                        "Treating Group Writer",
+                    ]
+                }
+            },
         },
         # 'dmsoutgoing_email': {
         #     'to_be_signed': {CREATING_GROUP_SUFFIX: {'roles': ['Editor', 'Reviewer']}},
@@ -675,21 +826,21 @@ def configure_group_encoder(field_name, contacts_part=False):
 
     # add localroles for possible proposed_to_n_plus_ states
     # only incoming mails
-    if 'dmsincomingmail' in portal_types:  # i_e ok
-        for typ in ('dmsincomingmail', 'dmsincoming_email'):
+    if "dmsincomingmail" in portal_types:  # i_e ok
+        for typ in ("dmsincomingmail", "dmsincoming_email"):
             states = list_wf_states(portal, typ)
             for st_id, st_tit in states:
-                if st_id.startswith('proposed_to_n_plus_'):
-                    config[typ][st_id] = {CREATING_GROUP_SUFFIX: {'roles': ['Reader']}}
+                if st_id.startswith("proposed_to_n_plus_"):
+                    config[typ][st_id] = {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}}
 
     # criterias config
     criterias = {
-        'dmsincomingmail': ('incoming-mail', 'mail-searches', 'all_mails'),  # i_e ok
-        'dmsoutgoingmail': ('outgoing-mail', 'mail-searches', 'all_mails'),
-        'organization': ('contacts', 'orgs-searches', 'all_orgs'),
-        'person': ('contacts', 'persons-searches', 'all_persons'),
-        'held_position': ('contacts', 'hps-searches', 'all_hps'),
-        'contact_list': ('contacts', 'cls-searches', 'all_cls'),
+        "dmsincomingmail": ("incoming-mail", "mail-searches", "all_mails"),  # i_e ok
+        "dmsoutgoingmail": ("outgoing-mail", "mail-searches", "all_mails"),
+        "organization": ("contacts", "orgs-searches", "all_orgs"),
+        "person": ("contacts", "persons-searches", "all_persons"),
+        "held_position": ("contacts", "hps-searches", "all_hps"),
+        "contact_list": ("contacts", "cls-searches", "all_cls"),
     }
 
     for portal_type in portal_types:
@@ -699,35 +850,43 @@ def configure_group_encoder(field_name, contacts_part=False):
         #     fti = getUtility(IDexterityFTI, name=portal_type)
         # except ComponentLookupError:
         #     continue
-        if 'imio.dms.mail.content.behaviors.IDmsMailCreatingGroup' not in fti.behaviors:
+        if "imio.dms.mail.content.behaviors.IDmsMailCreatingGroup" not in fti.behaviors:
             old_bav = tuple(fti.behaviors)
-            fti.behaviors = tuple(list(fti.behaviors) + ['imio.dms.mail.content.behaviors.IDmsMailCreatingGroup'])
-            ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription('behaviors', old_bav)))
+            fti.behaviors = tuple(list(fti.behaviors) + ["imio.dms.mail.content.behaviors.IDmsMailCreatingGroup"])
+            ftiModified(fti, ObjectModifiedEvent(fti, DexterityFTIModificationDescription("behaviors", old_bav)))
 
         # local roles
         if config.get(portal_type):
-            msg = add_fti_configuration(portal_type, config[portal_type], keyname='creating_group')
+            msg = add_fti_configuration(portal_type, config[portal_type], keyname="creating_group")
             if msg:
                 logger.warn(msg)
 
         # criterias
-        folder_id, category_id, default_id = criterias.get(portal_type, ('', '', ''))
+        folder_id, category_id, default_id = criterias.get(portal_type, ("", "", ""))
         if folder_id:
-            reimport_faceted_config(portal[folder_id][category_id], xml='mail-searches-group-encoder.xml',
-                                    default_UID=portal[folder_id][category_id][default_id].UID())
+            reimport_faceted_config(
+                portal[folder_id][category_id],
+                xml="mail-searches-group-encoder.xml",
+                default_UID=portal[folder_id][category_id][default_id].UID(),
+            )
 
     # display added field for im and om
     if not contacts_part:
-        config = {'dmsincomingmail': 'imail', 'dmsoutgoingmail': 'omail'}
-        key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.{}_fields'.format(config[portal_types[0]])
+        config = {"dmsincomingmail": "imail", "dmsoutgoingmail": "omail"}
+        key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}_fields".format(config[portal_types[0]])
         fields = api.portal.get_registry_record(key)
-        if 'IDmsMailCreatingGroup.creating_group' not in [f['field_name'] for f in fields]:
-            fields.append({'field_name': 'IDmsMailCreatingGroup.creating_group', 'read_tal_condition': u'',
-                           'write_tal_condition': u''})
+        if "IDmsMailCreatingGroup.creating_group" not in [f["field_name"] for f in fields]:
+            fields.append(
+                {
+                    "field_name": "IDmsMailCreatingGroup.creating_group",
+                    "read_tal_condition": u"",
+                    "write_tal_condition": u"",
+                }
+            )
             api.portal.set_registry_record(key, fields)
 
     # set a value on existing content
-    set_group_encoder_on_existing_types(portal_types, portal=portal, index=GE_CONFIG[field_name]['idx'])
+    set_group_encoder_on_existing_types(portal_types, portal=portal, index=GE_CONFIG[field_name]["idx"])
 
 
 class IImioDmsMailConfig2(Interface):
@@ -736,21 +895,21 @@ class IImioDmsMailConfig2(Interface):
     It avoids that values are overwrited by registry step!"""
 
     dv_clean_days = schema.Int(
-        title=_(u'Document viewer preservation days number'),
+        title=_(u"Document viewer preservation days number"),
     )
 
     dv_clean_date = schema.Date(
-        title=_(u'Document viewer preservation date'),
+        title=_(u"Document viewer preservation date"),
     )
 
     imail_folder_period = schema.TextLine(
-        title=_(u'Incoming mails folder period (month, week, day)'),
+        title=_(u"Incoming mails folder period (month, week, day)"),
     )
 
     omail_folder_period = schema.TextLine(
-        title=_(u'Outgoing mails folder period (month, week, day)'),
+        title=_(u"Outgoing mails folder period (month, week, day)"),
     )
 
     product_version = schema.TextLine(
-        title=_(u'Current product version'),
+        title=_(u"Current product version"),
     )

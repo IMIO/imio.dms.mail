@@ -10,8 +10,8 @@ class TestTabularView(unittest.TestCase):
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
-        self.portal = self.layer['portal']
+        self.portal = self.layer["portal"]
 
     def test_render_field(self):
         change_user(self.portal)
-        self.portal.unrestrictedTraverse('incoming-mail/mail-searches/all_mails/@@tabular_view')
+        self.portal.unrestrictedTraverse("incoming-mail/mail-searches/all_mails/@@tabular_view")

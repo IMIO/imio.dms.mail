@@ -31,25 +31,27 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         if not IScanFields.providedBy(obj):
             return
         scan_infos = [
-            ('scan_id', obj.scan_id and escape(obj.scan_id) or ''),
-            ('scan_date', obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ''),
-            ('Version', obj.version or ''),
+            ("scan_id", obj.scan_id and escape(obj.scan_id) or ""),
+            ("scan_date", obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ""),
+            ("Version", obj.version or ""),
         ]
-        scan_infos = ["%s: %s" % (
-            translate(name, domain='collective.dms.scanbehavior', context=item.REQUEST), value)
-            for (name, value) in scan_infos]
+        scan_infos = [
+            "%s: %s" % (translate(name, domain="collective.dms.scanbehavior", context=item.REQUEST), value)
+            for (name, value) in scan_infos
+        ]
 
-        return 'title="%s"' % '\n'.join(scan_infos)
+        return 'title="%s"' % "\n".join(scan_infos)
 
     def getLinkContent(self, item):
         iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
         content = super(VersionsTitleColumn, self).getLinkContent(item)  # escaped
         obj = item.getObject()
-        if base_getattr(obj, 'signed'):
+        if base_getattr(obj, "signed"):
             return u"""%s <img title="%s" src="%s" />""" % (
                 content,
-                translate(u"Signed version", domain='collective.dms.basecontent', context=item.REQUEST),
-                '%s/%s' % (self.table.portal_url, iconName))
+                translate(u"Signed version", domain="collective.dms.basecontent", context=item.REQUEST),
+                "%s/%s" % (self.table.portal_url, iconName),
+            )
         else:
             return content
 
@@ -73,6 +75,7 @@ class OMSignedColumn(Column):
 
 class GenerationColumn(NoEscapeLinkColumn):
     """Mailing icon column. xss ok"""
+
     header = ""
     weight = 12  # before label = 15
     iconName = "++resource++imio.dms.mail/mailing.gif"
@@ -80,23 +83,23 @@ class GenerationColumn(NoEscapeLinkColumn):
     def getLinkURL(self, item):
         """Setup link url."""
         url = item.getURL()
-        om_url = url.rsplit('/', 1)[0]
+        om_url = url.rsplit("/", 1)[0]
         # must use new view with title given and reference to mailing template
-        return '%s/@@mailing-loop-persistent-document-generation?document_uid=%s' % (om_url, item.UID)
+        return "%s/@@mailing-loop-persistent-document-generation?document_uid=%s" % (om_url, item.UID)
 
     def getLinkContent(self, item):
-        return u"""<img title="%s" src="%s" />""" % (_tr(u"Mailing"), '%s/%s' % (self.table.portal_url, self.iconName))
+        return u"""<img title="%s" src="%s" />""" % (_tr(u"Mailing"), "%s/%s" % (self.table.portal_url, self.iconName))
 
     def has_mailing(self, item):
         obj = item.getObject()
         annot = IAnnotations(obj)
-        if 'documentgenerator' in annot and annot['documentgenerator']['need_mailing']:
+        if "documentgenerator" in annot and annot["documentgenerator"]["need_mailing"]:
             return True
         return False
 
     def renderCell(self, item):
         if not self.has_mailing(item):
-            return ''
+            return ""
         return super(GenerationColumn, self).renderCell(item)
 
 
@@ -108,8 +111,8 @@ class EnquirerColumn(Column):
 
     def renderCell(self, item):
         if not item.enquirer:
-            return ''
-        factory = getUtility(IVocabularyFactory, 'collective.task.Enquirer')
+            return ""
+        factory = getUtility(IVocabularyFactory, "collective.task.Enquirer")
         voc = factory(item)
         return escape(safe_unicode(voc.getTerm(item.enquirer).title))
 
@@ -122,8 +125,8 @@ class AssignedGroupColumn(Column):
 
     def renderCell(self, item):
         if not item.assigned_group:
-            return ''
-        factory = getUtility(IVocabularyFactory, 'collective.task.AssignedGroups')
+            return ""
+        factory = getUtility(IVocabularyFactory, "collective.task.AssignedGroups")
         voc = factory(item)
         return escape(safe_unicode(voc.getTerm(item.assigned_group).title))
 
@@ -134,16 +137,17 @@ class OMVersionsTable(VersionsTable):
 
 class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
     """Plonegroup organizations: removed additional infos. xss ok"""
-    ai_excluded_fields = ['organization_type']
+
+    ai_excluded_fields = ["organization_type"]
     ai_extra_fields = []
 
 
 class CKTemplatesTable(Table):
     """Table that displays templates listing."""
 
-    cssClassEven = u'even'
-    cssClassOdd = u'odd'
-    cssClasses = {'table': 'listing nosort templates-listing icons-on'}
+    cssClassEven = u"even"
+    cssClassOdd = u"odd"
+    cssClasses = {"table": "listing nosort templates-listing icons-on"}
 
     # ?table-batchSize=10&table-batchStart=30
     batchSize = 200
@@ -155,12 +159,12 @@ class CKTemplatesTable(Table):
         super(CKTemplatesTable, self).__init__(context, request)
         self.portal = api.portal.getSite()
         self.context_path = self.context.absolute_url_path()
-        self.context_path_level = len(self.context_path.split('/'))
-        self.paths = {'.': '-'}
+        self.context_path_level = len(self.context_path.split("/"))
+        self.paths = {".": "-"}
 
     @CachedProperty
     def wtool(self):
-        return api.portal.get_tool('portal_workflow')
+        return api.portal.get_tool("portal_workflow")
 
     @CachedProperty
     def values(self):
@@ -170,9 +174,9 @@ class CKTemplatesTable(Table):
 class PersonnelTable(Table):
     """Table that displays personnel listing."""
 
-    cssClassEven = u'even'
-    cssClassOdd = u'odd'
-    cssClasses = {'table': 'listing nosort personnel-listing icons-on'}
+    cssClassEven = u"even"
+    cssClassOdd = u"odd"
+    cssClasses = {"table": "listing nosort personnel-listing icons-on"}
 
     # ?table-batchSize=10&table-batchStart=30
     batchSize = 100

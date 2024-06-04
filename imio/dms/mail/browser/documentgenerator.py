@@ -29,15 +29,16 @@ from zope.i18n import translate
 
 # # # HELPERS # # #
 
+
 class OMDGHelper(DXDocumentGenerationHelperView):
     """
-        Helper methods used for outgoing mail generation
+    Helper methods used for outgoing mail generation
     """
 
-    def fmt(self, val, fmt='%s '):
+    def fmt(self, val, fmt="%s "):
         if val:
             return fmt % val
-        return ''
+        return ""
 
     def get_ctct_det(self, obj, fallback=True):
         try:
@@ -51,8 +52,8 @@ class OMDGHelper(DXDocumentGenerationHelperView):
 
     def get_sender(self):
         dic = self.real_context.get_sender_info()
-        if 'org' in dic:
-            dic['org_full_title'] = dic['org'].get_full_title(separator=' - ', first_index=1)
+        if "org" in dic:
+            dic["org_full_title"] = dic["org"].get_full_title(separator=" - ", first_index=1)
         return dic
 
     def mailing_list(self, gen_context=None):
@@ -74,11 +75,11 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         elif IHeldPosition.providedBy(contact):
             return contact.get_full_title()
         else:
-            return ''
+            return ""
 
     def get_separate_titles(self, contact, **kwargs):
-        """ Return a list with separate title for organization and person """
-        ret = [u'', u'']  # org, pers
+        """Return a list with separate title for organization and person"""
+        ret = [u"", u""]  # org, pers
         if IPerson.providedBy(contact):
             ret[1] = contact.get_title()
         elif IOrganization.providedBy(contact):
@@ -91,34 +92,34 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         return ret
 
     def get_separate_contacts(self, contact, **kwargs):
-        """ Return a list with separate organization and person """
-        ret = {'pers': None, 'org': None, 'root': None, 'chain': None, 'levels': False}
+        """Return a list with separate organization and person"""
+        ret = {"pers": None, "org": None, "root": None, "chain": None, "levels": False}
         if IPerson.providedBy(contact):
-            ret['pers'] = contact
+            ret["pers"] = contact
         elif IOrganization.providedBy(contact):
-            ret['org'] = contact
+            ret["org"] = contact
         elif IHeldPosition.providedBy(contact):
             if contact.label:
-                ret['label'] = contact.label
-            ret['pers'] = contact.get_person()
+                ret["label"] = contact.label
+            ret["pers"] = contact.get_person()
             org = contact.get_organization()
             if org:
-                ret['org'] = org
-        if ret['org']:
-            ret['chain'] = ret['org'].get_organizations_chain()
-            ret['root'] = ret['chain'][0]
-            ret['levels'] = len(ret['chain']) > 1 and True
+                ret["org"] = org
+        if ret["org"]:
+            ret["chain"] = ret["org"].get_organizations_chain()
+            ret["root"] = ret["chain"][0]
+            ret["levels"] = len(ret["chain"]) > 1 and True
         return ret
 
-    def person_title(self, contact, pers_dft=u'Monsieur', org_dft=u'Madame, Monsieur', with_name=False,
-                     upper_name=False):
-
+    def person_title(
+        self, contact, pers_dft=u"Monsieur", org_dft=u"Madame, Monsieur", with_name=False, upper_name=False
+    ):
         def pers_title(pers):
             title = contact.person_title
             if not title:
                 title = pers_dft
             if with_name and pers.lastname:
-                return u'{} {}'.format(title, upper_name and pers.lastname.upper() or pers.lastname)
+                return u"{} {}".format(title, upper_name and pers.lastname.upper() or pers.lastname)
             else:
                 return title
 
@@ -129,12 +130,12 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         elif IHeldPosition.providedBy(contact):
             return pers_title(contact.get_person())
         else:
-            return u''
+            return u""
 
     def is_first_doc(self):
-        """ in mailing context """
+        """in mailing context"""
         ctx = self.appy_renderer.contentParser.env.context
-        if 'loop' in ctx and hasattr(ctx['loop'], 'mailed_data') and not ctx['loop'].mailed_data.first:
+        if "loop" in ctx and hasattr(ctx["loop"], "mailed_data") and not ctx["loop"].mailed_data.first:
             return False
         return True
 
@@ -144,20 +145,20 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             return None
         return uuidToObject(om.treating_groups, unrestricted=True)
 
-    def separate_full_title(self, tg=u'', nb=2, sep=u' - '):
+    def separate_full_title(self, tg=u"", nb=2, sep=u" - "):
         """Separates a treating group name in different parts.
         Returns always the good number of parts, fulled with empty strings."""
-        ret = [u'' for i in range(0, nb)]
+        ret = [u"" for i in range(0, nb)]
         if not tg:
             return ret
         parts = tg.split(sep)
-        for i in range(0, nb-1):
+        for i in range(0, nb - 1):
             ret[i] = parts[i]
         if len(parts) >= nb:
-            ret[-1] = sep.join(parts[nb-1:])
+            ret[-1] = sep.join(parts[nb - 1 :])
         return ret
 
-    def get_classification_folders(self, sep=u', '):
+    def get_classification_folders(self, sep=u", "):
         om = self.real_context
         if not om.classification_folders:
             return []
@@ -169,64 +170,68 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         return ret
 
 
-class DashboardDGBaseHelper():  # noqa
+class DashboardDGBaseHelper:  # noqa
     """
-        Common methods
+    Common methods
     """
 
     objs = []
-    sel_type = ''
+    sel_type = ""
 
     def is_dashboard(self):
-        """ Test if template is rendered from a dashboard """
-        return 'facetedQuery' in self.request.form
+        """Test if template is rendered from a dashboard"""
+        return "facetedQuery" in self.request.form
 
     def uids_to_objs(self, brains):
-        """ set objects from brains """
+        """set objects from brains"""
         # can be used like this in normal template:
         # do section- if view.is_dashboard()
         # do text if view.uids_to_objs(brains)
         self.objs = []
         for brain in brains:
             self.objs.append(brain.getObject())
-        self.sel_type = len(brains) and self.objs[0].portal_type or ''
+        self.sel_type = len(brains) and self.objs[0].portal_type or ""
         return False
 
 
 class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
-        Methods used for listing
+    Methods used for listing
     """
 
     def group_by_tg(self, brains):
-        results = {'1_no_group': {'mails': [], 'title': translate('listing_no_group', domain="imio.dms.mail",
-                                                                  context=self.request)}}
+        results = {
+            "1_no_group": {
+                "mails": [],
+                "title": translate("listing_no_group", domain="imio.dms.mail", context=self.request),
+            }
+        }
         for brain in brains:
             obj = brain.getObject()
             tg = brain.treating_groups
             if tg:
                 if tg not in results:
-                    results[tg] = {'mails': []}
+                    results[tg] = {"mails": []}
                     title = tg
                     tgroup = uuidToObject(tg, unrestricted=True)
                     if tgroup is not None:
-                        title = tgroup.get_full_title(separator=' - ', first_index=1)
-                    results[tg]['title'] = title
-                results[tg]['mails'].append(obj)
+                        title = tgroup.get_full_title(separator=" - ", first_index=1)
+                    results[tg]["title"] = title
+                results[tg]["mails"].append(obj)
             else:
-                results['1_no_group']['mails'].append(obj)
-        if not results['1_no_group']['mails']:
-            del results['1_no_group']
+                results["1_no_group"]["mails"].append(obj)
+        if not results["1_no_group"]["mails"]:
+            del results["1_no_group"]
         return results
 
     def flatten_group_by_tg(self, dic):
         """Flatten dict as a list of list"""
-        current_tg = ''
+        current_tg = ""
         res = []
         for tg in dic:
-            if current_tg != dic[tg]['title']:
-                current_tg = dic[tg]['title']
-            for mail in dic[tg]['mails']:
+            if current_tg != dic[tg]["title"]:
+                current_tg = dic[tg]["title"]
+            for mail in dic[tg]["mails"]:
                 res.append([current_tg, mail])
         res.sort(key=operator.itemgetter(0))
         return res
@@ -234,12 +239,12 @@ class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, Dash
 
 class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper):
     """
-        Methods used in document generation view, for IOMDashboard
+    Methods used in document generation view, for IOMDashboard
     """
 
     def get_dms_files(self, limit=None):
         """
-            Return a list of tuples containing the file obj, a pageBreakBefore boolean, a pageBreakAfter boolean
+        Return a list of tuples containing the file obj, a pageBreakBefore boolean, a pageBreakAfter boolean
         """
         files = []
         if not self.is_dashboard():
@@ -247,10 +252,14 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         catalog = self.portal.portal_catalog
         # self.uids_to_objs(self.context_var('brains'))
         limit = 1  # needed to be coherent with dashboard info following lastDmsFileIsOdt
-        for brain in self.context_var('brains'):
-            brains = catalog.unrestrictedSearchResults(portal_type='dmsommainfile', path=brain.getPath(),
-                                                       sort_on='getObjPositionInParent', sort_order='descending',
-                                                       sort_limit=limit)
+        for brain in self.context_var("brains"):
+            brains = catalog.unrestrictedSearchResults(
+                portal_type="dmsommainfile",
+                path=brain.getPath(),
+                sort_on="getObjPositionInParent",
+                sort_order="descending",
+                sort_limit=limit,
+            )
             if limit:
                 brains = brains[0:limit]
             for bfile in brains:
@@ -261,19 +270,19 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         return files
 
     def get_num_pages(self, obj):
-        annot = IAnnotations(obj).get('collective.documentviewer', '')
-        if not annot or not annot['successfully_converted'] or not annot.get('num_pages', None):
+        annot = IAnnotations(obj).get("collective.documentviewer", "")
+        if not annot or not annot["successfully_converted"] or not annot.get("num_pages", None):
             return 0
-        return annot['num_pages']
+        return annot["num_pages"]
 
     def get_dv_images(self, obj):
         images = []
-        annot = IAnnotations(obj).get('collective.documentviewer', '')
-        if not annot or not annot['successfully_converted'] or not annot.get('blob_files', None):
+        annot = IAnnotations(obj).get("collective.documentviewer", "")
+        if not annot or not annot["successfully_converted"] or not annot.get("blob_files", None):
             return []
-        files = annot.get('blob_files', {})
-        for page in range(1, annot['num_pages']+1):
-            img = 'large/dump_%d.%s' % (page, annot['pdf_image_format'])
+        files = annot.get("blob_files", {})
+        for page in range(1, annot["num_pages"] + 1):
+            img = "large/dump_%d.%s" % (page, annot["pdf_image_format"])
             blob = files[img]
             images.append(blob.open())
         return images
@@ -281,41 +290,42 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
 
 class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
-        Helper for categories folder
+    Helper for categories folder
     """
 
 
 class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
-        Helper for collective.contact.core directory
+    Helper for collective.contact.core directory
     """
 
     def __init__(self, context, request):
         super(DocumentGenerationDirectoryHelper, self).__init__(context, request)
         self.uids = {}
         self.pers = {}
-        self.directory_path = '/'.join(self.real_context.aq_parent.getPhysicalPath())
+        self.directory_path = "/".join(self.real_context.aq_parent.getPhysicalPath())
         self.dp_len = len(self.directory_path)
         self.pc = self.portal.portal_catalog
 
     def get_organizations(self):
         """
-            Return a list of organizations, ordered by path, with parent id.
-            [(id, parent_id, obj)]
+        Return a list of organizations, ordered by path, with parent id.
+        [(id, parent_id, obj)]
         """
         lst = []
         id = 0
         paths = {}
-        for brain in self.pc.unrestrictedSearchResults(portal_type='organization', path=self.directory_path,
-                                                       sort_on='path'):
+        for brain in self.pc.unrestrictedSearchResults(
+            portal_type="organization", path=self.directory_path, sort_on="path"
+        ):
             id += 1
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
-            path = brain.getPath()[self.dp_len:]
-            parts = path.split('/')
-            p_path = '/'.join(parts[:-1])
+            path = brain.getPath()[self.dp_len :]
+            parts = path.split("/")
+            p_path = "/".join(parts[:-1])
             paths[path] = id
-            p_id = ''
+            p_id = ""
             if p_path:
                 p_id = paths[p_path]
             lst.append((id, p_id, obj))
@@ -323,40 +333,42 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
 
     def get_persons(self):
         """
-            Return a list of persons.
-            [(id, obj)]
+        Return a list of persons.
+        [(id, obj)]
         """
         lst = []
         id = 0
-        for brain in self.pc.unrestrictedSearchResults(portal_type='person', path=self.directory_path,
-                                                       sort_on='sortable_title'):
+        for brain in self.pc.unrestrictedSearchResults(
+            portal_type="person", path=self.directory_path, sort_on="sortable_title"
+        ):
             id += 1
             self.uids[brain.UID] = id
-            self.pers[brain.getPath()[self.dp_len:]] = id
+            self.pers[brain.getPath()[self.dp_len :]] = id
             obj = brain._unrestrictedGetObject()
             lst.append((id, obj))
         return lst
 
     def get_held_positions(self):
         """
-            Return a list of held positions tuples.
-            [(id, person_id, org_id, obj)]
+        Return a list of held positions tuples.
+        [(id, person_id, org_id, obj)]
         """
         lst = []
         id = 0
-        for brain in self.pc.unrestrictedSearchResults(portal_type='held_position', path=self.directory_path,
-                                                       sort_on='path'):
+        for brain in self.pc.unrestrictedSearchResults(
+            portal_type="held_position", path=self.directory_path, sort_on="path"
+        ):
             id += 1
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
             # pers id
-            path = brain.getPath()[self.dp_len:]
-            parts = path.split('/')
-            p_path = '/'.join(parts[:-1])
+            path = brain.getPath()[self.dp_len :]
+            parts = path.split("/")
+            p_path = "/".join(parts[:-1])
             p_id = self.pers[p_path]
             # org id
             org = obj.get_organization()
-            org_id = ''
+            org_id = ""
             if org:
                 org_id = self.uids[org.UID()]
             lst.append((id, p_id, org_id, obj))
@@ -364,22 +376,22 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
 
     def is_internal(self, contact):
         """
-            Check if contact is internal (not INotPloneGroupContact => IPloneGroupContact or IPers)
+        Check if contact is internal (not INotPloneGroupContact => IPloneGroupContact or IPers)
         """
         return not INotPloneGroupContact.providedBy(contact)
 
 
 # # # GENERATION VIEW # # #
 
+
 class DbDocumentGenerationView(DashboardDocumentGenerationView):
-    """
-    """
+    """ """
 
     def _get_generation_context(self, helper_view, pod_template):
         """ """
         gen_context = super(DbDocumentGenerationView, self)._get_generation_context(helper_view, pod_template)
-        if pod_template.getId().startswith('d-im-listing'):
-            gen_context['by_tg'] = helper_view.group_by_tg(gen_context.get('brains', []))
+        if pod_template.getId().startswith("d-im-listing"):
+            gen_context["by_tg"] = helper_view.group_by_tg(gen_context.get("brains", []))
         return gen_context
 
 
@@ -391,17 +403,23 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         return self.pod_template.title
 
     def generate_persistent_doc(self, pod_template, output_format):
-        """ Create a dmsmainfile from the generated document """
+        """Create a dmsmainfile from the generated document"""
         doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
         file_object = NamedBlobFile(doc, filename=safe_unicode(doc_name))
-        scan_id = gen_context['scan_id'][4:]
-        scan_params = [param for param in ('PD', 'PC', 'PVS') if gen_context.get(param, False)]
+        scan_id = gen_context["scan_id"][4:]
+        scan_params = [param for param in ("PD", "PC", "PVS") if gen_context.get(param, False)]
         # Could be stored in annotation
-        scan_user = (scan_params and '|'.join(scan_params) or None)
-        with api.env.adopt_roles(['Manager']):
-            persisted_doc = createContentInContainer(self.context, 'dmsommainfile',
-                                                     title=self._get_title(doc_name, gen_context),
-                                                     id=scan_id, scan_id=scan_id, scan_user=scan_user, file=file_object)
+        scan_user = scan_params and "|".join(scan_params) or None
+        with api.env.adopt_roles(["Manager"]):
+            persisted_doc = createContentInContainer(
+                self.context,
+                "dmsommainfile",
+                title=self._get_title(doc_name, gen_context),
+                id=scan_id,
+                scan_id=scan_id,
+                scan_user=scan_user,
+                file=file_object,
+            )
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
 
@@ -414,7 +432,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         self._set_header_response(persisted_doc.file.filename)
         response = self.request.response
         # return response.redirect(self.context.absolute_url())
-        return response.redirect(persisted_doc.absolute_url() + '/external_edit')
+        return response.redirect(persisted_doc.absolute_url() + "/external_edit")
 
     def _get_generation_context(self, helper_view, pod_template):
         """
@@ -423,28 +441,30 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         """
         generation_context = super(OMPDGenerationView, self)._get_generation_context(helper_view, pod_template)
 
-        if base_hasattr(self, 'document'):
+        if base_hasattr(self, "document"):
             # Mailing ! We use the same scan_id
             scan_id = self.document.scan_id
-        elif helper_view.real_context.id == 'test_creation_modele':
-            client_id = base.get_config('client_id')
-            scan_id = '%s2%s00000000' % (client_id[0:2], client_id[2:6])
+        elif helper_view.real_context.id == "test_creation_modele":
+            client_id = base.get_config("client_id")
+            scan_id = "%s2%s00000000" % (client_id[0:2], client_id[2:6])
         else:
-            scan_id = next_scan_id(file_portal_types=['dmsommainfile'], scan_type='2')
+            scan_id = next_scan_id(file_portal_types=["dmsommainfile"], scan_type="2")
 
-        scan_id = 'IMIO{0}'.format(scan_id)
-        update_dict_with_validation(generation_context,
-                                    {'scan_id': scan_id,
-                                     'barcode': generate_barcode(scan_id).read()},
-                                    _dg("Error when merging 'scan_id' in generation context"))
+        scan_id = "IMIO{0}".format(scan_id)
+        update_dict_with_validation(
+            generation_context,
+            {"scan_id": scan_id, "barcode": generate_barcode(scan_id).read()},
+            _dg("Error when merging 'scan_id' in generation context"),
+        )
         return generation_context
 
 
 class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGenerationView):
-    """ Inherits from 2 classes """
+    """Inherits from 2 classes"""
 
     def _get_title(self, doc_name, gen_context):
         return u"%s, %s" % (self.pod_template.title, self.document.title)
+
 
 # # # VIEWLETS # # #
 
@@ -456,4 +476,4 @@ class OutgoingMailLinksViewlet(DocumentGeneratorLinksViewlet):
         return False
 
     def get_generation_view_name(self, template, output_format):
-        return 'persistent-document-generation'
+        return "persistent-document-generation"

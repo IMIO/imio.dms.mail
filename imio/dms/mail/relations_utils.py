@@ -38,30 +38,28 @@ def remove_duplicates(all_relations):
             unique_relations.append(i)
             seen_add(hashable)
         else:
-            logger.info(u'Dropping duplicate: {}'.format(hashable))
+            logger.info(u"Dropping duplicate: {}".format(hashable))
 
     if len(unique_relations) < len(all_relations):
-        logger.info('Dropping {0} duplicates'.format(
-            len(all_relations) - len(unique_relations)))
+        logger.info("Dropping {0} duplicates".format(len(all_relations) - len(unique_relations)))
         all_relations = unique_relations
     return all_relations
 
 
 def restore_relations(portal, batch_value):
-    """Restore relations from a annotation on the portal. Copied from collective.relationhelpers.api
-    """
+    """Restore relations from a annotation on the portal. Copied from collective.relationhelpers.api"""
     all_relations = IAnnotations(portal)[RELATIONS_KEY]
     # [{'to_uuid': '6a2e3ae6762e46e0a9b1b06585874964', 'from_attribute': 'recipients',
     # 'from_uuid': '04548ec46a9b4a899cd4ab7416d47639'}]
     ar_len = len(all_relations)
-    logger.info('Loaded {0} relations to restore'.format(ar_len))
+    logger.info("Loaded {0} relations to restore".format(ar_len))
     update_linkintegrity = set()
     modified_items = set()
     modified_relation_lists = defaultdict(list)
-    load_pickle('modified_relation_lists.pkl', modified_relation_lists)
+    load_pickle("modified_relation_lists.pkl", modified_relation_lists)
     intids = getUtility(IIntIds)
     restored = set()
-    load_pickle('restored_relations.pkl', restored)
+    load_pickle("restored_relations.pkl", restored)
     count = 0
     for item in all_relations:
         hashable = tuple(item.items())
@@ -72,31 +70,31 @@ def restore_relations(portal, batch_value):
         count += 1
         restored.add(hashable)
         # logger.info(u'Restored {} of {} relations...'.format(index, len(all_relations)))
-        source_obj = uuidToObject(item['from_uuid'])
-        target_obj = uuidToObject(item['to_uuid'])
+        source_obj = uuidToObject(item["from_uuid"])
+        target_obj = uuidToObject(item["to_uuid"])
 
         if not source_obj:
-            logger.info(u'{} is missing'.format(item['from_uuid']))
+            logger.info(u"{} is missing".format(item["from_uuid"]))
             continue
 
         if not target_obj:
-            logger.info(u'{} is missing'.format(item['to_uuid']))
+            logger.info(u"{} is missing".format(item["to_uuid"]))
             continue
 
         if not IDexterityContent.providedBy(source_obj):
-            logger.info(u'{} is no dexterity content'.format(source_obj.portal_type))
+            logger.info(u"{} is no dexterity content".format(source_obj.portal_type))
             continue
 
         if not IDexterityContent.providedBy(target_obj):
-            logger.info(u'{} is no dexterity content'.format(target_obj.portal_type))
+            logger.info(u"{} is no dexterity content".format(target_obj.portal_type))
             continue
 
-        from_attribute = item['from_attribute']
+        from_attribute = item["from_attribute"]
         to_id = get_intid(target_obj, intids)
 
         if from_attribute == referencedRelationship:
             # Ignore linkintegrity for now. We'll rebuilt it at the end!
-            update_linkintegrity.add(item['from_uuid'])
+            update_linkintegrity.add(item["from_uuid"])
             continue
 
         # if from_attribute == ITERATE_RELATION_NAME:
@@ -109,7 +107,7 @@ def restore_relations(portal, batch_value):
         if field_and_schema is None:
             # the from_attribute is no field
             # we could either create a fresh relation or log the case
-            logger.info(u'No field. Setting relation: {}'.format(item))
+            logger.info(u"No field. Setting relation: {}".format(item))
             event._setRelation(source_obj, from_attribute, RelationValue(to_id))
             continue
 
@@ -117,9 +115,12 @@ def restore_relations(portal, batch_value):
         relation = RelationValue(to_id)
 
         if isinstance(field, RelationList):
-            logger.info('Add relation to relationslist {} from {} to {}'.format(
-                from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
-            if item['from_uuid'] in modified_relation_lists.get(from_attribute, []):
+            logger.info(
+                "Add relation to relationslist {} from {} to {}".format(
+                    from_attribute, source_obj.absolute_url(), target_obj.absolute_url()
+                )
+            )
+            if item["from_uuid"] in modified_relation_lists.get(from_attribute, []):
                 # Do not purge relations
                 existing_relations = getattr(source_obj, from_attribute, [])
             else:
@@ -127,28 +128,34 @@ def restore_relations(portal, batch_value):
                 existing_relations = []
             existing_relations.append(relation)
             setattr(source_obj, from_attribute, existing_relations)
-            modified_items.add(item['from_uuid'])
-            modified_relation_lists[from_attribute].append(item['from_uuid'])
+            modified_items.add(item["from_uuid"])
+            modified_relation_lists[from_attribute].append(item["from_uuid"])
             continue
 
         elif isinstance(field, (Relation, RelationChoice)):
-            logger.info('Add relation {} from {} to {}'.format(
-                from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
+            logger.info(
+                "Add relation {} from {} to {}".format(
+                    from_attribute, source_obj.absolute_url(), target_obj.absolute_url()
+                )
+            )
             setattr(source_obj, from_attribute, relation)
-            modified_items.add(item['from_uuid'])
+            modified_items.add(item["from_uuid"])
             continue
 
         else:
             # we should never end up here!
-            logger.info('Warning: Unexpected relation {} from {} to {}'.format(
-                from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
+            logger.info(
+                "Warning: Unexpected relation {} from {} to {}".format(
+                    from_attribute, source_obj.absolute_url(), target_obj.absolute_url()
+                )
+            )
 
-    logger.info('Restored {} items'.format(count))
+    logger.info("Restored {} items".format(count))
     update_linkintegrity = set(update_linkintegrity)
-    logger.info('Updating linkintegrity for {} items'.format(len(update_linkintegrity)))
+    logger.info("Updating linkintegrity for {} items".format(len(update_linkintegrity)))
     for uuid in sorted(update_linkintegrity):
         modifiedContent(uuidToObject(uuid), None)
-    logger.info('Updating relations for {} items'.format(len(modified_items)))
+    logger.info("Updating relations for {} items".format(len(modified_items)))
     for uuid in sorted(modified_items):
         obj = uuidToObject(uuid)
         # updateRelations from z3c.relationfield does not properly update relations in behaviors
@@ -158,29 +165,29 @@ def restore_relations(portal, batch_value):
         updateRelations(obj, None)
         update_behavior_relations(obj, None)
 
-    dump_pickle('modified_relation_lists.pkl', modified_relation_lists)
-    dump_pickle('restored_relations.pkl', restored)
+    dump_pickle("modified_relation_lists.pkl", modified_relation_lists)
+    dump_pickle("restored_relations.pkl", restored)
     return count, ar_len, len(restored)
 
 
 def rebuild_relations(portal, flush_and_rebuild_intids=False):
     annot = IAnnotations(portal)
-    batch_value = int(os.getenv('BATCH', '0'))
+    batch_value = int(os.getenv("BATCH", "0"))
     if RELATIONS_KEY not in annot:
         store_relations()
         purge_relations()
         transaction.commit()
-    # if flush_and_rebuild_intids:
-    #     flush_intids()
-    #     rebuild_intids()
-    # else:
+        # if flush_and_rebuild_intids:
+        #     flush_intids()
+        #     rebuild_intids()
+        # else:
         cleanup_intids()
         transaction.commit()
         annot[RELATIONS_KEY] = remove_duplicates(annot[RELATIONS_KEY])
         transaction.commit()
 
     count, all_len, restored_len = restore_relations(portal, batch_value)
-    logger.info('Treated {} / {}'.format(restored_len, all_len))
+    logger.info("Treated {} / {}".format(restored_len, all_len))
     finished = all_len == restored_len or not count
 
     if finished and RELATIONS_KEY in IAnnotations(portal):
