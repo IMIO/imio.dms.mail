@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from collective.contact.core.content.directory import IDirectory
 from collective.eeafaceted.batchactions.interfaces import IBatchActionsMarker
-from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from imio.actionspanel.interfaces import IActionsPanelLayer
 from plone.dexterity.interfaces import IDexterityContainer
 from plone.theme.interfaces import IDefaultPloneLayer
@@ -19,23 +17,6 @@ class IImioDmsOutgoingMailWfConditions(Interface):
 
 class IImioDmsMailLayer(IDefaultPloneLayer, IActionsPanelLayer):
     """Marker interface that defines a Zope 3 browser layer."""
-
-
-# class IDirectoryFacetedNavigable(IFacetedNavigable, IDirectory):
-#
-#     """Marker interface for contacts directory. MUST BE REMOVED in version > 2.1"""
-#
-#
-# class IExternalContact(Interface):
-#
-#     """Marker interface for external organizations. MUST BE REMOVED"""
-#
-#
-# class IInternalContact(Interface):
-#
-#     """Marker interface for internal organizations
-#
-#     i.e. organizations in plonegroup-organization.  MUST BE REMOVED"""
 
 
 class IDocsDashboard(Interface):
