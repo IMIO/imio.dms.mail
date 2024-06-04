@@ -32,18 +32,18 @@ class ContactContentBackrefsViewlet(ViewletBase):
 
     def find_relations(self, from_attribute=None, from_interfaces_flattened=None):
         """
-            Parameters:
-            - from_attribute: schema attribute string
-            - from_interfaces_flattened: Interface class (only one)
+        Parameters:
+        - from_attribute: schema attribute string
+        - from_interfaces_flattened: Interface class (only one)
         """
         ret = []
         catalog = getUtility(ICatalog)
         intids = getUtility(IIntIds)
-        query = {'to_id': intids.getId(self.context)}
+        query = {"to_id": intids.getId(self.context)}
         if from_attribute is not None:
-            query['from_attribute'] = from_attribute
+            query["from_attribute"] = from_attribute
         if from_interfaces_flattened is not None:
-            query['from_interfaces_flattened'] = from_interfaces_flattened
+            query["from_interfaces_flattened"] = from_interfaces_flattened
         for relation in catalog.findRelations(query):
             # we skip relations between contacts (already shown)
             # nevertheless what about heldposition references for a person: subquery ?
@@ -51,18 +51,19 @@ class ContactContentBackrefsViewlet(ViewletBase):
                 continue
             # PERF TEST TODO: use directly objects or use the path as request in the portal_catalog to find brain
             ret.append(relation.from_path)
-        all_obj = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.all_backrefs_view',
-                                                 default=False)
-        pc = api.portal.get_tool('portal_catalog')
+        all_obj = api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.all_backrefs_view", default=False
+        )
+        pc = api.portal.get_tool("portal_catalog")
         method = all_obj and pc.unrestrictedSearchResults or pc.searchResults
-        return method(path={'query': ret, 'depth': 0})
+        return method(path={"query": ret, "depth": 0})
 
     index = ViewPageTemplateFile("templates/contactcontent_backrefs.pt")
 
     def render(self):
-        if not self.request.get('ajax_load', False):
+        if not self.request.get("ajax_load", False):
             return self.index()
-        return ''
+        return ""
 
 
 class DMSTaskParentViewlet(TaskParentViewlet):
@@ -72,13 +73,13 @@ class DMSTaskParentViewlet(TaskParentViewlet):
 
 class OMVersionsViewlet(VersionsViewlet):
 
-    portal_type = 'dmsommainfile'
+    portal_type = "dmsommainfile"
     __table__ = OMVersionsTable
 
 
 class PrettyLinkTitleViewlet(ViewletBase):
     """
-        Viewlet displaying a pretty link title
+    Viewlet displaying a pretty link title
     """
 
     def adapted(self, showColors=False, display_tag_title=False, isViewable=False):
@@ -87,22 +88,22 @@ class PrettyLinkTitleViewlet(ViewletBase):
         plo.showColors = showColors
         plo.display_tag_title = display_tag_title
         plo.isViewable = isViewable
-        plo.notViewableHelpMessage = ''
+        plo.notViewableHelpMessage = ""
         return plo
 
 
 class ContextInformationViewlet(GlobalMessagesViewlet):
     """
-        Viewlet displaying context information
+    Viewlet displaying context information
     """
 
     def getAllMessages(self):
-        """ Check if an address field is empty """
+        """Check if an address field is empty"""
         if IContactContent.providedBy(self.context):
             contacts = [self.context]
         elif IImioDmsOutgoingMail.providedBy(self.context):
             contacts = []
-            for rv in (self.context.recipients or []):
+            for rv in self.context.recipients or []:
                 if not rv.isBroken() and rv.to_path:
                     contacts.append(self.context.restrictedTraverse(rv.to_path))
         if not contacts:
@@ -111,20 +112,31 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
         for contact in contacts:
             address = get_address(contact)
             empty_keys = []
-            for key in ('street', 'number', 'zip_code', 'city',):
-                if not address.get(key, ''):
-                    empty_keys.append(translate(key, domain='imio.dms.mail', context=self.request))
+            for key in (
+                "street",
+                "number",
+                "zip_code",
+                "city",
+            ):
+                if not address.get(key, ""):
+                    empty_keys.append(translate(key, domain="imio.dms.mail", context=self.request))
             if empty_keys:
                 errors.append((contact, empty_keys))
 
         ret = []
         for (contact, keys) in errors:
-            msg = translate(u"This contact '${title}' has missing address fields: ${keys}",
-                            domain='imio.dms.mail', context=self.request,
-                            mapping={'title': object_link(contact, view='edit', attribute='get_full_title'),
-                                     'keys': ', '.join(keys)})
-            ret.append(PseudoMessage(msg_type='significant', text=richtextval(msg),
-                       hidden_uid=generate_uid(), can_hide=False))
+            msg = translate(
+                u"This contact '${title}' has missing address fields: ${keys}",
+                domain="imio.dms.mail",
+                context=self.request,
+                mapping={
+                    "title": object_link(contact, view="edit", attribute="get_full_title"),
+                    "keys": ", ".join(keys),
+                },
+            )
+            ret.append(
+                PseudoMessage(msg_type="significant", text=richtextval(msg), hidden_uid=generate_uid(), can_hide=False)
+            )
         return ret
 
 
@@ -133,11 +145,10 @@ class CKBatchActionsViewlet(BatchActionsViewlet):
 
     def available(self):
         """Global availability of the viewlet."""
-        return self.view.__name__ == 'ck-templates-listing'
+        return self.view.__name__ == "ck-templates-listing"
 
 
 class ImioFooterViewlet(FooterViewlet):
-
     def update(self):
         super(FooterViewlet, self).update()
-        self.version = api.portal.get_registry_record('imio.dms.mail.product_version', default='3.0')
+        self.version = api.portal.get_registry_record("imio.dms.mail.product_version", default="3.0")

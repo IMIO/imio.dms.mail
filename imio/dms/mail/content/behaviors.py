@@ -15,7 +15,7 @@ from zope.schema import Text
 
 
 def default_creating_group(user=None):
-    """ default to current user creating group """
+    """default to current user creating group"""
     voc = ActiveCreatingGroupVocabulary()(None)
     creating_groups = set([term.value for term in voc])
     if not creating_groups:
@@ -41,12 +41,12 @@ class IDmsMailCreatingGroup(model.Schema):
     creating_group = LocalRoleField(
         title=_(u"Creating group"),
         required=True,
-        vocabulary=u'imio.dms.mail.ActiveCreatingGroupVocabulary',
+        vocabulary=u"imio.dms.mail.ActiveCreatingGroupVocabulary",
         defaultFactory=default_creating_group,
     )
 
     # directives.write_permission(creating_group='imio.dms.mail.write_creating_group_field')
-    directives.write_permission(creating_group='imio.dms.mail.write_base_fields')
+    directives.write_permission(creating_group="imio.dms.mail.write_base_fields")
 
 
 alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
@@ -55,9 +55,9 @@ alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
 class IDmsMailDataTransfer(model.Schema):
 
     data_transfer = Text(
-        title=_(u'Data transfer'),
+        title=_(u"Data transfer"),
         required=False,
-#        readonly=True,
+        #        readonly=True,
     )
 
 

@@ -16,26 +16,29 @@ from plone import api
 
 
 class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
-
     def check_items_on_delete(self):
-        fields = {'dmsincomingmail': ['treating_groups', 'recipient_groups'],
-                  'dmsincoming_email': ['treating_groups', 'recipient_groups'],
-                  'dmsoutgoingmail': ['treating_groups', 'recipient_groups'],
-                  'task': ['assigned_group', 'enquirer', 'parents_assigned_groups', 'parents_enquirers']}
+        fields = {
+            "dmsincomingmail": ["treating_groups", "recipient_groups"],
+            "dmsincoming_email": ["treating_groups", "recipient_groups"],
+            "dmsoutgoingmail": ["treating_groups", "recipient_groups"],
+            "task": ["assigned_group", "enquirer", "parents_assigned_groups", "parents_enquirers"],
+        }
         search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)
 
     def check_items_on_transition(self):
-        fields = {'dmsincomingmail': ['treating_groups', 'recipient_groups'],
-                  'dmsincoming_email': ['treating_groups', 'recipient_groups'],
-                  'dmsoutgoingmail': ['treating_groups', 'recipient_groups'],
-                  'task': ['assigned_group', 'enquirer', 'parents_assigned_groups', 'parents_enquirers']}
+        fields = {
+            "dmsincomingmail": ["treating_groups", "recipient_groups"],
+            "dmsincoming_email": ["treating_groups", "recipient_groups"],
+            "dmsoutgoingmail": ["treating_groups", "recipient_groups"],
+            "task": ["assigned_group", "enquirer", "parents_assigned_groups", "parents_enquirers"],
+        }
         search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)
 
 
 class DmsTaskContentAdapter(TaskContentAdapter):
     security = ClassSecurityInfo()
 
-    security.declarePublic('can_do_transition')
+    security.declarePublic("can_do_transition")
 
     def can_do_transition(self, transition):
         """Check if assigned_user is set or if the test is required or if the user is admin.
@@ -44,12 +47,14 @@ class DmsTaskContentAdapter(TaskContentAdapter):
         if self.context.assigned_group is None:
             # print "no tg: False"
             return False
-        way_index = transition.startswith('back_in') and 1 or 0
+        way_index = transition.startswith("back_in") and 1 or 0
         # show only the next valid level
         state = api.content.get_state(self.context)
-        transitions_levels = get_dms_config(['transitions_levels', 'task'])
-        if (self.context.assigned_group in transitions_levels[state] and
-           transitions_levels[state][self.context.assigned_group][way_index] == transition):
+        transitions_levels = get_dms_config(["transitions_levels", "task"])
+        if (
+            self.context.assigned_group in transitions_levels[state]
+            and transitions_levels[state][self.context.assigned_group][way_index] == transition
+        ):
             # print "from state: True"
             return True
         return False

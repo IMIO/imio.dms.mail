@@ -73,7 +73,7 @@ class ITaskDashboardBatchActions(ITaskDashboard, IBatchActionsMarker):
     """Marker interface for task dashboard with batch actions."""
 
 
-#class IContactsDashboard(IDocsDashboard):  #interference with current bacth actions
+# class IContactsDashboard(IDocsDashboard):  #interference with current bacth actions
 class IContactsDashboard(Interface):
 
     """Marker interface for contacts dashboard."""
@@ -156,7 +156,7 @@ class IOMCKTemplatesFolder(IBatchActionsMarker):
 
 class IPersonnelContact(Interface):
     """
-        Marker interface for personnel contacts.
+    Marker interface for personnel contacts.
     """
 
 
@@ -167,7 +167,7 @@ class IPersonnelFolder(Interface):
 
 class IMemberAreaFolder(IDexterityContainer):
     """
-        Marker interface for member area folder.
+    Marker interface for member area folder.
     """
 
 

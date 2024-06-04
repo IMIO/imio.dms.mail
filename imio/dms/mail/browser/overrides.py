@@ -73,71 +73,77 @@ import sys
 
 class IMRenderCategoryView(RenderCategoryView):
     """
-      Override the way a category is rendered in the portlet based on the
-      faceted collection widget so we can manage some usecases where icons
-      are displayed to add items.
+    Override the way a category is rendered in the portlet based on the
+    faceted collection widget so we can manage some usecases where icons
+    are displayed to add items.
     """
 
     def contact_infos(self):
-        return {'orgs-searches': {'typ': 'organization', 'add': '++add++organization', 'img': 'organization_icon.png'},
-                'hps-searches': {'typ': 'contact', 'add': '@@add-contact', 'img': 'create_contact.png'},
-                'persons-searches': {'typ': 'person', 'add': '++add++person', 'img': 'person_icon.png'},
-                'cls-searches': {'typ': 'contact_list', 'add': 'contact-lists-folder',
-                                 'img': 'directory_icon.png', 'class': ''}
-                }
+        return {
+            "orgs-searches": {"typ": "organization", "add": "++add++organization", "img": "organization_icon.png"},
+            "hps-searches": {"typ": "contact", "add": "@@add-contact", "img": "create_contact.png"},
+            "persons-searches": {"typ": "person", "add": "++add++person", "img": "person_icon.png"},
+            "cls-searches": {
+                "typ": "contact_list",
+                "add": "contact-lists-folder",
+                "img": "directory_icon.png",
+                "class": "",
+            },
+        }
 
     def _get_category_template(self):
         if IIMDashboard.providedBy(self.context):
-            return ViewPageTemplateFile('templates/category_im.pt')
+            return ViewPageTemplateFile("templates/category_im.pt")
         elif IOMDashboard.providedBy(self.context):
-            return ViewPageTemplateFile('templates/category_om.pt')
+            return ViewPageTemplateFile("templates/category_om.pt")
         elif IContactsDashboard.providedBy(self.context):
-            return ViewPageTemplateFile('templates/category_contact.pt')
+            return ViewPageTemplateFile("templates/category_contact.pt")
         elif IClassificationFoldersDashboard.providedBy(self.context):
-            return ViewPageTemplateFile('templates/category_classification_folders.pt')
-        return ViewPageTemplateFile('templates/category.pt')
+            return ViewPageTemplateFile("templates/category_classification_folders.pt")
+        return ViewPageTemplateFile("templates/category.pt")
 
 
 class DocumentBylineViewlet(IHDocumentBylineViewlet):
     """
-      Overrides the IHDocumentBylineViewlet to hide it for some layouts.
+    Overrides the IHDocumentBylineViewlet to hide it for some layouts.
     """
 
     def show(self):
         current_layout = self.context.getLayout()
-        if current_layout in ['facetednavigation_view', ]:
+        if current_layout in [
+            "facetednavigation_view",
+        ]:
             return False
         return True
 
     def creator(self):
-        if self.context.portal_type in ('dmsincomingmail', 'dmsincoming_email'):
+        if self.context.portal_type in ("dmsincomingmail", "dmsincoming_email"):
             return None
         return super(DocumentBylineViewlet, self).creator()
 
 
 class LockInfoViewlet(PLLockInfoViewlet):
-
     def lock_is_stealable(self):
-        if self.context.portal_type in api.portal.get_registry_record('externaleditor.externaleditor_enabled_types',
-                                                                      default=[]):
+        if self.context.portal_type in api.portal.get_registry_record(
+            "externaleditor.externaleditor_enabled_types", default=[]
+        ):
             return True
         return super(LockInfoViewlet, self).lock_is_stealable()
 
 
 class LockingOperations(PLLockingOperations):
-
     def force_unlock(self, redirect=True):
-        """ Can unlock external edit lock """
-        if self.context.portal_type in api.portal.get_registry_record('externaleditor.externaleditor_enabled_types',
-                                                                      default=[]):
+        """Can unlock external edit lock"""
+        if self.context.portal_type in api.portal.get_registry_record(
+            "externaleditor.externaleditor_enabled_types", default=[]
+        ):
             self.context.wl_clearLocks()
-            self.request.RESPONSE.redirect('%s/view' % self.context.absolute_url())
+            self.request.RESPONSE.redirect("%s/view" % self.context.absolute_url())
         else:
             super(LockingOperations, self).force_unlock(redirect=redirect)
 
 
 class Plone(PloneView):
-
     def showEditableBorder(self):
         """Do not show editable border (green bar) for some contents"""
         context = aq_inner(self.context)
@@ -165,7 +171,7 @@ class Plone(PloneView):
 
 
 class PhysicalNavigationBreadcrumbs(PlonePhysicalNavigationBreadcrumbs):
-    """ Corrected the item url after a hidden part, visible 2 levels deeper."""
+    """Corrected the item url after a hidden part, visible 2 levels deeper."""
 
     def breadcrumbs(self):
         context = aq_inner(self.context)
@@ -175,12 +181,14 @@ class PhysicalNavigationBreadcrumbs(PlonePhysicalNavigationBreadcrumbs):
         name, item_url = get_view_url(context)
 
         if container is None:
-            return ({
-                'absolute_url': item_url,
-                'Title': utils.pretty_title_or_id(context, context),
-            },)
+            return (
+                {
+                    "absolute_url": item_url,
+                    "Title": utils.pretty_title_or_id(context, context),
+                },
+            )
 
-        view = getMultiAdapter((container, request), name='breadcrumbs_view')
+        view = getMultiAdapter((container, request), name="breadcrumbs_view")
         base = tuple(view.breadcrumbs())
 
         # Some things want to be hidden from the breadcrumbs
@@ -188,33 +196,35 @@ class PhysicalNavigationBreadcrumbs(PlonePhysicalNavigationBreadcrumbs):
             return base
 
         rootpath = getNavigationRoot(context)
-        itempath = '/'.join(context.getPhysicalPath())
+        itempath = "/".join(context.getPhysicalPath())
 
         # don't show default pages in breadcrumbs or pages above the navigation root
-        if not utils.isDefaultPage(context, request) \
-           and not rootpath.startswith(itempath):
-            base += ({
-                'absolute_url': item_url,
-                'Title': utils.pretty_title_or_id(context, context),
-            },)
+        if not utils.isDefaultPage(context, request) and not rootpath.startswith(itempath):
+            base += (
+                {
+                    "absolute_url": item_url,
+                    "Title": utils.pretty_title_or_id(context, context),
+                },
+            )
         return base
 
 
 class ContentActionsViewlet(PALContentActionsViewlet):
     """ """
+
     def render(self):
         context = aq_inner(self.context)
         for interface in (IATDocument, IDmsAppendixFile, IPloneSiteRoot):
             if interface.providedBy(context):
-                return ''
+                return ""
         return self.index()
 
 
 class IDMUtilsMethods(UtilsMethods):
-    """ View containing utils methods """
+    """View containing utils methods"""
 
     def outgoingmail_folder(self):
-        return api.portal.get()['outgoing-mail']
+        return api.portal.get()["outgoing-mail"]
 
 
 class BaseOverviewControlPanel(UsersGroupsControlPanelView):
@@ -222,7 +232,7 @@ class BaseOverviewControlPanel(UsersGroupsControlPanelView):
 
     @property
     def portal_roles(self):
-        return ['Batch importer', 'Manager', 'Member', 'Site Administrator']
+        return ["Batch importer", "Manager", "Member", "Site Administrator"]
 
     def doSearch(self, searchString):  # noqa
         results = super(BaseOverviewControlPanel, self).doSearch(searchString)
@@ -232,8 +242,8 @@ class BaseOverviewControlPanel(UsersGroupsControlPanelView):
         for item in results:
             adapted_item = item.copy()
             for role in self.portal_roles:
-                adapted_item['roles'][role]['canAssign'] = False
-            adapted_item['can_delete'] = False
+                adapted_item["roles"][role]["canAssign"] = False
+            adapted_item["can_delete"] = False
             adapted_results.append(adapted_item)
         return adapted_results
 
@@ -247,14 +257,14 @@ class DocsGroupsOverviewControlPanel(BaseOverviewControlPanel, GroupsOverviewCon
 
     @property
     def portal_roles(self):
-        return ['Manager', 'Member', 'Site Administrator']
+        return ["Manager", "Member", "Site Administrator"]
 
 
 class DocsCKTemplateListingView(CKTemplateListingView):
     """Change enabled_states variable class because we use another workflow to restrict access to cktemplate."""
 
     enabled_states = ()
-    sort_on = 'path'
+    sort_on = "path"
 
     def __init__(self, context, request):
         super(DocsCKTemplateListingView, self).__init__(context, request)
@@ -264,7 +274,7 @@ class DocsCKTemplateListingView(CKTemplateListingView):
     def get_templates(self):
         """Sort templates by full title."""
         templates = super(DocsCKTemplateListingView, self).get_templates()
-        return sorted(templates, key=lambda tup: IAnnotations(tup[0]).get('dmsmail.cke_tpl_tit', u''))
+        return sorted(templates, key=lambda tup: IAnnotations(tup[0]).get("dmsmail.cke_tpl_tit", u""))
 
     def render_template(self, template, path):
         """Render each template as a javascript dic."""
@@ -274,33 +284,31 @@ class DocsCKTemplateListingView(CKTemplateListingView):
         # icon = u'{}/++resource++imio.dms.mail/arobase.svg'.format(self.portal_path)
         title = template.title
         annot = IAnnotations(template)
-        if 'dmsmail.cke_tpl_tit' in annot and annot['dmsmail.cke_tpl_tit']:
-            title = u'{} > {}'.format(annot['dmsmail.cke_tpl_tit'], title)
-        return base.format(**{'title': title.replace('"', '&quot;'), 'html': template.html()})
+        if "dmsmail.cke_tpl_tit" in annot and annot["dmsmail.cke_tpl_tit"]:
+            title = u"{} > {}".format(annot["dmsmail.cke_tpl_tit"], title)
+        return base.format(**{"title": title.replace('"', "&quot;"), "html": template.html()})
 
 
 class FacetedCollectionPortletRenderer(Renderer):
-
     @property
     def _criteriaHolder(self):
-        '''Get the element the criteria are defined on.  This will look up parents until
-           a folder providing IFacetedNavigable is found.'''
+        """Get the element the criteria are defined on.  This will look up parents until
+        a folder providing IFacetedNavigable is found."""
         parent = self.context
         ignored_types = ("ClassificationSubfolder", "ClassificationFolder")
         # look up parents until we found the criteria holder or we reach the 'Plone Site'
-        while parent and not parent.portal_type == 'Plone Site':
+        while parent and not parent.portal_type == "Plone Site":
             if IFacetedNavigable.providedBy(parent) and parent.portal_type not in ignored_types:
                 return parent
             parent = aq_parent(aq_inner(parent))
 
 
 class ClassificationJSONCollectionsCount(JSONCollectionsCount):
-
     def get_context(self, faceted_context):
         # TODO : yet necessary ???
         ignored_types = ("ClassificationSubfolder", "ClassificationFolder", "annex")
         # look up parents until we found the criteria holder or we reach the 'Plone Site'
-        while faceted_context and not faceted_context.portal_type == 'Plone Site':
+        while faceted_context and not faceted_context.portal_type == "Plone Site":
             if IFacetedNavigable.providedBy(faceted_context) and faceted_context.portal_type not in ignored_types:
                 return faceted_context
             faceted_context = aq_parent(aq_inner(faceted_context))
@@ -308,26 +316,26 @@ class ClassificationJSONCollectionsCount(JSONCollectionsCount):
 
 
 class DocsImportFormSecondStep(ImportFormSecondStep):
-
     def _get_treating_groups_titles(self):
         tgt = super(DocsImportFormSecondStep, self)._get_treating_groups_titles()
-        csv_file = os.path.join(BLDT_DIR, u'imports/tg_matching.csv')
+        csv_file = os.path.join(BLDT_DIR, u"imports/tg_matching.csv")
         if os.path.exists(csv_file):
-            msg, rows = read_dictcsv(csv_file, fieldnames=['otgt', 'ntgt'], skip_lines=1)
+            msg, rows = read_dictcsv(csv_file, fieldnames=["otgt", "ntgt"], skip_lines=1)
             if msg:
                 raise Invalid(u"Error reading '{}': '{}'".format(csv_file, msg))
             errors = []
             for row in rows:
-                otgt = row['otgt'].decode('utf8')
-                ntgt = row['ntgt'].decode('utf8')
+                otgt = row["otgt"].decode("utf8")
+                ntgt = row["ntgt"].decode("utf8")
                 if otgt not in tgt:
                     if ntgt not in tgt:
-                        errors.append(u"{}: new value '{}' not found".format(row['_ln'], ntgt))
+                        errors.append(u"{}: new value '{}' not found".format(row["_ln"], ntgt))
                     else:
                         tgt[otgt] = tgt[ntgt]
             if errors:
-                raise Invalid(u"Existing groups = '{}'. Errors: '{}'".format(u', '.join(tgt.keys()),
-                                                                             u', '.join(errors)))
+                raise Invalid(
+                    u"Existing groups = '{}'. Errors: '{}'".format(u", ".join(tgt.keys()), u", ".join(errors))
+                )
         return tgt
 
 
@@ -350,22 +358,23 @@ try:
     from collective.solr.parser import parse_date_as_datetime
     from collective.solr.parser import SolrResponse
     from collective.solr.parser import unmarshallers
+
     BaseMaintenanceView = SolrMaintenanceView
 except ImportError:
     BaseMaintenanceView = BrowserView
 
-logger = getLogger('collective.solr.maintenance docs')
+logger = getLogger("collective.solr.maintenance docs")
 
 
 class DocsSolrMaintenanceView(BaseMaintenanceView):
-    """Overrides sync method to take into account a BATCH """
+    """Overrides sync method to take into account a BATCH"""
 
     def __init__(self, context, request):
         self.context = context
         self.request = request
-        self.batch_value = int(os.getenv('BATCH', '0'))
+        self.batch_value = int(os.getenv("BATCH", "0"))
 
-    def sync(self, batch=1000, preImportDeleteQuery='*:*'):
+    def sync(self, batch=1000, preImportDeleteQuery="*:*"):
         """Sync the Solr index with the portal catalog. Records contained
         in the catalog but not in Solr will be indexed and records not
         contained in the catalog will be removed.
@@ -376,22 +385,19 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         conn = manager.getConnection()
         key = queryUtility(ISolrConnectionManager).getSchema().uniqueKey
         zodb_conn = self.context._p_jar
-        catalog = getToolByName(self.context, 'portal_catalog')
+        catalog = getToolByName(self.context, "portal_catalog")
         getIndex = catalog._catalog.getIndex
-        modified_index = getIndex('modified')
+        modified_index = getIndex("modified")
         uid_index = getIndex(key)
         log = self.mklog()
-        real = timer()          # real time
-        lap = timer()           # real lap time (for intermediate commits)
-        cpu = timer(clock)      # cpu time
+        real = timer()  # real time
+        lap = timer()  # real lap time (for intermediate commits)
+        cpu = timer(clock)  # cpu time
         # get Solr status
-        response = conn.search(
-            q=preImportDeleteQuery,
-            rows=MAX_ROWS,
-            fl='%s modified' % key)
+        response = conn.search(q=preImportDeleteQuery, rows=MAX_ROWS, fl="%s modified" % key)
         # avoid creating DateTime instances
         simple_unmarshallers = unmarshallers.copy()
-        simple_unmarshallers['date'] = parse_date_as_datetime
+        simple_unmarshallers["date"] = parse_date_as_datetime
         flares = SolrResponse(response, simple_unmarshallers)
         response.close()
         solr_results = {}
@@ -399,12 +405,12 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
 
         def _utc_convert(value):
             t_tup = value.utctimetuple()
-            return ((((t_tup[0] * 12 + t_tup[1]) * 31 + t_tup[2])
-                    * 24 + t_tup[3]) * 60 + t_tup[4])
+            return (((t_tup[0] * 12 + t_tup[1]) * 31 + t_tup[2]) * 24 + t_tup[3]) * 60 + t_tup[4]
+
         for flare in flares:
             uid = flare[key]
             solr_uids.add(uid)
-            solr_results[uid] = _utc_convert(flare['modified'])
+            solr_results[uid] = _utc_convert(flare["modified"])
         # get catalog status
         cat_results = {}
         cat_uids = set()
@@ -419,14 +425,13 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         flush = notimeout(lambda: conn.flush())
 
         def checkPoint():
-            msg = 'intermediate commit (%d items processed, ' \
-                  'last batch in %s)...\n' % (processed, lap.next())
+            msg = "intermediate commit (%d items processed, " "last batch in %s)...\n" % (processed, lap.next())
             log(msg)
             logger.info(msg)
             flush()
             zodb_conn.cacheGC()
             if self.batch_value and processed >= self.batch_value:
-                logger.info('EXITED following BATCH env value {}'.format(self.batch_value))
+                logger.info("EXITED following BATCH env value {}".format(self.batch_value))
                 conn.commit()
                 sys.exit(0)
 
@@ -436,9 +441,9 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         rid_path_get = catalog._catalog.paths.get
         catalog_traverse = catalog.unrestrictedTraverse
 
-        def lookup(uid, rid=None,
-                   uid_rid_get=uid_rid_get, rid_path_get=rid_path_get,
-                   catalog_traverse=catalog_traverse):
+        def lookup(
+            uid, rid=None, uid_rid_get=uid_rid_get, rid_path_get=rid_path_get, catalog_traverse=catalog_traverse
+        ):
             if rid is None:
                 rid = uid_rid_get(uid)
             if not rid:
@@ -453,6 +458,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
             except AttributeError:
                 return None
             return obj
+
         log('processing %d "unindex" operations next...\n' % len(unindex))
         op = notimeout(lambda uid: conn.delete(id=uid))
         for uid in unindex:
@@ -462,7 +468,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
                 processed += 1
                 cpi.next()
             else:
-                log('not unindexing existing object %r.\n' % uid)
+                log("not unindexing existing object %r.\n" % uid)
         log('processing %d "index" operations next...\n' % len(index))
         op = notimeout(lambda obj: proc.index(obj))
         for uid in index:
@@ -472,7 +478,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
                 processed += 1
                 cpi.next()
             else:
-                log('not indexing unindexable object %r.\n' % uid)
+                log("not indexing unindexable object %r.\n" % uid)
             if obj is not None:
                 obj._p_deactivate()
         log('processing "reindex" operations next...\n')
@@ -492,12 +498,12 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
                     processed += 1
                     cpi.next()
                 else:
-                    log('not reindexing unindexable object %r.\n' % uid)
+                    log("not reindexing unindexable object %r.\n" % uid)
                 if obj is not None:
                     obj._p_deactivate()
         conn.commit()
-        log('solr index synced.\n')
-        msg = 'processed %d object(s) in %s (%s cpu time).'
+        log("solr index synced.\n")
+        msg = "processed %d object(s) in %s (%s cpu time)."
         msg = msg % (processed, real.next(), cpu.next())
         log(msg)
         logger.info(msg)

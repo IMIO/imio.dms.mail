@@ -37,13 +37,13 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
 
     """Create a document from a collective.documentgenerator template."""
 
-    root = '/templates/om'
+    root = "/templates/om"
 
     def label(self):
         return translate(
-            _(u"${title}: create from template",
-              mapping={'title': safe_unicode(self.context.Title())}),
-            context=self.request)
+            _(u"${title}: create from template", mapping={"title": safe_unicode(self.context.Title())}),
+            context=self.request,
+        )
 
     def get_action_name(self):
         return translate(_("Choose this template"), context=self.request)
@@ -51,12 +51,12 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
     def get_query(self):
         path = self.root_path
         return {
-            'path': {'query': path, 'depth': -1},
-            'portal_type': (
-                'Folder',
-                'ConfigurablePODTemplate',
+            "path": {"query": path, "depth": -1},
+            "portal_type": (
+                "Folder",
+                "ConfigurablePODTemplate",
             ),
-            'enabled': True
+            "enabled": True,
         }
 
     def redirect_url(self, uid):
@@ -70,93 +70,100 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
 
 
 def parse_query(text):
-    """ Copied from plone.app.vocabularies.catalog.parse_query but cleaned.
-    """
-    for char in '?-+*()':
-        text = text.replace(char, ' ')
-    query = {'SearchableText': " AND ".join(x + "*" for x in text.split())}
+    """Copied from plone.app.vocabularies.catalog.parse_query but cleaned."""
+    for char in "?-+*()":
+        text = text.replace(char, " ")
+    query = {"SearchableText": " AND ".join(x + "*" for x in text.split())}
     return query
 
 
 class ContactSuggest(BrowserView):
-    """ Contact Autocomplete view """
+    """Contact Autocomplete view"""
+
     implements(IAutocompleteSuggest)
 
     label = u"Contact"
 
     def __call__(self):
         result = []
-        query = self.request.get('term')
+        query = self.request.get("term")
         if not query:
             return json.dumps(result)
 
         self.request.response.setHeader("Content-type", "application/json")
         query = parse_query(query)
         hp, org_bis = [], []
-        all_str = _tr('All under')
+        all_str = _tr("All under")
         # search held_positions
-        crit = {'portal_type': 'held_position', 'sort_on': 'sortable_title'}
+        crit = {"portal_type": "held_position", "sort_on": "sortable_title"}
         crit.update(query)
         pc = self.context.portal_catalog
         brains = pc(**crit)
         for brain in brains:
-            hp.append({'id': brain.UID, 'text': brain.get_full_title})
+            hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations
-        crit = {'portal_type': ('organization'), 'sort_on': 'sortable_title'}
+        crit = {"portal_type": ("organization"), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         make_bis = (len(hp) + len(brains)) > 1 and True or False
         for brain in brains:
-            result.append({'id': brain.UID, 'text': brain.get_full_title})
+            result.append({"id": brain.UID, "text": brain.get_full_title})
             if make_bis:
-                org_bis.append({'id': 'l:%s' % brain.UID, 'text': '%s [%s]' % (brain.get_full_title, all_str)})
+                org_bis.append({"id": "l:%s" % brain.UID, "text": "%s [%s]" % (brain.get_full_title, all_str)})
         result += hp
         # search persons
-        crit = {'portal_type': ('person'), 'sort_on': 'sortable_title'}
+        crit = {"portal_type": ("person"), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         for brain in brains:
-            result.append({'id': brain.UID, 'text': brain.get_full_title})
+            result.append({"id": brain.UID, "text": brain.get_full_title})
         # add organizations bis
         result += org_bis
         return json.dumps(result)
 
 
 class SenderSuggest(BrowserView):
-    """ Contact Autocomplete view """
+    """Contact Autocomplete view"""
+
     implements(IAutocompleteSuggest)
 
     label = u"Sender"
 
     def __call__(self):
         result = []
-        query = self.request.get('term')
+        query = self.request.get("term")
         if not query:
             return json.dumps(result)
         self.request.response.setHeader("Content-type", "application/json")
         query = parse_query(query)
         hp, org_bis = [], []
-        all_str = _tr('All under')
-        portal_path = '/'.join(api.portal.get().getPhysicalPath())
+        all_str = _tr("All under")
+        portal_path = "/".join(api.portal.get().getPhysicalPath())
         # search held_positions in personnel-folder
-        crit = {'portal_type': 'held_position', 'path': '%s/contacts/personnel-folder' % portal_path,
-                'sort_on': 'sortable_title', 'sort_order': 'ascending'
-                # 'sort_on': ['end', 'sortable_title'], 'sort_order': ['descending', 'ascending']  # solr error
-                }
+        crit = {
+            "portal_type": "held_position",
+            "path": "%s/contacts/personnel-folder" % portal_path,
+            "sort_on": "sortable_title",
+            "sort_order": "ascending"
+            # 'sort_on': ['end', 'sortable_title'], 'sort_order': ['descending', 'ascending']  # solr error
+        }
         crit.update(query)
         brains = self.context.portal_catalog(**crit)
         for brain in brains:
-            hp.append({'id': brain.UID, 'text': brain.get_full_title})
+            hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations in plonegroup-organization folder
-        crit = {'portal_type': ('organization'), 'sort_on': 'sortable_title',
-                'path': '%s/contacts/plonegroup-organization' % portal_path}
+        crit = {
+            "portal_type": ("organization"),
+            "sort_on": "sortable_title",
+            "path": "%s/contacts/plonegroup-organization" % portal_path,
+        }
         crit.update(query)
         brains = self.context.portal_catalog(**crit)
         make_bis = (len(hp) + len(brains)) > 1 and True or False
         for brain in brains:
-            result.append({'id': brain.UID, 'text': brain.get_full_title})
+            result.append({"id": brain.UID, "text": brain.get_full_title})
             if make_bis:
-                org_bis.append({'id': 'l:%s' % brain.UID, 'text': '%s [%s]' % (brain.get_full_title, all_str)})
+                org_bis.append({"id": "l:%s" % brain.UID, "text": "%s [%s]" % (brain.get_full_title, all_str)})
         result += hp
         result += org_bis
         return json.dumps(result)
@@ -170,49 +177,45 @@ class ServerSentEvents(BrowserView):
     """
 
     def __call__(self):
-        self.request.response.setHeader('Content-Type', 'text/event-stream')
-        self.request.response.setHeader('Cache-Control', 'no-cache')
-        self.request.response.setHeader('Pragma', 'no-cache')
-        response = u''
+        self.request.response.setHeader("Content-Type", "text/event-stream")
+        self.request.response.setHeader("Cache-Control", "no-cache")
+        self.request.response.setHeader("Pragma", "no-cache")
+        response = u""
         for child in self.context.listFolderContents():
-            if IImioDmsFile.providedBy(child) and getattr(child, 'conversion_finished', False):
+            if IImioDmsFile.providedBy(child) and getattr(child, "conversion_finished", False):
                 # generated is added by creation subscriber, only when file is generated
                 # generated <= 2: wait to be sure zopedit redirection has been made
                 # generated > 3 and locked: wait else: refresh
-                if hasattr(child, 'generated') and child.generated <= 2:
+                if hasattr(child, "generated") and child.generated <= 2:
                     child.generated += 1
                     continue
-                view = getMultiAdapter((child, self.request), name='externalEditorEnabled')
+                view = getMultiAdapter((child, self.request), name="externalEditorEnabled")
                 if view.isObjectLocked():
                     # a manually or generated file is edited a second time: like it was generated
-                    if not hasattr(child, 'generated'):
+                    if not hasattr(child, "generated"):
                         child.generated = 3
                     # object is locked we wait
                     continue
-                elif not hasattr(child, 'generated'):
+                elif not hasattr(child, "generated"):
                     # avoid to refresh if file was added manually and we return on the parent
-                    delattr(child, 'conversion_finished')
+                    delattr(child, "conversion_finished")
                     continue
-                info = {
-                    u'id': child.getId(),
-                    u'path': u'/'.join(child.getPhysicalPath()),
-                    u'refresh': True
-                }
-                line = u'data: {}\n\n'.format(json.dumps(info))
+                info = {u"id": child.getId(), u"path": u"/".join(child.getPhysicalPath()), u"refresh": True}
+                line = u"data: {}\n\n".format(json.dumps(info))
                 response = u"{}{}".format(response, line)
-                delattr(child, 'conversion_finished')
-                delattr(child, 'generated')
+                delattr(child, "conversion_finished")
+                delattr(child, "generated")
         return response
 
 
 class UpdateItem(BrowserView):
     """
-        update attribute of an item
+    update attribute of an item
     """
 
     def __call__(self):
-        if 'assigned_user' in self.request:
-            self.context.assigned_user = self.request.get('assigned_user')
+        if "assigned_user" in self.request:
+            self.context.assigned_user = self.request.get("assigned_user")
             modified(self.context)
 
 
@@ -233,47 +236,63 @@ class SendEmail(BrowserView):
                     title = unidecode(title)
                 add_attachment(msg, title, content=a_obj.file.data)
         mailhost = get_mail_host(check=False)
-        replyto_key = 'imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send'
-        if mailhost.smtp_host == u'localhost' and not PMH_ENABLED:
-            api.portal.show_message(_('Your email has not been sent: ${error}.',
-                                      mapping={'error': _(u'Cannot use localhost as smtp')}),
-                                    self.request, type='error')
+        replyto_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send"
+        if mailhost.smtp_host == u"localhost" and not PMH_ENABLED:
+            api.portal.show_message(
+                _("Your email has not been sent: ${error}.", mapping={"error": _(u"Cannot use localhost as smtp")}),
+                self.request,
+                type="error",
+            )
             return
         elif api.portal.get_registry_record(replyto_key, default=False):
-            ret, error = send_email(msg, self.context.email_subject, mailhost.smtp_uid, self.context.email_recipient,
-                                    self.context.email_cc, replyto=self.context.email_sender)
+            ret, error = send_email(
+                msg,
+                self.context.email_subject,
+                mailhost.smtp_uid,
+                self.context.email_recipient,
+                self.context.email_cc,
+                replyto=self.context.email_sender,
+            )
         else:
-            ret, error = send_email(msg, self.context.email_subject, self.context.email_sender,
-                                    self.context.email_recipient, self.context.email_cc)
+            ret, error = send_email(
+                msg,
+                self.context.email_subject,
+                self.context.email_sender,
+                self.context.email_recipient,
+                self.context.email_cc,
+            )
         if ret:
-            api.portal.show_message(_('Your email has been sent.'), self.request)
+            api.portal.show_message(_("Your email has been sent."), self.request)
         else:
-            api.portal.show_message(_('Your email has not been sent: ${error}.', mapping={'error': error}),
-                                    self.request, type='error')
+            api.portal.show_message(
+                _("Your email has not been sent: ${error}.", mapping={"error": error}), self.request, type="error"
+            )
             return
 
         # 2 Update status on omail
-        now = datetime.strftime(datetime.now(), '%Y-%m-%d %H:%M')
-        status = _tr(u'Email sent at ${date_hour}.', mapping={'date_hour': now})
+        now = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M")
+        status = _tr(u"Email sent at ${date_hour}.", mapping={"date_hour": now})
         if not self.context.email_status:
             self.context.email_status = status
         else:
-            self.context.email_status += u' {}'.format(status)
+            self.context.email_status += u" {}".format(status)
         modified(self.context)
 
         # 3 Close if necessary
-        close = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
-                                               'omail_close_on_email_send')
+        close = api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_close_on_email_send"
+        )
         if close:
             trans = {
-                'created': ['mark_as_sent', 'propose_to_be_signed', 'set_validated', 'propose_to_n_plus_1'],
-                'scanned': ['mark_as_sent'],
-                'proposed_to_n_plus_1': ['mark_as_sent', 'propose_to_be_signed', 'set_validated'],
-                'to_be_signed': ['mark_as_sent'], 'validated': ['propose_to_be_signed', 'mark_as_sent']
+                "created": ["mark_as_sent", "propose_to_be_signed", "set_validated", "propose_to_n_plus_1"],
+                "scanned": ["mark_as_sent"],
+                "proposed_to_n_plus_1": ["mark_as_sent", "propose_to_be_signed", "set_validated"],
+                "to_be_signed": ["mark_as_sent"],
+                "validated": ["propose_to_be_signed", "mark_as_sent"],
             }
             state = api.content.get_state(self.context)
             i = 0
-            while state != 'sent' and i < 10:
+            while state != "sent" and i < 10:
                 do_transitions(self.context, trans.get(state, []))
                 state = api.content.get_state(self.context)
                 i += 1
@@ -290,12 +309,12 @@ class CKTemplatesListing(BrowserView):
         super(CKTemplatesListing, self).__init__(context, request)
 
     def query_dict(self):
-        crit = {'object_provides': self.provides}
+        crit = {"object_provides": self.provides}
         if self.local_search:
-            container_path = '/'.join(self.context.getPhysicalPath())
-            crit['path'] = {'query': container_path}
+            container_path = "/".join(self.context.getPhysicalPath())
+            crit["path"] = {"query": container_path}
             if self.depth is not None:
-                crit['path']['depth'] = self.depth
+                crit["path"]["depth"] = self.depth
         # crit['sort_on'] = ['path', 'getObjPositionInParent']
         # how to sort by parent path
         # crit['sort_on'] = 'path'
@@ -303,30 +322,31 @@ class CKTemplatesListing(BrowserView):
 
     def update(self):
         self.table = self.__table__(self.context, self.request)
-        self.table.__name__ = u'ck-templates-listing'
-        catalog = api.portal.get_tool('portal_catalog')
+        self.table.__name__ = u"ck-templates-listing"
+        catalog = api.portal.get_tool("portal_catalog")
         brains = catalog.searchResults(**self.query_dict())
         res = [brain.getObject() for brain in brains]
 
-        self.table.results = [obj for obj in
-                              sorted(res, key=lambda tp: IAnnotations(tp).get('dmsmail.cke_tpl_tit', u''))]
+        self.table.results = [
+            obj for obj in sorted(res, key=lambda tp: IAnnotations(tp).get("dmsmail.cke_tpl_tit", u""))
+        ]
         self.table.update()
 
     def __call__(self, local_search=None, search_depth=None):
         """
-            search_depth = int value (0)
-            local_search = bool value
+        search_depth = int value (0)
+        local_search = bool value
         """
         if search_depth is not None:
             self.depth = search_depth
         else:
-            sd = self.request.get('search_depth', '')
+            sd = self.request.get("search_depth", "")
             if sd:
                 self.depth = int(sd)
         if local_search is not None:
             self.local_search = local_search
         else:
-            self.local_search = 'local_search' in self.request or self.local_search
+            self.local_search = "local_search" in self.request or self.local_search
         self.update()
         return self.index()
 
@@ -344,26 +364,26 @@ class PersonnelListing(BrowserView):
 
     def query_dict(self):
         # crit = {'portal_type': ['person'], 'object_provides': self.provides}
-        crit = {'portal_type': ['person']}
+        crit = {"portal_type": ["person"]}
         if self.local_search:
-            container_path = '/'.join(self.context.getPhysicalPath())
-            crit['path'] = {'query': container_path}
+            container_path = "/".join(self.context.getPhysicalPath())
+            crit["path"] = {"query": container_path}
             if self.depth is not None:
-                crit['path']['depth'] = self.depth
-        crit['sort_on'] = 'sortable_title'
+                crit["path"]["depth"] = self.depth
+        crit["sort_on"] = "sortable_title"
         return crit
 
     def update(self):
-        self.table.__name__ = u'personnel-listing'
-        catalog = api.portal.get_tool('portal_catalog')
+        self.table.__name__ = u"personnel-listing"
+        catalog = api.portal.get_tool("portal_catalog")
         brains = catalog.searchResults(**self.query_dict())
         self.table.results = [brain.getObject() for brain in brains]
         self.table.update()
 
     def __call__(self, local_search=None, search_depth=None):
         """
-            search_depth = int value (0)
-            local_search = bool value
+        search_depth = int value (0)
+        local_search = bool value
         """
         # if search_depth is not None:
         #     self.depth = search_depth
@@ -384,17 +404,25 @@ class RenderEmailSignature(BrowserView):
 
     def __init__(self, context, request):
         super(RenderEmailSignature, self).__init__(context, request)
-        model = api.portal.get_registry_record('imio.dms.mail.browser.settings.IImioDmsMailConfig.'
-                                               'omail_email_signature')
+        model = api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_email_signature"
+        )
         self.pt = PageTemplate()
-        self.pt.pt_source_file = lambda: 'none'
+        self.pt.pt_source_file = lambda: "none"
         self.pt.write(model)
         self.namespace = self.pt.pt_getContext()
-        self.namespace.update({'request': self.request, 'view': self, 'context': self.context,
-                               'user': getSecurityManager().getUser(), 'modules': SecureModuleImporter})
-        dg_helper = getMultiAdapter((self.context, self.request), name='document_generation_helper_view')
-        self.namespace['dghv'] = dg_helper
-        self.namespace['sender'] = dg_helper.get_sender()
+        self.namespace.update(
+            {
+                "request": self.request,
+                "view": self,
+                "context": self.context,
+                "user": getSecurityManager().getUser(),
+                "modules": SecureModuleImporter,
+            }
+        )
+        dg_helper = getMultiAdapter((self.context, self.request), name="document_generation_helper_view")
+        self.namespace["dghv"] = dg_helper
+        self.namespace["sender"] = dg_helper.get_sender()
 
     def __call__(self):
         rendered = self.pt.pt_render(self.namespace)
@@ -410,7 +438,9 @@ class PlusPortaltabContent(BrowserView):
         self.portal = api.portal.get()
 
     def get_tabs(self):
-        res = self.portal.portal_catalog(id=('contacts', 'templates', 'tree', 'annexes_types'),
-                                         path={"query": '/'.join(self.portal.getPhysicalPath()), "depth": 1},
-                                         sort_on='getObjPositionInParent')
+        res = self.portal.portal_catalog(
+            id=("contacts", "templates", "tree", "annexes_types"),
+            path={"query": "/".join(self.portal.getPhysicalPath()), "depth": 1},
+            sort_on="getObjPositionInParent",
+        )
         return [(b.Title, b.getURL()) for b in res]

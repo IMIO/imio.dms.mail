@@ -6,6 +6,7 @@ from zope.interface import implements
 
 class MemberArea(Container):
     """
-        MemberArea class
+    MemberArea class
     """
+
     implements(IMemberAreaFolder)
