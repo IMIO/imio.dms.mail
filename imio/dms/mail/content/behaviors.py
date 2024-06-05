@@ -46,7 +46,8 @@ class IDmsMailCreatingGroup(model.Schema):
     )
 
     # directives.write_permission(creating_group='imio.dms.mail.write_creating_group_field')
-    directives.write_permission(creating_group="imio.dms.mail.write_base_fields")
+    # if set, the field is not visible at creation: we handle this in edit form
+    # directives.write_permission(creating_group="imio.dms.mail.write_base_fields")
 
 
 alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
