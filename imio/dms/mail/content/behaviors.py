@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from collective.contact.plonegroup.utils import get_person_from_userid
 from dexterity.localrolesfield.field import LocalRoleField
 from imio.dms.mail import _
 from imio.dms.mail import CONTACTS_PART_SUFFIX
@@ -31,8 +31,11 @@ def default_creating_group(user=None):
             user_orgs = set([gp[:-14] for gp in user_groups if gp.endswith(fct)])
             inter = creating_groups & user_orgs
             if inter:
-                # ordered = [uid for uid in creating_groups if uid in inter]; return ordered[0]
-                return inter.pop()
+                pers = get_person_from_userid(user.getId())
+                if pers and pers.primary_organization and pers.primary_organization in inter:
+                    return pers.primary_organization
+                ordered = [uid for uid in [term.value for term in voc] if uid in inter]
+                return ordered[0]
     return [term.value for term in voc][0]  # take the first term (following plonegroup-organization items order)
 
 
