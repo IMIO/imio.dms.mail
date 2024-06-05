@@ -98,6 +98,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
 
+
 now = datetime.today()
 
 
@@ -489,6 +490,7 @@ class IMEdit(DmsDocumentEdit):
                         "mail_type",
                         "reception_date",
                         "original_mail_date",
+                        "IDmsMailCreatingGroup.creating_group",
                     ]
                 )
 
@@ -1034,6 +1036,7 @@ class OMEdit(BaseOMEdit):
                 "recipients",
                 "reply_to",
                 "external_reference_no",
+                "IDmsMailCreatingGroup.creating_group",
             ]
         for field in display_fields:
             if field in self.fields:
