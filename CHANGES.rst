@@ -10,6 +10,12 @@ Changelog
 - Import safe_encode from pyutils
 - Added treatinggroup-batch-action button on folders
 - Corrected menu tab links
+- Handled exception when blobstorage is empty
+- Do not risk to copy an unfinished template in services
+- Blacked files
+- Removed useless code
+- Displayed creating_group on creation form
+- Added test for behavior defaut_creating_group. Used primary organisation if possible
 
 3.0.56
 ------
