@@ -109,7 +109,8 @@ class Migrate_To_0_2(Migrator):
     def _configure_product(self):
         logger.info("Configure folders")
         from imio.dms.mail import _tr as _
-        from imio.dms.mail.setuphandlers import createTopicView, createStateTopics
+        from imio.dms.mail.setuphandlers import createStateTopics
+        from imio.dms.mail.setuphandlers import createTopicView
 
         folder = self.portal["incoming-mail"]
         folder.setConstrainTypesMode(0)

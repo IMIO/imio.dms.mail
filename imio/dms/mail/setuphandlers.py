@@ -25,13 +25,11 @@ from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
-
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.Extensions.demo import clean_examples
+# from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
-
-# from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IClassificationFoldersDashboardBatchActions
 from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
@@ -58,7 +56,6 @@ from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
-
 # from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.interfaces import INonInstallable
 from Products.CMFPlone.utils import base_hasattr
@@ -521,7 +518,8 @@ def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone
     """
     block portlets on object for the corresponding category
     """
-    from plone.portlets.interfaces import IPortletManager, ILocalPortletAssignmentManager
+    from plone.portlets.interfaces import ILocalPortletAssignmentManager
+    from plone.portlets.interfaces import IPortletManager
 
     # Get the proper portlet manager
     manager = queryUtility(IPortletManager, name=utilityname)

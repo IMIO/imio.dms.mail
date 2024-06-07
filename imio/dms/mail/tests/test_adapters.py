@@ -4,6 +4,7 @@ from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import IdmSearchableExtender
+from imio.dms.mail.adapters import im_sender_email_index
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
 from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
@@ -15,7 +16,6 @@ from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailValidationCriterion
 from imio.dms.mail.adapters import ready_for_email_index
 from imio.dms.mail.adapters import ScanSearchableExtender
-from imio.dms.mail.adapters import im_sender_email_index
 from imio.dms.mail.adapters import state_group_index
 from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion

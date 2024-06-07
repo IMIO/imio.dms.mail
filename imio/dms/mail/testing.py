@@ -44,6 +44,7 @@ import imio.dms.mail
 import inspect
 import os
 
+
 try:
     from imio.helpers.ram import imio_global_cache
 except ImportError:

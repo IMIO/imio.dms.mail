@@ -8,8 +8,8 @@ from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
-from imio.dms.mail import _tr as _
 from imio.dms.mail import _tr
+from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config

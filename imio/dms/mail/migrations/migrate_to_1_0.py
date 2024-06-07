@@ -13,8 +13,8 @@ from imio.dms.mail.setuphandlers import createIMailCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import createTaskCollections
 from imio.dms.mail.utils import reimport_faceted_config
-from imio.helpers.content import richtextval
 from imio.helpers.catalog import addOrUpdateIndexes
+from imio.helpers.content import richtextval
 from imio.migrator.migrator import Migrator
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter

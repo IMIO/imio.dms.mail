@@ -1,15 +1,15 @@
 # encoding: utf-8
 
 from AccessControl import getSecurityManager
-from collective.dexteritytextindexer.interfaces import IDynamicTextIndexExtender
+from collective.classification.folder.interfaces import IServiceInCharge
+from collective.classification.folder.interfaces import IServiceInCopy
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
-from collective.classification.folder.interfaces import IServiceInCharge
-from collective.classification.folder.interfaces import IServiceInCopy
+from collective.dexteritytextindexer.interfaces import IDynamicTextIndexExtender
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
@@ -61,9 +61,9 @@ from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
-from zope.interface import Interface
 from zope.interface import implementer
 from zope.interface import implements
+from zope.interface import Interface
 from zope.schema.interfaces import IField
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary

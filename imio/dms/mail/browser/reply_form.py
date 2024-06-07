@@ -6,11 +6,11 @@ from collective.dms.mailcontent.browser.reply_form import ReplyForm as BaseReply
 from collective.eeafaceted.batchactions.browser.views import brains_from_uids
 from datetime import datetime
 from imio.dms.mail import _
-from imio.dms.mail.utils import add_content_in_subfolder
-from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatefields
 from imio.dms.mail.dmsmail import imio_dmsoutgoingmail_updatewidgets
 from imio.dms.mail.dmsmail import manage_email_fields
+from imio.dms.mail.utils import add_content_in_subfolder
+from imio.dms.mail.utils import manage_fields
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form.form import applyChanges
