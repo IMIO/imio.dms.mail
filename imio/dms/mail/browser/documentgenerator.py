@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import operator
-
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.content.person import IPerson
@@ -25,6 +23,8 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from zope.annotation.interfaces import IAnnotations
 from zope.i18n import translate
+
+import operator
 
 
 # # # HELPERS # # #

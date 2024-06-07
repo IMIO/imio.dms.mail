@@ -35,18 +35,16 @@ from plone.supermodel import model
 from plone.z3cform import layout
 from z3c.form import form
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
-
 # from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import WidgetActionExecutionError
 from z3c.form.validator import NoInputData
 from zope import schema
 from zope.component import getUtility
+# from zope.interface import provider
+# from zope.schema.interfaces import IContextSourceBinder
 from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
-
-# from zope.interface import provider
-# from zope.schema.interfaces import IContextSourceBinder
 from zope.interface import invariant
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory

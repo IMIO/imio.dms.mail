@@ -36,10 +36,10 @@ from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import separate_fullname
-from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -68,7 +68,6 @@ from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
-
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
@@ -89,6 +88,7 @@ import datetime
 import logging
 import os
 import transaction
+
 
 try:
     from imio.helpers.ram import imio_global_cache

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from imio.dms.mail.testing import add_user_in_groups
@@ -8,11 +9,11 @@ from imio.dms.mail.testing import create_groups
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.cache import extract_wrapped
 from imio.pyutils.utils import ftimed
+from plone import api
 from plone.app.testing import login
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing import TEST_USER_NAME
-from plone import api
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 

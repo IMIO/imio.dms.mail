@@ -11,8 +11,8 @@ from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
-from DateTime import DateTime
 from datetime import timedelta
+from DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import AUC_RECORD
@@ -62,6 +62,7 @@ from zope.schema.interfaces import IVocabularyFactory
 
 import logging
 import os
+
 
 cg_separator = " ___ "
 PREVIEW_DIR = os.path.join(PRODUCT_DIR, "base_images")

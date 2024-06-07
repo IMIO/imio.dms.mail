@@ -54,7 +54,6 @@ from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 from imio.dms.mail.vocabularies import encodeur_active_orgs
-
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import object_values
@@ -65,13 +64,11 @@ from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
 from plone.autoform import directives
-
 # from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
-
 # from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
 from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue

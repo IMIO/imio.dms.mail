@@ -8,13 +8,14 @@ from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.eeafaceted.batchactions.browser.views import BaseARUOBatchActionForm
 from collective.eeafaceted.batchactions.browser.views import BaseBatchActionForm
 from collective.eeafaceted.batchactions.browser.views import ContactBaseBatchActionForm
-from collective.eeafaceted.batchactions.utils import filter_on_permission, cannot_modify_field_msg
+from collective.eeafaceted.batchactions.utils import cannot_modify_field_msg
+from collective.eeafaceted.batchactions.utils import filter_on_permission
 from collective.eeafaceted.batchactions.utils import is_permitted
 from collective.task.browser.batchactions import AssignedGroupBatchActionForm as agbaf
 from collective.task.browser.batchactions import AssignedUserBatchActionForm as aubaf
 from imio.dms.mail import _
-from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import EMPTY_STRING
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
 from imio.dms.mail.utils import is_in_user_groups
 from imio.helpers.content import uuidsToObjects
@@ -29,6 +30,7 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
+
 
 # IM and OM batch actions
 

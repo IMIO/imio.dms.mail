@@ -19,10 +19,10 @@ from collective.eeafaceted.z3ctable.columns import PrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
 from collective.task.interfaces import ITaskMethods
+from html import escape
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.helpers.content import uuidToCatalogBrain
-from html import escape
 from plone import api
 from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
