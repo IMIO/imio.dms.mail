@@ -4,7 +4,7 @@ Changelog
 3.0.58
 ------
 
-- Last commit at
+- Last commit at a84d0424f5dcbd0a630268d9e1aec3ba2694ad64
 - Corrected menu tab links
 - Handled exception when blobstorage is empty
 - Do not risk to copy an unfinished template in services
