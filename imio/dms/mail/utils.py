@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -51,8 +50,10 @@ from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
 from Products.ZCatalog.ProgressHandler import ZLogHandler
+from unidecode import unidecode
 from z3c.relationfield import RelationValue
 from zc.relation.interfaces import ICatalog
+from zExceptions import Redirect
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.component.hooks import getSite
@@ -845,6 +846,22 @@ class VariousUtilsMethods(UtilsMethods):
             )
         sep = u"\n<br />"
         return sep.join(out)
+
+    def order_table_list(self, table=""):
+        """Order table list in settings"""
+        if not self.user_is_admin():
+            return
+        config = {"te": "mail_types", "ts": "omail_types", "fe": "omail_send_modes"}
+        if table not in config:
+            api.portal.show_message("Bad config name. Must be one of {}".format(", ".join(config.keys())), self.request)
+            raise Redirect(self.context.absolute_url())
+        rec_name = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(config.get(table, "mail_types"))
+        lst = api.portal.get_registry_record(rec_name, default=[])
+        if not lst:
+            api.portal.show_message("Settings table '{}' empty".format(table), self.request)
+            raise Redirect(self.context.absolute_url())
+        lst.sort(key=lambda dic: unidecode(dic["dtitle"]))
+        api.portal.set_registry_record(rec_name, lst)
 
     def pg_organizations(self, only_activated="1", output="csv", with_status=""):
         """Return a list of tuples with plonegroup organizations"""
