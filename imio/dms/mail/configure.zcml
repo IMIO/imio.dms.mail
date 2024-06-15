@@ -272,6 +272,7 @@
             is_unprotected
             kofax_orgs
             list_last_scan
+            order_table_list
             pg_organizations
             template_infos
             unread_criteria
