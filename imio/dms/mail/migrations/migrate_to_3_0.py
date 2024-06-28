@@ -512,7 +512,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                 reimport_faceted_config(
                     folder, xml="{}-searches.xml".format(xml_start), default_UID=folder[default_id].UID()
                 )
-
+            # TEMPORARY TO 3.0.59
+            self.reindexIndexes(
+                ["yesno_value"],  # for solr index
+                update_metadata=False,
+                portal_types=["ClassificationFolder", "ClassificationSubfolder"],
+            )
             # END
 
             finished = True  # can be eventually returned and set by batched method
