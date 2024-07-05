@@ -14,10 +14,10 @@ from collective.eeafaceted.batchactions.utils import is_permitted
 from collective.task.browser.batchactions import AssignedGroupBatchActionForm as agbaf
 from collective.task.browser.batchactions import AssignedUserBatchActionForm as aubaf
 from imio.dms.mail import _
-from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
 from imio.dms.mail.utils import is_in_user_groups
+from imio.helpers import EMPTY_STRING
 from imio.helpers.content import uuidsToObjects
 from plone import api
 from z3c.form.browser.select import SelectFieldWidget

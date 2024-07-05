@@ -1,6 +1,5 @@
 from AccessControl.Permissions import delete_objects
 from collective.dms.basecontent import dmsfile
-from datetime import date
 from Globals import DevelopmentMode
 from plone import api
 from plone.dexterity.content import Container
@@ -27,8 +26,6 @@ AUC_RECORD = "imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_ch
 CREATING_GROUP_SUFFIX = u"group_encoder"
 CONTACTS_PART_SUFFIX = u"contacts_part"
 # CREATING_FIELD_ROLE = 'Creating Group Field Writer'
-EMPTY_STRING = "__empty_string__"
-EMPTY_DATE = date(1950, 1, 1)
 PRODUCT_DIR = os.path.dirname(__file__)
 if os.environ.get("ZOPE_HOME", ""):
     BLDT_DIR = "/".join(os.getenv("INSTANCE_HOME", "").split("/")[:-2])

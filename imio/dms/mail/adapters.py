@@ -17,7 +17,6 @@ from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task.interfaces import ITaskContent
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
-from imio.dms.mail import EMPTY_DATE
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
@@ -28,6 +27,7 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import logger
+from imio.helpers import EMPTY_DATE
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import get_relations
 from imio.helpers.content import object_values

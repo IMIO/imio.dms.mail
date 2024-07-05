@@ -6,10 +6,13 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
+from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
+from imio.helpers import EMPTY_STRING
+from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
@@ -205,7 +208,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                ("__empty_string__", u"Empty value"),
+                (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
                 ("agent", u"Fred Agent"),
                 ("encodeur", u"Jean Encodeur"),
                 ("lecteur", u"Jef Lecteur"),
@@ -226,7 +229,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                ("__empty_string__", u"Empty value"),
+                (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
                 ("agent", u"Fred Agent"),
                 ("encodeur", u"Jean Encodeur"),
                 ("lecteur", u"Jef Lecteur"),
@@ -245,7 +248,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                ("__empty_string__", u"Empty value"),
+                (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
                 ("encodeur", u"Jean Encodeur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef 2"),
