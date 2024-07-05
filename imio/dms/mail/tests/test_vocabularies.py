@@ -4,6 +4,7 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import get_person_from_userid
 from datetime import datetime
+from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import configure_group_encoder
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
@@ -23,6 +24,8 @@ from imio.dms.mail.vocabularies import OMMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMSenderVocabulary
 from imio.dms.mail.vocabularies import PloneGroupInterfacesVocabulary
 from imio.dms.mail.vocabularies import TaskReviewStatesVocabulary
+from imio.helpers import EMPTY_STRING
+from imio.helpers import EMPTY_TITLE
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
@@ -81,7 +84,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                ("__empty_string__", u"Empty value"),
+                (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
                 ("agent", u"Fred Agent"),
                 ("encodeur", u"Jean Encodeur"),
                 ("lecteur", u"Jef Lecteur"),
@@ -102,7 +105,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                ("__empty_string__", u"Empty value"),
+                (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
                 ("agent", u"Fred Agent"),
                 ("encodeur", u"Jean Encodeur"),
                 ("lecteur", u"Jef Lecteur"),
@@ -122,7 +125,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                ("__empty_string__", u"Empty value"),
+                (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
                 ("agent", u"Fred Agent"),
                 ("encodeur", u"Jean Encodeur"),
                 ("lecteur", u"Jef Lecteur"),
@@ -141,7 +144,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                ("__empty_string__", u"Empty value"),
+                (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
                 ("agent", u"Fred Agent"),
                 ("encodeur", u"Jean Encodeur"),
                 ("lecteur", u"Jef Lecteur"),

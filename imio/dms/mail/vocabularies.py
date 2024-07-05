@@ -14,11 +14,12 @@ from imio.dms.mail import _tr
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail import EMPTY_STRING
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_context_with_request
 from imio.dms.mail.utils import list_wf_states
+from imio.helpers import EMPTY_STRING
+from imio.helpers import EMPTY_TITLE
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.vocabularies import voc_cache_key as users_groups_cache_key
@@ -150,7 +151,7 @@ class AssignedUsersWithDeactivatedVocabulary(object):
                 term.title = _tr("${element_title} (Inactive)", mapping={"element_title": safe_unicode(term.title)})
                 d_terms.append(term)
         return SimpleVocabulary(
-            [SimpleTerm(EMPTY_STRING, EMPTY_STRING, _("Empty value"))]
+            [SimpleTerm(EMPTY_STRING, EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers"))]
             + humansorted(a_terms, key=attrgetter("title"))
             + humansorted(d_terms, key=attrgetter("title"))
         )
