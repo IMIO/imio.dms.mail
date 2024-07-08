@@ -502,25 +502,32 @@ class Migrate_To_3_0(Migrator):  # noqa
             # finished = self.reindexIndexes(['classification_folders'], update_metadata=True,
             #                                portal_types=['dmsincomingmail', 'dmsincoming_email', 'dmsoutgoingmail'])
             # TEMPORARY to 3.0.57
-            faceted_configs = (
-                (self.imf["mail-searches"], "im-mail", "all_mails"),
-                (self.omf["mail-searches"], "om-mail", "all_mails"),
-                (self.portal["tasks"]["task-searches"], "im-task", "all_tasks"),
-                (self.portal["folders"]["folder-searches"], "classificationfolders", "all_folders"),
-            )
-            for folder, xml_start, default_id in faceted_configs:
-                reimport_faceted_config(
-                    folder, xml="{}-searches.xml".format(xml_start), default_UID=folder[default_id].UID()
-                )
+            # faceted_configs = (
+            #     (self.imf["mail-searches"], "im-mail", "all_mails"),
+            #     (self.omf["mail-searches"], "om-mail", "all_mails"),
+            #     (self.portal["tasks"]["task-searches"], "im-task", "all_tasks"),
+            #     (self.portal["folders"]["folder-searches"], "classificationfolders", "all_folders"),
+            # )
+            # for folder, xml_start, default_id in faceted_configs:
+            #     reimport_faceted_config(
+            #         folder, xml="{}-searches.xml".format(xml_start), default_UID=folder[default_id].UID()
+            #     )
             # TEMPORARY TO 3.0.59
-            self.reindexIndexes(
-                ["yesno_value"],  # for solr index
-                update_metadata=False,
-                portal_types=["ClassificationFolder", "ClassificationSubfolder"],
+            finished = self.reindexIndexes(
+                ["yesno_value", "classification_categories", "classification_folders"],  # for solr index
+                update_metadata=True,
+                portal_types=[
+                    "ClassificationFolder",
+                    "ClassificationSubfolder",
+                    "dmsincomingmail",
+                    "dmsincoming_email",
+                    "dmsoutgoingmail",
+                ],
             )
+
             # END
 
-            finished = True  # can be eventually returned and set by batched method
+            # finished = True  # can be eventually returned and set by batched method
             old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
             if finished and old_version != new_version:
