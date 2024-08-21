@@ -524,6 +524,14 @@ class Migrate_To_3_0(Migrator):  # noqa
                     "dmsoutgoingmail",
                 ],
             )
+            if finished:
+                brains = self.catalog(portal_type="DashboardCollection", path="/".join(self.omf.getPhysicalPath()))
+                for brain in brains:
+                    if not brain.id.startswith("searchfor_") or brain.id == "searchfor_scanned":
+                        continue
+                    col = brain.getObject()
+                    if col.sort_on != "created":
+                        col.sort_on = "created"
 
             # END
 
