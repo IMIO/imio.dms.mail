@@ -622,6 +622,7 @@ def createStateCollections(folder, content_type):
         "task": {"*": u"created"},
         "dmsoutgoingmail": {
             "scanned": u"organization_type",
+            "*": u"created"
         },
     }
 
