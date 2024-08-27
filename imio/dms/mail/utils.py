@@ -20,6 +20,12 @@ from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.helpers.batching import batch_delete_files
+from imio.helpers.batching import batch_get_keys
+from imio.helpers.batching import batch_handle_key
+from imio.helpers.batching import batch_hashed_filename
+from imio.helpers.batching import batch_loop_else
+from imio.helpers.batching import batch_skip_key
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
@@ -49,7 +55,6 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
-from Products.ZCatalog.ProgressHandler import ZLogHandler
 from unidecode import unidecode
 from z3c.relationfield import RelationValue
 from zc.relation.interfaces import ICatalog
@@ -481,7 +486,7 @@ def separate_fullname(user, fn_first=True, fullname=None):
     return firstname, lastname
 
 
-def dv_clean(portal, days_back="365", date_back=None, batch="3000"):
+def dv_clean(portal, days_back="365", date_back=None):
     """Remove document viewer annotation on old mails.
 
     * days_back: default behavior: we take closed items not modified from this range
@@ -494,10 +499,9 @@ def dv_clean(portal, days_back="365", date_back=None, batch="3000"):
         "call the script followed by needed parameters:",
         "-> days_back=nb of days to keep (default '365') (not used if date_back is used)",
         "-> date_back=fixed date to consider (default None) (format YYYYMMDD)",
-        "-> batch=batch number to commit each nth (default '3000')",
     ]
-    pghandler = ZLogHandler(steps=int(batch))
-    log_list(out, "Starting dv_clean at {}".format(start), pghandler)
+    # logger.info("Starting dv_clean at {}".format(start))
+    log_list(out, "Starting dv_clean at {}".format(start), logger)
     from Products.CPUtils.Extensions.utils import dv_images_size
 
     normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_supprimee_normal.jpg"))
@@ -516,7 +520,7 @@ def dv_clean(portal, days_back="365", date_back=None, batch="3000"):
     ]
     if date_back:
         if len(date_back) != 8:
-            log_list(out, "Bad date_back length '{}'".format(date_back), pghandler)
+            log_list(out, "Bad date_back length '{}'".format(date_back), logger)
             return
         mod_date = datetime.strptime(date_back, "%Y%m%d")
         # mod_date = add_timezone(mod_date, force=True)
@@ -525,57 +529,67 @@ def dv_clean(portal, days_back="365", date_back=None, batch="3000"):
     already_done = DateTime("2010/01/01").ISO8601()  # when using image saying preview has been deleted
     already_eml = DateTime("2011/01/01").ISO8601()  # when using image saying eml cannot be converted
     get_same_blob = True  # we will get previously blobs
-    total = {"obj": 0, "pages": 0, "files": 0, "size": 0}
     pc = portal.portal_catalog
+    brains = []
     for j, criteria in enumerate(criterias):
         if not date_back:
             criteria.update(state_criterias[j])  # noqa
-        criteria.update({"modified": {"query": mod_date, "range": "max"}})  # noqa
-        criteria.update({"sort_on": "created"})
-        brains = pc(**criteria)
-        bl = len(brains)
-        pghandler.init(criteria["portal_type"][0], bl)
-        total["obj"] += bl
-        for i, brain in enumerate(brains, 1):
-            mail = brain.getObject()
-            for fobj in object_values(mail, ["DmsFile", "DmsAppendixFile", "ImioDmsFile"]):
-                annot = IAnnotations(fobj).get("collective.documentviewer", "")
-                if not annot or not annot.get("successfully_converted"):
-                    continue
-                if annot["last_updated"] == already_done:
-                    if get_same_blob:
-                        for name in ("large", "normal", "small"):
-                            blobs[name] = annot["blob_files"]["{}/dump_1.jpg".format(name)]
-                        get_same_blob = False
-                    continue
-                if annot["last_updated"] == already_eml:
-                    continue
-                get_same_blob = False
-                total["files"] += 1
-                sizes = dv_images_size(fobj)
-                total["pages"] += sizes["pages"]
-                total["size"] += sizes["large"] + sizes["normal"] + sizes["small"] + sizes["text"]
-                # clean annotation
-                files = OOBTree()
-                for name in ["large", "normal", "small"]:
-                    files["{}/dump_1.jpg".format(name)] = blobs[name]
-                annot["blob_files"] = files
-                annot["num_pages"] = 1
-                annot["pdf_image_format"] = "jpg"
-                annot["last_updated"] = already_done
-            pghandler.report(i)
-        pghandler.finish()
+        criteria.update({"modified": {"query": mod_date, "range": "max"}, "sort_on": "created"})  # noqa
+        brains.extend(pc(**criteria))
+
+    bl = len(brains)
+    pklfile = batch_hashed_filename('idm.dv_clean.pkl')
+    batch_keys, batch_config = batch_get_keys(pklfile, loop_length=bl)
+    total = {"obj": bl, "pages": 0, "files": 0, "size": 0}
+    for brain in brains:
+        if batch_skip_key(brain.UID, batch_keys, batch_config):
+            continue
+        mail = brain.getObject()
+        for fobj in object_values(mail, ["DmsFile", "DmsAppendixFile", "ImioDmsFile"]):
+            annot = IAnnotations(fobj).get("collective.documentviewer", "")
+            if not annot or not annot.get("successfully_converted"):
+                continue
+            if annot["last_updated"] == already_done:
+                if get_same_blob:
+                    for name in ("large", "normal", "small"):
+                        blobs[name] = annot["blob_files"]["{}/dump_1.jpg".format(name)]
+                    get_same_blob = False
+                continue
+            if annot["last_updated"] == already_eml:
+                continue
+            get_same_blob = False
+            total["files"] += 1
+            sizes = dv_images_size(fobj)
+            total["pages"] += sizes["pages"]
+            total["size"] += sizes["large"] + sizes["normal"] + sizes["small"] + sizes["text"]
+            # clean annotation
+            files = OOBTree()
+            for name in ["large", "normal", "small"]:
+                files["{}/dump_1.jpg".format(name)] = blobs[name]
+            annot["blob_files"] = files
+            annot["num_pages"] = 1
+            annot["pdf_image_format"] = "jpg"
+            annot["last_updated"] = already_done
+        if batch_handle_key(brain.UID, batch_keys, batch_config):
+            break
+    else:
+        batch_loop_else(batch_keys, batch_config)
 
     end = datetime.now()
     delta = end - start
-    log_list(out, "Finishing dv_clean, duration {}".format(delta), pghandler)
+    # logger.info("Finishing dv_clean, duration {}".format(delta))
+    log_list(out, "Finishing dv_clean, duration {}".format(delta), logger)
     total["deleted"] = total["pages"] * 4
     total["size"] = fileSize(total["size"])
+    # logger.info("Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', "
+    #             "Size: '{size}'".format(**total))
     log_list(
         out,
         "Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', " "Size: '{size}'".format(**total),
-        pghandler,
+        logger
     )
+    if batch_config['bl']:
+        batch_delete_files(batch_keys, batch_config)
     return "\n".join(out)
 
 
