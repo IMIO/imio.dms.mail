@@ -26,6 +26,7 @@ from imio.helpers.batching import batch_handle_key
 from imio.helpers.batching import batch_hashed_filename
 from imio.helpers.batching import batch_loop_else
 from imio.helpers.batching import batch_skip_key
+from imio.helpers.batching import can_delete_batch_files
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
@@ -588,7 +589,7 @@ def dv_clean(portal, days_back="365", date_back=None):
         "Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', " "Size: '{size}'".format(**total),
         logger
     )
-    if batch_config['bl']:
+    if can_delete_batch_files(batch_keys, batch_config):
         batch_delete_files(batch_keys, batch_config)
     return "\n".join(out)
 
