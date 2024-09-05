@@ -532,6 +532,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                     col = brain.getObject()
                     if col.sort_on != "created":
                         col.sort_on = "created"
+                # load_type_from_package('dmsoutgoingmail', 'profile-imio.dms.mail:default')  # schema policy
+                omf = api.portal.get_registry_record(
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
+                )
+                om_fns = [dic["field_name"] for dic in omf]
+                if "email_bcc" not in om_fns:
+                    omf.insert(om_fns.index("email_cc") + 1,
+                               {"field_name": "email_bcc", "read_tal_condition": u"", "write_tal_condition": u""})
+                    api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
+                                                   omf)
 
             # END
 
@@ -957,9 +967,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # allowed types
         self.omf.setConstrainTypesMode(1)
-        # self.omf.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
         self.omf.setLocallyAllowedTypes(["dmsoutgoingmail"])
-        # self.omf.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
         self.omf.setImmediatelyAddableTypes(["dmsoutgoingmail"])
         # diff
         pdiff = api.portal.get_tool("portal_diff")

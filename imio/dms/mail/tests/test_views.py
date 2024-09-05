@@ -256,7 +256,8 @@ class TestSendEmail(unittest.TestCase):
         mail_host.reset()
         # view call
         view()
-        self.assertIn("Subject: =?utf-8?q?Email_subject?=\n", mail_host.messages[0])
+        # self.assertIn("Subject: =?utf-8?q?Email_subject?=\n", mail_host.messages[0])
+        self.assertIn("Subject: Email subject\n", mail_host.messages[0])
         self.assertIn("My email content.", mail_host.messages[0])
         self.assertEqual(api.content.get_state(omail1), "sent")
         self.assertIsNotNone(omail1.email_status)
