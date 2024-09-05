@@ -245,12 +245,16 @@ class SendEmail(BrowserView):
             )
             return
         elif api.portal.get_registry_record(replyto_key, default=False):
+            sender = mailhost.smtp_uid
+            if not sender:
+                sender = api.portal.get().email_from_address
             ret, error = send_email(
                 msg,
                 self.context.email_subject,
-                mailhost.smtp_uid,
+                sender,
                 self.context.email_recipient,
-                self.context.email_cc,
+                mcc=self.context.email_cc,
+                mbcc=self.context.email_bcc,
                 replyto=self.context.email_sender,
             )
         else:
@@ -259,7 +263,8 @@ class SendEmail(BrowserView):
                 self.context.email_subject,
                 self.context.email_sender,
                 self.context.email_recipient,
-                self.context.email_cc,
+                mcc=self.context.email_cc,
+                mbcc=self.context.email_bcc,
             )
         if ret:
             api.portal.show_message(_("Your email has been sent."), self.request)
