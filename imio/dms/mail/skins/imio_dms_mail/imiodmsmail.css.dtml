@@ -59,6 +59,7 @@
 .template-dmsdocument-edit #form-widgets-email_sender,
 .template-dmsdocument-edit #form-widgets-email_recipient,
 .template-dmsdocument-edit #form-widgets-email_cc,
+.template-dmsdocument-edit #form-widgets-email_bcc,
 .template-dmsdocument-edit #form-widgets-email_status {
     width: 100% !important;
 }
