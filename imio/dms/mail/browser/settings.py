@@ -36,7 +36,7 @@ from plone.z3cform import layout
 from z3c.form import form
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.browser.radio import RadioFieldWidget
-from z3c.form.interfaces import WidgetActionExecutionError
+# from z3c.form.interfaces import WidgetActionExecutionError
 from z3c.form.validator import NoInputData
 from zope import schema
 from zope.component import getUtility
@@ -277,6 +277,7 @@ class IImioDmsMailConfig(model.Schema):
         default=False,
     )
 
+    # FIELDSET IEM
     model.fieldset("incoming_email", label=_(u"Incoming email"), fields=["iemail_manual_forward_transition"])
 
     iemail_manual_forward_transition = schema.Choice(
@@ -286,6 +287,7 @@ class IImioDmsMailConfig(model.Schema):
         default=u"agent",
     )
 
+    # FIELDSET OM
     model.fieldset(
         "outgoingmail",
         label=_(u"Outgoing mail"),
@@ -296,13 +298,8 @@ class IImioDmsMailConfig(model.Schema):
             "omail_odt_mainfile",
             "omail_sender_firstname_sorting",
             "org_templates_encoder_can_edit",
-            "org_email_templates_encoder_can_edit",
             "omail_fullname_used_form",
             "omail_send_modes",
-            "omail_close_on_email_send",
-            "omail_replyto_email_send",
-            "omail_sender_email_default",
-            "omail_email_signature",
             "omail_fields",
             "omail_group_encoder",
         ],
@@ -332,12 +329,6 @@ class IImioDmsMailConfig(model.Schema):
     org_templates_encoder_can_edit = schema.Bool(
         title=_(u"Enable edition of service office templates for encoder"),
         description=_(u"Check if a service encoder can edit his service office templates."),
-        default=True,
-    )
-
-    org_email_templates_encoder_can_edit = schema.Bool(
-        title=_(u"Enable edition of service email templates for encoder"),
-        description=_(u"Check if a service encoder can edit his service email templates."),
         default=True,
     )
 
@@ -371,6 +362,39 @@ class IImioDmsMailConfig(model.Schema):
 
     widget("omail_send_modes", DataGridFieldFactory, allow_reorder=True)
 
+    omail_group_encoder = schema.Bool(
+        title=_(u"Activate group encoder"),
+        description=_(
+            u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
+            u"When activating this option, a group encoder function is added in the configuration, "
+            u"a new field is added to the mail form to choose the creating group and permissions are given "
+            u"to the selected creating group. Mails are then separately handled following the creating "
+            u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
+            u"multiple scanners and separated 'encoder' groups. "
+            u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
+        ),
+        default=False,
+    )
+
+    # FIELDSET OEM
+    model.fieldset(
+        "outgoing_email",
+        label=_(u"Outgoing email"),
+        fields=[
+            "org_email_templates_encoder_can_edit",
+            "omail_close_on_email_send",
+            "omail_replyto_email_send",
+            "omail_sender_email_default",
+            "omail_email_signature",
+        ],
+    )
+
+    org_email_templates_encoder_can_edit = schema.Bool(
+        title=_(u"Enable edition of service email templates for encoder"),
+        description=_(u"Check if a service encoder can edit his service email templates."),
+        default=True,
+    )
+
     omail_close_on_email_send = schema.Bool(title=_(u"Close outgoing mail on email send"), default=True)
 
     omail_replyto_email_send = schema.Bool(title=_(u"Send email with sender as reply to"), default=False)
@@ -389,20 +413,7 @@ class IImioDmsMailConfig(model.Schema):
         required=False,
     )
 
-    omail_group_encoder = schema.Bool(
-        title=_(u"Activate group encoder"),
-        description=_(
-            u"ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />"
-            u"When activating this option, a group encoder function is added in the configuration, "
-            u"a new field is added to the mail form to choose the creating group and permissions are given "
-            u"to the selected creating group. Mails are then separately handled following the creating "
-            u"groups. <br />The creating group can be preset in scanning program. It's then possible to have "
-            u"multiple scanners and separated 'encoder' groups. "
-            u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
-        ),
-        default=False,
-    )
-
+    # FIELDSET CONTACTS
     model.fieldset("contact", label=_(u"Contacts"), fields=["all_backrefs_view", "contact_group_encoder"])
 
     all_backrefs_view = schema.Bool(title=_(u"A user can see all mail titles linked to a contact."), default=False)
@@ -419,6 +430,7 @@ class IImioDmsMailConfig(model.Schema):
         default=False,
     )
 
+    # FIELDSET OTHER
     model.fieldset(
         "general",
         label=_(u"General config tab"),
