@@ -824,7 +824,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
             orgc = IContactable(sender_i["org"])
             email = orgc.get_contact_details(keys=["email"]).get("email", u"")
             res.append(email)
-        return u",".join(res)
+        return u", ".join(res)
 
     def get_recipient_emails(self):
         """Returns recipient email addresses
