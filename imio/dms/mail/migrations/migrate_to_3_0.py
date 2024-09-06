@@ -542,6 +542,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                                {"field_name": "email_bcc", "read_tal_condition": u"", "write_tal_condition": u""})
                     api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
                                                    omf)
+                # new omail_bcc_email_default setting field
+                self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
 
             # END
 

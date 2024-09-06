@@ -777,7 +777,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
             return {}
         return {"hp": sender, "person": sender.get_person(), "org": sender.get_organization()}
 
-    def get_sender_email(self, sender_i={}):
+    def get_sender_email(self, sender_i=None):
         """Returns a sender email address
 
         :param sender_i: a dict containing sender information (as returned by `get_sender_info`)
@@ -786,8 +786,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         """
         if not sender_i:
             sender_i = self.get_sender_info()
-        replyto_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_email_default"
-        rtv = api.portal.get_registry_record(replyto_key, default=u"agent_email")
+        reg_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_email_default"
+        rtv = api.portal.get_registry_record(reg_key, default=u"agent_email")
         if rtv == "agent_email":
             hpc = IContactable(sender_i["hp"])
             email = hpc.get_contact_details(keys=["email"]).get("email", u"")
@@ -799,6 +799,32 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
             email = orgc.get_contact_details(keys=["email"]).get("email", u"")
             return email
         return u""
+
+    def get_bcc_emails(self, sender_i=None):
+        """Returns bcc email addresses
+
+        :param sender_i: a dict containing sender information (as returned by `get_sender_info`)
+        :return: email addresses
+        :rtype: unicode
+        """
+        if not sender_i:
+            sender_i = self.get_sender_info()
+        reg_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_bcc_email_default"
+        rtv = api.portal.get_registry_record(reg_key, default=None)
+        if not rtv:
+            return u""
+        res = []
+        if "agent_email" in rtv:
+            hpc = IContactable(sender_i["hp"])
+            email = hpc.get_contact_details(keys=["email"]).get("email", u"")
+            if email:
+                realname = u"{} {}".format(sender_i["hp"].firstname, sender_i["hp"].lastname)
+                res.append(u'"{}" <{}>'.format(unidecode(realname), email))
+        if "service_email" in rtv:
+            orgc = IContactable(sender_i["org"])
+            email = orgc.get_contact_details(keys=["email"]).get("email", u"")
+            res.append(email)
+        return u",".join(res)
 
     def get_recipient_emails(self):
         """Returns recipient email addresses
@@ -999,12 +1025,19 @@ class OMEdit(BaseOMEdit):
             subject = email_fs.widgets["email_subject"]
             if not subject.value:
                 subject.value = self.context.title
+            sender_i = {}
             sender = email_fs.widgets["email_sender"]
             if not sender.value:
-                sender.value = self.context.get_sender_email()
+                sender_i = self.context.get_sender_info()
+                sender.value = self.context.get_sender_email(sender_i=sender_i)
             recipient = email_fs.widgets["email_recipient"]
             if not recipient.value:
                 recipient.value = self.context.get_recipient_emails()
+            bcc = email_fs.widgets["email_bcc"]
+            if not bcc.value:
+                if not sender_i:
+                    sender_i = self.context.get_sender_info()
+                bcc.value = self.context.get_bcc_emails(sender_i=sender_i)
             # hidden mode
             if "email_status" in email_fs.widgets:
                 email_fs.widgets["email_status"].mode = HIDDEN_MODE

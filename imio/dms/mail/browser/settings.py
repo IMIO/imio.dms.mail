@@ -34,6 +34,7 @@ from plone.registry.interfaces import IRecordModifiedEvent
 from plone.supermodel import model
 from plone.z3cform import layout
 from z3c.form import form
+from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.browser.radio import RadioFieldWidget
 # from z3c.form.interfaces import WidgetActionExecutionError
@@ -182,6 +183,13 @@ iemail_manual_forward_transitions = SimpleVocabulary(
 )
 
 oemail_sender_email_values = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"agent_email", title=_(u"Sender held position email is used")),
+        SimpleTerm(value=u"service_email", title=_(u"Sender held position service email is used")),
+    ]
+)
+
+oemail_bcc_email_values = SimpleVocabulary(
     [
         SimpleTerm(value=u"agent_email", title=_(u"Sender held position email is used")),
         SimpleTerm(value=u"service_email", title=_(u"Sender held position service email is used")),
@@ -385,6 +393,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_close_on_email_send",
             "omail_replyto_email_send",
             "omail_sender_email_default",
+            "omail_bcc_email_default",
             "omail_email_signature",
         ],
     )
@@ -404,6 +413,12 @@ class IImioDmsMailConfig(model.Schema):
         vocabulary=oemail_sender_email_values,
         default=u"agent_email",
     )
+
+    omail_bcc_email_default = schema.List(
+        title=_(u"Default bcc emails"),
+        value_type=schema.Choice(vocabulary=oemail_bcc_email_values),
+    )
+    widget("omail_bcc_email_default", CheckBoxFieldWidget, multiple="multiple", size=5)
 
     widget("omail_email_signature", WysiwygFieldWidget)
     # widget('omail_email_signature', klass='pat-tinymce') in plone 5 ?
@@ -443,6 +458,7 @@ class IImioDmsMailConfig(model.Schema):
         value_type=schema.Choice(vocabulary=u"imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary"),
     )
     widget("groups_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
+    # widget("groups_hidden_in_dashboard_filter", MultiSelect2FieldWidget)
 
     users_hidden_in_dashboard_filter = schema.List(
         title=_(u"Users hidden in dashboards filter"),
