@@ -1,6 +1,23 @@
 Changelog
 =========
 
+3.0.59
+------
+
+- Last commit at
+- Corrected templates with LO 24.2.5.2
+- Better bcc field display
+- Added default bcc value depending on config
+- Added outgoing email tab in settings to isolate email settings
+- Used bcc field to send email
+- Used can_delete_batch_files
+- Updated dv_clean to include batching functions
+- Ordered om states collections as other on created, excepted for scanned state
+- Added 3.0.59 migration
+- Imported EMPTY values from imio.helpers
+- Updated yesno_value index, laterly added to solr
+- Added utils method to order settings lists
+
 3.0.58
 ------
 
