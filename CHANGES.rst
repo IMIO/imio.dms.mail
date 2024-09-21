@@ -5,6 +5,7 @@ Changelog
 ------
 
 - Last commit at
+- Removed tree from plus menu when classification is deactivated
 - Corrected templates with LO 24.2.5.2
 - Better bcc field display
 - Added default bcc value depending on config
