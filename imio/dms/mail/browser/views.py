@@ -441,6 +441,7 @@ class PlusPortaltabContent(BrowserView):
         self.context = context
         self.request = request
         self.portal = api.portal.get()
+        self.excluded_types = self.portal.portal_properties.navtree_properties.metaTypesNotToList
 
     def get_tabs(self):
         res = self.portal.portal_catalog(
@@ -448,4 +449,4 @@ class PlusPortaltabContent(BrowserView):
             path={"query": "/".join(self.portal.getPhysicalPath()), "depth": 1},
             sort_on="getObjPositionInParent",
         )
-        return [(b.Title, b.getURL()) for b in res]
+        return [(b.Title, b.getURL()) for b in res if b.portal_type not in self.excluded_types]
