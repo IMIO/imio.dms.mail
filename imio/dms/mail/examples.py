@@ -906,6 +906,7 @@ def configure_imio_dms_mail(context):
             "email_sender",
             "email_recipient",
             "email_cc",
+            "email_bcc",
             "email_attachments",
             "email_body",
         ]
