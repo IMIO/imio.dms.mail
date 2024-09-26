@@ -3,6 +3,7 @@ Resource  plone/app/robotframework/keywords.robot
 Resource  plone/app/robotframework/selenium.robot
 Resource  common.robot
 
+Library  OperatingSystem
 Library  Remote  ${PLONE_URL}/RobotRemote
 Library  Selenium2Screenshots
 
@@ -1388,6 +1389,8 @@ Debug
 
 *** Keywords ***
 Suite Setup
+    ${FF_PROFILE_DIR} =  Get Environment Variable  ROBOT_FF_PROFILE_DIR  None
+    Set global variable  ${FF_PROFILE_DIR}
     Open test browser
     # Set Window Size  1080  1920
     # Set Window Size  1260  2880
