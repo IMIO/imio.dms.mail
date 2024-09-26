@@ -1300,10 +1300,10 @@ Annexes dossiers
     Go to  ${PLONE_URL}/folders
     Sleep  2
     Capture and crop page screenshot  doc/utilisation/2-12-folder-view.png  id=faceted-results
-    Click Element  css:.pretty_link_icons:first-child img 
+    Click Element  css:.pretty_link_icons:first-child img
     Input Text  id=form-widgets-title  Dossier de test
     Input Text  id=form-widgets-classification_categories-widgets-query  con
-    Click Element  css:.ac_results li:nth-child(3)      
+    Click Element  css:.ac_results li:nth-child(3)
     Select from list by index  id=form-widgets-treating_groups  9  # Service traitant
     Input Text  id=s2id_autogen1  GRH       # Service en copie
     Click Element  css:.select2-result-label
@@ -1314,8 +1314,8 @@ Annexes dossiers
     Capture and crop page screenshot  doc/utilisation/2-12-created-folder-view.png  id=portal-column-content
     # Add annexes as files to folder
     Click button  css:.apButton.apButtonAction.apButtonAction_annexes
-    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/annexe.pdf
-    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/Document Kickoff.odt
+    Choose File  name:file  ${CURDIR}/annexe.pdf
+    Choose File  name:file  ${CURDIR}/Document Kickoff.odt
     Input Text  css:ul li:nth-of-type(1) form input[id="form-widgets-title"]   annexe.pdf
     Input Text  css:ul li:nth-of-type(2) form input[id="form-widgets-title"]   document kickoff.odt
     # Select category of annexes
@@ -1336,8 +1336,8 @@ Annexes dossiers
     Click button  id=form-buttons-save
     # Add annexes as files to subfolder
     Click button  css:.apButton.apButtonAction.apButtonAction_annexes
-    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/annexe.pdf
-    Choose File  name:file  /srv/src/dmsmail/src/imio.dms.mail/imio/dms/mail/tests/robot/Document Kickoff.odt
+    Choose File  name:file  ${CURDIR}/annexe.pdf
+    Choose File  name:file  ${CURDIR}/Document Kickoff.odt
     Input Text  css:ul li:nth-of-type(1) form input[id="form-widgets-title"]   annexe.pdf
     Input Text  css:ul li:nth-of-type(2) form input[id="form-widgets-title"]   document kickoff.odt
     # Select category of annexes
@@ -1375,7 +1375,7 @@ Annexes dossiers
     Capture and crop page screenshot  doc/utilisation/2-12-tree.png  id=content
     Go to  ${PLONE_URL}/folders/
     Click Element  css:.pretty_link_content.state-active
-    
+
 Debug
     [TAGS]  DBG
     Pass execution  Only for debug purpose
