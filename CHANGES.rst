@@ -5,6 +5,10 @@ Changelog
 ------
 
 - Last commit at
+- Used defined firefox profile dir if exists
+- Corrected bad select2 criteria in robot doc
+- Corrected robot test to use a dynamic folder path
+- Added email_bcc by default and mandatory in settings
 - Removed tree from plus menu when classification is deactivated
 - Corrected templates with LO 24.2.5.2
 - Better bcc field display
