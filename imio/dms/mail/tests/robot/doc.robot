@@ -633,9 +633,11 @@ Tableaux de bord
     Wait until element is visible  id=top---advanced---widgets  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-filtres-avances.png  id=top---advanced---widgets  css=div.faceted-sections-buttons
-    click element  css=.select2-container
-    Input text  css=.select2-input  elec
-    Wait until element is visible  css=#select2-drop .select2-results  10
+    click element  css=div#s2id_c12.select2-container
+    Input text  css=div#s2id_c12.select2-container .select2-input  elec
+    Wait until element is visible  css=.select2-drop-active .select2-results  10
+    ${span_value}=  Get Text  //div[contains(@class, 'select2-drop-active')]//ul/li[1]/div
+    Should Be Equal  ${span_value}  Electrabel
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-filtre-expediteur.png  id=top---advanced---widgets  css=#select2-drop .select2-results
     Go to  ${PLONE_URL}/incoming-mail
