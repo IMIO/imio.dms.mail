@@ -114,6 +114,7 @@ class TestSettings(unittest.TestCase):
             "email_sender",
             "email_recipient",
             "email_cc",
+            "email_bcc",
             "email_attachments",
             "email_body",
             "IDmsMailCreatingGroup.creating_group",

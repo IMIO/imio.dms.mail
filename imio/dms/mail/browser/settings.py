@@ -574,6 +574,7 @@ class IImioDmsMailConfig(model.Schema):
                     "email_sender",
                     "email_recipient",
                     "email_cc",
+                    "email_bcc",
                     "email_attachments",
                     "email_body",
                 ],
