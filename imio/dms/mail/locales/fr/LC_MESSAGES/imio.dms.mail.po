@@ -281,7 +281,7 @@ msgstr "Reprise de données"
 
 #: ./browser/settings.py:418
 msgid "Default bcc emails"
-msgstr "Valeurs par défaut de l'adresse email en copie cachée"
+msgstr "Valeurs par défaut du champ 'Emails des destinataires en copie cachée'"
 
 #: ./browser/settings.py:202
 msgid "Displayed title"
