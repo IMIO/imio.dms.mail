@@ -5,6 +5,7 @@ Changelog
 ------
 
 - Last commit at
+- Added anchor in minor changes link
 - Used defined firefox profile dir if exists
 - Corrected bad select2 criteria in robot doc
 - Corrected robot test to use a dynamic folder path
