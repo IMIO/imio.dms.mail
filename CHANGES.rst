@@ -4,7 +4,8 @@ Changelog
 3.0.59
 ------
 
-- Last commit at dfa890d6eb849ca5226bcd58b2bb87f1989c5578
+- Last commit at 46f6888adea9602d522d45026d930f3ac9519b7d
+- Print old and new version in migration
 - Added anchor in minor changes link
 - Used defined firefox profile dir if exists
 - Corrected bad select2 criteria in robot doc
