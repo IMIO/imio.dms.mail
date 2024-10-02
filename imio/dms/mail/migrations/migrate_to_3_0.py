@@ -2,7 +2,7 @@
 from collective.ckeditortemplates.setuphandlers import FOLDER as default_cke_templ_folder
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentgenerator.utils import update_oo_config
-from collective.documentviewer.settings import GlobalSettings
+# from collective.documentviewer.settings import GlobalSettings
 from collective.messagesviewlet.utils import add_message
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.content.task import Task
@@ -23,12 +23,12 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.examples import add_special_model_mail
+# from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
-from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
-from imio.dms.mail.relations_utils import rebuild_relations
+# from imio.dms.mail.relations_utils import rebuild_relations
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
@@ -38,8 +38,8 @@ from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
+# from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_period_folder_max
-from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
@@ -50,12 +50,12 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
-from imio.helpers.cache import get_plone_groups_for_user
+# from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import find
-from imio.helpers.security import get_user_from_criteria
-from imio.helpers.setup import load_type_from_package
-from imio.helpers.setup import remove_gs_step
-from imio.helpers.workflow import do_transitions
+# from imio.helpers.security import get_user_from_criteria
+# from imio.helpers.setup import load_type_from_package
+# from imio.helpers.setup import remove_gs_step
+# from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from imio.pyutils.system import load_var
@@ -418,7 +418,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     for brain in brains:
             #         col = brain.getObject()
             #         buf = list(col.customViewFields)
-            #         if u'classification_tree_identifiers' in buf and buf.index(u'classification_tree_identifiers') != 1:
+            #         if (u'classification_tree_identifiers' in buf and
+            #               buf.index(u'classification_tree_identifiers') != 1):
             #             buf.remove(u'classification_tree_identifiers')
             #             buf.insert(1, u'classification_tree_identifiers')
             #             col.customViewFields = tuple(buf)
@@ -513,6 +514,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             #         folder, xml="{}-searches.xml".format(xml_start), default_UID=folder[default_id].UID()
             #     )
             # TEMPORARY TO 3.0.59
+            old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
+            new_version = safe_unicode(get_git_tag(BLDT_DIR))
+            logger.info("Current migration from version {} to {}".format(old_version, new_version))
             finished = self.reindexIndexes(
                 ["yesno_value", "classification_categories", "classification_folders"],  # for solr index
                 update_metadata=True,
@@ -548,8 +552,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             # END
 
             # finished = True  # can be eventually returned and set by batched method
-            old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
-            new_version = safe_unicode(get_git_tag(BLDT_DIR))
             if finished and old_version != new_version:
                 zope_app = self.portal
                 while not isinstance(zope_app, OFS.Application.Application):
