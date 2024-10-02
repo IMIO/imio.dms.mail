@@ -4,6 +4,7 @@
                <span i18n:translate="description_copyright" tal:omit-tag="">
                    iA.docs - Version <a href='https://docs.imio.be/iadocs/changelog/minor_versions.html' target='_blank' >
                    <tal:version i18n:name="version" tal:content="view/version" /></a>
+                   <tal:dashversion i18n:name="dashversion" tal:content="view/dashversion" />
                </span>
 
                <span i18n:translate="description_license" tal:omit-tag="">
@@ -11,5 +12,4 @@
                 - <a href='https://docs.imio.be/iadocs/index.html' target='_blank'>Online documentation</a>
                </span>
           </p>
-
 </div>

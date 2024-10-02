@@ -152,3 +152,4 @@ class ImioFooterViewlet(FooterViewlet):
     def update(self):
         super(FooterViewlet, self).update()
         self.version = api.portal.get_registry_record("imio.dms.mail.product_version", default="3.0")
+        self.dashversion = self.version.replace(".", "-")
