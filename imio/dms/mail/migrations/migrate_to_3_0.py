@@ -45,6 +45,8 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import message_status
+from imio.dms.mail.utils import modifyFileInBlob
+from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
@@ -72,6 +74,7 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zExceptions import Redirect
+from zope.annotation import IAnnotations
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.event import notify
@@ -353,6 +356,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             )
 
         if self.is_in_part("r"):  # update templates
+            old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
+            new_version = safe_unicode(get_git_tag(BLDT_DIR))
+            logger.info("Current migration from version {} to {}".format(old_version, new_version))
             # TEMPORARY to 3.0.39
             # brains = api.content.find(context=self.portal.templates.om)
             # for brain in brains:
@@ -514,44 +520,55 @@ class Migrate_To_3_0(Migrator):  # noqa
             #         folder, xml="{}-searches.xml".format(xml_start), default_UID=folder[default_id].UID()
             #     )
             # TEMPORARY TO 3.0.59
-            old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
-            new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            logger.info("Current migration from version {} to {}".format(old_version, new_version))
-            finished = self.reindexIndexes(
-                ["yesno_value", "classification_categories", "classification_folders"],  # for solr index
-                update_metadata=True,
-                portal_types=[
-                    "ClassificationFolder",
-                    "ClassificationSubfolder",
-                    "dmsincomingmail",
-                    "dmsincoming_email",
-                    "dmsoutgoingmail",
-                ],
-            )
-            if finished:
-                brains = self.catalog(portal_type="DashboardCollection", path="/".join(self.omf.getPhysicalPath()))
-                for brain in brains:
-                    if not brain.id.startswith("searchfor_") or brain.id == "searchfor_scanned":
-                        continue
-                    col = brain.getObject()
-                    if col.sort_on != "created":
-                        col.sort_on = "created"
-                # load_type_from_package('dmsoutgoingmail', 'profile-imio.dms.mail:default')  # schema policy
-                omf = api.portal.get_registry_record(
-                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
-                )
-                om_fns = [dic["field_name"] for dic in omf]
-                if "email_bcc" not in om_fns:
-                    omf.insert(om_fns.index("email_cc") + 1,
-                               {"field_name": "email_bcc", "read_tal_condition": u"", "write_tal_condition": u""})
-                    api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
-                                                   omf)
-                # new omail_bcc_email_default setting field
-                self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
-
+            # finished = self.reindexIndexes(
+            #     ["yesno_value", "classification_categories", "classification_folders"],  # for solr index
+            #     update_metadata=True,
+            #     portal_types=[
+            #         "ClassificationFolder",
+            #         "ClassificationSubfolder",
+            #         "dmsincomingmail",
+            #         "dmsincoming_email",
+            #         "dmsoutgoingmail",
+            #     ],
+            # )
+            # if finished:
+            #     brains = self.catalog(portal_type="DashboardCollection", path="/".join(self.omf.getPhysicalPath()))
+            #     for brain in brains:
+            #         if not brain.id.startswith("searchfor_") or brain.id == "searchfor_scanned":
+            #             continue
+            #         col = brain.getObject()
+            #         if col.sort_on != "created":
+            #             col.sort_on = "created"
+            #     # load_type_from_package('dmsoutgoingmail', 'profile-imio.dms.mail:default')  # schema policy
+            #     omf = api.portal.get_registry_record(
+            #         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
+            #     )
+            #     om_fns = [dic["field_name"] for dic in omf]
+            #     if "email_bcc" not in om_fns:
+            #         omf.insert(om_fns.index("email_cc") + 1,
+            #                    {"field_name": "email_bcc", "read_tal_condition": u"", "write_tal_condition": u""})
+            #         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
+            #                                        omf)
+            #     # new omail_bcc_email_default setting field
+            #     self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+            # TEMPORARY TO 3.0.60
+            # replace isEml marker by dvConvError and old image by new one
+            brains = self.catalog.unrestrictedSearchResults(portal_type="dmsmainfile", markers="isEml")
+            blobs = []
+            for brain in brains:
+                obj = brain._unrestrictedGetObject()
+                obj.reindexObject(idxs=["markers"])
+                annot = IAnnotations(obj).get("collective.documentviewer", "")
+                btree = annot.get("blob_files")
+                for name in ["large", "normal"]:
+                    blob = btree["{}/dump_1.jpg".format(name)]
+                    if blob not in blobs:
+                        blobs.append(blob)
+            for blob in blobs:
+                modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
             # END
 
-            # finished = True  # can be eventually returned and set by batched method
+            finished = True  # can be eventually returned and set by batched method
             if finished and old_version != new_version:
                 zope_app = self.portal
                 while not isinstance(zope_app, OFS.Application.Application):

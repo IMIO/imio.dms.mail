@@ -651,13 +651,14 @@ def markers_om_index(obj):
 def markers_dmf_index(obj):
     """Indexer of various markers for IDmsFile:
 
-    * isEml
+    * dvConvError
     """
-    markers = []
-    if obj.file and (obj.file.filename.endswith(".eml") or obj.file.contentType == "message/rfc822"):
-        markers.append("isEml")
-    # Stores on obj
     annot = IAnnotations(obj)
+    markers = []
+    if (obj.file and (obj.file.filename.endswith(".eml") or obj.file.contentType == "message/rfc822")) or \
+            (annot.get("collective.documentviewer", {}).get("last_updated", "") == "2050-01-01T00:00:00"):
+        markers.append("dvConvError")
+    # Stores on obj
     annot["dmsmail.markers"] = markers
     return markers
 

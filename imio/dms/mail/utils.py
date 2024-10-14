@@ -642,7 +642,7 @@ def eml_preview(obj):
     """Adds jpeg documentviewer previews for eml file"""
     blobs = {}
     pc = api.portal.get_tool("portal_catalog")
-    brains = pc.unrestrictedSearchResults(portal_type="dmsmainfile", markers="isEml")
+    brains = pc.unrestrictedSearchResults(portal_type="dmsmainfile", markers="dvConvError")
     # search an existing main file with eml previews
     for brain in brains:
         o_annot = IAnnotations(brain._unrestrictedGetObject()).get("collective.documentviewer", "")
@@ -756,6 +756,22 @@ class VariousUtilsMethods(UtilsMethods):
             for nb in natsorted(res[flow], reverse=True):
                 out.append('<a href="%s" target="_blank">%s</a>, %s' % (res[flow][nb][0], nb, res[flow][nb][1]))
         return "<br/>\n".join(out)
+
+    def dv_conversion_problem(self):
+        """When a conversion problem occurs, made the context no more convertible."""
+        if not check_zope_admin():
+            return "You must be zope admin to run this"
+        if self.context.portal_type not in ("dmsmainfile", "dmsommainfile", "dmsappendixfile"):
+            return "Portal type not considered: {}".format(self.context.portal_type)
+        eml_preview(self.context)
+        annot = IAnnotations(self.context)
+        # so it cannot be converted anymore
+        annot["collective.documentviewer"]["last_updated"] = DateTime("2050/01/01").ISO8601()
+        if "exception_msg" in annot["collective.documentviewer"]:
+            del annot["collective.documentviewer"]["exception_msg"]
+        if "exception_traceback" in annot["collective.documentviewer"]:
+            del annot["collective.documentviewer"]["exception_traceback"]
+        return self.context.REQUEST["RESPONSE"].redirect(self.context.absolute_url())
 
     def dv_images_clean(self):
         """Call dv_clean to remove old images following configuration"""
@@ -1460,3 +1476,9 @@ def invalidate_users_groups(portal=None, user=None, user_id=None, **kwargs):
         # the cached value is not correct
         # same reason as change_user method
         get_plone_groups_for_user(user=user, **kwargs)
+
+
+def modifyFileInBlob(blob, filepath):
+    with blob.open('w') as blob_file:
+        with open(filepath, 'rb') as new_file:
+            blob_file.write(new_file.read())
