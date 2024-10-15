@@ -772,7 +772,7 @@ class VariousUtilsMethods(UtilsMethods):
         if "exception_traceback" in annot["collective.documentviewer"]:
             del annot["collective.documentviewer"]["exception_traceback"]
         self.context.reindexObject(idxs=["markers"])
-        return self.context.REQUEST["RESPONSE"].redirect(self.context.absolute_url())
+        return self.context.REQUEST["RESPONSE"].redirect("{}/view".format(self.context.absolute_url()))
 
     def dv_images_clean(self):
         """Call dv_clean to remove old images following configuration"""
