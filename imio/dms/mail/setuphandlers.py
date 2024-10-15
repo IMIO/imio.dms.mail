@@ -473,6 +473,7 @@ def postInstall(context):
         api.portal.set_registry_record(key, False)
 
     configure_documentviewer(site)  # before templates to avoid auto-layout default config
+    configure_fpaudit(site)
 
     add_templates(site)
     add_oem_templates(site)
@@ -611,7 +612,7 @@ def createStateCollections(folder, content_type):
             "*": (u"select_row", u"pretty_link", u"CreationDate", u"actions"),
         },
     }
-    showNumberOfItems = {
+    show_nb_of_items = {
         "dmsincomingmail": ("created",),  # i_e ok
         "dmsoutgoingmail": ("scanned",),
     }
@@ -650,7 +651,7 @@ def createStateCollections(folder, content_type):
                     or view_fields[content_type]["*"]
                 ),
                 tal_condition=conditions.get(content_type, {}).get(state),
-                showNumberOfItems=(state in showNumberOfItems.get(content_type, [])),
+                showNumberOfItems=(state in show_nb_of_items.get(content_type, [])),
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
                 sort_on=sort_on.get(content_type, {}).get(
                     state, sort_on.get(content_type, {}).get("*", u"sortable_title")
@@ -2321,6 +2322,14 @@ def configure_documentviewer(site):
     api.portal.set_registry_record("imio.dms.mail.dv_clean_days", 180)
 
 
+def configure_fpaudit(site):
+    """Set fpaudit registry"""
+    registry = getUtility(IRegistry)
+    if not registry.get("imio.fpaudit.settings.log_entries"):
+        registry["imio.fpaudit.settings.log_entries"] = [{"log_id": u"contacts", "audit_log": u"contacts.log",
+                                                          "log_format": u"%(asctime)s - %(message)s"}]
+
+
 def refreshCatalog(context):
     """
     Reindex catalog
@@ -2390,6 +2399,7 @@ def list_templates():
         (12, "templates/d-im-listing-tab", os.path.join(dpath, "d-im-listing.ods")),
         (20, "templates/all-contacts-export", os.path.join(dpath, "contacts-export.ods")),
         (30, "templates/export-users-groups", os.path.join(dpath, "export-users-groups.ods")),
+        (40, "templates/audit-contacts", os.path.join(dpath, "audit-contacts.ods")),
         (90, "templates/om/style", os.path.join(dpath, "om-styles.odt")),
         (100, "templates/om/header", os.path.join(dpath, "om-header.odt")),
         (105, "templates/om/footer", os.path.join(dpath, "om-footer.odt")),
@@ -2513,6 +2523,21 @@ def add_templates(site):
                 ],
                 "tal_condition": "python: False",
                 "roles_bypassing_talcondition": ["Manager", "Site Administrator"],
+            },
+        },
+        40: {
+            "title": _(u"Audit contacts"),
+            "type": "ConfigurablePODTemplate",
+            # "trans": ["show_internally"],
+            "attrs": {
+                "pod_formats": ["ods"],
+                "rename_page_styles": False,
+                "tal_condition": "python: context.absolute_url() == context.portal_url()",
+                "context_variables": [
+                    {"name": u"log_id", "value": u"contacts"},
+                    {"name": u"actions", "value": u""},
+                    {"name": u"extras", "value": u""},  # TODO COMPLETE SETUP
+                ],
             },
         },
         90: {"title": _(u"Style template"), "type": "StyleTemplate", "trans": ["show_internally"]},

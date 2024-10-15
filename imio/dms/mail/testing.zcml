@@ -11,6 +11,7 @@
    <include package="collective.ckeditor"/>
    <include package="collective.iconifieddocumentactions"/>
    <include package="imio.annex"/>
+   <include package="imio.fpaudit"/>
    <include package="collective.messagesviewlet"/>
    <include package="collective.MockMailHost"/>
    <include package="collective.documentgenerator"/>

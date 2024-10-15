@@ -450,7 +450,7 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     float: right;
 }
 
-.template-localroles .datagridwidget-cell {
+.template-localroles .datagridwidget-cell, #form-widgets-log_entries .datagridwidget-cell {
     width: auto;
 }
 
