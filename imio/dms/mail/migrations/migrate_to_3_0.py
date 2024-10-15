@@ -31,6 +31,7 @@ from imio.dms.mail.interfaces import IProtectedItem
 # from imio.dms.mail.relations_utils import rebuild_relations
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
+from imio.dms.mail.setuphandlers import configure_fpaudit
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import createOMailCollections
 from imio.dms.mail.setuphandlers import list_templates
@@ -552,6 +553,8 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     # new omail_bcc_email_default setting field
             #     self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             # TEMPORARY TO 3.0.60
+            self.install(["imio.fpaudit"])
+            configure_fpaudit(self.portal)
             # replace isEml marker by dvConvError and old image by new one
             brains = self.catalog.unrestrictedSearchResults(portal_type="dmsmainfile", markers="isEml")
             blobs = []
