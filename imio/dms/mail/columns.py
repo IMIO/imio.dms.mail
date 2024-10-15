@@ -360,6 +360,8 @@ class DVConvertColumn(IconColumn):
     cssClasses = {"td": "td_cell_convert"}
 
     def actionAvailable(self, item):
+        if "dvConvError" in item.markers:
+            return False
         various = getMultiAdapter((self.context, self.request), name="various-utils")
         if various.is_in_user_groups(groups=["encodeurs", "expedition"], admin=True):
             return True
