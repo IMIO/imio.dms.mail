@@ -757,7 +757,7 @@ class VariousUtilsMethods(UtilsMethods):
                 out.append('<a href="%s" target="_blank">%s</a>, %s' % (res[flow][nb][0], nb, res[flow][nb][1]))
         return "<br/>\n".join(out)
 
-    def dv_conversion_problem(self):
+    def dv_conv_error(self):
         """When a conversion problem occurs, made the context no more convertible."""
         if not check_zope_admin():
             return "You must be zope admin to run this"
@@ -771,6 +771,7 @@ class VariousUtilsMethods(UtilsMethods):
             del annot["collective.documentviewer"]["exception_msg"]
         if "exception_traceback" in annot["collective.documentviewer"]:
             del annot["collective.documentviewer"]["exception_traceback"]
+        self.context.reindexObject(idxs=["markers"])
         return self.context.REQUEST["RESPONSE"].redirect(self.context.absolute_url())
 
     def dv_images_clean(self):

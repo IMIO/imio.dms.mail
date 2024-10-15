@@ -265,7 +265,7 @@
         allowed_attributes="
             all_collection_uid
             check_scan_id
-            dv_conversion_problem
+            dv_conv_error
             dv_images_clean
             highest_scan_id
             initialize_service_folder
