@@ -2536,7 +2536,7 @@ def add_templates(site):
                 "context_variables": [
                     {"name": u"log_id", "value": u"contacts"},
                     {"name": u"actions", "value": u""},
-                    {"name": u"extras", "value": u""},  # TODO COMPLETE SETUP
+                    {"name": u"extras", "value": u"UID,PATH,CTX_PATH,CTX"},  # TODO COMPLETE SETUP
                 ],
             },
         },
