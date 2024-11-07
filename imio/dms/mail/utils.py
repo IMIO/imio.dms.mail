@@ -1220,12 +1220,6 @@ def create_personnel_content(
         portal = api.portal.get()
         user = api.user.get(userid)
         user_groups = get_plone_groups_for_user(user=user)
-        if fn_first is None:
-            start = api.portal.get_registry_record(
-                "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_fullname_used_form", default="firstname"
-            )
-            fn_first = start == "firstname"
-        firstname, lastname = separate_fullname(user, fn_first=fn_first)
         intids = getUtility(IIntIds)
         pf = portal["contacts"]["personnel-folder"]
         # exists already
@@ -1244,6 +1238,12 @@ def create_personnel_content(
         elif userid in pf:
             pers = pf[userid]
         elif assignment:
+            if fn_first is None:
+                start = api.portal.get_registry_record(
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_fullname_used_form", default="firstname"
+                )
+                fn_first = start == "firstname"
+            firstname, lastname = separate_fullname(user, fn_first=fn_first)
             pers = api.content.create(
                 container=pf,
                 type="person",
