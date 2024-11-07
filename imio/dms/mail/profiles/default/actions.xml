@@ -55,6 +55,10 @@
    <property name="visible">False</property>
   </object>
 
+  <object name="audit-log" meta_type="CMF Action" i18n:domain="plone">
+   <property name="visible">False</property>
+  </object>
+
   <object name="undo" meta_type="CMF Action" i18n:domain="plone">
    <property name="visible">True</property>
   </object>

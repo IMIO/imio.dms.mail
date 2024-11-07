@@ -569,6 +569,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                         blobs.append(blob)
             for blob in blobs:
                 modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
+            # actions
+            self.runProfileSteps('imio.dms.mail', steps=['actions'])
             # END
 
             finished = True  # can be eventually returned and set by batched method
