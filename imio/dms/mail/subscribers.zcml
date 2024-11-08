@@ -220,6 +220,11 @@
         handler=".subscribers.plonegroup_contact_changed"
         />
 
+    <subscriber
+        for="plone.registry.interfaces.IRecordModifiedEvent"
+        handler=".subscribers.record_modified"
+        />
+
     <!-- Contact -->
     <subscriber
         for="collective.contact.core.content.organization.IOrganization
