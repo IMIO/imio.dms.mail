@@ -2,6 +2,7 @@
 """Subscribers."""
 from Acquisition import aq_get  # noqa
 from collective.classification.folder.content.vocabularies import set_folders_tree
+from collective.contact.core.interfaces import IContactCoreParameters
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
@@ -26,25 +27,25 @@ from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
-from imio.dms.mail import MAIN_FOLDERS
-from imio.dms.mail.browser.settings import IImioDmsMailConfig
+# from imio.dms.mail import MAIN_FOLDERS
+# from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
+# from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
-from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
-from imio.helpers.content import get_vocab_values
+# from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import get_zope_root
@@ -569,7 +570,7 @@ def contact_plonegroup_change(event):
         # we add a directory by organization in templates/om
         om_folder = portal.templates.om
         oem_folder = portal.templates.oem
-        base_model = om_folder.get("main", None)
+        # base_model = om_folder.get("main", None)
         cl_folder = portal.contacts["contact-lists-folder"]
         for uid in s_orgs:
             obj = uuidToObject(uid, unrestricted=True)
@@ -948,6 +949,27 @@ def group_unassignment(event):
     create_personnel_content(event.principal, [event.group_id], ALL_SERVICE_FUNCTIONS, assignment=False)
 
 
+def record_modified(event):
+    """Various record modification
+
+    * for contact.core parameters: handling action following audit value
+    """
+    # IContactCoreParameters change
+    if (
+        IRecordModifiedEvent.providedBy(event)
+        and event.record.interfaceName
+        and event.record.interface == IContactCoreParameters
+    ):
+        if event.record.fieldName == "audit_contact_access":
+            actions = api.portal.get_tool("portal_actions")
+            action = actions.user.get("audit-contacts")
+            if action:
+                if not event.oldValue and event.newValue:
+                    action.visible = True
+                elif event.oldValue and not event.newValue:
+                    action.visible = False
+
+
 # CONTACT
 
 
@@ -1069,7 +1091,7 @@ def cktemplate_moved(obj, event):
     if "/templates/oem" not in path:
         return  # oem has been renamed
     index = path.index("/templates/oem") + 14
-    subpath = path[index + 1 :]
+    subpath = path[index + 1 :]  # noqa: E203
     parts = subpath and subpath.split("/") or []
     value = u""
     if parts:
@@ -1140,7 +1162,7 @@ def folder_added(folder, event):
             return
         main_path = main_folder.absolute_url_path()
         if folder_path.startswith(main_path):
-            sub_path = folder_path[len(main_path) + 1 :]
+            sub_path = folder_path[len(main_path) + 1 :]  # noqa: E203
             for sub_name in ("om/", "oem/", "contact-lists-folder/"):
                 if sub_path.startswith(sub_name):  # only interested by sulfolders
                     alsoProvides(folder, IActionsPanelFolderOnlyAdd)

@@ -637,6 +637,9 @@ def add_test_users_and_groups(context):
         api.group.add_user(groupname="createurs_dossier", username="chef")
     if api.group.get("lecteurs_globaux_cs") is None:
         api.group.create("lecteurs_globaux_cs", "2 Lecteurs Globaux CS")
+    if api.group.get("audit_contacts") is None:
+        api.group.create("audit_contacts", "1 Audit contacts")
+        api.group.add_user(groupname="audit_contacts", username="dirg")
 
 
 def configure_batch_import(context):
@@ -924,10 +927,11 @@ def configure_imio_dms_mail(context):
 <tal:global define="ctct_det python: dghv.get_ctct_det(sender['hp']);
                     label python: sender['hp'].label;
                     services python: dghv.separate_full_title(sender['org_full_title']);">
-<p style="font-weight: bold;" tal:condition="nothing">!! Attention: ne pas modifier ceci directement mais passer par "Source" !!</p>
+<p style="font-weight: bold;" tal:condition="nothing">!! Attention: ne pas modifier ceci directement mais passer par
+ "Source" !!</p>
 <br />
-<p><span style="font-size:large;font-family:Quicksand,Arial" 
-tal:content="python:u'{} {}'.format(sender['person'].firstname, sender['person'].lastname)">Prénom Nom</span></p>
+<p><span style="font-size:large;font-family:Quicksand,Arial"
+ tal:content="python:u'{} {}'.format(sender['person'].firstname, sender['person'].lastname)">Prénom Nom</span></p>
 
 <div style="float:left;">
 <div style="font-size:small; float:left;clear:both;width:350px">
@@ -935,24 +939,32 @@ tal:content="python:u'{} {}'.format(sender['person'].firstname, sender['person']
 <span tal:content="python:services[0]">Département</span><br />
 <span tal:condition="python:services[1]" tal:content="python:services[1]">Service</span><br />
 
-<a style="display: inline-block; padding-top: 1em;" href="mailto" target="_blank" 
-tal:attributes="href python:'mailto:{}'.format(ctct_det['email'])" tal:content="python:ctct_det['email']">email</a>
-<br /><span tal:content="python: dghv.display_phone(phone=ctct_det['phone'], check=False, pattern='/.')">Téléphone</span><br />
+<a style="display: inline-block; padding-top: 1em;" href="mailto" target="_blank"
+ tal:attributes="href python:'mailto:{}'.format(ctct_det['email'])" tal:content="python:ctct_det['email']">email</a>
+<br /><span tal:content="python: dghv.display_phone(phone=ctct_det['phone'], check=False, pattern='/.')">Téléphone
+</span><br />
 
-<span style="display: inline-block; padding-top: 0.5em;" 
-tal:content="python:u'{}, {}'.format(ctct_det['address']['street'], ctct_det['address']['number'])">Rue, numéro</span><br />
-<span tal:content="python:u'{} {}'.format(ctct_det['address']['zip_code'], ctct_det['address']['city'])">CP Localité</span><br />
+<span style="display: inline-block; padding-top: 0.5em;"
+ tal:content="python:u'{}, {}'.format(ctct_det['address']['street'], ctct_det['address']['number'])">Rue, numéro
+ </span><br />
+<span tal:content="python:u'{} {}'.format(ctct_det['address']['zip_code'], ctct_det['address']['city'])">CP Localité
+</span><br />
 <!--a href="https://www.google.be/maps/" target="_blank">Plan</a-->
 </div></div>
 
-<div style="float:left;display: inline-grid;"><a href="$url" target="_blank"><img alt="" src="$url/++resource++imio.dms.mail/belleville.png" /></a><br />
+<div style="float:left;display: inline-grid;"><a href="$url" target="_blank"><img alt=""
+ src="$url/++resource++imio.dms.mail/belleville.png" /></a><br />
 <span style="font-size:small;text-align: center;">Administration communale de Belleville</span><br />
 </div>
 
 <p>&nbsp;</p>
 
 <div style="font-size: x-small;color:#424242;clear:both"><br />
-Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.
+Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont
+ confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le
+ destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces
+ informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous
+ êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.
 </div>
 </tal:global>"""
         )  # noqa

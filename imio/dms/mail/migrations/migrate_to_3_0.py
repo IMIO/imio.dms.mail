@@ -68,6 +68,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.i18n.normalizer import IIDNormalizer
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.ActionInformation import Action
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
@@ -555,6 +556,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             # TEMPORARY TO 3.0.60
             self.install(["imio.fpaudit"])
             configure_fpaudit(self.portal)
+            # create new group
+            if api.group.get("audit_contacts") is None:
+                api.group.create("audit_contacts", "1 Audit contacts")
             # replace isEml marker by dvConvError and old image by new one
             brains = self.catalog.unrestrictedSearchResults(portal_type="dmsmainfile", markers="isEml")
             blobs = []
@@ -620,6 +624,24 @@ class Migrate_To_3_0(Migrator):  # noqa
                     steps=["imiodmsmail-create-templates", "imiodmsmail-update-templates"],
                     profile="singles",
                 )
+                # add audit_log action 3.0.60
+                category = self.portal.portal_actions.get('user')
+                if "audit-contacts" not in category.objectIds():
+                    uid = self.portal.templates["audit-contacts"].UID()
+                    action = Action(
+                        "audit-contacts",
+                        title="Audit contacts",
+                        i18n_domain="imio.dms.mail",
+                        url_expr="string:${{portal_url}}/document-generation?template_uid={}&"
+                                 "output_format=ods".format(uid),
+                        available_expr="python:context.restrictedTraverse('@@various-utils').is_in_user_groups("
+                                       "['audit_contacts'], user=member)",
+                        permissions=("View",),
+                        visible=False,
+                    )
+                    category._setObject("audit-contacts", action)
+                    pos = category.getObjectPosition("logout")
+                    category.moveObjectToPosition("audit-contacts", pos)
 
         if self.is_in_part("s"):  # update quick installer
             for prod in [

@@ -56,6 +56,7 @@ from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.ActionInformation import Action
 # from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.interfaces import INonInstallable
 from Products.CMFPlone.utils import base_hasattr
@@ -479,6 +480,25 @@ def postInstall(context):
     add_oem_templates(site)
     site.templates.exclude_from_nav = True
     site.templates.reindexObject()
+
+    # add audit_log action
+    category = site.portal_actions.get('user')
+    if "audit-contacts" not in category.objectIds():
+        uid = site.templates["audit-contacts"].UID()
+        action = Action(
+            "audit-contacts",
+            title="Audit contacts",
+            i18n_domain="imio.dms.mail",
+            url_expr="string:${{portal_url}}/document-generation?template_uid={}&"
+                     "output_format=ods".format(uid),
+            available_expr="python:context.restrictedTraverse('@@various-utils').is_in_user_groups("
+                           "['audit_contacts'], user=member)",
+            permissions=("View",),
+            visible=False,
+        )
+        category._setObject("audit-contacts", action)
+        pos = category.getObjectPosition("logout")
+        category.moveObjectToPosition("audit-contacts", pos)
 
     add_transforms(site)
 
@@ -2532,7 +2552,9 @@ def add_templates(site):
             "attrs": {
                 "pod_formats": ["ods"],
                 "rename_page_styles": False,
-                "tal_condition": "python: context.absolute_url() == context.portal_url()",
+                "tal_condition": "python: context.absolute_url() == context.portal_url() and "
+                                 "context.restrictedTraverse('@@various-utils').is_in_user_groups(['audit_contacts'],"
+                                 "user=member)",
                 "context_variables": [
                     {"name": u"log_id", "value": u"contacts"},
                     {"name": u"actions", "value": u""},
