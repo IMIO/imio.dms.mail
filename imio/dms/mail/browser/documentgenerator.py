@@ -29,16 +29,26 @@ import operator
 
 # # # HELPERS # # #
 
-
-class OMDGHelper(DXDocumentGenerationHelperView):
+class BaseDGHelper(DXDocumentGenerationHelperView):
     """
-    Helper methods used for outgoing mail generation
+    Helper methods used for mail generation
     """
 
     def fmt(self, val, fmt="%s "):
         if val:
             return fmt % val
         return ""
+
+    def get_classification_folders(self, sep=u", "):
+        obj = self.real_context
+        if not obj.classification_folders:
+            return []
+        ret = []
+        for fld in obj.classification_folders:
+            obj = uuidToObject(fld, unrestricted=True)
+            ret.append(obj.internal_reference_no)
+        ret = sep.join(ret)
+        return ret
 
     def get_ctct_det(self, obj, fallback=True):
         try:
@@ -50,23 +60,6 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         except Exception:
             return {}
 
-    def get_sender(self):
-        dic = self.real_context.get_sender_info()
-        if "org" in dic:
-            dic["org_full_title"] = dic["org"].get_full_title(separator=" - ", first_index=1)
-        return dic
-
-    def mailing_list(self, gen_context=None):
-        om = self.real_context
-        if not om.recipients:
-            return []
-        ml = []
-        for relval in om.recipients:
-            if relval.isBroken():
-                continue
-            ml.append(relval.to_object)
-        return ml
-
     def get_full_title(self, contact, **kwargs):
         if IPerson.providedBy(contact):
             return contact.get_title()
@@ -76,20 +69,6 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             return contact.get_full_title()
         else:
             return ""
-
-    def get_separate_titles(self, contact, **kwargs):
-        """Return a list with separate title for organization and person"""
-        ret = [u"", u""]  # org, pers
-        if IPerson.providedBy(contact):
-            ret[1] = contact.get_title()
-        elif IOrganization.providedBy(contact):
-            ret[0] = contact.get_full_title(**kwargs)  # separator=u' / ', first_index=0
-        elif IHeldPosition.providedBy(contact):
-            ret[1] = contact.get_person_title()
-            org = contact.get_organization()
-            if org:
-                ret[0] = org.get_full_title(**kwargs)
-        return ret
 
     def get_separate_contacts(self, contact, **kwargs):
         """Return a list with separate organization and person"""
@@ -110,6 +89,26 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             ret["root"] = ret["chain"][0]
             ret["levels"] = len(ret["chain"]) > 1 and True
         return ret
+
+    def get_separate_titles(self, contact, **kwargs):
+        """Return a list with separate title for organization and person"""
+        ret = [u"", u""]  # org, pers
+        if IPerson.providedBy(contact):
+            ret[1] = contact.get_title()
+        elif IOrganization.providedBy(contact):
+            ret[0] = contact.get_full_title(**kwargs)  # separator=u' / ', first_index=0
+        elif IHeldPosition.providedBy(contact):
+            ret[1] = contact.get_person_title()
+            org = contact.get_organization()
+            if org:
+                ret[0] = org.get_full_title(**kwargs)
+        return ret
+
+    def get_treating_groups(self):
+        obj = self.real_context
+        if not obj.treating_groups:
+            return None
+        return uuidToObject(obj.treating_groups, unrestricted=True)
 
     def person_title(
         self, contact, pers_dft=u"Monsieur", org_dft=u"Madame, Monsieur", with_name=False, upper_name=False
@@ -132,19 +131,6 @@ class OMDGHelper(DXDocumentGenerationHelperView):
         else:
             return u""
 
-    def is_first_doc(self):
-        """in mailing context"""
-        ctx = self.appy_renderer.contentParser.env.context
-        if "loop" in ctx and hasattr(ctx["loop"], "mailed_data") and not ctx["loop"].mailed_data.first:
-            return False
-        return True
-
-    def get_treating_groups(self):
-        om = self.real_context
-        if not om.treating_groups:
-            return None
-        return uuidToObject(om.treating_groups, unrestricted=True)
-
     def separate_full_title(self, tg=u"", nb=2, sep=u" - "):
         """Separates a treating group name in different parts.
         Returns always the good number of parts, fulled with empty strings."""
@@ -158,16 +144,41 @@ class OMDGHelper(DXDocumentGenerationHelperView):
             ret[-1] = sep.join(parts[nb - 1 :])
         return ret
 
-    def get_classification_folders(self, sep=u", "):
+
+class IMDGHelper(BaseDGHelper):
+    """
+    Helper methods used for incoming mail generation
+    """
+
+
+class OMDGHelper(BaseDGHelper):
+    """
+    Helper methods used for outgoing mail generation
+    """
+
+    def get_sender(self):
+        dic = self.real_context.get_sender_info()
+        if "org" in dic:
+            dic["org_full_title"] = dic["org"].get_full_title(separator=" - ", first_index=1)
+        return dic
+
+    def mailing_list(self, gen_context=None):
         om = self.real_context
-        if not om.classification_folders:
+        if not om.recipients:
             return []
-        ret = []
-        for fld in om.classification_folders:
-            obj = uuidToObject(fld, unrestricted=True)
-            ret.append(obj.internal_reference_no)
-        ret = sep.join(ret)
-        return ret
+        ml = []
+        for relval in om.recipients:
+            if relval.isBroken():
+                continue
+            ml.append(relval.to_object)
+        return ml
+
+    def is_first_doc(self):
+        """in mailing context"""
+        ctx = self.appy_renderer.contentParser.env.context
+        if "loop" in ctx and hasattr(ctx["loop"], "mailed_data") and not ctx["loop"].mailed_data.first:
+            return False
+        return True
 
 
 class DashboardDGBaseHelper:  # noqa
