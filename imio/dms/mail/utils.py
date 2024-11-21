@@ -684,6 +684,23 @@ class UtilsMethods(BrowserView):
 
     mainfile_type = "dmsmainfile"
 
+    def get_object_from_relation(self, relation, attr="to", rel_object=True, from_path=False, iid=None):
+        """Get object from relation or specific intid."""
+        if attr not in ["to", "from"]:
+            raise ValueError("attr parameter must be 'to' or 'from'")
+        if rel_object:
+            return getattr(relation, "{}_object".format(attr))
+        if from_path:
+            path = getattr(relation, "{}_path".format(attr))
+            return api.portal.get().unrestrictedTraverse(path, None)
+        if not iid:
+            iid = getattr(relation, "{}_id".format(attr))
+        intids = getUtility(IIntIds)
+        try:
+            return intids.getObject(iid)
+        except KeyError:
+            return None
+
     def highest_scan_id(self):
         """Return highest scan id."""
         pc = getToolByName(self.context, "portal_catalog")

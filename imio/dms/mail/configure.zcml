@@ -267,6 +267,7 @@
             check_scan_id
             dv_conv_error
             dv_images_clean
+            get_object_from_relation
             highest_scan_id
             initialize_service_folder
             is_in_user_groups
@@ -291,6 +292,7 @@
         allowed_attributes="
             created_col_cond
             get_im_folder
+            get_object_from_relation
             highest_scan_id
             im_listing_url
             is_in_user_groups
@@ -309,6 +311,7 @@
         class=".utils.OdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
+            get_object_from_relation
             get_om_folder
             highest_scan_id
             is_in_user_groups
