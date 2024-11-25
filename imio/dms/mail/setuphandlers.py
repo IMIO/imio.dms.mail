@@ -2417,6 +2417,7 @@ def list_templates():
     return [
         (10, "templates/d-im-listing", os.path.join(dpath, "d-im-listing.odt")),
         (12, "templates/d-im-listing-tab", os.path.join(dpath, "d-im-listing.ods")),
+        (13, "templates/d-im-listing-tab-details", os.path.join(dpath, "d-im-listing-details.ods")),
         (20, "templates/all-contacts-export", os.path.join(dpath, "contacts-export.ods")),
         (30, "templates/export-users-groups", os.path.join(dpath, "export-users-groups.ods")),
         (40, "templates/audit-contacts", os.path.join(dpath, "audit-contacts.ods")),
@@ -2517,6 +2518,22 @@ def add_templates(site):
                 "tal_condition": "python:request.get('c10[]', False) or request.get('output_format', False)",
             },
         },
+        13: {
+            "title": _(u"Mail listing template sheet with details"),
+            "type": "DashboardPODTemplate",
+            "trans": ["show_internally"],
+            "attrs": {
+                "pod_formats": ["ods"],
+                "rename_page_styles": False,
+                "dashboard_collections": [
+                    b.UID
+                    for b in get_dashboard_collections(site["incoming-mail"]["mail-searches"])
+                    if b.id == "all_mails"
+                ],
+                # cond: check c10 reception date (display link), check output_format (generation view)
+                "tal_condition": "python:request.get('c10[]', False) or request.get('output_format', False)",
+            },
+        },
         20: {
             "title": _(u"All contacts export"),
             "type": "DashboardPODTemplate",
@@ -2546,7 +2563,7 @@ def add_templates(site):
             },
         },
         40: {
-            "title": _(u"Audit contacts"),
+            "title": _(u"Contacts audit"),
             "type": "ConfigurablePODTemplate",
             # "trans": ["show_internally"],
             "attrs": {
