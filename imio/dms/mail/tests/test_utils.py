@@ -340,7 +340,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "createurs_dossier", "dir_general"},
+            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general"},
         )
 
     def test_UtilsMethods_highest_scan_id(self):
@@ -361,7 +361,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "createurs_dossier", "dir_general"},
+            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general"},
         )
         # with groups
         self.assertFalse(view.is_in_user_groups(groups=["abc"]))
