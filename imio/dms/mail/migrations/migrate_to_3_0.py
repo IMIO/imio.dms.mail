@@ -618,13 +618,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                 # model om mail
                 add_special_model_mail(self.portal)
                 # update templates
-                self.portal["templates"].moveObjectToPosition("d-im-listing-tab", 3)
                 self.runProfileSteps(
                     "imio.dms.mail",
                     steps=["imiodmsmail-create-templates", "imiodmsmail-update-templates"],
                     profile="singles",
                 )
-                # add audit_log action 3.0.60
+                self.portal["templates"].moveObjectToPosition("d-im-listing-tab-details", 4)  # TEMPORARY
+                # add audit_log action 3.0.60  TEMPORARY
                 category = self.portal.portal_actions.get('user')
                 if "audit-contacts" not in category.objectIds():
                     uid = self.portal.templates["audit-contacts"].UID()
