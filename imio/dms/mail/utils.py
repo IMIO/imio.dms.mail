@@ -110,7 +110,7 @@ dms_config
 """
 
 
-def set_dms_config(keys=None, value="list"):
+def set_dms_config(keys=None, value="list", force=True):
     """
     Set initial value in 'imio.dms.mail' portal annotation.
     keys is the chain of annotation keys. First key 'imio.dms.mail' is implicitly added.
@@ -127,12 +127,13 @@ def set_dms_config(keys=None, value="list"):
         if i < last:
             annot = annot.setdefault(key, PersistentDict())
         else:
-            if value == "list":
-                annot[key] = PersistentList()
-            elif value == "dict":
-                annot[key] = PersistentDict()
-            else:
-                annot[key] = value
+            if force or key not in annot:
+                if value == "list":
+                    annot[key] = PersistentList()
+                elif value == "dict":
+                    annot[key] = PersistentDict()
+                else:
+                    annot[key] = value
             return annot[key]
 
 
