@@ -1501,3 +1501,16 @@ def modifyFileInBlob(blob, filepath):
     with blob.open('w') as blob_file:
         with open(filepath, 'rb') as new_file:
             blob_file.write(new_file.read())
+
+
+def create_read_label_cron_task(userid, orgs, end, portal=None):
+    """Create a cron task that will be executed later.
+
+    This is called after group assignment, thus by an admin user..."""
+    if portal is None:
+        portal = api.portal.get()
+    cron_tasks = set_dms_config(["read_label_cron", userid], PersistentDict(), force=False)
+    if "end" not in cron_tasks:
+        cron_tasks["end"] = end
+    orgs_set = cron_tasks.setdefault("orgs", set())
+    orgs_set.update(orgs)

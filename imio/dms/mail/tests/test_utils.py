@@ -10,6 +10,7 @@ from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import create_personnel_content
+from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
@@ -599,3 +600,28 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(pf.newuser.objectIds(), [ev_uid])
         self.assertEqual(api.content.get_state(pf.newuser[ev_uid]), "deactivated")
         self.assertEqual(pf.newuser.primary_organization, ev_uid)
+
+    def test_create_read_cron_task(self):
+        annot = IAnnotations(self.portal)
+        import ipdb; ipdb.set_trace()
+        self.assertNotIn("read_label_cron", annot["imio.dms.mail"])
+        ev_uid = self.contacts["plonegroup-organization"]["evenements"].UID()
+        end = datetime.now() - timedelta(days=5)
+        create_read_label_cron_task("agent", [ev_uid], end, portal=self.portal)
+        self.assertIn("read_label_cron", annot["imio.dms.mail"])
+        self.assertIn("agent", annot["imio.dms.mail"]["read_label_cron"])
+        self.assertEqual(annot["imio.dms.mail"]["read_label_cron"]["agent"]["end"], end)
+        self.assertSetEqual(annot["imio.dms.mail"]["read_label_cron"]["agent"]["orgs"], {ev_uid})
+        # add another org
+        dg_uid = self.contacts["plonegroup-organization"]["direction-generale"].UID()
+        end2 = end + timedelta(days=1)
+        create_read_label_cron_task("agent", [dg_uid], end2, portal=self.portal)
+        self.assertEqual(annot["imio.dms.mail"]["read_label_cron"]["agent"]["end"], end)  # dont change
+        self.assertSetEqual(annot["imio.dms.mail"]["read_label_cron"]["agent"]["orgs"], {ev_uid, dg_uid})
+        # add another user
+        create_read_label_cron_task("agent1", [dg_uid], end2, portal=self.portal)
+        self.assertEqual(annot["imio.dms.mail"]["read_label_cron"]["agent"]["end"], end)  # dont change
+        self.assertSetEqual(annot["imio.dms.mail"]["read_label_cron"]["agent"]["orgs"], {ev_uid, dg_uid})
+        self.assertEqual(annot["imio.dms.mail"]["read_label_cron"]["agent1"]["end"], end2)
+        self.assertSetEqual(annot["imio.dms.mail"]["read_label_cron"]["agent1"]["orgs"], {dg_uid})
+        reset_dms_config()
