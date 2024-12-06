@@ -18,7 +18,6 @@ from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
 from DateTime import DateTime
-from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import ARCHIVE_SITE
@@ -36,6 +35,7 @@ from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 # from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
+from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
@@ -48,11 +48,11 @@ from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
+from imio.helpers.security import get_environment
 from imio.helpers.security import get_zope_root
 from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
-from persistent.list import PersistentList
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
@@ -908,23 +908,9 @@ def group_assignment(event):
     userid = event.principal
     orgs = organizations_with_suffixes([event.group_id], IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
     if orgs and not ARCHIVE_SITE:
-        days_back = 5
-        start = datetime.datetime(1973, 2, 12)
-        end = datetime.datetime.now() - datetime.timedelta(days=days_back)
-        catalog = api.portal.get_tool("portal_catalog")
-        for brain in catalog(
-            portal_type=["dmsincomingmail", "dmsincoming_email"],
-            recipient_groups=orgs,
-            labels={"not": ["%s:lu" % userid]},
-            created={"query": (start, end), "range": "min:max"},
-        ):
-            # if not brain.recipient_groups:
-            #    continue
-            obj = brain.getObject()
-            labeling = ILabeling(obj)
-            user_ids = labeling.storage.setdefault("lu", PersistentList())  # _p_changed is managed
-            user_ids.append(userid)  # _p_changed is managed
-            obj.reindexObject(idxs=["labels"])
+        end = datetime.datetime.now() - datetime.timedelta(days=5)
+        if get_environment() != "dev":
+            create_read_label_cron_task(userid, orgs, end, portal=portal)
     # we manage the personnel-folder person and held position
     create_personnel_content(userid, [event.group_id], ALL_SERVICE_FUNCTIONS)
 
