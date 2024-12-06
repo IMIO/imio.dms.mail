@@ -66,6 +66,11 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         set_dms_config(["a", "b"], value="plone")
         self.assertTrue(isinstance(annot["imio.dms.mail"]["a"]["b"], str))
         self.assertEqual(get_dms_config(["a", "b"]), "plone")
+        # force
+        lst = set_dms_config(["a", "b"], value="other", force=False)
+        self.assertEqual(get_dms_config(["a", "b"]), "plone")  # not changed
+        lst = set_dms_config(["a", "b"], value="other")
+        self.assertEqual(get_dms_config(["a", "b"]), "other")  # changed
 
     def test_ensure_set_field(self):
         now1 = datetime.now()
