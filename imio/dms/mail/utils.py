@@ -12,6 +12,7 @@ from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from DateTime import DateTime
+from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _tr as _
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import AUC_RECORD
@@ -775,6 +776,32 @@ class VariousUtilsMethods(UtilsMethods):
                 out.append('<a href="%s" target="_blank">%s</a>, %s' % (res[flow][nb][0], nb, res[flow][nb][1]))
         return "<br/>\n".join(out)
 
+    def cron_read_label_handling(self):
+        """Cron task to handle read label"""
+        logger.info("Running cron_read_label_handling")
+        portal = self.context
+        start = datetime(1973, 2, 12)
+        catalog = portal.portal_catalog
+        dic = get_dms_config(["read_label_cron"])
+        count = 0
+        for userid in dic.keys():
+            if api.user.get(userid=userid) is None:
+                continue
+            for brain in catalog(
+                    portal_type=["dmsincomingmail", "dmsincoming_email"],
+                    recipient_groups=tuple(dic[userid]["orgs"]),
+                    labels={"not": ["%s:lu" % userid]},
+                    created={"query": (start, dic[userid]["end"]), "range": "min:max"},
+            ):
+                obj = brain.getObject()
+                labeling = ILabeling(obj)
+                user_ids = labeling.storage.setdefault("lu", PersistentList())  # _p_changed is managed
+                user_ids.append(userid)  # _p_changed is managed
+                obj.reindexObject(idxs=["labels"])
+                count += 1
+            del dic[userid]
+        logger.info("End of cron_read_label_handling, %d items labeled" % count)
+
     def dv_conv_error(self):
         """When a conversion problem occurs, made the context no more convertible."""
         if not check_zope_admin():
@@ -1504,7 +1531,7 @@ def modifyFileInBlob(blob, filepath):
 
 
 def create_read_label_cron_task(userid, orgs, end, portal=None):
-    """Create a cron task that will be executed later.
+    """Create cron task information that will be executed later to update read label.
 
     This is called after group assignment, thus by an admin user..."""
     if portal is None:

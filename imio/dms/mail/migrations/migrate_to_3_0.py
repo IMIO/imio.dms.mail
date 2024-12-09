@@ -575,6 +575,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                 modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
             # actions
             self.runProfileSteps('imio.dms.mail', steps=['actions'])
+            # cron4plone settings
+            cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
+            if not [cj for cj in cron_configlet.cronjobs or [] if "cron_read_label_handling" in cj]:
+                if not cron_configlet.cronjobs:
+                    cron_configlet.cronjobs = []
+                # Syntax: m h dom mon command.
+                cron_configlet.cronjobs.append(u"59 3 * * portal/@@various-utils/cron_read_label_handling")
             # END
 
             finished = True  # can be eventually returned and set by batched method
