@@ -31,7 +31,7 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from profilehooks import timecall
 from Testing import ZopeTestCase as ztc
-from z3c.relationfield import RelationValue
+# from z3c.relationfield import RelationValue
 from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.globalrequest.local import setLocal
@@ -284,6 +284,7 @@ def end_setup(portal):
 
 
 def reset_dms_config():
+    set_dms_config(None, value="dict")
     set_dms_config(
         ["wf_from_to", "dmsincomingmail", "n_plus", "from"],  # i_e ok
         [("created", "back_to_creation"), ("proposed_to_manager", "back_to_manager")],

@@ -3,6 +3,7 @@ from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
 from datetime import datetime
 from datetime import timedelta
+from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
@@ -398,6 +399,22 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(view.is_in_user_groups(groups=["AuthenticatedUsers"], suffixes=["general"], org_uid="dir"))
         self.assertTrue(view.is_in_user_groups(suffixes=["general"], org_uid="dir", user=api.user.get("dirg")))
 
+    def test_VariousMethods_cron_read_label_handling(self):
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+        ev_uid = self.contacts["plonegroup-organization"]["evenements"].UID()
+        imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id",
+                           recipient_groups=[ev_uid])
+        labeling = ILabeling(imail)
+        self.assertNotIn("lu", labeling.storage)
+        cron_tasks = set_dms_config(["read_label_cron", 'agent'], PersistentDict())
+        cron_tasks["end"] = datetime.now()
+        cron_tasks["orgs"] = {ev_uid}
+        view.cron_read_label_handling()
+        self.assertIn("lu", labeling.storage)
+        self.assertIn("agent", labeling.storage["lu"])
+        reset_dms_config()
+
     def test_VariousMethods_is_unprotected(self):
         obj = self.portal["front-page"]
         view = VariousUtilsMethods(obj, obj.REQUEST)
@@ -603,7 +620,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
     def test_create_read_cron_task(self):
         annot = IAnnotations(self.portal)
-        import ipdb; ipdb.set_trace()
         self.assertNotIn("read_label_cron", annot["imio.dms.mail"])
         ev_uid = self.contacts["plonegroup-organization"]["evenements"].UID()
         end = datetime.now() - timedelta(days=5)
