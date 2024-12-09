@@ -265,6 +265,7 @@
         allowed_attributes="
             all_collection_uid
             check_scan_id
+            cron_read_label_handling
             dv_conv_error
             dv_images_clean
             get_object_from_relation
