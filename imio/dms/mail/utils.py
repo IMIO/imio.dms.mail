@@ -506,7 +506,7 @@ def dv_clean(portal, days_back="365", date_back=None):
         "-> days_back=nb of days to keep (default '365') (not used if date_back is used)",
         "-> date_back=fixed date to consider (default None) (format YYYYMMDD)",
     ]
-    # logger.info("Starting dv_clean at {}".format(start))
+
     log_list(out, "Starting dv_clean at {}".format(start), logger)
     from Products.CPUtils.Extensions.utils import dv_images_size
 

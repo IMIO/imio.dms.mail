@@ -13,6 +13,7 @@ from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import current_user_groups_ids
+from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -646,3 +647,18 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(annot["imio.dms.mail"]["read_label_cron"]["agent1"]["end"], end2)
         self.assertSetEqual(annot["imio.dms.mail"]["read_label_cron"]["agent1"]["orgs"], {dg_uid})
         reset_dms_config()
+
+    def test_dv_clean(self):
+        # Test wrong user
+        self.change_user("agent")
+        self.assertEqual(dv_clean(self.portal), "You must be a zope manager to run this script")
+
+        self.change_user("admin")
+        # Test invalid date
+        self.assertIsNone(dv_clean(self.portal, date_back="invalid"))
+        # Test valid date
+        dv_clean(self.portal, date_back="20220212")
+        # Test base case
+        dv_clean(self.portal)
+
+        # TODO add mails to be processed by dv_clean ...
