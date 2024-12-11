@@ -5,6 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
@@ -461,6 +462,21 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 continue
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
+not
+    def test_VariousMethods_user_usages(self):
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+
+        self.change_user("admin")
+        self.assertEqual(view.user_usages(), "You must give a parameter named 'userid'")
+        self.assertEqual(view.user_usages("invalid"), "Cannot find a user with userid='{}'".format("invalid"))
+        view.user_usages("admin")
+        view.user_usages("agent")
+        view.user_usages("encodeur")
+        view.user_usages("dirg")
+
+        self.change_user("agent")
+        self.assertEqual(view.user_usages("agent"), "You must be a zope manager to run this script")
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
