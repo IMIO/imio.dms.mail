@@ -1,6 +1,31 @@
 Changelog
 =========
 
+3.0.60
+------
+
+- Last commit at
+- Added various-utils/dv_conv_error to avoid a dv conversion
+- Improved dv_conv_error
+- Improved redirection
+- Added fpaudit integration and configuration
+- Updated access document config
+- Updated audit templates
+- Improved subscriber to avoid error when a user has been deleted
+- Hidden audit-log action
+- Added audit_contacts group, action to call audit-contacts template and subscriber to made it visible following configuration
+- Added get_object_from_relation utils method
+- Added IMDGHelper helper view
+- Corrected tests
+- Added d-im-listing-details.ods template
+- Translated templates names
+- Improved template
+- Improved relations_utils by using batching helpers
+- Improved utils.set_dms_config
+- Added utils.create_read_label_cron_task to postpone read label updates
+- Added utils.cron_read_label_handling method called with cron4plone
+- Added test for cron_read_label_handling
+
 3.0.59
 ------
 
