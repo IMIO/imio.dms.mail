@@ -5,7 +5,6 @@ from datetime import datetime
 from datetime import timedelta
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
-from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
@@ -467,7 +466,12 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 continue
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
-not
+
+    def test_VariousMethods_template_infos(self):
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+        view.template_infos()
+
     def test_VariousMethods_user_usages(self):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)
@@ -482,6 +486,12 @@ not
 
         self.change_user("agent")
         self.assertEqual(view.user_usages("agent"), "You must be a zope manager to run this script")
+
+    def test_VariousMethods_pg_organizations(self):
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+        import ipdb; ipdb.set_trace()
+        view.pg_organizations()
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
@@ -677,4 +687,36 @@ not
         # Test base case
         dv_clean(self.portal)
 
-        # TODO add mails to be processed by dv_clean ...
+        # TODO add mails to be processed by dv_clean ... WITH ANNOTATIONS ?
+
+        imail = sub_create(
+            self.portal["incoming-mail"],
+            "dmsincomingmail",
+            datetime.now() - timedelta(days=366),
+            "test-mail",
+            **{
+                "assigned_user": u"agent",
+                "title": u"test",
+                "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
+                "sender": self.portal["contacts"]["hps-searches"]['all_hps'].results()[0].getObject(),
+                "mail_type": "mail",
+            }
+        )
+
+        iemail = sub_create(
+            self.portal["incoming-mail"],
+            "dmsincomingmail",
+            datetime.now(),
+            "test-email",
+            **{
+                "assigned_user": u"agent",
+                "title": u"test",
+                "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
+                "sender": self.portal["contacts"]["hps-searches"]['all_hps'].results()[0].getObject(),
+                "mail_type": "email",
+            }
+        )
+
+        api.content.transition(obj=imail, to_state="closed")
+        api.content.transition(obj=iemail, to_state="closed")
+        dv_clean(self.portal)
