@@ -574,7 +574,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             for blob in blobs:
                 modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
             # actions
-            self.runProfileSteps('imio.dms.mail', steps=['actions'])
+            self.runProfileSteps("imio.dms.mail", steps=["actions", "plone.app.registry"])
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
             if not [cj for cj in cron_configlet.cronjobs or [] if "cron_read_label_handling" in cj]:

@@ -110,6 +110,16 @@
         />
 
     <utility
+        name="imio.dms.mail.TgRoutingValueVocabulary"
+        factory="imio.dms.mail.browser.settings.TgRoutingValueVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.UsersRoutingValueVocabulary"
+        factory="imio.dms.mail.browser.settings.UsersRoutingValueVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.IMPortalTypesVocabulary"
         factory="imio.dms.mail.vocabularies.IMPortalTypesVocabulary"
         />
