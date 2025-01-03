@@ -18,6 +18,7 @@ from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
+from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
 from natsort import humansorted
@@ -150,6 +151,70 @@ class IOMFieldsSchema(Interface):
     write_tal_condition = schema.TextLine(
         title=_("Write TAL condition"),
         required=False,
+    )
+
+
+class TgRoutingValueVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value="_empty_", title=_("Set None")),
+                SimpleTerm(value="_unigroup_only_", title=_("Unigroup only")),
+                SimpleTerm(value="_primary_org_", title=_("Primary organization")),
+            ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
+        )
+
+
+class UsersRoutingValueVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value="_empty_", title=_("Set None")),
+                SimpleTerm(value="_transferer_", title=_("Transferer")),
+            ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
+        )
+
+
+class IRoutingSchema(Interface):
+
+    forward = schema.Choice(
+        title=_("Forward Type"),
+        # description=_("Choose between Agent or Server"),
+        values=[_(u"Agent"), _(u"Server")],
+        required=True
+    )
+
+    transfer_email_pat = schema.TextLine(
+        title=_(u"Transfer email pattern"),
+        description=_(u"Enter a regex pattern"),
+        required=False,
+    )
+
+    original_email_pat = schema.TextLine(
+        title=_(u"Original email pattern"),
+        description=_(u"Enter a regex pattern"),
+        required=False,
+    )
+
+    tal_condition = schema.TextLine(
+        title=_("TAL condition"),
+        required=False,
+    )
+
+    tg_value = schema.Choice(
+        title=_(u"Treating group value"),
+        vocabulary="imio.dms.mail.TgRoutingValueVocabulary",
+        required=True,
+    )
+
+    user_value = schema.Choice(
+        title=_(u"Assigned user value"),
+        vocabulary="imio.dms.mail.UsersRoutingValueVocabulary",
+        required=True,
     )
 
 
@@ -286,13 +351,29 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     # FIELDSET IEM
-    model.fieldset("incoming_email", label=_(u"Incoming email"), fields=["iemail_manual_forward_transition"])
+    model.fieldset(
+        "incoming_email",
+        label=_(u"Incoming email"),
+        fields=["iemail_manual_forward_transition", "iemail_routing"])
 
     iemail_manual_forward_transition = schema.Choice(
         title=_(u"Email manual forward transition"),
         description=_(u"Choose to which state a manually forwarded email will go."),
         vocabulary=iemail_manual_forward_transitions,
         default=u"agent",
+    )
+
+    iemail_routing = schema.List(
+        title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
+        description=_(u"Configure this carefully. You can order with arrows."),
+        required=False,
+        value_type=DictRow(title=_(u"Routing"), schema=IRoutingSchema, required=False),
+    )
+    widget(
+        "iemail_routing",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
     )
 
     # FIELDSET OM

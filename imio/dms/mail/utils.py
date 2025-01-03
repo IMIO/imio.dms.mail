@@ -40,6 +40,7 @@ from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
 from natsort import natsorted
+from operator import attrgetter
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
@@ -1541,3 +1542,12 @@ def create_read_label_cron_task(userid, orgs, end, portal=None):
         cron_tasks["end"] = end
     orgs_set = cron_tasks.setdefault("orgs", set())
     orgs_set.update(orgs)
+
+
+def vocabularyname_to_terms(vocabulary_name, context=None, sort_on=None):
+    """Get terms from vocabulary name."""
+    factory = getUtility(IVocabularyFactory, vocabulary_name)
+    vocab = factory(context)
+    if sort_on:
+        return sorted([term for term in vocab], key=attrgetter(sort_on))
+    return [term for term in vocab]
