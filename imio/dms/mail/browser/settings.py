@@ -156,6 +156,14 @@ class IOMFieldsSchema(Interface):
     )
 
 
+routing_forward_types = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"agent", title=_(u"Agent")),
+        SimpleTerm(value=u"server", title=_(u"Server")),
+    ]
+)
+
+
 class TgRoutingValueVocabulary(object):
     implements(IVocabularyFactory)
 
@@ -164,7 +172,7 @@ class TgRoutingValueVocabulary(object):
             [
                 SimpleTerm(value="_empty_", title=_("Set None")),
                 SimpleTerm(value="_unigroup_only_", title=_("Unigroup only")),
-                SimpleTerm(value="_primary_org_", title=_("Primary organization")),
+                SimpleTerm(value="_primary_org_", title=_("From primary organization")),
             ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
         )
 
@@ -186,7 +194,7 @@ class IRoutingSchema(Interface):
     forward = schema.Choice(
         title=_("Forward Type"),
         # description=_("Choose between Agent or Server"),
-        values=[_(u"Agent"), _(u"Server")],
+        vocabulary=routing_forward_types,
         required=True
     )
 
