@@ -2,6 +2,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
@@ -11,6 +12,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
@@ -639,6 +641,25 @@ class IImioDmsMailConfig(model.Schema):
                     )
             except NoInputData:
                 pass
+        # check iemail_routing
+        if fieldset == "incoming_email" or not fieldset:
+            for i, rule in enumerate(getattr(data, "iemail_routing") or [], start=1):
+                if rule["tg_value"] and rule["user_value"] and not rule["tg_value"].startswith("_") and \
+                        not rule["user_value"].startswith("_"):
+                    pids = get_selected_org_suffix_principal_ids(rule["tg_value"], IM_EDITOR_SERVICE_FUNCTIONS)
+                    if rule["user_value"] not in pids:
+                        username = [t.title for t in vocabularyname_to_terms("imio.helpers.SimplySortedUsers")
+                                    if t.value == rule["user_value"]][0]
+                        tgname = [t.title for t in vocabularyname_to_terms("collective.dms.basecontent.treating_groups")
+                                  if t.value == rule["tg_value"]][0]
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: routing rule ${rule} is configured with an assigned user « ${user} » "
+                                u"not in the corresponding treating group « ${tg} »",
+                                mapping={"tab": _(u"Incoming email"), "rule": i, "user": safe_unicode(username),
+                                         "tg": safe_unicode(tgname)},
+                            )
+                        )
         # check fields
         constraints = {
             "imail_fields": {
