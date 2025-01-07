@@ -37,7 +37,8 @@ class TestSettings(unittest.TestCase):
 
     def test_validate_settings1(self):
         """Check invariant"""
-        invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
         # test uniqueness
         data = {
             "mail_types": [
@@ -71,7 +72,7 @@ class TestSettings(unittest.TestCase):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (
-            u"Courrier entrant: décocher le paramètre 'Activation de plusieurs groupes d'indicatage' n'est "
+            u"Onglet Courrier entrant: décocher le paramètre 'Activation de plusieurs groupes d'indicatage' n'est "
             u"pas prévu !"
         )
         self.assertEqual(
@@ -81,7 +82,8 @@ class TestSettings(unittest.TestCase):
 
     def test_validate_settings2(self):
         """Check invariant"""
-        invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
         # test mandatory fields
         im_flds = [
             "IDublinCore.title",
