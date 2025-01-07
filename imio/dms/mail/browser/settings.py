@@ -32,8 +32,10 @@ from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
+from plone.registry.recordsproxy import RecordsProxy
 from plone.supermodel import model
 from plone.z3cform import layout
+from Products.CMFPlone.utils import safe_unicode
 from z3c.form import form
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
@@ -550,12 +552,32 @@ class IImioDmsMailConfig(model.Schema):
 
     @invariant
     def validate_settings(data):  # noqa
+        # called for each fieldset !
+        # when changing directly in registry, data contains not the same thing: we pass validation
+        if not isinstance(data.__context__, RecordsProxy):
+            return
+        # which fieldset ?
+        fieldset = ""
+        if "mail_types" in data._Data_data___:
+            fieldset = "incomingmail"
+        elif "iemail_routing" in data._Data_data___:
+            fieldset = "incoming_email"
+        elif "omail_types" in data._Data_data___:
+            fieldset = "outgoingmail"
+        elif "org_email_templates_encoder_can_edit" in data._Data_data___:
+            fieldset = "outgoing_email"
+        elif "contact_group_encoder" in data._Data_data___:
+            fieldset = "contact"
+        elif "groups_hidden_in_dashboard_filter" in data._Data_data___:
+            fieldset = "general"
         # check ITableListSchema id uniqueness
-        for tab, fieldname, title in (
-            ("Incoming mail", "mail_types", u"Types of incoming mail"),
-            ("Outgoing mail", "omail_types", u"Types of outgoing mail"),
-            ("Outgoing mail", "omail_send_modes", u"Send modes"),
+        for fs, tab, fieldname, title in (
+            ("incomingmail", "Incoming mail", "mail_types", u"Types of incoming mail"),
+            ("outgoingmail", "Outgoing mail", "omail_types", u"Types of outgoing mail"),
+            ("outgoingmail", "Outgoing mail", "omail_send_modes", u"Send modes"),
         ):
+            if fieldset and fs != fieldset:
+                continue
             ids = []
             try:
                 values = getattr(data, fieldname) or []
@@ -571,30 +593,33 @@ class IImioDmsMailConfig(model.Schema):
                     )
                 ids.append(entry["value"])
         # check omail_send_modes id
-        try:
-            for dic in data.omail_send_modes or []:
-                if (
-                    not dic["value"].startswith("email")
-                    and not dic["value"].startswith("post")
-                    and not dic["value"].startswith("other")
-                ):
-                    # raise WidgetActionExecutionError("omail_send_modes",
-                    #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have values "
-                    #                                            u"starting with 'post', 'email' or 'other'")))
-                    raise Invalid(
-                        _(
-                            u"Outgoingmail tab: send_modes field must have values "
-                            u"starting with 'post', 'email' or 'other'"
+        if fieldset == "outgoingmail" or not fieldset:
+            try:
+                for dic in data.omail_send_modes or []:
+                    if (
+                        not dic["value"].startswith("email")
+                        and not dic["value"].startswith("post")
+                        and not dic["value"].startswith("other")
+                    ):
+                        # raise WidgetActionExecutionError("omail_send_modes",
+                        #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have "
+                        #                                         u"values starting with 'post', 'email' or 'other'")))
+                        raise Invalid(
+                            _(
+                                u"Outgoingmail tab: send_modes field must have values "
+                                u"starting with 'post', 'email' or 'other'"
+                            )
                         )
-                    )
-        except NoInputData:
-            pass
+            except NoInputData:
+                pass
         # check group_encoder deactivation
-        for tab, fld in (
-            ("Incoming mail", "imail_group_encoder"),
-            ("Outgoing mail", "omail_group_encoder"),
-            ("Contacts", "contact_group_encoder"),
+        for fs, tab, fld in (
+            ("incomingmail", "Incoming mail", "imail_group_encoder"),
+            ("outgoingmail", "Outgoing mail", "omail_group_encoder"),
+            ("contact", "Contacts", "contact_group_encoder"),
         ):
+            if fieldset and fs != fieldset:
+                continue
             rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(fld)
             try:
                 if api.portal.get_registry_record(rec) and not getattr(data, fld):
@@ -609,6 +634,7 @@ class IImioDmsMailConfig(model.Schema):
         # check fields
         constraints = {
             "imail_fields": {
+                "fieldset": "incomingmail",
                 "voc": IMFieldsVocabulary()(None),
                 "mand": [
                     "IDublinCore.title",
@@ -636,6 +662,7 @@ class IImioDmsMailConfig(model.Schema):
                 "pos": ["IDublinCore.title", "IDublinCore.description"],
             },
             "omail_fields": {
+                "fieldset": "outgoingmail",
                 "voc": OMFieldsVocabulary()(None),
                 "mand": [
                     "IDublinCore.title",
@@ -676,6 +703,8 @@ class IImioDmsMailConfig(model.Schema):
         missing = {}
         position = {}
         for conf in constraints:
+            if fieldset and fieldset != constraints[conf]["fieldset"]:
+                continue
             old_value = api.portal.get_registry_record(
                 "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(conf), default=[]
             )
