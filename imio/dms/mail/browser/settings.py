@@ -616,8 +616,8 @@ class IImioDmsMailConfig(model.Schema):
                         #                                         u"values starting with 'post', 'email' or 'other'")))
                         raise Invalid(
                             _(
-                                u"Outgoingmail tab: send_modes field must have values "
-                                u"starting with 'post', 'email' or 'other'"
+                                u"${tab} tab: send_modes field must have values starting with « post », « email » or "
+                                u"« other »", mapping={"tab": _("Outgoing mail")},
                             )
                         )
             except NoInputData:
