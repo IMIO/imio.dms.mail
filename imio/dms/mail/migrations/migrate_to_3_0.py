@@ -597,11 +597,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                         u"forward": u"agent",
                         u"transfer_email_pat": u".*",
                         u"original_email_pat": u"",
-                        u"tg_tal_condition": u"",
-                        u"tg_value": u"_primary_org_",
-                        u"user_tal_condition": u"",
+                        u"tal_condition_1": u"",
                         u"user_value": u"_transferer_",
-                        u"state_tal_condition": u"",
+                        u"tal_condition_2": u"",
+                        u"tg_value": u"_primary_org_",
+                        u"tal_condition_3": u"",
                         u"state_value": new_mft
                     })
                 api.portal.set_registry_record(routing_key, routing)
