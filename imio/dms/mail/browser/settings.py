@@ -172,9 +172,9 @@ class TgRoutingValueVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm(value="_empty_", title=_("Set None")),
-                SimpleTerm(value="_unigroup_only_", title=_("Unigroup only")),
-                SimpleTerm(value="_primary_org_", title=_("From primary organization")),
+                SimpleTerm(value=u"_empty_", title=_("Set None")),
+                SimpleTerm(value=u"_unigroup_only_", title=_("Unigroup only")),
+                SimpleTerm(value=u"_primary_org_", title=_("From primary organization")),
             ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
         )
 
@@ -185,9 +185,21 @@ class UsersRoutingValueVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm(value="_empty_", title=_("Set None")),
-                SimpleTerm(value="_transferer_", title=_("Transferer")),
+                SimpleTerm(value=u"_empty_", title=_("Set None")),
+                SimpleTerm(value=u"_transferer_", title=_("Transferer")),
             ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
+        )
+
+
+class StatesRoutingValueVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_n_plus_h_", title=_(u"Highest N+ level, or agent")),
+                SimpleTerm(value=u"_n_plus_l_", title=_(u"Lowest N+ level, or agent")),
+            ] + vocabularyname_to_terms("imio.dms.mail.IMReviewStatesVocabulary")
         )
 
 
@@ -212,8 +224,8 @@ class IRoutingSchema(Interface):
         required=False,
     )
 
-    tal_condition = schema.TextLine(
-        title=_("TAL condition"),
+    tg_tal_condition = schema.TextLine(
+        title=_("TG TAL condition"),
         required=False,
     )
 
@@ -223,9 +235,25 @@ class IRoutingSchema(Interface):
         required=True,
     )
 
+    user_tal_condition = schema.TextLine(
+        title=_("User TAL condition"),
+        required=False,
+    )
+
     user_value = schema.Choice(
         title=_(u"Assigned user value"),
         vocabulary="imio.dms.mail.UsersRoutingValueVocabulary",
+        required=True,
+    )
+
+    state_tal_condition = schema.TextLine(
+        title=_("State TAL condition"),
+        required=False,
+    )
+
+    state_value = schema.Choice(
+        title=_(u"State value"),
+        vocabulary="imio.dms.mail.StatesRoutingValueVocabulary",
         required=True,
     )
 
@@ -245,19 +273,19 @@ fullname_forms = SimpleVocabulary(
     ]
 )
 
-iemail_manual_forward_transitions = SimpleVocabulary(
-    [
-        SimpleTerm(value=u"created", title=_(u"A user forwarded email will stay at creation level")),
-        SimpleTerm(value=u"manager", title=_(u"A user forwarded email will go to manager level")),
-        SimpleTerm(
-            value=u"n_plus_h", title=_(u"A user forwarded email will go to highest N+ level, " u"otherwise to agent")
-        ),
-        SimpleTerm(
-            value=u"n_plus_l", title=_(u"A user forwarded email will go to lowest N+ level, " u"otherwise to agent")
-        ),
-        SimpleTerm(value=u"agent", title=_(u"A user forwarded email will go to agent level")),
-    ]
-)
+# iemail_manual_forward_transitions = SimpleVocabulary(
+#     [
+#         SimpleTerm(value=u"created", title=_(u"A user forwarded email will stay at creation level")),
+#         SimpleTerm(value=u"manager", title=_(u"A user forwarded email will go to manager level")),
+#         SimpleTerm(
+#             value=u"n_plus_h", title=_(u"A user forwarded email will go to highest N+ level, otherwise to agent")
+#         ),
+#         SimpleTerm(
+#             value=u"n_plus_l", title=_(u"A user forwarded email will go to lowest N+ level, otherwise to agent")
+#         ),
+#         SimpleTerm(value=u"agent", title=_(u"A user forwarded email will go to agent level")),
+#     ]
+# )
 
 oemail_sender_email_values = SimpleVocabulary(
     [
@@ -366,15 +394,15 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         "incoming_email",
         label=_(u"Incoming email"),
-        fields=["iemail_manual_forward_transition", "iemail_routing"])
+        fields=["iemail_routing"])
 
-    iemail_manual_forward_transition = schema.Choice(
-        title=_(u"Email manual forward transition"),
-        description=_(u"Choose to which state a manually forwarded email will go."),
-        vocabulary=iemail_manual_forward_transitions,
-        default=u"agent",
-    )
-
+    # iemail_manual_forward_transition = schema.Choice(
+    #     title=_(u"Email manual forward transition"),
+    #     description=_(u"Choose to which state a manually forwarded email will go."),
+    #     vocabulary=iemail_manual_forward_transitions,
+    #     default=u"agent",
+    # )
+    #
     iemail_routing = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
         description=_(u"Configure this carefully. You can order with arrows."),

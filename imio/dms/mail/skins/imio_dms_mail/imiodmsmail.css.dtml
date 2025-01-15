@@ -697,16 +697,21 @@ body.template-imiodmsmail-settings #form-widgets-omail_fields .cell-1 {
     width: 220px;
 }
 
-body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-1 {
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-1,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-5,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-7,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-9 {
     width: 1%;
     white-space: nowrap;
 }
 body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-2,
 body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-3 {
-    width: 25%;
+    width: 20%;
 }
-body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-4 {
-    width: 50%;
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-4,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-6,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-8 {
+    width: 20%;
 }
 
 /* colorization for incoming_mail_workflow */
