@@ -110,13 +110,13 @@
         />
 
     <utility
-        name="imio.dms.mail.TgRoutingValueVocabulary"
-        factory="imio.dms.mail.browser.settings.TgRoutingValueVocabulary"
+        name="imio.dms.mail.UsersRoutingValueVocabulary"
+        factory="imio.dms.mail.browser.settings.UsersRoutingValueVocabulary"
         />
 
     <utility
-        name="imio.dms.mail.UsersRoutingValueVocabulary"
-        factory="imio.dms.mail.browser.settings.UsersRoutingValueVocabulary"
+        name="imio.dms.mail.TgRoutingValueVocabulary"
+        factory="imio.dms.mail.browser.settings.TgRoutingValueVocabulary"
         />
 
     <utility

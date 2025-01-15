@@ -166,29 +166,31 @@ routing_forward_types = SimpleVocabulary(
 )
 
 
-class TgRoutingValueVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary(
-            [
-                SimpleTerm(value=u"_empty_", title=_("Set None")),
-                SimpleTerm(value=u"_unigroup_only_", title=_("Unigroup only")),
-                SimpleTerm(value=u"_primary_org_", title=_("From primary organization")),
-                SimpleTerm(value=u"_hp_", title=_("Following held position")),
-            ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
-        )
-
-
 class UsersRoutingValueVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(
             [
+                SimpleTerm(value=u"_none_", title=_("Choose a value !")),
                 SimpleTerm(value=u"_empty_", title=_("Set None")),
                 SimpleTerm(value=u"_transferer_", title=_("Transferer")),
             ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
+        )
+
+
+class TgRoutingValueVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_none_", title=_("Choose a value !")),
+                SimpleTerm(value=u"_empty_", title=_("Set None")),
+                SimpleTerm(value=u"_unigroup_only_", title=_("Unigroup only")),
+                SimpleTerm(value=u"_primary_org_", title=_("From primary organization")),
+                SimpleTerm(value=u"_hp_", title=_("Following held position")),
+            ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
         )
 
 
@@ -198,6 +200,7 @@ class StatesRoutingValueVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary(
             [
+                SimpleTerm(value=u"_none_", title=_("Choose a value !")),
                 SimpleTerm(value=u"_n_plus_h_", title=_(u"Highest N+ level, or agent")),
                 SimpleTerm(value=u"_n_plus_l_", title=_(u"Lowest N+ level, or agent")),
             ] + vocabularyname_to_terms("imio.dms.mail.IMReviewStatesVocabulary")
@@ -676,6 +679,10 @@ class IImioDmsMailConfig(model.Schema):
         # check iemail_routing
         if fieldset == "incoming_email" or not fieldset:
             for i, rule in enumerate(getattr(data, "iemail_routing") or [], start=1):
+                if (rule["user_value"] == u"_none_" and rule["tg_value"] == u"_none_"
+                        and rule["state_value"] == u"_none_"):
+                    raise Invalid(_(u"${tab} tab: routing rule ${rule} is configured with no values defined",
+                                    mapping={"tab": _(u"Incoming email"), "rule": i}))
                 if rule["tg_value"] and rule["user_value"] and not rule["tg_value"].startswith("_") and \
                         not rule["user_value"].startswith("_"):
                     pids = get_selected_org_suffix_principal_ids(rule["tg_value"], IM_EDITOR_SERVICE_FUNCTIONS)
