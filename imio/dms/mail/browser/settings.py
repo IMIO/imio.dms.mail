@@ -175,6 +175,7 @@ class TgRoutingValueVocabulary(object):
                 SimpleTerm(value=u"_empty_", title=_("Set None")),
                 SimpleTerm(value=u"_unigroup_only_", title=_("Unigroup only")),
                 SimpleTerm(value=u"_primary_org_", title=_("From primary organization")),
+                SimpleTerm(value=u"_hp_", title=_("Following held position")),
             ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
         )
 
@@ -224,20 +225,10 @@ class IRoutingSchema(Interface):
         required=False,
     )
 
-    tg_tal_condition = schema.TextLine(
-        title=_("TG TAL condition"),
+    tal_condition_1 = schema.TextLine(
+        title=_("TAL condition 1"),
         required=False,
-    )
-
-    tg_value = schema.Choice(
-        title=_(u"Treating group value"),
-        vocabulary="imio.dms.mail.TgRoutingValueVocabulary",
-        required=True,
-    )
-
-    user_tal_condition = schema.TextLine(
-        title=_("User TAL condition"),
-        required=False,
+        default=u"",
     )
 
     user_value = schema.Choice(
@@ -246,9 +237,22 @@ class IRoutingSchema(Interface):
         required=True,
     )
 
-    state_tal_condition = schema.TextLine(
-        title=_("State TAL condition"),
+    tal_condition_2 = schema.TextLine(
+        title=_("TAL condition 2"),
         required=False,
+        default=u"",
+    )
+
+    tg_value = schema.Choice(
+        title=_(u"Treating group value"),
+        vocabulary="imio.dms.mail.TgRoutingValueVocabulary",
+        required=True,
+    )
+
+    tal_condition_3 = schema.TextLine(
+        title=_("TAL condition 3"),
+        required=False,
+        default=u"",
     )
 
     state_value = schema.Choice(
