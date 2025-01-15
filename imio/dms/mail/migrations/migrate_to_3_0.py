@@ -573,8 +573,38 @@ class Migrate_To_3_0(Migrator):  # noqa
                         blobs.append(blob)
             for blob in blobs:
                 modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
-            # actions
+            # actions and new registry
+            to_del_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_manual_forward_transition"
+            old_mft = api.portal.get_registry_record(to_del_key, default=None)
+            registry = getUtility(IRegistry)
+            del registry.records[to_del_key]
             self.runProfileSteps("imio.dms.mail", steps=["actions", "plone.app.registry"])
+            routing_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_routing"
+            routing = api.portal.get_registry_record(routing_key, default=[])
+            if old_mft and not routing:
+                if old_mft == u"agent":
+                    new_mft = u"proposed_to_agent"
+                elif old_mft == u"manager":
+                    new_mft = u"proposed_to_manager"
+                elif old_mft == u"n_plus_h":
+                    new_mft = u"_n_plus_h_"
+                elif old_mft == u"n_plus_l":
+                    new_mft = u"_n_plus_l_"
+                else:
+                    new_mft = u"created"
+                routing.append(
+                    {
+                        u"forward": u"agent",
+                        u"transfer_email_pat": u".*",
+                        u"original_email_pat": u"",
+                        u"tg_tal_condition": u"",
+                        u"tg_value": u"_primary_org_",
+                        u"user_tal_condition": u"",
+                        u"user_value": u"_transferer_",
+                        u"state_tal_condition": u"",
+                        u"state_value": new_mft
+                    })
+                api.portal.set_registry_record(routing_key, routing)
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
             if not [cj for cj in cron_configlet.cronjobs or [] if "cron_read_label_handling" in cj]:

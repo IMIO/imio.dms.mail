@@ -120,6 +120,11 @@
         />
 
     <utility
+        name="imio.dms.mail.StatesRoutingValueVocabulary"
+        factory="imio.dms.mail.browser.settings.StatesRoutingValueVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.IMPortalTypesVocabulary"
         factory="imio.dms.mail.vocabularies.IMPortalTypesVocabulary"
         />
