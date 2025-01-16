@@ -35,7 +35,7 @@ msgstr "Onglet « ${tab} »: la règle de routage ${rule} est configurée avec u
 
 #: ./browser/settings.py:695
 msgid "${tab} tab: routing rule ${rule} is configured with no values defined"
-msgstr "Onglet « ${tab} »: la règle de routage ${rule} ne contient aucune valeur définie"
+msgstr "Onglet « ${tab} »: la règle de routage ${rule} contient au moins une colonne « valeur » non définie"
 
 #: ./browser/settings.py:654
 msgid "${tab} tab: send_modes field must have values starting with « post », « email » or « other »"
