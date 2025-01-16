@@ -693,8 +693,8 @@ class IImioDmsMailConfig(model.Schema):
                                 mapping={"tab": _(u"Incoming email"), "rule": i, "field": _(tit)},
                             )
                         )
-                if (rule["user_value"] == u"_none_" and rule["tg_value"] == u"_none_"
-                        and rule["state_value"] == u"_none_"):
+                if (rule["user_value"] == u"_none_" or rule["tg_value"] == u"_none_"
+                        or rule["state_value"] == u"_none_"):
                     raise Invalid(_(u"${tab} tab: routing rule ${rule} is configured with no values defined",
                                     mapping={"tab": _(u"Incoming email"), "rule": i}))
                 if rule["tg_value"] and rule["user_value"] and not rule["tg_value"].startswith("_") and \
