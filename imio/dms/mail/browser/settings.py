@@ -188,7 +188,7 @@ class TgRoutingValueVocabulary(object):
             [
                 SimpleTerm(value=u"_none_", title=_("Choose a value !")),
                 SimpleTerm(value=u"_empty_", title=_("Set None")),
-                SimpleTerm(value=u"_unigroup_only_", title=_("Unigroup only")),
+                SimpleTerm(value=u"_uni_org_only_", title=_("Uniorg only")),
                 SimpleTerm(value=u"_primary_org_", title=_("From primary organization")),
                 SimpleTerm(value=u"_hp_", title=_("Following held position")),
             ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")

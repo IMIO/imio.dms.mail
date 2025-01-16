@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-01-16 12:58+0000\n"
+"POT-Creation-Date: 2025-01-16 18:23+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,15 +25,15 @@ msgstr "${element_title} (Désactivé)"
 msgid "${tab} tab: multiple value '${value}' in '${field}' setting !! Must be unique"
 msgstr "Onglet « ${tab} »: le champ « ${field} » contient plusieurs fois la valeur « ${value} » ! La valeur stockée doit être unique !"
 
-#: ./browser/settings.py:688
+#: ./browser/settings.py:691
 msgid "${tab} tab: routing rule ${rule} has an invalid « ${field} » pattern"
 msgstr "Onglet « ${tab} »: la règle de routage ${rule} contient une expression TAL non valide dans « ${field} »"
 
-#: ./browser/settings.py:706
+#: ./browser/settings.py:709
 msgid "${tab} tab: routing rule ${rule} is configured with an assigned user « ${user} » not in the corresponding treating group « ${tg} »"
 msgstr "Onglet « ${tab} »: la règle de routage ${rule} est configurée avec un utilisateur assigné « ${user} » qui ne fait pas partie du service « ${tg} »"
 
-#: ./browser/settings.py:695
+#: ./browser/settings.py:698
 msgid "${tab} tab: routing rule ${rule} is configured with no values defined"
 msgstr "Onglet « ${tab} »: la règle de routage ${rule} contient au moins une colonne « valeur » non définie"
 
@@ -284,7 +284,7 @@ msgstr "Groupe indicateur"
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
-#: ./browser/settings.py:1130
+#: ./browser/settings.py:1133
 msgid "Current product version"
 msgstr "Version actuelle du produit"
 
@@ -316,11 +316,11 @@ msgstr "Champ 'Reprise données' pour le gestion de courrier"
 msgid "Dms file must be an odt format"
 msgstr "Le fichier ged doit être au format odt (Libre Office)"
 
-#: ./browser/settings.py:1118
+#: ./browser/settings.py:1121
 msgid "Document viewer preservation date"
 msgstr "Date de conservation pour les prévisualisations"
 
-#: ./browser/settings.py:1114
+#: ./browser/settings.py:1117
 msgid "Document viewer preservation days number"
 msgstr "Nombre de jours de conservation pour les prévisualisations"
 
@@ -481,7 +481,7 @@ msgstr "Recherches courriers entrants"
 msgid "Incoming mails"
 msgstr "Courrier entrant"
 
-#: ./browser/settings.py:1122
+#: ./browser/settings.py:1125
 msgid "Incoming mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 
@@ -630,7 +630,7 @@ msgstr "Recherches courriers sortants"
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
-#: ./browser/settings.py:1126
+#: ./browser/settings.py:1129
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier sortant (mont, week, day)"
 
@@ -849,7 +849,7 @@ msgid "Types of outgoing mail"
 msgstr "Types de courrier sortant"
 
 #: ./browser/settings.py:191
-msgid "Unigroup only"
+msgid "Uniorg only"
 msgstr "* Seulement si 1 service"
 
 #: ./columns.py:358

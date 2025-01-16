@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-01-16 12:58+0000\n"
+"POT-Creation-Date: 2025-01-16 18:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,15 +23,15 @@ msgstr ""
 msgid "${tab} tab: multiple value '${value}' in '${field}' setting !! Must be unique"
 msgstr ""
 
-#: ./browser/settings.py:688
+#: ./browser/settings.py:691
 msgid "${tab} tab: routing rule ${rule} has an invalid « ${field} » pattern"
 msgstr ""
 
-#: ./browser/settings.py:706
+#: ./browser/settings.py:709
 msgid "${tab} tab: routing rule ${rule} is configured with an assigned user « ${user} » not in the corresponding treating group « ${tg} »"
 msgstr ""
 
-#: ./browser/settings.py:695
+#: ./browser/settings.py:698
 msgid "${tab} tab: routing rule ${rule} is configured with no values defined"
 msgstr ""
 
@@ -282,7 +282,7 @@ msgstr ""
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
-#: ./browser/settings.py:1130
+#: ./browser/settings.py:1133
 msgid "Current product version"
 msgstr ""
 
@@ -314,11 +314,11 @@ msgstr ""
 msgid "Dms file must be an odt format"
 msgstr ""
 
-#: ./browser/settings.py:1118
+#: ./browser/settings.py:1121
 msgid "Document viewer preservation date"
 msgstr ""
 
-#: ./browser/settings.py:1114
+#: ./browser/settings.py:1117
 msgid "Document viewer preservation days number"
 msgstr ""
 
@@ -479,7 +479,7 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
-#: ./browser/settings.py:1122
+#: ./browser/settings.py:1125
 msgid "Incoming mails folder period (month, week, day)"
 msgstr ""
 
@@ -628,7 +628,7 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/settings.py:1126
+#: ./browser/settings.py:1129
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr ""
 
@@ -847,7 +847,7 @@ msgid "Types of outgoing mail"
 msgstr ""
 
 #: ./browser/settings.py:191
-msgid "Unigroup only"
+msgid "Uniorg only"
 msgstr ""
 
 #: ./columns.py:358
