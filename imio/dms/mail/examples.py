@@ -866,6 +866,22 @@ def configure_imio_dms_mail(context):
             {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
         ]
 
+    # IEM
+    routing_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_routing"
+    if not registry.get(routing_key, default=[]):
+        registry[routing_key] = [
+            {
+                u"forward": u"agent",
+                u"transfer_email_pat": u".*",
+                u"original_email_pat": u"",
+                u"tal_condition_1": u"",
+                u"user_value": u"_transferer_",
+                u"tal_condition_2": u"",
+                u"tg_value": u"_primary_org_",
+                u"tal_condition_3": u"",
+                u"state_value": u"proposed_to_agent"
+            }]
+
     # OM
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"] = [
@@ -917,7 +933,7 @@ def configure_imio_dms_mail(context):
             {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
         ]
 
-    # IEM
+    # IOM
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature"):
         from string import Template
 
@@ -972,6 +988,11 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
             url=PUBLIC_URL
         )
 
+    # general
+    api.portal.set_registry_record(
+        "imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter", ["scanner"]
+    )
+
     # IImioDmsMailConfig2 settings
     api.portal.set_registry_record("imio.dms.mail.dv_clean_days", 180)
     api.portal.set_registry_record("imio.dms.mail.imail_folder_period", u"week")
@@ -980,11 +1001,6 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
         api.portal.set_registry_record(
             "imio.dms.mail.product_version", safe_unicode(get_git_tag(BLDT_DIR, is_develop_environment()))
         )
-
-    # general
-    api.portal.set_registry_record(
-        "imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter", ["scanner"]
-    )
 
     # mailcontent
     # Hide internal reference for outgoingmmail. Increment number automatically
