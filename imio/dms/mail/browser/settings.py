@@ -59,6 +59,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
 import logging
+import re
 
 
 logger = logging.getLogger("imio.dms.mail: settings")
@@ -412,7 +413,7 @@ class IImioDmsMailConfig(model.Schema):
     #
     iemail_routing = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
-        description=_(u"Configure this carefully. You can order with arrows."),
+        description=_(u"Configure routing carefully. You can order with arrows. Only first matched rule is used."),
         required=False,
         value_type=DictRow(title=_(u"Routing"), schema=IRoutingSchema, required=False),
     )
@@ -679,6 +680,19 @@ class IImioDmsMailConfig(model.Schema):
         # check iemail_routing
         if fieldset == "incoming_email" or not fieldset:
             for i, rule in enumerate(getattr(data, "iemail_routing") or [], start=1):
+                for fld, tit in (("transfer_email_pat", u"Transfer email pattern"),
+                                 ("original_email_pat", u"Original email pattern")):
+                    if not rule[fld]:
+                        continue
+                    try:
+                        re.compile(rule[fld])
+                    except re.error:
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: routing rule ${rule} has an invalid « ${field} » pattern",
+                                mapping={"tab": _(u"Incoming email"), "rule": i, "field": _(tit)},
+                            )
+                        )
                 if (rule["user_value"] == u"_none_" and rule["tg_value"] == u"_none_"
                         and rule["state_value"] == u"_none_"):
                     raise Invalid(_(u"${tab} tab: routing rule ${rule} is configured with no values defined",
