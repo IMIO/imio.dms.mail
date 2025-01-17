@@ -173,7 +173,7 @@ class UsersRoutingValueVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm(value=u"_none_", title=_("Choose a value !")),
+                SimpleTerm(value=None, title=_("Choose a value !")),
                 SimpleTerm(value=u"_empty_", title=_("Set None")),
                 SimpleTerm(value=u"_transferer_", title=_("Transferer")),
             ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
@@ -186,7 +186,7 @@ class TgRoutingValueVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm(value=u"_none_", title=_("Choose a value !")),
+                SimpleTerm(value=None, title=_("Choose a value !")),
                 SimpleTerm(value=u"_empty_", title=_("Set None")),
                 SimpleTerm(value=u"_uni_org_only_", title=_("Uniorg only")),
                 SimpleTerm(value=u"_primary_org_", title=_("From primary organization")),
@@ -201,7 +201,7 @@ class StatesRoutingValueVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm(value=u"_none_", title=_("Choose a value !")),
+                SimpleTerm(value=None, title=_("Choose a value !")),
                 SimpleTerm(value=u"_n_plus_h_", title=_(u"Highest N+ level, or agent")),
                 SimpleTerm(value=u"_n_plus_l_", title=_(u"Lowest N+ level, or agent")),
             ] + vocabularyname_to_terms("imio.dms.mail.IMReviewStatesVocabulary")
@@ -691,8 +691,8 @@ class IImioDmsMailConfig(model.Schema):
                                 )
                             )
                     # check empty value
-                    if (rule.get("user_value") == u"_none_" or rule.get("tg_value") == u"_none_"
-                            or rule.get("state_value") == u"_none_"):
+                    if (rule.get("user_value") is None or rule.get("tg_value") is None
+                            or rule.get("state_value") is None):
                         raise Invalid(_(u"${tab} tab: « ${field} » rule ${rule} is configured with no values defined",
                                         mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i}))
                     # check user is in org
