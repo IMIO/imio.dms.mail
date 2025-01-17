@@ -638,26 +638,6 @@ class IImioDmsMailConfig(model.Schema):
                         )
                     )
                 ids.append(entry["value"])
-        # check omail_send_modes id
-        if fieldset == "outgoingmail" or not fieldset:
-            try:
-                for dic in data.omail_send_modes or []:
-                    if (
-                        not dic["value"].startswith("email")
-                        and not dic["value"].startswith("post")
-                        and not dic["value"].startswith("other")
-                    ):
-                        # raise WidgetActionExecutionError("omail_send_modes",
-                        #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have "
-                        #                                         u"values starting with 'post', 'email' or 'other'")))
-                        raise Invalid(
-                            _(
-                                u"${tab} tab: send_modes field must have values starting with « post », « email » or "
-                                u"« other »", mapping={"tab": _("Outgoing mail")},
-                            )
-                        )
-            except NoInputData:
-                pass
         # check group_encoder deactivation
         for fs, tab, fld in (
             ("incomingmail", "Incoming mail", "imail_group_encoder"),
@@ -680,6 +660,7 @@ class IImioDmsMailConfig(model.Schema):
         # check iemail_routing
         if fieldset == "incoming_email" or not fieldset:
             for i, rule in enumerate(getattr(data, "iemail_routing") or [], start=1):
+                # check patterns
                 for fld, tit in (("transfer_email_pat", u"Transfer email pattern"),
                                  ("original_email_pat", u"Original email pattern")):
                     if not rule[fld]:
@@ -693,10 +674,12 @@ class IImioDmsMailConfig(model.Schema):
                                 mapping={"tab": _(u"Incoming email"), "rule": i, "field": _(tit)},
                             )
                         )
+                # check empty value
                 if (rule["user_value"] == u"_none_" or rule["tg_value"] == u"_none_"
                         or rule["state_value"] == u"_none_"):
                     raise Invalid(_(u"${tab} tab: routing rule ${rule} is configured with no values defined",
                                     mapping={"tab": _(u"Incoming email"), "rule": i}))
+                # check user is in org
                 if rule["tg_value"] and rule["user_value"] and not rule["tg_value"].startswith("_") and \
                         not rule["user_value"].startswith("_"):
                     pids = get_selected_org_suffix_principal_ids(rule["tg_value"], IM_EDITOR_SERVICE_FUNCTIONS)
@@ -713,6 +696,26 @@ class IImioDmsMailConfig(model.Schema):
                                          "tg": safe_unicode(tgname)},
                             )
                         )
+        # check omail_send_modes id
+        if fieldset == "outgoingmail" or not fieldset:
+            try:
+                for dic in data.omail_send_modes or []:
+                    if (
+                        not dic["value"].startswith("email")
+                        and not dic["value"].startswith("post")
+                        and not dic["value"].startswith("other")
+                    ):
+                        # raise WidgetActionExecutionError("omail_send_modes",
+                        #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have "
+                        #                                         u"values starting with 'post', 'email' or 'other'")))
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: send_modes field must have values starting with « post », « email » or "
+                                u"« other »", mapping={"tab": _("Outgoing mail")},
+                            )
+                        )
+            except NoInputData:
+                pass
         # check fields
         constraints = {
             "imail_fields": {
