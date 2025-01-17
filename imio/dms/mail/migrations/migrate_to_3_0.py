@@ -574,35 +574,45 @@ class Migrate_To_3_0(Migrator):  # noqa
             for blob in blobs:
                 modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
             # actions and new registry
-            to_del_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_manual_forward_transition"
-            old_mft = api.portal.get_registry_record(to_del_key, default=None)
-            registry = getUtility(IRegistry)
-            del registry.records[to_del_key]
             self.runProfileSteps("imio.dms.mail", steps=["actions", "plone.app.registry"])
-            routing_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_routing"
-            routing = api.portal.get_registry_record(routing_key, default=[])
-            if old_mft and not routing:
-                if old_mft == u"agent":
-                    new_mft = u"proposed_to_agent"
-                elif old_mft == u"manager":
-                    new_mft = u"proposed_to_manager"
-                elif old_mft == u"n_plus_h":
-                    new_mft = u"_n_plus_h_"
-                elif old_mft == u"n_plus_l":
-                    new_mft = u"_n_plus_l_"
-                else:
-                    new_mft = u"created"
+            registry = getUtility(IRegistry)
+            to_del_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_manual_forward_transition"
+            if to_del_key in registry.records:
+                old_mft = registry.get(to_del_key, default=None)
+                del registry.records[to_del_key]
+                state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
+                state_set = api.portal.get_registry_record(state_set_key, default=[]) or []
+                if not state_set:
+                    if old_mft == u"agent":
+                        new_mft = u"proposed_to_agent"
+                    elif old_mft == u"manager":
+                        new_mft = u"proposed_to_manager"
+                    elif old_mft == u"n_plus_h":
+                        new_mft = u"_n_plus_h_"
+                    elif old_mft == u"n_plus_l":
+                        new_mft = u"_n_plus_l_"
+                    else:
+                        new_mft = u"created"
+                    state_set.append(
+                        {
+                            u"forward": u"agent",
+                            u"transfer_email_pat": u"",
+                            u"original_email_pat": u"",
+                            u"tal_condition_1": u"",
+                            u"state_value": new_mft
+                        })
+                    api.portal.set_registry_record(state_set_key, state_set)
+                routing_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_routing"
+                routing = api.portal.get_registry_record(routing_key, default=[]) or []
                 routing.append(
                     {
                         u"forward": u"agent",
-                        u"transfer_email_pat": u".*",
+                        u"transfer_email_pat": u"",
                         u"original_email_pat": u"",
                         u"tal_condition_1": u"",
                         u"user_value": u"_transferer_",
                         u"tal_condition_2": u"",
                         u"tg_value": u"_primary_org_",
-                        u"tal_condition_3": u"",
-                        u"state_value": new_mft
                     })
                 api.portal.set_registry_record(routing_key, routing)
             # cron4plone settings

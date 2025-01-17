@@ -872,13 +872,21 @@ def configure_imio_dms_mail(context):
         registry[routing_key] = [
             {
                 u"forward": u"agent",
-                u"transfer_email_pat": u".*",
+                u"transfer_email_pat": u"",
                 u"original_email_pat": u"",
                 u"tal_condition_1": u"",
                 u"user_value": u"_transferer_",
                 u"tal_condition_2": u"",
                 u"tg_value": u"_primary_org_",
-                u"tal_condition_3": u"",
+            }]
+    state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
+    if not registry.get(state_set_key, default=[]):
+        registry[state_set_key] = [
+            {
+                u"forward": u"agent",
+                u"transfer_email_pat": u"",
+                u"original_email_pat": u"",
+                u"tal_condition_1": u"",
                 u"state_value": u"proposed_to_agent"
             }]
 

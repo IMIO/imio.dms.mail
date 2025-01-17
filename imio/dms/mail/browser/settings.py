@@ -208,7 +208,7 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
-class IRoutingSchema(Interface):
+class IRuleSchema(Interface):
 
     forward = schema.Choice(
         title=_("Forward Type"),
@@ -235,6 +235,9 @@ class IRoutingSchema(Interface):
         default=u"",
     )
 
+
+class IRoutingSchema(IRuleSchema):
+
     user_value = schema.Choice(
         title=_(u"Assigned user value"),
         vocabulary="imio.dms.mail.UsersRoutingValueVocabulary",
@@ -253,11 +256,8 @@ class IRoutingSchema(Interface):
         required=True,
     )
 
-    tal_condition_3 = schema.TextLine(
-        title=_("TAL condition 3"),
-        required=False,
-        default=u"",
-    )
+
+class IStateSetSchema(IRuleSchema):
 
     state_value = schema.Choice(
         title=_(u"State value"),
@@ -402,7 +402,7 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         "incoming_email",
         label=_(u"Incoming email"),
-        fields=["iemail_routing"])
+        fields=["iemail_routing", "iemail_state_set"],)
 
     # iemail_manual_forward_transition = schema.Choice(
     #     title=_(u"Email manual forward transition"),
@@ -413,12 +413,25 @@ class IImioDmsMailConfig(model.Schema):
     #
     iemail_routing = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
-        description=_(u"Configure routing carefully. You can order with arrows. Only first matched rule is used."),
+        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
         required=False,
         value_type=DictRow(title=_(u"Routing"), schema=IRoutingSchema, required=False),
     )
     widget(
         "iemail_routing",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
+    )
+
+    iemail_state_set = schema.List(
+        title=_(u"${type} state set", mapping={"type": _("Incoming email")}),
+        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
+        required=False,
+        value_type=DictRow(title=_(u"State"), schema=IStateSetSchema, required=False),
+    )
+    widget(
+        "iemail_state_set",
         DataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
@@ -659,43 +672,47 @@ class IImioDmsMailConfig(model.Schema):
                 pass
         # check iemail_routing
         if fieldset == "incoming_email" or not fieldset:
-            for i, rule in enumerate(getattr(data, "iemail_routing") or [], start=1):
-                # check patterns
-                for fld, tit in (("transfer_email_pat", u"Transfer email pattern"),
-                                 ("original_email_pat", u"Original email pattern")):
-                    if not rule[fld]:
-                        continue
-                    try:
-                        re.compile(rule[fld])
-                    except re.error:
-                        raise Invalid(
-                            _(
-                                u"${tab} tab: routing rule ${rule} has an invalid « ${field} » pattern",
-                                mapping={"tab": _(u"Incoming email"), "rule": i, "field": _(tit)},
+            for fld, fld_tit in (("iemail_routing", _tr(u"${type} routing", mapping={"type": ""})),
+                                 ("iemail_state_set", _tr(u"${type} state set", mapping={"type": ""}))):
+                for i, rule in enumerate(getattr(data, fld) or [], start=1):
+                    # check patterns
+                    for col, col_tit in (("transfer_email_pat", u"Transfer email pattern"),
+                                         ("original_email_pat", u"Original email pattern")):
+                        if not rule[col]:
+                            continue
+                        try:
+                            re.compile(rule[col])
+                        except re.error:
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} » rule ${rule} has an invalid pattern in « ${col} »",
+                                    mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i,
+                                             "col": _(col_tit)},
+                                )
                             )
-                        )
-                # check empty value
-                if (rule["user_value"] == u"_none_" or rule["tg_value"] == u"_none_"
-                        or rule["state_value"] == u"_none_"):
-                    raise Invalid(_(u"${tab} tab: routing rule ${rule} is configured with no values defined",
-                                    mapping={"tab": _(u"Incoming email"), "rule": i}))
-                # check user is in org
-                if rule["tg_value"] and rule["user_value"] and not rule["tg_value"].startswith("_") and \
-                        not rule["user_value"].startswith("_"):
-                    pids = get_selected_org_suffix_principal_ids(rule["tg_value"], IM_EDITOR_SERVICE_FUNCTIONS)
-                    if rule["user_value"] not in pids:
-                        username = [t.title for t in vocabularyname_to_terms("imio.helpers.SimplySortedUsers")
-                                    if t.value == rule["user_value"]][0]
-                        tgname = [t.title for t in vocabularyname_to_terms("collective.dms.basecontent.treating_groups")
-                                  if t.value == rule["tg_value"]][0]
-                        raise Invalid(
-                            _(
-                                u"${tab} tab: routing rule ${rule} is configured with an assigned user « ${user} » "
-                                u"not in the corresponding treating group « ${tg} »",
-                                mapping={"tab": _(u"Incoming email"), "rule": i, "user": safe_unicode(username),
-                                         "tg": safe_unicode(tgname)},
+                    # check empty value
+                    if (rule.get("user_value") == u"_none_" or rule.get("tg_value") == u"_none_"
+                            or rule.get("state_value") == u"_none_"):
+                        raise Invalid(_(u"${tab} tab: « ${field} » rule ${rule} is configured with no values defined",
+                                        mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i}))
+                    # check user is in org
+                    if fld == "iemail_routing" and not rule["tg_value"].startswith("_") and \
+                            not rule["user_value"].startswith("_"):
+                        pids = get_selected_org_suffix_principal_ids(rule["tg_value"], IM_EDITOR_SERVICE_FUNCTIONS)
+                        if rule["user_value"] not in pids:
+                            username = [t.title for t in vocabularyname_to_terms("imio.helpers.SimplySortedUsers")
+                                        if t.value == rule["user_value"]][0]
+                            tgname = [t.title for t in
+                                      vocabularyname_to_terms("collective.dms.basecontent.treating_groups")
+                                      if t.value == rule["tg_value"]][0]
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} » rule ${rule} is configured with an assigned user "
+                                    u"« ${user} » not in the corresponding treating group « ${tg} »",
+                                    mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i,
+                                             "user": safe_unicode(username), "tg": safe_unicode(tgname)},
+                                )
                             )
-                        )
         # check omail_send_modes id
         if fieldset == "outgoingmail" or not fieldset:
             try:
