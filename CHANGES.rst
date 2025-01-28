@@ -25,6 +25,9 @@ Changelog
 - Added utils.create_read_label_cron_task to postpone read label updates
 - Added utils.cron_read_label_handling method called with cron4plone
 - Added test for cron_read_label_handling
+- Handled also markers index for IDmsAppendixFile
+- Added routing rules table
+- Replaced `iemail_manual_forward_transition` setting with `iemail_state_set` rules table
 
 3.0.59
 ------
