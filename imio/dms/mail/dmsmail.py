@@ -409,7 +409,7 @@ def updatewidgets_assigned_user_description(the_form):
         if transition in transitions_auc and not transitions_auc[transition].get(treating_group, False):
             the_form.widgets["ITask.assigned_user"].field = copy.copy(the_form.widgets["ITask.assigned_user"].field)
             the_form.widgets["ITask.assigned_user"].field.description = _(
-                u"You must select an assigned user " u"before you can propose to an agent !"
+                u"You must select an assigned user before you can propose to an agent !"
             )
 
 
