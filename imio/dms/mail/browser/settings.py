@@ -338,7 +338,7 @@ class IImioDmsMailConfig(model.Schema):
     mail_types = schema.List(
         title=_(u"Types of incoming mail"),
         description=_(
-            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' " u"value."
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
         ),
         value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
     )
@@ -458,7 +458,7 @@ class IImioDmsMailConfig(model.Schema):
     omail_types = schema.List(
         title=_(u"Types of outgoing mail"),
         description=_(
-            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' " u"value."
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
         ),
         value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
     )
@@ -505,7 +505,7 @@ class IImioDmsMailConfig(model.Schema):
     omail_send_modes = schema.List(
         title=_(u"Send modes"),
         description=_(
-            u"Once created and used, value doesn't be changed anymore. " u"None can be used for a 'choose' value."
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
         ),
         value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
     )
@@ -646,7 +646,7 @@ class IImioDmsMailConfig(model.Schema):
                 if entry["value"] in ids:
                     raise Invalid(
                         _(
-                            u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be " u"unique",
+                            u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be unique",
                             mapping={"tab": _(tab), "value": entry["value"], "field": _(title)},
                         )
                     )

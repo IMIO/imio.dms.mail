@@ -1335,7 +1335,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             if act["condition"] == u"python: context.getPortalTypeName() in ('dmsincomingmail', )":
                 changes = True
                 new_act["condition"] = (
-                    u"python: context.getPortalTypeName() in ('dmsincomingmail', " u"'dmsincoming_email')"
+                    u"python: context.getPortalTypeName() in ('dmsincomingmail', 'dmsincoming_email')"
                 )
             new_acts.append(new_act)
         if changes:

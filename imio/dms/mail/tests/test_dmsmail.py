@@ -557,7 +557,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         om.recipients.append(RelationValue(self.intids.getId(hp)))
         self.assertEqual(
             om.get_recipient_emails(),
-            u'"Dexter Morgan" <contak@electrabel.eb>, ' u'"Jean Courant" <jean.courant@electrabel.eb>',
+            u'"Dexter Morgan" <contak@electrabel.eb>, "Jean Courant" <jean.courant@electrabel.eb>',
         )
 
     def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_handsigned(self):
