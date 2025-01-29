@@ -693,7 +693,7 @@ body.template-imiodmsmail-settings .unconfigured-fields {
 }
 
 body.template-imiodmsmail-settings .beware {
-    color: red;
+    color: #d80;
 }
 
 body.template-imiodmsmail-settings #form-widgets-imail_fields .cell-1,
