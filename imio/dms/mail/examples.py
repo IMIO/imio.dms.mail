@@ -876,8 +876,8 @@ def configure_imio_dms_mail(context):
                 u"original_email_pat": u"",
                 u"tal_condition_1": u"",
                 u"user_value": u"_empty_",
-                u"tal_condition_2": u"python: 'encodeurs' in modules['imio.helpers.cache']."
-                                    u"get_plone_groups_for_user(assigned_user)",
+                u"tal_condition_2": u"python: 'encodeurs' in modules['imio.dms.mail.utils']."
+                                    u"current_user_groups_ids(userid=assigned_user)",
                 u"tg_value": u"_empty_",
             },
             {

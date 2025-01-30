@@ -603,9 +603,9 @@ def current_user_groups(user):
     return api.group.get_groups(user=user)
 
 
-def current_user_groups_ids(user):
+def current_user_groups_ids(user=None, userid=None):
     """Return current user groups ids."""
-    return get_plone_groups_for_user(user=user)
+    return get_plone_groups_for_user(user_id=userid, user=user)
 
 
 def user_is_admin(user=None):
