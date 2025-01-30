@@ -1,3 +1,4 @@
+from AccessControl import allow_module
 from AccessControl.Permissions import delete_objects
 from collective.dms.basecontent import dmsfile
 from Globals import DevelopmentMode
@@ -12,6 +13,7 @@ from zope.i18nmessageid import MessageFactory
 import os
 
 
+allow_module('imio.dms.mail.utils')
 _ = MessageFactory("imio.dms.mail")
 
 
