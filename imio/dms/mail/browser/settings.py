@@ -672,8 +672,10 @@ class IImioDmsMailConfig(model.Schema):
                 pass
         # check iemail_routing
         if fieldset == "incoming_email" or not fieldset:
-            for fld, fld_tit in (("iemail_routing", _tr(u"${type} routing", mapping={"type": ""})),
-                                 ("iemail_state_set", _tr(u"${type} state set", mapping={"type": ""}))):
+            for fld, fld_tit, needed in (("iemail_routing", _tr(u"${type} routing", mapping={"type": ""}),
+                                          ("user_value", "tg_value")),
+                                         ("iemail_state_set", _tr(u"${type} state set", mapping={"type": ""}),
+                                          ("state_value", ))):
                 for i, rule in enumerate(getattr(data, fld) or [], start=1):
                     # check patterns
                     for col, col_tit in (("transfer_email_pat", u"Transfer email pattern"),
@@ -691,8 +693,7 @@ class IImioDmsMailConfig(model.Schema):
                                 )
                             )
                     # check empty value
-                    if (rule.get("user_value") is None or rule.get("tg_value") is None
-                            or rule.get("state_value") is None):
+                    if [col for col in needed if rule.get(col) is None]:
                         raise Invalid(_(u"${tab} tab: « ${field} » rule ${rule} is configured with no values defined",
                                         mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i}))
                     # check user is in org
