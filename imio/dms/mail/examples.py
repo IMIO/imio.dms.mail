@@ -887,7 +887,7 @@ def configure_imio_dms_mail(context):
                 u"tal_condition_1": u"",
                 u"user_value": u"_transferer_",
                 u"tal_condition_2": u"",
-                u"tg_value": u"_primary_org_",
+                u"tg_value": u"_hp_",
             },
         ]
     state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
