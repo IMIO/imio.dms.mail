@@ -624,7 +624,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                         u"tal_condition_1": u"",
                         u"user_value": u"_transferer_",
                         u"tal_condition_2": u"",
-                        u"tg_value": u"_primary_org_",
+                        u"tg_value": u"_hp_",
                     })
                 api.portal.set_registry_record(routing_key, routing)
             # cron4plone settings
