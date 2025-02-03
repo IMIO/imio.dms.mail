@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at
+- Last commit at 90efcc5b1f2f6d5daf98ca2df20687b5760cef4a
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
@@ -28,6 +28,7 @@ Changelog
 - Handled also markers index for IDmsAppendixFile
 - Added routing rules table
 - Replaced `iemail_manual_forward_transition` setting with `iemail_state_set` rules table
+- Allowed module utils. Refactored current_user_groups_ids
 
 3.0.59
 ------
