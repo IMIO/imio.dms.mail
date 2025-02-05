@@ -32,7 +32,6 @@ from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
-import Missing
 import os
 
 
@@ -55,7 +54,7 @@ class OMColorColumn(ColorColumn):
     )
 
     def is_printable(self, item):
-        return item.markers is not Missing.Value and "lastDmsFileIsOdt" in item.markers
+        return bool(item.markers) and "lastDmsFileIsOdt" in item.markers  # Missing.Value is False
 
     def renderCell(self, item):
         """Display a message."""
@@ -360,7 +359,7 @@ class DVConvertColumn(IconColumn):
     cssClasses = {"td": "td_cell_convert"}
 
     def actionAvailable(self, item):
-        if "dvConvError" in item.markers:
+        if "dvConvError" in (item.markers or []):  # Missing.Value is False
             return False
         various = getMultiAdapter((self.context, self.request), name="various-utils")
         if various.is_in_user_groups(groups=["encodeurs", "expedition"], admin=True):
