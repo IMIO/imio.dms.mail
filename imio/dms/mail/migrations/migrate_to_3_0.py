@@ -660,6 +660,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 self.registry["collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete"] = False
                 # version
                 api.portal.set_registry_record("imio.dms.mail.product_version", new_version)
+                end = (datetime.now() + timedelta(days=30)).strftime("%Y%m%d-%H%M")
                 if old_version != new_version:
                     if "new-version" in self.portal["messages-config"]:
                         api.content.delete(self.portal["messages-config"]["new-version"])
@@ -671,6 +672,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                         u"</p>".format(old_version, new_version),
                         msg_type="significant",
                         can_hide=True,
+                        end=end,
                         req_roles=["Authenticated"],
                         activate=True,
                     )
