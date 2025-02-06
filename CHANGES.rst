@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at 90efcc5b1f2f6d5daf98ca2df20687b5760cef4a
+- Last commit at 7abae69cd884ef5fd125e863e06041e191157f0d
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
@@ -29,6 +29,8 @@ Changelog
 - Added routing rules table
 - Replaced `iemail_manual_forward_transition` setting with `iemail_state_set` rules table
 - Allowed module utils. Refactored current_user_groups_ids
+- Avoiding error 'Missing.Value' is not iterable
+- Limit new-version message to 30 days
 
 3.0.59
 ------
