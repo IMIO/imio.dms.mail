@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at 7abae69cd884ef5fd125e863e06041e191157f0d
+- Last commit at ec8af86c47b3caabc3b4c57311ff5c43d45e2590
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
@@ -31,6 +31,7 @@ Changelog
 - Allowed module utils. Refactored current_user_groups_ids
 - Avoiding error 'Missing.Value' is not iterable
 - Limit new-version message to 30 days
+- Removed encodeurs roles for dmsoutgoingmail
 
 3.0.59
 ------
