@@ -12,6 +12,7 @@ from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
 from datetime import datetime
 from datetime import timedelta
+from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from eea.facetednavigation.criteria.interfaces import ICriteria
@@ -634,6 +635,19 @@ class Migrate_To_3_0(Migrator):  # noqa
                     cron_configlet.cronjobs = []
                 # Syntax: m h dom mon command.
                 cron_configlet.cronjobs.append(u"59 3 * * portal/@@various-utils/cron_read_label_handling")
+            # localroles settings correction
+            lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
+            lrs = lr["static_config"]
+            change = False
+            for state in lrs:
+                if "encodeurs" not in lrs[state]:
+                    continue
+                if lrs[state]["encodeurs"]["roles"] == ["Reader"]:
+                    del lrs[state]["encodeurs"]
+                    change = True
+            if change:
+                fti.localroles._p_changed = True
+                update_security_index(["dmsoutgoingmail"])
             # END
 
             finished = True  # can be eventually returned and set by batched method
