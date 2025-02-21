@@ -557,6 +557,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             # TEMPORARY TO 3.0.60
             self.install(["imio.fpaudit"])
             configure_fpaudit(self.portal)
+            self.upgradeProfile("collective.contact.core:default")
             # create new group
             if api.group.get("audit_contacts") is None:
                 api.group.create("audit_contacts", "1 Audit contacts")
@@ -635,6 +636,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                     cron_configlet.cronjobs = []
                 # Syntax: m h dom mon command.
                 cron_configlet.cronjobs.append(u"59 3 * * portal/@@various-utils/cron_read_label_handling")
+                cron_configlet._p_changed = True
             # localroles settings correction
             lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
             lrs = lr["static_config"]
