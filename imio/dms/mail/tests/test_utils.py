@@ -13,6 +13,7 @@ from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import current_user_groups_ids
+from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -461,6 +462,32 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
 
+    def test_VariousMethods_template_infos(self):
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+        view.template_infos()
+
+    def test_VariousMethods_user_usages(self):
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+
+        self.change_user("admin")
+        self.assertEqual(view.user_usages(), "You must give a parameter named 'userid'")
+        self.assertEqual(view.user_usages("invalid"), "Cannot find a user with userid='{}'".format("invalid"))
+        view.user_usages("admin")
+        view.user_usages("agent")
+        view.user_usages("encodeur")
+        view.user_usages("dirg")
+
+        self.change_user("agent")
+        self.assertEqual(view.user_usages("agent"), "You must be a zope manager to run this script")
+
+    def test_VariousMethods_pg_organizations(self):
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+        import ipdb; ipdb.set_trace()
+        view.pg_organizations()
+
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
         view = IdmUtilsMethods(imail, imail.REQUEST)
@@ -641,3 +668,50 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(annot["imio.dms.mail"]["read_label_cron"]["agent1"]["end"], end2)
         self.assertSetEqual(annot["imio.dms.mail"]["read_label_cron"]["agent1"]["orgs"], {dg_uid})
         reset_dms_config()
+
+    def test_dv_clean(self):
+        # Test wrong user
+        self.change_user("agent")
+        self.assertEqual(dv_clean(self.portal), "You must be a zope manager to run this script")
+
+        self.change_user("admin")
+        # Test invalid date
+        self.assertIsNone(dv_clean(self.portal, date_back="invalid"))
+        # Test valid date
+        dv_clean(self.portal, date_back="20220212")
+        # Test base case
+        dv_clean(self.portal)
+
+        # TODO add mails to be processed by dv_clean ... WITH ANNOTATIONS ?
+
+        imail = sub_create(
+            self.portal["incoming-mail"],
+            "dmsincomingmail",
+            datetime.now() - timedelta(days=366),
+            "test-mail",
+            **{
+                "assigned_user": u"agent",
+                "title": u"test",
+                "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
+                "sender": self.portal["contacts"]["hps-searches"]['all_hps'].results()[0].getObject(),
+                "mail_type": "mail",
+            }
+        )
+
+        iemail = sub_create(
+            self.portal["incoming-mail"],
+            "dmsincomingmail",
+            datetime.now(),
+            "test-email",
+            **{
+                "assigned_user": u"agent",
+                "title": u"test",
+                "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
+                "sender": self.portal["contacts"]["hps-searches"]['all_hps'].results()[0].getObject(),
+                "mail_type": "email",
+            }
+        )
+
+        api.content.transition(obj=imail, to_state="closed")
+        api.content.transition(obj=iemail, to_state="closed")
+        dv_clean(self.portal)
