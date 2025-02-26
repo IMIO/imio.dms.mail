@@ -94,6 +94,14 @@ class RecipientGroupBatchActionForm(BaseARUOBatchActionForm):
     def _remove_vocabulary(self):
         return u"collective.contact.plonegroup.organization_services"
 
+    def _apply(self, **data):
+        updated = super(RecipientGroupBatchActionForm, self)._apply(**data)
+        for obj in updated:
+            obj.reindexObject(idxs=["allowedRolesAndUsers"])
+            for child in obj.objectValues():
+                child.reindexObject(idxs=["allowedRolesAndUsers"])
+        return updated
+
 
 class AssignedUserBatchActionForm(aubaf):
 
