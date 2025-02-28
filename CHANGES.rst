@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at d67177eb23849c6b6631ea468924b7b908625949
+- Last commit at 26a373e8a59b346720c0f44d5079a34cec7f483e
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
@@ -33,6 +33,7 @@ Changelog
 - Limit new-version message to 30 days
 - Removed encodeurs roles for dmsoutgoingmail
 - Added contact.core update. Persisted cron config
+- Added attribute on modified
 
 3.0.59
 ------
