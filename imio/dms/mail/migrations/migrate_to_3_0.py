@@ -555,6 +555,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     # new omail_bcc_email_default setting field
             #     self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             # TEMPORARY TO 3.0.60
+            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+            if active_solr:
+                logger.info("Deactivating solr")
+                api.portal.set_registry_record("collective.solr.active", False)
             self.install(["imio.fpaudit"])
             configure_fpaudit(self.portal)
             self.upgradeProfile("collective.contact.core:default")
@@ -682,6 +686,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if old_version != new_version:
                     if "new-version" in self.portal["messages-config"]:
                         api.content.delete(self.portal["messages-config"]["new-version"])
+                    # with solr, bug in col.iconifiedcategory.content.events.categorized_content_container_moved
+                    # self.portal["messages-config"].REQUEST.set("defer_categorized_content_created_event", True)
                     add_message(
                         "new-version",
                         "Maj version",
@@ -775,7 +781,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                 maintenance.clear()
 
         if self.is_in_part("y"):  # sync solr (long time, batchable)
-            self.sync_solr()
+            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+            if active_solr is not None:
+                if not active_solr:
+                    logger.info("Activating solr")
+                    api.portal.set_registry_record("collective.solr.active", True)
+                self.sync_solr()
 
         self.log_mem("END")
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
