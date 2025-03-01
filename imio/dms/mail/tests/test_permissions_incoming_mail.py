@@ -59,6 +59,7 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("encodeur", task),
             {
                 "Access contents information": True,
+                # apc not handled in workflow. Inherited for Contributor. Encodeur cannot add subtask !!
                 "Add portal content": False,
                 "Delete objects": True,
                 "Modify portal content": True,
