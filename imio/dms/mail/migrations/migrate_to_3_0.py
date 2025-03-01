@@ -569,9 +569,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                 obj.reindexObject(idxs=["markers"])
                 annot = IAnnotations(obj).get("collective.documentviewer", "")
                 btree = annot.get("blob_files")
+                if btree is None:
+                    continue
                 for name in ["large", "normal"]:
-                    blob = btree["{}/dump_1.jpg".format(name)]
-                    if blob not in blobs:
+                    blob = btree.get("{}/dump_1.jpg".format(name))
+                    if blob and blob not in blobs:
                         blobs.append(blob)
             for blob in blobs:
                 modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
