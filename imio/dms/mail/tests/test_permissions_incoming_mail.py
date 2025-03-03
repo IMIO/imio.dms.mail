@@ -11,7 +11,7 @@ from zope.intid.interfaces import IIntIds
 
 
 class TestPermissionsIncomingMail(TestPermissionsBase):
-    def test_incoming_mail_permissions(self):
+    def test_permissions_incoming_mail(self):
         intids = getUtility(IIntIds)
         params = {
             "title": "Courrier 10",

@@ -11,7 +11,7 @@ from zope.intid.interfaces import IIntIds
 
 
 class TestPermissionsIncomingEmail(TestPermissionsBase):
-    def test_incoming_email_permissions(self):
+    def test_permissions_incoming_email(self):
         intids = getUtility(IIntIds)
         params = {
             "title": "Courrier 10",
@@ -29,35 +29,32 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         file = api.content.create(container=iemail, id="file", type="dmsmainfile")
         task = api.content.create(container=iemail, id="task", type="task")
 
-        iemail_perms = self.get_perms(iemail)
-        self.assertFalse(any(iemail_perms["chef"]))
-        self.assertFalse(any(iemail_perms["lecteur"]))
-        self.assertFalse(any(iemail_perms["dirg"]))
-        self.assertFalse(any(iemail_perms["agent"]))
-        self.assertFalse(any(iemail_perms["agent1"]))
-        self.assertTrue(all(iemail_perms["encodeur"]))
-        self.assertTrue(api.user.has_permission("Delete objects", "encodeur", obj=iemail))  # should be False ?
-        self.assertTrue(api.user.has_permission("Review portal content", "encodeur", obj=iemail))  # should be False ?
+        self.assertHasNoPerms("chef", iemail)
+        self.assertHasNoPerms("lecteur", iemail)
+        self.assertHasNoPerms("dirg", iemail)
+        self.assertHasNoPerms("agent", iemail)
+        self.assertHasNoPerms("agent1", iemail)
+        self.assertHasAllPerms("encodeur", iemail)
 
-        self.assertFalse(any(self.get_perms("chef", file).values()))
-        self.assertFalse(any(self.get_perms("lecteur", file).values()))
-        self.assertFalse(any(self.get_perms("dirg", file).values()))
-        self.assertFalse(any(self.get_perms("agent", file).values()))
-        self.assertFalse(any(self.get_perms("agent1", file).values()))
-        self.assertTrue(all(self.get_perms("encodeur", file).values()))
+        self.assertHasNoPerms("chef", file)
+        self.assertHasNoPerms("lecteur", file)
+        self.assertHasNoPerms("dirg", file)
+        self.assertHasNoPerms("agent", file)
+        self.assertHasNoPerms("agent1", file)
+        self.assertHasAllPerms("encodeur", file)
 
-        self.assertFalse(any(self.get_perms("chef", annex).values()))
-        self.assertFalse(any(self.get_perms("lecteur", annex).values()))
-        self.assertFalse(any(self.get_perms("dirg", annex).values()))
-        self.assertFalse(any(self.get_perms("agent", annex).values()))
-        self.assertFalse(any(self.get_perms("agent1", annex).values()))
-        self.assertTrue(all(self.get_perms("encodeur", annex).values()))
+        self.assertHasNoPerms("chef", annex)
+        self.assertHasNoPerms("lecteur", annex)
+        self.assertHasNoPerms("dirg", annex)
+        self.assertHasNoPerms("agent", annex)
+        self.assertHasNoPerms("agent1", annex)
+        self.assertHasAllPerms("encodeur", annex)
 
-        self.assertFalse(any(self.get_perms("chef", task).values()))
-        self.assertFalse(any(self.get_perms("lecteur", task).values()))
-        self.assertFalse(any(self.get_perms("dirg", task).values()))
-        self.assertFalse(any(self.get_perms("agent", task).values()))
-        self.assertFalse(any(self.get_perms("agent1", task).values()))
+        self.assertHasNoPerms("chef", task)
+        self.assertHasNoPerms("lecteur", task)
+        self.assertHasNoPerms("dirg", task)
+        self.assertHasNoPerms("agent", task)
+        self.assertHasNoPerms("agent1", task)
         self.assertEqual(
             self.get_perms("encodeur", task),
             {
@@ -75,33 +72,110 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
 
         self.pw.doActionFor(iemail, "propose_to_manager")
 
-        iemail_perms = self.get_perms(iemail)
-        self.assertFalse(any(iemail_perms["chef"]))
-        self.assertFalse(any(iemail_perms["lecteur"]))
-        self.assertEqual(iemail_perms["dirg"], [True, False, False, True, True, True, False, True, True])
-        self.assertFalse(any(iemail_perms["agent"]))
-        self.assertFalse(any(iemail_perms["agent1"]))
-        self.assertEqual(iemail_perms["encodeur"], [True, True, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", iemail)
+        self.assertHasNoPerms("lecteur", iemail)
+        self.assertEqual(
+            self.get_perms("dirg", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", iemail)
+        self.assertHasNoPerms("agent1", iemail)
+        self.assertEqual(
+            self.get_perms("encodeur", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", file).values()))
-        self.assertFalse(any(self.get_perms("lecteur", file).values()))
-        self.assertEqual(file_perms["dirg"], [True, False, False, False, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", file).values()))
-        self.assertFalse(any(self.get_perms("agent1", file).values()))
-        self.assertEqual(file_perms["encodeur"], [True, True, False, True, False, True, True, True, False])
+        self.assertHasNoPerms("chef", file)
+        self.assertHasNoPerms("lecteur", file)
+        self.assertEqual(
+            self.get_perms("dirg", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", file)
+        self.assertHasNoPerms("agent1", file)
+        self.assertEqual(
+            self.get_perms("encodeur", file),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": True,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", annex).values()))
-        self.assertFalse(any(self.get_perms("lecteur", annex).values()))
-        self.assertEqual(annex_perms["dirg"], [True, False, True, True, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", annex).values()))
-        self.assertFalse(any(self.get_perms("agent1", annex).values()))
-        self.assertEqual(annex_perms["encodeur"], [True, True, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", annex)
+        self.assertHasNoPerms("lecteur", annex)
+        self.assertEqual(
+            self.get_perms("dirg", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", annex)
+        self.assertHasNoPerms("agent1", annex)
+        self.assertEqual(
+            self.get_perms("encodeur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", task).values()))
-        self.assertFalse(any(self.get_perms("lecteur", task).values()))
-        self.assertFalse(any(self.get_perms("dirg", task).values()))
-        self.assertFalse(any(self.get_perms("agent", task).values()))
-        self.assertFalse(any(self.get_perms("agent1", task).values()))
+        self.assertHasNoPerms("chef", task)
+        self.assertHasNoPerms("lecteur", task)
+        self.assertHasNoPerms("dirg", task)
+        self.assertHasNoPerms("agent", task)
+        self.assertHasNoPerms("agent1", task)
         self.assertEqual(
             self.get_perms("encodeur", task),
             {
@@ -120,33 +194,110 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         change_user(self.portal, "dirg")
         self.pw.doActionFor(iemail, "propose_to_agent")
 
-        iemail_perms = self.get_perms(iemail)
-        self.assertFalse(any(iemail_perms["chef"]))
-        self.assertFalse(any(iemail_perms["lecteur"]))
-        self.assertEqual(iemail_perms["dirg"], [True, False, False, True, True, True, False, True, True])
-        self.assertFalse(any(iemail_perms["agent"]))
-        self.assertFalse(any(iemail_perms["agent1"]))
-        self.assertEqual(iemail_perms["encodeur"], [True, True, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", iemail)
+        self.assertHasNoPerms("lecteur", iemail)
+        self.assertEqual(
+            self.get_perms("dirg", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", iemail)
+        self.assertHasNoPerms("agent1", iemail)
+        self.assertEqual(
+            self.get_perms("encodeur", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", file).values()))
-        self.assertFalse(any(self.get_perms("lecteur", file).values()))
-        self.assertEqual(file_perms["dirg"], [True, False, False, False, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", file).values()))
-        self.assertFalse(any(self.get_perms("agent1", file).values()))
-        self.assertEqual(file_perms["encodeur"], [True, True, False, True, False, True, True, True, False])
+        self.assertHasNoPerms("chef", file)
+        self.assertHasNoPerms("lecteur", file)
+        self.assertEqual(
+            self.get_perms("dirg", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", file)
+        self.assertHasNoPerms("agent1", file)
+        self.assertEqual(
+            self.get_perms("encodeur", file),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": True,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", annex).values()))
-        self.assertFalse(any(self.get_perms("lecteur", annex).values()))
-        self.assertEqual(annex_perms["dirg"], [True, False, True, True, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", annex).values()))
-        self.assertFalse(any(self.get_perms("agent1", annex).values()))
-        self.assertEqual(annex_perms["encodeur"], [True, True, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", annex)
+        self.assertHasNoPerms("lecteur", annex)
+        self.assertEqual(
+            self.get_perms("dirg", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", annex)
+        self.assertHasNoPerms("agent1", annex)
+        self.assertEqual(
+            self.get_perms("encodeur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", task).values()))
-        self.assertFalse(any(self.get_perms("lecteur", task).values()))
-        self.assertFalse(any(self.get_perms("dirg", task).values()))
-        self.assertFalse(any(self.get_perms("agent", task).values()))
-        self.assertFalse(any(self.get_perms("agent1", task).values()))
+        self.assertHasNoPerms("chef", task)
+        self.assertHasNoPerms("lecteur", task)
+        self.assertHasNoPerms("dirg", task)
+        self.assertHasNoPerms("agent", task)
+        self.assertHasNoPerms("agent1", task)
         self.assertEqual(
             self.get_perms("encodeur", task),
             {
@@ -166,33 +317,110 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         # FIXME agent does not have permission to treat the mail
         self.pw.doActionFor(iemail, "treat")
 
-        iemail_perms = self.get_perms(iemail)
-        self.assertFalse(any(iemail_perms["chef"]))
-        self.assertFalse(any(iemail_perms["lecteur"]))
-        self.assertEqual(iemail_perms["dirg"], [True, False, False, True, True, True, False, True, True])
-        self.assertFalse(any(iemail_perms["agent"]))
-        self.assertFalse(any(iemail_perms["agent1"]))
-        self.assertEqual(iemail_perms["encodeur"], [True, True, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", iemail)
+        self.assertHasNoPerms("lecteur", iemail)
+        self.assertEqual(
+            self.get_perms("dirg", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", iemail)
+        self.assertHasNoPerms("agent1", iemail)
+        self.assertEqual(
+            self.get_perms("encodeur", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", file).values()))
-        self.assertFalse(any(self.get_perms("lecteur", file).values()))
-        self.assertEqual(file_perms["dirg"], [True, False, False, False, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", file).values()))
-        self.assertFalse(any(self.get_perms("agent1", file).values()))
-        self.assertEqual(file_perms["encodeur"], [True, True, False, True, False, True, True, True, False])
+        self.assertHasNoPerms("chef", file)
+        self.assertHasNoPerms("lecteur", file)
+        self.assertEqual(
+            self.get_perms("dirg", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", file)
+        self.assertHasNoPerms("agent1", file)
+        self.assertEqual(
+            self.get_perms("encodeur", file),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": True,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", annex).values()))
-        self.assertFalse(any(self.get_perms("lecteur", annex).values()))
-        self.assertEqual(annex_perms["dirg"], [True, False, True, True, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", annex).values()))
-        self.assertFalse(any(self.get_perms("agent1", annex).values()))
-        self.assertEqual(annex_perms["encodeur"], [True, True, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", annex)
+        self.assertHasNoPerms("lecteur", annex)
+        self.assertEqual(
+            self.get_perms("dirg", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", annex)
+        self.assertHasNoPerms("agent1", annex)
+        self.assertEqual(
+            self.get_perms("encodeur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", task).values()))
-        self.assertFalse(any(self.get_perms("lecteur", task).values()))
-        self.assertFalse(any(self.get_perms("dirg", task).values()))
-        self.assertFalse(any(self.get_perms("agent", task).values()))
-        self.assertFalse(any(self.get_perms("agent1", task).values()))
+        self.assertHasNoPerms("chef", task)
+        self.assertHasNoPerms("lecteur", task)
+        self.assertHasNoPerms("dirg", task)
+        self.assertHasNoPerms("agent", task)
+        self.assertHasNoPerms("agent1", task)
         self.assertEqual(
             self.get_perms("encodeur", task),
             {
@@ -210,33 +438,110 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
 
         self.pw.doActionFor(iemail, "close")
 
-        iemail_perms = self.get_perms(iemail)
-        self.assertFalse(any(iemail_perms["chef"]))
-        self.assertFalse(any(iemail_perms["lecteur"]))
-        self.assertEqual(iemail_perms["dirg"], [True, True, False, True, True, True, False, True, True])
-        self.assertFalse(any(iemail_perms["agent"]))
-        self.assertFalse(any(iemail_perms["agent1"]))
-        self.assertEqual(iemail_perms["encodeur"], [True, False, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", iemail)
+        self.assertHasNoPerms("lecteur", iemail)
+        self.assertEqual(
+            self.get_perms("dirg", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", iemail)
+        self.assertHasNoPerms("agent1", iemail)
+        self.assertEqual(
+            self.get_perms("encodeur", iemail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", file).values()))
-        self.assertFalse(any(self.get_perms("lecteur", file).values()))
-        self.assertEqual(file_perms["dirg"], [True, True, False, False, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", file).values()))
-        self.assertFalse(any(self.get_perms("agent1", file).values()))
-        self.assertEqual(file_perms["encodeur"], [True, False, False, True, False, True, True, True, False])
+        self.assertHasNoPerms("chef", file)
+        self.assertHasNoPerms("lecteur", file)
+        self.assertEqual(
+            self.get_perms("dirg", file),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", file)
+        self.assertHasNoPerms("agent1", file)
+        self.assertEqual(
+            self.get_perms("encodeur", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": True,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", annex).values()))
-        self.assertFalse(any(self.get_perms("lecteur", annex).values()))
-        self.assertEqual(annex_perms["dirg"], [True, True, True, True, True, True, False, True, True])
-        self.assertFalse(any(self.get_perms("agent", annex).values()))
-        self.assertFalse(any(self.get_perms("agent1", annex).values()))
-        self.assertEqual(annex_perms["encodeur"], [True, False, False, False, False, True, False, True, False])
+        self.assertHasNoPerms("chef", annex)
+        self.assertHasNoPerms("lecteur", annex)
+        self.assertEqual(
+            self.get_perms("dirg", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", annex)
+        self.assertHasNoPerms("agent1", annex)
+        self.assertEqual(
+            self.get_perms("encodeur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
 
-        self.assertFalse(any(self.get_perms("chef", task).values()))
-        self.assertFalse(any(self.get_perms("lecteur", task).values()))
-        self.assertFalse(any(self.get_perms("dirg", task).values()))
-        self.assertFalse(any(self.get_perms("agent", task).values()))
-        self.assertFalse(any(self.get_perms("agent1", task).values()))
+        self.assertHasNoPerms("chef", task)
+        self.assertHasNoPerms("lecteur", task)
+        self.assertHasNoPerms("dirg", task)
+        self.assertHasNoPerms("agent", task)
+        self.assertHasNoPerms("agent1", task)
         self.assertEqual(
             self.get_perms("encodeur", task),
             {
