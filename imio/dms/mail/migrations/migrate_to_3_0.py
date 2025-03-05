@@ -587,6 +587,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             to_del_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_manual_forward_transition"
             if to_del_key in registry.records:
                 old_mft = registry.get(to_del_key, default=None)
+                logger.info("Deleting registry key '{}' with value '{}'".format(to_del_key, old_mft))
                 del registry.records[to_del_key]
                 state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
                 state_set = api.portal.get_registry_record(state_set_key, default=[]) or []
@@ -727,6 +728,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                     category._setObject("audit-contacts", action)
                     pos = category.getObjectPosition("logout")
                     category.moveObjectToPosition("audit-contacts", pos)
+            if active_solr:
+                logger.info("Activating solr")
+                api.portal.set_registry_record("collective.solr.active", True)
 
         if self.is_in_part("s"):  # update quick installer
             for prod in [
