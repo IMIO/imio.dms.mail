@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at 26a373e8a59b346720c0f44d5079a34cec7f483e
+- Last commit at 84828c26b58433d71c2906ad34e9f5b33ab3fe86
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
@@ -34,6 +34,9 @@ Changelog
 - Removed encodeurs roles for dmsoutgoingmail
 - Added contact.core update. Persisted cron config
 - Added attribute on modified
+- Changed default value in routing config
+- Corrected migration code
+- Handled solr in migration
 
 3.0.59
 ------
