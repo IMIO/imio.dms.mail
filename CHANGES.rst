@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at 84828c26b58433d71c2906ad34e9f5b33ab3fe86
+- Last commit at 9d6df64e54aaffb8ded334a31cbf996a61bb6103
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
@@ -37,6 +37,7 @@ Changelog
 - Changed default value in routing config
 - Corrected migration code
 - Handled solr in migration
+- Corrected routing rule
 
 3.0.59
 ------
