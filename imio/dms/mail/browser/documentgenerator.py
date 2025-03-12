@@ -47,10 +47,7 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
         ret = []
         for fld in obj.classification_folders:
             obj = uuidToObject(fld, unrestricted=True)
-            if hasattr(obj, "internal_reference_no") and obj.internal_reference_no is not None:
-                ret.append(obj.internal_reference_no)
-            else:
-                ret.append(obj.Title())
+            ret.append(obj.internal_reference_no or safe_unicode(obj.Title()))
         ret = sep.join(ret)
         return ret
 
