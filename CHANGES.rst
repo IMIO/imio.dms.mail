@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at 9d6df64e54aaffb8ded334a31cbf996a61bb6103
+- Last commit at 85e504887cad68fd5bdc73834c3205b3c4d0f8dc
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
@@ -38,6 +38,7 @@ Changelog
 - Corrected migration code
 - Handled solr in migration
 - Corrected routing rule
+- Returns the title of a classification folder if it doesn't have an internal ref number
 
 3.0.59
 ------
