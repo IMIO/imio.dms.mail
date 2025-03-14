@@ -874,10 +874,10 @@ def configure_imio_dms_mail(context):
                 u"forward": u"agent",
                 u"transfer_email_pat": u"",
                 u"original_email_pat": u"",
-                u"tal_condition_1": u"",
-                u"user_value": u"_transferer_",
-                u"tal_condition_2": u"python: assigned_user and 'encodeurs' in modules['imio.dms.mail.utils']."
-                                    u"current_user_groups_ids(userid=assigned_user)",
+                u"tal_condition_1": u"python: agent_id and 'encodeurs' in modules['imio.dms.mail.utils']."
+                                    u"current_user_groups_ids(userid=agent_id)",
+                u"user_value": u"_empty_",
+                u"tal_condition_2": u"",
                 u"tg_value": u"_empty_",
             },
             {
