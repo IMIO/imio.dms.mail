@@ -4,7 +4,7 @@ Changelog
 3.0.60
 ------
 
-- Last commit at 85e504887cad68fd5bdc73834c3205b3c4d0f8dc
+- Last commit at 53fe55f86554d375fe7fafc0a0b8c1854a9f6257
 - Added various-utils/dv_conv_error to avoid a dv conversion
 - Improved dv_conv_error
 - Improved redirection
