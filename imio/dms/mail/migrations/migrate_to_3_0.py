@@ -1402,9 +1402,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record("imio.dms.mail.omail_folder_period", u"week")
         # cron4plone settings
         cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
-        if not cron_configlet.cronjobs:
-            # Syntax: m h dom mon command.
-            cron_configlet.cronjobs = [u"45 18 1,15 * portal/@@various-utils/dv_images_clean"]
+        if u"45 18 1,15 * portal/@@various-utils/dv_images_clean" in cron_configlet.cronjobs:
+            index = cron_configlet.cronjobs.index(u"45 18 1,15 * portal/@@various-utils/dv_images_clean")
+            cron_configlet.cronjobs.pop(index)
         # update actionspanel transitions config
         key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
         values = api.portal.get_registry_record(key)
