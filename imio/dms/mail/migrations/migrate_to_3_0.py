@@ -12,6 +12,7 @@ from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
 from datetime import datetime
 from datetime import timedelta
+from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from eea.facetednavigation.criteria.interfaces import ICriteria
@@ -554,8 +555,13 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     # new omail_bcc_email_default setting field
             #     self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             # TEMPORARY TO 3.0.60
+            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+            if active_solr:
+                logger.info("Deactivating solr")
+                api.portal.set_registry_record("collective.solr.active", False)
             self.install(["imio.fpaudit"])
             configure_fpaudit(self.portal)
+            self.upgradeProfile("collective.contact.core:default")
             # create new group
             if api.group.get("audit_contacts") is None:
                 api.group.create("audit_contacts", "1 Audit contacts")
@@ -567,9 +573,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                 obj.reindexObject(idxs=["markers"])
                 annot = IAnnotations(obj).get("collective.documentviewer", "")
                 btree = annot.get("blob_files")
+                if btree is None:
+                    continue
                 for name in ["large", "normal"]:
-                    blob = btree["{}/dump_1.jpg".format(name)]
-                    if blob not in blobs:
+                    blob = btree.get("{}/dump_1.jpg".format(name))
+                    if blob and blob not in blobs:
                         blobs.append(blob)
             for blob in blobs:
                 modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
@@ -579,6 +587,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             to_del_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_manual_forward_transition"
             if to_del_key in registry.records:
                 old_mft = registry.get(to_del_key, default=None)
+                logger.info("Deleting registry key '{}' with value '{}'".format(to_del_key, old_mft))
                 del registry.records[to_del_key]
                 state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
                 state_set = api.portal.get_registry_record(state_set_key, default=[]) or []
@@ -609,10 +618,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                         u"forward": u"agent",
                         u"transfer_email_pat": u"",
                         u"original_email_pat": u"",
-                        u"tal_condition_1": u"",
+                        u"tal_condition_1": u"python: agent_id and 'encodeurs' in modules['imio.dms.mail.utils']."
+                                            u"current_user_groups_ids(userid=agent_id)",
                         u"user_value": u"_empty_",
-                        u"tal_condition_2": u"python: 'encodeurs' in modules['imio.helpers.cache']."
-                                            u"get_plone_groups_for_user(assigned_user)",
+                        u"tal_condition_2": u"",
                         u"tg_value": u"_empty_",
                     }
                 )
@@ -634,6 +643,20 @@ class Migrate_To_3_0(Migrator):  # noqa
                     cron_configlet.cronjobs = []
                 # Syntax: m h dom mon command.
                 cron_configlet.cronjobs.append(u"59 3 * * portal/@@various-utils/cron_read_label_handling")
+                cron_configlet._p_changed = True
+            # localroles settings correction
+            lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
+            lrs = lr["static_config"]
+            change = False
+            for state in lrs:
+                if "encodeurs" not in lrs[state]:
+                    continue
+                if lrs[state]["encodeurs"]["roles"] == ["Reader"]:
+                    del lrs[state]["encodeurs"]
+                    change = True
+            if change:
+                fti.localroles._p_changed = True
+                update_security_index(["dmsoutgoingmail"])
             # END
 
             finished = True  # can be eventually returned and set by batched method
@@ -664,6 +687,8 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if old_version != new_version:
                     if "new-version" in self.portal["messages-config"]:
                         api.content.delete(self.portal["messages-config"]["new-version"])
+                    # with solr, bug in col.iconifiedcategory.content.events.categorized_content_container_moved
+                    # self.portal["messages-config"].REQUEST.set("defer_categorized_content_created_event", True)
                     add_message(
                         "new-version",
                         "Maj version",
@@ -703,6 +728,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                     category._setObject("audit-contacts", action)
                     pos = category.getObjectPosition("logout")
                     category.moveObjectToPosition("audit-contacts", pos)
+            if active_solr:
+                logger.info("Activating solr")
+                api.portal.set_registry_record("collective.solr.active", True)
 
         if self.is_in_part("s"):  # update quick installer
             for prod in [
@@ -757,7 +785,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                 maintenance.clear()
 
         if self.is_in_part("y"):  # sync solr (long time, batchable)
-            self.sync_solr()
+            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+            if active_solr is not None:
+                if not active_solr:
+                    logger.info("Activating solr")
+                    api.portal.set_registry_record("collective.solr.active", True)
+                self.sync_solr()
 
         self.log_mem("END")
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))

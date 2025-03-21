@@ -415,7 +415,7 @@ msgstr "Type transfert"
 
 #: ./browser/settings.py:192
 msgid "From primary organization"
-msgstr "* Seulement si org. principale"
+msgstr "* Selon org. principale"
 
 #: ./browser/settings.py:554
 msgid "From where to get sender default email"

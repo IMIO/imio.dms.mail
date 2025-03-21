@@ -29,6 +29,7 @@ import operator
 
 # # # HELPERS # # #
 
+
 class BaseDGHelper(DXDocumentGenerationHelperView):
     """
     Helper methods used for mail generation
@@ -46,7 +47,7 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
         ret = []
         for fld in obj.classification_folders:
             obj = uuidToObject(fld, unrestricted=True)
-            ret.append(obj.internal_reference_no)
+            ret.append(obj.internal_reference_no or safe_unicode(obj.Title()))
         ret = sep.join(ret)
         return ret
 
