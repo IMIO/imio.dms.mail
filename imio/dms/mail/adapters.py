@@ -647,8 +647,7 @@ def markers_om_index(obj):
     return om_markers(obj)
 
 
-@indexer(IDmsFile)
-def markers_dmf_index(obj):
+def markers_conversion_error(obj):
     """Indexer of various markers for IDmsFile:
 
     * dvConvError
@@ -661,6 +660,16 @@ def markers_dmf_index(obj):
     # Stores on obj
     annot["dmsmail.markers"] = markers
     return markers
+
+
+@indexer(IDmsFile)
+def markers_dmf_index(obj):
+    return markers_conversion_error(obj)
+
+
+@indexer(IDmsAppendixFile)
+def markers_dmaf_index(obj):
+    return markers_conversion_error(obj)
 
 
 @indexer(IImioDmsIncomingMail)

@@ -555,10 +555,6 @@ table.listing tbody td div.tooltip-title {
     color: red;
 }
 
-body.template-imiodmsmail-settings .unconfigured-fields {
-    color: green;
-}
-
 fieldset table.listing td.td_cell_convert img {
     width: 16px;
     height: 16px;
@@ -684,9 +680,53 @@ td.cke_tpl_preview_img img {
     margin-bottom: 0;
 }
 
+body.template-imiodmsmail-settings #portal-column-one {
+    display: none;
+}
+body.template-imiodmsmail-settings #portal-column-content {
+    margin-left: -99.8%;
+    width: 99.6%;
+}
+
+body.template-imiodmsmail-settings .unconfigured-fields {
+    color: green;
+}
+
+body.template-imiodmsmail-settings .beware {
+    color: #d80;
+}
+
 body.template-imiodmsmail-settings #form-widgets-imail_fields .cell-1,
 body.template-imiodmsmail-settings #form-widgets-omail_fields .cell-1 {
     width: 220px;
+}
+
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-1,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-5,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-7 {
+    width: 1%;
+    white-space: nowrap;
+}
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-2,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-3 {
+    width: 25%;
+}
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-4,
+body.template-imiodmsmail-settings #form-widgets-iemail_routing .cell-6 {
+    width: 25%;
+}
+
+body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-1,
+body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-5 {
+    width: 1%;
+    white-space: nowrap;
+}
+body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-2,
+body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-3 {
+    width: 30%;
+}
+body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-4 {
+    width: 40%;
 }
 
 /* colorization for incoming_mail_workflow */

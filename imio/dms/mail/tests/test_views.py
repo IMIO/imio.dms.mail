@@ -140,7 +140,7 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale " u"/ GRH)",
+                "text": u"Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale / GRH)",
                 "id": self.pf["chef"]["responsable-grh"].UID(),
             },
         )

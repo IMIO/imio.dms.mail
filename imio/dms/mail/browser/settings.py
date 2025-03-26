@@ -2,6 +2,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
@@ -11,6 +12,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
+from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
@@ -18,6 +20,7 @@ from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
+from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
 from natsort import humansorted
@@ -31,8 +34,10 @@ from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
+from plone.registry.recordsproxy import RecordsProxy
 from plone.supermodel import model
 from plone.z3cform import layout
+from Products.CMFPlone.utils import safe_unicode
 from z3c.form import form
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
@@ -54,6 +59,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
 import logging
+import re
 
 
 logger = logging.getLogger("imio.dms.mail: settings")
@@ -153,6 +159,113 @@ class IOMFieldsSchema(Interface):
     )
 
 
+routing_forward_types = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"agent", title=_(u"Agent")),
+        SimpleTerm(value=u"server", title=_(u"Server")),
+    ]
+)
+
+
+class UsersRoutingValueVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=None, title=_("Choose a value !")),
+                SimpleTerm(value=u"_empty_", title=_("Set None")),
+                SimpleTerm(value=u"_transferer_", title=_("Transferer")),
+            ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
+        )
+
+
+class TgRoutingValueVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=None, title=_("Choose a value !")),
+                SimpleTerm(value=u"_empty_", title=_("Set None")),
+                SimpleTerm(value=u"_uni_org_only_", title=_("Uniorg only")),
+                SimpleTerm(value=u"_primary_org_", title=_("From primary organization")),
+                SimpleTerm(value=u"_hp_", title=_("Following held position")),
+            ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
+        )
+
+
+class StatesRoutingValueVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=None, title=_("Choose a value !")),
+                SimpleTerm(value=u"_n_plus_h_", title=_(u"Highest N+ level, or agent")),
+                SimpleTerm(value=u"_n_plus_l_", title=_(u"Lowest N+ level, or agent")),
+            ] + vocabularyname_to_terms("imio.dms.mail.IMReviewStatesVocabulary")
+        )
+
+
+class IRuleSchema(Interface):
+
+    forward = schema.Choice(
+        title=_("Forward Type"),
+        # description=_("Choose between Agent or Server"),
+        vocabulary=routing_forward_types,
+        required=True
+    )
+
+    transfer_email_pat = schema.TextLine(
+        title=_(u"Transfer email pattern"),
+        description=_(u"Enter a regex pattern"),
+        required=False,
+    )
+
+    original_email_pat = schema.TextLine(
+        title=_(u"Original email pattern"),
+        description=_(u"Enter a regex pattern"),
+        required=False,
+    )
+
+    tal_condition_1 = schema.TextLine(
+        title=_("TAL condition 1"),
+        required=False,
+        default=u"",
+    )
+
+
+class IRoutingSchema(IRuleSchema):
+
+    user_value = schema.Choice(
+        title=_(u"Assigned user value"),
+        vocabulary="imio.dms.mail.UsersRoutingValueVocabulary",
+        required=True,
+    )
+
+    tal_condition_2 = schema.TextLine(
+        title=_("TAL condition 2"),
+        required=False,
+        default=u"",
+    )
+
+    tg_value = schema.Choice(
+        title=_(u"Treating group value"),
+        vocabulary="imio.dms.mail.TgRoutingValueVocabulary",
+        required=True,
+    )
+
+
+class IStateSetSchema(IRuleSchema):
+
+    state_value = schema.Choice(
+        title=_(u"State value"),
+        vocabulary="imio.dms.mail.StatesRoutingValueVocabulary",
+        required=True,
+    )
+
+
 assigned_user_check_levels = SimpleVocabulary(
     [
         SimpleTerm(value=u"no_check", title=_(u"No check")),
@@ -168,19 +281,19 @@ fullname_forms = SimpleVocabulary(
     ]
 )
 
-iemail_manual_forward_transitions = SimpleVocabulary(
-    [
-        SimpleTerm(value=u"created", title=_(u"A user forwarded email will stay at creation level")),
-        SimpleTerm(value=u"manager", title=_(u"A user forwarded email will go to manager level")),
-        SimpleTerm(
-            value=u"n_plus_h", title=_(u"A user forwarded email will go to highest N+ level, " u"otherwise to agent")
-        ),
-        SimpleTerm(
-            value=u"n_plus_l", title=_(u"A user forwarded email will go to lowest N+ level, " u"otherwise to agent")
-        ),
-        SimpleTerm(value=u"agent", title=_(u"A user forwarded email will go to agent level")),
-    ]
-)
+# iemail_manual_forward_transitions = SimpleVocabulary(
+#     [
+#         SimpleTerm(value=u"created", title=_(u"A user forwarded email will stay at creation level")),
+#         SimpleTerm(value=u"manager", title=_(u"A user forwarded email will go to manager level")),
+#         SimpleTerm(
+#             value=u"n_plus_h", title=_(u"A user forwarded email will go to highest N+ level, otherwise to agent")
+#         ),
+#         SimpleTerm(
+#             value=u"n_plus_l", title=_(u"A user forwarded email will go to lowest N+ level, otherwise to agent")
+#         ),
+#         SimpleTerm(value=u"agent", title=_(u"A user forwarded email will go to agent level")),
+#     ]
+# )
 
 oemail_sender_email_values = SimpleVocabulary(
     [
@@ -225,7 +338,7 @@ class IImioDmsMailConfig(model.Schema):
     mail_types = schema.List(
         title=_(u"Types of incoming mail"),
         description=_(
-            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' " u"value."
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
         ),
         value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
     )
@@ -286,13 +399,42 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     # FIELDSET IEM
-    model.fieldset("incoming_email", label=_(u"Incoming email"), fields=["iemail_manual_forward_transition"])
+    model.fieldset(
+        "incoming_email",
+        label=_(u"Incoming email"),
+        fields=["iemail_routing", "iemail_state_set"],)
 
-    iemail_manual_forward_transition = schema.Choice(
-        title=_(u"Email manual forward transition"),
-        description=_(u"Choose to which state a manually forwarded email will go."),
-        vocabulary=iemail_manual_forward_transitions,
-        default=u"agent",
+    # iemail_manual_forward_transition = schema.Choice(
+    #     title=_(u"Email manual forward transition"),
+    #     description=_(u"Choose to which state a manually forwarded email will go."),
+    #     vocabulary=iemail_manual_forward_transitions,
+    #     default=u"agent",
+    # )
+    #
+    iemail_routing = schema.List(
+        title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
+        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
+        required=False,
+        value_type=DictRow(title=_(u"Routing"), schema=IRoutingSchema, required=False),
+    )
+    widget(
+        "iemail_routing",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
+    )
+
+    iemail_state_set = schema.List(
+        title=_(u"${type} state set", mapping={"type": _("Incoming email")}),
+        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
+        required=False,
+        value_type=DictRow(title=_(u"State"), schema=IStateSetSchema, required=False),
+    )
+    widget(
+        "iemail_state_set",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
     )
 
     # FIELDSET OM
@@ -316,7 +458,7 @@ class IImioDmsMailConfig(model.Schema):
     omail_types = schema.List(
         title=_(u"Types of outgoing mail"),
         description=_(
-            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' " u"value."
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
         ),
         value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
     )
@@ -363,7 +505,7 @@ class IImioDmsMailConfig(model.Schema):
     omail_send_modes = schema.List(
         title=_(u"Send modes"),
         description=_(
-            u"Once created and used, value doesn't be changed anymore. " u"None can be used for a 'choose' value."
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
         ),
         value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
     )
@@ -469,12 +611,32 @@ class IImioDmsMailConfig(model.Schema):
 
     @invariant
     def validate_settings(data):  # noqa
+        # called for each fieldset !
+        # when changing directly in registry, data contains not the same thing: we pass validation
+        if not isinstance(data.__context__, RecordsProxy):
+            return
+        # which fieldset ?
+        fieldset = ""
+        if "mail_types" in data._Data_data___:
+            fieldset = "incomingmail"
+        elif "iemail_routing" in data._Data_data___:
+            fieldset = "incoming_email"
+        elif "omail_types" in data._Data_data___:
+            fieldset = "outgoingmail"
+        elif "org_email_templates_encoder_can_edit" in data._Data_data___:
+            fieldset = "outgoing_email"
+        elif "contact_group_encoder" in data._Data_data___:
+            fieldset = "contact"
+        elif "groups_hidden_in_dashboard_filter" in data._Data_data___:
+            fieldset = "general"
         # check ITableListSchema id uniqueness
-        for tab, fieldname, title in (
-            ("Incoming mail", "mail_types", u"Types of incoming mail"),
-            ("Outgoing mail", "omail_types", u"Types of outgoing mail"),
-            ("Outgoing mail", "omail_send_modes", u"Send modes"),
+        for fs, tab, fieldname, title in (
+            ("incomingmail", "Incoming mail", "mail_types", u"Types of incoming mail"),
+            ("outgoingmail", "Outgoing mail", "omail_types", u"Types of outgoing mail"),
+            ("outgoingmail", "Outgoing mail", "omail_send_modes", u"Send modes"),
         ):
+            if fieldset and fs != fieldset:
+                continue
             ids = []
             try:
                 values = getattr(data, fieldname) or []
@@ -484,36 +646,19 @@ class IImioDmsMailConfig(model.Schema):
                 if entry["value"] in ids:
                     raise Invalid(
                         _(
-                            u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be " u"unique",
+                            u"${tab} tab: multiple value '${value}' in '${field}' setting !! Must be unique",
                             mapping={"tab": _(tab), "value": entry["value"], "field": _(title)},
                         )
                     )
                 ids.append(entry["value"])
-        # check omail_send_modes id
-        try:
-            for dic in data.omail_send_modes or []:
-                if (
-                    not dic["value"].startswith("email")
-                    and not dic["value"].startswith("post")
-                    and not dic["value"].startswith("other")
-                ):
-                    # raise WidgetActionExecutionError("omail_send_modes",
-                    #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have values "
-                    #                                            u"starting with 'post', 'email' or 'other'")))
-                    raise Invalid(
-                        _(
-                            u"Outgoingmail tab: send_modes field must have values "
-                            u"starting with 'post', 'email' or 'other'"
-                        )
-                    )
-        except NoInputData:
-            pass
         # check group_encoder deactivation
-        for tab, fld in (
-            ("Incoming mail", "imail_group_encoder"),
-            ("Outgoing mail", "omail_group_encoder"),
-            ("Contacts", "contact_group_encoder"),
+        for fs, tab, fld in (
+            ("incomingmail", "Incoming mail", "imail_group_encoder"),
+            ("outgoingmail", "Outgoing mail", "omail_group_encoder"),
+            ("contact", "Contacts", "contact_group_encoder"),
         ):
+            if fieldset and fs != fieldset:
+                continue
             rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(fld)
             try:
                 if api.portal.get_registry_record(rec) and not getattr(data, fld):
@@ -525,9 +670,74 @@ class IImioDmsMailConfig(model.Schema):
                     )
             except NoInputData:
                 pass
+        # check iemail_routing
+        if fieldset == "incoming_email" or not fieldset:
+            for fld, fld_tit, needed in (("iemail_routing", _tr(u"${type} routing", mapping={"type": ""}),
+                                          ("user_value", "tg_value")),
+                                         ("iemail_state_set", _tr(u"${type} state set", mapping={"type": ""}),
+                                          ("state_value", ))):
+                for i, rule in enumerate(getattr(data, fld) or [], start=1):
+                    # check patterns
+                    for col, col_tit in (("transfer_email_pat", u"Transfer email pattern"),
+                                         ("original_email_pat", u"Original email pattern")):
+                        if not rule[col]:
+                            continue
+                        try:
+                            re.compile(rule[col])
+                        except re.error:
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} » rule ${rule} has an invalid pattern in « ${col} »",
+                                    mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i,
+                                             "col": _(col_tit)},
+                                )
+                            )
+                    # check empty value
+                    if [col for col in needed if rule.get(col) is None]:
+                        raise Invalid(_(u"${tab} tab: « ${field} » rule ${rule} is configured with no values defined",
+                                        mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i}))
+                    # check user is in org
+                    if fld == "iemail_routing" and not rule["tg_value"].startswith("_") and \
+                            not rule["user_value"].startswith("_"):
+                        pids = get_selected_org_suffix_principal_ids(rule["tg_value"], IM_EDITOR_SERVICE_FUNCTIONS)
+                        if rule["user_value"] not in pids:
+                            username = [t.title for t in vocabularyname_to_terms("imio.helpers.SimplySortedUsers")
+                                        if t.value == rule["user_value"]][0]
+                            tgname = [t.title for t in
+                                      vocabularyname_to_terms("collective.dms.basecontent.treating_groups")
+                                      if t.value == rule["tg_value"]][0]
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} » rule ${rule} is configured with an assigned user "
+                                    u"« ${user} » not in the corresponding treating group « ${tg} »",
+                                    mapping={"tab": _(u"Incoming email"), "field": fld_tit, "rule": i,
+                                             "user": safe_unicode(username), "tg": safe_unicode(tgname)},
+                                )
+                            )
+        # check omail_send_modes id
+        if fieldset == "outgoingmail" or not fieldset:
+            try:
+                for dic in data.omail_send_modes or []:
+                    if (
+                        not dic["value"].startswith("email")
+                        and not dic["value"].startswith("post")
+                        and not dic["value"].startswith("other")
+                    ):
+                        # raise WidgetActionExecutionError("omail_send_modes",
+                        #                                  Invalid(_(u"Outgoingmail tab: send_modes field must have "
+                        #                                         u"values starting with 'post', 'email' or 'other'")))
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: send_modes field must have values starting with « post », « email » or "
+                                u"« other »", mapping={"tab": _("Outgoing mail")},
+                            )
+                        )
+            except NoInputData:
+                pass
         # check fields
         constraints = {
             "imail_fields": {
+                "fieldset": "incomingmail",
                 "voc": IMFieldsVocabulary()(None),
                 "mand": [
                     "IDublinCore.title",
@@ -555,6 +765,7 @@ class IImioDmsMailConfig(model.Schema):
                 "pos": ["IDublinCore.title", "IDublinCore.description"],
             },
             "omail_fields": {
+                "fieldset": "outgoingmail",
                 "voc": OMFieldsVocabulary()(None),
                 "mand": [
                     "IDublinCore.title",
@@ -595,6 +806,8 @@ class IImioDmsMailConfig(model.Schema):
         missing = {}
         position = {}
         for conf in constraints:
+            if fieldset and fieldset != constraints[conf]["fieldset"]:
+                continue
             old_value = api.portal.get_registry_record(
                 "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(conf), default=[]
             )

@@ -61,6 +61,7 @@ dmsmail.initializeOverlays = function (form_id) {
 };
 
 /* we have to copy this from imio.helpers to make it work in overlays */
+/* create from template tree */
 dmsmail.initialize_fancytree = function () {
   if ($("form#tree-form").length == 0) {
     return

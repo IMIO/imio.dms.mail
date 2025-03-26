@@ -37,7 +37,8 @@ class TestSettings(unittest.TestCase):
 
     def test_validate_settings1(self):
         """Check invariant"""
-        invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
         # test uniqueness
         data = {
             "mail_types": [
@@ -60,9 +61,8 @@ class TestSettings(unittest.TestCase):
         data = {"omail_send_modes": [{"dtitle": u"Lettre", "active": True, "value": u"bad"}]}
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = _tr(
-            msgid=u"Outgoingmail tab: send_modes field must have values starting with 'post', 'email' " u"or 'other'"
-        )
+        error_msg = (u"Onglet « Courrier sortant »: le champ « Formes d'envoi » doit uniquement contenir des "
+                     u"« valeurs stockées » commencant par « post », « email » ou « other »")
         self.assertEqual(_tr(errors[0].message), error_msg)
         # test imail_group_encoder
         rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"
@@ -71,8 +71,8 @@ class TestSettings(unittest.TestCase):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (
-            u"Courrier entrant: décocher le paramètre 'Activation de plusieurs groupes d'indicatage' n'est "
-            u"pas prévu !"
+            u"Onglet « Courrier entrant »: décocher le paramètre « Activation de plusieurs groupes d'indicatage » n'"
+            u"est pas prévu !"
         )
         self.assertEqual(
             _tr(errors[0].message, mapping={"tab": _tr("Incoming mail"), "field": _tr("Activate group encoder")}),
@@ -81,7 +81,8 @@ class TestSettings(unittest.TestCase):
 
     def test_validate_settings2(self):
         """Check invariant"""
-        invariants = validator.InvariantsValidator(None, None, None, IImioDmsMailConfig, None)
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
         # test mandatory fields
         im_flds = [
             "IDublinCore.title",

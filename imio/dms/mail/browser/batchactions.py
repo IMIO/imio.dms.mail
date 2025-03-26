@@ -16,6 +16,7 @@ from collective.task.browser.batchactions import AssignedUserBatchActionForm as 
 from imio.dms.mail import _
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
+from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.utils import is_in_user_groups
 from imio.helpers import EMPTY_STRING
 from imio.helpers.content import uuidsToObjects
@@ -152,7 +153,7 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
             for brain in self.brains:
                 obj = brain.getObject()
                 obj.outgoing_date = data["outgoing_date"]
-                modified(obj)
+                modified(obj, Attributes(IImioDmsOutgoingMail, "outgoing_date"))
 
 
 class SendModesBatchActionForm(BaseARUOBatchActionForm):

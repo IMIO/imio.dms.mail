@@ -548,7 +548,7 @@ def configure_wsclient(context):
             [
                 {
                     "pm_meeting_config_id": u"meeting-config-college",
-                    "condition": u"python: context.getPortalTypeName() in ('dmsincomingmail', " u"'dmsincoming_email')",
+                    "condition": u"python: context.getPortalTypeName() in ('dmsincomingmail', 'dmsincoming_email')",
                     "permissions": "Modify view template",
                 }
             ],

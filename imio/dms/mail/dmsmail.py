@@ -346,6 +346,10 @@ class ImioDmsIncomingMailWfConditionsAdapter(object):
         if self.context.treating_groups is None or not self.context.title:
             # print "no tg: False"
             return False
+        # TODO: need analysis. Goal is to avoid a transition when email is created and no sender
+        # _iem_agent = agent forwarded email and has been transitioned
+        # if getattr(self.context, "_iem_agent", False) and not self.context.sender:
+        #     return False
         way_index = transition.startswith("back_to") and 1 or 0
         transition_to_test = transition
         wf_from_to = get_dms_config(["wf_from_to", "dmsincomingmail", "n_plus"])  # i_e ok
@@ -405,7 +409,7 @@ def updatewidgets_assigned_user_description(the_form):
         if transition in transitions_auc and not transitions_auc[transition].get(treating_group, False):
             the_form.widgets["ITask.assigned_user"].field = copy.copy(the_form.widgets["ITask.assigned_user"].field)
             the_form.widgets["ITask.assigned_user"].field.description = _(
-                u"You must select an assigned user " u"before you can propose to an agent !"
+                u"You must select an assigned user before you can propose to an agent !"
             )
 
 
