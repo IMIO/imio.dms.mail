@@ -24,6 +24,7 @@ class TestPermissionsBase(unittest.TestCase):
             "Add portal content",
             "Delete objects",
             "Modify portal content",
+            "Request review",
             "Review portal content",
             "View",
             "collective.dms.basecontent: Add DmsFile",

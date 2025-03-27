@@ -19,15 +19,12 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             "internal_reference_no": "E0010",
             "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
-            "description": "Ceci est la description du courrier",
-            "mail_date": datetime.today(),
         }
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
-
         change_user(self.portal, "encodeur")
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
         annex = api.content.create(container=imail, id="annex", type="dmsappendixfile")
         file = api.content.create(container=imail, id="file", type="dmsmainfile")
-        task = api.content.create(container=imail, id="task", type="task")
+        task = api.content.create(container=imail, id="task", type="task", assigned_group=imail.treating_groups)
 
         self.assertHasNoPerms("chef", imail)
         self.assertHasNoPerms("lecteur", imail)
@@ -59,10 +56,12 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("encodeur", task),
             {
                 "Access contents information": True,
-                # apc not handled in workflow. Inherited for Contributor. Encodeur cannot add subtask !!
+                # apc not handled in workflow. Permission inherited from im for Contributor.
+                # encodeur cannot add subtask !!  Only owner role. TODO: to be improved
                 "Add portal content": False,
                 "Delete objects": True,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -79,9 +78,11 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("dirg", imail),
             {
                 "Access contents information": True,
-                "Add portal content": False,
+                # First error: apc is given to COntributor role and manager is Contributor
+                "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": True,
+                "Request review": False,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
