@@ -1560,5 +1560,6 @@ def clean_borg_cache(req):
     for annotation in annotations.keys():
         if annotation.startswith("borg.localrole.workspace.checkLocalRolesAllowed"):
             annotations_to_delete.append(annotation)
+    # directly deleting in BTree doesn't work, we must do it in a second time
     for annotation_to_delete in annotations_to_delete:
         del annotations[annotation_to_delete]
