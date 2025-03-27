@@ -3,6 +3,7 @@
 from datetime import datetime
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.tests.test_permissions_base import TestPermissionsBase
+from imio.dms.mail.utils import clean_borg_cache
 from imio.dms.mail.utils import sub_create
 from plone import api
 from z3c.relationfield.relation import RelationValue
@@ -71,6 +72,7 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
         )
 
         self.pw.doActionFor(imail, "propose_to_manager")
+        clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("chef", imail)
         self.assertHasNoPerms("lecteur", imail)
