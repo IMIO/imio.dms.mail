@@ -659,13 +659,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     update_security_index(["dmsoutgoingmail"])
             # TEMPORARY TO 3.0.61
             # set versioning again after transmogrifier possible mislead
-
-            key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
-            values = list(api.portal.get_registry_record(key))
-            if "task.back_in_created2|" not in values:
-                values.append("task.back_in_created2|")
-            api.portal.set_registry_record(key, values)
-
             pr_tool = api.portal.get_tool("portal_repository")
             if not pr_tool._versionable_content_types:
                 pr_tool._versionable_content_types = [u'ATDocument', u'ATNewsItem', u'Document', u'Event', u'Link',
@@ -682,7 +675,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                                                    u'Link': [u'at_edit_autoversion', u'version_on_revert'],
                                                    u'News Item': [u'at_edit_autoversion', u'version_on_revert'],
                                                    u'Event': [u'at_edit_autoversion', u'version_on_revert']}
-                # END
+            # added missing value in config
+            key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
+            values = list(api.portal.get_registry_record(key), default=[])
+            if values and "task.back_in_created2|" not in values:
+                values.append("task.back_in_created2|")
+                api.portal.set_registry_record(key, values)
+            # END
 
             finished = True  # can be eventually returned and set by batched method
             if finished and old_version != new_version:
