@@ -26,6 +26,7 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
         annex = api.content.create(container=imail, id="annex", type="dmsappendixfile")
         file = api.content.create(container=imail, id="file", type="dmsmainfile")
         task = api.content.create(container=imail, id="task", type="task", assigned_group=imail.treating_groups)
+        clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("chef", imail)
         self.assertHasNoPerms("lecteur", imail)
@@ -80,11 +81,11 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("dirg", imail),
             {
                 "Access contents information": True,
-                # First error: apc is given to COntributor role and manager is Contributor
+                # First error: apc is given to Contributor role and manager is Contributor
                 "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": True,
-                "Request review": False,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -98,9 +99,10 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("encodeur", imail),
             {
                 "Access contents information": True,
-                "Add portal content": True,
+                "Add portal content": False,
                 "Delete objects": False,
                 "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -115,9 +117,10 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("dirg", file),
             {
                 "Access contents information": True,
-                "Add portal content": False,
+                "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -131,12 +134,13 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("encodeur", file),
             {
                 "Access contents information": True,
-                "Add portal content": True,
+                "Add portal content": False,
                 "Delete objects": False,
-                "Modify portal content": True,
+                "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
+                "collective.dms.basecontent: Add DmsFile": False,
                 "imio.dms.mail: Write mail base fields": True,
                 "imio.dms.mail: Write treating group field": False,
             },
@@ -148,9 +152,10 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("dirg", annex),
             {
                 "Access contents information": True,
-                "Add portal content": False,
+                "Add portal content": True,
                 "Delete objects": True,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -164,9 +169,10 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             self.get_perms("encodeur", annex),
             {
                 "Access contents information": True,
-                "Add portal content": True,
+                "Add portal content": False,
                 "Delete objects": False,
                 "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -187,6 +193,7 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": False,
                 "Delete objects": True,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -197,118 +204,63 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
 
         change_user(self.portal, "dirg")
         self.pw.doActionFor(imail, "propose_to_agent")
+        clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("chef", imail)
-        self.assertHasNoPerms("lecteur", imail)
         self.assertEqual(
-            self.get_perms("dirg", imail),
+            self.get_perms("lecteur", imail),
             {
                 "Access contents information": True,
                 "Add portal content": False,
                 "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("dirg", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": True,
             },
         )
-        self.assertHasNoPerms("agent", imail)
+        self.assertEqual(
+            self.get_perms("agent", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertHasNoPerms("agent1", imail)
         self.assertEqual(
             self.get_perms("encodeur", imail),
             {
                 "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-
-        self.assertHasNoPerms("chef", file)
-        self.assertHasNoPerms("lecteur", file)
-        self.assertEqual(
-            self.get_perms("dirg", file),
-            {
-                "Access contents information": True,
                 "Add portal content": False,
                 "Delete objects": False,
                 "Modify portal content": False,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
-        self.assertHasNoPerms("agent", file)
-        self.assertHasNoPerms("agent1", file)
-        self.assertEqual(
-            self.get_perms("encodeur", file),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": False,
-                "Modify portal content": True,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-
-        self.assertHasNoPerms("chef", annex)
-        self.assertHasNoPerms("lecteur", annex)
-        self.assertEqual(
-            self.get_perms("dirg", annex),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": True,
-                "Modify portal content": True,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
-        self.assertHasNoPerms("agent", annex)
-        self.assertHasNoPerms("agent1", annex)
-        self.assertEqual(
-            self.get_perms("encodeur", annex),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-
-        self.assertHasNoPerms("chef", task)
-        self.assertHasNoPerms("lecteur", task)
-        self.assertHasNoPerms("dirg", task)
-        self.assertHasNoPerms("agent", task)
-        self.assertHasNoPerms("agent1", task)
-        self.assertEqual(
-            self.get_perms("encodeur", task),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": True,
-                "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -317,105 +269,128 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
             },
         )
 
-        # change_user(self.portal, "agent")
-        # FIXME agent does not have permission to treat the mail
-        self.pw.doActionFor(imail, "treat")
-
-        self.assertHasNoPerms("chef", imail)
-        self.assertHasNoPerms("lecteur", imail)
+        self.assertHasNoPerms("chef", file)
         self.assertEqual(
-            self.get_perms("dirg", imail),
+            self.get_perms("lecteur", file),
             {
                 "Access contents information": True,
                 "Add portal content": False,
                 "Delete objects": False,
-                "Modify portal content": True,
-                "Review portal content": True,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
             },
         )
-        self.assertHasNoPerms("agent", imail)
-        self.assertHasNoPerms("agent1", imail)
         self.assertEqual(
-            self.get_perms("encodeur", imail),
+            self.get_perms("dirg", file),
             {
                 "Access contents information": True,
                 "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-
-        self.assertHasNoPerms("chef", file)
-        self.assertHasNoPerms("lecteur", file)
-        self.assertEqual(
-            self.get_perms("dirg", file),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": True,
             },
         )
-        self.assertHasNoPerms("agent", file)
+        self.assertEqual(
+            self.get_perms("agent", file),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertHasNoPerms("agent1", file)
         self.assertEqual(
             self.get_perms("encodeur", file),
             {
                 "Access contents information": True,
-                "Add portal content": True,
+                "Add portal content": False,
                 "Delete objects": False,
-                "Modify portal content": True,
+                "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": False,
             },
         )
 
         self.assertHasNoPerms("chef", annex)
-        self.assertHasNoPerms("lecteur", annex)
+        self.assertEqual(
+            self.get_perms("lecteur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertEqual(
             self.get_perms("dirg", annex),
             {
                 "Access contents information": True,
-                "Add portal content": False,
+                "Add portal content": True,
                 "Delete objects": True,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": True,
             },
         )
-        self.assertHasNoPerms("agent", annex)
+        self.assertEqual(
+            self.get_perms("agent", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertHasNoPerms("agent1", annex)
         self.assertEqual(
             self.get_perms("encodeur", annex),
             {
                 "Access contents information": True,
-                "Add portal content": True,
+                "Add portal content": False,
                 "Delete objects": False,
                 "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": False,
             },
         )
@@ -432,6 +407,221 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": False,
                 "Delete objects": True,
                 "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        change_user(self.portal, "agent")
+        self.pw.doActionFor(imail, "treat")
+        clean_borg_cache(self.portal.REQUEST)
+
+        self.assertHasNoPerms("chef", imail)
+        self.assertEqual(
+            self.get_perms("lecteur", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("dirg", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("agent", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("agent1", imail)
+        self.assertEqual(
+            self.get_perms("encodeur", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        self.assertHasNoPerms("chef", file)
+        self.assertEqual(
+            self.get_perms("lecteur", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("dirg", file),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("agent", file),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("agent1", file)
+        self.assertEqual(
+            self.get_perms("encodeur", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        self.assertHasNoPerms("chef", annex)
+        self.assertEqual(
+            self.get_perms("lecteur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("dirg", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("agent", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("agent1", annex)
+        self.assertEqual(
+            self.get_perms("encodeur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        self.assertHasNoPerms("chef", task)
+        self.assertHasNoPerms("lecteur", task)
+        self.assertHasNoPerms("dirg", task)
+        self.assertHasNoPerms("agent", task)
+        self.assertHasNoPerms("agent1", task)
+        self.assertEqual(
+            self.get_perms("encodeur", task),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
@@ -441,9 +631,24 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
         )
 
         self.pw.doActionFor(imail, "close")
+        clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("chef", imail)
-        self.assertHasNoPerms("lecteur", imail)
+        self.assertEqual(
+            self.get_perms("lecteur", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertEqual(
             self.get_perms("dirg", imail),
             {
@@ -451,14 +656,29 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": True,
             },
         )
-        self.assertHasNoPerms("agent", imail)
+        self.assertEqual(
+            self.get_perms("agent", imail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertHasNoPerms("agent1", imail)
         self.assertEqual(
             self.get_perms("encodeur", imail),
@@ -467,16 +687,31 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": False,
                 "Delete objects": False,
                 "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": False,
             },
         )
 
         self.assertHasNoPerms("chef", file)
-        self.assertHasNoPerms("lecteur", file)
+        self.assertEqual(
+            self.get_perms("lecteur", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertEqual(
             self.get_perms("dirg", file),
             {
@@ -484,14 +719,29 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": True,
             },
         )
-        self.assertHasNoPerms("agent", file)
+        self.assertEqual(
+            self.get_perms("agent", file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertHasNoPerms("agent1", file)
         self.assertEqual(
             self.get_perms("encodeur", file),
@@ -499,17 +749,32 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Access contents information": True,
                 "Add portal content": False,
                 "Delete objects": False,
-                "Modify portal content": True,
+                "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": False,
             },
         )
 
         self.assertHasNoPerms("chef", annex)
-        self.assertHasNoPerms("lecteur", annex)
+        self.assertEqual(
+            self.get_perms("lecteur", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertEqual(
             self.get_perms("dirg", annex),
             {
@@ -517,14 +782,29 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": True,
                 "Delete objects": True,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": True,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": True,
             },
         )
-        self.assertHasNoPerms("agent", annex)
+        self.assertEqual(
+            self.get_perms("agent", annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
         self.assertHasNoPerms("agent1", annex)
         self.assertEqual(
             self.get_perms("encodeur", annex),
@@ -533,10 +813,11 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": False,
                 "Delete objects": False,
                 "Modify portal content": False,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": False,
                 "imio.dms.mail: Write treating group field": False,
             },
         )
@@ -553,6 +834,7 @@ class TestPermissionsIncomingMail(TestPermissionsBase):
                 "Add portal content": False,
                 "Delete objects": True,
                 "Modify portal content": True,
+                "Request review": True,
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
