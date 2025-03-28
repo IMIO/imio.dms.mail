@@ -2383,6 +2383,7 @@ def configure_actions_panel(portal):
             "dmsincoming_email.back_to_treatment|",
             "dmsincoming_email.back_to_agent|",
             "task.back_in_created|",
+            "task.back_in_created2|",
             "task.back_in_to_assign|",
             "task.back_in_to_do|",
             "task.back_in_progress|",
