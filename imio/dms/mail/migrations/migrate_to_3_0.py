@@ -1426,6 +1426,8 @@ class Migrate_To_3_0(Migrator):  # noqa
         # update actionspanel transitions config
         key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
         values = api.portal.get_registry_record(key)
+        if "task.back_in_created2|" not in values:
+            values.append("task.back_in_created2|")
         new_values = []
         for val in values:
             if val.startswith("dmsincomingmail."):
