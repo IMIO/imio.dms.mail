@@ -659,6 +659,13 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     update_security_index(["dmsoutgoingmail"])
             # TEMPORARY TO 3.0.61
             # set versioning again after transmogrifier possible mislead
+
+            key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
+            values = list(api.portal.get_registry_record(key))
+            if "task.back_in_created2|" not in values:
+                values.append("task.back_in_created2|")
+            api.portal.set_registry_record(key, values)
+
             pr_tool = api.portal.get_tool("portal_repository")
             if not pr_tool._versionable_content_types:
                 pr_tool._versionable_content_types = [u'ATDocument', u'ATNewsItem', u'Document', u'Event', u'Link',
@@ -1426,8 +1433,6 @@ class Migrate_To_3_0(Migrator):  # noqa
         # update actionspanel transitions config
         key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
         values = api.portal.get_registry_record(key)
-        if "task.back_in_created2|" not in values:
-            values.append("task.back_in_created2|")
         new_values = []
         for val in values:
             if val.startswith("dmsincomingmail."):
