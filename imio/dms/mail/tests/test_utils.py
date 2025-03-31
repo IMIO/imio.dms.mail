@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.documentviewer.convert import Converter
 from datetime import datetime
 from datetime import timedelta
 from ftw.labels.interfaces import ILabeling
@@ -14,6 +15,7 @@ from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import dv_clean
+from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -34,9 +36,14 @@ from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
+from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getUtility
+from zope.intid.interfaces import IIntIds
 
+import os
 import unittest
 
 
@@ -404,11 +411,12 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)
         ev_uid = self.contacts["plonegroup-organization"]["evenements"].UID()
-        imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id",
-                           recipient_groups=[ev_uid])
+        imail = sub_create(
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", recipient_groups=[ev_uid]
+        )
         labeling = ILabeling(imail)
         self.assertNotIn("lu", labeling.storage)
-        cron_tasks = set_dms_config(["read_label_cron", 'agent'], PersistentDict())
+        cron_tasks = set_dms_config(["read_label_cron", "agent"], PersistentDict())
         cron_tasks["end"] = datetime.now()
         cron_tasks["orgs"] = {ev_uid}
         view.cron_read_label_handling()
@@ -485,7 +493,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
     def test_VariousMethods_pg_organizations(self):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)
-        import ipdb; ipdb.set_trace()
         view.pg_organizations()
 
     def test_IdmUtilsMethods_get_im_folder(self):
@@ -677,41 +684,149 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("admin")
         # Test invalid date
         self.assertIsNone(dv_clean(self.portal, date_back="invalid"))
-        # Test valid date
-        dv_clean(self.portal, date_back="20220212")
-        # Test base case
-        dv_clean(self.portal)
 
-        # TODO add mails to be processed by dv_clean ... WITH ANNOTATIONS ?
+        # Create incoming mail with file
+        intids = getUtility(IIntIds)
+        params = {
+            "title": "Courrier 10",
+            "mail_type": "courrier",
+            "internal_reference_no": "E0010",
+            "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
+            "description": "Ceci est la description du courrier",
+            "mail_date": datetime.today(),
+        }
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
+        pdf_example_filename = os.path.join(os.path.dirname(__file__), "files", "example.pdf")
+        with open(pdf_example_filename, "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=u"example.pdf")
+            createContentInContainer(
+                imail,
+                "dmsmainfile",
+                title="",
+                file=file_object,
+                scan_id="050999900000010",
+                scan_date=datetime.today(),
+            )
+        file = imail["example.pdf"]
 
-        imail = sub_create(
-            self.portal["incoming-mail"],
-            "dmsincomingmail",
-            datetime.now() - timedelta(days=366),
-            "test-mail",
-            **{
-                "assigned_user": u"agent",
-                "title": u"test",
-                "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
-                "sender": self.portal["contacts"]["hps-searches"]['all_hps'].results()[0].getObject(),
-                "mail_type": "mail",
-            }
+        # Assert base scenario
+        annot = IAnnotations(file)["collective.documentviewer"]
+        self.assertEqual(annot["num_pages"], 6)
+        self.assertNotEqual(annot["last_updated"], "2010-01-01T00:00:00")
+        self.assertEqual(
+            [k for k in annot["blob_files"].keys()],
+            [
+                "large/dump_1.jpg",
+                "large/dump_2.jpg",
+                "large/dump_3.jpg",
+                "large/dump_4.jpg",
+                "large/dump_5.jpg",
+                "large/dump_6.jpg",
+                "normal/dump_1.jpg",
+                "normal/dump_2.jpg",
+                "normal/dump_3.jpg",
+                "normal/dump_4.jpg",
+                "normal/dump_5.jpg",
+                "normal/dump_6.jpg",
+                "small/dump_1.jpg",
+                "small/dump_2.jpg",
+                "small/dump_3.jpg",
+                "small/dump_4.jpg",
+                "small/dump_5.jpg",
+                "small/dump_6.jpg",
+                "text/dump_1.txt",
+                "text/dump_2.txt",
+                "text/dump_3.txt",
+                "text/dump_4.txt",
+                "text/dump_5.txt",
+                "text/dump_6.txt",
+            ],
         )
 
-        iemail = sub_create(
-            self.portal["incoming-mail"],
-            "dmsincomingmail",
-            datetime.now(),
-            "test-email",
-            **{
-                "assigned_user": u"agent",
-                "title": u"test",
-                "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
-                "sender": self.portal["contacts"]["hps-searches"]['all_hps'].results()[0].getObject(),
-                "mail_type": "email",
-            }
+        # Mail is not closed yet
+        self.assertTrue(
+            dv_clean(self.portal, days_back=0).endswith("Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'")
         )
 
-        api.content.transition(obj=imail, to_state="closed")
-        api.content.transition(obj=iemail, to_state="closed")
-        dv_clean(self.portal)
+        api.content.transition(imail, "propose_to_agent")
+        api.content.transition(imail, "treat")
+        api.content.transition(imail, "close")
+
+        # Mail is closed but recent
+        self.assertTrue(dv_clean(self.portal).endswith("Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'"))
+
+        # Mail is closed and old
+        # FIXME how to change modification date so this is taken into account in dv_clean's portal_catalog search
+        imail.setModificationDate(datetime.today() - timedelta(days=366))
+        self.assertTrue(
+            dv_clean(self.portal, days_back=0).endswith("Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'")
+        )
+        annot = IAnnotations(file)["collective.documentviewer"]
+        self.assertEqual(annot["num_pages"], 1)
+        self.assertEqual(annot["last_updated"], "2010-01-01T00:00:00")
+        self.assertEqual(
+            [k for k in annot["blob_files"].keys()],
+            ["large/dump_1.jpg", "normal/dump_1.jpg", "small/dump_1.jpg"],
+        )
+
+        # Test date_back
+        converter = Converter(file)
+        converter()
+        # FIXME how to change modification date so this is taken into account in dv_clean's portal_catalog search
+        imail.setModificationDate(datetime.today() - timedelta(days=366))
+        annot = IAnnotations(file)["collective.documentviewer"]
+        self.assertEqual(annot["num_pages"], 6)
+        self.assertNotEqual(annot["last_updated"], "2010-01-01T00:00:00")
+        self.assertTrue(
+            dv_clean(self.portal, date_back=(datetime.today() - timedelta(days=367)).strftime("%Y%m%d")).endswith(
+                "Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'"
+            )
+        )
+        self.assertTrue(
+            dv_clean(self.portal, date_back=datetime.today().strftime("%Y%m%d")).endswith(
+                "Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'"
+            )
+        )
+
+    def test_eml_preview(self):
+        # Create incoming mail with file
+        intids = getUtility(IIntIds)
+        params = {
+            "title": "Courrier 10",
+            "mail_type": "courrier",
+            "internal_reference_no": "E0010",
+            "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
+            "description": "Ceci est la description du courrier",
+            "mail_date": datetime.today(),
+        }
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
+        pdf_example_filename = os.path.join(os.path.dirname(__file__), "files", "example.eml")
+        with open(pdf_example_filename, "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=u"example.eml")
+            createContentInContainer(
+                imail,
+                "dmsmainfile",
+                title="",
+                file=file_object,
+                scan_id="050999900000010",
+                scan_date=datetime.today(),
+            )
+        file = imail["example.eml"]
+        annot = IAnnotations(file)["collective.documentviewer"]
+
+        self.assertEqual(annot["num_pages"], 1)
+        self.assertEqual(annot["successfully_converted"], True)
+
+        self.assertEqual(
+            [k for k in annot["blob_files"].keys()],
+            ["large/dump_1.jpg", "normal/dump_1.jpg", "small/dump_1.jpg"],
+        )
+
+        # import ipdb
+
+        # ipdb.set_trace()
+
+        # dv_clean(self.portal, date_back=(datetime.today() + timedelta(days=1)).strftime("%Y%m%d"))
+        # annot = IAnnotations(file)["collective.documentviewer"]
