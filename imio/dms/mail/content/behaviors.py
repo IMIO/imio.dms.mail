@@ -63,6 +63,7 @@ class IDmsMailDataTransfer(model.Schema):
         required=False,
         #        readonly=True,
     )
+    directives.write_permission(data_transfer="cmf.ManagePortal")
 
 
 alsoProvides(IDmsMailDataTransfer, IFormFieldProvider)
