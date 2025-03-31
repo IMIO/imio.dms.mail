@@ -31,8 +31,7 @@ class TestPermissionsBase(unittest.TestCase):
             "imio.dms.mail: Write mail base fields",
             "imio.dms.mail: Write treating group field",
         )
-        perms = {perm: api.user.has_permission(perm, userid, obj=obj) for perm in perms}
-        return perms
+        return {perm: api.user.has_permission(perm, userid, obj=obj) for perm in perms}
 
     def assertHasAllPerms(self, userid, obj):
         self.assertTrue(all(self.get_perms(userid, obj).values()))
