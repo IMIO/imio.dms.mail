@@ -493,7 +493,99 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
     def test_VariousMethods_pg_organizations(self):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)
-        view.pg_organizations()
+        pgo_contacts = self.portal["contacts"]["plonegroup-organization"]
+
+        # pg_orgs in dict
+        pgo = view.pg_organizations(output="dict")
+
+        self.assertEqual(
+            pgo,
+            [
+                (pgo_contacts["direction-generale"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale", "a"),
+                (
+                    pgo_contacts["direction-generale"]["secretariat"].UID(),
+                    "Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat",
+                    "a",
+                ),
+                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale - GRH", "a"),
+                (
+                    pgo_contacts["direction-generale"]["communication"].UID(),
+                    "Direction g\xc3\xa9n\xc3\xa9rale - Communication",
+                    "a",
+                ),
+                (pgo_contacts["direction-financiere"].UID(), "Direction financi\xc3\xa8re", "a"),
+                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financi\xc3\xa8re - Budgets", "a"),
+                (
+                    pgo_contacts["direction-financiere"]["comptabilite"].UID(),
+                    "Direction financi\xc3\xa8re - Comptabilit\xc3\xa9",
+                    "a",
+                ),
+                (pgo_contacts["direction-technique"].UID(), "Direction technique", "a"),
+                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - B\xc3\xa2timents", "a"),
+                (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
+                (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
+            ],
+        )
+
+        # pg_orgs in csv
+        pgo = view.pg_organizations()
+        self.assertEqual(
+            pgo,
+            """{};Direction générale
+{};Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat
+{};Direction g\xc3\xa9n\xc3\xa9rale - GRH
+{};Direction g\xc3\xa9n\xc3\xa9rale - Communication
+{};Direction financi\xc3\xa8re
+{};Direction financi\xc3\xa8re - Budgets
+{};Direction financi\xc3\xa8re - Comptabilit\xc3\xa9
+{};Direction technique
+{};Direction technique - B\xc3\xa2timents
+{};Direction technique - Voiries
+{};\xc3\x89v\xc3\xa9nements""".format(
+                pgo_contacts["direction-generale"].UID(),
+                pgo_contacts["direction-generale"]["secretariat"].UID(),
+                pgo_contacts["direction-generale"]["grh"].UID(),
+                pgo_contacts["direction-generale"]["communication"].UID(),
+                pgo_contacts["direction-financiere"].UID(),
+                pgo_contacts["direction-financiere"]["budgets"].UID(),
+                pgo_contacts["direction-financiere"]["comptabilite"].UID(),
+                pgo_contacts["direction-technique"].UID(),
+                pgo_contacts["direction-technique"]["batiments"].UID(),
+                pgo_contacts["direction-technique"]["voiries"].UID(),
+                pgo_contacts["evenements"].UID(),
+            ),
+        )
+
+        # pg_orgs in csv with status
+        pgo = view.pg_organizations(with_status=True)
+        self.assertEqual(
+            pgo,
+            """{};Direction générale;a
+{};Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat;a
+{};Direction g\xc3\xa9n\xc3\xa9rale - GRH;a
+{};Direction g\xc3\xa9n\xc3\xa9rale - Communication;a
+{};Direction financi\xc3\xa8re;a
+{};Direction financi\xc3\xa8re - Budgets;a
+{};Direction financi\xc3\xa8re - Comptabilit\xc3\xa9;a
+{};Direction technique;a
+{};Direction technique - B\xc3\xa2timents;a
+{};Direction technique - Voiries;a
+{};\xc3\x89v\xc3\xa9nements;a""".format(
+                pgo_contacts["direction-generale"].UID(),
+                pgo_contacts["direction-generale"]["secretariat"].UID(),
+                pgo_contacts["direction-generale"]["grh"].UID(),
+                pgo_contacts["direction-generale"]["communication"].UID(),
+                pgo_contacts["direction-financiere"].UID(),
+                pgo_contacts["direction-financiere"]["budgets"].UID(),
+                pgo_contacts["direction-financiere"]["comptabilite"].UID(),
+                pgo_contacts["direction-technique"].UID(),
+                pgo_contacts["direction-technique"]["batiments"].UID(),
+                pgo_contacts["direction-technique"]["voiries"].UID(),
+                pgo_contacts["evenements"].UID(),
+            ),
+        )
+
+        # TODO test with disabled groups
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
