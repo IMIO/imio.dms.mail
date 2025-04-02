@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from bs4 import BeautifulSoup
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentviewer.convert import Converter
@@ -481,11 +482,20 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
         self.change_user("admin")
         self.assertEqual(view.user_usages(), "You must give a parameter named 'userid'")
-        self.assertEqual(view.user_usages("invalid"), "Cannot find a user with userid='{}'".format("invalid"))
-        view.user_usages("admin")
-        view.user_usages("agent")
-        view.user_usages("encodeur")
-        view.user_usages("dirg")
+        self.assertEqual(view.user_usages("invalid"), "Cannot find a user with userid='invalid'")
+
+        # This is testing only the validity of html, not the actual content
+        html = view.user_usages("admin")
+        BeautifulSoup(html, "html.parser")
+
+        html = view.user_usages("agent")
+        BeautifulSoup(html, "html.parser")
+
+        html = view.user_usages("encodeur")
+        BeautifulSoup(html, "html.parser")
+
+        html = view.user_usages("dirg")
+        BeautifulSoup(html, "html.parser")
 
         self.change_user("agent")
         self.assertEqual(view.user_usages("agent"), "You must be a zope manager to run this script")
