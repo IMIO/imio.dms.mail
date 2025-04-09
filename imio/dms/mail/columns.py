@@ -323,7 +323,7 @@ class ExternalEditColumn(eec_base):
                 },
             )
         else:
-            link_url = "%s/@@external_edit" % item.getURL()
+            link_url = "%s?collabora=%s" % (self.request.get("URL"), 0 if self.request.get("collabora") == "1" else 1)
             icon_name = "extedit_icon.png"
             link_title = translate(self.linkContent, context=self.request)
 
