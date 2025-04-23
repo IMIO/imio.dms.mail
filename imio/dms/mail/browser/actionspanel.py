@@ -167,11 +167,13 @@ class DmsOMActionsPanelView(ActionsPanelView):
         "back_to_validated",
         "back_to_be_signed",
         "back_to_scanned",
+        "back_to_print",
         "propose_to_n_plus_1",
         "set_validated",
         "propose_to_be_signed",
         "mark_as_sent",
         "set_scanned",
+        "set_to_print"
     ]
     tr_order = dict((val, i) for (i, val) in enumerate(transitions))
 
