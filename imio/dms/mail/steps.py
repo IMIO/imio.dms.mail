@@ -29,6 +29,7 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
+from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -206,6 +207,21 @@ def om_n_plus_1_wfadaptation(context):
     if "chef" in [ud["userid"] for ud in get_user_from_criteria(site, email="")]:
         for uid in get_registry_organizations():
             site.acl_users.source_groups.addPrincipalToGroup("chef", "%s_n_plus_1" % uid)
+
+
+def om_to_print_wfadaptation(context):
+    """
+    Add to_print level in outgoingmail_workflow
+    """
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info("Apply to_print level on outgoingmail_workflow")
+    sva = OMToPrintAdaptation()
+    adapt_is_applied = sva.patch_workflow("outgoingmail_workflow")
+    if adapt_is_applied:
+        add_applied_adaptation(
+            "imio.dms.mail.wfadaptations.OMToPrintAdaptation", "outgoingmail_workflow", True
+        )
 
 
 def task_n_plus_1_wfadaptation(context):

@@ -221,6 +221,15 @@ msgstr "À la signature"
 msgid "om_validated"
 msgstr "Validé"
 
+msgid "om_set_to_print"
+msgstr "Mettre à imprimer"
+
+msgid "om_back_to_print"
+msgstr "Remettre à imprimer"
+
+msgid "om_to_print"
+msgstr "À imprimer"
+
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "propose_to_agent"
 msgstr "Proposer à l'agent"

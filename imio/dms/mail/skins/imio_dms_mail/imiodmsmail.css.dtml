@@ -824,10 +824,12 @@ body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-4 {
     border-color: dimgrey;
 }
 
-.state-validated {
+.state-validated, .state-to_print {
  color: cornflowerBlue !important;
 }
-.viewlet_workflowstate span.state-validated {
+
+.viewlet_workflowstate span.state-validated,
+.viewlet_workflowstate span.state-to_print {
     background-color: cornflowerBlue;
     border-color: cornflowerBlue;
 }
