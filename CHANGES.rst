@@ -1,6 +1,15 @@
 Changelog
 =========
 
+3.0.61
+------
+
+- Last commit at
+- Restoring portal_repository config if necessary
+- Added missing task.back_in_created2 transition in actionspanel
+- DMS-1090 Avoided keyError in cron_read_label_handling cron task
+- Re-enabled outgoing mail wfa to_print
+
 3.0.60
 ------
 
