@@ -73,6 +73,10 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(get_dms_config(["a", "b"]), "plone")  # not changed
         lst = set_dms_config(["a", "b"], value="other")
         self.assertEqual(get_dms_config(["a", "b"]), "other")  # changed
+        # missing
+        self.assertRaises(KeyError, get_dms_config, ["c"])
+        self.assertIsNone(get_dms_config(["c"], missing_key_handling=True))
+        self.assertDictEqual(get_dms_config(["c"], missing_key_handling=True, missing_key_value={}), {})
 
     def test_ensure_set_field(self):
         now1 = datetime.now()
@@ -402,6 +406,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
     def test_VariousMethods_cron_read_label_handling(self):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)
+        view.cron_read_label_handling()  # ok without config
         ev_uid = self.contacts["plonegroup-organization"]["evenements"].UID()
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id",
                            recipient_groups=[ev_uid])
