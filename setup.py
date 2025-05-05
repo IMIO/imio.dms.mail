@@ -78,6 +78,7 @@ setup(
         "ftw.labels",
         "imio.dashboard",
         "imio.dms.soap2pm",
+        "imio.pm.wsclient>=2",
         "imio.fpaudit",
         "imio.helpers",
         "imio.migrator",
