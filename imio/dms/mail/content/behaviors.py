@@ -4,6 +4,7 @@ from dexterity.localrolesfield.field import LocalRoleField
 from imio.dms.mail import _
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.browser.widgets import DataTransferTextAreaFieldWidget
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
 from imio.helpers.cache import get_plone_groups_for_user
 from plone import api
@@ -63,6 +64,8 @@ class IDmsMailDataTransfer(model.Schema):
         required=False,
         #        readonly=True,
     )
+    directives.write_permission(data_transfer="cmf.ManagePortal")
+    directives.widget("data_transfer", DataTransferTextAreaFieldWidget)
 
 
 alsoProvides(IDmsMailDataTransfer, IFormFieldProvider)

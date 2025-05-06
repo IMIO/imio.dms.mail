@@ -2,6 +2,7 @@
     xmlns="http://namespaces.zope.org/zope"
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:plone="http://namespaces.plone.org/plone"
+    xmlns:z3c="http://namespaces.zope.org/z3c"
     i18n_domain="imio.dms.mail">
 
     <include package="plone.app.portlets"/>
@@ -921,6 +922,16 @@
         template="templates/footer.pt"
         permission="zope.Public"
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+    <!-- Widgets -->
+
+    <!-- This is a copy of z3c.form/browser/widget_layout.pt but this doesn't display the field label if there is no field value -->
+    <z3c:widgetLayout
+        mode="display"
+        widget="imio.dms.mail.browser.widgets.IDataTransferTextAreaWidget"
+        layer="z3c.form.interfaces.IFormLayer"
+        template="templates/removed_empty_widget_layout.pt"
         />
 
 </configure>
