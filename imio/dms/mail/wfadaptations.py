@@ -958,15 +958,17 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             return False, "State to_print already in workflow"
 
         transitions = ["propose_to_be_signed", "back_to_creation"]
-        has_n_plus_1 = False
+        # has_n_plus_1 = False
         # is n+1 already applied ?
         applied_wfa = [dic["adaptation"] for dic in get_applied_adaptations()]
         if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
-            transitions.append("back_to_n_plus_1")
-            has_n_plus_1 = True
+            return False, "N+1 already in workflow. Validated state can be used as to_print"
+            # transitions.append("back_to_n_plus_1")
+            # has_n_plus_1 = True
 
         # modify wf_from_to
         nplus_to = get_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"])
+        to_states = [st for (st, tr) in nplus_to]
         if (new_state_id, to_tr_id) not in nplus_to:
             nplus_to.append((new_state_id, to_tr_id))
             set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"], nplus_to)
@@ -1024,18 +1026,23 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         )
 
         # proposed_to_n_plus_1 transitions
-        if has_n_plus_1 and "proposed_to_n_plus_1" in wf.states:
-            transitions = list(wf.states["proposed_to_n_plus_1"].transitions)
-            transitions.append(to_tr_id)
-            wf.states["proposed_to_n_plus_1"].transitions = tuple(transitions)
+        # if has_n_plus_1 and "proposed_to_n_plus_1" in wf.states:
+        #     transitions = list(wf.states["proposed_to_n_plus_1"].transitions)
+        #     transitions.append(to_tr_id)
+        #     wf.states["proposed_to_n_plus_1"].transitions = tuple(transitions)
         # created transitions
         transitions = list(wf.states["created"].transitions)
         transitions.append(to_tr_id)
         wf.states["created"].transitions = tuple(transitions)
-        # to_be_signed transitions
-        transitions = list(wf.states["to_be_signed"].transitions)
-        transitions.append(back_tr_id)
-        wf.states["to_be_signed"].transitions = tuple(transitions)
+        # add new back_to transition on next states
+        for next_state_id in to_states:
+            if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
+                continue
+            next_state = wf.states[next_state_id]
+            transitions = list(next_state.transitions)
+            if back_tr_id not in transitions:
+                transitions.append(back_tr_id)
+            next_state.transitions = tuple(transitions)
 
         # ajouter config local roles
         lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
@@ -1053,8 +1060,8 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                 "encodeur": {"roles": ["Reader", "Reviewer"]},
                 "lecteur": {"roles": ["Reader"]},
             }
-            if has_n_plus_1:
-                dic.update({"n_plus_1": {"roles": ["Reader", "Reviewer"]}})
+            # if has_n_plus_1:
+            #     dic.update({"n_plus_1": {"roles": ["Reader", "Reviewer"]}})
             lrtg[new_state_id] = dic
         lrrg = lr["recipient_groups"]
         if new_state_id not in lrrg:
@@ -1063,8 +1070,8 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                 "encodeur": {"roles": ["Reader"]},
                 "lecteur": {"roles": ["Reader"]},
             }
-            if has_n_plus_1:
-                dic.update({"n_plus_1": {"roles": ["Reader"]}})
+            # if has_n_plus_1:
+            #     dic.update({"n_plus_1": {"roles": ["Reader"]}})
             lrrg[new_state_id] = dic
         # We need to indicate that the object has been modified and must be 'saved'
         lr._p_changed = True
@@ -1111,6 +1118,39 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             if dic["i"] == "review_state" and new_state_id not in dic["v"]:
                 modif = True
                 dic["v"] += [new_state_id]
+        if modif:
+            col.query = query
+
+        # update actionspanel back transitions registry
+        lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")
+        lst_len = len(lst)
+        if "dmsoutgoingmail.{}|".format(back_tr_id) not in lst:
+            lst.append("dmsoutgoingmail.{}|".format(back_tr_id))
+        if len(lst) != lst_len:
+            api.portal.set_registry_record(
+                "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions", lst
+            )
+        # update remark states
+        lst = (
+            api.portal.get_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", default=False
+            )
+            or []
+        )
+        if new_state_id not in lst:
+            lst.insert(0, new_state_id)
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", lst
+            )
+        # update treating collection
+        col = folder["om_treating"]
+        query = list(col.query)
+        modif = False
+        for dic in query:
+            if dic["i"] == "review_state":
+                if new_state_id not in dic["v"]:
+                    modif = True
+                    dic["v"] += [new_state_id]
         if modif:
             col.query = query
 
