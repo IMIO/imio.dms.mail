@@ -293,7 +293,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps(
                 "imio.dms.mail",
                 profile="examples",
-                steps=["imiodmsmail-configure_imio_dms_mail"],
+                steps=["imiodmsmail-configure-imio-dms-mail"],
                 run_dependencies=False,
             )
             # clean example users wrongly added by previous migration
@@ -677,10 +677,23 @@ class Migrate_To_3_0(Migrator):  # noqa
                                                    u'Event': [u'at_edit_autoversion', u'version_on_revert']}
             # added missing value in config
             key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
-            values = list(api.portal.get_registry_record(key), default=[])
+            values = list(api.portal.get_registry_record(key, default=[]))
             if values and "task.back_in_created2|" not in values:
                 values.append("task.back_in_created2|")
                 api.portal.set_registry_record(key, values)
+
+            # Update config wsclient to Delib
+            rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.pm_url"
+            rvalue = api.portal.get_registry_record(rkey, default=None)
+            if rvalue and rvalue.endswith("/ws4pm.wsdl"):
+                rvalue = rvalue[:-len("/ws4pm.wsdl")]
+                api.portal.set_registry_record(rkey, rvalue)
+            rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
+            rvalue = api.portal.get_registry_record(rkey, default=None)
+            if rvalue and u"ignore_validation_for" not in map(lambda x: x["field_name"], rvalue):
+                rvalue.append({"expression": u"string:groupsInCharge", "field_name": u"ignore_validation_for"})
+                api.portal.set_registry_record(rkey, rvalue)
+
             # END
 
             finished = True  # can be eventually returned and set by batched method
