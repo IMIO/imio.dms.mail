@@ -1982,8 +1982,9 @@ def adaptDefaultPortal(context):
     cron_configlet = queryUtility(ICronConfiguration, "cron4plone_config")
     if not cron_configlet.cronjobs:
         # Syntax: m h dom mon command.
-        cron_configlet.cronjobs = [u"45 18 1,15 * portal/@@various-utils/dv_images_clean",
-                                   u"59 3 * * portal/@@various-utils/cron_read_label_handling",]
+        cron_configlet.cronjobs = [
+            u"59 3 * * portal/@@various-utils/cron_read_label_handling",
+        ]
 
     # configure MailHost
     if get_environment() == "prod":
