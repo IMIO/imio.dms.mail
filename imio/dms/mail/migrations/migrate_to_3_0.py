@@ -694,6 +694,13 @@ class Migrate_To_3_0(Migrator):  # noqa
                 rvalue.append({"expression": u"string:groupsInCharge", "field_name": u"ignore_validation_for"})
                 api.portal.set_registry_record(rkey, rvalue)
 
+            # cron4plone settings
+            cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
+            if u"45 18 1,15 * portal/@@various-utils/dv_images_clean" in cron_configlet.cronjobs:
+                index = cron_configlet.cronjobs.index(u"45 18 1,15 * portal/@@various-utils/dv_images_clean")
+                cron_configlet.cronjobs.pop(index)
+                cron_configlet._p_changed = True
+
             # END
 
             finished = True  # can be eventually returned and set by batched method
@@ -1437,11 +1444,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record("imio.dms.mail.imail_folder_period", u"week")
         if not api.portal.get_registry_record("imio.dms.mail.omail_folder_period"):
             api.portal.set_registry_record("imio.dms.mail.omail_folder_period", u"week")
-        # cron4plone settings
-        cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
-        if not cron_configlet.cronjobs:
-            # Syntax: m h dom mon command.
-            cron_configlet.cronjobs = [u"45 18 1,15 * portal/@@various-utils/dv_images_clean"]
         # update actionspanel transitions config
         key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
         values = api.portal.get_registry_record(key)
