@@ -568,7 +568,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
 
         applied_wfa = [dic["adaptation"] for dic in get_applied_adaptations()]
         if u"imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
-            return False, "to_print already in workflow. This validation workflow cannot be applied together with it. Validated state can be used as to_print."
+            return (
+                False,
+                "to_print already in workflow. This validation workflow cannot be applied together with it. "
+                "Validated state can be used as to_print.",
+            )
 
         portal = api.portal.get()
         wtool = portal.portal_workflow
