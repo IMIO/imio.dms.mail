@@ -9,6 +9,10 @@ Changelog
 - Added missing task.back_in_created2 transition in actionspanel
 - DMS-1090 Avoided keyError in cron_read_label_handling cron task
 - Re-enabled outgoing mail wfa to_print
+- Updated pm wsclient URL and field mappings
+- Reordered states. Improved OMToPrintAdaptation
+- Added multiple permissions to check in batch action form
+- Migrated cron4plone dv_clean to system cron
 
 3.0.60
 ------
