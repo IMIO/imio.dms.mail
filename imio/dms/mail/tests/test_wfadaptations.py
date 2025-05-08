@@ -78,7 +78,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
             set(self.omw.states["to_be_signed"].transitions), {"back_to_creation", "back_to_print", "mark_as_sent"}
         )
         self.assertSetEqual(
-            set(self.omw.states["sent"].transitions), {"back_to_be_signed", "back_to_scanned", "back_to_creation"}
+            set(self.omw.states["sent"].transitions), {"back_to_print", "back_to_be_signed", "back_to_scanned", "back_to_creation"}
         )
         # various
         fti = getUtility(IDexterityFTI, name="dmsoutgoingmail")
@@ -128,7 +128,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         )
         self.assertSetEqual(
             set(self.omw.states["sent"].transitions),
-            {"back_to_be_signed", "back_to_scanned", "back_to_creation"},
+            {"back_to_print", "back_to_be_signed", "back_to_scanned", "back_to_creation"},
         )
         # check collection position
         folder = self.portal["outgoing-mail"]["mail-searches"]
