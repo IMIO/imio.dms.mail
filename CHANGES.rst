@@ -4,7 +4,7 @@ Changelog
 3.0.61
 ------
 
-- Last commit at
+- Last commit at 57403e152c97f18aae96f06c242ad93349368137
 - Restoring portal_repository config if necessary
 - Added missing task.back_in_created2 transition in actionspanel
 - DMS-1090 Avoided keyError in cron_read_label_handling cron task
