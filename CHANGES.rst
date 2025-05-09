@@ -4,7 +4,7 @@ Changelog
 3.0.61
 ------
 
-- Last commit at ac4869b51e9a707b499cac51bdc1d3662e6d2762
+- Last commit at 6b022e65ad3761afa03effb2856cec93ec66f599
 - Restoring portal_repository config if necessary
 - Added missing task.back_in_created2 transition in actionspanel
 - DMS-1090 Avoided keyError in cron_read_label_handling cron task
@@ -14,6 +14,7 @@ Changelog
 - Added multiple permissions to check in batch action form
 - Migrated cron4plone dv_clean to system cron
 - Corrected migration. Call wsclient upgrade profile
+- Avoided error during wsclient migration
 
 3.0.60
 ------
