@@ -683,16 +683,14 @@ class Migrate_To_3_0(Migrator):  # noqa
                 api.portal.set_registry_record(key, values)
 
             # Update config wsclient to Delib
+            self.upgradeProfile("imio.pm.wsclient:default")
             rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.pm_url"
-            rvalue = api.portal.get_registry_record(rkey, default=None)
-            if rvalue and rvalue.endswith("/ws4pm.wsdl"):
-                rvalue = rvalue[:-len("/ws4pm.wsdl")]
-                api.portal.set_registry_record(rkey, rvalue)
-            rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
-            rvalue = api.portal.get_registry_record(rkey, default=None)
-            if rvalue and u"ignore_validation_for" not in map(lambda x: x["field_name"], rvalue):
-                rvalue.append({"expression": u"string:groupsInCharge", "field_name": u"ignore_validation_for"})
-                api.portal.set_registry_record(rkey, rvalue)
+            if api.portal.get_registry_record(rkey, default=None):
+                rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
+                rvalue = api.portal.get_registry_record(rkey, default=None)
+                if rvalue and u"ignore_validation_for" not in map(lambda x: x["field_name"], rvalue):
+                    rvalue.append({"expression": u"string:groupsInCharge", "field_name": u"ignore_validation_for"})
+                    api.portal.set_registry_record(rkey, rvalue)
 
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
