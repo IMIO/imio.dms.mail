@@ -684,13 +684,20 @@ class Migrate_To_3_0(Migrator):  # noqa
 
             # Update config wsclient to Delib
             self.upgradeProfile("imio.pm.wsclient:default")
-            rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.pm_url"
-            if api.portal.get_registry_record(rkey, default=None):
-                rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
-                rvalue = api.portal.get_registry_record(rkey, default=None)
-                if rvalue and u"ignore_validation_for" not in map(lambda x: x["field_name"], rvalue):
-                    rvalue.append({"expression": u"string:groupsInCharge", "field_name": u"ignore_validation_for"})
-                    api.portal.set_registry_record(rkey, rvalue)
+            from imio.pm.wsclient.browser.vocabularies import pm_item_data_vocabulary
+
+            rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
+            rvalue = api.portal.get_registry_record(rkey, default=None)
+            fns = [dic["field_name"] for dic in rvalue or []]
+            if fns and u"ignore_validation_for" not in fns:
+                fns.append(u"ignore_validation_for")
+                orig_call = pm_item_data_vocabulary.__call__
+                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
+                    [SimpleTerm(fn) for fn in fns]
+                )
+                rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
+                api.portal.set_registry_record(rkey, rvalue)
+                pm_item_data_vocabulary.__call__ = orig_call
 
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
