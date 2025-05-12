@@ -15,6 +15,7 @@ Changelog
 - Migrated cron4plone dv_clean to system cron
 - Corrected migration. Call wsclient upgrade profile
 - Avoided error during wsclient migration
+- Handled new wsclient permissions
 
 3.0.60
 ------
