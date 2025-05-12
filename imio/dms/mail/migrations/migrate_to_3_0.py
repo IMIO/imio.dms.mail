@@ -698,6 +698,12 @@ class Migrate_To_3_0(Migrator):  # noqa
                 rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
                 api.portal.set_registry_record(rkey, rvalue)
                 pm_item_data_vocabulary.__call__ = orig_call
+            # imio.pm.wsclient
+            self.portal.manage_permission(
+                "WS Client Access",
+                ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
+                acquire=0)
+            self.portal.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
 
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")

@@ -1879,6 +1879,12 @@ def adaptDefaultPortal(context):
     site.manage_permission("List undoable changes", ("Manager", "Site Administrator"), acquire=0)
     # History: can revert to previous versions
     site.manage_permission("CMFEditions: Revert to previous versions", ("Manager", "Site Administrator"), acquire=0)
+    # imio.pm.wsclient
+    site.manage_permission(
+        "WS Client Access",
+        ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
+        acquire=0)
+    site.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
 
     # History: add history after contact merging.
     # Member needed if the treating_group is changed to another where current user doesn't have rights
