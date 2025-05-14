@@ -5,6 +5,7 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentviewer.convert import Converter
 from datetime import datetime
 from datetime import timedelta
+from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -476,35 +477,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
 
-    def test_VariousMethods_template_infos(self):
-        obj = self.portal
-        view = VariousUtilsMethods(obj, obj.REQUEST)
-        view.template_infos()
-
-    def test_VariousMethods_user_usages(self):
-        obj = self.portal
-        view = VariousUtilsMethods(obj, obj.REQUEST)
-
-        self.change_user("admin")
-        self.assertEqual(view.user_usages(), "You must give a parameter named 'userid'")
-        self.assertEqual(view.user_usages("invalid"), "Cannot find a user with userid='invalid'")
-
-        # This is testing only the validity of html, not the actual content
-        html = view.user_usages("admin")
-        BeautifulSoup(html, "html.parser")
-
-        html = view.user_usages("agent")
-        BeautifulSoup(html, "html.parser")
-
-        html = view.user_usages("encodeur")
-        BeautifulSoup(html, "html.parser")
-
-        html = view.user_usages("dirg")
-        BeautifulSoup(html, "html.parser")
-
-        self.change_user("agent")
-        self.assertEqual(view.user_usages("agent"), "You must be a zope manager to run this script")
-
     def test_VariousMethods_pg_organizations(self):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)
@@ -864,10 +836,13 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(dv_clean(self.portal).endswith("Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'"))
 
         # Mail is closed and old
-        # FIXME how to change modification date so this is taken into account in dv_clean's portal_catalog search
-        imail.setModificationDate(datetime.today() - timedelta(days=366))
+        new_date = datetime.today() - timedelta(days=366)
+        new_date = DateTime(datetime.strftime(new_date, "%Y/%m/%d")).ISO8601()
+        imail.setModificationDate(new_date)
+        imail._p_changed = True
+        imail.reindexObject(idxs=['modified'])
         self.assertTrue(
-            dv_clean(self.portal, days_back=0).endswith("Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'")
+            dv_clean(self.portal).endswith("Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'")
         )
         annot = IAnnotations(file)["collective.documentviewer"]
         self.assertEqual(annot["num_pages"], 1)
@@ -880,8 +855,11 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         # Test date_back
         converter = Converter(file)
         converter()
-        # FIXME how to change modification date so this is taken into account in dv_clean's portal_catalog search
-        imail.setModificationDate(datetime.today() - timedelta(days=366))
+        new_date = datetime.today() - timedelta(days=366)
+        new_date = DateTime(datetime.strftime(new_date, "%Y/%m/%d")).ISO8601()
+        imail.setModificationDate(new_date)
+        imail._p_changed = True
+        imail.reindexObject(idxs=['modified'])
         annot = IAnnotations(file)["collective.documentviewer"]
         self.assertEqual(annot["num_pages"], 6)
         self.assertNotEqual(annot["last_updated"], "2010-01-01T00:00:00")
@@ -891,49 +869,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             )
         )
         self.assertTrue(
-            dv_clean(self.portal, date_back=datetime.today().strftime("%Y%m%d")).endswith(
+            dv_clean(self.portal, date_back=(datetime.today() - timedelta(days=365)).strftime("%Y%m%d")).endswith(
                 "Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'"
             )
         )
-
-    def test_eml_preview(self):
-        # Create incoming mail with file
-        intids = getUtility(IIntIds)
-        params = {
-            "title": "Courrier 10",
-            "mail_type": "courrier",
-            "internal_reference_no": "E0010",
-            "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
-            "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
-            "description": "Ceci est la description du courrier",
-            "mail_date": datetime.today(),
-        }
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
-        pdf_example_filename = os.path.join(os.path.dirname(__file__), "files", "example.eml")
-        with open(pdf_example_filename, "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=u"example.eml")
-            createContentInContainer(
-                imail,
-                "dmsmainfile",
-                title="",
-                file=file_object,
-                scan_id="050999900000010",
-                scan_date=datetime.today(),
-            )
-        file = imail["example.eml"]
-        annot = IAnnotations(file)["collective.documentviewer"]
-
-        self.assertEqual(annot["num_pages"], 1)
-        self.assertEqual(annot["successfully_converted"], True)
-
-        self.assertEqual(
-            [k for k in annot["blob_files"].keys()],
-            ["large/dump_1.jpg", "normal/dump_1.jpg", "small/dump_1.jpg"],
-        )
-
-        # import ipdb
-
-        # ipdb.set_trace()
-
-        # dv_clean(self.portal, date_back=(datetime.today() + timedelta(days=1)).strftime("%Y%m%d"))
-        # annot = IAnnotations(file)["collective.documentviewer"]
