@@ -5,6 +5,7 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentviewer.convert import Converter
 from datetime import datetime
 from datetime import timedelta
+from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -33,6 +34,8 @@ from imio.dms.mail.utils import UtilsMethods
 from imio.dms.mail.utils import VariousUtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.test_helpers import ImioTestHelpers
+from mock import Mock
+from mock import patch
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
@@ -43,6 +46,7 @@ from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
+from zope.schema.interfaces import IVocabularyFactory
 
 import os
 import unittest
@@ -476,35 +480,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
 
-    def test_VariousMethods_template_infos(self):
-        obj = self.portal
-        view = VariousUtilsMethods(obj, obj.REQUEST)
-        view.template_infos()
-
-    def test_VariousMethods_user_usages(self):
-        obj = self.portal
-        view = VariousUtilsMethods(obj, obj.REQUEST)
-
-        self.change_user("admin")
-        self.assertEqual(view.user_usages(), "You must give a parameter named 'userid'")
-        self.assertEqual(view.user_usages("invalid"), "Cannot find a user with userid='invalid'")
-
-        # This is testing only the validity of html, not the actual content
-        html = view.user_usages("admin")
-        BeautifulSoup(html, "html.parser")
-
-        html = view.user_usages("agent")
-        BeautifulSoup(html, "html.parser")
-
-        html = view.user_usages("encodeur")
-        BeautifulSoup(html, "html.parser")
-
-        html = view.user_usages("dirg")
-        BeautifulSoup(html, "html.parser")
-
-        self.change_user("agent")
-        self.assertEqual(view.user_usages("agent"), "You must be a zope manager to run this script")
-
     def test_VariousMethods_pg_organizations(self):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)
@@ -512,7 +487,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
         # pg_orgs in dict
         pgo = view.pg_organizations(output="dict")
-
         self.assertEqual(
             pgo,
             [
@@ -600,7 +574,109 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             ),
         )
 
-        # TODO test with disabled groups
+        # After activating one organisation
+        from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
+
+        org_uids = api.portal.get_registry_record(ORGANIZATIONS_REGISTRY) or []
+        org_uids.append(pgo_contacts["college-communal"].UID())
+        api.portal.set_registry_record(ORGANIZATIONS_REGISTRY, org_uids)
+        pgo = view.pg_organizations(output="dict")
+        self.assertEqual(
+            pgo,
+            [
+                (pgo_contacts["direction-generale"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale", "a"),
+                (
+                    pgo_contacts["direction-generale"]["secretariat"].UID(),
+                    "Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat",
+                    "a",
+                ),
+                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale - GRH", "a"),
+                (
+                    pgo_contacts["direction-generale"]["communication"].UID(),
+                    "Direction g\xc3\xa9n\xc3\xa9rale - Communication",
+                    "a",
+                ),
+                (pgo_contacts["direction-financiere"].UID(), "Direction financi\xc3\xa8re", "a"),
+                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financi\xc3\xa8re - Budgets", "a"),
+                (
+                    pgo_contacts["direction-financiere"]["comptabilite"].UID(),
+                    "Direction financi\xc3\xa8re - Comptabilit\xc3\xa9",
+                    "a",
+                ),
+                (pgo_contacts["direction-technique"].UID(), "Direction technique", "a"),
+                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - B\xc3\xa2timents", "a"),
+                (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
+                (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
+                (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
+            ],
+        )
+
+        # With both activated and not activated organizations
+        pgo = view.pg_organizations(output="dict", only_activated="0")
+        self.assertEqual(
+            pgo,
+            [
+                (pgo_contacts["direction-generale"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale", "a"),
+                (
+                    pgo_contacts["direction-generale"]["secretariat"].UID(),
+                    "Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat",
+                    "a",
+                ),
+                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale - GRH", "a"),
+                (
+                    pgo_contacts["direction-generale"]["informatique"].UID(),
+                    "Direction g\xc3\xa9n\xc3\xa9rale - Informatique",
+                    "na",
+                ),
+                (
+                    pgo_contacts["direction-generale"]["communication"].UID(),
+                    "Direction g\xc3\xa9n\xc3\xa9rale - Communication",
+                    "a",
+                ),
+                (pgo_contacts["direction-financiere"].UID(), "Direction financi\xc3\xa8re", "a"),
+                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financi\xc3\xa8re - Budgets", "a"),
+                (
+                    pgo_contacts["direction-financiere"]["comptabilite"].UID(),
+                    "Direction financi\xc3\xa8re - Comptabilit\xc3\xa9",
+                    "a",
+                ),
+                (pgo_contacts["direction-financiere"]["taxes"].UID(), "Direction financi\xc3\xa8re - Taxes", "na"),
+                (
+                    pgo_contacts["direction-financiere"]["marches-publics"].UID(),
+                    "Direction financi\xc3\xa8re - March\xc3\xa9s publics",
+                    "na",
+                ),
+                (pgo_contacts["direction-technique"].UID(), "Direction technique", "a"),
+                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - B\xc3\xa2timents", "a"),
+                (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
+                (pgo_contacts["direction-technique"]["urbanisme"].UID(), "Direction technique - Urbanisme", "na"),
+                (pgo_contacts["departement-population"].UID(), "D\xc3\xa9partement population", "na"),
+                (
+                    pgo_contacts["departement-population"]["population"].UID(),
+                    "D\xc3\xa9partement population - Population",
+                    "na",
+                ),
+                (
+                    pgo_contacts["departement-population"]["etat-civil"].UID(),
+                    "D\xc3\xa9partement population - \xc3\x89tat-civil",
+                    "na",
+                ),
+                (pgo_contacts["departement-culturel"].UID(), "D\xc3\xa9partement culturel", "na"),
+                (
+                    pgo_contacts["departement-culturel"]["enseignement"].UID(),
+                    "D\xc3\xa9partement culturel - Enseignement",
+                    "na",
+                ),
+                (
+                    pgo_contacts["departement-culturel"]["culture-loisirs"].UID(),
+                    "D\xc3\xa9partement culturel - Culture-loisirs",
+                    "na",
+                ),
+                (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
+                (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
+                (pgo_contacts["conseil-communal"].UID(), "Conseil communal", "na"),
+            ],
+        )
 
     def test_IdmUtilsMethods_get_im_folder(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
@@ -864,10 +940,13 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(dv_clean(self.portal).endswith("Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'"))
 
         # Mail is closed and old
-        # FIXME how to change modification date so this is taken into account in dv_clean's portal_catalog search
-        imail.setModificationDate(datetime.today() - timedelta(days=366))
+        new_date = datetime.today() - timedelta(days=366)
+        new_date = DateTime(datetime.strftime(new_date, "%Y/%m/%d")).ISO8601()
+        imail.setModificationDate(new_date)
+        imail._p_changed = True
+        imail.reindexObject(idxs=['modified'])
         self.assertTrue(
-            dv_clean(self.portal, days_back=0).endswith("Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'")
+            dv_clean(self.portal).endswith("Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'")
         )
         annot = IAnnotations(file)["collective.documentviewer"]
         self.assertEqual(annot["num_pages"], 1)
@@ -880,8 +959,11 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         # Test date_back
         converter = Converter(file)
         converter()
-        # FIXME how to change modification date so this is taken into account in dv_clean's portal_catalog search
-        imail.setModificationDate(datetime.today() - timedelta(days=366))
+        new_date = datetime.today() - timedelta(days=366)
+        new_date = DateTime(datetime.strftime(new_date, "%Y/%m/%d")).ISO8601()
+        imail.setModificationDate(new_date)
+        imail._p_changed = True
+        imail.reindexObject(idxs=['modified'])
         annot = IAnnotations(file)["collective.documentviewer"]
         self.assertEqual(annot["num_pages"], 6)
         self.assertNotEqual(annot["last_updated"], "2010-01-01T00:00:00")
@@ -891,7 +973,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             )
         )
         self.assertTrue(
-            dv_clean(self.portal, date_back=datetime.today().strftime("%Y%m%d")).endswith(
+            dv_clean(self.portal, date_back=(datetime.today() - timedelta(days=365)).strftime("%Y%m%d")).endswith(
                 "Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'"
             )
         )
@@ -908,20 +990,27 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             "description": "Ceci est la description du courrier",
             "mail_date": datetime.today(),
         }
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
+        iemail = sub_create(self.imf, "dmsincoming_email", datetime.today(), "my-id", **params)
         pdf_example_filename = os.path.join(os.path.dirname(__file__), "files", "example.eml")
         with open(pdf_example_filename, "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=u"example.eml")
-            createContentInContainer(
-                imail,
-                "dmsmainfile",
-                title="",
-                file=file_object,
-                scan_id="050999900000010",
-                scan_date=datetime.today(),
-            )
-        file = imail["example.eml"]
-        annot = IAnnotations(file)["collective.documentviewer"]
+            # This prevents the subscriber from executing eml_preview too early in the test
+            with patch("imio.dms.mail.subscribers.eml_preview", new=Mock(return_value=None)):
+                dmsmainfile = createContentInContainer(
+                    iemail,
+                    "dmsmainfile",
+                    title="",
+                    file=file_object,
+                    scan_id="050999900000010",
+                    scan_date=datetime.today(),
+                )
+        annot = IAnnotations(dmsmainfile)
+        self.assertNotIn("successfully_converted", annot)
+
+        eml_preview(dmsmainfile)
+        annot = IAnnotations(dmsmainfile)["collective.documentviewer"]
+
+        self.assertIn("successfully_converted", annot)
 
         self.assertEqual(annot["num_pages"], 1)
         self.assertEqual(annot["successfully_converted"], True)
@@ -930,10 +1019,3 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             [k for k in annot["blob_files"].keys()],
             ["large/dump_1.jpg", "normal/dump_1.jpg", "small/dump_1.jpg"],
         )
-
-        # import ipdb
-
-        # ipdb.set_trace()
-
-        # dv_clean(self.portal, date_back=(datetime.today() + timedelta(days=1)).strftime("%Y%m%d"))
-        # annot = IAnnotations(file)["collective.documentviewer"]
