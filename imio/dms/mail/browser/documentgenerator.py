@@ -171,7 +171,14 @@ class OMDGHelper(BaseDGHelper):
         for relval in om.recipients:
             if relval.isBroken():
                 continue
-            ml.append(relval.to_object)
+            ml_recipent = []
+            if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing"):
+                for send_mode in om.send_modes:
+                    if send_mode.startswith("post"):
+                        ml_recipent.append((relval.to_object, send_mode))
+            if not ml_recipent:
+                ml_recipent.append(relval.to_object)
+            ml.extend(ml_recipent)
         return ml
 
     def is_first_doc(self):

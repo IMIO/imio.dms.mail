@@ -452,6 +452,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_send_modes",
             "omail_fields",
             "omail_group_encoder",
+            "omail_post_mailing",
         ],
     )
 
@@ -523,6 +524,12 @@ class IImioDmsMailConfig(model.Schema):
             u"multiple scanners and separated 'encoder' groups. "
             u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
         ),
+        default=False,
+    )
+
+    omail_post_mailing = schema.Bool(
+        title=_(u"Post mailing"),
+        description=_(u"If True, duplicates mailing for each post sending type."),
         default=False,
     )
 
