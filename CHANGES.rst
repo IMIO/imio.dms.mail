@@ -44,6 +44,8 @@ Changelog
   [sgeulette]
 - Replaced chosen widget by select2
   [sgeulette]
+- Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
+  [chhris-adam]
 
 2.3 (2020-10-08)
 ----------------
