@@ -1879,6 +1879,12 @@ def adaptDefaultPortal(context):
     site.manage_permission("List undoable changes", ("Manager", "Site Administrator"), acquire=0)
     # History: can revert to previous versions
     site.manage_permission("CMFEditions: Revert to previous versions", ("Manager", "Site Administrator"), acquire=0)
+    # imio.pm.wsclient
+    site.manage_permission(
+        "WS Client Access",
+        ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
+        acquire=0)
+    site.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
 
     # History: add history after contact merging.
     # Member needed if the treating_group is changed to another where current user doesn't have rights
@@ -1982,8 +1988,9 @@ def adaptDefaultPortal(context):
     cron_configlet = queryUtility(ICronConfiguration, "cron4plone_config")
     if not cron_configlet.cronjobs:
         # Syntax: m h dom mon command.
-        cron_configlet.cronjobs = [u"45 18 1,15 * portal/@@various-utils/dv_images_clean",
-                                   u"59 3 * * portal/@@various-utils/cron_read_label_handling",]
+        cron_configlet.cronjobs = [
+            u"59 3 * * portal/@@various-utils/cron_read_label_handling",
+        ]
 
     # configure MailHost
     if get_environment() == "prod":
@@ -2383,6 +2390,7 @@ def configure_actions_panel(portal):
             "dmsincoming_email.back_to_treatment|",
             "dmsincoming_email.back_to_agent|",
             "task.back_in_created|",
+            "task.back_in_created2|",
             "task.back_in_to_assign|",
             "task.back_in_to_do|",
             "task.back_in_progress|",

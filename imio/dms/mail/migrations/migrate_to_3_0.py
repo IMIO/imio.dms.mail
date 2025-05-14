@@ -12,7 +12,7 @@ from collective.wfadaptations.api import RECORD_NAME
 from copy import deepcopy
 from datetime import datetime
 from datetime import timedelta
-from dexterity.localroles.utils import fti_configuration
+# from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from eea.facetednavigation.criteria.interfaces import ICriteria
@@ -29,10 +29,10 @@ from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IProtectedItem
+# from imio.dms.mail.setuphandlers import configure_fpaudit
 # from imio.dms.mail.relations_utils import rebuild_relations
 from imio.dms.mail.setuphandlers import add_oem_templates
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
-from imio.dms.mail.setuphandlers import configure_fpaudit
 from imio.dms.mail.setuphandlers import configure_iem_rolefields
 from imio.dms.mail.setuphandlers import createOMailCollections
 from imio.dms.mail.setuphandlers import list_templates
@@ -40,6 +40,8 @@ from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.setuphandlers import setup_classification
 from imio.dms.mail.setuphandlers import update_task_workflow
+# from imio.dms.mail.utils import modifyFileInBlob
+# from imio.dms.mail.utils import PREVIEW_DIR
 # from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import ensure_set_field
@@ -47,8 +49,6 @@ from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import message_status
-from imio.dms.mail.utils import modifyFileInBlob
-from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_solr_config
@@ -69,7 +69,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.i18n.normalizer import IIDNormalizer
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
-from Products.CMFCore.ActionInformation import Action
+# from Products.CMFCore.ActionInformation import Action
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.CPUtils.Extensions.utils import configure_ckeditor
@@ -77,7 +77,7 @@ from Products.CPUtils.Extensions.utils import mark_last_version
 from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zExceptions import Redirect
-from zope.annotation import IAnnotations
+# from zope.annotation import IAnnotations
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.event import notify
@@ -293,7 +293,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             self.runProfileSteps(
                 "imio.dms.mail",
                 profile="examples",
-                steps=["imiodmsmail-configure_imio_dms_mail"],
+                steps=["imiodmsmail-configure-imio-dms-mail"],
                 run_dependencies=False,
             )
             # clean example users wrongly added by previous migration
@@ -555,108 +555,163 @@ class Migrate_To_3_0(Migrator):  # noqa
             #     # new omail_bcc_email_default setting field
             #     self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             # TEMPORARY TO 3.0.60
-            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
-            if active_solr:
-                logger.info("Deactivating solr")
-                api.portal.set_registry_record("collective.solr.active", False)
-            self.install(["imio.fpaudit"])
-            configure_fpaudit(self.portal)
-            self.upgradeProfile("collective.contact.core:default")
-            # create new group
-            if api.group.get("audit_contacts") is None:
-                api.group.create("audit_contacts", "1 Audit contacts")
-            # replace isEml marker by dvConvError and old image by new one
-            brains = self.catalog.unrestrictedSearchResults(portal_type="dmsmainfile", markers="isEml")
-            blobs = []
-            for brain in brains:
-                obj = brain._unrestrictedGetObject()
-                obj.reindexObject(idxs=["markers"])
-                annot = IAnnotations(obj).get("collective.documentviewer", "")
-                btree = annot.get("blob_files")
-                if btree is None:
-                    continue
-                for name in ["large", "normal"]:
-                    blob = btree.get("{}/dump_1.jpg".format(name))
-                    if blob and blob not in blobs:
-                        blobs.append(blob)
-            for blob in blobs:
-                modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
-            # actions and new registry
-            self.runProfileSteps("imio.dms.mail", steps=["actions", "plone.app.registry"])
-            registry = getUtility(IRegistry)
-            to_del_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_manual_forward_transition"
-            if to_del_key in registry.records:
-                old_mft = registry.get(to_del_key, default=None)
-                logger.info("Deleting registry key '{}' with value '{}'".format(to_del_key, old_mft))
-                del registry.records[to_del_key]
-                state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
-                state_set = api.portal.get_registry_record(state_set_key, default=[]) or []
-                if not state_set:
-                    if old_mft == u"agent":
-                        new_mft = u"proposed_to_agent"
-                    elif old_mft == u"manager":
-                        new_mft = u"proposed_to_manager"
-                    elif old_mft == u"n_plus_h":
-                        new_mft = u"_n_plus_h_"
-                    elif old_mft == u"n_plus_l":
-                        new_mft = u"_n_plus_l_"
-                    else:
-                        new_mft = u"created"
-                    state_set.append(
-                        {
-                            u"forward": u"agent",
-                            u"transfer_email_pat": u"",
-                            u"original_email_pat": u"",
-                            u"tal_condition_1": u"",
-                            u"state_value": new_mft
-                        })
-                    api.portal.set_registry_record(state_set_key, state_set)
-                routing_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_routing"
-                routing = api.portal.get_registry_record(routing_key, default=[]) or []
-                routing.append(
-                    {
-                        u"forward": u"agent",
-                        u"transfer_email_pat": u"",
-                        u"original_email_pat": u"",
-                        u"tal_condition_1": u"python: agent_id and 'encodeurs' in modules['imio.dms.mail.utils']."
-                                            u"current_user_groups_ids(userid=agent_id)",
-                        u"user_value": u"_empty_",
-                        u"tal_condition_2": u"",
-                        u"tg_value": u"_empty_",
-                    }
+            # active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+            # if active_solr:
+            #     logger.info("Deactivating solr")
+            #     api.portal.set_registry_record("collective.solr.active", False)
+            # self.install(["imio.fpaudit"])
+            # configure_fpaudit(self.portal)
+            # self.upgradeProfile("collective.contact.core:default")
+            # # create new group
+            # if api.group.get("audit_contacts") is None:
+            #     api.group.create("audit_contacts", "1 Audit contacts")
+            # # replace isEml marker by dvConvError and old image by new one
+            # brains = self.catalog.unrestrictedSearchResults(portal_type="dmsmainfile", markers="isEml")
+            # blobs = []
+            # for brain in brains:
+            #     obj = brain._unrestrictedGetObject()
+            #     obj.reindexObject(idxs=["markers"])
+            #     annot = IAnnotations(obj).get("collective.documentviewer", "")
+            #     btree = annot.get("blob_files")
+            #     if btree is None:
+            #         continue
+            #     for name in ["large", "normal"]:
+            #         blob = btree.get("{}/dump_1.jpg".format(name))
+            #         if blob and blob not in blobs:
+            #             blobs.append(blob)
+            # for blob in blobs:
+            #     modifyFileInBlob(blob, os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
+            # # actions and new registry
+            # self.runProfileSteps("imio.dms.mail", steps=["actions", "plone.app.registry"])
+            # registry = getUtility(IRegistry)
+            # to_del_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_manual_forward_transition"
+            # if to_del_key in registry.records:
+            #     old_mft = registry.get(to_del_key, default=None)
+            #     logger.info("Deleting registry key '{}' with value '{}'".format(to_del_key, old_mft))
+            #     del registry.records[to_del_key]
+            #     state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
+            #     state_set = api.portal.get_registry_record(state_set_key, default=[]) or []
+            #     if not state_set:
+            #         if old_mft == u"agent":
+            #             new_mft = u"proposed_to_agent"
+            #         elif old_mft == u"manager":
+            #             new_mft = u"proposed_to_manager"
+            #         elif old_mft == u"n_plus_h":
+            #             new_mft = u"_n_plus_h_"
+            #         elif old_mft == u"n_plus_l":
+            #             new_mft = u"_n_plus_l_"
+            #         else:
+            #             new_mft = u"created"
+            #         state_set.append(
+            #             {
+            #                 u"forward": u"agent",
+            #                 u"transfer_email_pat": u"",
+            #                 u"original_email_pat": u"",
+            #                 u"tal_condition_1": u"",
+            #                 u"state_value": new_mft
+            #             })
+            #         api.portal.set_registry_record(state_set_key, state_set)
+            #     routing_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_routing"
+            #     routing = api.portal.get_registry_record(routing_key, default=[]) or []
+            #     routing.append(
+            #         {
+            #             u"forward": u"agent",
+            #             u"transfer_email_pat": u"",
+            #             u"original_email_pat": u"",
+            #             u"tal_condition_1": u"python: agent_id and 'encodeurs' in modules['imio.dms.mail.utils']."
+            #                                 u"current_user_groups_ids(userid=agent_id)",
+            #             u"user_value": u"_empty_",
+            #             u"tal_condition_2": u"",
+            #             u"tg_value": u"_empty_",
+            #         }
+            #     )
+            #     routing.append(
+            #         {
+            #             u"forward": u"agent",
+            #             u"transfer_email_pat": u"",
+            #             u"original_email_pat": u"",
+            #             u"tal_condition_1": u"",
+            #             u"user_value": u"_transferer_",
+            #             u"tal_condition_2": u"",
+            #             u"tg_value": u"_hp_",
+            #         })
+            #     api.portal.set_registry_record(routing_key, routing)
+            # # cron4plone settings
+            # cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
+            # if not [cj for cj in cron_configlet.cronjobs or [] if "cron_read_label_handling" in cj]:
+            #     if not cron_configlet.cronjobs:
+            #         cron_configlet.cronjobs = []
+            #     # Syntax: m h dom mon command.
+            #     cron_configlet.cronjobs.append(u"59 3 * * portal/@@various-utils/cron_read_label_handling")
+            #     cron_configlet._p_changed = True
+            # # localroles settings correction
+            # lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
+            # lrs = lr["static_config"]
+            # change = False
+            # for state in lrs:
+            #     if "encodeurs" not in lrs[state]:
+            #         continue
+            #     if lrs[state]["encodeurs"]["roles"] == ["Reader"]:
+            #         del lrs[state]["encodeurs"]
+            #         change = True
+            # if change:
+            #     fti.localroles._p_changed = True
+            #     update_security_index(["dmsoutgoingmail"])
+            # TEMPORARY TO 3.0.61
+            # set versioning again after transmogrifier possible mislead
+            pr_tool = api.portal.get_tool("portal_repository")
+            if not pr_tool._versionable_content_types:
+                pr_tool._versionable_content_types = [u'ATDocument', u'ATNewsItem', u'Document', u'Event', u'Link',
+                                                      u'News Item', u'dmsincomingmail', u'dmsincoming_email',
+                                                      u'dmsoutgoingmail', u'task']
+            if not pr_tool._version_policy_mapping:
+                pr_tool._version_policy_mapping = {u'dmsoutgoingmail': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'task': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'ATDocument': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'dmsincomingmail': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'ATNewsItem': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'Document': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'dmsincoming_email': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'Link': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'News Item': [u'at_edit_autoversion', u'version_on_revert'],
+                                                   u'Event': [u'at_edit_autoversion', u'version_on_revert']}
+            # added missing value in config
+            key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
+            values = list(api.portal.get_registry_record(key, default=[]))
+            if values and "task.back_in_created2|" not in values:
+                values.append("task.back_in_created2|")
+                api.portal.set_registry_record(key, values)
+
+            # Update config wsclient to Delib
+            self.upgradeProfile("imio.pm.wsclient:default")
+            from imio.pm.wsclient.browser.vocabularies import pm_item_data_vocabulary
+
+            rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
+            rvalue = api.portal.get_registry_record(rkey, default=None)
+            fns = [dic["field_name"] for dic in rvalue or []]
+            if fns and u"ignore_validation_for" not in fns:
+                fns.append(u"ignore_validation_for")
+                orig_call = pm_item_data_vocabulary.__call__
+                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
+                    [SimpleTerm(fn) for fn in fns]
                 )
-                routing.append(
-                    {
-                        u"forward": u"agent",
-                        u"transfer_email_pat": u"",
-                        u"original_email_pat": u"",
-                        u"tal_condition_1": u"",
-                        u"user_value": u"_transferer_",
-                        u"tal_condition_2": u"",
-                        u"tg_value": u"_hp_",
-                    })
-                api.portal.set_registry_record(routing_key, routing)
+                rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
+                api.portal.set_registry_record(rkey, rvalue)
+                pm_item_data_vocabulary.__call__ = orig_call
+            # imio.pm.wsclient
+            self.portal.manage_permission(
+                "WS Client Access",
+                ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
+                acquire=0)
+            self.portal.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
+
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
-            if not [cj for cj in cron_configlet.cronjobs or [] if "cron_read_label_handling" in cj]:
-                if not cron_configlet.cronjobs:
-                    cron_configlet.cronjobs = []
-                # Syntax: m h dom mon command.
-                cron_configlet.cronjobs.append(u"59 3 * * portal/@@various-utils/cron_read_label_handling")
+            if u"45 18 1,15 * portal/@@various-utils/dv_images_clean" in cron_configlet.cronjobs:
+                index = cron_configlet.cronjobs.index(u"45 18 1,15 * portal/@@various-utils/dv_images_clean")
+                cron_configlet.cronjobs.pop(index)
                 cron_configlet._p_changed = True
-            # localroles settings correction
-            lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
-            lrs = lr["static_config"]
-            change = False
-            for state in lrs:
-                if "encodeurs" not in lrs[state]:
-                    continue
-                if lrs[state]["encodeurs"]["roles"] == ["Reader"]:
-                    del lrs[state]["encodeurs"]
-                    change = True
-            if change:
-                fti.localroles._p_changed = True
-                update_security_index(["dmsoutgoingmail"])
+
             # END
 
             finished = True  # can be eventually returned and set by batched method
@@ -711,26 +766,26 @@ class Migrate_To_3_0(Migrator):  # noqa
                 )
                 self.portal["templates"].moveObjectToPosition("d-im-listing-tab-details", 4)  # TEMPORARY
                 # add audit_log action 3.0.60  TEMPORARY
-                category = self.portal.portal_actions.get('user')
-                if "audit-contacts" not in category.objectIds():
-                    uid = self.portal.templates["audit-contacts"].UID()
-                    action = Action(
-                        "audit-contacts",
-                        title="Audit contacts",
-                        i18n_domain="imio.dms.mail",
-                        url_expr="string:${{portal_url}}/document-generation?template_uid={}&"
-                                 "output_format=ods".format(uid),
-                        available_expr="python:context.restrictedTraverse('@@various-utils').is_in_user_groups("
-                                       "['audit_contacts'], user=member)",
-                        permissions=("View",),
-                        visible=False,
-                    )
-                    category._setObject("audit-contacts", action)
-                    pos = category.getObjectPosition("logout")
-                    category.moveObjectToPosition("audit-contacts", pos)
-            if active_solr:
-                logger.info("Activating solr")
-                api.portal.set_registry_record("collective.solr.active", True)
+                # category = self.portal.portal_actions.get('user')
+                # if "audit-contacts" not in category.objectIds():
+                #     uid = self.portal.templates["audit-contacts"].UID()
+                #     action = Action(
+                #         "audit-contacts",
+                #         title="Audit contacts",
+                #         i18n_domain="imio.dms.mail",
+                #         url_expr="string:${{portal_url}}/document-generation?template_uid={}&"
+                #                  "output_format=ods".format(uid),
+                #         available_expr="python:context.restrictedTraverse('@@various-utils').is_in_user_groups("
+                #                        "['audit_contacts'], user=member)",
+                #         permissions=("View",),
+                #         visible=False,
+                #     )
+                #     category._setObject("audit-contacts", action)
+                #     pos = category.getObjectPosition("logout")
+                #     category.moveObjectToPosition("audit-contacts", pos)
+            # if active_solr:
+            #     logger.info("Activating solr")
+            #     api.portal.set_registry_record("collective.solr.active", True)
 
         if self.is_in_part("s"):  # update quick installer
             for prod in [
@@ -1400,11 +1455,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record("imio.dms.mail.imail_folder_period", u"week")
         if not api.portal.get_registry_record("imio.dms.mail.omail_folder_period"):
             api.portal.set_registry_record("imio.dms.mail.omail_folder_period", u"week")
-        # cron4plone settings
-        cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
-        if not cron_configlet.cronjobs:
-            # Syntax: m h dom mon command.
-            cron_configlet.cronjobs = [u"45 18 1,15 * portal/@@various-utils/dv_images_clean"]
         # update actionspanel transitions config
         key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
         values = api.portal.get_registry_record(key)

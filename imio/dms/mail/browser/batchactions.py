@@ -120,7 +120,7 @@ class IMSenderBatchActionForm(ContactBaseBatchActionForm):
 
     label = _(u"Batch sender contact field change")
     weight = 60
-    available_permission = "Modify portal content"
+    perms = ("imio.dms.mail: Write mail base fields", "Modify portal content")
     attribute = "sender"
     field_value_type = ContactChoice(
         source=DmsContactSourceBinder(
@@ -179,7 +179,7 @@ class RecipientsBatchActionForm(ContactBaseBatchActionForm):
 
     label = _(u"Batch recipients contact field change")
     weight = 60
-    available_permission = "Modify portal content"
+    perms = ("imio.dms.mail: Write mail base fields", "Modify portal content")
     attribute = "recipients"
     field_value_type = ContactChoice(
         source=DmsContactSourceBinder(

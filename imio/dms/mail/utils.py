@@ -139,7 +139,7 @@ def set_dms_config(keys=None, value="list", force=True):
             return annot[key]
 
 
-def get_dms_config(keys=None):
+def get_dms_config(keys=None, missing_key_handling=False, missing_key_value=None):
     """
     Return annotation value from keys list.
     First key 'imio.dms.mail' is implicitly added.
@@ -149,6 +149,8 @@ def get_dms_config(keys=None):
         keys = []
     keys.insert(0, "imio.dms.mail")
     for key in keys:
+        if missing_key_handling and key not in annot:
+            return missing_key_value
         annot = annot[key]
     return annot
 
@@ -394,8 +396,8 @@ def list_wf_states(context, portal_type):
             "closed",
         ],
         "task": ["created", "to_assign", "to_do", "in_progress", "realized", "closed"],
-        "dmsoutgoingmail": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_be_signed", "sent"],
-        "dmsoutgoing_email": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_be_signed", "sent"],
+        "dmsoutgoingmail": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed", "sent"],
+        "dmsoutgoing_email": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed", "sent"],
         "organization": ["active", "deactivated"],
         "person": ["active", "deactivated"],
         "held_position": ["active", "deactivated"],
@@ -783,7 +785,7 @@ class VariousUtilsMethods(UtilsMethods):
         portal = self.context
         start = datetime(1973, 2, 12)
         catalog = portal.portal_catalog
-        dic = get_dms_config(["read_label_cron"])
+        dic = get_dms_config(["read_label_cron"], missing_key_handling=True, missing_key_value={})
         count = 0
         for userid in dic.keys():
             if api.user.get(userid=userid) is None:

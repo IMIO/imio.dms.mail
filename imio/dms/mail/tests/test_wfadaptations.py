@@ -48,7 +48,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         # the modified dmsconfig is kept globally
         reset_dms_config()
 
-    def old_test_OMToPrintAdaptation(self):
+    def test_OMToPrintAdaptation(self):
         """Test wf adaptation modifications"""
         tpa = OMToPrintAdaptation()
         tpa.patch_workflow("outgoingmail_workflow")
@@ -78,7 +78,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
             set(self.omw.states["to_be_signed"].transitions), {"back_to_creation", "back_to_print", "mark_as_sent"}
         )
         self.assertSetEqual(
-            set(self.omw.states["sent"].transitions), {"back_to_be_signed", "back_to_scanned", "back_to_creation"}
+            set(self.omw.states["sent"].transitions), {"back_to_print", "back_to_be_signed", "back_to_scanned", "back_to_creation"}
         )
         # various
         fti = getUtility(IDexterityFTI, name="dmsoutgoingmail")
@@ -89,15 +89,15 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertIn("searchfor_to_print", self.portal["outgoing-mail"]["mail-searches"])
         folder = self.portal["outgoing-mail"]["mail-searches"]
         self.assertIn("to_print", [dic["v"] for dic in folder["om_treating"].query if dic["i"] == "review_state"][0])
-        self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 10)
-        self.assertEqual(folder.getObjectPosition("searchfor_to_print"), 9)
+        self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 11)
+        self.assertEqual(folder.getObjectPosition("searchfor_to_print"), 10)
         factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
         self.assertEqual(len(factory(self.portal)), 5)
 
     def common_tests(self):
         # check workflow
         self.assertSetEqual(
-            set(self.omw.states), {"created", "scanned", "proposed_to_n_plus_1", "to_print", "to_be_signed", "sent"}
+            set(self.omw.states), {"created", "scanned", "to_print", "to_be_signed", "sent"}
         )
         self.assertSetEqual(
             set(self.omw.transitions),
@@ -105,11 +105,9 @@ class TestOMToPrintAdaptation(unittest.TestCase):
                 "back_to_creation",
                 "back_to_agent",
                 "back_to_scanned",
-                "back_to_n_plus_1",
                 "back_to_print",
                 "back_to_be_signed",
                 "set_scanned",
-                "propose_to_n_plus_1",
                 "set_to_print",
                 "propose_to_be_signed",
                 "mark_as_sent",
@@ -117,76 +115,46 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         )
         self.assertSetEqual(
             set(self.omw.states["created"].transitions),
-            {"set_scanned", "propose_to_n_plus_1", "set_to_print", "propose_to_be_signed", "mark_as_sent"},
+            {"set_scanned", "set_to_print", "propose_to_be_signed", "mark_as_sent"},
         )
         self.assertSetEqual(set(self.omw.states["scanned"].transitions), {"back_to_agent", "mark_as_sent"})
         self.assertSetEqual(
-            set(self.omw.states["proposed_to_n_plus_1"].transitions),
-            {"back_to_creation", "set_to_print", "propose_to_be_signed", "mark_as_sent"},
-        )
-        self.assertSetEqual(
             set(self.omw.states["to_print"].transitions),
-            {"back_to_creation", "back_to_n_plus_1", "propose_to_be_signed"},
+            {"back_to_creation", "propose_to_be_signed"},
         )
         self.assertSetEqual(
             set(self.omw.states["to_be_signed"].transitions),
-            {"back_to_creation", "back_to_n_plus_1", "back_to_print", "mark_as_sent"},
+            {"back_to_creation", "back_to_print", "mark_as_sent"},
         )
         self.assertSetEqual(
             set(self.omw.states["sent"].transitions),
-            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "back_to_n_plus_1"},
+            {"back_to_print", "back_to_be_signed", "back_to_scanned", "back_to_creation"},
         )
         # check collection position
         folder = self.portal["outgoing-mail"]["mail-searches"]
         self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 11)
         self.assertEqual(folder.getObjectPosition("searchfor_to_print"), 10)
-        self.assertEqual(folder.getObjectPosition("searchfor_proposed_to_n_plus_1"), 9)
         res = [dic["v"] for dic in folder["om_treating"].query if dic["i"] == "review_state"][0]
         self.assertIn("to_print", res)
-        self.assertIn("proposed_to_n_plus_1", res)
         # check dms config
-        view = OdmUtilsMethods(self.omail, self.omail.REQUEST)
         change_user(self.portal, "test-user")
         setRoles(self.portal, TEST_USER_ID, ["Reviewer", "Manager"])
         # no treating_groups: NOK
         self.assertIsNone(self.omail.treating_groups)
-        self.assertFalse(view.can_do_transition("propose_to_n_plus_1"))
-        self.assertFalse(view.can_do_transition("back_to_n_plus_1"))
-        # tg ok, no user in group
-        self.omail.treating_groups = get_registry_organizations()[0]
-        groupname = "{}_n_plus_1".format(self.omail.treating_groups)
-        api.group.remove_user(groupname=groupname, username="chef")
-        self.assertFalse(group_has_user(groupname))
-        self.assertFalse(view.can_do_transition("propose_to_n_plus_1"))
-        # tg ok, user in group
-        api.group.add_user(groupname=groupname, username="chef")
-        self.assertTrue(group_has_user(groupname))
-        self.assertTrue(view.can_do_transition("propose_to_n_plus_1"))
-        # we do transition
-        api.content.transition(self.omail, transition="propose_to_n_plus_1")
-        createContentInContainer(self.omail, "dmsommainfile")  # add a file so it's possible to do transition
-        api.content.transition(self.omail, transition="set_to_print")
-        self.assertEqual(api.content.get_state(self.omail), "to_print")
-        # tg ok, user in group
-        self.assertTrue(view.can_do_transition("back_to_n_plus_1"))
-        # tg ok, no user in group
-        api.group.remove_user(groupname=groupname, username="chef")
-        self.assertFalse(group_has_user(groupname))
-        self.assertFalse(view.can_do_transition("back_to_n_plus_1"))
 
-    def old_test_OMToPrintAdaptationBeforeNp1(self):
+    def test_OMToPrintAdaptationBeforeNp1(self):
         """Test wf adaptation modifications"""
         tpa = OMToPrintAdaptation()
         tpa.patch_workflow("outgoingmail_workflow")
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
         )
         self.common_tests()
 
-    def old_test_OMToPrintAdaptationAfterNp1(self):
+    def test_OMToPrintAdaptationAfterNp1(self):
         """Test wf adaptation modifications"""
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
         )
         tpa = OMToPrintAdaptation()
         tpa.patch_workflow("outgoingmail_workflow")
