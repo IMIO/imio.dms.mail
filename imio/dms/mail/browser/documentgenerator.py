@@ -142,7 +142,7 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
         for i in range(0, nb - 1):
             ret[i] = parts[i]
         if len(parts) >= nb:
-            ret[-1] = sep.join(parts[nb - 1 :])
+            ret[-1] = sep.join(parts[nb - 1:])
         return ret
 
 
@@ -164,22 +164,33 @@ class OMDGHelper(BaseDGHelper):
         return dic
 
     def mailing_list(self, gen_context=None):
+        """Returns a list of tuples (contact, send_mode) for send_mode starting with post."""
         om = self.real_context
         if not om.recipients:
             return []
-        ml = []
+
+        post_modes = []
+        if api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing",
+            default=False,
+        ):
+            post_modes = [mode for mode in om.send_modes or [] if mode.startswith("post")]
+
+        mailing_list = []
         for relval in om.recipients:
             if relval.isBroken():
                 continue
-            ml_recipent = []
-            if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing"):
-                for send_mode in om.send_modes:
-                    if send_mode.startswith("post"):
-                        ml_recipent.append((relval.to_object, send_mode))
-            if not ml_recipent:
-                ml_recipent.append(relval.to_object)
-            ml.extend(ml_recipent)
-        return ml
+            for mode in post_modes or [None]:
+                mailing_list.append((relval.to_object, mode))
+        return mailing_list
+
+    def mailed_context(self, mailed_data):
+        """Modify context to separate mailing_list tuple."""
+        new_context = super(OMDGHelper, self).mailed_context(mailed_data)
+        (contact, send_mode) = new_context['mailed_data']
+        new_context['mailed_data'] = contact
+        new_context['send_mode'] = send_mode
+        return new_context
 
     def is_first_doc(self):
         """in mailing context"""
@@ -340,7 +351,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
             id += 1
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
-            path = brain.getPath()[self.dp_len :]
+            path = brain.getPath()[self.dp_len:]
             parts = path.split("/")
             p_path = "/".join(parts[:-1])
             paths[path] = id
@@ -362,7 +373,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
         ):
             id += 1
             self.uids[brain.UID] = id
-            self.pers[brain.getPath()[self.dp_len :]] = id
+            self.pers[brain.getPath()[self.dp_len:]] = id
             obj = brain._unrestrictedGetObject()
             lst.append((id, obj))
         return lst
@@ -381,7 +392,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
             # pers id
-            path = brain.getPath()[self.dp_len :]
+            path = brain.getPath()[self.dp_len:]
             parts = path.split("/")
             p_path = "/".join(parts[:-1])
             p_id = self.pers[p_path]
