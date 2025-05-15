@@ -450,9 +450,9 @@ class IImioDmsMailConfig(model.Schema):
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
             "omail_send_modes",
+            "omail_post_mailing",
             "omail_fields",
             "omail_group_encoder",
-            "omail_post_mailing",
         ],
     )
 
@@ -483,20 +483,6 @@ class IImioDmsMailConfig(model.Schema):
         default=True,
     )
 
-    omail_fields = schema.List(
-        title=_(u"${type} fields display", mapping={"type": _("Outgoing mail")}),
-        description=_(u"Configure this carefully. You can order with arrows."),
-        required=False,
-        value_type=DictRow(title=_(u"Field"), schema=IOMFieldsSchema, required=False),
-    )
-    widget(
-        "omail_fields",
-        DataGridFieldFactory,
-        display_table_css_class="listing",
-        allow_reorder=True,
-        auto_append=False,
-    )
-
     omail_fullname_used_form = schema.Choice(
         title=_(u"User fullname used format"),
         vocabulary=fullname_forms,
@@ -513,6 +499,26 @@ class IImioDmsMailConfig(model.Schema):
 
     widget("omail_send_modes", DataGridFieldFactory, allow_reorder=True)
 
+    omail_post_mailing = schema.Bool(
+        title=_(u"Post mailing"),
+        description=_(u"Do mailing for each postal sending type."),
+        default=False,
+    )
+
+    omail_fields = schema.List(
+        title=_(u"${type} fields display", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Configure this carefully. You can order with arrows."),
+        required=False,
+        value_type=DictRow(title=_(u"Field"), schema=IOMFieldsSchema, required=False),
+    )
+    widget(
+        "omail_fields",
+        DataGridFieldFactory,
+        display_table_css_class="listing",
+        allow_reorder=True,
+        auto_append=False,
+    )
+
     omail_group_encoder = schema.Bool(
         title=_(u"Activate group encoder"),
         description=_(
@@ -524,12 +530,6 @@ class IImioDmsMailConfig(model.Schema):
             u"multiple scanners and separated 'encoder' groups. "
             u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
         ),
-        default=False,
-    )
-
-    omail_post_mailing = schema.Bool(
-        title=_(u"Post mailing"),
-        description=_(u"If True, duplicates mailing for each post sending type."),
         default=False,
     )
 
