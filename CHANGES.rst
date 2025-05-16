@@ -459,6 +459,17 @@ Changelog
   [sgeulette]
 - Added receipt document
   [sgeulette]
+<<<<<<< HEAD
+=======
+- Added labels criterion
+  [sgeulette]
+- Replaced chosen widget by select2
+  [sgeulette]
+- Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
+  [chris-adam]
+- Chnaged file read adapter for annexes
+  [chris-adam]
+>>>>>>> 59dc1f23 (Fixed file read for annexes)
 
 2.3 (2020-10-08)
 ----------------
