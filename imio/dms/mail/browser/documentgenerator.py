@@ -199,6 +199,20 @@ class OMDGHelper(BaseDGHelper):
             return False
         return True
 
+    def display_send_modes(self):
+        """Return a list of send modes to display in the template."""
+        send_modes = []
+        if self.real_context.send_modes:
+            for mode in self.real_context.send_modes:
+                if mode.startswith("post"):
+                    send_modes.append(mode)
+        return send_modes
+    
+    # def display_voc(self, field_name, separator=', '):
+        # field_renderer = self.get_field_renderer(field_name)
+        # field_renderer.exportable.separator = separator
+        # return field_renderer.render_value()
+
 
 class DashboardDGBaseHelper:  # noqa
     """
