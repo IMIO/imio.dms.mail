@@ -45,7 +45,9 @@ Changelog
 - Replaced chosen widget by select2
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
-  [chhris-adam]
+  [chris-adam]
+- Chnaged file read adapter for annexes
+  [chris-adam]
 
 2.3 (2020-10-08)
 ----------------
