@@ -712,6 +712,11 @@ class Migrate_To_3_0(Migrator):  # noqa
                 cron_configlet.cronjobs.pop(index)
                 cron_configlet._p_changed = True
 
+            # Settings for imio.dms.mail
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing", False
+            )
+
             # END
 
             finished = True  # can be eventually returned and set by batched method

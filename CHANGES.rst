@@ -46,6 +46,8 @@ Changelog
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
   [chhris-adam]
+- Added setting to duplicate publipostage if multiple post sending types are checked.
+  [chhris-adam]
 
 2.3 (2020-10-08)
 ----------------
