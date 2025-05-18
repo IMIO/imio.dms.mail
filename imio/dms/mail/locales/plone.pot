@@ -182,6 +182,9 @@ msgstr ""
 msgid "om_back_to_creation"
 msgstr ""
 
+msgid "om_back_to_print"
+msgstr "Remettre à imprimer"
+
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_scanned"
 msgstr ""
@@ -213,12 +216,18 @@ msgstr ""
 msgid "om_set_scanned"
 msgstr ""
 
+msgid "om_set_to_print"
+msgstr "Mettre à imprimer"
+
 msgid "om_set_validated"
 msgstr ""
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"
 msgstr ""
+
+msgid "om_to_print"
+msgstr "À imprimer"
 
 msgid "om_validated"
 msgstr ""
