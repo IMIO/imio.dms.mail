@@ -45,9 +45,9 @@ Changelog
 - Replaced chosen widget by select2
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
-  [chhris-adam]
+  [sgeulette, chris-adam]
 - Added setting to duplicate publipostage if multiple post sending types are checked.
-  [chhris-adam]
+  [sgeulette, chris-adam]
 
 2.3 (2020-10-08)
 ----------------
