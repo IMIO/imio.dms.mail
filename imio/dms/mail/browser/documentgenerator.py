@@ -22,7 +22,9 @@ from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getUtility
 from zope.i18n import translate
+from zope.schema.interfaces import IVocabularyFactory
 
 import operator
 
@@ -199,19 +201,25 @@ class OMDGHelper(BaseDGHelper):
             return False
         return True
 
-    def display_send_modes(self):
-        """Return a list of send modes to display in the template."""
+    def display_send_modes(self, separator=u", ", filter_on=None):
+        """Return a list of send modes to display in the template.
+
+        :param separator: separator to join values
+        :param filter_on: list of send modes to filter on
+        :return: string of send modes titles
+        """
         send_modes = []
+        if filter_on is None:
+            filter_on = []
         if self.real_context.send_modes:
+            factory = getUtility(IVocabularyFactory, "imio.dms.mail.OMSendModesVocabulary")
+            vocab = factory(None)
             for mode in self.real_context.send_modes:
-                if mode.startswith("post"):
-                    send_modes.append(mode)
-        return send_modes
-    
-    # def display_voc(self, field_name, separator=', '):
-        # field_renderer = self.get_field_renderer(field_name)
-        # field_renderer.exportable.separator = separator
-        # return field_renderer.render_value()
+                if mode.startswith("post") and filter_on and mode not in filter_on:
+                    continue
+                term = vocab.getTerm(mode)
+                send_modes.append(term.title)
+        return separator.join(send_modes)
 
 
 class DashboardDGBaseHelper:  # noqa
