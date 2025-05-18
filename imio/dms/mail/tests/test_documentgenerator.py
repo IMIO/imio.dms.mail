@@ -85,9 +85,19 @@ class TestDocumentGenerator(unittest.TestCase):
         view1.real_context.sender = backup
 
         # Test mailing_list method
-        self.assertListEqual(view1.mailing_list(), [self.ctct["electrabel"]])
-        view1.real_context.recipients.append(RelationValue(self.intids.getId(self.electrabel)))
-        self.assertListEqual(view1.mailing_list(), [self.ctct["electrabel"], self.electrabel])
+        self.assertListEqual(view1.real_context.send_modes, [u"post"])
+        self.assertListEqual(view1.mailing_list(), [(self.electrabel, u"post")])
+        view1.real_context.send_modes = [u"post", u"post_registered"]
+        self.assertListEqual(
+            view1.mailing_list(),
+            [(self.electrabel, u"post"), (self.electrabel, u"post_registered")],
+        )
+        view1.real_context.recipients.append(RelationValue(self.intids.getId(self.jc)))
+        self.assertListEqual(
+            view1.mailing_list(),
+            [(self.electrabel, u"post"), (self.electrabel, u"post_registered"),
+             (self.jc, u"post"), (self.jc, u"post_registered")],
+        )
         backup = view1.real_context.recipients[0]
         view1.real_context.recipients = None
         self.assertListEqual(view1.mailing_list(), [])
@@ -244,8 +254,8 @@ class TestDocumentGenerator(unittest.TestCase):
         view = self.ctct["orgs-searches"].unrestrictedTraverse("@@document_generation_helper_view")
         # Test get_organisations
         res = [
-            (1, "", self.ctct["electrabel"]),
-            (2, 1, self.ctct["electrabel"]["travaux"]),
+            (1, "", self.electrabel),
+            (2, 1, self.electrabel["travaux"]),
             (3, "", self.ctct["plonegroup-organization"]),
             (4, 3, self.ctct["plonegroup-organization"]["college-communal"]),
         ]
