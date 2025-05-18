@@ -690,19 +690,17 @@ class Migrate_To_3_0(Migrator):  # noqa
             rvalue = api.portal.get_registry_record(rkey, default=None)
             fns = [dic["field_name"] for dic in rvalue or []]
             if fns:
-                orig_call = pm_item_data_vocabulary.__call__
-                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
-                    [SimpleTerm(fn) for fn in fns]
-                )
-
                 if u"ignore_validation_for" not in fns:
                     fns.append(u"ignore_validation_for")
                     rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
                 if u"annexes" in fns:
                     fns.remove(u"annexes")
                     rvalue = [item for item in rvalue if item["field_name"] != u"annexes"]
+                orig_call = pm_item_data_vocabulary.__call__
+                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
+                    [SimpleTerm(fn) for fn in fns]
+                )
                 api.portal.set_registry_record(rkey, rvalue)
-
                 pm_item_data_vocabulary.__call__ = orig_call
 
             # imio.pm.wsclient
