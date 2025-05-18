@@ -502,7 +502,7 @@ class IImioDmsMailConfig(model.Schema):
     omail_post_mailing = schema.Bool(
         title=_(u"Post mailing"),
         description=_(u"Do mailing for each postal sending type."),
-        default=False,
+        default=True,
     )
 
     omail_fields = schema.List(
