@@ -18,7 +18,9 @@ from imio.helpers.emailer import get_mail_host
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
+from imio.helpers.xhtml import object_link
 from plone import api
+from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.PageTemplates.Expressions import SecureModuleImporter
@@ -30,6 +32,7 @@ from zope.interface import implements
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
+import base64
 import json
 
 
@@ -451,3 +454,28 @@ class PlusPortaltabContent(BrowserView):
             sort_on="getObjPositionInParent",
         )
         return [(b.Title, b.getURL()) for b in res if b.portal_type not in self.excluded_types]
+
+
+class DmsMailRestClientView(BrowserView):
+    """Adapts an incomingmail to prepare data to exchange within imio.pm.wsclient"""
+
+    def get_main_files(self):
+        pc = getToolByName(self.context, "portal_catalog")
+        res = []
+        for brain in pc(
+            portal_type=("dmsmainfile", "dmsommainfile", "dmsappendixfile"),
+            path="/".join(self.context.getPhysicalPath()),
+        ):
+            obj = brain.getObject()
+            res.append(
+                {
+                    "title": safe_unicode(obj.title),
+                    "filename": safe_unicode(obj.file.filename),
+                    "file": base64.b64encode(obj.file.data),
+                }
+            )
+        return res
+
+    def detailed_description(self):
+        """Return a link to current object"""
+        return u"<p>Fiche courrier liée: %s</p>" % object_link(self.context, target="_blank")

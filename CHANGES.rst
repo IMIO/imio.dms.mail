@@ -46,6 +46,8 @@ Changelog
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
   [chhris-adam]
+- Uninstalled imio.dms.soap2pm
+  [chris-adam]
 
 2.3 (2020-10-08)
 ----------------
