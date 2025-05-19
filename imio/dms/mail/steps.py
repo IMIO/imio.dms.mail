@@ -526,7 +526,6 @@ def configure_wsclient(context):
                 SimpleTerm(u"title"),
                 SimpleTerm(u"description"),
                 SimpleTerm(u"detailedDescription"),
-                SimpleTerm(u"annexes"),
             ]
         )
         api.portal.set_registry_record(
@@ -541,7 +540,6 @@ def configure_wsclient(context):
                 },
                 # {'field_name': u'detailedDescription',
                 #  'expression': u'context/@@IncomingmailRestWSClient/detailed_description'},
-                {"field_name": u"annexes", "expression": u"context/@@IncomingmailRestWSClient/get_main_files"},
             ],
         )
         # u'string: ${context/@@ProjectWSClient/description}<br />${context/@@ProjectWSClient/detailed_description}'

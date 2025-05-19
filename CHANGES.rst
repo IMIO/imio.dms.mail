@@ -45,7 +45,9 @@ Changelog
 - Replaced chosen widget by select2
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
-  [chhris-adam]
+  [chris-adam]
+- Changed file read adapter for annexes
+  [chris-adam]
 - Uninstalled imio.dms.soap2pm
   [chris-adam]
 
