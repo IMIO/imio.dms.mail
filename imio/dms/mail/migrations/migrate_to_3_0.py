@@ -695,17 +695,26 @@ class Migrate_To_3_0(Migrator):  # noqa
                     fns.remove(u"annexes")
                     rvalue = [item for item in rvalue if item["field_name"] != u"annexes"]
                 orig_call = pm_item_data_vocabulary.__call__
-                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
-                    [SimpleTerm(fn) for fn in fns]
-                )
+                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary([SimpleTerm(fn) for fn in fns])
+                rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
                 api.portal.set_registry_record(rkey, rvalue)
                 pm_item_data_vocabulary.__call__ = orig_call
+            # Rename IncomingmailWSClient to IncomingmailRestWSClient in imio.pm.wsclient field mappings
+            orig_call = pm_item_data_vocabulary.__call__
+            pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary([SimpleTerm(fn) for fn in fns])
+            for field_mapping in rvalue:
+                field_mapping["expression"] = field_mapping["expression"].replace(
+                    "@@IncomingmailWSClient", "@@IncomingmailRestWSClient"
+                )
+            api.portal.set_registry_record(rkey, rvalue)
+            pm_item_data_vocabulary.__call__ = orig_call
 
             # imio.pm.wsclient
             self.portal.manage_permission(
                 "WS Client Access",
                 ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
-                acquire=0)
+                acquire=0,
+            )
             self.portal.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
@@ -718,6 +727,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record(
                 "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing", False
             )
+            # Uninsall imio.dms.soap2pm
+            installer = api.portal.get_tool("portal_quickinstaller")
+            installer.uninstallProducts(["collective.js.tooltipster"])
             # END
 
             finished = True  # can be eventually returned and set by batched method

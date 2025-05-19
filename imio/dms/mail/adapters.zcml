@@ -218,8 +218,11 @@
         factory=".adapters.ServiceInChargeAdapter"
         />
 
+    <!-- REST adapters -->
     <adapter
-        factory=".adapters.ServiceInCopyAdapter"
+        factory=".adapters.SendableAnnexesToPMAdapter"
+        provides="imio.pm.wsclient.interfaces.ISendableAnnexesToPM"
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
         />
 
 
