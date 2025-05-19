@@ -211,6 +211,8 @@ class OMDGHelper(BaseDGHelper):
         send_modes = []
         if filter_on is None:
             filter_on = []
+        if not isinstance(filter_on, (list, tuple)):
+            filter_on = [filter_on]
         if self.real_context.send_modes:
             factory = getUtility(IVocabularyFactory, "imio.dms.mail.OMSendModesVocabulary")
             vocab = factory(None)
