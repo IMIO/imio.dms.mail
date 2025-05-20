@@ -172,6 +172,33 @@ class TestDocumentGenerator(unittest.TestCase):
         )
         self.assertRaises(IndexError, view1.separate_full_title, u"Direction", nb=0)
 
+        # Test mailed_context
+        view1.appy_renderer = mocker.Mocker().mock()
+        mocker.expect(view1.appy_renderer.contentParser.env.context).result({}).replay()
+        ctx = (self.electrabel, u"post")
+        ctx = view1.mailed_context(ctx)
+        self.assertEqual(ctx["mailed_data"], self.electrabel)
+        self.assertEqual(ctx["send_mode"], u"post")
+
+        view1.appy_renderer = mocker.Mocker().mock()
+        mocker.expect(view1.appy_renderer.contentParser.env.context).result({}).replay()
+        ctx = (self.electrabel, None)
+        ctx = view1.mailed_context(ctx)
+        self.assertEqual(ctx["mailed_data"], self.electrabel)
+        self.assertEqual(ctx["send_mode"], None)
+
+        # Test display_send_modes
+        self.assertEqual(view1.display_send_modes(), u'Lettre, Lettre recommand\xe9e')
+        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Lettre')
+        self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'')
+        self.assertEqual(view1.display_send_modes(separator=' & '), u'Lettre & Lettre recommand\xe9e')
+        view1.real_context.send_modes = [u"post", u"post_registered", u"email"]
+        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Lettre, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=u'post_registered'), u'Lettre recommand\xe9e, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=[u'post', u'post_registered']), u'Lettre, Lettre recommand\xe9e, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
+
+
     def test_DocumentGenerationOMDashboardHelper(self):
         """
         Test all methods of DocumentGenerationOMDashboardHelper view
