@@ -703,11 +703,20 @@ class Migrate_To_3_0(Migrator):  # noqa
                 api.portal.set_registry_record(rkey, rvalue)
                 pm_item_data_vocabulary.__call__ = orig_call
 
+            # Rename IncomingmailWSClient to IncomingmailRestWSClient in imio.pm.wsclient field mappings
+            orig_call = pm_item_data_vocabulary.__call__
+            for field_mapping in rvalue:
+                field_mapping["expression"] = field_mapping["expression"].replace(
+                    "@@IncomingmailWSClient", "@@IncomingmailRestWSClient"
+                )
+            api.portal.set_registry_record(rkey, rvalue)
+
             # imio.pm.wsclient
             self.portal.manage_permission(
                 "WS Client Access",
                 ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
-                acquire=0)
+                acquire=0,
+            )
             self.portal.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
 
             # cron4plone settings
@@ -716,6 +725,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                 index = cron_configlet.cronjobs.index(u"45 18 1,15 * portal/@@various-utils/dv_images_clean")
                 cron_configlet.cronjobs.pop(index)
                 cron_configlet._p_changed = True
+
+            # Uninsall imio.dms.soap2pm
+            installer = api.portal.get_tool("portal_quickinstaller")
+            installer.uninstallProducts(["imio.dms.soap2pm"])
 
             # END
 

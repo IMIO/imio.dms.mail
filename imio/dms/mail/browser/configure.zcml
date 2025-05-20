@@ -923,4 +923,13 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
+    <!-- Adapts an incomingmail to prepare data to exchange within imio.pm.wsclient -->
+    <browser:page
+        name="IncomingmailRestWSClient"
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+        class=".views.DmsMailRestClientView"
+        allowed_attributes="detailed_description"
+        permission="zope2.View"
+        />
+
 </configure>

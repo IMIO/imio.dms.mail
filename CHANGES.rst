@@ -46,7 +46,9 @@ Changelog
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
   [chris-adam]
-- Chnaged file read adapter for annexes
+- Changed file read adapter for annexes
+  [chris-adam]
+- Uninstalled imio.dms.soap2pm
   [chris-adam]
 
 2.3 (2020-10-08)
