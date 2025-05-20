@@ -166,6 +166,17 @@
         factory="collective.documentgenerator.content.file_representation.WriteFile"
     />
 
+    <adapter
+        for="collective.dms.basecontent.dmsfile.IDmsAppendixFile"
+        provides="zope.filerepresentation.interfaces.IRawReadFile"
+        factory="collective.documentgenerator.content.file_representation.ReadFile"
+    />
+
+    <adapter
+        for="collective.dms.basecontent.dmsfile.IDmsAppendixFile"
+        factory="collective.documentgenerator.content.file_representation.WriteFile"
+    />
+
 
     <!-- VALIDATORS -->
 

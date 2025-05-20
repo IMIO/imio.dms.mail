@@ -687,15 +687,21 @@ class Migrate_To_3_0(Migrator):  # noqa
             rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
             rvalue = api.portal.get_registry_record(rkey, default=None)
             fns = [dic["field_name"] for dic in rvalue or []]
-            if fns and u"ignore_validation_for" not in fns:
-                fns.append(u"ignore_validation_for")
+            if fns:
+                if u"ignore_validation_for" not in fns:
+                    fns.append(u"ignore_validation_for")
+                    rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
+                if u"annexes" in fns:
+                    fns.remove(u"annexes")
+                    rvalue = [item for item in rvalue if item["field_name"] != u"annexes"]
                 orig_call = pm_item_data_vocabulary.__call__
                 pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
                     [SimpleTerm(fn) for fn in fns]
                 )
-                rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
                 api.portal.set_registry_record(rkey, rvalue)
                 pm_item_data_vocabulary.__call__ = orig_call
+
+            # imio.pm.wsclient
             self.portal.manage_permission(
                 "WS Client Access",
                 ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
