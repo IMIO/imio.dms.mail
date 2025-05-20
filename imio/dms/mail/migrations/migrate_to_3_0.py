@@ -717,6 +717,16 @@ class Migrate_To_3_0(Migrator):  # noqa
                 cron_configlet.cronjobs.pop(index)
                 cron_configlet._p_changed = True
 
+            # Update pod templates
+            from collective.documentgenerator.search_replace.pod_template import SearchAndReplacePODTemplates
+
+            templates = [self.portal.restrictedTraverse(template_details[1]) for template_details in list_templates()]
+            with SearchAndReplacePODTemplates(templates) as search_replace:
+                import ipdb
+
+                ipdb.set_trace()
+                results = search_replace.search("if view\.is_first_doc\(\)$", is_regex=True)
+
             # END
 
             finished = True  # can be eventually returned and set by batched method
