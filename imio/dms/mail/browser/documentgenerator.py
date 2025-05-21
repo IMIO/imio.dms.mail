@@ -5,6 +5,7 @@ from collective.contact.core.content.person import IPerson
 from collective.contact.core.interfaces import IContactable
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.documentgenerator import _ as _dg
+from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
@@ -455,6 +456,18 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 
     def _get_title(self, doc_name, gen_context):
         return self.pod_template.title
+
+    def mailing_related_generation_context(self, helper_view, gen_context):
+        mailing_list = helper_view.mailing_list(gen_context)
+        if len(mailing_list) == 0:
+            utils.update_dict_with_validation(gen_context, {'mailed_data': None},
+                                              _dg("Error when merging mailed_data in generation context"))
+        elif len(mailing_list) == 1:
+            ctx = helper_view.mailed_context(mailing_list[0])
+            utils.update_dict_with_validation(gen_context, {'mailed_data': ctx['mailed_data']},
+                                              _dg("Error when merging mailed_data in generation context"))
+            utils.update_dict_with_validation(gen_context, {'send_mode': ctx['send_mode']},
+                                              _dg("Error when merging mailed_data in generation context"))
 
     def generate_persistent_doc(self, pod_template, output_format):
         """Create a dmsmainfile from the generated document"""
