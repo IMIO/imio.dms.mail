@@ -717,6 +717,10 @@ class Migrate_To_3_0(Migrator):  # noqa
                 cron_configlet.cronjobs.pop(index)
                 cron_configlet._p_changed = True
 
+            # Update dashboard pod templates
+            self.portal["templates"]["export-users-groups"].max_objects = 0
+            self.portal["templates"]["all-contacts-export"].max_objects = 0
+
             # END
 
             finished = True  # can be eventually returned and set by batched method
