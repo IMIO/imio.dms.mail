@@ -85,9 +85,19 @@ class TestDocumentGenerator(unittest.TestCase):
         view1.real_context.sender = backup
 
         # Test mailing_list method
-        self.assertListEqual(view1.mailing_list(), [self.ctct["electrabel"]])
-        view1.real_context.recipients.append(RelationValue(self.intids.getId(self.electrabel)))
-        self.assertListEqual(view1.mailing_list(), [self.ctct["electrabel"], self.electrabel])
+        self.assertListEqual(view1.real_context.send_modes, [u"post"])
+        self.assertListEqual(view1.mailing_list(), [(self.electrabel, u"post")])
+        view1.real_context.send_modes = [u"post", u"post_registered"]
+        self.assertListEqual(
+            view1.mailing_list(),
+            [(self.electrabel, u"post"), (self.electrabel, u"post_registered")],
+        )
+        view1.real_context.recipients.append(RelationValue(self.intids.getId(self.jc)))
+        self.assertListEqual(
+            view1.mailing_list(),
+            [(self.electrabel, u"post"), (self.electrabel, u"post_registered"),
+             (self.jc, u"post"), (self.jc, u"post_registered")],
+        )
         backup = view1.real_context.recipients[0]
         view1.real_context.recipients = None
         self.assertListEqual(view1.mailing_list(), [])
@@ -161,6 +171,33 @@ class TestDocumentGenerator(unittest.TestCase):
             [u"Direction générale", u"Secrétariat", u"Michèle"],
         )
         self.assertRaises(IndexError, view1.separate_full_title, u"Direction", nb=0)
+
+        # Test mailed_context
+        view1.appy_renderer = mocker.Mocker().mock()
+        mocker.expect(view1.appy_renderer.contentParser.env.context).result({}).replay()
+        ctx = (self.electrabel, u"post")
+        ctx = view1.mailed_context(ctx)
+        self.assertEqual(ctx["mailed_data"], self.electrabel)
+        self.assertEqual(ctx["send_mode"], u"post")
+
+        view1.appy_renderer = mocker.Mocker().mock()
+        mocker.expect(view1.appy_renderer.contentParser.env.context).result({}).replay()
+        ctx = (self.electrabel, None)
+        ctx = view1.mailed_context(ctx)
+        self.assertEqual(ctx["mailed_data"], self.electrabel)
+        self.assertEqual(ctx["send_mode"], None)
+
+        # Test display_send_modes
+        self.assertEqual(view1.display_send_modes(), u'Lettre, Lettre recommand\xe9e')
+        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Lettre')
+        self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'')
+        self.assertEqual(view1.display_send_modes(separator=' & '), u'Lettre & Lettre recommand\xe9e')
+        view1.real_context.send_modes = [u"post", u"post_registered", u"email"]
+        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Lettre, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=u'post_registered'), u'Lettre recommand\xe9e, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=[u'post', u'post_registered']), u'Lettre, Lettre recommand\xe9e, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
+
 
     def test_DocumentGenerationOMDashboardHelper(self):
         """
@@ -244,8 +281,8 @@ class TestDocumentGenerator(unittest.TestCase):
         view = self.ctct["orgs-searches"].unrestrictedTraverse("@@document_generation_helper_view")
         # Test get_organisations
         res = [
-            (1, "", self.ctct["electrabel"]),
-            (2, 1, self.ctct["electrabel"]["travaux"]),
+            (1, "", self.electrabel),
+            (2, 1, self.electrabel["travaux"]),
             (3, "", self.ctct["plonegroup-organization"]),
             (4, 3, self.ctct["plonegroup-organization"]["college-communal"]),
         ]

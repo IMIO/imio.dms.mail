@@ -681,11 +681,9 @@ class Migrate_To_3_0(Migrator):  # noqa
             if values and "task.back_in_created2|" not in values:
                 values.append("task.back_in_created2|")
                 api.portal.set_registry_record(key, values)
-
             # Update config wsclient to Delib
             self.upgradeProfile("imio.pm.wsclient:default")
             from imio.pm.wsclient.browser.vocabularies import pm_item_data_vocabulary
-
             rkey = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.field_mappings"
             rvalue = api.portal.get_registry_record(rkey, default=None)
             fns = [dic["field_name"] for dic in rvalue or []]
@@ -709,14 +707,17 @@ class Migrate_To_3_0(Migrator):  # noqa
                 ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
                 acquire=0)
             self.portal.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
-
             # cron4plone settings
             cron_configlet = getUtility(ICronConfiguration, "cron4plone_config")
             if u"45 18 1,15 * portal/@@various-utils/dv_images_clean" in cron_configlet.cronjobs:
                 index = cron_configlet.cronjobs.index(u"45 18 1,15 * portal/@@various-utils/dv_images_clean")
                 cron_configlet.cronjobs.pop(index)
                 cron_configlet._p_changed = True
-
+            # adding omail_post_mailing option
+            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing", False
+            )
             # END
 
             finished = True  # can be eventually returned and set by batched method

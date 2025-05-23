@@ -5,6 +5,7 @@ from collective.contact.core.content.person import IPerson
 from collective.contact.core.interfaces import IContactable
 from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.documentgenerator import _ as _dg
+from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
@@ -22,7 +23,9 @@ from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getUtility
 from zope.i18n import translate
+from zope.schema.interfaces import IVocabularyFactory
 
 import operator
 
@@ -142,7 +145,7 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
         for i in range(0, nb - 1):
             ret[i] = parts[i]
         if len(parts) >= nb:
-            ret[-1] = sep.join(parts[nb - 1 :])
+            ret[-1] = sep.join(parts[nb - 1:])
         return ret
 
 
@@ -164,15 +167,33 @@ class OMDGHelper(BaseDGHelper):
         return dic
 
     def mailing_list(self, gen_context=None):
+        """Returns a list of tuples (contact, send_mode) for send_mode starting with post."""
         om = self.real_context
         if not om.recipients:
             return []
-        ml = []
+
+        post_modes = []
+        if api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing",
+            default=False,
+        ):
+            post_modes = [mode for mode in om.send_modes or [] if mode.startswith("post")]
+
+        mailing_list = []
         for relval in om.recipients:
             if relval.isBroken():
                 continue
-            ml.append(relval.to_object)
-        return ml
+            for mode in post_modes or [None]:
+                mailing_list.append((relval.to_object, mode))
+        return mailing_list
+
+    def mailed_context(self, mailed_data):
+        """Modify context to separate mailing_list tuple."""
+        new_context = super(OMDGHelper, self).mailed_context(mailed_data)
+        (contact, send_mode) = new_context['mailed_data']
+        new_context['mailed_data'] = contact
+        new_context['send_mode'] = send_mode
+        return new_context
 
     def is_first_doc(self):
         """in mailing context"""
@@ -180,6 +201,28 @@ class OMDGHelper(BaseDGHelper):
         if "loop" in ctx and hasattr(ctx["loop"], "mailed_data") and not ctx["loop"].mailed_data.first:
             return False
         return True
+
+    def display_send_modes(self, separator=u", ", filter_on=None):
+        """Return a list of send modes to display in the template.
+
+        :param separator: separator to join values
+        :param filter_on: list of send modes to filter on
+        :return: string of send modes titles
+        """
+        send_modes = []
+        if filter_on is None:
+            filter_on = []
+        if not isinstance(filter_on, (list, tuple)):
+            filter_on = [filter_on]
+        if self.real_context.send_modes:
+            factory = getUtility(IVocabularyFactory, "imio.dms.mail.OMSendModesVocabulary")
+            vocab = factory(None)
+            for mode in self.real_context.send_modes:
+                if mode.startswith("post") and filter_on and mode not in filter_on:
+                    continue
+                term = vocab.getTerm(mode)
+                send_modes.append(term.title)
+        return separator.join(send_modes)
 
 
 class DashboardDGBaseHelper:  # noqa
@@ -333,7 +376,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
             id += 1
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
-            path = brain.getPath()[self.dp_len :]
+            path = brain.getPath()[self.dp_len:]
             parts = path.split("/")
             p_path = "/".join(parts[:-1])
             paths[path] = id
@@ -355,7 +398,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
         ):
             id += 1
             self.uids[brain.UID] = id
-            self.pers[brain.getPath()[self.dp_len :]] = id
+            self.pers[brain.getPath()[self.dp_len:]] = id
             obj = brain._unrestrictedGetObject()
             lst.append((id, obj))
         return lst
@@ -374,7 +417,7 @@ class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, Dashboar
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
             # pers id
-            path = brain.getPath()[self.dp_len :]
+            path = brain.getPath()[self.dp_len:]
             parts = path.split("/")
             p_path = "/".join(parts[:-1])
             p_id = self.pers[p_path]
@@ -413,6 +456,18 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 
     def _get_title(self, doc_name, gen_context):
         return self.pod_template.title
+
+    def mailing_related_generation_context(self, helper_view, gen_context):
+        mailing_list = helper_view.mailing_list(gen_context)
+        if len(mailing_list) == 0:
+            utils.update_dict_with_validation(gen_context, {'mailed_data': None},
+                                              _dg("Error when merging mailed_data in generation context"))
+        elif len(mailing_list) == 1:
+            ctx = helper_view.mailed_context(mailing_list[0])
+            utils.update_dict_with_validation(gen_context, {'mailed_data': ctx['mailed_data']},
+                                              _dg("Error when merging mailed_data in generation context"))
+            utils.update_dict_with_validation(gen_context, {'send_mode': ctx['send_mode']},
+                                              _dg("Error when merging mailed_data in generation context"))
 
     def generate_persistent_doc(self, pod_template, output_format):
         """Create a dmsmainfile from the generated document"""

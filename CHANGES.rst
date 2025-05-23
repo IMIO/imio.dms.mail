@@ -45,8 +45,10 @@ Changelog
 - Replaced chosen widget by select2
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
-  [chris-adam]
-- Chnaged file read adapter for annexes
+  [sgeulette, chris-adam]
+- Added setting to duplicate publipostage if multiple post sending types are checked.
+  [sgeulette, chris-adam]
+- Changed file read adapter for annexes
   [chris-adam]
 
 2.3 (2020-10-08)
