@@ -4,7 +4,7 @@ Changelog
 3.0.61
 ------
 
-- Last commit at 6b022e65ad3761afa03effb2856cec93ec66f599
+- Last commit at 2a34c09d5f3f21685c4e86472f071d8000ee7b8b
 - Restoring portal_repository config if necessary
 - Added missing task.back_in_created2 transition in actionspanel
 - DMS-1090 Avoided keyError in cron_read_label_handling cron task
@@ -16,6 +16,8 @@ Changelog
 - Corrected migration. Call wsclient upgrade profile
 - Avoided error during wsclient migration
 - Handled new wsclient permissions
+- Added setting to duplicate publipostage if multiple post sending types are checked
+- Fixed file read for annexes
 
 3.0.60
 ------
@@ -459,8 +461,6 @@ Changelog
   [sgeulette]
 - Added receipt document
   [sgeulette]
-<<<<<<< HEAD
-=======
 - Added labels criterion
   [sgeulette]
 - Replaced chosen widget by select2
@@ -469,7 +469,6 @@ Changelog
   [chris-adam]
 - Chnaged file read adapter for annexes
   [chris-adam]
->>>>>>> 59dc1f23 (Fixed file read for annexes)
 
 2.3 (2020-10-08)
 ----------------
