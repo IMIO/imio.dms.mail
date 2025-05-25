@@ -20,7 +20,6 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
-from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.PageTemplates.Expressions import SecureModuleImporter
@@ -32,7 +31,6 @@ from zope.interface import implements
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
-import base64
 import json
 
 
@@ -105,7 +103,7 @@ class ContactSuggest(BrowserView):
         for brain in brains:
             hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations
-        crit = {"portal_type": ("organization"), "sort_on": "sortable_title"}
+        crit = {"portal_type": ("organization", ), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         make_bis = (len(hp) + len(brains)) > 1 and True or False
@@ -115,7 +113,7 @@ class ContactSuggest(BrowserView):
                 org_bis.append({"id": "l:%s" % brain.UID, "text": "%s [%s]" % (brain.get_full_title, all_str)})
         result += hp
         # search persons
-        crit = {"portal_type": ("person"), "sort_on": "sortable_title"}
+        crit = {"portal_type": ("person", ), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         for brain in brains:
@@ -156,7 +154,7 @@ class SenderSuggest(BrowserView):
             hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations in plonegroup-organization folder
         crit = {
-            "portal_type": ("organization"),
+            "portal_type": ("organization", ),
             "sort_on": "sortable_title",
             "path": "%s/contacts/plonegroup-organization" % portal_path,
         }
@@ -458,23 +456,6 @@ class PlusPortaltabContent(BrowserView):
 
 class DmsMailRestClientView(BrowserView):
     """Adapts an incomingmail to prepare data to exchange within imio.pm.wsclient"""
-
-    def get_main_files(self):
-        pc = getToolByName(self.context, "portal_catalog")
-        res = []
-        for brain in pc(
-            portal_type=("dmsmainfile", "dmsommainfile", "dmsappendixfile"),
-            path="/".join(self.context.getPhysicalPath()),
-        ):
-            obj = brain.getObject()
-            res.append(
-                {
-                    "title": safe_unicode(obj.title),
-                    "filename": safe_unicode(obj.file.filename),
-                    "file": base64.b64encode(obj.file.data),
-                }
-            )
-        return res
 
     def detailed_description(self):
         """Return a link to current object"""

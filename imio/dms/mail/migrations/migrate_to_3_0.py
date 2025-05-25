@@ -694,22 +694,18 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if u"annexes" in fns:
                     fns.remove(u"annexes")
                     rvalue = [item for item in rvalue if item["field_name"] != u"annexes"]
+                for field_mapping in rvalue:
+                    if u"@@IncomingmailWSClient" in field_mapping["expression"]:
+                        field_mapping["expression"] = field_mapping["expression"].replace(
+                            u"@@IncomingmailWSClient", u"@@IncomingmailRestWSClient"
+                        )
                 orig_call = pm_item_data_vocabulary.__call__
-                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary([SimpleTerm(fn) for fn in fns])
-                rvalue.append({"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"})
+                pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
+                    [SimpleTerm(fn) for fn in fns]
+                )
                 api.portal.set_registry_record(rkey, rvalue)
                 pm_item_data_vocabulary.__call__ = orig_call
-            # Rename IncomingmailWSClient to IncomingmailRestWSClient in imio.pm.wsclient field mappings
-            orig_call = pm_item_data_vocabulary.__call__
-            pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary([SimpleTerm(fn) for fn in fns])
-            for field_mapping in rvalue:
-                field_mapping["expression"] = field_mapping["expression"].replace(
-                    "@@IncomingmailWSClient", "@@IncomingmailRestWSClient"
-                )
-            api.portal.set_registry_record(rkey, rvalue)
-            pm_item_data_vocabulary.__call__ = orig_call
-
-            # imio.pm.wsclient
+            # imio.pm.wsclient permission
             self.portal.manage_permission(
                 "WS Client Access",
                 ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
@@ -727,9 +723,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record(
                 "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing", False
             )
-            # Uninsall imio.dms.soap2pm
+            # Uninstall imio.dms.soap2pm
             installer = api.portal.get_tool("portal_quickinstaller")
-            installer.uninstallProducts(["collective.js.tooltipster"])
+            if installer.isProductInstalled("imio.dms.soap2pm"):
+                installer.uninstallProducts(["imio.dms.soap2pm"])
             # END
 
             finished = True  # can be eventually returned and set by batched method
