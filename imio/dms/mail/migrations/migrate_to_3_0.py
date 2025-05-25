@@ -723,7 +723,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             api.portal.set_registry_record(
                 "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_post_mailing", False
             )
-            # Uninsall imio.dms.soap2pm
+            # Uninstall imio.dms.soap2pm
             installer = api.portal.get_tool("portal_quickinstaller")
             if installer.isProductInstalled("imio.dms.soap2pm"):
                 installer.uninstallProducts(["imio.dms.soap2pm"])
