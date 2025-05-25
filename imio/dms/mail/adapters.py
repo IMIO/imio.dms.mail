@@ -33,6 +33,7 @@ from imio.helpers.content import get_relations
 from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
+from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
@@ -1028,3 +1029,17 @@ class ClassificationFolderInTreatingGroupCriterion(object):
         orgs = organizations_with_suffixes(groups, IM_READER_SERVICE_FUNCTIONS, group_as_str=True)
         # if orgs is empty list, nothing is returned => ok
         return {"treating_groups": {"query": orgs}}
+
+
+@implementer(ISendableAnnexesToPM)
+class SendableAnnexesToPMAdapter(object):
+    def __init__(self, context):
+        self.context = context
+
+    def get(self):
+        for child in self.context.objectValues():
+            if child.portal_type in ("dmsmainfile", "dmsappendixfile"):
+                yield {
+                    "title": child.title,
+                    "UID": child.UID(),
+                }

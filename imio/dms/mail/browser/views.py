@@ -18,6 +18,7 @@ from imio.helpers.emailer import get_mail_host
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
+from imio.helpers.xhtml import object_link
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
@@ -102,7 +103,7 @@ class ContactSuggest(BrowserView):
         for brain in brains:
             hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations
-        crit = {"portal_type": ("organization"), "sort_on": "sortable_title"}
+        crit = {"portal_type": ("organization", ), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         make_bis = (len(hp) + len(brains)) > 1 and True or False
@@ -112,7 +113,7 @@ class ContactSuggest(BrowserView):
                 org_bis.append({"id": "l:%s" % brain.UID, "text": "%s [%s]" % (brain.get_full_title, all_str)})
         result += hp
         # search persons
-        crit = {"portal_type": ("person"), "sort_on": "sortable_title"}
+        crit = {"portal_type": ("person", ), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         for brain in brains:
@@ -153,7 +154,7 @@ class SenderSuggest(BrowserView):
             hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations in plonegroup-organization folder
         crit = {
-            "portal_type": ("organization"),
+            "portal_type": ("organization", ),
             "sort_on": "sortable_title",
             "path": "%s/contacts/plonegroup-organization" % portal_path,
         }
@@ -451,3 +452,11 @@ class PlusPortaltabContent(BrowserView):
             sort_on="getObjPositionInParent",
         )
         return [(b.Title, b.getURL()) for b in res if b.portal_type not in self.excluded_types]
+
+
+class DmsMailRestClientView(BrowserView):
+    """Adapts an incomingmail to prepare data to exchange within imio.pm.wsclient"""
+
+    def detailed_description(self):
+        """Return a link to current object"""
+        return u"<p>Fiche courrier liée: %s</p>" % object_link(self.context, target="_blank")
