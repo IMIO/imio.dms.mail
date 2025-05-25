@@ -696,20 +696,17 @@ class Migrate_To_3_0(Migrator):  # noqa
                 if u"annexes" in fns:
                     fns.remove(u"annexes")
                     rvalue = [item for item in rvalue if item["field_name"] != u"annexes"]
+                for field_mapping in rvalue:
+                    if u"@@IncomingmailWSClient" in field_mapping["expression"]:
+                        field_mapping["expression"] = field_mapping["expression"].replace(
+                            u"@@IncomingmailWSClient", u"@@IncomingmailRestWSClient"
+                        )
                 orig_call = pm_item_data_vocabulary.__call__
                 pm_item_data_vocabulary.__call__ = lambda self0, ctxt: SimpleVocabulary(
                     [SimpleTerm(fn) for fn in fns]
                 )
                 api.portal.set_registry_record(rkey, rvalue)
                 pm_item_data_vocabulary.__call__ = orig_call
-
-            # Rename IncomingmailWSClient to IncomingmailRestWSClient in imio.pm.wsclient field mappings
-            orig_call = pm_item_data_vocabulary.__call__
-            for field_mapping in rvalue:
-                field_mapping["expression"] = field_mapping["expression"].replace(
-                    "@@IncomingmailWSClient", "@@IncomingmailRestWSClient"
-                )
-            api.portal.set_registry_record(rkey, rvalue)
 
             # imio.pm.wsclient
             self.portal.manage_permission(
@@ -728,7 +725,8 @@ class Migrate_To_3_0(Migrator):  # noqa
 
             # Uninsall imio.dms.soap2pm
             installer = api.portal.get_tool("portal_quickinstaller")
-            installer.uninstallProducts(["imio.dms.soap2pm"])
+            if installer.isProductInstalled("imio.dms.soap2pm"):
+                installer.uninstallProducts(["imio.dms.soap2pm"])
 
             # END
 

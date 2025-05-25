@@ -218,6 +218,10 @@
         factory=".adapters.ServiceInChargeAdapter"
         />
 
+    <adapter
+        factory=".adapters.ServiceInCopyAdapter"
+        />
+
     <!-- REST adapters -->
     <adapter
         factory=".adapters.SendableAnnexesToPMAdapter"
