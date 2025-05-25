@@ -45,10 +45,10 @@ Changelog
 - Replaced chosen widget by select2
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
-  [chris-adam]
+  [sgeulette, chris-adam]
+- Added setting to duplicate publipostage if multiple post sending types are checked.
+  [sgeulette, chris-adam]
 - Changed file read adapter for annexes
-  [chris-adam]
-- Uninstalled imio.dms.soap2pm
   [chris-adam]
 
 2.3 (2020-10-08)
