@@ -4,7 +4,7 @@ Changelog
 3.0.61
 ------
 
-- Last commit at 2a34c09d5f3f21685c4e86472f071d8000ee7b8b
+- Last commit at 7e8ebb0d594283ee20fd3db94f4e702bf2560cb6
 - Restoring portal_repository config if necessary
 - Added missing task.back_in_created2 transition in actionspanel
 - DMS-1090 Avoided keyError in cron_read_label_handling cron task
@@ -18,6 +18,7 @@ Changelog
 - Handled new wsclient permissions
 - Added setting to duplicate publipostage if multiple post sending types are checked
 - Fixed file read for annexes
+- Updated intro template for send_modes and mailing mention
 
 3.0.60
 ------
