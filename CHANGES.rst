@@ -50,6 +50,8 @@ Changelog
   [sgeulette, chris-adam]
 - Changed file read adapter for annexes
   [chris-adam]
+- Set 'export users and groups' and 'all contacts export' dashboard template max object to no limit
+  [chris-adam]
 
 2.3 (2020-10-08)
 ----------------
