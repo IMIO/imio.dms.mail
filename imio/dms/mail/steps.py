@@ -512,7 +512,7 @@ def configure_wsclient(context):
         pmurl = gedurl = os.getenv("PUBLIC_URL", "")
         pmurl = pmurl.replace("-docs", "-pm")
         if pmurl != gedurl:
-            api.portal.set_registry_record("{}.pm_url".format(prefix), u"{}/ws4pm.wsdl".format(pmurl))
+            api.portal.set_registry_record("{}.pm_url".format(prefix), u"{}".format(pmurl))
         api.portal.set_registry_record("{}.pm_username".format(prefix), u"admin")
         pmpass = os.getenv("PM_PASS", "")  # not used
         if pmpass:
@@ -526,7 +526,6 @@ def configure_wsclient(context):
                 SimpleTerm(u"title"),
                 SimpleTerm(u"description"),
                 SimpleTerm(u"detailedDescription"),
-                SimpleTerm(u"annexes"),
             ]
         )
         api.portal.set_registry_record(
@@ -536,12 +535,11 @@ def configure_wsclient(context):
                 {
                     "field_name": u"description",
                     "expression": u"python: u'{}\\n{}'.format(context.description, "
-                    u"context.restrictedTraverse('@@IncomingmailWSClient')"
+                    u"context.restrictedTraverse('@@IncomingmailRestWSClient')"
                     u".detailed_description())",
                 },
                 # {'field_name': u'detailedDescription',
-                #  'expression': u'context/@@IncomingmailWSClient/detailed_description'},
-                {"field_name": u"annexes", "expression": u"context/@@IncomingmailWSClient/get_main_files"},
+                #  'expression': u'context/@@IncomingmailRestWSClient/detailed_description'},
             ],
         )
         # u'string: ${context/@@ProjectWSClient/description}<br />${context/@@ProjectWSClient/detailed_description}'

@@ -45,8 +45,10 @@ Changelog
 - Replaced chosen widget by select2
   [sgeulette]
 - Re-enabled workflow adaptation "to_print" for dmsoutgoingmail
-  [chris-adam]
-- Chnaged file read adapter for annexes
+  [sgeulette, chris-adam]
+- Added setting to duplicate publipostage if multiple post sending types are checked.
+  [sgeulette, chris-adam]
+- Changed file read adapter for annexes
   [chris-adam]
 - Set 'export users and groups' and 'all contacts export' dashboard template max object to no limit
   [chris-adam]
