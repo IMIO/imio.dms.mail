@@ -48,6 +48,7 @@ from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.CatalogTool import sortable_title
 from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
 from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from z3c.form.datamanager import AttributeField
 from z3c.form.interfaces import IContextAware
@@ -1040,6 +1041,6 @@ class SendableAnnexesToPMAdapter(object):
         for child in self.context.objectValues():
             if child.portal_type in ("dmsmainfile", "dmsappendixfile"):
                 yield {
-                    "title": child.title,
+                    "title": safe_unicode(child.title),
                     "UID": child.UID(),
                 }
