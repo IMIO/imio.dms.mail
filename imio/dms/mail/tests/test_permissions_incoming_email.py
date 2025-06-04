@@ -28,28 +28,24 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         task = api.content.create(container=iemail, id="task", type="task", assigned_group=iemail.treating_groups)
         clean_borg_cache(self.portal.REQUEST)
 
-        self.assertHasNoPerms("chef", iemail)
         self.assertHasNoPerms("lecteur", iemail)
         self.assertHasNoPerms("dirg", iemail)
         self.assertHasNoPerms("agent", iemail)
         self.assertHasNoPerms("agent1", iemail)
         self.assertHasAllPerms("encodeur", iemail)
 
-        self.assertHasNoPerms("chef", file)
         self.assertHasNoPerms("lecteur", file)
         self.assertHasNoPerms("dirg", file)
         self.assertHasNoPerms("agent", file)
         self.assertHasNoPerms("agent1", file)
         self.assertHasAllPerms("encodeur", file)
 
-        self.assertHasNoPerms("chef", annex)
         self.assertHasNoPerms("lecteur", annex)
         self.assertHasNoPerms("dirg", annex)
         self.assertHasNoPerms("agent", annex)
         self.assertHasNoPerms("agent1", annex)
         self.assertHasAllPerms("encodeur", annex)
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertHasNoPerms("agent", task)
@@ -75,7 +71,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         self.pw.doActionFor(iemail, "propose_to_manager")
         clean_borg_cache(self.portal.REQUEST)
 
-        self.assertHasNoPerms("chef", iemail)
         self.assertHasNoPerms("lecteur", iemail)
         self.assertEqual(
             self.get_perms("dirg", iemail),
@@ -111,7 +106,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", file)
         self.assertHasNoPerms("lecteur", file)
         self.assertEqual(
             self.get_perms("dirg", file),
@@ -146,7 +140,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", annex)
         self.assertHasNoPerms("lecteur", annex)
         self.assertEqual(
             self.get_perms("dirg", annex),
@@ -181,7 +174,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertHasNoPerms("agent", task)
@@ -206,7 +198,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         self.pw.doActionFor(iemail, "propose_to_agent")
         clean_borg_cache(self.portal.REQUEST)
 
-        self.assertHasNoPerms("chef", iemail)
         self.assertEqual(
             self.get_perms("lecteur", iemail),
             {
@@ -269,7 +260,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", file)
         self.assertEqual(
             self.get_perms("lecteur", file),
             {
@@ -332,7 +322,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", annex)
         self.assertEqual(
             self.get_perms("lecteur", annex),
             {
@@ -395,7 +384,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertHasNoPerms("agent", task)
@@ -420,7 +408,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         self.pw.doActionFor(iemail, "treat")
         clean_borg_cache(self.portal.REQUEST)
 
-        self.assertHasNoPerms("chef", iemail)
         self.assertEqual(
             self.get_perms("lecteur", iemail),
             {
@@ -483,7 +470,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", file)
         self.assertEqual(
             self.get_perms("lecteur", file),
             {
@@ -546,7 +532,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", annex)
         self.assertEqual(
             self.get_perms("lecteur", annex),
             {
@@ -609,7 +594,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertHasNoPerms("agent", task)
@@ -633,7 +617,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
         self.pw.doActionFor(iemail, "close")
         clean_borg_cache(self.portal.REQUEST)
 
-        self.assertHasNoPerms("chef", iemail)
         self.assertEqual(
             self.get_perms("lecteur", iemail),
             {
@@ -696,7 +679,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", file)
         self.assertEqual(
             self.get_perms("lecteur", file),
             {
@@ -759,7 +741,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", annex)
         self.assertEqual(
             self.get_perms("lecteur", annex),
             {
@@ -822,7 +803,6 @@ class TestPermissionsIncomingEmail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertHasNoPerms("agent", task)

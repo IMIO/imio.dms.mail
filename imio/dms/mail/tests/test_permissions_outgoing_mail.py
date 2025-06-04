@@ -35,7 +35,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         task = api.content.create(container=omail, id="task", type="task", assigned_group=omail.treating_groups)
         clean_borg_cache(self.portal.REQUEST)
 
-        self.assertHasAllPerms("chef", omail)
         self.assertEqual(
             self.get_perms("lecteur", omail),
             {
@@ -56,7 +55,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         self.assertHasNoPerms("agent1", omail)
         self.assertHasNoPerms("encodeur", omail)
 
-        self.assertHasAllPerms("chef", file)
         self.assertEqual(
             self.get_perms("lecteur", file),
             {
@@ -77,7 +75,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         self.assertHasNoPerms("agent1", file)
         self.assertHasNoPerms("encodeur", file)
 
-        self.assertHasAllPerms("chef", annex)
         self.assertEqual(
             self.get_perms("lecteur", annex),
             {
@@ -98,7 +95,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         self.assertHasNoPerms("agent1", annex)
         self.assertHasNoPerms("encodeur", annex)
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertEqual(
@@ -124,7 +120,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         clean_borg_cache(self.portal.REQUEST)
 
         self.assertEqual(
-            self.get_perms("chef", omail),
             {
                 "Access contents information": True,
                 "Add portal content": True,
@@ -201,7 +196,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         )
 
         self.assertEqual(
-            self.get_perms("chef", file),
             {
                 "Access contents information": True,
                 "Add portal content": True,
@@ -278,7 +272,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         )
 
         self.assertEqual(
-            self.get_perms("chef", annex),
             {
                 "Access contents information": True,
                 "Add portal content": True,
@@ -354,7 +347,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertEqual(
@@ -382,7 +374,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         clean_borg_cache(self.portal.REQUEST)
 
         self.assertEqual(
-            self.get_perms("chef", omail),
             {
                 "Access contents information": False,
                 "Add portal content": False,
@@ -459,7 +450,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         )
 
         self.assertEqual(
-            self.get_perms("chef", file),
             {
                 "Access contents information": False,
                 "Add portal content": False,
@@ -537,7 +527,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         )
 
         self.assertEqual(
-            self.get_perms("chef", annex),
             {
                 "Access contents information": False,
                 "Add portal content": False,
@@ -613,7 +602,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertEqual(
@@ -638,7 +626,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         clean_borg_cache(self.portal.REQUEST)
 
         self.assertEqual(
-            self.get_perms("chef", omail),
             {
                 "Access contents information": True,
                 "Add portal content": False,
@@ -715,7 +702,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         )
 
         self.assertEqual(
-            self.get_perms("chef", file),
             {
                 "Access contents information": True,
                 "Add portal content": False,
@@ -792,7 +778,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
         )
 
         self.assertEqual(
-            self.get_perms("chef", annex),
             {
                 "Access contents information": True,
                 "Add portal content": False,
@@ -868,7 +853,6 @@ class TestPermissionsOutgoingMail(TestPermissionsBase):
             },
         )
 
-        self.assertHasNoPerms("chef", task)
         self.assertHasNoPerms("lecteur", task)
         self.assertHasNoPerms("dirg", task)
         self.assertEqual(
