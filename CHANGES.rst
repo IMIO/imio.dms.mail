@@ -472,6 +472,8 @@ Changelog
   [chhris-adam]
 - Uninstalled imio.dms.soap2pm
   [chris-adam]
+- Fixed LookupError in model generation after new send mode creation.
+  [chris-adam]
 
 2.3 (2020-10-08)
 ----------------
