@@ -905,6 +905,7 @@ def imiodmsmail_settings_changed(event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMMailTypesVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary")
     if event.record.fieldName == "omail_send_modes":
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSendModesVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSendModesVocabulary")
     if event.record.fieldName == "assigned_user_check":
         update_transitions_auc_config("dmsincomingmail")  # i_e ok

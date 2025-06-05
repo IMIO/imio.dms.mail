@@ -52,6 +52,8 @@ Changelog
   [chris-adam]
 - Set 'export users and groups' and 'all contacts export' dashboard template max object to no limit
   [chris-adam]
+- Fixed LookupError in model generation after new send mode creation.
+  [chris-adam]
 
 2.3 (2020-10-08)
 ----------------
