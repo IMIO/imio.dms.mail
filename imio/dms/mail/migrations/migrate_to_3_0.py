@@ -729,10 +729,10 @@ class Migrate_To_3_0(Migrator):  # noqa
             if installer.isProductInstalled("imio.dms.soap2pm"):
                 installer.uninstallProducts(["imio.dms.soap2pm"])
 
+            # TEMPORARY TO 3.0.62
             # Update dashboard pod templates
             self.portal["templates"]["export-users-groups"].max_objects = 0
             self.portal["templates"]["all-contacts-export"].max_objects = 0
-
             # END
 
             finished = True  # can be eventually returned and set by batched method
