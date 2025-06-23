@@ -733,6 +733,14 @@ class Migrate_To_3_0(Migrator):  # noqa
             # Update dashboard pod templates
             self.portal["templates"]["export-users-groups"].max_objects = 0
             self.portal["templates"]["all-contacts-export"].max_objects = 0
+
+            # Update imio.pm.wsclient generated actions translations
+            notify(RecordModifiedEvent(
+                self.registry.records.get("imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
+                [],
+                api.portal.get_registry_record("imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
+            ))
+
             # END
 
             finished = True  # can be eventually returned and set by batched method

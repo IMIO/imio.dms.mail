@@ -54,6 +54,8 @@ Changelog
   [chris-adam]
 - Fixed LookupError in model generation after new send mode creation.
   [chris-adam]
+- Fixed generated actions translations.
+  [chris-adam]
 
 2.3 (2020-10-08)
 ----------------
