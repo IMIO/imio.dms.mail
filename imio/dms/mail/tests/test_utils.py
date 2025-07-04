@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from bs4 import BeautifulSoup
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.documentviewer.convert import Converter
@@ -26,6 +25,7 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -46,7 +46,6 @@ from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
-from zope.schema.interfaces import IVocabularyFactory
 
 import os
 import unittest
@@ -1006,16 +1005,16 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 )
         annot = IAnnotations(dmsmainfile)
         self.assertNotIn("successfully_converted", annot)
-
         eml_preview(dmsmainfile)
         annot = IAnnotations(dmsmainfile)["collective.documentviewer"]
-
-        self.assertIn("successfully_converted", annot)
-
         self.assertEqual(annot["num_pages"], 1)
         self.assertEqual(annot["successfully_converted"], True)
-
         self.assertEqual(
             [k for k in annot["blob_files"].keys()],
             ["large/dump_1.jpg", "normal/dump_1.jpg", "small/dump_1.jpg"],
         )
+        blobs = [bl for bl in annot["blob_files"].values()]
+        self.assertEqual(blobs[0], blobs[1])
+        with open(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"), 'rb') as f1, \
+                open(blobs[0]._p_blob_uncommitted, 'rb') as f2:
+            self.assertEqual(f1.read(), f2.read())
