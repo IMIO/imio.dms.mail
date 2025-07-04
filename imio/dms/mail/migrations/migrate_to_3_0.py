@@ -718,6 +718,7 @@ class Migrate_To_3_0(Migrator):  # noqa
                 index = cron_configlet.cronjobs.index(u"45 18 1,15 * portal/@@various-utils/dv_images_clean")
                 cron_configlet.cronjobs.pop(index)
                 cron_configlet._p_changed = True
+
             # adding omail_post_mailing option
             self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
             api.portal.set_registry_record(
@@ -727,6 +728,19 @@ class Migrate_To_3_0(Migrator):  # noqa
             installer = api.portal.get_tool("portal_quickinstaller")
             if installer.isProductInstalled("imio.dms.soap2pm"):
                 installer.uninstallProducts(["imio.dms.soap2pm"])
+
+            # TEMPORARY TO 3.0.62
+            # Update dashboard pod templates
+            self.portal["templates"]["export-users-groups"].max_objects = 0
+            self.portal["templates"]["all-contacts-export"].max_objects = 0
+
+            # Update imio.pm.wsclient generated actions translations
+            notify(RecordModifiedEvent(
+                self.registry.records.get("imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
+                [],
+                api.portal.get_registry_record("imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
+            ))
+
             # END
 
             finished = True  # can be eventually returned and set by batched method
