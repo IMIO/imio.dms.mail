@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
+from bs4 import BeautifulSoup
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
@@ -39,6 +40,19 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
     """Create a document from a collective.documentgenerator template."""
 
     root = "/templates/om"
+
+    def index(self):
+        indexed = super(CreateFromTemplateForm, self).index()
+        # TODO improve this code
+
+        # Add target="_blank" to open collabora edit in a new tab
+        # This is a workaround to avoid modifying the original template
+        soup = BeautifulSoup(indexed, "html.parser")
+        form_tag = soup.find("form")
+        form_tag["target"] = "_blank"
+        indexed = str(soup)
+
+        return indexed
 
     def label(self):
         return translate(

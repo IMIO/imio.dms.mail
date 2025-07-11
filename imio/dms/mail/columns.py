@@ -323,13 +323,13 @@ class ExternalEditColumn(eec_base):
                 },
             )
         else:
-            link_url = "%s/@@external_edit" % item.getURL()
+            link_url = "%s/@@collabora-edit" % item.getURL()
             icon_name = "extedit_icon.png"
             link_title = translate(self.linkContent, context=self.request)
 
         link_content = u"""<img title="%s" src="%s" />""" % (link_title, "%s/%s" % (self.table.portal_url, icon_name))
 
-        return '<a href="%s"%s%s%s>%s</a>' % (
+        return '<a target="_blank" href="%s"%s%s%s>%s</a>' % (
             link_url,
             self.getLinkTarget(item),
             self.getLinkCSS(item),
