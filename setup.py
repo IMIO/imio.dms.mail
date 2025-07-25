@@ -1,4 +1,4 @@
-#! -*- coding: utf8 -*-
+#! -*- coding: utf-8 -*-
 
 from setuptools import find_packages
 from setuptools import setup
@@ -48,6 +48,7 @@ setup(
         "collective.ckeditor",
         "collective.ckeditortemplates",
         "collective.classification.folder",
+        "collective.collabora>=1.1.0.dev0",
         "collective.contact.core",
         "collective.contact.contactlist",
         "collective.contact.duplicated",
