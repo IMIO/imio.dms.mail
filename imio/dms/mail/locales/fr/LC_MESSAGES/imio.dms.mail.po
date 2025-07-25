@@ -692,6 +692,10 @@ msgstr "Services en copie"
 msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
 
+#: ./imio/dms/mail/browser/templates/sections.pt:31
+msgid "Toggle read mode for mails to be signed"
+msgstr "Activer/Désactiver le mode lecture des courriers à signer"
+
 #: ./columns.py:492
 msgid "Relative path"
 msgstr "Chemin relatif"

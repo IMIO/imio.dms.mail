@@ -692,6 +692,10 @@ msgstr ""
 msgid "Refresh tab count"
 msgstr ""
 
+#: ./browser/templates/sections.pt:31
+msgid "Toggle read mode for mails to be signed"
+msgstr ""
+
 #: ./columns.py:492
 msgid "Relative path"
 msgstr ""

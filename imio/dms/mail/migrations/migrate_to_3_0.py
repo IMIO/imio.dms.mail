@@ -741,6 +741,9 @@ class Migrate_To_3_0(Migrator):  # noqa
                 api.portal.get_registry_record("imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
             ))
 
+            # Add js.cookie
+            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+
             # END
 
             finished = True  # can be eventually returned and set by batched method

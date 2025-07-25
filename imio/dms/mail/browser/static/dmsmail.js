@@ -86,6 +86,14 @@ dmsmail.initialize_fancytree = function () {
   });
 }
 
+function toggle_dms_document_view() {
+  /* Handle wide view for dms documents */
+  /* Toggles CSS to switch between wide and normal view */
+  const current_view = Cookies.get('dms_document_view') || 'view';
+  const new_view = current_view === 'wide' ? 'view' : 'wide';
+  Cookies.set('dms_document_view', new_view, { expires: 12 }); // 12 hours
+}
+
 $(document).ready(function(){
 
     /* Remove this overlay causing error in overlayhelpers and ckeditor not loading */

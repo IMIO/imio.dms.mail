@@ -37,6 +37,18 @@
     id="++resource++select2/select2_locale_fr.js"
     inline="False"/>
 
+  <javascript
+    authenticated="True"
+    bundle=""
+    cacheable="True"
+    compression="safe"
+    conditionalcomment=""
+    cookable="True"
+    enabled="True"
+    expression=""
+    id="++resource++imio.dms.mail/js.cookie-3.0.5.min.js"
+    inline="False"/>
+
   <javascript id="++resource++plone.app.jquery.js" insert-after="" />
 
   <javascript id="jquery-integration.js" insert-after="++resource++plone.app.jquery.js" />

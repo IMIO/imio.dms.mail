@@ -690,6 +690,10 @@ msgstr ""
 msgid "Refresh tab count"
 msgstr ""
 
+#: ./imio/dms/mail/browser/templates/sections.pt:31
+msgid "Toggle read mode for mails to be signed"
+msgstr ""
+
 #: ./columns.py:492
 msgid "Relative path"
 msgstr ""

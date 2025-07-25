@@ -13,6 +13,11 @@
     enabled="0" expression="" id="imiodmsmail_archives.css" media="screen"
     rel="stylesheet" rendering="import" />
 
+ <stylesheet title="" cacheable="True" compression="safe" cookable="True"
+    enabled="1" expression="python:context.portal_type == 'dmsoutgoingmail' and request.get('dms_document_view', 'view') == 'wide'"
+    id="imiodmsmail_wide_view.css" media="screen"
+    rel="stylesheet" rendering="import" />
+
  <stylesheet id="++resource++collective.eeafaceted.collectionwidget/collectionwidget.css" remove="true" />
 
  <stylesheet id="++resource++jquery.css" insert-bottom="" />
@@ -239,7 +244,9 @@
 
  <stylesheet id="imiodmsmail.css" insert-after="++resource++imio.annex.quickupload/quickupload.css" />
 
- <stylesheet id="imiodmsmail_archives.css" insert-after="imiodmsmail.css" />
+ <stylesheet id="imiodmsmail_wide_view.css" insert-after="imiodmsmail.css" />
+
+ <stylesheet id="imiodmsmail_archives.css" insert-after="imiodmsmail_wide_view.css" />
 
  <stylesheet id="ploneCustom.css" insert-after="imiodmsmail_archives.css" />
 
