@@ -3,6 +3,7 @@
 from AccessControl import getSecurityManager
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
+from collective.collabora.adapters import DXStoredFile
 from collective.collabora.interfaces import IStoredFile
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
@@ -1050,26 +1051,11 @@ class SendableAnnexesToPMAdapter(object):
 
 @adapter(IPODTemplate)
 @implementer(IStoredFile)
-class StoredPodTemplate(object):
+class StoredPodTemplate(DXStoredFile):
     """Access the file storage on a PODTemplate content object.
 
-    i.e. the file attribute on the content object.
+    i.e. the ``odt_file`` attribute on the content object.
     """
-
-    def __init__(self, context):
-        self.context = context
-        self.filename = context.odt_file.filename
-        self.contentType = context.odt_file.contentType
-
-    @property
-    def data(self):
-        return self.context.odt_file.data
-
-    @data.setter
-    def data(self, data):
-        self.context.odt_file = NamedBlobFile(
-            data=data, filename=self.filename, contentType=self.contentType
-        )
-
-    def getSize(self):
-        return self.context.odt_file.getSize()
+    # this re-uses the collective.collabora adapter, with only a different
+    # file_field_name
+    file_field_name = "odt_file"
