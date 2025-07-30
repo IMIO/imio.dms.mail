@@ -596,6 +596,12 @@ class IImioDmsMailConfig(model.Schema):
             "omail_signer_rules",
             "omail_fields",
             "omail_group_encoder",
+            "omail_duplicate_default_keep_category",
+            "omail_duplicate_default_keep_folder",
+            "omail_duplicate_default_keep_linked_mails",
+            "omail_duplicate_default_keep_dms_files",
+            "omail_duplicate_default_keep_annexes",
+            "omail_duplicate_default_link_to_original",
         ],
     )
     omail_types = schema.List(
@@ -704,6 +710,33 @@ class IImioDmsMailConfig(model.Schema):
             u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
         ),
         default=False,
+    )
+
+    # the duplicate-form default fields
+    # TODO hide these next two field if not enabled ?
+    omail_duplicate_default_keep_category = schema.Bool(
+        title=_(u"Default value when duplicating an outgoing mail for 'Keep classification category'"),
+        default=True,
+    )
+    omail_duplicate_default_keep_folder = schema.Bool(
+        title=_(u"Default value when duplicating an outgoing mail for 'Keep classification folder'"),
+        default=True,
+    )
+    omail_duplicate_default_keep_linked_mails = schema.Bool(
+        title=_(u"Default value when duplicating an outgoing mail for 'Keep linked mails'"),
+        default=True,
+    )
+    omail_duplicate_default_keep_dms_files = schema.Bool(
+        title=_(u"Default value when duplicating an outgoing mail for 'Keep DMS files'"),
+        default=True,
+    )
+    omail_duplicate_default_keep_annexes = schema.Bool(
+        title=_(u"Default value when duplicating an outgoing mail for 'Keep annexes'"),
+        default=True,
+    )
+    omail_duplicate_default_link_to_original = schema.Bool(
+        title=_(u"Default value when duplicating an outgoing mail for 'Link to original'"),
+        default=True,
     )
 
     # FIELDSET OEM
