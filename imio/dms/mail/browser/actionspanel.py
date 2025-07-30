@@ -188,6 +188,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
+            "render_duplicate_button",
             "render_create_new_message",
             "render_send_email",
         )
@@ -209,6 +210,18 @@ class DmsOMActionsPanelView(ActionsPanelView):
     def render_create_from_template_button(self):
         if self.may_create_from_template():
             return ViewPageTemplateFile("templates/actions_panel_create_from_template.pt")(self)
+        return ""
+
+    def may_duplicate(self):
+        """
+        Method that check if special 'duplicate' action has to be displayed.
+        """
+        # TODO define permissions for duplicate
+        return True
+
+    def render_duplicate_button(self):
+        if self.may_duplicate():
+            return ViewPageTemplateFile("templates/actions_panel_duplicate.pt")(self)
         return ""
 
     def may_create_new_message(self):
