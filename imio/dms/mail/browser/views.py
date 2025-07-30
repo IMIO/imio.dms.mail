@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
 from collective.ckeditortemplates.cktemplate import ICKTemplate
+from collective.dms.basecontent.dmsfile import IDmsAppendixFile
+from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from datetime import datetime
+from DateTime import DateTime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
@@ -20,14 +24,23 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
+from plone.supermodel import model
+from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.PageTemplates.Expressions import SecureModuleImporter
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
+from z3c.form import button
+from z3c.form.field import Fields
+from z3c.form.form import Form
+from z3c.relationfield import RelationValue
+from zope import schema
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
+from zope.component import getUtility
 from zope.i18n import translate
 from zope.interface import implements
+from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
@@ -68,6 +81,117 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
             "output_format=odt",
         ]
         return "{}/persistent-document-generation?{}".format(url, "&".join(params))
+
+
+class IDuplicateFormSchema(model.Schema):
+
+    keep_category = schema.Bool(
+        title=_(u"Keep classification category"),
+        description=u'',
+        default=True,
+    )
+
+    keep_folder = schema.Bool(
+        title=_(u"Keep classification folder"),
+        description=u'',
+        default=True,
+    )
+
+    keep_linked_mails = schema.Bool(
+        title=_(u"Keep linked mails"),
+        description=u'',
+        default=True,
+    )
+
+    keep_dms_files = schema.Bool(
+        title=_(u"Keep DMS files"),
+        description=u'',
+        default=True,
+    )
+
+    keep_annexes = schema.Bool(
+        title=_(u"Keep annexes"),
+        description=u'',
+        default=True,
+    )
+
+    link_to_original = schema.Bool(
+        title=_(u"Link to original"),
+        description=u'',
+        default=True,
+    )
+
+
+class DuplicateForm(Form):
+
+    """Duplicate an outgoing mail."""
+    label = _(u"Duplicate mail")
+    fields = Fields(IDuplicateFormSchema)
+    ignoreContext = True
+
+    @button.buttonAndHandler(_('Duplicate'), name='duplicate')
+    def handleApply(self, action):
+        data, errors = self.extractData()
+
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+
+        # Duplicate the mail
+        parent = self.context.aq_parent
+        clipboard = parent.manage_copyObjects([self.context.getId()])
+        result = parent.manage_pasteObjects(clipboard)
+        duplicated_mail = parent[result[0]['new_id']]
+        duplicated_mail.creation_date = DateTime()
+        duplicated_mail.reindexObject(idxs=['created'])
+        duplicated_mail.internal_reference_no = internalReferenceOutgoingMailDefaultValue(self)
+        duplicated_mail.due_date = None
+        duplicated_mail.outgoing_date = None
+        duplicated_mail.mail_date = None
+
+        if not data['keep_category']:
+            duplicated_mail.classification_categories = None
+
+        if not data['keep_folder']:
+            duplicated_mail.classification_folders = None
+
+        if not data['keep_linked_mails']:
+            duplicated_mail.reply_to = None
+
+        if not data['keep_dms_files']:
+            dms_files = [sub_content.getId() for sub_content in duplicated_mail.values() if IImioDmsFile.providedBy(sub_content)]
+            if dms_files:
+                duplicated_mail.manage_delObjects(dms_files)
+
+        if not data['keep_annexes']:
+            annexes = [sub_content.getId() for sub_content in duplicated_mail.values() if IDmsAppendixFile.providedBy(sub_content)]
+            if annexes:
+                duplicated_mail.manage_delObjects(annexes)
+
+        if data['link_to_original']:
+            intids = getUtility(IIntIds)
+            rel_id = intids.getId(self.context)
+            if duplicated_mail.reply_to is None:
+                duplicated_mail.reply_to = []
+            duplicated_mail.reply_to.append(RelationValue(rel_id))
+
+        self.request.response.redirect(duplicated_mail.absolute_url()+"/edit")
+
+    def updateWidgets(self):
+        super(DuplicateForm, self).updateWidgets()
+        self.widgets["keep_category"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_category", IImioDmsMailConfig, True) else []
+        self.widgets["keep_folder"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_folder", IImioDmsMailConfig, True) else []
+        self.widgets["keep_linked_mails"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_linked_mails", IImioDmsMailConfig, True) else []
+        self.widgets["keep_dms_files"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_dms_files", IImioDmsMailConfig, True) else []
+        self.widgets["keep_annexes"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_annexes", IImioDmsMailConfig, True) else []
+        self.widgets["link_to_original"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_link_to_original", IImioDmsMailConfig, True) else []
+
+        navtree_props = getToolByName(api.portal.get(), 'portal_properties').navtree_properties
+        excluded_types = navtree_props.getProperty('metaTypesNotToList', ())
+        if 'ClassificationContainer' in excluded_types:
+            self.widgets["keep_category"].mode = "hidden"
+        if 'ClassificationFolders' in excluded_types:
+            self.widgets["keep_folder"].mode = "hidden"
 
 
 def parse_query(text):

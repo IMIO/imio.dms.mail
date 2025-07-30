@@ -7,11 +7,19 @@ from imio.dms.mail import PERIODS
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
+from imio.helpers.test_helpers import ImioTestHelpers
+from mock import patch
 from plone import api
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile import NamedBlobFile
+from z3c.relationfield.relation import RelationValue
+from zope.component import getUtility
 from zope.i18n import translate
+from zope.intid.interfaces import IIntIds
 
 import json
 import unittest
@@ -297,3 +305,177 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.assertIn(u">012/34.56.79<", rendered)
         self.assertIn(u">Rue Léon Morel, 1<", rendered)
         self.assertIn(u">5032 Isnes<", rendered)
+
+class TestDuplicate(unittest.TestCase, ImioTestHelpers):
+    """
+    Test the duplication of outgoing mails.
+    """
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        self.pc = api.portal.get_tool('portal_catalog')
+        self.change_user("siteadmin")
+        self.intids = getUtility(IIntIds)
+
+        self.omail2 = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id2",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            classification_folders=[self.portal.folders['ordre-public-reglement-general-de-police'].UID()],
+            classification_categories=self.portal.folders['ordre-public-reglement-general-de-police'].classification_categories,
+        )
+
+        self.omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            classification_folders=[self.portal.folders['ordre-public-reglement-general-de-police'].UID()],
+            classification_categories=self.portal.folders['ordre-public-reglement-general-de-police'].classification_categories,
+            reply_to=[RelationValue(self.intids.getId(self.omail2))],
+        )
+        self.dmsommainfile = createContentInContainer(self.omail, "dmsommainfile", title=u"D001", file=NamedBlobFile(filename=u"scanned.pdf"))
+        self.dmsappendixfile = createContentInContainer(
+            self.omail, "dmsappendixfile", title=u"A001", file=NamedBlobFile(filename=u"appendix.odt")
+        )
+        self.form = self.omail.restrictedTraverse("@@duplicate")
+
+    @patch("imio.dms.mail.browser.views.DuplicateForm.extractData")
+    def test_duplicate(self, extractData):
+        extractData.return_value = {
+            'keep_category': True,
+            'keep_folder': True,
+            'keep_linked_mails': True,
+            'keep_dms_files': True,
+            'keep_annexes': True,
+            'link_to_original': True,
+        }, None
+        self.form.handleApply(self.form, "duplicate")
+
+        brains = self.pc(portal_type="dmsoutgoingmail", id="copy_of_my-id")
+        self.assertEqual(len(brains), 1)
+        duplicated_mail = brains[0].getObject()
+        self.assertEqual(duplicated_mail.title, u"My title")
+        self.assertEqual(duplicated_mail.description, u"Description")
+        self.assertEqual(duplicated_mail.send_modes, ["post"])
+        self.assertGreater(duplicated_mail.creation_date, self.omail.creation_date)
+        self.assertNotEqual(duplicated_mail.internal_reference_no, self.omail.internal_reference_no)
+        self.assertIsNone(duplicated_mail.mail_date)
+        self.assertIsNone(duplicated_mail.due_date)
+        self.assertIsNone(duplicated_mail.outgoing_date)
+
+        # Test keep_category
+        self.assertEqual(duplicated_mail.classification_categories, self.portal.folders['ordre-public-reglement-general-de-police'].classification_categories)
+        # Test keep_folder
+        self.assertEqual(duplicated_mail.classification_folders, [self.portal.folders['ordre-public-reglement-general-de-police'].UID()])
+        # Test keep_linked_mails
+        self.assertEqual(len(duplicated_mail.reply_to), 2)
+        self.assertEqual(self.omail2, duplicated_mail.reply_to[0].to_object)
+        # Test keep_dms_files
+        self.assertIn("d001", duplicated_mail)
+        # Test keep_annexes
+        self.assertIn("a001", duplicated_mail)
+        # Test link_to_original
+        self.assertEqual(self.omail, duplicated_mail.reply_to[1].to_object)
+
+        # Test not keeping categories
+        extractData.return_value = {
+            'keep_category': False,
+            'keep_folder': True,
+            'keep_linked_mails': True,
+            'keep_dms_files': True,
+            'keep_annexes': True,
+            'link_to_original': True,
+        }, None
+        self.form.handleApply(self.form, "duplicate")
+        brains = self.pc(portal_type="dmsoutgoingmail", id="copy2_of_my-id")
+        self.assertEqual(len(brains), 1)
+        duplicated_mail = brains[0].getObject()
+        self.assertIsNone(duplicated_mail.classification_categories)
+
+        # Test not keeping folders
+        extractData.return_value = {
+            'keep_category': True,
+            'keep_folder': False,
+            'keep_linked_mails': True,
+            'keep_dms_files': True,
+            'keep_annexes': True,
+            'link_to_original': True,
+        }, None
+        self.form.handleApply(self.form, "duplicate")
+        brains = self.pc(portal_type="dmsoutgoingmail", id="copy3_of_my-id")
+        self.assertEqual(len(brains), 1)
+        duplicated_mail = brains[0].getObject()
+        self.assertIsNone(duplicated_mail.classification_folders)
+
+        # Test not keeping linked mails
+        extractData.return_value = {
+            'keep_category': True,
+            'keep_folder': True,
+            'keep_linked_mails': False,
+            'keep_dms_files': True,
+            'keep_annexes': True,
+            'link_to_original': True,
+        }, None
+        self.form.handleApply(self.form, "duplicate")
+        brains = self.pc(portal_type="dmsoutgoingmail", id="copy4_of_my-id")
+        self.assertEqual(len(brains), 1)
+        duplicated_mail = brains[0].getObject()
+        self.assertEqual(len(duplicated_mail.reply_to), 1)
+        self.assertNotEqual(self.omail2, duplicated_mail.reply_to[0].to_object)
+
+        # Test not keeping dms files
+        extractData.return_value = {
+            'keep_category': True,
+            'keep_folder': True,
+            'keep_linked_mails': True,
+            'keep_dms_files': False,
+            'keep_annexes': True,
+            'link_to_original': True,
+        }, None
+        self.form.handleApply(self.form, "duplicate")
+        brains = self.pc(portal_type="dmsoutgoingmail", id="copy5_of_my-id")
+        self.assertEqual(len(brains), 1)
+        duplicated_mail = brains[0].getObject()
+        self.assertNotIn("d001", duplicated_mail)
+
+        # Test not keeping annexes
+        extractData.return_value = {
+            'keep_category': True,
+            'keep_folder': True,
+            'keep_linked_mails': True,
+            'keep_dms_files': True,
+            'keep_annexes': False,
+            'link_to_original': True,
+        }, None
+        self.form.handleApply(self.form, "duplicate")
+        brains = self.pc(portal_type="dmsoutgoingmail", id="copy6_of_my-id")
+        self.assertEqual(len(brains), 1)
+        duplicated_mail = brains[0].getObject()
+        self.assertNotIn("a001", duplicated_mail)
+
+        # Test not linking to original
+        extractData.return_value = {
+            'keep_category': True,
+            'keep_folder': True,
+            'keep_linked_mails': True,
+            'keep_dms_files': True,
+            'keep_annexes': True,
+            'link_to_original': False,
+        }, None
+        self.form.handleApply(self.form, "duplicate")
+        brains = self.pc(portal_type="dmsoutgoingmail", id="copy7_of_my-id")
+        self.assertEqual(len(brains), 1)
+        duplicated_mail = brains[0].getObject()
+        self.assertEqual(len(duplicated_mail.reply_to), 1)
+        self.assertNotEqual(self.omail, duplicated_mail.reply_to[0].to_object)

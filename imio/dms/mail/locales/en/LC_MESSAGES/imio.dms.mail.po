@@ -1330,3 +1330,60 @@ msgstr "Templates"
 #: ./browser/viewlets.py:107
 msgid "zip_code"
 msgstr ""
+
+#: ./browser/settings.py:556
+msgid "Default value when duplicating an outgoing mail for 'Keep DMS files'"
+msgstr ""
+
+#: ./browser/settings.py:560
+msgid "Default value when duplicating an outgoing mail for 'Keep annexes'"
+msgstr ""
+
+#: ./browser/settings.py:544
+msgid "Default value when duplicating an outgoing mail for 'Keep classification category'"
+msgstr ""
+
+#: ./browser/settings.py:548
+msgid "Default value when duplicating an outgoing mail for 'Keep classification folder'"
+msgstr ""
+
+#: ./browser/settings.py:552
+msgid "Default value when duplicating an outgoing mail for 'Keep linked mails'"
+msgstr ""
+
+#: ./browser/settings.py:564
+msgid "Default value when duplicating an outgoing mail for 'Link to original'"
+msgstr ""
+
+#: ./browser/views.py:108
+msgid "Keep DMS files"
+msgstr ""
+
+#: ./browser/views.py:115
+msgid "Keep annexes"
+msgstr ""
+
+#: ./browser/views.py:87
+msgid "Keep classification category"
+msgstr ""
+
+#: ./browser/views.py:94
+msgid "Keep classification folder"
+msgstr ""
+
+#: ./browser/views.py:101
+msgid "Keep linked mails"
+msgstr ""
+
+#: ./browser/views.py:122
+msgid "Link to original"
+msgstr ""
+
+#: ./browser/templates/actions_panel_duplicate.pt:6
+#: ./browser/views.py:136
+msgid "Duplicate"
+msgstr ""
+
+#: ./browser/views.py:132
+msgid "Duplicate mail"
+msgstr ""
