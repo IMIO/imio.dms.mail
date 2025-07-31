@@ -91,8 +91,12 @@ function toggle_dms_document_view() {
   /* Toggles CSS to switch between wide and normal view */
   const current_view = Cookies.get('dms_document_view') || 'view';
   const new_view = current_view === 'wide' ? 'view' : 'wide';
-  Cookies.set('dms_document_view', new_view, { expires: 12 }); // 12 hours
-}
+  Cookies.set('dms_document_view', new_view, { expires: 0.5 }); // 12 hours
+  if (new_view === 'wide') {
+    document.body.classList.add('wide-view');
+  } else {
+    document.body.classList.remove('wide-view');
+  }}
 
 $(document).ready(function(){
 
@@ -107,6 +111,11 @@ $(document).ready(function(){
                        data_parameters=[],
                        options={position: 'bottom', theme: 'tooltipster-light sub-portaltab', arrow: false,
                        functionPosition_callback: function (instance, helper, position){position.coord.top -= 6;return position;},});
+
+    const current_view = Cookies.get('dms_document_view');
+    if (current_view === 'wide') {
+        document.body.classList.add('wide-view');
+    }
 
     $('#formfield-form-widgets-organizations .formHelp').before('<span id="pg-orga-link"><a href="contacts/plonegroup-organization" target="_blank">Lien vers mon organisation</a><br /><a href="contacts/personnel-folder" target="_blank">Lien vers mon personnel</a><br /><a href="@@various-utils/kofax_orgs" target="_blank">Listing des services pour Kofax</a></span>');
 

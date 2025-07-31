@@ -32,7 +32,7 @@
          title="Toggle read mode for mails to be signed"
          i18n:domain="imio.dms.mail" i18n:attributes="title">
          <button class="apButton apButtonAction imiodmsmail_read_mode"
-            onclick="toggle_dms_document_view(); location.reload();">
+            onclick="toggle_dms_document_view();">
          </button>
       </li>
    </ul>

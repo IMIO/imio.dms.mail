@@ -331,7 +331,9 @@
 
   <javascript id="++resource++imio.annex.quickupload/helpers.js" insert-after="++resource++collective.iconifiedcategory/iconifiedcategory.js" />
 
-  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.annex.quickupload/helpers.js" />
+  <javascript id="++resource++imio.dms.mail/js.cookie-3.0.5.min.js" insert-after="++resource++imio.annex.quickupload/helpers.js" />
+
+  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dms.mail/js.cookie-3.0.5.min.js" />
 
   <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
 
