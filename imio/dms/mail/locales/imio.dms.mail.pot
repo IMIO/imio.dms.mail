@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-05-18 07:19+0000\n"
+"POT-Creation-Date: 2025-07-31 15:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,10 +16,6 @@ msgstr ""
 "Language-Name: English\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
-
-#: ./vocabularies.py
-msgid "${element_title} (Inactive)"
-msgstr ""
 
 #: ./browser/settings.py:655
 msgid "${tab} tab: multiple value '${value}' in '${field}' setting !! Must be unique"
@@ -45,7 +41,7 @@ msgstr ""
 msgid "${tab} tab: « ${field} » rule ${rule} is configured with no values defined"
 msgstr ""
 
-#: ./browser/views.py:44
+#: ./browser/views.py:45
 msgid "${title}: create from template"
 msgstr ""
 
@@ -61,24 +57,8 @@ msgstr ""
 msgid "${type} state set"
 msgstr ""
 
-#: ./browser/settings.py
-msgid "'${field}': position ${position}"
-msgstr ""
-
-#: ./__init__.py:26
-msgid "++resource++imio.dms.mail/wf_again.png"
-msgstr ""
-
-#: ./__init__.py:25
-msgid "++resource++imio.dms.mail/wf_back.png"
-msgstr ""
-
 #: ./subscribers.py:731
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
-msgstr ""
-
-#: ./browser/settings.py:422
-msgid "<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>"
 msgstr ""
 
 #: ./browser/settings.py:583
@@ -121,16 +101,8 @@ msgstr ""
 msgid "All contacts export"
 msgstr ""
 
-#: ./browser/views.py:89
-msgid "All under"
-msgstr ""
-
 #: ./browser/batchactions.py:69
 msgid "An assigned user is not in this new treating group. Mail \"${mail}\" !"
-msgstr ""
-
-#: ./browser/batchactions.py:331
-msgid "Apply"
 msgstr ""
 
 #: ./browser/templates/actions_panel_assign_user.pt:11
@@ -155,10 +127,6 @@ msgstr ""
 
 #: ./setuphandlers.py:2648
 msgid "Base template"
-msgstr ""
-
-#: ./browser/batchactions.py:51
-msgid "Batch action form"
 msgstr ""
 
 #: ./browser/batchactions.py:218
@@ -193,15 +161,11 @@ msgstr ""
 msgid "Batch sender contact field change"
 msgstr ""
 
-#: ./browser/batchactions.py:134
-msgid "Batch state change"
-msgstr ""
-
 #: ./browser/batchactions.py:41
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/views.py:242
+#: ./browser/views.py:243
 msgid "Cannot use localhost as smtp"
 msgstr ""
 
@@ -226,20 +190,12 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:49
+#: ./browser/views.py:50
 msgid "Choose this template"
-msgstr ""
-
-#: ./browser/settings.py:373
-msgid "Choose to which state a manually forwarded email will go."
 msgstr ""
 
 #: ./browser/settings.py:556
 msgid "Close outgoing mail on email send"
-msgstr ""
-
-#: ./browser/batchactions.py:148
-msgid "Comment"
 msgstr ""
 
 #: ./setuphandlers.py:2453
@@ -272,10 +228,6 @@ msgstr ""
 msgid "Contacts audit"
 msgstr ""
 
-#: ./setuphandlers.py:1836
-msgid "Contacts export"
-msgstr ""
-
 #: ./browser/templates/actions_panel_create_from_template.pt:6
 msgid "Create from template"
 msgstr ""
@@ -288,7 +240,7 @@ msgstr ""
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
-#: ./browser/settings.py:1161
+#: ./browser/settings.py:1162
 msgid "Current product version"
 msgstr ""
 
@@ -324,11 +276,11 @@ msgstr ""
 msgid "Do mailing for each postal sending type."
 msgstr ""
 
-#: ./browser/settings.py:1149
+#: ./browser/settings.py:1150
 msgid "Document viewer preservation date"
 msgstr ""
 
-#: ./browser/settings.py:1145
+#: ./browser/settings.py:1146
 msgid "Document viewer preservation days number"
 msgstr ""
 
@@ -340,20 +292,8 @@ msgstr ""
 msgid "Email general template"
 msgstr ""
 
-#: ./browser/settings.py:372
-msgid "Email manual forward transition"
-msgstr ""
-
-#: ./browser/views.py:216
-msgid "Email sent at ${date_hour}."
-msgstr ""
-
 #: ./browser/settings.py:575
 msgid "Email signature model"
-msgstr ""
-
-#: ./vocabularies.py:135
-msgid "Empty value"
 msgstr ""
 
 #: ./browser/settings.py:551
@@ -437,10 +377,6 @@ msgstr ""
 msgid "Groups hidden in dashboards filter"
 msgstr ""
 
-#: ./adapters.py:
-msgid "Has response icon"
-msgstr ""
-
 #: ./setuphandlers.py:2600
 msgid "Header template"
 msgstr ""
@@ -489,7 +425,7 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
-#: ./browser/settings.py:1153
+#: ./browser/settings.py:1154
 msgid "Incoming mails folder period (month, week, day)"
 msgstr ""
 
@@ -530,10 +466,6 @@ msgstr ""
 msgid "Mail type"
 msgstr ""
 
-#: ./browser/table.py:75
-msgid "Mailing"
-msgstr ""
-
 #: ./setuphandlers.py:2624
 msgid "Mailing template"
 msgstr ""
@@ -542,24 +474,12 @@ msgstr ""
 msgid "Member Area"
 msgstr ""
 
-#: ./browser/settings.py:460
-msgid "Missing mandatory fields: ${msg}"
-msgstr ""
-
 #: ./browser/templates/actions_panel_folder_annexes.pt:5
 msgid "Multiple annexes"
 msgstr ""
 
 #: ./browser/settings.py:271
 msgid "No check"
-msgstr ""
-
-#: ./browser/batchactions.py:144
-msgid "No common or available transition. Modify your selection."
-msgstr ""
-
-#: ./browser/batchactions.py:193
-msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
 #: ./browser/batchactions.py:241
@@ -580,10 +500,6 @@ msgstr ""
 
 #: ./browser/settings.py:340
 msgid "Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
-msgstr ""
-
-#: ./browser/batchactions.py:149
-msgid "Optional comment to display in history"
 msgstr ""
 
 #: ./migrations/migrate_to_2_1.py:390
@@ -638,7 +554,7 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/settings.py:1157
+#: ./browser/settings.py:1158
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr ""
 
@@ -652,16 +568,8 @@ msgstr ""
 msgid "Persons searches"
 msgstr ""
 
-#: ./profiles/default/registry.xml
-msgid "Pipeline to use to import contacts"
-msgstr ""
-
 #: ./wfadaptations.py:385
 msgid "Please update manually ${type} local roles for creating_group !"
-msgstr ""
-
-#: ./browser/settings.py:466
-msgid "Position required for fields: ${msg}"
 msgstr ""
 
 #: ./browser/settings.py:503
@@ -694,10 +602,6 @@ msgstr ""
 
 #: ./columns.py:492
 msgid "Relative path"
-msgstr ""
-
-#: ./adapters.py:
-msgid "Remark icon"
 msgstr ""
 
 #: ./browser/templates/actions_panel_reply.pt:5
@@ -798,10 +702,6 @@ msgstr ""
 msgid "TAL condition 2"
 msgstr ""
 
-#: ./browser/settings.py:257
-msgid "TAL condition 3"
-msgstr ""
-
 #: ./migrations/migrate_to_1_0.py:80
 #: ./migrations/migrate_to_2_0.py:110
 #: ./setuphandlers.py:298
@@ -822,10 +722,6 @@ msgstr ""
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
-#: ./browser/viewlets.py:115
-msgid "This contact '${title}' has missing address fields: ${keys}"
-msgstr ""
-
 #: ./wfadaptations.py:53
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr ""
@@ -836,10 +732,6 @@ msgstr ""
 
 #: ./browser/settings.py:178
 msgid "Transferer"
-msgstr ""
-
-#: ./browser/batchactions.py:141
-msgid "Transition"
 msgstr ""
 
 #: ./browser/settings.py:254
@@ -936,11 +828,11 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./browser/views.py:270
+#: ./browser/views.py:271
 msgid "Your email has been sent."
 msgstr ""
 
-#: ./browser/views.py:242
+#: ./browser/views.py:243
 msgid "Your email has not been sent: ${error}."
 msgstr ""
 
@@ -982,18 +874,6 @@ msgstr ""
 msgid "backrefs_viewlet_title"
 msgstr ""
 
-#: ./columns.py:56
-msgid "batch_printable_False"
-msgstr ""
-
-#: ./columns.py:56
-msgid "batch_printable_True"
-msgstr ""
-
-#: ./browser/viewlets.py:107
-msgid "city"
-msgstr ""
-
 #: ./setuphandlers.py:127
 msgid "classification_tree_tab"
 msgstr ""
@@ -1006,14 +886,6 @@ msgstr ""
 msgid "create_classification_folder"
 msgstr ""
 
-#: ./browser/templates/category_contact.pt:11
-msgid "create_contact"
-msgstr ""
-
-#: ./browser/templates/category_contact.pt:11
-msgid "create_contact_list"
-msgstr ""
-
 #: ./browser/templates/category_im.pt:17
 msgid "create_iem"
 msgstr ""
@@ -1022,20 +894,8 @@ msgstr ""
 msgid "create_im"
 msgstr ""
 
-#: ./browser/templates/category_om.pt:17
-msgid "create_oem"
-msgstr ""
-
 #: ./browser/templates/category_om.pt:10
 msgid "create_om"
-msgstr ""
-
-#: ./browser/templates/category_contact.pt:11
-msgid "create_organization"
-msgstr ""
-
-#: ./browser/templates/category_contact.pt:11
-msgid "create_person"
 msgstr ""
 
 #: ./setuphandlers.py:116
@@ -1044,10 +904,6 @@ msgstr ""
 
 #: ./setuphandlers.py:1779
 msgid "followed"
-msgstr ""
-
-#: ./browser/settings.py
-msgid "for '${conf}' config => ${fields}. "
 msgstr ""
 
 #: ./migrations/migrate_to_2_0.py:251
@@ -1106,10 +962,6 @@ msgstr ""
 msgid "im_to_validate"
 msgstr ""
 
-#: ./browser/settings.py
-msgid "imail_fields"
-msgstr ""
-
 #: ./profiles.zcml:14
 msgid "imio.dms.mail"
 msgstr ""
@@ -1138,10 +990,6 @@ msgstr ""
 msgid "in_my_group"
 msgstr ""
 
-#: ./browser/reply_form.py
-msgid "incoming mails"
-msgstr ""
-
 #: ./setuphandlers.py:231
 msgid "incoming_mail_tab"
 msgstr ""
@@ -1149,10 +997,6 @@ msgstr ""
 #. Default: "Date"
 #: ./browser/templates/listing.pt:33
 msgid "listing_date_title"
-msgstr ""
-
-#: ./browser/listing.py:31
-msgid "listing_no_group"
 msgstr ""
 
 #. Default: "Object"
@@ -1163,10 +1007,6 @@ msgstr ""
 #. Default: "Sender"
 #: ./browser/templates/listing.pt:32
 msgid "listing_sender_title"
-msgstr ""
-
-#: ./browser/viewlets.py:107
-msgid "number"
 msgstr ""
 
 #: ./setuphandlers.py:1505
@@ -1197,16 +1037,12 @@ msgstr ""
 msgid "om_to_validate"
 msgstr ""
 
-#: ./browser/settings.py
-msgid "omail_fields"
-msgstr ""
-
-#: ./profiles/default/registry.xml
-msgid "organization_type_query_field"
-msgstr ""
-
 #: ./setuphandlers.py:262
 msgid "outgoing_mail_tab"
+msgstr ""
+
+#: ./browser/tabular_view.py:62
+msgid "plone"
 msgstr ""
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
@@ -1216,73 +1052,6 @@ msgstr ""
 
 #: ./wfadaptations.py:844
 msgid "searchfor: ${state}"
-msgstr ""
-
-#: contacts
-msgid "searchfor_active"
-msgstr ""
-
-#: dmsincomingmail
-#: task
-msgid "searchfor_closed"
-msgstr ""
-
-#: dmsincomingmail
-#: dmsoutgoingmail
-#: task
-msgid "searchfor_created"
-msgstr ""
-
-#: contacts
-msgid "searchfor_deactivated"
-msgstr ""
-
-#: task
-msgid "searchfor_in_progress"
-msgstr ""
-
-#: dmsincomingmail
-msgid "searchfor_in_treatment"
-msgstr ""
-
-#: dmsincomingmail
-msgid "searchfor_proposed_to_agent"
-msgstr ""
-
-#: dmsincomingmail
-msgid "searchfor_proposed_to_manager"
-msgstr ""
-
-#: task
-msgid "searchfor_realized"
-msgstr ""
-
-#: dmsoutgoingmail
-msgid "searchfor_scanned"
-msgstr ""
-
-#: dmsoutgoingmail
-msgid "searchfor_sent"
-msgstr ""
-
-#: task
-msgid "searchfor_to_assign"
-msgstr ""
-
-#: dmsoutgoingmail
-msgid "searchfor_to_be_signed"
-msgstr ""
-
-#: task
-msgid "searchfor_to_do"
-msgstr ""
-
-#: dmsoutgoingmail
-msgid "searchfor_to_print"
-msgstr ""
-
-#: ./browser/viewlets.py:107
-msgid "street"
 msgstr ""
 
 #: ./setuphandlers.py:1177
@@ -1327,8 +1096,4 @@ msgstr ""
 
 #: ./setuphandlers.py:2451
 msgid "templates_tab"
-msgstr ""
-
-#: ./browser/viewlets.py:107
-msgid "zip_code"
 msgstr ""
