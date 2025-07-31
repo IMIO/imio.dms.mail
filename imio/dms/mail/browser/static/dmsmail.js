@@ -86,6 +86,22 @@ dmsmail.initialize_fancytree = function () {
   });
 }
 
+function reload_document_with_size(size) {
+    if (typeof DV === 'undefined' || typeof DV.viewers === 'undefined') {
+        return;
+    }
+    var viewer = DV.viewers[window.documentData["id"]];
+    if (viewer) {
+        viewer.models.document.zoom(size);
+        viewer.models.pages.resize();
+        viewer.pageSet.redraw();
+        var zoomHandle = document.querySelector(".DV-zoomBox .ui-slider-handle");
+        if (zoomHandle) {
+            zoomHandle.style.left = "100%";
+        }
+    }
+}
+
 function toggle_dms_document_view() {
   /* Handle wide view for dms documents */
   /* Toggles CSS to switch between wide and normal view */
@@ -94,8 +110,10 @@ function toggle_dms_document_view() {
   Cookies.set('dms_document_view', new_view, { expires: 0.5 }); // 12 hours
   if (new_view === 'wide') {
     document.body.classList.add('wide-view');
+    reload_document_with_size(1000);
   } else {
     document.body.classList.remove('wide-view');
+    reload_document_with_size(700);
   }}
 
 $(document).ready(function(){
