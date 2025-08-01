@@ -55,25 +55,25 @@
   white-space: pre-wrap;
 }
 
-/* view mode of OM as wide view */
+/* read mode of OM */
 
-.template-view.portaltype-dmsoutgoingmail.wide-view #fieldset-versions,
-.template-view.portaltype-dmsoutgoingmail.wide-view div#DV-container {
+.template-view.portaltype-dmsoutgoingmail.read-mode #fieldset-versions,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#DV-container {
     width: 100% !important;
 }
 
-.template-view.portaltype-dmsoutgoingmail.wide-view div#portal-column-content {
+.template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-content {
     margin-left: -100% !important;
     width: 100% !important;
 }
 
-.template-view.portaltype-dmsoutgoingmail.wide-view  #fields,
-.template-view.portaltype-dmsoutgoingmail.wide-view  #messagesviewlet,
-.template-view.portaltype-dmsoutgoingmail.wide-view  #content #plone-document-byline,
-.template-view.portaltype-dmsoutgoingmail.wide-view  div.viewlet_workflowstate,
-.template-view.portaltype-dmsoutgoingmail.wide-view  div#viewlet-below-content-body,
-.template-view.portaltype-dmsoutgoingmail.wide-view  div#portal-column-one,
-.template-view.portaltype-dmsoutgoingmail.wide-view  div.DV-fullscreen {
+.template-view.portaltype-dmsoutgoingmail.read-mode  #fields,
+.template-view.portaltype-dmsoutgoingmail.read-mode  #messagesviewlet,
+.template-view.portaltype-dmsoutgoingmail.read-mode  #content #plone-document-byline,
+.template-view.portaltype-dmsoutgoingmail.read-mode  div.viewlet_workflowstate,
+.template-view.portaltype-dmsoutgoingmail.read-mode  div#viewlet-below-content-body,
+.template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-column-one,
+.template-view.portaltype-dmsoutgoingmail.read-mode  div.DV-fullscreen {
     display: none !important;
 }
 
