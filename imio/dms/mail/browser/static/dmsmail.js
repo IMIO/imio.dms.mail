@@ -86,7 +86,7 @@ dmsmail.initialize_fancytree = function () {
   });
 }
 
-function reload_document_with_size(size) {
+function reload_document_with_size(size, percent) {
     if (typeof DV === "undefined" || typeof DV.viewers === "undefined") {
         return;
     }
@@ -97,7 +97,7 @@ function reload_document_with_size(size) {
         viewer.pageSet.redraw();
         var zoomHandle = document.querySelector(".DV-zoomBox .ui-slider-handle");
         if (zoomHandle) {
-            zoomHandle.style.left = "100%";
+            zoomHandle.style.left = percent + "%";
         }
     }
 }
@@ -110,12 +110,12 @@ function toggle_dms_document_view(element) {
   if (new_view === "read") {
     document.body.classList.add("read-mode");
     element.classList.add("active");
-    reload_document_with_size(1000);
+    reload_document_with_size(1000, "100");
     Cookies.set("dv_zoom_size", 1000, { expires: 0.5 });
   } else {
     document.body.classList.remove("read-mode");
     element.classList.remove("active");
-    reload_document_with_size(700);
+    reload_document_with_size(700, "25");
     Cookies.remove("dv_zoom_size");
   }}
 
