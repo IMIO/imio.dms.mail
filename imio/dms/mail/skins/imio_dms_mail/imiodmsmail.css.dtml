@@ -56,25 +56,45 @@
   white-space: pre-wrap;
 }
 
-/* read mode of OM */
+/* read mode */
 
 .template-view.portaltype-dmsoutgoingmail.read-mode #fieldset-versions,
-.template-view.portaltype-dmsoutgoingmail.read-mode div#DV-container {
+.template-view.portaltype-dmsincomingmail.read-mode #fieldset-versions,
+.template-view.portaltype-dmsincoming_email.read-mode #fieldset-versions,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#DV-container,
+.template-view.portaltype-dmsincomingmail.read-mode div#DV-container,
+.template-view.portaltype-dmsincoming_email.read-mode div#DV-container {
     width: 100% !important;
 }
 
-.template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-content {
+.template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-content,
+.template-view.portaltype-dmsincomingmail.read-mode div#portal-column-content,
+.template-view.portaltype-dmsincoming_email.read-mode div#portal-column-content {
     margin-left: -100% !important;
     width: 100% !important;
 }
 
 .template-view.portaltype-dmsoutgoingmail.read-mode  #fields,
+.template-view.portaltype-dmsincomingmail.read-mode  #fields,
+.template-view.portaltype-dmsincoming_email.read-mode  #fields,
 .template-view.portaltype-dmsoutgoingmail.read-mode  #messagesviewlet,
+.template-view.portaltype-dmsincomingmail.read-mode  #messagesviewlet,
+.template-view.portaltype-dmsincoming_email.read-mode  #messagesviewlet,
 .template-view.portaltype-dmsoutgoingmail.read-mode  #content #plone-document-byline,
+.template-view.portaltype-dmsincomingmail.read-mode  #content #plone-document-byline,
+.template-view.portaltype-dmsincoming_email.read-mode  #content #plone-document-byline,
 .template-view.portaltype-dmsoutgoingmail.read-mode  div.viewlet_workflowstate,
+.template-view.portaltype-dmsincomingmail.read-mode  div.viewlet_workflowstate,
+.template-view.portaltype-dmsincoming_email.read-mode  div.viewlet_workflowstate,
 .template-view.portaltype-dmsoutgoingmail.read-mode  div#viewlet-below-content-body,
+.template-view.portaltype-dmsincomingmail.read-mode  div#viewlet-below-content-body,
+.template-view.portaltype-dmsincoming_email.read-mode  div#viewlet-below-content-body,
 .template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-column-one,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div.DV-fullscreen {
+.template-view.portaltype-dmsincomingmail.read-mode  div#portal-column-one,
+.template-view.portaltype-dmsincoming_email.read-mode  div#portal-column-one,
+.template-view.portaltype-dmsoutgoingmail.read-mode  div.DV-fullscreen,
+.template-view.portaltype-dmsincomingmail.read-mode  div.DV-fullscreen,
+.template-view.portaltype-dmsincoming_email.read-mode  div.DV-fullscreen {
     display: none !important;
 }
 
