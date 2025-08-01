@@ -110,9 +110,11 @@ function toggle_dms_document_view() {
   if (new_view === "read") {
     document.body.classList.add("read-mode");
     reload_document_with_size(1000);
+    Cookies.set("dv_zoom_size", 1000, { expires: 0.5 });
   } else {
     document.body.classList.remove("read-mode");
     reload_document_with_size(700);
+    Cookies.remove("dv_zoom_size");
   }}
 
 $(document).ready(function(){
