@@ -11,22 +11,23 @@
 /* <dtml-with base_properties> (do not remove this :) */
 /* <dtml-call "REQUEST.set('portal_url', portal_url())"> (not this either :) */
 
-/* Read mode icon to sign outgoing mails */
-.imiodmsmail_read_mode {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/eyeglasses.svg');
-    background-size: 18px 18px;
+/* Read mode icon to enlarge dv view */
 
-    background-color: #ededed !important;
-    border: 1px solid #d3d3d3 !important;
-    border-radius: 4px !important;
-    cursor: pointer !important;
-    transition: background-color 0.2s, color 0.2s !important;
+#read_mode_icon {
+    float: right;
+    margin-right: 1em;
+    margin-top: 11px;
 }
 
-.imiodmsmail_read_mode:hover,
-.imiodmsmail_read_mode:focus {
-    background-color: rgba(255, 255, 255, 0.2) !important;
-    color: #ffe082 !important;
+#read_mode_icon svg{
+    fill: #FFB627;
+    transition: fill 0.3s ease;
+    width: 24px;
+    height: 24px;
+}
+
+#read_mode_icon.active svg{
+    fill: #3dcc5e;
 }
 
 /* view mode of IMdmsmail and OMdmsmail (ok) */
