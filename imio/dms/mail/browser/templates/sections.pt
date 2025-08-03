@@ -30,7 +30,7 @@
       <li id="read_mode_icon"
           tal:define="body_class python:plone_view.bodyClass(template, view);"
           tal:condition="python: 'section-incoming-mail' in body_class or 'section-outgoing-mail' in body_class"
-          title="Toggle read mode for mails to be signed"
+          title="Toggle preview read mode"
           i18n:domain="imio.dms.mail" i18n:attributes="title"
           onclick="toggle_dms_document_view(this);">
          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">

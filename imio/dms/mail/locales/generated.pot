@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-05-18 07:19+0000\n"
+"POT-Creation-Date: 2025-08-03 11:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -41,7 +41,7 @@ msgstr ""
 msgid "${tab} tab: « ${field} » rule ${rule} is configured with no values defined"
 msgstr ""
 
-#: ./browser/views.py:44
+#: ./browser/views.py:45
 msgid "${title}: create from template"
 msgstr ""
 
@@ -165,7 +165,7 @@ msgstr ""
 msgid "Batch treating group change"
 msgstr ""
 
-#: ./browser/views.py:242
+#: ./browser/views.py:243
 msgid "Cannot use localhost as smtp"
 msgstr ""
 
@@ -190,7 +190,7 @@ msgstr ""
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:49
+#: ./browser/views.py:50
 msgid "Choose this template"
 msgstr ""
 
@@ -240,7 +240,7 @@ msgstr ""
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
-#: ./browser/settings.py:1161
+#: ./browser/settings.py:1162
 msgid "Current product version"
 msgstr ""
 
@@ -276,11 +276,11 @@ msgstr ""
 msgid "Do mailing for each postal sending type."
 msgstr ""
 
-#: ./browser/settings.py:1149
+#: ./browser/settings.py:1150
 msgid "Document viewer preservation date"
 msgstr ""
 
-#: ./browser/settings.py:1145
+#: ./browser/settings.py:1146
 msgid "Document viewer preservation days number"
 msgstr ""
 
@@ -425,7 +425,7 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
-#: ./browser/settings.py:1153
+#: ./browser/settings.py:1154
 msgid "Incoming mails folder period (month, week, day)"
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/settings.py:1157
+#: ./browser/settings.py:1158
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr ""
 
@@ -596,7 +596,7 @@ msgstr ""
 msgid "Recipient groups"
 msgstr ""
 
-#: ./browser/templates/sections.pt:20
+#: ./browser/templates/sections.pt:25
 msgid "Refresh tab count"
 msgstr ""
 
@@ -726,6 +726,10 @@ msgstr ""
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr ""
 
+#: ./browser/templates/sections.pt:30
+msgid "Toggle preview read mode"
+msgstr ""
+
 #: ./browser/settings.py:221
 msgid "Transfer email pattern"
 msgstr ""
@@ -828,11 +832,11 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./browser/views.py:270
+#: ./browser/views.py:271
 msgid "Your email has been sent."
 msgstr ""
 
-#: ./browser/views.py:242
+#: ./browser/views.py:243
 msgid "Your email has not been sent: ${error}."
 msgstr ""
 

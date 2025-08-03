@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-05-18 07:19+0000\n"
+"POT-Creation-Date: 2025-08-03 11:59+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -45,7 +45,7 @@ msgstr "Onglet « ${tab} »: champ « ${field} », la règle de routage ${rule} 
 msgid "${tab} tab: « ${field} » rule ${rule} is configured with no values defined"
 msgstr "Onglet « ${tab} »: champ « ${field} », la règle de routage ${rule} contient au moins une colonne « valeur » non définie"
 
-#: ./browser/views.py:44
+#: ./browser/views.py:45
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -201,7 +201,7 @@ msgstr "Changement d'état par lot"
 msgid "Batch treating group change"
 msgstr "Changement de service traitant par lot"
 
-#: ./browser/views.py:242
+#: ./browser/views.py:243
 msgid "Cannot use localhost as smtp"
 msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 
@@ -226,7 +226,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:49
+#: ./browser/views.py:50
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -288,7 +288,7 @@ msgstr "Groupe indicateur"
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
-#: ./browser/settings.py:1161
+#: ./browser/settings.py:1162
 msgid "Current product version"
 msgstr "Version actuelle du produit"
 
@@ -324,11 +324,11 @@ msgstr "Le fichier ged doit être au format odt (Libre Office)"
 msgid "Do mailing for each postal sending type."
 msgstr "Effectuer un publipostage pour les formes d'envoi postales"
 
-#: ./browser/settings.py:1149
+#: ./browser/settings.py:1150
 msgid "Document viewer preservation date"
 msgstr "Date de conservation pour les prévisualisations"
 
-#: ./browser/settings.py:1145
+#: ./browser/settings.py:1146
 msgid "Document viewer preservation days number"
 msgstr "Nombre de jours de conservation pour les prévisualisations"
 
@@ -489,7 +489,7 @@ msgstr "Recherches courriers entrants"
 msgid "Incoming mails"
 msgstr "Courrier entrant"
 
-#: ./browser/settings.py:1153
+#: ./browser/settings.py:1154
 msgid "Incoming mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 
@@ -638,7 +638,7 @@ msgstr "Recherches courriers sortants"
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
-#: ./browser/settings.py:1157
+#: ./browser/settings.py:1158
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier sortant (mont, week, day)"
 
@@ -688,13 +688,9 @@ msgstr "Accusé de réception"
 msgid "Recipient groups"
 msgstr "Services en copie"
 
-#: ./browser/templates/sections.pt:20
+#: ./browser/templates/sections.pt:25
 msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
-
-#: ./imio/dms/mail/browser/templates/sections.pt:31
-msgid "Toggle read mode for mails to be signed"
-msgstr "Activer/Désactiver le mode lecture des courriers à signer"
 
 #: ./columns.py:492
 msgid "Relative path"
@@ -834,6 +830,10 @@ msgstr "Ce contact ${title} a des champs d'adresse vides: ${keys}"
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr "Cette adaptation de workflow est seulement valable pour le workflow '${workflow}' !"
 
+#: ./browser/templates/sections.pt:30
+msgid "Toggle preview read mode"
+msgstr "Activer/Désactiver le mode lecture des courriers"
+
 #: ./browser/settings.py:221
 msgid "Transfer email pattern"
 msgstr "Email qui transfère (expr. re.)"
@@ -940,11 +940,11 @@ msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service 
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./browser/views.py:270
+#: ./browser/views.py:271
 msgid "Your email has been sent."
 msgstr "Votre email a été envoyé"
 
-#: ./browser/views.py:242
+#: ./browser/views.py:243
 msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
