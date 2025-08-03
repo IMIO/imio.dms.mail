@@ -92,6 +92,9 @@
 .template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-column-one,
 .template-view.portaltype-dmsincomingmail.read-mode  div#portal-column-one,
 .template-view.portaltype-dmsincoming_email.read-mode  div#portal-column-one,
+.template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-breadcrumbs,
+.template-view.portaltype-dmsincomingmail.read-mode  div#portal-breadcrumbs,
+.template-view.portaltype-dmsincoming_email.read-mode  div#portal-breadcrumbs,
 .template-view.portaltype-dmsoutgoingmail.read-mode  div.DV-fullscreen,
 .template-view.portaltype-dmsincomingmail.read-mode  div.DV-fullscreen,
 .template-view.portaltype-dmsincoming_email.read-mode  div.DV-fullscreen {
