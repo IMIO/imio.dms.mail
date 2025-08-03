@@ -37,6 +37,18 @@
     id="++resource++select2/select2_locale_fr.js"
     inline="False"/>
 
+  <javascript
+    authenticated="True"
+    bundle=""
+    cacheable="True"
+    compression="safe"
+    conditionalcomment=""
+    cookable="True"
+    enabled="True"
+    expression=""
+    id="++resource++imio.dms.mail/js.cookie-3.0.5.min.js"
+    inline="False"/>
+
   <javascript id="++resource++plone.app.jquery.js" insert-after="" />
 
   <javascript id="jquery-integration.js" insert-after="++resource++plone.app.jquery.js" />
@@ -265,7 +277,15 @@
 
   <javascript id="++resource++collective.contact.facetednav/javascript.js" insert-after="++resource++collective.js.backbone/backbone.min.js" />
 
-  <javascript id="++resource++imio.helpers/helpers.js" insert-after="++resource++collective.contact.facetednav/javascript.js" />
+  <javascript id="++resource++quickupload_static/swfobject.js" insert-after="++resource++collective.contact.facetednav/javascript.js" />
+
+  <javascript id="++resource++quickupload_static/jquery.uploadify.js" insert-after="++resource++quickupload_static/swfobject.js" />
+
+  <javascript id="++resource++quickupload_static/fileuploader.js" insert-after="++resource++quickupload_static/jquery.uploadify.js" />
+
+  <javascript id="++resource++quickupload_static/helpers.js" insert-after="++resource++quickupload_static/fileuploader.js" />
+
+  <javascript id="++resource++imio.helpers/helpers.js" insert-after="++resource++quickupload_static/helpers.js" />
 
   <javascript id="++resource++collective.contact.plonegroup/plonegroup.js" insert-after="++resource++imio.helpers/helpers.js" />
 
@@ -277,15 +297,7 @@
 
   <javascript id="++resource++imio.dashboard/imio.dashboard.js" insert-after="++resource++collective.eeafaceted.z3ctable/collective.eeafaceted.z3ctable.js" />
 
-  <javascript id="++resource++quickupload_static/swfobject.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
-
-  <javascript id="++resource++quickupload_static/jquery.uploadify.js" insert-after="++resource++quickupload_static/swfobject.js" />
-
-  <javascript id="++resource++quickupload_static/fileuploader.js" insert-after="++resource++quickupload_static/jquery.uploadify.js" />
-
-  <javascript id="++resource++quickupload_static/helpers.js" insert-after="++resource++quickupload_static/fileuploader.js" />
-
-  <javascript id="ckeditor_vars.js" insert-after="++resource++quickupload_static/helpers.js" />
+  <javascript id="ckeditor_vars.js" insert-after="++resource++imio.dashboard/imio.dashboard.js" />
 
   <javascript id="++resource++ckeditor/ckeditor.js" insert-after="ckeditor_vars.js" />
 
@@ -319,7 +331,9 @@
 
   <javascript id="++resource++imio.annex.quickupload/helpers.js" insert-after="++resource++collective.iconifiedcategory/iconifiedcategory.js" />
 
-  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.annex.quickupload/helpers.js" />
+  <javascript id="++resource++imio.dms.mail/js.cookie-3.0.5.min.js" insert-after="++resource++imio.annex.quickupload/helpers.js" />
+
+  <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dms.mail/js.cookie-3.0.5.min.js" />
 
   <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
 
