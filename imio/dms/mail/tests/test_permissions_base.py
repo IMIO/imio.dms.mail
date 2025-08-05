@@ -2,6 +2,7 @@
 """ user permissions tests for this package."""
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
 from plone import api
 
 import unittest
@@ -38,3 +39,7 @@ class TestPermissionsBase(unittest.TestCase):
 
     def assertHasNoPerms(self, userid, obj):
         self.assertFalse(any(self.get_perms(userid, obj).values()))
+
+    def tearDown(self):
+        # the modified dmsconfig is kept globally
+        reset_dms_config()
