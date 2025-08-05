@@ -1,5 +1,5 @@
 <td class="noPadding" i18n:domain="imio.dms.mail">
-  <a tal:attributes="href string:${context/absolute_url}/@@duplicate"
+  <a tal:attributes="href string:${context/absolute_url}/@@om-duplicate"
      target="_parent"
      class="overlay"
      tal:define="dummy view/saveHasActions;">

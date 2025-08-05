@@ -20,10 +20,10 @@
         />
 
     <browser:page
-        name="duplicate"
+        name="om-duplicate"
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         permission="zope2.View"
-        class=".views.DuplicateForm"
+        class=".views.OMDuplicateForm"
         />
 
     <browser:page
