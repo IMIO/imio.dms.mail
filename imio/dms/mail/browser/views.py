@@ -14,6 +14,7 @@ from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import add_attachment
@@ -83,7 +84,7 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
         return "{}/persistent-document-generation?{}".format(url, "&".join(params))
 
 
-class IDuplicateFormSchema(model.Schema):
+class IOMDuplicateFormSchema(model.Schema):
 
     keep_category = schema.Bool(
         title=_(u"Keep classification category"),
@@ -122,11 +123,11 @@ class IDuplicateFormSchema(model.Schema):
     )
 
 
-class DuplicateForm(Form):
+class OMDuplicateForm(Form):
 
     """Duplicate an outgoing mail."""
     label = _(u"Duplicate mail")
-    fields = Fields(IDuplicateFormSchema)
+    fields = Fields(IOMDuplicateFormSchema)
     ignoreContext = True
 
     @button.buttonAndHandler(_('Duplicate'), name='duplicate')
@@ -138,39 +139,65 @@ class DuplicateForm(Form):
             return
 
         # Duplicate the mail
-        parent = self.context.aq_parent
-        clipboard = parent.manage_copyObjects([self.context.getId()])
-        result = parent.manage_pasteObjects(clipboard)
-        duplicated_mail = parent[result[0]['new_id']]
-        duplicated_mail.creation_date = DateTime()
-        duplicated_mail.reindexObject(idxs=['created'])
-        duplicated_mail.internal_reference_no = internalReferenceOutgoingMailDefaultValue(self)
-        duplicated_mail.due_date = None
-        duplicated_mail.outgoing_date = None
-        duplicated_mail.mail_date = None
+        # duplicated_mail.creation_date = DateTime()
+        # duplicated_mail.reindexObject(idxs=['created'])
+        # duplicated_mail.internal_reference_no = internalReferenceOutgoingMailDefaultValue(self)
+        # duplicated_mail.due_date = None
+        # duplicated_mail.outgoing_date = None
+        # duplicated_mail.mail_date = None
+        original_mail = self.context
+        i = 0
+        while True:
+            try:
+                print(i)
+                duplicated_mail = sub_create(
+                    api.portal.get()["outgoing-mail"],
+                    "dmsoutgoingmail",
+                    datetime.now(),
+                    "my-id-%s" % i,  # TODO use a better id
+                    title=original_mail.title,
+                    description=original_mail.description,
+                    recipients=original_mail.recipients[:] if original_mail.recipients else None,
+                    treating_groups=original_mail.treating_groups[:] if original_mail.treating_groups else None,
+                    assigned_user= original_mail.assigned_user,
+                    sender=original_mail.sender,
+                    recipient_groups=original_mail.recipient_groups[:] if original_mail.recipient_groups else None,
+                    send_modes= original_mail.send_modes[:] if original_mail.send_modes else None,
+                    task_description=original_mail.task_description,
+                )
+            except Exception as e:
+                i += 1
+                if i > 1000:
+                    raise e
+            else:
+                break
 
-        if not data['keep_category']:
-            duplicated_mail.classification_categories = None
+        if data['keep_category'] and hasattr(original_mail, 'classification_categories') and original_mail.classification_categories:
+            duplicated_mail.classification_categories = original_mail.classification_categories[:]
 
-        if not data['keep_folder']:
-            duplicated_mail.classification_folders = None
+        if data['keep_folder'] and hasattr(original_mail, 'classification_folders') and original_mail.classification_folders:
+            duplicated_mail.classification_folders = original_mail.classification_folders[:]
 
-        if not data['keep_linked_mails']:
-            duplicated_mail.reply_to = None
+        if data['keep_linked_mails'] and hasattr(original_mail, 'reply_to') and original_mail.reply_to:
+            duplicated_mail.reply_to = original_mail.reply_to[:]
 
-        if not data['keep_dms_files']:
-            dms_files = [sub_content.getId() for sub_content in duplicated_mail.values() if IImioDmsFile.providedBy(sub_content)]
+        if data['keep_dms_files']:
+            # FIXME do not use clipboard
+            dms_files = [sub_content.getId() for sub_content in original_mail.values() if IImioDmsFile.providedBy(sub_content)]
+            import ipdb; ipdb.set_trace()
             if dms_files:
-                duplicated_mail.manage_delObjects(dms_files)
+                clipboard = original_mail.manage_copyObjects(dms_files)
+                duplicated_mail.manage_pasteObjects(clipboard)
 
-        if not data['keep_annexes']:
-            annexes = [sub_content.getId() for sub_content in duplicated_mail.values() if IDmsAppendixFile.providedBy(sub_content)]
+        if data['keep_annexes']:
+            annexes = [sub_content.getId() for sub_content in original_mail.values() if IDmsAppendixFile.providedBy(sub_content)]
             if annexes:
-                duplicated_mail.manage_delObjects(annexes)
+                clipboard = original_mail.manage_copyObjects(annexes)
+                duplicated_mail.manage_pasteObjects(clipboard)
 
         if data['link_to_original']:
             intids = getUtility(IIntIds)
-            rel_id = intids.getId(self.context)
+            rel_id = intids.getId(original_mail)
             if duplicated_mail.reply_to is None:
                 duplicated_mail.reply_to = []
             duplicated_mail.reply_to.append(RelationValue(rel_id))
@@ -178,21 +205,23 @@ class DuplicateForm(Form):
         self.request.response.redirect(duplicated_mail.absolute_url()+"/edit")
 
     def updateWidgets(self):
-        super(DuplicateForm, self).updateWidgets()
-        self.widgets["keep_category"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_category", IImioDmsMailConfig, True) else []
-        self.widgets["keep_folder"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_folder", IImioDmsMailConfig, True) else []
-        self.widgets["keep_linked_mails"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_linked_mails", IImioDmsMailConfig, True) else []
-        self.widgets["keep_dms_files"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_dms_files", IImioDmsMailConfig, True) else []
-        self.widgets["keep_annexes"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_annexes", IImioDmsMailConfig, True) else []
-        self.widgets["link_to_original"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_link_to_original", IImioDmsMailConfig, True) else []
+        super(OMDuplicateForm, self).updateWidgets()
 
         navtree_props = getToolByName(api.portal.get(), 'portal_properties').navtree_properties
         excluded_types = navtree_props.getProperty('metaTypesNotToList', ())
         if 'ClassificationContainer' in excluded_types:
             self.widgets["keep_category"].mode = "hidden"
+        else:
+            self.widgets["keep_category"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_category", IImioDmsMailConfig, True) else []
         if 'ClassificationFolders' in excluded_types:
             self.widgets["keep_folder"].mode = "hidden"
+        else:
+            self.widgets["keep_folder"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_folder", IImioDmsMailConfig, True) else []
 
+        self.widgets["keep_linked_mails"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_linked_mails", IImioDmsMailConfig, True) else []
+        self.widgets["keep_dms_files"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_dms_files", IImioDmsMailConfig, True) else []
+        self.widgets["keep_annexes"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_annexes", IImioDmsMailConfig, True) else []
+        self.widgets["link_to_original"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_link_to_original", IImioDmsMailConfig, True) else []
 
 def parse_query(text):
     """Copied from plone.app.vocabularies.catalog.parse_query but cleaned."""

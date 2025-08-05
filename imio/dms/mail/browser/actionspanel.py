@@ -212,8 +212,9 @@ class DmsOMActionsPanelView(ActionsPanelView):
         """
         Method that check if special 'duplicate' action has to be displayed.
         """
-        # TODO define permissions for duplicate
-        return True
+        if self.member.has_permission("Add portal content", self.context):
+            return True
+        return False
 
     def render_duplicate_button(self):
         if self.may_duplicate():
