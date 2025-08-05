@@ -2,7 +2,7 @@
 """ user permissions tests for this package."""
 from datetime import datetime
 from imio.dms.mail.testing import change_user
-from imio.dms.mail.tests.test_permissions_base import TestPermissionsBase
+from imio.dms.mail.tests.btest_permissions_base import TestPermissionsBase
 from imio.dms.mail.utils import clean_borg_cache
 from imio.dms.mail.utils import sub_create
 from plone import api
@@ -27,3 +27,7 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBase):
         file = api.content.create(container=imail, id="file", type="dmsmainfile")
         task = api.content.create(container=imail, id="task", type="task", assigned_group=imail.treating_groups)
         clean_borg_cache(self.portal.REQUEST)
+
+        tpa = ()
+        tpa.patch_workflow("outgoingmail_workflow")
+        
