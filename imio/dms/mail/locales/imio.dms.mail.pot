@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-08-03 11:59+0000\n"
+"POT-Creation-Date: 2025-08-06 09:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -91,6 +91,14 @@ msgstr ""
 
 #: ./browser/settings.py:316
 msgid "Active"
+msgstr ""
+
+#: ./configure.zcml:366
+msgid "Add a field to indicate if the user should be able to sign documents"
+msgstr ""
+
+#: ./configure.zcml:372
+msgid "Add a field to list the users that have to sign the document"
 msgstr ""
 
 #: ./profiles.zcml:30
@@ -493,6 +501,10 @@ msgstr ""
 msgid "Incoming mails folder period (month, week, day)"
 msgstr ""
 
+#: ./behaviors.py:22
+msgid "Indicate if the user should be able to sign documents"
+msgstr ""
+
 #: ./profiles.zcml:14
 msgid "Installs the imio.dms.mail package"
 msgstr ""
@@ -507,6 +519,10 @@ msgstr ""
 
 #: ./subscribers.py:758
 msgid "Linked objects: ${list}"
+msgstr ""
+
+#: ./behaviors.py:34
+msgid "List of users who have to sign this document"
 msgstr ""
 
 #: ./browser/settings.py:206
@@ -760,6 +776,16 @@ msgstr ""
 
 #: ./browser/settings.py:177
 msgid "Set None"
+msgstr ""
+
+#: ./behaviors.py:21
+#: ./configure.zcml:366
+msgid "Signer"
+msgstr ""
+
+#: ./behaviors.py:32
+#: ./configure.zcml:372
+msgid "Signers"
 msgstr ""
 
 #: ./profiles.zcml:45

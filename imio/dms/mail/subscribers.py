@@ -53,6 +53,7 @@ from imio.helpers.security import get_zope_root
 from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
+from operator import itemgetter
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
@@ -382,6 +383,18 @@ def dmsoutgoingmail_transition(mail, event):
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
+
+
+def dmsoutgoingmail_added(mail, event):
+    # Sort signers
+    if mail.signers:
+        mail.signers = sorted(mail.signers, key=itemgetter("number"))
+
+
+def dmsoutgoingmail_modified(mail, event):
+    # Sort signers
+    if mail.signers:
+        mail.signers = sorted(mail.signers, key=itemgetter("number"))
 
 
 def dv_handle_file_creation(obj, event):
@@ -977,6 +990,14 @@ def organization_modified(obj, event):
         portal_type="organization", path="/".join(obj.getPhysicalPath()), sort_on="path"
     )[1:]:
         brain._unrestrictedGetObject().reindexObject(idxs=["sortable_title"])
+
+
+def held_position_modified(obj, event):
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+
+
+def held_position_removed(obj, event):
+    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
 
 
 def mark_contact(contact, event):

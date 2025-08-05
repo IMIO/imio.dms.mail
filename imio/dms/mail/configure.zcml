@@ -357,6 +357,22 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
+    <!-- behaviors -->
+
+    <plone:behavior
+        title="Signer"
+        description="Add a field to indicate if the user should be able to sign documents"
+        provides=".behaviors.ISignerBehavior"
+        />
+
+    <plone:behavior
+        title="Signers"
+        description="Add a field to list the users that have to sign the document"
+        provides=".behaviors.ISignersBehavior"
+        />
+
+    <!-- end -->
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />

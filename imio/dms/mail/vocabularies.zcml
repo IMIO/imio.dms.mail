@@ -25,6 +25,11 @@
         />
 
     <utility
+        name="imio.dms.mail.HeldPositionUsagesVocabulary"
+        factory="imio.dms.mail.vocabularies.HeldPositionUsagesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.AssignedUsersWithDeactivatedVocabulary"
         factory="imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary"
         />
@@ -52,6 +57,11 @@
     <utility
         name="imio.dms.mail.OMActiveSendModesVocabulary"
         factory="imio.dms.mail.vocabularies.OMActiveSendModesVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.OMSignersVocabulary"
+        factory="imio.dms.mail.vocabularies.OMSignersVocabulary"
         />
 
     <utility

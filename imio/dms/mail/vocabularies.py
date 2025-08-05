@@ -119,6 +119,19 @@ class ContactsReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+class HeldPositionUsagesVocabulary(object):
+    """Vocabulary for held position usages."""
+
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        res = []
+        res.append(
+            SimpleTerm('signer', 'signer', _('Signer')))
+        # Add more here if needed
+        return SimpleVocabulary(res)
+
+
 class AssignedUsersWithDeactivatedVocabulary(object):
     """All users, activated first."""
 
@@ -353,6 +366,31 @@ class OMActiveSendModesVocabulary(object):
         return get_settings_vta_table("omail_send_modes", active=[True])
 
     __call__ = OMActiveSendModesVocabulary__call__
+
+
+class OMSignersVocabulary(object):
+    """Signers vocabulary"""
+
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def __call__(self, context):
+        terms = []
+        catalog = api.portal.get_tool("portal_catalog")
+        brains = catalog.unrestrictedSearchResults(
+            portal_type="held_position",
+            signer=True,
+        )
+        for brain in brains:
+            hp = brain.getObject()
+            terms.append(
+                SimpleVocabulary.createTerm(
+                    brain.UID,
+                    brain.UID,
+                    hp.get_full_title(),
+                )
+            )
+        return SimpleVocabulary(terms)
 
 
 def encodeur_active_orgs(context):
