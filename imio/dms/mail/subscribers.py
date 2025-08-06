@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get  # noqa
+from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.classification.folder.content.vocabularies import set_folders_tree
 from collective.contact.core.interfaces import IContactCoreParameters
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
@@ -27,7 +28,7 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 # from imio.dms.mail import MAIN_FOLDERS
-# from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -385,16 +386,41 @@ def dmsoutgoingmail_transition(mail, event):
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
 
 
-def dmsoutgoingmail_added(mail, event):
-    # Sort signers
-    if mail.signers:
-        mail.signers = sorted(mail.signers, key=itemgetter("number"))
-
-
 def dmsoutgoingmail_modified(mail, event):
-    # Sort signers
+    # Do not update signers field if mail is sent or to be signed
+    mail_state = api.content.get_state(mail)
+    if mail_state in ("sent", "to_be_signed"):
+        return
+
+    # Update signers field only if empty
+    if not mail.signers:
+        mail.signers = []
+        signers_routing_config = api.portal.get_registry_record("omail_signer_routing", IImioDmsMailConfig, [])
+        for signer in signers_routing_config:
+            if u"_any_" not in signer["treating_groups"] and mail.mail_type not in signer["treating_groups"]:
+                continue
+            if u"_any_" not in signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
+                continue
+            if u"_any_" not in signer["send_modes"] and set(mail.send_modes) & set(signer["send_modes"]):
+                continue
+            if signer['valid_until'] and signer['valid_until'] < DateTime():
+                continue
+            if signer['valid_from'] and signer['valid_from'] > DateTime():
+                continue
+            if not _evaluateExpression(mail, expression=signer["tal_condition"]):
+                continue
+
+            mail.signers.append(
+                {
+                    "number": signer["number"],
+                    "seal": signer["seal"],
+                    "held_position": signer["held_position"],
+                    "validators": signer["validators"],
+                }
+            )
+
     if mail.signers:
-        mail.signers = sorted(mail.signers, key=itemgetter("number"))
+        mail.signers.sort(key=itemgetter("number"))
 
 
 def dv_handle_file_creation(obj, event):

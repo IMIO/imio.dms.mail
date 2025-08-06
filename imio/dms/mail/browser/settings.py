@@ -14,6 +14,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail.behaviors import ITableSignersSchema
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
@@ -53,6 +54,7 @@ from zope.interface import Interface
 from zope.interface import Invalid
 from zope.interface import invariant
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema import ValidationError
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -208,6 +210,77 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
+class SealSignersRoutingVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=None, title=_("Choose a value !")),
+                SimpleTerm(value=False, title=_("No seal")),
+                SimpleTerm(value=True, title=_("Electronic seal")),
+            ]
+        )
+
+
+class HeldpositionSignersRoutingVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=None, title=_("Choose a value !")),
+                SimpleTerm(value=u"_empty_", title=_("* No signature")),
+            ] + vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+        )
+
+
+class ValidatorsSignersRoutingVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_empty_", title=_("* No validation")),
+                SimpleTerm(value=u"_themself_", title=_("* Themself")),
+            ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
+        )
+
+
+class TreatingGroupsSignersRoutingVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_any_", title=_("* Any value")),
+                SimpleTerm(value=u"_empty_", title=_("* No value")),
+            ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
+        )
+
+
+class MailTypesSignersRoutingVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_any_", title=_("* Any value")),
+            ] + vocabularyname_to_terms("imio.dms.mail.OMMailTypesVocabulary", sort_on="title")
+        )
+
+
+class SendModesSignersRoutingVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_any_", title=_("* Any value")),
+            ] + vocabularyname_to_terms("imio.dms.mail.OMSendModesVocabulary", sort_on="title")
+        )
+
+
 class IRuleSchema(Interface):
 
     forward = schema.Choice(
@@ -237,6 +310,9 @@ class IRuleSchema(Interface):
 
 
 class IRoutingSchema(IRuleSchema):
+    """
+    Routing schema for incoming emails
+    """
 
     user_value = schema.Choice(
         title=_(u"Assigned user value"),
@@ -264,6 +340,107 @@ class IStateSetSchema(IRuleSchema):
         vocabulary="imio.dms.mail.StatesRoutingValueVocabulary",
         required=True,
     )
+
+
+class InvalidTreatingGroups(ValidationError):
+    __doc__ = _(u"You cannot select treating groups or no treating group or any treating group at the same time.")
+
+
+def validate_treating_groups(treating_groups):
+    if u"_empty_" in treating_groups and len(treating_groups) > 1:
+        raise InvalidTreatingGroups(treating_groups)
+    if u"_any_" in treating_groups and len(treating_groups) > 1:
+        raise InvalidTreatingGroups(treating_groups)
+    return True
+
+
+class InvalidMailTypes(ValidationError):
+    __doc__ = _(u"You cannot select mail types and any mail type at the same time.")
+
+
+def validate_mail_types(mail_types):
+    if u"_any_" in mail_types and len(mail_types) > 1:
+        raise InvalidMailTypes(mail_types)
+    return True
+
+
+class InvalidSendModes(ValidationError):
+    __doc__ = _(u"You cannot select send modes and any send mode at the same time.")
+
+
+def validate_send_modes(send_modes):
+    if u"_any_" in send_modes and len(send_modes) > 1:
+        raise InvalidSendModes(send_modes)
+    return True
+
+
+class ISignerRoutingSchema(ITableSignersSchema):
+    """
+    Routing schema for signers of outgoing mails
+    """
+
+    grouping = schema.Choice(
+        title=_(u"Grouping"),
+        vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
+        required=True,
+    )
+
+    treating_groups = schema.List(
+        title=_(u"Treating group value"),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.TreatingGroupsSignersRoutingVocabulary"),
+        default=["_any_"],
+        constraint=validate_treating_groups,
+        required=False,
+    )
+    widget('treating_groups', CheckBoxFieldWidget, multiple='multiple')
+
+    mail_types = schema.List(
+        title=_("Mail type"),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.MailTypesSignersRoutingVocabulary"),
+        default=["_any_"],
+        constraint=validate_mail_types,
+        required=False,
+    )
+    widget('mail_types', CheckBoxFieldWidget, multiple='multiple')
+
+    send_modes = schema.List(
+        title=_("Send mode"),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.SendModesSignersRoutingVocabulary"),
+        default=["_any_"],
+        constraint=validate_send_modes,
+        required=False,
+    )
+    widget('send_modes', CheckBoxFieldWidget, multiple='multiple')
+
+    valid_from = schema.Datetime(
+        title=_(u"Valid from"),
+        required=False,
+    )
+
+    valid_until = schema.Datetime(
+        title=_(u"Valid until"),
+        required=False,
+    )
+
+    tal_condition = schema.TextLine(
+        title=_("TAL condition"),
+        required=False,
+    )
+
+    # TODO reorder fields
+    # schema.order(
+    #     'grouping',
+    #     "number",
+    #     "seal",
+    #     "held_position",
+    #     "validators",
+    #     "treating_groups",
+    #     "mail_types",
+    #     "send_modes",
+    #     "valid_from",
+    #     "valid_until",
+    #     "tal_condition",
+    # )
 
 
 assigned_user_check_levels = SimpleVocabulary(
@@ -453,6 +630,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_post_mailing",
             "omail_fields",
             "omail_group_encoder",
+            "omail_signer_routing",
         ],
     )
 
@@ -464,7 +642,7 @@ class IImioDmsMailConfig(model.Schema):
         value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
     )
 
-    widget("omail_types", DataGridFieldFactory, allow_reorder=True)
+    widget("omail_types", DataGridFieldFactory)
 
     omail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
@@ -531,6 +709,20 @@ class IImioDmsMailConfig(model.Schema):
             u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
         ),
         default=False,
+    )
+
+    omail_signer_routing = schema.List(
+        title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Configure rules carefully. You can order with arrows."),
+        value_type=DictRow(title=_(u"Routing"), schema=ISignerRoutingSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "omail_signer_routing",
+        DataGridFieldFactory,
+        allow_reorder=False,
+        auto_append=False,
     )
 
     # FIELDSET OEM
@@ -960,6 +1152,8 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS["dmsoutgoingmail"]], "folder_period", event.newValue)
+    if event.record.fieldName == "omail_signer_routing":
+        event.record.value.sort(key=lambda x: (x["number"], x["grouping"]))
 
 
 def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):

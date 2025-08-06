@@ -160,6 +160,10 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         api.content.transition(self.imail, "close")
         self.assertEqual(self.imail.assigned_user, "agent")
 
+    def test_dmsoutgoingmail_modified(self):
+        # dmsoutgoingmail_modified(mail, None)
+        raise NotImplementedError()
+
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')
         task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]

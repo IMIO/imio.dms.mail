@@ -135,6 +135,36 @@
         />
 
     <utility
+        name="imio.dms.mail.SealSignersRoutingVocabulary"
+        factory="imio.dms.mail.browser.settings.SealSignersRoutingVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.HeldpositionSignersRoutingVocabulary"
+        factory="imio.dms.mail.browser.settings.HeldpositionSignersRoutingVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.ValidatorsSignersRoutingVocabulary"
+        factory="imio.dms.mail.browser.settings.ValidatorsSignersRoutingVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.TreatingGroupsSignersRoutingVocabulary"
+        factory="imio.dms.mail.browser.settings.TreatingGroupsSignersRoutingVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.MailTypesSignersRoutingVocabulary"
+        factory="imio.dms.mail.browser.settings.MailTypesSignersRoutingVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.SendModesSignersRoutingVocabulary"
+        factory="imio.dms.mail.browser.settings.SendModesSignersRoutingVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.IMPortalTypesVocabulary"
         factory="imio.dms.mail.vocabularies.IMPortalTypesVocabulary"
         />

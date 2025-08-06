@@ -11,6 +11,7 @@ from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
 from zope.interface import Interface
 from zope.interface import provider
+from zope.schema import ValidationError
 from zope.schema.vocabulary import SimpleVocabulary
 
 
@@ -27,28 +28,44 @@ class ISignerBehavior(model.Schema):
     form.widget('usages', CheckBoxFieldWidget, multiple='multiple')
 
 
+class InvalidValidators(ValidationError):
+    __doc__ = _(u"You cannot select validators and no validation at the same time.")
+
+
+def validate_validators(validators):
+    if u"_empty_" in validators and len(validators) > 1:
+        raise InvalidValidators(validators)
+    return True
+
+
 class ITableSignersSchema(Interface):
     """Schema for the table of signers in the DataGridField."""
 
     number = schema.Choice(
-        title=_(u'Number'),
+        title=_(u"Number"),
         vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
+        required=True,
     )
 
-    seal = schema.Bool(
+    seal = schema.Choice(
         title=_(u'Seal'),
-        description=_(u'Indicate if the signer should seal the document'),
+        vocabulary="imio.dms.mail.SealSignersRoutingVocabulary",
+        required=True,
     )
 
-    validator = schema.Choice(
-        title=_(u'Validateur'),
-        vocabulary=u"imio.dms.mail.OMSignersVocabulary",  # TODO Define the list of validators
+    held_position = schema.Choice(
+        title=_(u"Signer"),
+        vocabulary="imio.dms.mail.HeldpositionSignersRoutingVocabulary",
+        required=True,
     )
 
-    signer = schema.Choice(
-        title=_(u'Signer'),
-        vocabulary=u"imio.dms.mail.OMSignersVocabulary",
+    validators = schema.List(
+        title=_(u"Validators"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.ValidatorsSignersRoutingVocabulary"),
+        required=True,
+        constraint=validate_validators,
     )
+    widget('validators', CheckBoxFieldWidget, multiple='multiple', size=5)
 
 
 @provider(IFormFieldProvider)
@@ -58,5 +75,11 @@ class ISignersBehavior(model.Schema):
         title=_(u'Signers'),
         description=_("List of users who have to sign this document"),
         value_type=DictRow(title=_("Signer"), schema=ITableSignersSchema),
+        required=False,
     )
-    widget("signers", DataGridFieldFactory)
+    widget(
+        "signers", 
+        DataGridFieldFactory, 
+        allow_reorder=False,
+        auto_append=False,
+    )

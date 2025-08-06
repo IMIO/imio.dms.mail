@@ -8,6 +8,8 @@ Changelog
   [chris-adam, sgeulette]
 - Added 'Signers' field on outgoing mails to select 'signer' held positions.
   [chris-adam]
+- Added signers routing settings.
+  [chris-adam]
 
 
 3.0 (2021-09-30)

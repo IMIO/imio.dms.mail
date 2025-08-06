@@ -100,12 +100,6 @@
 
     <subscriber
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
-             zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".subscribers.dmsoutgoingmail_added"
-        />
-
-    <subscriber
-        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.dmsoutgoingmail_modified"
       />
