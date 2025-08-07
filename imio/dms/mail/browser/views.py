@@ -10,6 +10,7 @@ from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import omail_duplicate_fields
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
@@ -24,6 +25,7 @@ from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
+from imio.pyutils.utils import safe_encode
 from plone import api
 from plone.supermodel import model
 from Products.CMFCore.utils import getToolByName
@@ -127,8 +129,38 @@ class OMDuplicateForm(Form):
 
     """Duplicate an outgoing mail."""
     label = _(u"Duplicate mail")
-    fields = Fields(IOMDuplicateFormSchema)
     ignoreContext = True
+
+    def update(self):
+        """Handle fields."""
+        om_fields = api.portal.get_registry_record("omail_fields", IImioDmsMailConfig, [])
+        om_fields = [dic["field_name"] for dic in om_fields]
+        matching = {u"category": "IClassificationFolder.classification_categories",
+                    u"folder": "IClassificationFolder.classification_folders",
+                    u"reply_to": "reply_to",
+                    u"link_to_duplicated": "reply_to"}
+        to_show = api.portal.get_registry_record("omail_duplicate_display_fields", IImioDmsMailConfig, [])
+        to_true = api.portal.get_registry_record("omail_duplicate_true_default_values", IImioDmsMailConfig, [])
+        for term in omail_duplicate_fields:
+            if ((term.value in matching and matching[term.value] not in om_fields) or
+                    (term.value not in to_show and term.value not in to_true)):
+                continue
+            self.fields += Fields(
+                schema.Bool(
+                    __name__=safe_encode(term.value),
+                    title=term.title,
+                    default=term.value in to_true,
+                ))
+        super(OMDuplicateForm, self).update()
+
+    def updateWidgets(self, prefix=None):
+        super(OMDuplicateForm, self).updateWidgets()
+
+        # we hide fields not to show
+        to_show = api.portal.get_registry_record("omail_duplicate_display_fields", IImioDmsMailConfig, [])
+        for term in omail_duplicate_fields:
+            if term.value not in to_show:
+                self.widgets[term.value].mode = "hidden"
 
     @button.buttonAndHandler(_('Duplicate'), name='duplicate')
     def handleApply(self, action):
@@ -204,24 +236,6 @@ class OMDuplicateForm(Form):
 
         self.request.response.redirect(duplicated_mail.absolute_url()+"/edit")
 
-    def updateWidgets(self):
-        super(OMDuplicateForm, self).updateWidgets()
-
-        navtree_props = getToolByName(api.portal.get(), 'portal_properties').navtree_properties
-        excluded_types = navtree_props.getProperty('metaTypesNotToList', ())
-        if 'ClassificationContainer' in excluded_types:
-            self.widgets["keep_category"].mode = "hidden"
-        else:
-            self.widgets["keep_category"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_category", IImioDmsMailConfig, True) else []
-        if 'ClassificationFolders' in excluded_types:
-            self.widgets["keep_folder"].mode = "hidden"
-        else:
-            self.widgets["keep_folder"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_folder", IImioDmsMailConfig, True) else []
-
-        self.widgets["keep_linked_mails"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_linked_mails", IImioDmsMailConfig, True) else []
-        self.widgets["keep_dms_files"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_dms_files", IImioDmsMailConfig, True) else []
-        self.widgets["keep_annexes"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_keep_annexes", IImioDmsMailConfig, True) else []
-        self.widgets["link_to_original"].value = ['selected'] if api.portal.get_registry_record("omail_duplicate_default_link_to_original", IImioDmsMailConfig, True) else []
 
 def parse_query(text):
     """Copied from plone.app.vocabularies.catalog.parse_query but cleaned."""
