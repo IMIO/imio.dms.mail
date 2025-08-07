@@ -90,45 +90,6 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
         return "{}/persistent-document-generation?{}".format(url, "&".join(params))
 
 
-class IOMDuplicateFormSchema(model.Schema):
-
-    keep_category = schema.Bool(
-        title=_(u"Keep classification category"),
-        description=u'',
-        default=True,
-    )
-
-    keep_folder = schema.Bool(
-        title=_(u"Keep classification folder"),
-        description=u'',
-        default=True,
-    )
-
-    keep_linked_mails = schema.Bool(
-        title=_(u"Keep linked mails"),
-        description=u'',
-        default=True,
-    )
-
-    keep_dms_files = schema.Bool(
-        title=_(u"Keep DMS files"),
-        description=u'',
-        default=True,
-    )
-
-    keep_annexes = schema.Bool(
-        title=_(u"Keep annexes"),
-        description=u'',
-        default=True,
-    )
-
-    link_to_original = schema.Bool(
-        title=_(u"Link to original"),
-        description=u'',
-        default=True,
-    )
-
-
 class OMDuplicateForm(Form):
 
     """Duplicate an outgoing mail."""
