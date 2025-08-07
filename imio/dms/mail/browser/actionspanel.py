@@ -106,7 +106,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))
+        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))  # noqa F821
 
     @ram.cache(actionspanelview_cachekey)
     def DmsIMActionsPanelView__call__(
@@ -187,15 +187,15 @@ class DmsOMActionsPanelView(ActionsPanelView):
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
         self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
         self.SECTIONS_TO_RENDER += (
-            "render_create_from_template_button",
             "render_duplicate_button",
+            "render_create_from_template_button",
             "render_create_new_message",
             "render_send_email",
         )
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))
+        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
 
     def may_create_from_template(self):
         """
@@ -213,10 +213,8 @@ class DmsOMActionsPanelView(ActionsPanelView):
         return ""
 
     def may_duplicate(self):
-        """
-        Method that check if special 'duplicate' action has to be displayed.
-        """
-        if self.member.has_permission("Add portal content", self.context):
+        """Method that check if special 'duplicate' action has to be displayed."""
+        if self.member.has_permission("Add portal content", self.portal["outgoing-mail"]):
             return True
         return False
 
@@ -326,7 +324,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))
+        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
 
     @ram.cache(actionspanelview_cachekey)
     def DmsTaskActionsPanelView__call__(
