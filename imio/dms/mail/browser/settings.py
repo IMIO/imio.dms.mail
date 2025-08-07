@@ -435,6 +435,17 @@ fullname_forms = SimpleVocabulary(
 #     ]
 # )
 
+omail_duplicate_fields = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"category", title=_(u"Keep classification category")),
+        SimpleTerm(value=u"folder", title=_(u"Keep classification folder")),
+        SimpleTerm(value=u"reply_to", title=_(u"Keep reply_to mails")),
+        SimpleTerm(value=u"dms_files", title=_(u"Keep DMS files")),
+        SimpleTerm(value=u"annexes", title=_(u"Keep annexes")),
+        SimpleTerm(value=u"link_to_duplicated", title=_(u"Link to duplicated mail")),
+    ]
+)
+
 oemail_sender_email_values = SimpleVocabulary(
     [
         SimpleTerm(value=u"agent_email", title=_(u"Sender held position email is used")),
@@ -594,14 +605,10 @@ class IImioDmsMailConfig(model.Schema):
             "omail_send_modes",
             "omail_post_mailing",
             "omail_signer_rules",
+            "omail_duplicate_display_fields",
+            "omail_duplicate_true_default_values",
             "omail_fields",
             "omail_group_encoder",
-            "omail_duplicate_default_keep_category",
-            "omail_duplicate_default_keep_folder",
-            "omail_duplicate_default_keep_linked_mails",
-            "omail_duplicate_default_keep_dms_files",
-            "omail_duplicate_default_keep_annexes",
-            "omail_duplicate_default_link_to_original",
         ],
     )
     omail_types = schema.List(
@@ -684,6 +691,22 @@ class IImioDmsMailConfig(model.Schema):
         auto_append=False,
     )
 
+    omail_duplicate_display_fields = schema.List(
+        title=_(u"Fields to display when duplicating an outgoing mail"),
+        required=False,
+        value_type=schema.Choice(vocabulary=omail_duplicate_fields),
+        default=[u"category", u"folder", u"reply_to", u"dms_files", u"annexes", u"link_to_duplicated"],
+    )
+    # widget("omail_duplicate_display_fields", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    omail_duplicate_true_default_values = schema.List(
+        title=_(u"Default values to True when duplicating an outgoing mail"),
+        description=_(u"If checked, the default value will be True."),
+        required=False,
+        value_type=schema.Choice(vocabulary=omail_duplicate_fields),
+        default=[u"category", u"folder", u"annexes"],
+    )
+
     omail_fields = schema.List(
         title=_(u"${type} fields display", mapping={"type": _("Outgoing mail")}),
         description=_(u"Configure this carefully. You can order with arrows."),
@@ -710,33 +733,6 @@ class IImioDmsMailConfig(model.Schema):
             u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
         ),
         default=False,
-    )
-
-    # the duplicate-form default fields
-    # TODO hide these next two field if not enabled ?
-    omail_duplicate_default_keep_category = schema.Bool(
-        title=_(u"Default value when duplicating an outgoing mail for 'Keep classification category'"),
-        default=True,
-    )
-    omail_duplicate_default_keep_folder = schema.Bool(
-        title=_(u"Default value when duplicating an outgoing mail for 'Keep classification folder'"),
-        default=True,
-    )
-    omail_duplicate_default_keep_linked_mails = schema.Bool(
-        title=_(u"Default value when duplicating an outgoing mail for 'Keep linked mails'"),
-        default=True,
-    )
-    omail_duplicate_default_keep_dms_files = schema.Bool(
-        title=_(u"Default value when duplicating an outgoing mail for 'Keep DMS files'"),
-        default=True,
-    )
-    omail_duplicate_default_keep_annexes = schema.Bool(
-        title=_(u"Default value when duplicating an outgoing mail for 'Keep annexes'"),
-        default=True,
-    )
-    omail_duplicate_default_link_to_original = schema.Bool(
-        title=_(u"Default value when duplicating an outgoing mail for 'Link to original'"),
-        default=True,
     )
 
     # FIELDSET OEM
