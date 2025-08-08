@@ -78,8 +78,8 @@ class ISignersBehavior(model.Schema):
         required=False,
     )
     widget(
-        "signers", 
-        DataGridFieldFactory, 
+        "signers",
+        DataGridFieldFactory,
         allow_reorder=False,
         auto_append=False,
     )

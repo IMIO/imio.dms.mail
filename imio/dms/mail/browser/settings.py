@@ -247,40 +247,6 @@ class ValidatorsSignersRoutingVocabulary(object):
         )
 
 
-class TreatingGroupsSignersRoutingVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary(
-            [
-                SimpleTerm(value=u"_any_", title=_("* Any value")),
-                SimpleTerm(value=u"_empty_", title=_("* No value")),
-            ] + vocabularyname_to_terms("collective.dms.basecontent.treating_groups", sort_on="title")
-        )
-
-
-class MailTypesSignersRoutingVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary(
-            [
-                SimpleTerm(value=u"_any_", title=_("* Any value")),
-            ] + vocabularyname_to_terms("imio.dms.mail.OMMailTypesVocabulary", sort_on="title")
-        )
-
-
-class SendModesSignersRoutingVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary(
-            [
-                SimpleTerm(value=u"_any_", title=_("* Any value")),
-            ] + vocabularyname_to_terms("imio.dms.mail.OMSendModesVocabulary", sort_on="title")
-        )
-
-
 class IRuleSchema(Interface):
 
     forward = schema.Choice(
@@ -342,38 +308,6 @@ class IStateSetSchema(IRuleSchema):
     )
 
 
-class InvalidTreatingGroups(ValidationError):
-    __doc__ = _(u"You cannot select treating groups or no treating group or any treating group at the same time.")
-
-
-def validate_treating_groups(treating_groups):
-    if u"_empty_" in treating_groups and len(treating_groups) > 1:
-        raise InvalidTreatingGroups(treating_groups)
-    if u"_any_" in treating_groups and len(treating_groups) > 1:
-        raise InvalidTreatingGroups(treating_groups)
-    return True
-
-
-class InvalidMailTypes(ValidationError):
-    __doc__ = _(u"You cannot select mail types and any mail type at the same time.")
-
-
-def validate_mail_types(mail_types):
-    if u"_any_" in mail_types and len(mail_types) > 1:
-        raise InvalidMailTypes(mail_types)
-    return True
-
-
-class InvalidSendModes(ValidationError):
-    __doc__ = _(u"You cannot select send modes and any send mode at the same time.")
-
-
-def validate_send_modes(send_modes):
-    if u"_any_" in send_modes and len(send_modes) > 1:
-        raise InvalidSendModes(send_modes)
-    return True
-
-
 class ISignerRoutingSchema(ITableSignersSchema):
     """
     Routing schema for signers of outgoing mails
@@ -387,27 +321,21 @@ class ISignerRoutingSchema(ITableSignersSchema):
 
     treating_groups = schema.List(
         title=_(u"Treating group value"),
-        value_type=schema.Choice(vocabulary="imio.dms.mail.TreatingGroupsSignersRoutingVocabulary"),
-        default=["_any_"],
-        constraint=validate_treating_groups,
+        value_type=schema.Choice(vocabulary="collective.dms.basecontent.treating_groups"),
         required=False,
     )
     widget('treating_groups', CheckBoxFieldWidget, multiple='multiple')
 
     mail_types = schema.List(
         title=_("Mail type"),
-        value_type=schema.Choice(vocabulary="imio.dms.mail.MailTypesSignersRoutingVocabulary"),
-        default=["_any_"],
-        constraint=validate_mail_types,
+        value_type=schema.Choice(vocabulary="imio.dms.mail.OMMailTypesVocabulary"),
         required=False,
     )
     widget('mail_types', CheckBoxFieldWidget, multiple='multiple')
 
     send_modes = schema.List(
         title=_("Send mode"),
-        value_type=schema.Choice(vocabulary="imio.dms.mail.SendModesSignersRoutingVocabulary"),
-        default=["_any_"],
-        constraint=validate_send_modes,
+        value_type=schema.Choice(vocabulary="imio.dms.mail.OMSendModesVocabulary"),
         required=False,
     )
     widget('send_modes', CheckBoxFieldWidget, multiple='multiple')

@@ -397,11 +397,11 @@ def dmsoutgoingmail_modified(mail, event):
         mail.signers = []
         signers_routing_config = api.portal.get_registry_record("omail_signer_routing", IImioDmsMailConfig, [])
         for signer in signers_routing_config:
-            if u"_any_" not in signer["treating_groups"] and mail.mail_type not in signer["treating_groups"]:
+            if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
                 continue
-            if u"_any_" not in signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
+            if signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
                 continue
-            if u"_any_" not in signer["send_modes"] and set(mail.send_modes) & set(signer["send_modes"]):
+            if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
                 continue
             if signer['valid_until'] and signer['valid_until'] < DateTime():
                 continue
