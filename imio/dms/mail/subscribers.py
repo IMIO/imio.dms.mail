@@ -395,7 +395,7 @@ def dmsoutgoingmail_modified(mail, event):
     # Update signers field only if empty
     if not mail.signers:
         mail.signers = []
-        signers_routing_config = api.portal.get_registry_record("omail_signer_routing", IImioDmsMailConfig, [])
+        signers_routing_config = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
         for signer in signers_routing_config:
             if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
                 continue

@@ -125,10 +125,10 @@ class HeldPositionUsagesVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
-        res = []
-        res.append(
-            SimpleTerm('signer', 'signer', _('Signer')))
-        # Add more here if needed
+        res = [
+            SimpleTerm('signer', 'signer', _('Signer')),
+            SimpleTerm('validator', 'validator', _('Validator'))
+        ]
         return SimpleVocabulary(res)
 
 

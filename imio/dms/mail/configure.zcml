@@ -368,7 +368,7 @@
     <plone:behavior
         title="Signers"
         description="Add a field to list the users that have to sign the document"
-        provides=".behaviors.ISignersBehavior"
+        provides=".behaviors.ISigningBehavior"
         />
 
     <!-- end -->

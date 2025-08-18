@@ -135,18 +135,13 @@
         />
 
     <utility
-        name="imio.dms.mail.SealSignersRoutingVocabulary"
-        factory="imio.dms.mail.browser.settings.SealSignersRoutingVocabulary"
+        name="imio.dms.mail.SigningHeldpositionVocabulary"
+        factory="imio.dms.mail.browser.settings.SigningHeldpositionVocabulary"
         />
 
     <utility
-        name="imio.dms.mail.HeldpositionSignersRoutingVocabulary"
-        factory="imio.dms.mail.browser.settings.HeldpositionSignersRoutingVocabulary"
-        />
-
-    <utility
-        name="imio.dms.mail.ValidatorsSignersRoutingVocabulary"
-        factory="imio.dms.mail.browser.settings.ValidatorsSignersRoutingVocabulary"
+        name="imio.dms.mail.SigningValidatorsVocabulary"
+        factory="imio.dms.mail.browser.settings.SigningValidatorsVocabulary"
         />
 
     <utility

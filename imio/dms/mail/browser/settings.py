@@ -14,7 +14,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
-from imio.dms.mail.behaviors import ITableSignersSchema
+from imio.dms.mail.behaviors import validate_validators
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
@@ -54,7 +54,7 @@ from zope.interface import Interface
 from zope.interface import Invalid
 from zope.interface import invariant
 from zope.lifecycleevent import ObjectModifiedEvent
-from zope.schema import ValidationError
+# from zope.schema import ValidationError
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -210,20 +210,7 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
-class SealSignersRoutingVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary(
-            [
-                SimpleTerm(value=None, title=_("Choose a value !")),
-                SimpleTerm(value=False, title=_("No seal")),
-                SimpleTerm(value=True, title=_("Electronic seal")),
-            ]
-        )
-
-
-class HeldpositionSignersRoutingVocabulary(object):
+class SigningHeldpositionVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
@@ -235,7 +222,7 @@ class HeldpositionSignersRoutingVocabulary(object):
         )
 
 
-class ValidatorsSignersRoutingVocabulary(object):
+class SigningValidatorsVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
@@ -247,7 +234,7 @@ class ValidatorsSignersRoutingVocabulary(object):
         )
 
 
-class IRuleSchema(Interface):
+class IBaseRoutingRuleSchema(Interface):
 
     forward = schema.Choice(
         title=_("Forward Type"),
@@ -275,7 +262,7 @@ class IRuleSchema(Interface):
     )
 
 
-class IRoutingSchema(IRuleSchema):
+class IRoutingSchema(IBaseRoutingRuleSchema):
     """
     Routing schema for incoming emails
     """
@@ -299,7 +286,7 @@ class IRoutingSchema(IRuleSchema):
     )
 
 
-class IStateSetSchema(IRuleSchema):
+class IStateSetSchema(IBaseRoutingRuleSchema):
 
     state_value = schema.Choice(
         title=_(u"State value"),
@@ -308,10 +295,9 @@ class IStateSetSchema(IRuleSchema):
     )
 
 
-class ISignerRoutingSchema(ITableSignersSchema):
-    """
-    Routing schema for signers of outgoing mails
-    """
+# class ISignerRuleSchema(ISignerSchema):  # bug when ordering (try again in P6)
+class ISignerRuleSchema(Interface):
+    """ Routing schema of outgoing mail signer rule"""
 
     grouping = schema.Choice(
         title=_(u"Grouping"),
@@ -319,8 +305,33 @@ class ISignerRoutingSchema(ITableSignersSchema):
         required=True,
     )
 
+    number = schema.Choice(
+        title=_(u"Number"),
+        vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
+        required=True,
+    )
+
+    held_position = schema.Choice(
+        title=_(u"Signer"),
+        vocabulary="imio.dms.mail.SigningHeldpositionVocabulary",
+        required=True,
+    )
+
+    validators = schema.List(
+        title=_(u"Validators"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningValidatorsVocabulary"),
+        required=True,
+        constraint=validate_validators,
+    )
+    widget("validators", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    seal = schema.Bool(
+        title=_(u'Seal'),
+        required=False,
+    )
+
     treating_groups = schema.List(
-        title=_(u"Treating group value"),
+        title=_(u"Treating group"),
         value_type=schema.Choice(vocabulary="collective.dms.basecontent.treating_groups"),
         required=False,
     )
@@ -355,20 +366,9 @@ class ISignerRoutingSchema(ITableSignersSchema):
         required=False,
     )
 
-    # TODO reorder fields
-    # schema.order(
-    #     'grouping',
-    #     "number",
-    #     "seal",
-    #     "held_position",
-    #     "validators",
-    #     "treating_groups",
-    #     "mail_types",
-    #     "send_modes",
-    #     "valid_from",
-    #     "valid_until",
-    #     "tal_condition",
-    # )
+    # when ordering, the datagrid headers are not reordered ! Only the content
+    # order_before(grouping="number")
+    # order_before(seal="held_position")
 
 
 assigned_user_check_levels = SimpleVocabulary(
@@ -543,6 +543,7 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     # FIELDSET OM
+
     model.fieldset(
         "outgoingmail",
         label=_(u"Outgoing mail"),
@@ -557,11 +558,10 @@ class IImioDmsMailConfig(model.Schema):
             "omail_send_modes",
             "omail_post_mailing",
             "omail_fields",
+            "omail_signer_rules",
             "omail_group_encoder",
-            "omail_signer_routing",
         ],
     )
-
     omail_types = schema.List(
         title=_(u"Types of outgoing mail"),
         description=_(
@@ -639,15 +639,15 @@ class IImioDmsMailConfig(model.Schema):
         default=False,
     )
 
-    omail_signer_routing = schema.List(
+    omail_signer_rules = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
         description=_(u"Configure rules carefully. You can order with arrows."),
-        value_type=DictRow(title=_(u"Routing"), schema=ISignerRoutingSchema, required=False),
+        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
         required=False,
         default=[],
     )
     widget(
-        "omail_signer_routing",
+        "omail_signer_rules",
         DataGridFieldFactory,
         allow_reorder=False,
         auto_append=False,
@@ -1080,7 +1080,7 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS["dmsoutgoingmail"]], "folder_period", event.newValue)
-    if event.record.fieldName == "omail_signer_routing":
+    if event.record.fieldName == "omail_signer_rules":
         event.record.value.sort(key=lambda x: (x["number"], x["grouping"]))
 
 

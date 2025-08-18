@@ -6,6 +6,7 @@ from imio.dms.mail import _
 from plone.autoform import directives as form
 from plone.autoform.directives import widget
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.supermodel import directives
 from plone.supermodel import model
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
@@ -20,12 +21,11 @@ class ISignerBehavior(model.Schema):
 
     usages = schema.List(
         title=_("Usages"),
-        value_type=schema.Choice(
-            vocabulary="imio.dms.mail.HeldPositionUsagesVocabulary"),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.HeldPositionUsagesVocabulary"),
         required=False,
         default=[],
     )
-    form.widget('usages', CheckBoxFieldWidget, multiple='multiple')
+    form.widget("usages", CheckBoxFieldWidget, multiple="multiple")
 
 
 class InvalidValidators(ValidationError):
@@ -38,7 +38,7 @@ def validate_validators(validators):
     return True
 
 
-class ITableSignersSchema(Interface):
+class ISignerSchema(Interface):
     """Schema for the table of signers in the DataGridField."""
 
     number = schema.Choice(
@@ -47,34 +47,37 @@ class ITableSignersSchema(Interface):
         required=True,
     )
 
-    seal = schema.Choice(
-        title=_(u'Seal'),
-        vocabulary="imio.dms.mail.SealSignersRoutingVocabulary",
-        required=True,
-    )
-
     held_position = schema.Choice(
         title=_(u"Signer"),
-        vocabulary="imio.dms.mail.HeldpositionSignersRoutingVocabulary",
+        vocabulary="imio.dms.mail.SigningHeldpositionVocabulary",
         required=True,
     )
 
     validators = schema.List(
         title=_(u"Validators"),
-        value_type=schema.Choice(vocabulary=u"imio.dms.mail.ValidatorsSignersRoutingVocabulary"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningValidatorsVocabulary"),
         required=True,
         constraint=validate_validators,
     )
-    widget('validators', CheckBoxFieldWidget, multiple='multiple', size=5)
+    widget("validators", CheckBoxFieldWidget, multiple="multiple", size=5)
 
 
 @provider(IFormFieldProvider)
-class ISignersBehavior(model.Schema):
+class ISigningBehavior(model.Schema):
+
+    # directives.fieldset(
+    #     "signing",
+    #     label=_(u"Signing"),
+    #     fields=[
+    #         "signers",
+    #         "seal",
+    #     ],
+    # )
 
     signers = schema.List(
-        title=_(u'Signers'),
+        title=_(u"Signers"),
         description=_("List of users who have to sign this document"),
-        value_type=DictRow(title=_("Signer"), schema=ITableSignersSchema),
+        value_type=DictRow(title=_("Signer"), schema=ISignerSchema),
         required=False,
     )
     widget(
@@ -82,4 +85,9 @@ class ISignersBehavior(model.Schema):
         DataGridFieldFactory,
         allow_reorder=False,
         auto_append=False,
+    )
+
+    seal = schema.Bool(
+        title=_(u"Seal"),
+        required=False,
     )
