@@ -398,6 +398,22 @@ body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dash
     display: None;
 }
 
+body.template-imiodmsmail-settings span[id$="widgets-validators"],
+body.template-imiodmsmail-settings span[id$="widgets-treating_groups"],
+body.template-imiodmsmail-settings span[id$="widgets-send_modes"] {
+    max-height: 50px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 1px solid #ddd;
+    padding: 8px;
+    display: block;
+    background: #fff;
+    scrollbar-width: thin; /* Pour Firefox */
+}
+span[id$="widgets-validators"]::-webkit-scrollbar-corner {
+    background: #f1f1f1;
+}
+
 #portal-searchbox div.LSBox div.searchSection {
     display: None;
 }

@@ -301,24 +301,28 @@ class ISignerRuleSchema(Interface):
 
     grouping = schema.Choice(
         title=_(u"Grouping"),
+        description=_(u"Informative grouping of rules under the same conditions."),
         vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
         required=True,
     )
 
     number = schema.Choice(
         title=_(u"Number"),
+        description=_(u"Signer number on the document."),
         vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
         required=True,
     )
 
     held_position = schema.Choice(
         title=_(u"Signer"),
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
         vocabulary="imio.dms.mail.SigningHeldpositionVocabulary",
         required=True,
     )
 
     validators = schema.List(
         title=_(u"Validators"),
+        description=_(u"User(s) that can add the item to the signing session (validation role)."),
         value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningValidatorsVocabulary"),
         required=True,
         constraint=validate_validators,
@@ -327,11 +331,13 @@ class ISignerRuleSchema(Interface):
 
     seal = schema.Bool(
         title=_(u'Seal'),
+        description=_(u"Check if a signing seal must be added."),
         required=False,
     )
 
     treating_groups = schema.List(
         title=_(u"Treating group"),
+        description=_(u"Affected groups for this rule."),
         value_type=schema.Choice(vocabulary="collective.dms.basecontent.treating_groups"),
         required=False,
     )
@@ -339,6 +345,7 @@ class ISignerRuleSchema(Interface):
 
     mail_types = schema.List(
         title=_("Mail type"),
+        description=_(u"Affected mail types for this rule."),
         value_type=schema.Choice(vocabulary="imio.dms.mail.OMMailTypesVocabulary"),
         required=False,
     )
@@ -346,18 +353,21 @@ class ISignerRuleSchema(Interface):
 
     send_modes = schema.List(
         title=_("Send mode"),
+        description=_(u"Affected send modes for this rule."),
         value_type=schema.Choice(vocabulary="imio.dms.mail.OMSendModesVocabulary"),
         required=False,
     )
     widget('send_modes', CheckBoxFieldWidget, multiple='multiple')
 
-    valid_from = schema.Datetime(
+    valid_from = schema.TextLine(
         title=_(u"Valid from"),
+        description=_(u"Affected from date. Format: YYYY/MM/DD."),
         required=False,
     )
 
-    valid_until = schema.Datetime(
+    valid_until = schema.TextLine(
         title=_(u"Valid until"),
+        description=_(u"Affected until date. Format: YYYY/MM/DD."),
         required=False,
     )
 
