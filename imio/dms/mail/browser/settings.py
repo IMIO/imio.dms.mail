@@ -210,6 +210,12 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
+signing_grouping_letters = SimpleVocabulary([
+    SimpleTerm(value=chr(65 + i), title=chr(65 + i))
+    for i in range(26)
+])
+
+
 class SigningHeldpositionVocabulary(object):
     implements(IVocabularyFactory)
 
@@ -302,7 +308,7 @@ class ISignerRuleSchema(Interface):
     grouping = schema.Choice(
         title=_(u"Grouping"),
         description=_(u"Informative grouping of rules under the same conditions."),
-        vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
+        vocabulary=signing_grouping_letters,
         required=True,
     )
 
@@ -335,6 +341,18 @@ class ISignerRuleSchema(Interface):
         required=False,
     )
 
+    valid_from = schema.TextLine(
+        title=_(u"Valid from"),
+        description=_(u"Affected from date. Format: YYYY/MM/DD."),
+        required=False,
+    )
+
+    valid_until = schema.TextLine(
+        title=_(u"Valid until"),
+        description=_(u"Affected until date. Format: YYYY/MM/DD."),
+        required=False,
+    )
+
     treating_groups = schema.List(
         title=_(u"Treating group"),
         description=_(u"Affected groups for this rule."),
@@ -358,18 +376,6 @@ class ISignerRuleSchema(Interface):
         required=False,
     )
     widget('send_modes', CheckBoxFieldWidget, multiple='multiple')
-
-    valid_from = schema.TextLine(
-        title=_(u"Valid from"),
-        description=_(u"Affected from date. Format: YYYY/MM/DD."),
-        required=False,
-    )
-
-    valid_until = schema.TextLine(
-        title=_(u"Valid until"),
-        description=_(u"Affected until date. Format: YYYY/MM/DD."),
-        required=False,
-    )
 
     tal_condition = schema.TextLine(
         title=_("TAL condition"),
@@ -567,8 +573,8 @@ class IImioDmsMailConfig(model.Schema):
             "omail_fullname_used_form",
             "omail_send_modes",
             "omail_post_mailing",
-            "omail_fields",
             "omail_signer_rules",
+            "omail_fields",
             "omail_group_encoder",
         ],
     )
@@ -621,20 +627,6 @@ class IImioDmsMailConfig(model.Schema):
         default=True,
     )
 
-    omail_fields = schema.List(
-        title=_(u"${type} fields display", mapping={"type": _("Outgoing mail")}),
-        description=_(u"Configure this carefully. You can order with arrows."),
-        required=False,
-        value_type=DictRow(title=_(u"Field"), schema=IOMFieldsSchema, required=False),
-    )
-    widget(
-        "omail_fields",
-        DataGridFieldFactory,
-        display_table_css_class="listing",
-        allow_reorder=True,
-        auto_append=False,
-    )
-
     omail_signer_rules = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
         description=_(u"Grouping is only informative. Rules are read in order. Conditions must be left empty "
@@ -648,6 +640,20 @@ class IImioDmsMailConfig(model.Schema):
         DataGridFieldFactory,
         allow_reorder=True,
         auto_append=True,
+    )
+
+    omail_fields = schema.List(
+        title=_(u"${type} fields display", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Configure this carefully. You can order with arrows."),
+        required=False,
+        value_type=DictRow(title=_(u"Field"), schema=IOMFieldsSchema, required=False),
+    )
+    widget(
+        "omail_fields",
+        DataGridFieldFactory,
+        display_table_css_class="listing",
+        allow_reorder=True,
+        auto_append=False,
     )
 
     omail_group_encoder = schema.Bool(
