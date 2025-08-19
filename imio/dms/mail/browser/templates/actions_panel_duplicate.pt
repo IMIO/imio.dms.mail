@@ -4,7 +4,7 @@
      class="overlay"
      tal:define="dummy view/saveHasActions;">
      <input tal:condition="not:view/useIcons" type="button" value="Duplicate" class="apButton apButtonAction apButtonAction_duplicate" i18n:attributes="value" />
-     <img tal:condition="view/useIcons" i18n:attributes="title" title="Dupliquer" tal:attributes="src string: ${view/portal_url}/++resource++imio.dms.mail/copy.svg;"/>
+     <img tal:condition="view/useIcons" i18n:attributes="title" title="Duplicate outgoing mail" tal:attributes="src string: ${view/portal_url}/++resource++imio.dms.mail/copy.svg;"/>
   </a>
 </td>
 <td class="noPadding">
