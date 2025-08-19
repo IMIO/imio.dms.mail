@@ -25,11 +25,11 @@ from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
+from imio.helpers.transmogrifier import get_correct_id
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from imio.pyutils.utils import safe_encode
 from plone import api
-from plone.supermodel import model
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
@@ -136,49 +136,35 @@ class OMDuplicateForm(Form):
             return
 
         # Duplicate the mail
-        # duplicated_mail.creation_date = DateTime()
-        # duplicated_mail.reindexObject(idxs=['created'])
-        # duplicated_mail.internal_reference_no = internalReferenceOutgoingMailDefaultValue(self)
-        # duplicated_mail.due_date = None
-        # duplicated_mail.outgoing_date = None
-        # duplicated_mail.mail_date = None
         original_mail = self.context
-        i = 0
-        while True:
-            try:
-                print(i)
-                duplicated_mail = sub_create(
-                    api.portal.get()["outgoing-mail"],
-                    "dmsoutgoingmail",
-                    datetime.now(),
-                    "my-id-%s" % i,  # TODO use a better id
-                    title=original_mail.title,
-                    description=original_mail.description,
-                    recipients=original_mail.recipients[:] if original_mail.recipients else None,
-                    treating_groups=original_mail.treating_groups[:] if original_mail.treating_groups else None,
-                    assigned_user= original_mail.assigned_user,
-                    sender=original_mail.sender,
-                    recipient_groups=original_mail.recipient_groups[:] if original_mail.recipient_groups else None,
-                    send_modes= original_mail.send_modes[:] if original_mail.send_modes else None,
-                    task_description=original_mail.task_description,
-                )
-            except Exception as e:
-                i += 1
-                if i > 1000:
-                    raise e
-            else:
-                break
+        pc = api.portal.get_tool("portal_catalog")
+        import ipdb; ipdb.set_trace()
+        duplicated_mail = sub_create(
+            api.portal.get()["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            get_correct_id([om.getId for om in pc(portal_type="dmsoutgoingmail")], original_mail.getId()),
+            title=original_mail.title,
+            description=original_mail.description,
+            recipients=original_mail.recipients[:] if original_mail.recipients else None,
+            treating_groups=original_mail.treating_groups[:] if original_mail.treating_groups else None,
+            assigned_user=original_mail.assigned_user,
+            sender=original_mail.sender,
+            recipient_groups=original_mail.recipient_groups[:] if original_mail.recipient_groups else None,
+            send_modes=original_mail.send_modes[:] if original_mail.send_modes else None,
+            task_description=original_mail.task_description,
+        )
 
-        if data['keep_category'] and hasattr(original_mail, 'classification_categories') and original_mail.classification_categories:
+        if data.get('keep_category', False) and hasattr(original_mail, 'classification_categories') and original_mail.classification_categories:
             duplicated_mail.classification_categories = original_mail.classification_categories[:]
 
-        if data['keep_folder'] and hasattr(original_mail, 'classification_folders') and original_mail.classification_folders:
+        if data.get('keep_folder', False) and hasattr(original_mail, 'classification_folders') and original_mail.classification_folders:
             duplicated_mail.classification_folders = original_mail.classification_folders[:]
 
-        if data['keep_linked_mails'] and hasattr(original_mail, 'reply_to') and original_mail.reply_to:
+        if data.get('keep_linked_mails', False) and hasattr(original_mail, 'reply_to') and original_mail.reply_to:
             duplicated_mail.reply_to = original_mail.reply_to[:]
 
-        if data['keep_dms_files']:
+        if data.get('keep_dms_files', False):
             # FIXME do not use clipboard
             dms_files = [sub_content.getId() for sub_content in original_mail.values() if IImioDmsFile.providedBy(sub_content)]
             import ipdb; ipdb.set_trace()
@@ -186,13 +172,13 @@ class OMDuplicateForm(Form):
                 clipboard = original_mail.manage_copyObjects(dms_files)
                 duplicated_mail.manage_pasteObjects(clipboard)
 
-        if data['keep_annexes']:
+        if data.get('keep_annexes', False):
             annexes = [sub_content.getId() for sub_content in original_mail.values() if IDmsAppendixFile.providedBy(sub_content)]
             if annexes:
                 clipboard = original_mail.manage_copyObjects(annexes)
                 duplicated_mail.manage_pasteObjects(clipboard)
 
-        if data['link_to_original']:
+        if data.get('link_to_original', False):
             intids = getUtility(IIntIds)
             rel_id = intids.getId(original_mail)
             if duplicated_mail.reply_to is None:
