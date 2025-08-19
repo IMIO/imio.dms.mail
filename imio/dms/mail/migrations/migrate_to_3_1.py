@@ -64,6 +64,9 @@ class Migrate_To_3_1(Migrator):  # noqa
                     "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
             ))
 
+            # settings change
+            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
+
             # END
 
             finished = True  # can be eventually returned and set by batched method
