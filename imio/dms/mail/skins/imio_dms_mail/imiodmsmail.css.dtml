@@ -398,22 +398,6 @@ body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dash
     display: None;
 }
 
-body.template-imiodmsmail-settings span[id$="widgets-validators"],
-body.template-imiodmsmail-settings span[id$="widgets-treating_groups"],
-body.template-imiodmsmail-settings span[id$="widgets-send_modes"] {
-    max-height: 50px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    border: 1px solid #ddd;
-    padding: 8px;
-    display: block;
-    background: #fff;
-    scrollbar-width: thin; /* Pour Firefox */
-}
-span[id$="widgets-validators"]::-webkit-scrollbar-corner {
-    background: #f1f1f1;
-}
-
 #portal-searchbox div.LSBox div.searchSection {
     display: None;
 }
@@ -807,6 +791,58 @@ body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-3 {
 }
 body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-4 {
     width: 40%;
+}
+
+/* Limit some checkable list */
+body.template-imiodmsmail-settings span[id$="widgets-validators"],
+body.template-imiodmsmail-settings span[id$="widgets-treating_groups"],
+body.template-imiodmsmail-settings span[id$="widgets-mail_types"],
+body.template-imiodmsmail-settings span[id$="widgets-send_modes"] {
+    max-height: 50px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    border: 1px solid #ddd;
+    padding: 8px;
+    display: block;
+    background: #fff;
+    scrollbar-width: thin; /* Pour Firefox */
+}
+span[id$="widgets-validators"]::-webkit-scrollbar-corner {
+    background: #f1f1f1;
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-1,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 {
+    width: 1%;
+    white-space: nowrap;
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 {
+    min-width: 15%;
+    max-width: 20%;
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 {
+    width: 10%;
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label {
+    display: none;
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 input,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-10 input {
+    width: 10ch;
+    min-width: 10ch;
+    max-width: 10ch;
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-11 {
+    min-width: 15ch;
 }
 
 /* colorization for incoming_mail_workflow */

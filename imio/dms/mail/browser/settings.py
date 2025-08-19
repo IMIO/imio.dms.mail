@@ -635,6 +635,21 @@ class IImioDmsMailConfig(model.Schema):
         auto_append=False,
     )
 
+    omail_signer_rules = schema.List(
+        title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Grouping is only informative. Rules are read in order. Conditions must be left empty "
+                      u"if not relevant. Dates with format YYYY/MM/DD."),
+        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "omail_signer_rules",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=True,
+    )
+
     omail_group_encoder = schema.Bool(
         title=_(u"Activate group encoder"),
         description=_(
@@ -647,20 +662,6 @@ class IImioDmsMailConfig(model.Schema):
             u"The list of 'encoder' groups, can be generated to be used in 'scanner program'."
         ),
         default=False,
-    )
-
-    omail_signer_rules = schema.List(
-        title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
-        description=_(u"Configure rules carefully. You can order with arrows."),
-        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
-        required=False,
-        default=[],
-    )
-    widget(
-        "omail_signer_rules",
-        DataGridFieldFactory,
-        allow_reorder=False,
-        auto_append=False,
     )
 
     # FIELDSET OEM
