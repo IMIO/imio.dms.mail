@@ -39,5 +39,6 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
         }
         sva = IMServiceValidation()
         sva.patch_workflow("incomingmail_workflow", **params)
+        clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("chef", self.imail)
