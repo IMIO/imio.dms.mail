@@ -604,6 +604,30 @@
         permission="zope2.View"
         />
 
+    <configure package="collective.collabora.browser">
+        <browser:page
+            name="collabora-edit"
+            for="collective.documentgenerator.content.pod_template.IPODTemplate"
+            class="collective.collabora.browser.edit.CollaboraEditView"
+            template="templates/edit.pt"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
+    </configure>
+
+    <browser:page
+        name="collabora-wopi"
+        for="collective.documentgenerator.content.pod_template.IPODTemplate"
+        class="collective.collabora.browser.wopi.CollaboraWOPIView"
+        permission="zope2.View"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+    <adapter factory="imio.dms.mail.adapters.StoredPodTemplate"
+        for="collective.documentgenerator.content.pod_template.IPODTemplate"
+        provides="collective.collabora.interfaces.IStoredFile"
+        />
+
     <!-- Viewlets -->
     <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
     <browser:viewlet

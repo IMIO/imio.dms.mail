@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from bs4 import BeautifulSoup
 from collective.contact.plonegroup.browser.tables import OrgaPrettyLinkWithAdditionalInfosColumn as opl_base
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
@@ -100,7 +101,16 @@ class GenerationColumn(NoEscapeLinkColumn):
     def renderCell(self, item):
         if not self.has_mailing(item):
             return ""
-        return super(GenerationColumn, self).renderCell(item)
+        rendered = super(GenerationColumn, self).renderCell(item)
+
+        # Add target="_blank" to open collabora edit in a new tab
+        # This is a workaround to avoid modifying the original template
+        soup = BeautifulSoup(rendered, "html.parser")
+        a_tag = soup.find("a")
+        a_tag["target"] = "_blank"
+        rendered = str(soup)
+
+        return rendered
 
 
 class EnquirerColumn(Column):

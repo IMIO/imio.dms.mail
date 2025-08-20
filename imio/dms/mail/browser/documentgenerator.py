@@ -498,8 +498,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         """
         self._set_header_response(persisted_doc.file.filename)
         response = self.request.response
-        # return response.redirect(self.context.absolute_url())
-        return response.redirect(persisted_doc.absolute_url() + "/external_edit")
+        return response.redirect(persisted_doc.absolute_url() + "/@@collabora-edit")
 
     def _get_generation_context(self, helper_view, pod_template):
         """
