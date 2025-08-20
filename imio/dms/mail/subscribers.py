@@ -392,30 +392,42 @@ def dmsoutgoingmail_modified(mail, event):
     if mail_state in ("sent", "to_be_signed"):
         return
 
+    today = datetime.date.today()
     # Update signers field only if empty
     if not mail.signers:
         mail.signers = []
-        signers_routing_config = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
-        for signer in signers_routing_config:
+        signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+        numbers = []
+        for signer in signer_rules:
             if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
                 continue
             if signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
                 continue
             if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
                 continue
-            if signer['valid_until'] and signer['valid_until'] < DateTime():
+            if signer['valid_until'] and signer['valid_until'] <= today:
                 continue
-            if signer['valid_from'] and signer['valid_from'] > DateTime():
+            if signer['valid_from'] and signer['valid_from'] >= today:
                 continue
             if not _evaluateExpression(mail, expression=signer["tal_condition"]):
+                continue
+
+            # Once a signer number is already applied, this number must be skipped
+            if signer["number"] in numbers:
+                continue
+
+            if signer["number"] == 0:
+                if signer["held_position"] == u"_seal_":
+                    mail.seal = True
+                else:
+                    mail.seal = False
                 continue
 
             mail.signers.append(
                 {
                     "number": signer["number"],
-                    "seal": signer["seal"],
                     "held_position": signer["held_position"],
-                    "validators": signer["validators"],
+                    "approvings": signer["approvings"],
                 }
             )
 
