@@ -3,16 +3,18 @@
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from imio.dms.mail import _
+from imio.dms.mail.browser.settings import validate_approvings
+from imio.dms.mail.utils import vocabularyname_to_terms
 from plone.autoform import directives as form
 from plone.autoform.directives import widget
 from plone.autoform.interfaces import IFormFieldProvider
-from plone.supermodel import directives
 from plone.supermodel import model
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
 from zope.interface import Interface
 from zope.interface import provider
-from zope.schema import ValidationError
+from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 
@@ -28,14 +30,15 @@ class ISignerBehavior(model.Schema):
     form.widget("usages", CheckBoxFieldWidget, multiple="multiple")
 
 
-class InvalidValidators(ValidationError):
-    __doc__ = _(u"You cannot select validators and no validation at the same time.")
-
-
-def validate_validators(validators):
-    if u"_empty_" in validators and len(validators) > 1:
-        raise InvalidValidators(validators)
-    return True
+@provider(IContextSourceBinder)
+def signing_held_positions(context):
+    """Return held positions vocabulary for signing."""
+    terms = [
+        SimpleTerm(value=None, title=_("Choose a value !")),
+        SimpleTerm(value=u"_empty_", title=_("* No signature")),
+    ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
 
 
 class ISignerSchema(Interface):
@@ -43,23 +46,26 @@ class ISignerSchema(Interface):
 
     number = schema.Choice(
         title=_(u"Number"),
+        description=_(u"Signer number on the document."),
         vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
         required=True,
     )
 
     held_position = schema.Choice(
         title=_(u"Signer"),
-        vocabulary="imio.dms.mail.SigningHeldpositionVocabulary",
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
+        source=signing_held_positions,
         required=True,
     )
 
-    validators = schema.List(
-        title=_(u"Validators"),
-        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningValidatorsVocabulary"),
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
         required=True,
-        constraint=validate_validators,
+        constraint=validate_approvings,
     )
-    widget("validators", CheckBoxFieldWidget, multiple="multiple", size=5)
+    widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
 
 @provider(IFormFieldProvider)

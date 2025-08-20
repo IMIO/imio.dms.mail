@@ -14,7 +14,6 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
-from imio.dms.mail.behaviors import validate_validators
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
@@ -53,8 +52,11 @@ from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
 from zope.interface import invariant
+from zope.interface import provider
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema import ValidationError
 # from zope.schema import ValidationError
+from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -210,25 +212,29 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
-signing_grouping_letters = SimpleVocabulary([
-    SimpleTerm(value=chr(65 + i), title=chr(65 + i))
-    for i in range(26)
-])
+class InvalidApprovings(ValidationError):
+    __doc__ = _(u"You cannot select approvings and no validation at the same time.")
 
 
-class SigningHeldpositionVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary(
-            [
-                SimpleTerm(value=None, title=_("Choose a value !")),
-                SimpleTerm(value=u"_empty_", title=_("* No signature")),
-            ] + vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
-        )
+def validate_approvings(approvings):
+    if u"_empty_" in approvings and len(approvings) > 1:
+        raise InvalidApprovings(approvings)
+    return True
 
 
-class SigningValidatorsVocabulary(object):
+@provider(IContextSourceBinder)
+def signing_held_positions_with_seal(context):
+    """Return held positions vocabulary for signing."""
+    terms = [
+        SimpleTerm(value=None, title=_("Choose a value !")),
+        SimpleTerm(value=u"_empty_", title=_("* No signature")),
+        SimpleTerm(value=u"_seal_", title=_("* Seal signature")),
+    ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
+class SigningApprovingsVocabulary(object):
     implements(IVocabularyFactory)
 
     def __call__(self, context):
@@ -301,45 +307,31 @@ class IStateSetSchema(IBaseRoutingRuleSchema):
     )
 
 
-# class ISignerRuleSchema(ISignerSchema):  # bug when ordering (try again in P6)
 class ISignerRuleSchema(Interface):
     """ Routing schema of outgoing mail signer rule"""
-
-    grouping = schema.Choice(
-        title=_(u"Grouping"),
-        description=_(u"Informative grouping of rules under the same conditions."),
-        vocabulary=signing_grouping_letters,
-        required=True,
-    )
 
     number = schema.Choice(
         title=_(u"Number"),
         description=_(u"Signer number on the document."),
-        vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
+        vocabulary=SimpleVocabulary.fromValues(range(0, 10)),
         required=True,
     )
 
     held_position = schema.Choice(
         title=_(u"Signer"),
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        vocabulary="imio.dms.mail.SigningHeldpositionVocabulary",
+        source=signing_held_positions_with_seal,
         required=True,
     )
 
-    validators = schema.List(
-        title=_(u"Validators"),
-        description=_(u"User(s) that can add the item to the signing session (validation role)."),
-        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningValidatorsVocabulary"),
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
         required=True,
-        constraint=validate_validators,
+        constraint=validate_approvings,
     )
-    widget("validators", CheckBoxFieldWidget, multiple="multiple", size=5)
-
-    seal = schema.Bool(
-        title=_(u'Seal'),
-        description=_(u"Check if a signing seal must be added."),
-        required=False,
-    )
+    widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
     valid_from = schema.TextLine(
         title=_(u"Valid from"),
@@ -381,10 +373,6 @@ class ISignerRuleSchema(Interface):
         title=_("TAL condition"),
         required=False,
     )
-
-    # when ordering, the datagrid headers are not reordered ! Only the content
-    # order_before(grouping="number")
-    # order_before(seal="held_position")
 
 
 assigned_user_check_levels = SimpleVocabulary(
@@ -629,7 +617,7 @@ class IImioDmsMailConfig(model.Schema):
 
     omail_signer_rules = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
-        description=_(u"Grouping is only informative. Rules are read in order. Conditions must be left empty "
+        description=_(u"Rules are read in order. Conditions must be left empty "
                       u"if not relevant. Dates with format YYYY/MM/DD."),
         value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
         required=False,
@@ -1097,8 +1085,6 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS["dmsoutgoingmail"]], "folder_period", event.newValue)
-    if event.record.fieldName == "omail_signer_rules":
-        event.record.value.sort(key=lambda x: (x["number"], x["grouping"]))
 
 
 def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):

@@ -135,13 +135,8 @@
         />
 
     <utility
-        name="imio.dms.mail.SigningHeldpositionVocabulary"
-        factory="imio.dms.mail.browser.settings.SigningHeldpositionVocabulary"
-        />
-
-    <utility
-        name="imio.dms.mail.SigningValidatorsVocabulary"
-        factory="imio.dms.mail.browser.settings.SigningValidatorsVocabulary"
+        name="imio.dms.mail.SigningApprovingsVocabulary"
+        factory="imio.dms.mail.browser.settings.SigningApprovingsVocabulary"
         />
 
     <utility
