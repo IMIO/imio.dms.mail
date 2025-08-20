@@ -373,6 +373,8 @@ class OMSignersVocabulary(object):
 
     implements(IVocabularyFactory)
 
+    # TODO: must use get_internal_held_positions_vocabulary(["active", "deactivated"]) with a new parameter usages
+
     @ram.cache(voc_cache_key)
     def __call__(self, context):
         terms = []

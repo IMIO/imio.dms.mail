@@ -8,6 +8,7 @@ from imio.dms.mail.utils import vocabularyname_to_terms
 from plone.autoform import directives as form
 from plone.autoform.directives import widget
 from plone.autoform.interfaces import IFormFieldProvider
+# from plone.supermodel import directives
 from plone.supermodel import model
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
