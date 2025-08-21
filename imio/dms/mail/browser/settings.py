@@ -46,6 +46,7 @@ from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 from z3c.form.validator import NoInputData
 from zope import schema
 from zope.component import getUtility
+from zope.globalrequest import getRequest
 # from zope.interface import provider
 # from zope.schema.interfaces import IContextSourceBinder
 from zope.interface import implements
@@ -62,6 +63,7 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
+import datetime
 import logging
 import re
 
@@ -223,7 +225,7 @@ def validate_approvings(approvings):
 
 
 @provider(IContextSourceBinder)
-def signing_held_positions_with_seal(context):
+def signing_signers_with_seal(context):
     """Return held positions vocabulary for signing."""
     terms = [
         SimpleTerm(value=None, title=_("Choose a value !")),
@@ -317,10 +319,10 @@ class ISignerRuleSchema(Interface):
         required=True,
     )
 
-    held_position = schema.Choice(
+    signer = schema.Choice(
         title=_(u"Signer"),
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_held_positions_with_seal,
+        source=signing_signers_with_seal,
         required=True,
     )
 
@@ -866,6 +868,63 @@ class IImioDmsMailConfig(model.Schema):
                         )
             except NoInputData:
                 pass
+        # check omail_signer_rules
+        if fieldset == "outgoingmail" or not fieldset:
+            for i, rule in enumerate(data.omail_signer_rules or [], start=1):
+                # check dates
+                today = datetime.date.today()
+                for date_fld, date_title in (("valid_from", u"Valid from"), ("valid_until", u"Valid until")):
+                    if rule[date_fld]:
+                        try:
+                            datetime.datetime.strptime(rule[date_fld], "%Y/%m/%d")
+                        except ValueError:
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} », rule ${rule} has an invalid date in « ${date} » field",
+                                    mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
+                                             "date": _(date_title)},
+                                )
+                            )
+                if (rule["valid_from"] and rule["valid_until"] and  # noqa W504
+                        datetime.datetime.strptime(rule["valid_until"], "%Y/%m/%d") <  # noqa W504
+                        datetime.datetime.strptime(rule["valid_from"], "%Y/%m/%d")):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal "
+                            u"to « ${from} »",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
+                                     "until": _(u"Valid until"), "from": _(u"Valid from")},
+                        )
+                    )
+                if rule["valid_until"] and datetime.datetime.strptime(rule["valid_until"], "%Y/%m/%d").date() < today:
+                    api.portal.show_message(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal "
+                            u"to today",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
+                                     "until": _(u"Valid until")},
+                        ),
+                        request=getRequest(),
+                        type="warning",
+                    )
+                # check number
+                if rule["number"] == 0 and rule["signer"] not in (u"_seal_", u"_empty_"):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a number 0 but a signer is set. With 0, it "
+                            u"can only be a seal or no signature.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+                if rule["signer"] == u"_seal_" and rule["number"] != 0:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. "
+                            u"With a seal, it can only be 0.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+
         # check fields
         constraints = {
             "imail_fields": {

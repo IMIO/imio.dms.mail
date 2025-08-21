@@ -417,7 +417,7 @@ def dmsoutgoingmail_modified(mail, event):
                 continue
 
             if signer["number"] == 0:
-                if signer["held_position"] == u"_seal_":
+                if signer["signer"] == u"_seal_":
                     mail.seal = True
                 else:
                     mail.seal = False
@@ -426,7 +426,7 @@ def dmsoutgoingmail_modified(mail, event):
             mail.signers.append(
                 {
                     "number": signer["number"],
-                    "held_position": signer["held_position"],
+                    "signer": signer["signer"],
                     "approvings": signer["approvings"],
                 }
             )

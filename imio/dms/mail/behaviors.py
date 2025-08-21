@@ -39,7 +39,7 @@ class IUsagesBehavior(model.Schema):
 
 
 @provider(IContextSourceBinder)
-def signing_held_positions(context):
+def signing_signers(context):
     """Return held positions vocabulary for signing."""
     terms = [
         SimpleTerm(value=None, title=_("Choose a value !")),
@@ -59,10 +59,10 @@ class ISignerSchema(Interface):
         required=True,
     )
 
-    held_position = schema.Choice(
+    signer = schema.Choice(
         title=_(u"Signer"),
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_held_positions,
+        source=signing_signers,
         required=True,
     )
 
