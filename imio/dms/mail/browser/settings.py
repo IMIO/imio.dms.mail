@@ -52,7 +52,11 @@ from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
 from zope.interface import invariant
+from zope.interface import provider
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema import ValidationError
+# from zope.schema import ValidationError
+from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
@@ -208,7 +212,41 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
-class IRuleSchema(Interface):
+class InvalidApprovings(ValidationError):
+    __doc__ = _(u"You cannot select approvings and no validation at the same time.")
+
+
+def validate_approvings(approvings):
+    if u"_empty_" in approvings and len(approvings) > 1:
+        raise InvalidApprovings(approvings)
+    return True
+
+
+@provider(IContextSourceBinder)
+def signing_held_positions_with_seal(context):
+    """Return held positions vocabulary for signing."""
+    terms = [
+        SimpleTerm(value=None, title=_("Choose a value !")),
+        SimpleTerm(value=u"_empty_", title=_("* No signature")),
+        SimpleTerm(value=u"_seal_", title=_("* Seal signature")),
+    ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
+class SigningApprovingsVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_empty_", title=_("* No validation")),
+                SimpleTerm(value=u"_themself_", title=_("* Themself")),
+            ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
+        )
+
+
+class IBaseRoutingRuleSchema(Interface):
 
     forward = schema.Choice(
         title=_("Forward Type"),
@@ -236,7 +274,10 @@ class IRuleSchema(Interface):
     )
 
 
-class IRoutingSchema(IRuleSchema):
+class IRoutingSchema(IBaseRoutingRuleSchema):
+    """
+    Routing schema for incoming emails
+    """
 
     user_value = schema.Choice(
         title=_(u"Assigned user value"),
@@ -257,12 +298,80 @@ class IRoutingSchema(IRuleSchema):
     )
 
 
-class IStateSetSchema(IRuleSchema):
+class IStateSetSchema(IBaseRoutingRuleSchema):
 
     state_value = schema.Choice(
         title=_(u"State value"),
         vocabulary="imio.dms.mail.StatesRoutingValueVocabulary",
         required=True,
+    )
+
+
+class ISignerRuleSchema(Interface):
+    """ Routing schema of outgoing mail signer rule"""
+
+    number = schema.Choice(
+        title=_(u"Number"),
+        description=_(u"Signer number on the document."),
+        vocabulary=SimpleVocabulary.fromValues(range(0, 10)),
+        required=True,
+    )
+
+    held_position = schema.Choice(
+        title=_(u"Signer"),
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
+        source=signing_held_positions_with_seal,
+        required=True,
+    )
+
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
+        required=True,
+        constraint=validate_approvings,
+    )
+    widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    valid_from = schema.TextLine(
+        title=_(u"Valid from"),
+        description=_(u"Affected from date. Format: YYYY/MM/DD."),
+        required=False,
+    )
+
+    valid_until = schema.TextLine(
+        title=_(u"Valid until"),
+        description=_(u"Affected until date. Format: YYYY/MM/DD."),
+        required=False,
+    )
+
+    treating_groups = schema.List(
+        title=_(u"Treating group"),
+        description=_(u"Affected groups for this rule."),
+        value_type=schema.Choice(vocabulary="collective.dms.basecontent.treating_groups"),
+        required=False,
+    )
+    widget('treating_groups', CheckBoxFieldWidget, multiple='multiple')
+
+    mail_types = schema.List(
+        title=_("Mail type"),
+        description=_(u"Affected mail types for this rule."),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.OMMailTypesVocabulary"),
+        required=False,
+    )
+    widget('mail_types', CheckBoxFieldWidget, multiple='multiple')
+
+    send_modes = schema.List(
+        title=_("Send mode"),
+        description=_(u"Affected send modes for this rule."),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.OMSendModesVocabulary"),
+        required=False,
+    )
+    widget('send_modes', CheckBoxFieldWidget, multiple='multiple')
+
+    tal_condition = schema.TextLine(
+        title=_("TAL condition"),
+        required=False,
     )
 
 
@@ -438,6 +547,7 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     # FIELDSET OM
+
     model.fieldset(
         "outgoingmail",
         label=_(u"Outgoing mail"),
@@ -451,11 +561,11 @@ class IImioDmsMailConfig(model.Schema):
             "omail_fullname_used_form",
             "omail_send_modes",
             "omail_post_mailing",
+            "omail_signer_rules",
             "omail_fields",
             "omail_group_encoder",
         ],
     )
-
     omail_types = schema.List(
         title=_(u"Types of outgoing mail"),
         description=_(
@@ -464,7 +574,7 @@ class IImioDmsMailConfig(model.Schema):
         value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
     )
 
-    widget("omail_types", DataGridFieldFactory, allow_reorder=True)
+    widget("omail_types", DataGridFieldFactory)
 
     omail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
@@ -503,6 +613,21 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u"Post mailing"),
         description=_(u"Do mailing for each postal sending type."),
         default=True,
+    )
+
+    omail_signer_rules = schema.List(
+        title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Rules are read in order. Conditions must be left empty "
+                      u"if not relevant. Dates with format YYYY/MM/DD."),
+        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "omail_signer_rules",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=True,
     )
 
     omail_fields = schema.List(

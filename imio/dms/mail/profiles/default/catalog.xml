@@ -28,9 +28,8 @@
  </index>
  <column value="markers"/>
 
- <index name="signer" meta_type="BooleanIndex">
-  <indexed_attr value="signer"/>
+ <index name="usages" meta_type="KeywordIndex">
+  <indexed_attr value="usages"/>
  </index>
- <column value="signer"/>
 
 </object>

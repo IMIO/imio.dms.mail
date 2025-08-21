@@ -135,6 +135,11 @@
         />
 
     <utility
+        name="imio.dms.mail.SigningApprovingsVocabulary"
+        factory="imio.dms.mail.browser.settings.SigningApprovingsVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.IMPortalTypesVocabulary"
         factory="imio.dms.mail.vocabularies.IMPortalTypesVocabulary"
         />

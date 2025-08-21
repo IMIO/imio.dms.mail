@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get  # noqa
+from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.classification.folder.content.vocabularies import set_folders_tree
 from collective.contact.core.interfaces import IContactCoreParameters
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
@@ -27,7 +28,7 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 # from imio.dms.mail import MAIN_FOLDERS
-# from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -385,16 +386,53 @@ def dmsoutgoingmail_transition(mail, event):
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
 
 
-def dmsoutgoingmail_added(mail, event):
-    # Sort signers
-    if mail.signers:
-        mail.signers = sorted(mail.signers, key=itemgetter("number"))
-
-
 def dmsoutgoingmail_modified(mail, event):
-    # Sort signers
+    # Do not update signers field if mail is sent or to be signed
+    mail_state = api.content.get_state(mail)
+    if mail_state in ("sent", "to_be_signed"):
+        return
+
+    today = datetime.date.today()
+    # Update signers field only if empty
+    if not mail.signers:
+        mail.signers = []
+        signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+        numbers = []
+        for signer in signer_rules:
+            if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
+                continue
+            if signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
+                continue
+            if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
+                continue
+            if signer['valid_until'] and signer['valid_until'] <= today:
+                continue
+            if signer['valid_from'] and signer['valid_from'] >= today:
+                continue
+            if not _evaluateExpression(mail, expression=signer["tal_condition"]):
+                continue
+
+            # Once a signer number is already applied, this number must be skipped
+            if signer["number"] in numbers:
+                continue
+
+            if signer["number"] == 0:
+                if signer["held_position"] == u"_seal_":
+                    mail.seal = True
+                else:
+                    mail.seal = False
+                continue
+
+            mail.signers.append(
+                {
+                    "number": signer["number"],
+                    "held_position": signer["held_position"],
+                    "approvings": signer["approvings"],
+                }
+            )
+
     if mail.signers:
-        mail.signers = sorted(mail.signers, key=itemgetter("number"))
+        mail.signers.sort(key=itemgetter("number"))
 
 
 def dv_handle_file_creation(obj, event):
@@ -907,6 +945,7 @@ def group_assignment(event):
         raise Redirect(req.get("HTTP_REFERER"))
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -934,6 +973,7 @@ def group_unassignment(event):
     """
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -993,11 +1033,13 @@ def organization_modified(obj, event):
 
 
 def held_position_modified(obj, event):
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+    if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
 
 
 def held_position_removed(obj, event):
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+    if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
 
 
 def mark_contact(contact, event):

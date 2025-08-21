@@ -2,6 +2,6 @@
 <object name="held_position">
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
-  <element value="imio.dms.mail.behaviors.ISignerBehavior" />
+  <element value="imio.dms.mail.behaviors.IUsagesBehavior" />
  </property>
 </object>
