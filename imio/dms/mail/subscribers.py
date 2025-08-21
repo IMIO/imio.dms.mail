@@ -405,9 +405,9 @@ def dmsoutgoingmail_modified(mail, event):
                 continue
             if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
                 continue
-            if signer['valid_until'] and signer['valid_until'] <= today:
+            if signer['valid_until'] and datetime.datetime.strptime(signer['valid_until'], "%Y/%m/%d").date() <= today:
                 continue
-            if signer['valid_from'] and signer['valid_from'] >= today:
+            if signer['valid_from'] and datetime.datetime.strptime(signer['valid_from'], "%Y/%m/%d").date() >= today:
                 continue
             if not _evaluateExpression(mail, expression=signer["tal_condition"]):
                 continue
