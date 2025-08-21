@@ -93,14 +93,6 @@ msgstr "Activation de plusieurs groupes d'indicatage"
 msgid "Active"
 msgstr "Activé"
 
-#: ./configure.zcml:366
-msgid "Add a field to indicate if the user should be able to sign documents"
-msgstr "Ajoute un champ pour indiquer si l'utilisateur peut signer des documents"
-
-#: ./configure.zcml:372
-msgid "Add a field to list the users that have to sign the document"
-msgstr "Ajoute un champ pour lister les utilisateurs qui doivent signer le document"
-
 #: ./profiles.zcml:30
 msgid "Add minimal test examples for imio.dms.mail"
 msgstr "Configuration de base fr minimale pour imio.dms.mail"
@@ -501,10 +493,6 @@ msgstr "Courrier entrant"
 msgid "Incoming mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 
-#: ./behaviors.py:22
-msgid "Indicate if the user should be able to sign documents"
-msgstr "Indique si l'utilisateur peut signer des documents"
-
 #: ./profiles.zcml:14
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
@@ -520,10 +508,6 @@ msgstr "Nom Prénom"
 #: ./subscribers.py:758
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
-
-#: ./behaviors.py:34
-msgid "List of users who have to sign this document"
-msgstr "Liste des utilisateurs qui doivent signer le document"
 
 #: ./browser/settings.py:206
 msgid "Lowest N+ level, or agent"
@@ -777,16 +761,6 @@ msgstr "Boîte mail"
 #: ./browser/settings.py:177
 msgid "Set None"
 msgstr "* Pas de valeur"
-
-#: ./behaviors.py:21
-#: ./configure.zcml:366
-msgid "Signer"
-msgstr "Signataire"
-
-#: ./behaviors.py:32
-#: ./configure.zcml:372
-msgid "Signers"
-msgstr "Signataires"
 
 #: ./profiles.zcml:45
 msgid "Single steps profile for imio.dms.mail"
