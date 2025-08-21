@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from collective.contact.plonegroup import _ as _ccp
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from imio.dms.mail import _
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.utils import vocabularyname_to_terms
 from plone.autoform import directives as form
-from plone.autoform.directives import widget
 from plone.autoform.interfaces import IFormFieldProvider
-# from plone.supermodel import directives
+from plone.supermodel import directives
 from plone.supermodel import model
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
@@ -20,7 +20,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 
 @provider(IFormFieldProvider)
-class ISignerBehavior(model.Schema):
+class IUsagesBehavior(model.Schema):
 
     usages = schema.List(
         title=_("Usages"),
@@ -29,6 +29,13 @@ class ISignerBehavior(model.Schema):
         default=[],
     )
     form.widget("usages", CheckBoxFieldWidget, multiple="multiple")
+
+    form.read_permission(usages="collective.contact.plonegroup.read_userlink_fields")
+    form.write_permission(usages="collective.contact.plonegroup.write_userlink_fields")
+
+    directives.fieldset("app_parameters",
+                        label=_ccp(u"Application parameters"),
+                        fields=["usages"])
 
 
 @provider(IContextSourceBinder)
@@ -66,7 +73,7 @@ class ISignerSchema(Interface):
         required=True,
         constraint=validate_approvings,
     )
-    widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+    form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
 
 @provider(IFormFieldProvider)
@@ -87,7 +94,7 @@ class ISigningBehavior(model.Schema):
         value_type=DictRow(title=_("Signer"), schema=ISignerSchema),
         required=False,
     )
-    widget(
+    form.widget(
         "signers",
         DataGridFieldFactory,
         allow_reorder=False,

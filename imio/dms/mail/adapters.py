@@ -594,14 +594,6 @@ def heldposition_userid_index(obj):
     return common_marker
 
 
-@indexer(IHeldPosition)
-def heldposition_signer_index(obj):
-    """Indexer of 'signer' for IHeldPosition."""
-    if base_hasattr(obj, "usages"):
-        return "signer" in obj.usages
-    return common_marker
-
-
 @indexer(ITaskContent)
 def task_enquirer_index(obj):
     """Indexer of 'mail_type' for ITaskContent. Stores enquirer !"""

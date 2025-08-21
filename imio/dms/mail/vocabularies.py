@@ -126,8 +126,9 @@ class HeldPositionUsagesVocabulary(object):
 
     def __call__(self, context):
         res = [
-            SimpleTerm('signer', 'signer', _('Signer')),
-            SimpleTerm('validator', 'validator', _('Validator'))
+            # SimpleTerm(EMPTY_STRING, EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
+            SimpleTerm("signer", "signer", _("Signer")),
+            SimpleTerm("approving", "approving", _("Approving"))
         ]
         return SimpleVocabulary(res)
 
@@ -246,7 +247,7 @@ class PloneGroupInterfacesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-def get_internal_held_positions_vocabulary(states):
+def get_internal_held_positions_vocabulary(states=(), usages=()):
     """Returns a vocabulary with internal held positions, following given states list.
     The vocabulary is sorted following firstname sort option.
     """
@@ -257,9 +258,15 @@ def get_internal_held_positions_vocabulary(states):
     sort_on = ["firstname", "lastname"]
     sfs or sort_on.reverse()
 
-    brains = catalog.unrestrictedSearchResults(
-        portal_type=["held_position"], object_provides="imio.dms.mail.interfaces.IPersonnelContact", review_state=states
-    )
+    criterias = {
+        "portal_type": "held_position",
+        "object_provides": "imio.dms.mail.interfaces.IPersonnelContact",
+    }
+    if states:
+        criterias["review_state"] = states
+    if usages:
+        criterias["usages"] = usages
+    brains = catalog.unrestrictedSearchResults(**criterias)
 
     terms = []
     for brain in brains:
@@ -373,26 +380,11 @@ class OMSignersVocabulary(object):
 
     implements(IVocabularyFactory)
 
-    # TODO: must use get_internal_held_positions_vocabulary(["active", "deactivated"]) with a new parameter usages
-
     @ram.cache(voc_cache_key)
-    def __call__(self, context):
-        terms = []
-        catalog = api.portal.get_tool("portal_catalog")
-        brains = catalog.unrestrictedSearchResults(
-            portal_type="held_position",
-            signer=True,
-        )
-        for brain in brains:
-            hp = brain.getObject()
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    brain.UID,
-                    brain.UID,
-                    hp.get_full_title(),
-                )
-            )
-        return SimpleVocabulary(terms)
+    def OMSignersVocabulary__call__(self, context):
+        return get_internal_held_positions_vocabulary(usages="signer")
+
+    __call__ = OMSignersVocabulary__call__
 
 
 def encodeur_active_orgs(context):

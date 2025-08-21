@@ -945,6 +945,7 @@ def group_assignment(event):
         raise Redirect(req.get("HTTP_REFERER"))
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -972,6 +973,7 @@ def group_unassignment(event):
     """
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -1031,11 +1033,13 @@ def organization_modified(obj, event):
 
 
 def held_position_modified(obj, event):
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+    if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
 
 
 def held_position_removed(obj, event):
-    invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+    if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
 
 
 def mark_contact(contact, event):

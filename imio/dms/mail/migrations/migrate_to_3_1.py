@@ -66,8 +66,9 @@ class Migrate_To_3_1(Migrator):  # noqa
             ))
 
             # signing
-            self.runProfileSteps('imio.dms.mail', steps=['plone.app.registry'])
-            load_type_from_package('dmsoutgoingmail', 'profile-imio.dms.mail:default')  # behavior
+            self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
+            load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior
+            load_type_from_package("held_position", "profile-imio.dms.mail:default")  # behavior
             # END
 
             finished = True  # can be eventually returned and set by batched method

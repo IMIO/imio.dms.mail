@@ -360,9 +360,9 @@
     <!-- behaviors -->
 
     <plone:behavior
-        title="Signer"
-        description="Add a field to indicate if the user should be able to sign documents"
-        provides=".behaviors.ISignerBehavior"
+        title="Usages"
+        description="Can choose possible usages (on held position)"
+        provides=".behaviors.IUsagesBehavior"
         />
 
     <plone:behavior
