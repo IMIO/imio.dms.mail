@@ -136,7 +136,7 @@
 
     <utility
         name="imio.dms.mail.SigningApprovingsVocabulary"
-        factory="imio.dms.mail.browser.settings.SigningApprovingsVocabulary"
+        factory="imio.dms.mail.vocabularies.SigningApprovingsVocabulary"
         />
 
     <utility

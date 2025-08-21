@@ -236,18 +236,6 @@ def signing_signers_with_seal(context):
     return SimpleVocabulary(terms)
 
 
-class SigningApprovingsVocabulary(object):
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        return SimpleVocabulary(
-            [
-                SimpleTerm(value=u"_empty_", title=_("* No validation")),
-                SimpleTerm(value=u"_themself_", title=_("* Themself")),
-            ] + vocabularyname_to_terms("imio.helpers.SimplySortedUsers", sort_on="title")
-        )
-
-
 class IBaseRoutingRuleSchema(Interface):
 
     forward = schema.Choice(

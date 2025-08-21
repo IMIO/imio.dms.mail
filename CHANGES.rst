@@ -7,9 +7,9 @@ Changelog
 - Added read mode.
   [chris-adam, sgeulette]
 - Added 'Signers' field on outgoing mails to select 'signer' held positions.
-  [chris-adam]
+  [chris-adam, sgeulette]
 - Added signers routing settings.
-  [chris-adam]
+  [chris-adam, sgeulette]
 
 
 3.0 (2021-09-30)

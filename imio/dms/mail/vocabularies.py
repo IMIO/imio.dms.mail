@@ -247,13 +247,13 @@ class PloneGroupInterfacesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-def get_internal_held_positions_vocabulary(states=(), usages=()):
+def get_internal_held_positions_vocabulary(states=(), usages=(), as_person=False):
     """Returns a vocabulary with internal held positions, following given states list.
     The vocabulary is sorted following firstname sort option.
     """
     catalog = api.portal.get_tool("portal_catalog")
     sfs = api.portal.get_registry_record(
-        "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_sender_firstname_sorting"
+        "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_firstname_sorting"
     )
     sort_on = ["firstname", "lastname"]
     sfs or sort_on.reverse()
@@ -269,28 +269,44 @@ def get_internal_held_positions_vocabulary(states=(), usages=()):
     brains = catalog.unrestrictedSearchResults(**criterias)
 
     terms = []
+    terms_dict = {}
     for brain in brains:
         hp = brain._unrestrictedGetObject()
         person = hp.get_person()
         org = hp.get_organization()
         if org is None:
             continue
-        terms.append(
-            (
-                person,
-                hp,
-                SimpleVocabulary.createTerm(
-                    brain.UID,
-                    "{}_{}_{}".format(brain.UID, org.UID(), person.userid or ""),
-                    hp.get_full_title(first_index=1),
-                ),
+        if as_person:
+            if not person.userid:
+                continue
+            if person.userid not in terms_dict:
+                terms_dict[person.userid] = (
+                    person,
+                    SimpleTerm(person.UID(), person.userid, person.get_title(include_person_title=False))
+                )
+        else:
+            terms.append(
+                (
+                    person,
+                    hp,
+                    SimpleTerm(
+                        brain.UID,
+                        "{}_{}_{}".format(brain.UID, org.UID(), person.userid or ""),
+                        hp.get_full_title(first_index=1),
+                    ),
+                )
             )
-        )
 
-    def sort_terms(t):
+    def sort_persons(t):
+        return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1])
+
+    def sort_hps(t):
         return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title(first_index=1)
 
-    return SimpleVocabulary([term for pers, hpo, term in sorted(terms, key=sort_terms)])
+    if as_person:
+        return SimpleVocabulary([term for pers, term in sorted(terms_dict.values(), key=sort_persons)])
+    else:
+        return SimpleVocabulary([term for pers, hpo, term in sorted(terms, key=sort_hps)])
 
 
 class OMActiveSenderVocabulary(object):
@@ -385,6 +401,21 @@ class OMSignersVocabulary(object):
         return get_internal_held_positions_vocabulary(usages="signer")
 
     __call__ = OMSignersVocabulary__call__
+
+
+class SigningApprovingsVocabulary(object):
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def SigningApprovingsVocabulary__call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_empty_", title=_("* No validation")),
+                SimpleTerm(value=u"_themself_", title=_("* Themself")),
+            ] + get_internal_held_positions_vocabulary(usages="approving", as_person=True)._terms
+        )
+
+    __call__ = SigningApprovingsVocabulary__call__
 
 
 def encodeur_active_orgs(context):
