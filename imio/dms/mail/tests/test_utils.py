@@ -25,6 +25,7 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
@@ -44,6 +45,7 @@ from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 
@@ -758,6 +760,182 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         im_folder = self.portal["incoming-mail"]["mail-searches"]
         self.assertFalse("searchfor_proposed_to_n_plus_1" in im_folder)
         self.assertTrue("See test_wfadaptations_imservicevalidation.py")
+
+    def test_OdmUtilsMethods_duplicate(self):
+        intids = getUtility(IIntIds)
+
+        omail2 = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id2",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            classification_folders=[self.portal.folders['ordre-public-reglement-general-de-police'].UID()],
+            classification_categories=self.portal.folders['ordre-public-reglement-general-de-police'].classification_categories,
+        )
+
+        omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id",
+            title="My title",
+            description="Description",
+            treating_groups=self.pgof["direction-generale"]["secretariat"].UID(),
+            send_modes=["post"],
+            classification_folders=[self.portal.folders['ordre-public-reglement-general-de-police'].UID()],
+            classification_categories=self.portal.folders['ordre-public-reglement-general-de-police'].classification_categories,
+            reply_to=[RelationValue(intids.getId(omail2))],
+        )
+        createContentInContainer(omail, "dmsommainfile", title=u"D001", file=NamedBlobFile(filename=u"scanned.pdf"))
+        createContentInContainer(
+            omail, "dmsappendixfile", title=u"A001", file=NamedBlobFile(filename=u"appendix.odt")
+        )
+        view = OdmUtilsMethods(omail, omail.REQUEST)
+
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=True,
+            keep_reply_to=True,
+            keep_dms_files=True,
+            keep_annexes=True,
+            link_to_duplicated=True,
+        )
+        self.assertEqual(duplicated_mail.title, u"My title")
+        self.assertEqual(duplicated_mail.description, u"Description")
+        self.assertEqual(duplicated_mail.send_modes, ["post"])
+        self.assertGreater(duplicated_mail.creation_date, omail.creation_date)
+        self.assertNotEqual(duplicated_mail.internal_reference_no, omail.internal_reference_no)
+        self.assertIsNone(duplicated_mail.mail_date)
+        self.assertIsNone(duplicated_mail.due_date)
+        self.assertIsNone(duplicated_mail.outgoing_date)
+
+        # Test keep_category
+        self.assertEqual(duplicated_mail.classification_categories, self.portal.folders['ordre-public-reglement-general-de-police'].classification_categories)
+        # Test keep_folder
+        self.assertEqual(duplicated_mail.classification_folders, [self.portal.folders['ordre-public-reglement-general-de-police'].UID()])
+        # Test keep_linked_mails
+        self.assertEqual(len(duplicated_mail.reply_to), 2)
+        self.assertEqual(omail2, duplicated_mail.reply_to[0].to_object)
+        # Test keep_dms_files
+        self.assertNotIn("d001", duplicated_mail)  # By default, we never keep not generated main files
+        # Test keep_annexes
+        self.assertIn("a001", duplicated_mail)
+        # Test link_to_original
+        self.assertEqual(omail, duplicated_mail.reply_to[1].to_object)
+
+        # Test not keeping categories
+        duplicated_mail = view.duplicate(
+            keep_category=False,
+            keep_folder=True,
+            keep_reply_to=True,
+            keep_dms_files=True,
+            keep_annexes=True,
+            link_to_duplicated=True,
+        )
+        self.assertIsNone(duplicated_mail.classification_categories)
+
+        # Test not keeping folders
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=False,
+            keep_reply_to=True,
+            keep_dms_files=True,
+            keep_annexes=True,
+            link_to_duplicated=True,
+        )
+        self.assertIsNone(duplicated_mail.classification_folders)
+
+        # Test not keeping linked mails
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=True,
+            keep_reply_to=False,
+            keep_dms_files=True,
+            keep_annexes=True,
+            link_to_duplicated=True,
+        )
+        self.assertEqual(len(duplicated_mail.reply_to), 1)
+        self.assertNotEqual(omail2, duplicated_mail.reply_to[0].to_object)
+
+        # Test not keeping dms files
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=True,
+            keep_reply_to=True,
+            keep_dms_files=False,
+            keep_annexes=True,
+            link_to_duplicated=True,
+        )
+        self.assertNotIn("d001", duplicated_mail)
+
+        # Test not keeping annexes
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=True,
+            keep_reply_to=True,
+            keep_dms_files=True,
+            keep_annexes=False,
+            link_to_duplicated=True,
+        )
+        self.assertNotIn("a001", duplicated_mail)
+
+        # Test not linking to original
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=True,
+            keep_reply_to=True,
+            keep_dms_files=True,
+            keep_annexes=True,
+            link_to_duplicated=False,
+        )
+        self.assertEqual(len(duplicated_mail.reply_to), 1)
+        self.assertNotEqual(omail, duplicated_mail.reply_to[0].to_object)
+
+        # Test with generated main files
+        generation_view = getMultiAdapter((omail, omail.REQUEST), name="persistent-document-generation")
+        pod_template = self.portal.templates["om"]["main"]
+        generation_view.pod_template = pod_template
+        generation_view.output_format = 'odt'
+        generation_view.generate_persistent_doc(pod_template, 'odt')
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=True,
+            keep_reply_to=True,
+            keep_dms_files=True,
+            keep_annexes=True,
+            link_to_duplicated=True,
+        )
+        self.assertIn('012999900000002', duplicated_mail)
+        dms_file = duplicated_mail['012999900000002']
+        annot = IAnnotations(dms_file)['documentgenerator']
+        self.assertEqual(annot['template_uid'], pod_template.UID())
+
+        # Test with mailings (publipostage)
+        omail.recipients = [RelationValue(intids.getId(self.contacts["jeancourant"]["agent-electrabel"])), RelationValue(intids.getId(self.contacts["sergerobinet"]["agent-swde"]))]
+        generation_view.generate_persistent_doc(pod_template, 'odt')
+        mailing_loop_generation_view = getMultiAdapter((omail, omail.REQUEST), name="mailing-loop-persistent-document-generation")
+        mailing_loop_pod_template = self.portal.templates["om"]["mailing"]
+        mailing_loop_generation_view.orig_template = pod_template
+        mailing_loop_generation_view.pod_template = mailing_loop_pod_template
+        mailing_loop_generation_view.output_format = 'odt'
+        mailing_loop_generation_view.document = omail['012999900000001']
+        mailing_loop_generation_view.generate_persistent_doc(mailing_loop_pod_template, 'odt')
+        duplicated_mail = view.duplicate(
+            keep_category=True,
+            keep_folder=True,
+            keep_reply_to=True,
+            keep_dms_files=True,
+            keep_annexes=True,
+            link_to_duplicated=True,
+        )
+        self.assertEqual(duplicated_mail.keys(), ['012999900000004', 'a001'])
+        dms_file = duplicated_mail['012999900000004']
+        annot = IAnnotations(dms_file)['documentgenerator']
+        self.assertEqual(annot['template_uid'], pod_template.UID())
+        self.assertTrue(annot['need_mailing'])
 
     def test_create_period_folder(self):
         dte = datetime.now() - timedelta(days=7)
