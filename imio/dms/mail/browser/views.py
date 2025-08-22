@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
 from collective.ckeditortemplates.cktemplate import ICKTemplate
-from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
@@ -15,7 +14,6 @@ from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
-from imio.dms.mail.utils import sub_create
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
 from imio.helpers.content import richtextval
@@ -25,7 +23,6 @@ from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
-from imio.helpers.transmogrifier import get_correct_id
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from imio.pyutils.utils import safe_encode
@@ -40,14 +37,11 @@ from unidecode import unidecode  # unidecode_expect_nonascii not yet available i
 from z3c.form import button
 from z3c.form.field import Fields
 from z3c.form.form import Form
-from z3c.relationfield import RelationValue
 from zope import schema
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
-from zope.component import getUtility
 from zope.i18n import translate
 from zope.interface import implements
-from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
@@ -136,54 +130,15 @@ class OMDuplicateForm(Form):
             return
 
         # Duplicate the mail
-        original_mail = self.context
-        pc = api.portal.get_tool("portal_catalog")
-        import ipdb; ipdb.set_trace()
-        duplicated_mail = sub_create(
-            api.portal.get()["outgoing-mail"],
-            "dmsoutgoingmail",
-            datetime.now(),
-            get_correct_id([om.getId for om in pc(portal_type="dmsoutgoingmail")], original_mail.getId()),
-            title=original_mail.title,
-            description=original_mail.description,
-            recipients=original_mail.recipients[:] if original_mail.recipients else None,
-            treating_groups=original_mail.treating_groups[:] if original_mail.treating_groups else None,
-            assigned_user=original_mail.assigned_user,
-            sender=original_mail.sender,
-            recipient_groups=original_mail.recipient_groups[:] if original_mail.recipient_groups else None,
-            send_modes=original_mail.send_modes[:] if original_mail.send_modes else None,
-            task_description=original_mail.task_description,
+        odm_utils = getMultiAdapter((self.context, self.request), name="odm-utils")
+        duplicated_mail = odm_utils.duplicate(
+            keep_category=data.get('category', False),
+            keep_folder=data.get('folder', False),
+            keep_reply_to=data.get('reply_to', False),
+            keep_dms_files=data.get('dms_files', False),
+            keep_annexes=data.get('annexes', False),
+            link_to_duplicated=data.get('link_to_duplicated', False),
         )
-
-        if data.get('keep_category', False) and hasattr(original_mail, 'classification_categories') and original_mail.classification_categories:
-            duplicated_mail.classification_categories = original_mail.classification_categories[:]
-
-        if data.get('keep_folder', False) and hasattr(original_mail, 'classification_folders') and original_mail.classification_folders:
-            duplicated_mail.classification_folders = original_mail.classification_folders[:]
-
-        if data.get('keep_linked_mails', False) and hasattr(original_mail, 'reply_to') and original_mail.reply_to:
-            duplicated_mail.reply_to = original_mail.reply_to[:]
-
-        if data.get('keep_dms_files', False):
-            # FIXME do not use clipboard
-            dms_files = [sub_content.getId() for sub_content in original_mail.values() if IImioDmsFile.providedBy(sub_content)]
-            import ipdb; ipdb.set_trace()
-            if dms_files:
-                clipboard = original_mail.manage_copyObjects(dms_files)
-                duplicated_mail.manage_pasteObjects(clipboard)
-
-        if data.get('keep_annexes', False):
-            annexes = [sub_content.getId() for sub_content in original_mail.values() if IDmsAppendixFile.providedBy(sub_content)]
-            if annexes:
-                clipboard = original_mail.manage_copyObjects(annexes)
-                duplicated_mail.manage_pasteObjects(clipboard)
-
-        if data.get('link_to_original', False):
-            intids = getUtility(IIntIds)
-            rel_id = intids.getId(original_mail)
-            if duplicated_mail.reply_to is None:
-                duplicated_mail.reply_to = []
-            duplicated_mail.reply_to.append(RelationValue(rel_id))
 
         self.request.response.redirect(duplicated_mail.absolute_url()+"/edit")
 
