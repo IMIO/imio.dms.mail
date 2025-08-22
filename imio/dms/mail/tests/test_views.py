@@ -7,11 +7,19 @@ from imio.dms.mail import PERIODS
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
+from imio.helpers.test_helpers import ImioTestHelpers
+from mock import patch
 from plone import api
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile import NamedBlobFile
+from z3c.relationfield.relation import RelationValue
+from zope.component import getUtility
 from zope.i18n import translate
+from zope.intid.interfaces import IIntIds
 
 import json
 import unittest

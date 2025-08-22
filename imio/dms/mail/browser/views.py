@@ -6,6 +6,8 @@ from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import omail_duplicate_fields
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
@@ -19,11 +21,16 @@ from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
+from imio.pyutils.utils import safe_encode
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.PageTemplates.Expressions import SecureModuleImporter
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
+from z3c.form import button
+from z3c.form.field import Fields
+from z3c.form.form import Form
+from zope import schema
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
@@ -68,6 +75,65 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
             "output_format=odt",
         ]
         return "{}/persistent-document-generation?{}".format(url, "&".join(params))
+
+
+class OMDuplicateForm(Form):
+
+    """Duplicate an outgoing mail."""
+    label = _(u"Duplicate mail")
+    ignoreContext = True
+
+    def update(self):
+        """Handle fields."""
+        om_fields = api.portal.get_registry_record("omail_fields", IImioDmsMailConfig, [])
+        om_fields = [dic["field_name"] for dic in om_fields]
+        matching = {u"category": "IClassificationFolder.classification_categories",
+                    u"folder": "IClassificationFolder.classification_folders",
+                    u"reply_to": "reply_to",
+                    u"link_to_duplicated": "reply_to"}
+        to_show = api.portal.get_registry_record("omail_duplicate_display_fields", IImioDmsMailConfig, [])
+        to_true = api.portal.get_registry_record("omail_duplicate_true_default_values", IImioDmsMailConfig, [])
+        for term in omail_duplicate_fields:
+            if ((term.value in matching and matching[term.value] not in om_fields) or
+                    (term.value not in to_show and term.value not in to_true)):
+                continue
+            self.fields += Fields(
+                schema.Bool(
+                    __name__=safe_encode(term.value),
+                    title=term.title,
+                    default=term.value in to_true,
+                ))
+        super(OMDuplicateForm, self).update()
+
+    def updateWidgets(self, prefix=None):
+        super(OMDuplicateForm, self).updateWidgets()
+
+        # we hide fields not to show
+        to_show = api.portal.get_registry_record("omail_duplicate_display_fields", IImioDmsMailConfig, [])
+        for term in omail_duplicate_fields:
+            if term.value not in to_show:
+                self.widgets[term.value].mode = "hidden"
+
+    @button.buttonAndHandler(_('Duplicate'), name='duplicate')
+    def handleApply(self, action):
+        data, errors = self.extractData()
+
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+
+        # Duplicate the mail
+        odm_utils = getMultiAdapter((self.context, self.request), name="odm-utils")
+        duplicated_mail = odm_utils.duplicate(
+            keep_category=data.get('category', False),
+            keep_folder=data.get('folder', False),
+            keep_reply_to=data.get('reply_to', False),
+            keep_dms_files=data.get('dms_files', False),
+            keep_annexes=data.get('annexes', False),
+            link_to_duplicated=data.get('link_to_duplicated', False),
+        )
+
+        self.request.response.redirect(duplicated_mail.absolute_url()+"/edit")
 
 
 def parse_query(text):

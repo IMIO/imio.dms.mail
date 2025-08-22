@@ -19,6 +19,13 @@
         />
 
     <browser:page
+        name="om-duplicate"
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        permission="zope2.View"
+        class=".views.OMDuplicateForm"
+        />
+
+    <browser:page
         name="imiodmsmail-settings"
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
         permission="plone.app.controlpanel.Site"

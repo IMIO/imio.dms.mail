@@ -3,6 +3,8 @@ from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import organizations_with_suffixes
+from collective.dms.basecontent.dmsfile import IDmsAppendixFile
+from collective.documentgenerator.content.pod_template import IMailingLoopTemplate
 from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
@@ -20,6 +22,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.helpers.batching import batch_delete_files
 from imio.helpers.batching import batch_get_keys
@@ -36,6 +39,7 @@ from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
+from imio.helpers.transmogrifier import get_correct_id
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
@@ -63,6 +67,7 @@ from z3c.relationfield import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component.hooks import getSite
 from zope.interface import alsoProvides
@@ -1183,6 +1188,92 @@ class OdmUtilsMethods(UtilsMethods):
     def scanned_col_cond(self):
         """Condition for searchfor_scanned collection"""
         return self.is_in_user_groups(["encodeurs", "expedition"], admin=False, suffixes=[CREATING_GROUP_SUFFIX])
+
+    def duplicate(self, keep_category, keep_folder, keep_reply_to, keep_dms_files, keep_annexes, link_to_duplicated):
+        original_mail = self.context
+        pc = api.portal.get_tool("portal_catalog")
+        duplicated_mail = sub_create(
+            api.portal.get()["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            get_correct_id([om.getId for om in pc(portal_type="dmsoutgoingmail")], original_mail.getId()),
+            title=original_mail.title,
+            description=original_mail.description,
+            recipients=original_mail.recipients[:] if original_mail.recipients else None,
+            treating_groups=original_mail.treating_groups[:] if original_mail.treating_groups else None,
+            assigned_user=original_mail.assigned_user,
+            sender=original_mail.sender,
+            recipient_groups=original_mail.recipient_groups[:] if original_mail.recipient_groups else None,
+            send_modes=original_mail.send_modes[:] if original_mail.send_modes else None,
+            task_description=original_mail.task_description,
+        )
+
+        if keep_category and hasattr(original_mail, 'classification_categories') and original_mail.classification_categories:
+            duplicated_mail.classification_categories = original_mail.classification_categories[:]
+        else:
+            duplicated_mail.classification_categories = None
+
+        if keep_folder and hasattr(original_mail, 'classification_folders') and original_mail.classification_folders:
+            duplicated_mail.classification_folders = original_mail.classification_folders[:]
+        else:
+            duplicated_mail.classification_folders = None
+
+        if keep_reply_to and hasattr(original_mail, 'reply_to') and original_mail.reply_to:
+            duplicated_mail.reply_to = original_mail.reply_to[:]
+
+        if keep_dms_files:
+            # Add an annotation to copy DMS files only after next edit
+            annot = IAnnotations(duplicated_mail)
+            annot.setdefault('imio.dms.mail', PersistentDict())  # make sure the key exists
+            annot['imio.dms.mail']['copy_dms_files_from'] = original_mail.UID()
+
+        if keep_annexes:
+            annexes = [sub_content.getId() for sub_content in original_mail.values() if IDmsAppendixFile.providedBy(sub_content)]
+            if annexes:
+                clipboard = original_mail.manage_copyObjects(annexes)
+                duplicated_mail.manage_pasteObjects(clipboard)
+
+        if link_to_duplicated:
+            intids = getUtility(IIntIds)
+            rel_id = intids.getId(original_mail)
+            if duplicated_mail.reply_to is None:
+                duplicated_mail.reply_to = []
+            duplicated_mail.reply_to.append(RelationValue(rel_id))
+
+        return duplicated_mail
+
+    def copy_dms_files(self, original_mail):
+        """Re-generate DMS files on this mail based on the templates used in the original mail."""
+        dms_files = [sub_content for sub_content in original_mail.values() if sub_content.portal_type == self.mainfile_type]
+        used_template_uids = set()
+        for dms_file in dms_files:
+            annot = IAnnotations(dms_file).get('documentgenerator', {})
+
+            # Skip if document was not generated (could be scanned)
+            if not annot:
+                continue
+
+            # Skip if document was already generated from the same template
+            if annot.get('template_uid') in used_template_uids:
+                continue
+
+            # Skip if document is final step of a mailing
+            document_generation_helper_view = getMultiAdapter((self.context, self.request), name="document_generation_helper_view")
+            requires_mailing = len(document_generation_helper_view.mailing_list()) > 1
+            if requires_mailing and not annot.get('need_mailing'):
+                continue
+
+            # Generate a new document from the same template
+            template_uid = annot.get('template_uid')
+            generation_view = getMultiAdapter((self.context, self.request), name="persistent-document-generation")
+            pod_template = generation_view.get_pod_template(template_uid)
+            # Skip if it's a mailing loop template
+            if IMailingLoopTemplate.providedBy(pod_template):
+                continue
+            generation_view.pod_template = pod_template
+            generation_view.output_format = 'odt'
+            generation_view.generate_persistent_doc(pod_template, 'odt')
+            used_template_uids.add(template_uid)
 
 
 class Dummy(object):
