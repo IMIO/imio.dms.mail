@@ -98,6 +98,12 @@
         handler=".subscribers.dmsoutgoingmail_transition"
       />
 
+    <subscriber
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+            zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.dmsoutgoingmail_modified"
+      />
+
     <!-- Various -->
     <subscriber
         for="plone.dexterity.interfaces.IDexterityContent

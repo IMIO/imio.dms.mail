@@ -931,7 +931,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             keep_annexes=True,
             link_to_duplicated=True,
         )
-        self.assertEqual(duplicated_mail.keys(), ['012999900000004', 'a001'])
+        self.assertEqual(duplicated_mail.keys(), ['a001', '012999900000004'])
         dms_file = duplicated_mail['012999900000004']
         annot = IAnnotations(dms_file)['documentgenerator']
         self.assertEqual(annot['template_uid'], pod_template.UID())

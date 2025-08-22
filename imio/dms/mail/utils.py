@@ -1222,36 +1222,10 @@ class OdmUtilsMethods(UtilsMethods):
             duplicated_mail.reply_to = original_mail.reply_to[:]
 
         if keep_dms_files:
-            dms_files = [sub_content for sub_content in original_mail.values() if sub_content.portal_type == self.mainfile_type]
-            used_template_uids = set()
-            for dms_file in dms_files:
-                annot = IAnnotations(dms_file).get('documentgenerator', {})
-
-                # Skip if document was not generated (could be scanned)
-                if not annot:
-                    continue
-
-                # Skip if document was already generated from the same template
-                if annot.get('template_uid') in used_template_uids:
-                    continue
-
-                # Skip if document is final step of a mailing
-                document_generation_helper_view = getMultiAdapter((duplicated_mail, self.request), name="document_generation_helper_view")
-                requires_mailing = len(document_generation_helper_view.mailing_list()) > 1
-                if requires_mailing and not annot.get('need_mailing'):
-                    continue
-
-                # Generate a new document from the same template
-                template_uid = annot.get('template_uid')
-                generation_view = getMultiAdapter((duplicated_mail, self.request), name="persistent-document-generation")
-                pod_template = generation_view.get_pod_template(template_uid)
-                # Skip if it's a mailing loop template
-                if IMailingLoopTemplate.providedBy(pod_template):
-                    continue
-                generation_view.pod_template = pod_template
-                generation_view.output_format = 'odt'
-                generation_view.generate_persistent_doc(pod_template, 'odt')
-                used_template_uids.add(template_uid)
+            # Add an annotation to copy DMS files only after next edit
+            annot = IAnnotations(duplicated_mail)
+            annot.setdefault('imio.dms.mail', PersistentDict())  # make sure the key exists
+            annot['imio.dms.mail']['copy_dms_files_from'] = original_mail.UID()
 
         if keep_annexes:
             annexes = [sub_content.getId() for sub_content in original_mail.values() if IDmsAppendixFile.providedBy(sub_content)]
@@ -1267,6 +1241,39 @@ class OdmUtilsMethods(UtilsMethods):
             duplicated_mail.reply_to.append(RelationValue(rel_id))
 
         return duplicated_mail
+
+    def copy_dms_files(self, original_mail):
+        """Re-generate DMS files on this mail based on the templates used in the original mail."""
+        dms_files = [sub_content for sub_content in original_mail.values() if sub_content.portal_type == self.mainfile_type]
+        used_template_uids = set()
+        for dms_file in dms_files:
+            annot = IAnnotations(dms_file).get('documentgenerator', {})
+
+            # Skip if document was not generated (could be scanned)
+            if not annot:
+                continue
+
+            # Skip if document was already generated from the same template
+            if annot.get('template_uid') in used_template_uids:
+                continue
+
+            # Skip if document is final step of a mailing
+            document_generation_helper_view = getMultiAdapter((self.context, self.request), name="document_generation_helper_view")
+            requires_mailing = len(document_generation_helper_view.mailing_list()) > 1
+            if requires_mailing and not annot.get('need_mailing'):
+                continue
+
+            # Generate a new document from the same template
+            template_uid = annot.get('template_uid')
+            generation_view = getMultiAdapter((self.context, self.request), name="persistent-document-generation")
+            pod_template = generation_view.get_pod_template(template_uid)
+            # Skip if it's a mailing loop template
+            if IMailingLoopTemplate.providedBy(pod_template):
+                continue
+            generation_view.pod_template = pod_template
+            generation_view.output_format = 'odt'
+            generation_view.generate_persistent_doc(pod_template, 'odt')
+            used_template_uids.add(template_uid)
 
 
 class Dummy(object):
