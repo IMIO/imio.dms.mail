@@ -567,6 +567,16 @@ def dmsoutgoingmail_added(mail, event):
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
 
+def dmsoutgoingmail_modified(mail, event):
+    annot = IAnnotations(mail).get('imio.dms.mail', {})
+    copy_dms_files_from = annot.get('copy_dms_files_from')
+    if copy_dms_files_from:
+        del annot['copy_dms_files_from']
+        original_mail = uuidToObject(copy_dms_files_from, unrestricted=True)
+        odm_utils = getMultiAdapter((mail, mail.REQUEST), name="odm-utils")
+        odm_utils.copy_dms_files(original_mail)
+
+
 def dv_handle_file_creation(obj, event):
     """Intermediate function to avoid converting some files in documentviewer"""
     if obj.portal_type in DV_AVOIDED_TYPES:
