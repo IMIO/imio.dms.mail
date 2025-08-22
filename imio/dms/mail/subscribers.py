@@ -84,6 +84,7 @@ from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
+from zope.component import getMultiAdapter
 from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -528,6 +529,16 @@ def dmsoutgoingmail_added(mail, event):
     """If the content is manually created, we call the modified event after creation to set signers."""
     if mail.title:  # TODO handle email correctly ! owner info is different from scanner ?
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+
+
+def dmsoutgoingmail_modified(mail, event):
+    annot = IAnnotations(mail).get('imio.dms.mail', {})
+    copy_dms_files_from = annot.get('copy_dms_files_from')
+    if copy_dms_files_from:
+        del annot['copy_dms_files_from']
+        original_mail = uuidToObject(copy_dms_files_from, unrestricted=True)
+        odm_utils = getMultiAdapter((mail, mail.REQUEST), name="odm-utils")
+        odm_utils.copy_dms_files(original_mail)
 
 
 def dv_handle_file_creation(obj, event):
