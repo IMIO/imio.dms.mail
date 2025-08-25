@@ -877,7 +877,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
     security.declarePublic("can_be_handsigned")
 
     def can_be_handsigned(self):
-        """Used in guard expression for to_be_signed transitions."""
+        """Used in guard expression for to_be_signed transition."""
         brains = self.context.portal_catalog.unrestrictedSearchResults(
             portal_type="dmsommainfile", path="/".join(self.context.getPhysicalPath())
         )
@@ -886,7 +886,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
     security.declarePublic("can_be_sent")
 
     def can_be_sent(self):
-        """Used in guard expression for sent transitions."""
+        """Used in guard expression for sent transition."""
         # Protect from scanned state
         if not self.context.treating_groups or not self.context.title:
             return False
@@ -903,13 +903,21 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
     security.declarePublic("can_be_validated")
 
     def can_be_validated(self):
-        """Used in guard expression for validated transitions."""
+        """Used in guard expression for validated transition."""
         return True
 
     security.declarePublic("can_back_to_scanned")
 
     def can_back_to_scanned(self):
         """Used in guard expression for back_to_scanned"""
+        if is_in_user_groups(["expedition"], admin=True):
+            return True
+        return False
+
+    security.declarePublic("can_back_to_signed")
+
+    def can_back_to_signed(self):
+        """Used in guard expression for back_to_signed"""
         if is_in_user_groups(["expedition"], admin=True):
             return True
         return False
@@ -931,6 +939,18 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
         ):
             # print "from state: True"
             return True
+        return False
+
+    security.declarePublic("can_mark_as_signed")
+
+    def can_mark_as_signed(self):
+        """Used in guard expression for mark_as_signed transition."""
+        # Protect from scanned state
+        if not self.context.treating_groups or not self.context.title:
+            return False
+        # expedition can always mark as signed
+        if not is_in_user_groups(["expedition"], admin=True):
+            return False
         return False
 
 

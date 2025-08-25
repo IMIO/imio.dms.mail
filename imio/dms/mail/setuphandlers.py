@@ -1969,7 +1969,7 @@ def adaptDefaultPortal(context):
     set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
     set_dms_config(
         ["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
-        [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed")],
+        [("sent", "mark_as_sent"), ("signed", "mark_as_signed"), ("to_be_signed", "propose_to_be_signed")],
     )
     # review levels configuration, used in utils and adapters
     set_dms_config(
@@ -2152,6 +2152,12 @@ def configure_om_rolefields(context):
                 "dir_general": {"roles": ["Contributor", "Editor", "Reviewer", "DmsFile Contributor"]},
                 "lecteurs_globaux_cs": {"roles": ["Reader"]},
             },
+            "signed": {
+                "expedition": {"roles": ["Editor", "Reviewer"]},
+                "encodeurs": {"roles": ["Reader"]},
+                "dir_general": {"roles": ["Contributor", "Editor", "Reviewer", "DmsFile Contributor"]},
+                "lecteurs_globaux_cs": {"roles": ["Reader"]},
+            },
             "sent": {
                 "expedition": {"roles": ["Reader", "Reviewer"]},
                 "encodeurs": {"roles": ["Reader"]},
@@ -2191,6 +2197,11 @@ def configure_om_rolefields(context):
                 "encodeur": {"roles": ["Contributor", "Editor", "Reviewer"]},
                 "lecteur": {"roles": ["Reader"]},
             },
+            "signed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader", "Reviewer"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
             "sent": {
                 "editeur": {"roles": ["Reader"]},
                 "encodeur": {"roles": ["Reader", "Reviewer"]},
@@ -2199,6 +2210,11 @@ def configure_om_rolefields(context):
         },
         "recipient_groups": {
             "to_be_signed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "signed": {
                 "editeur": {"roles": ["Reader"]},
                 "encodeur": {"roles": ["Reader"]},
                 "lecteur": {"roles": ["Reader"]},
@@ -2398,6 +2414,7 @@ def configure_actions_panel(portal):
             "dmsoutgoingmail.back_to_agent|",
             "dmsoutgoingmail.back_to_creation|",
             "dmsoutgoingmail.back_to_be_signed|",
+            "dmsoutgoingmail.back_to_signed|",
             "dmsoutgoingmail.back_to_scanned|",
         ]
 
