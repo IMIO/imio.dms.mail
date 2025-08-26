@@ -20,7 +20,7 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
         pmva.patch_workflow("incomingmail_workflow", **params)
         clean_borg_cache(self.portal.REQUEST)
 
-        api.user.create(email="test@test.com", username="premanager", password="Password#1")
+        api.user.create(email="test@test.be", username="premanager", password="Password#1")
         api.group.add_user(groupname="pre_manager", username="premanager")
         
         self.permissions_incoming_mail()
@@ -164,16 +164,145 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
         )
 
     def test_permissions_incoming_mail_wfadapt_service_validation(self):
-        return True # This test is not implemented yet
-        # change_user(self.portal)
-        # params = {
-        #     "validation_level": 1,
-        #     "state_title": u"À valider par le chef de service",
-        #     "forward_transition_title": u"Proposer au chef de service",
-        #     "backward_transition_title": u"Renvoyer au chef de service",
-        #     "function_title": u"N+1",
-        # }
-        # sva = IMServiceValidation()
-        # sva.patch_workflow("incomingmail_workflow", **params)
-        # clean_borg_cache(self.portal.REQUEST)
+        change_user(self.portal)
+        params = {
+            "validation_level": 1,
+            "state_title": u"À valider par le chef de service",
+            "forward_transition_title": u"Proposer au chef de service",
+            "backward_transition_title": u"Renvoyer au chef de service",
+            "function_title": u"N+1",
+        }
+        sva = IMServiceValidation()
+        sva.patch_workflow("incomingmail_workflow", **params)
+        clean_borg_cache(self.portal.REQUEST)
+
+        org_uid = self.portal.contacts["plonegroup-organization"]["direction-generale"]["grh"].UID()
+        api.group.add_user(groupname="%s_n_plus_1" % org_uid, username="chef")
         
+        self.permissions_incoming_mail()
+
+        change_user(self.portal)
+        self.pw.doActionFor(self.imail, "back_to_n_plus_1")
+        self.pw.doActionFor(self.imail, "back_to_creation")
+        change_user(self.portal, "encodeur")
+        clean_borg_cache(self.portal.REQUEST)
+
+        self.assertHasNoPerms("chef", self.imail)
+
+        self.pw.doActionFor(self.imail, "propose_to_manager")
+        clean_borg_cache(self.portal.REQUEST)
+
+        self.assertHasNoPerms("chef", self.imail)
+
+        change_user(self.portal, "dirg")
+        self.pw.doActionFor(self.imail, "propose_to_n_plus_1")
+        clean_borg_cache(self.portal.REQUEST)
+
+        self.assertHasNoPerms("lecteur", self.imail)
+        self.assertEqual(
+            self.get_perms("dirg", self.imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+        self.assertHasNoPerms("agent", self.task)
+        self.assertHasNoPerms("agent1", self.task)
+        self.assertEqual(
+            self.get_perms("encodeur", self.imail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("chef", self.imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": True,
+            },
+        )
+
+        change_user(self.portal, "chef")
+        self.imail.assigned_user = 'agent'
+        self.pw.doActionFor(self.imail, "propose_to_agent")
+        clean_borg_cache(self.portal.REQUEST)
+
+        self.assertEqual(
+            self.get_perms("chef", self.imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        change_user(self.portal, "agent")
+        self.pw.doActionFor(self.imail, "treat")
+        clean_borg_cache(self.portal.REQUEST)
+
+        self.assertEqual(
+            self.get_perms("chef", self.imail),
+            {
+                "Access contents information": True,
+                "Add portal content": True,
+                "Delete objects": False,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        self.pw.doActionFor(self.imail, "close")
+        clean_borg_cache(self.portal.REQUEST)
+
+        self.assertEqual(
+            self.get_perms("chef", self.imail),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )

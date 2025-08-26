@@ -240,6 +240,9 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         )
 
         change_user(self.portal, "dirg")
+        if "proposed_to_n_plus_1" in set(self.pw["incomingmail_workflow"].states):
+            self.pw.doActionFor(self.imail, "propose_to_n_plus_1")
+            self.imail.assigned_user = 'agent'
         self.pw.doActionFor(self.imail, "propose_to_agent")
         clean_borg_cache(self.portal.REQUEST)
 
