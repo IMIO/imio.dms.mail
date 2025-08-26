@@ -23,6 +23,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
+from imio.helpers.content import uuidToObject
 from natsort import humansorted
 from operator import attrgetter
 from plone import api
@@ -224,6 +225,13 @@ def validate_approvings(approvings):
     return True
 
 
+def validate_signer_approvings(data, msg):
+    if u"_themself_" in data.get("approvings", []):
+        signer_person = uuidToObject(data["signer"]).get_person()
+        if signer_person.UID() in data["approvings"]:
+            raise Invalid(msg)
+
+
 @provider(IContextSourceBinder)
 def signing_signers_with_seal(context):
     """Return held positions vocabulary for signing."""
@@ -312,6 +320,7 @@ class ISignerRuleSchema(Interface):
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
         source=signing_signers_with_seal,
         required=True,
+        default=None,
     )
 
     approvings = schema.List(
@@ -320,8 +329,15 @@ class ISignerRuleSchema(Interface):
         value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
         required=True,
         constraint=validate_approvings,
+        min_length=1,
     )
     widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    esign = schema.Bool(
+        title=_(u"Electronic signature"),
+        description=_(u"Enable electronic signature for this document."),
+        default=True,
+    )
 
     valid_from = schema.TextLine(
         title=_(u"Valid from"),
@@ -912,6 +928,10 @@ class IImioDmsMailConfig(model.Schema):
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
                         )
                     )
+                validate_signer_approvings(rule, _(
+                    u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
+                    mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                ))
 
         # check fields
         constraints = {

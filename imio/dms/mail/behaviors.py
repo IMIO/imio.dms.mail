@@ -5,6 +5,7 @@ from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from imio.dms.mail import _
 from imio.dms.mail.browser.settings import validate_approvings
+from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.utils import vocabularyname_to_terms
 from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
@@ -13,6 +14,7 @@ from plone.supermodel import model
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
 from zope.interface import Interface
+from zope.interface import invariant
 from zope.interface import provider
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.vocabulary import SimpleTerm
@@ -72,27 +74,24 @@ class ISignerSchema(Interface):
         value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
         required=True,
         constraint=validate_approvings,
+        min_length=1,
     )
     form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    @invariant
+    def validate_settings(data):  # noqa
+        validate_signer_approvings(data._Data_data___, _("Approvings have a duplicate approver with themself."))
 
 
 @provider(IFormFieldProvider)
 class ISigningBehavior(model.Schema):
-
-    # directives.fieldset(
-    #     "signing",
-    #     label=_(u"Signing"),
-    #     fields=[
-    #         "signers",
-    #         "seal",
-    #     ],
-    # )
 
     signers = schema.List(
         title=_(u"Signers"),
         description=_("List of users who have to sign this document"),
         value_type=DictRow(title=_("Signer"), schema=ISignerSchema),
         required=False,
+        default=None,
     )
     form.widget(
         "signers",
@@ -103,5 +102,10 @@ class ISigningBehavior(model.Schema):
 
     seal = schema.Bool(
         title=_(u"Seal"),
+        required=False,
+    )
+
+    esign = schema.Bool(
+        title=_(u"Electronic signature"),
         required=False,
     )

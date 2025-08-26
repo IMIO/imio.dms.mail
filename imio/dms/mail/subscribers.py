@@ -27,6 +27,7 @@ from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import default_creating_group
@@ -34,6 +35,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
+
 # from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
@@ -46,6 +48,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
+
 # from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
@@ -71,6 +74,7 @@ from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
+
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
@@ -81,6 +85,7 @@ from zope.container.interfaces import IContainerModifiedEvent
 from zope.globalrequest import getRequest
 from zope.i18n import translate
 from zope.interface import alsoProvides
+from zope.interface import Invalid
 from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
@@ -397,7 +402,8 @@ def dmsoutgoingmail_modified(mail, event):
     if not mail.signers:
         mail.signers = []
         signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
-        numbers = []
+        used_numbers = set()
+        used_persons = set()
         for signer in signer_rules:
             if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
                 continue
@@ -405,16 +411,17 @@ def dmsoutgoingmail_modified(mail, event):
                 continue
             if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
                 continue
-            if signer['valid_until'] and datetime.datetime.strptime(signer['valid_until'], "%Y/%m/%d").date() <= today:
+            if signer["valid_until"] and datetime.datetime.strptime(signer["valid_until"], "%Y/%m/%d").date() <= today:
                 continue
-            if signer['valid_from'] and datetime.datetime.strptime(signer['valid_from'], "%Y/%m/%d").date() >= today:
+            if signer["valid_from"] and datetime.datetime.strptime(signer["valid_from"], "%Y/%m/%d").date() >= today:
                 continue
             if not _evaluateExpression(mail, expression=signer["tal_condition"]):
                 continue
 
             # Once a signer number is already applied, this number must be skipped
-            if signer["number"] in numbers:
+            if signer["number"] in used_numbers:
                 continue
+            used_numbers.add(signer["number"])
 
             if signer["number"] == 0:
                 if signer["signer"] == u"_seal_":
@@ -422,6 +429,29 @@ def dmsoutgoingmail_modified(mail, event):
                 else:
                     mail.seal = False
                 continue
+            elif signer["number"] == 1:
+                mail.esign = signer.get("esign", False)
+                if not mail.esign and mail.seal:
+                    raise Invalid(_("You cannot have a seal without electronic signature !"))
+
+            person = None
+            if signer["signer"] == u"_seal_":
+                signer_title = _("seal")
+                person = signer_title
+            elif signer["signer"] != u"_empty_":
+                signer_hp = uuidToObject(signer["signer"])
+                person = signer_hp.get_person().UID()
+                signer_title = signer_hp.get_full_title()
+            if person in used_persons:
+                mail.signers = None
+                raise Invalid(
+                    _(
+                        "You cannot have the same signer (${signer_title}) multiple times !",
+                        mapping={"signer_title": signer_title},
+                    )
+                )
+            if person:
+                used_persons.add(person)
 
             mail.signers.append(
                 {
@@ -429,6 +459,21 @@ def dmsoutgoingmail_modified(mail, event):
                     "signer": signer["signer"],
                     "approvings": signer["approvings"],
                 }
+            )
+
+    # Check for missing numbers in sequence
+    numbers = sorted(map(itemgetter("number"), mail.signers or []))
+    if numbers:
+        expected_numbers = list(range(1, max(numbers) + 1))
+        missing_numbers = [num for num in expected_numbers if num not in numbers]
+        if missing_numbers:
+            mail.signers = None
+            mail.esign = None
+            raise Invalid(
+                _(
+                    "A signer is missing at position: ${positions} !",
+                    mapping={"positions": safe_unicode(", ".join(map(str, missing_numbers)))},
+                )
             )
 
     if mail.signers:
