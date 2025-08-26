@@ -403,7 +403,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             # treating_groups local roles
             updates = {
                 "in_treatment": {new_id: {"roles": ["Contributor", "Editor", "Reviewer"]}},
-                "closed": {new_id: {"roles": ["Reviewer"]}},
+                "closed": {new_id: {"roles": ["Reviewer"]}},  # TODO check car closed déjà dans next_states
                 new_state_id: {new_id: {"roles": ["Contributor", "Editor", "Reviewer", "Treating Group Writer"]}},
             }
             if i:
@@ -796,6 +796,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             if st in updates:
                 continue
             updates.update({st: {new_id: {"roles": ["Reader"]}}})
+        updates.update({"signed": {new_id: {"roles": ["Reader"]}}})
         c2 = update_roles_in_fti("dmsoutgoingmail", updates, keyname="treating_groups", notify=False)
         # recipient_groups local roles
         updates = {
@@ -809,6 +810,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         }
         for st in to_states:
             updates.update({st: {new_id: {"roles": ["Reader"]}}})
+        updates.update({"signed": {new_id: {"roles": ["Reader"]}}})
         c3 = update_roles_in_fti("dmsoutgoingmail", updates, keyname="recipient_groups", notify=False)
         if c1 or c2 or c3:
             update_security_index(["dmsoutgoingmail"])

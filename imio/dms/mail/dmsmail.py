@@ -949,8 +949,8 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
         if not self.context.treating_groups or not self.context.title:
             return False
         # expedition can always mark as signed
-        if not is_in_user_groups(["expedition"], admin=True):
-            return False
+        if is_in_user_groups(["expedition"], admin=True):
+            return True
         return False
 
 

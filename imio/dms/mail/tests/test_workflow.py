@@ -52,7 +52,7 @@ class TestWorkflows(unittest.TestCase):
     def test_om_workflow0(self):
         """Check workflow"""
         self.omw = self.pw["outgoingmail_workflow"]
-        self.assertSetEqual(set(self.omw.states), {"created", "scanned", "to_be_signed", "sent"})
+        self.assertSetEqual(set(self.omw.states), {"created", "scanned", "to_be_signed", "signed", "sent"})
         self.assertSetEqual(
             set(self.omw.transitions),
             {
@@ -60,18 +60,26 @@ class TestWorkflows(unittest.TestCase):
                 "back_to_agent",
                 "back_to_scanned",
                 "back_to_be_signed",
+                "back_to_signed",
                 "set_scanned",
                 "propose_to_be_signed",
                 "mark_as_sent",
+                "mark_as_signed",
             },
         )
         self.assertSetEqual(
             set(self.omw.states["created"].transitions), {"set_scanned", "propose_to_be_signed", "mark_as_sent"}
         )
         self.assertSetEqual(set(self.omw.states["scanned"].transitions), {"mark_as_sent", "back_to_agent"})
-        self.assertSetEqual(set(self.omw.states["to_be_signed"].transitions), {"mark_as_sent", "back_to_creation"})
+        self.assertSetEqual(set(self.omw.states["to_be_signed"].transitions),
+                            {"mark_as_sent", "mark_as_signed", "back_to_creation"})
         self.assertSetEqual(
-            set(self.omw.states["sent"].transitions), {"back_to_be_signed", "back_to_scanned", "back_to_creation"}
+            set(self.omw.states["signed"].transitions),
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"}
+        )
+        self.assertSetEqual(
+            set(self.omw.states["sent"].transitions),
+            {"back_to_be_signed", "back_to_signed", "back_to_scanned", "back_to_creation"}
         )
         # related
         folder = self.portal["outgoing-mail"]["mail-searches"]

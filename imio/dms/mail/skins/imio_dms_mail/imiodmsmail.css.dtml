@@ -880,6 +880,14 @@ body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-4 {
     border-color: green;
 }
 
+.state-signed {
+ color: #00D800 !important;
+}
+.viewlet_workflowstate span.state-signed {
+    background-color: #00D800;
+    border-color: #00D800;
+}
+
 .state-sent {
  color: dimgrey !important;
 }

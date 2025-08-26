@@ -1969,7 +1969,7 @@ def adaptDefaultPortal(context):
     set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
     set_dms_config(
         ["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
-        [("sent", "mark_as_sent"), ("signed", "mark_as_signed"), ("to_be_signed", "propose_to_be_signed")],
+        [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed")],
     )
     # review levels configuration, used in utils and adapters
     set_dms_config(
