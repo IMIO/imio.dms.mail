@@ -6,6 +6,7 @@ from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.utils import message_status
+from imio.helpers.setup import load_type_from_package
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from plone import api
@@ -63,6 +64,11 @@ class Migrate_To_3_1(Migrator):  # noqa
                 api.portal.get_registry_record(
                     "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
             ))
+
+            # signing
+            self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
+            load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior
+            load_type_from_package("held_position", "profile-imio.dms.mail:default")  # behavior
 
             # END
 

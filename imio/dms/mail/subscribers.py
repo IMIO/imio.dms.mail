@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Subscribers."""
 from Acquisition import aq_get  # noqa
+from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.classification.folder.content.vocabularies import set_folders_tree
 from collective.contact.core.interfaces import IContactCoreParameters
 from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
@@ -26,13 +27,15 @@ from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+
 # from imio.dms.mail import MAIN_FOLDERS
-# from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
+
 # from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
@@ -45,6 +48,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
+
 # from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
@@ -53,6 +57,7 @@ from imio.helpers.security import get_zope_root
 from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
+from operator import itemgetter
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
@@ -69,6 +74,7 @@ from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
+
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
@@ -79,6 +85,7 @@ from zope.container.interfaces import IContainerModifiedEvent
 from zope.globalrequest import getRequest
 from zope.i18n import translate
 from zope.interface import alsoProvides
+from zope.interface import Invalid
 from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
@@ -382,6 +389,95 @@ def dmsoutgoingmail_transition(mail, event):
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
+
+
+def dmsoutgoingmail_modified(mail, event):
+    # Do not update signers field if mail is sent or to be signed
+    mail_state = api.content.get_state(mail)
+    if mail_state in ("sent", "to_be_signed"):
+        return
+
+    today = datetime.date.today()
+    # Update signers field only if empty
+    if not mail.signers:
+        mail.signers = []
+        signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+        used_numbers = set()
+        used_persons = set()
+        for signer in signer_rules:
+            if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
+                continue
+            if signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
+                continue
+            if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
+                continue
+            if signer["valid_until"] and datetime.datetime.strptime(signer["valid_until"], "%Y/%m/%d").date() <= today:
+                continue
+            if signer["valid_from"] and datetime.datetime.strptime(signer["valid_from"], "%Y/%m/%d").date() >= today:
+                continue
+            if not _evaluateExpression(mail, expression=signer["tal_condition"]):
+                continue
+
+            # Once a signer number is already applied, this number must be skipped
+            if signer["number"] in used_numbers:
+                continue
+            used_numbers.add(signer["number"])
+
+            if signer["number"] == 0:
+                if signer["signer"] == u"_seal_":
+                    mail.seal = True
+                else:
+                    mail.seal = False
+                continue
+            elif signer["number"] == 1:
+                mail.esign = signer.get("esign", False)
+                if not mail.esign and mail.seal:
+                    raise Invalid(_("You cannot have a seal without electronic signature !"))
+
+            person = None
+            if signer["signer"] == u"_seal_":
+                signer_title = _("seal")
+                person = signer_title
+            elif signer["signer"] != u"_empty_":
+                signer_hp = uuidToObject(signer["signer"])
+                person = signer_hp.get_person().UID()
+                signer_title = signer_hp.get_full_title()
+            if person in used_persons:
+                mail.signers = None
+                raise Invalid(
+                    _(
+                        "You cannot have the same signer (${signer_title}) multiple times !",
+                        mapping={"signer_title": signer_title},
+                    )
+                )
+            if person:
+                used_persons.add(person)
+
+            mail.signers.append(
+                {
+                    "number": signer["number"],
+                    "signer": signer["signer"],
+                    "approvings": signer["approvings"],
+                }
+            )
+
+    # Check for missing numbers in sequence
+    numbers = sorted(map(itemgetter("number"), mail.signers or []))
+    if numbers:
+        expected_numbers = list(range(1, max(numbers) + 1))
+        missing_numbers = [num for num in expected_numbers if num not in numbers]
+        if missing_numbers:
+            mail.signers = None
+            mail.esign = None
+            raise Invalid(
+                _(
+                    "A signer is missing at position: ${positions} !",
+                    mapping={"positions": safe_unicode(", ".join(map(str, missing_numbers)))},
+                )
+            )
+
+    if mail.signers:
+        mail.signers.sort(key=itemgetter("number"))
 
 
 def dv_handle_file_creation(obj, event):
@@ -894,6 +990,8 @@ def group_assignment(event):
         raise Redirect(req.get("HTTP_REFERER"))
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -921,6 +1019,8 @@ def group_unassignment(event):
     """
     if event.group_id.endswith(CREATING_GROUP_SUFFIX):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -977,6 +1077,18 @@ def organization_modified(obj, event):
         portal_type="organization", path="/".join(obj.getPhysicalPath()), sort_on="path"
     )[1:]:
         brain._unrestrictedGetObject().reindexObject(idxs=["sortable_title"])
+
+
+def held_position_modified(obj, event):
+    if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+
+
+def held_position_removed(obj, event):
+    if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
 
 
 def mark_contact(contact, event):

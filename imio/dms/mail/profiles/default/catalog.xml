@@ -28,4 +28,8 @@
  </index>
  <column value="markers"/>
 
+ <index name="usages" meta_type="KeywordIndex">
+  <indexed_attr value="usages"/>
+ </index>
+
 </object>
