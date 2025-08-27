@@ -976,7 +976,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
             },
         )
         self.assertHasNoPerms("agent1", self.task)
-        self.assertHasNoPerms("encodeur", self.annex)
+        self.assertHasNoPerms("encodeur", self.task)
 
         self.pw.doActionFor(self.omail, "propose_to_be_signed")
         clean_borg_cache(self.portal.REQUEST)
