@@ -507,7 +507,7 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
                 "Access contents information": True,
                 "Add portal content": True,
                 "Delete objects": False,
-                "Modify portal content": True,
+                "Modify portal content": False,
                 "Request review": True,
                 "Review portal content": True,
                 "View": True,
@@ -607,7 +607,7 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
             {
                 "Access contents information": True,
                 "Add portal content": False,
-                "Delete objects": False,
+                "Delete objects": True,
                 "Modify portal content": True,
                 "Request review": True,
                 "Review portal content": False,
