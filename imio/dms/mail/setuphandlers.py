@@ -2194,7 +2194,7 @@ def configure_om_rolefields(context):
             },
             "to_be_signed": {
                 "editeur": {"roles": ["Reader"]},
-                "encodeur": {"roles": ["Contributor", "Editor", "Reviewer"]},
+                "encodeur": {"roles": ["Contributor", "Reviewer"]},
                 "lecteur": {"roles": ["Reader"]},
             },
             "signed": {

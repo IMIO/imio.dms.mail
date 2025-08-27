@@ -1049,7 +1049,7 @@ def configure_group_encoder(field_name, contacts_part=False):
             "closed": {CREATING_GROUP_SUFFIX: {"roles": ["Reader"]}},
         },
         "dmsoutgoingmail": {
-            "to_be_signed": {CREATING_GROUP_SUFFIX: {"roles": ["Editor", "Reviewer"]}},
+            "to_be_signed": {CREATING_GROUP_SUFFIX: {"roles": ["Reader", "Reviewer"]}},
             "signed": {CREATING_GROUP_SUFFIX: {"roles": ["Reader", "Reviewer"]}},
             "sent": {CREATING_GROUP_SUFFIX: {"roles": ["Reader", "Reviewer"]}},
             "scanned": {
