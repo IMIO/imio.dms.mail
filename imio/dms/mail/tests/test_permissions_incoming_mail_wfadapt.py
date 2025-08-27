@@ -31,6 +31,9 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
         clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("premanager", self.imail)
+        self.assertHasNoPerms("premanager", self.file)
+        self.assertHasNoPerms("premanager", self.annex)
+        self.assertHasNoPerms("premanager", self.task)
 
         self.pw.doActionFor(self.imail, "propose_to_pre_manager")
         clean_borg_cache(self.portal.REQUEST)
@@ -84,6 +87,126 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
             },
         )
 
+        self.assertHasNoPerms("lecteur", self.file)
+        self.assertEqual(
+            self.get_perms("dirg", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("agent", self.file)
+        self.assertHasNoPerms("agent1", self.file)
+        self.assertEqual(
+            self.get_perms("encodeur", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("premanager", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        self.assertHasNoPerms("lecteur", self.annex)
+        self.assertEqual(
+            self.get_perms("dirg", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("agent", self.annex)
+        self.assertHasNoPerms("agent1", self.annex)
+        self.assertEqual(
+            self.get_perms("encodeur", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("premanager", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": True,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+
+        self.assertHasNoPerms("lecteur", self.task)
+        self.assertHasNoPerms("dirg", self.task)
+        self.assertHasNoPerms("agent", self.task)
+        self.assertHasNoPerms("agent1", self.task)
+        self.assertEqual(
+            self.get_perms("encodeur", self.task),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": True,
+                "Modify portal content": True,
+                "Request review": True,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        # Potential problem
+        self.assertHasNoPerms("premanager", self.task)
+
         change_user(self.portal, "premanager")
         self.pw.doActionFor(self.imail, "propose_to_manager")
         clean_borg_cache(self.portal.REQUEST)
@@ -103,6 +226,37 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertEqual(
+            self.get_perms("premanager", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("premanager", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("premanager", self.task)
 
         change_user(self.portal, "dirg")
         self.pw.doActionFor(self.imail, "propose_to_agent")
@@ -123,6 +277,37 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertEqual(
+            self.get_perms("premanager", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("premanager", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("premanager", self.task)
 
         change_user(self.portal, "agent")
         self.pw.doActionFor(self.imail, "treat")
@@ -143,6 +328,37 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertEqual(
+            self.get_perms("premanager", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("premanager", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("premanager", self.task)
 
         self.pw.doActionFor(self.imail, "close")
         clean_borg_cache(self.portal.REQUEST)
@@ -162,6 +378,37 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertEqual(
+            self.get_perms("premanager", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
+            self.get_perms("premanager", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertHasNoPerms("premanager", self.task)
 
     def test_permissions_incoming_mail_wfadapt_service_validation(self):
         change_user(self.portal)
