@@ -9,6 +9,7 @@ from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.examples import add_special_model_mail
+from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.utils import message_status
 from imio.helpers.setup import load_workflow_from_package
 from imio.migrator.migrator import Migrator
@@ -145,6 +146,11 @@ class Migrate_To_3_1(Migrator):  # noqa
                 values.append("dmsoutgoingmail.back_to_signed|")
                 api.portal.set_registry_record(key, values)
 
+            # add signed collection
+            col_folder = self.portal["outgoing-mail"]["mail-searches"]
+            createStateCollections(self.portal["outgoing-mail"]["mail-searches"], "dmsoutgoingmail")
+            pos = col_folder.getObjectPosition("searchfor_to_be_signed")
+            col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
             # END
 
             finished = True  # can be eventually returned and set by batched method

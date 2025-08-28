@@ -634,7 +634,7 @@ def createStateCollections(folder, content_type):
     }
     show_nb_of_items = {
         "dmsincomingmail": ("created",),  # i_e ok
-        "dmsoutgoingmail": ("scanned",),
+        "dmsoutgoingmail": ("scanned", "signed"),
     }
     sort_on = {
         "dmsincomingmail": {  # i_e ok
