@@ -84,7 +84,8 @@ logger = logging.getLogger("imio.dms.mail: utils")
 dms_config
 ----------
 (not the default values! but possible values to illustrate)
-* ['wf_from_to'] : états précédant/suivant un autre et transitions pour y accéder
+# états précédant/suivant un autre et transitions pour y accéder. Utilisé dans can_do_transition et wf_adaptations
+* ['wf_from_to']
     * ['dmsincomingmail', 'n_plus', 'from'] = [('created', 'back_to_creation'),
                                                ('proposed_to_manager', 'back_to_manager')]
     * ['dmsincomingmail', 'n_plus', 'to'], [('closed', 'close'), ('proposed_to_agent', 'propose_to_agent')])
@@ -396,8 +397,10 @@ def list_wf_states(context, portal_type):
             "closed",
         ],
         "task": ["created", "to_assign", "to_do", "in_progress", "realized", "closed"],
-        "dmsoutgoingmail": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed", "sent"],
-        "dmsoutgoing_email": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed", "sent"],
+        "dmsoutgoingmail": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed",
+                            "signed", "sent"],
+        # "dmsoutgoing_email": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed",
+        #                       "signed", "sent"],
         "organization": ["active", "deactivated"],
         "person": ["active", "deactivated"],
         "held_position": ["active", "deactivated"],
