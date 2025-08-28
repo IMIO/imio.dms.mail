@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-08-03 11:59+0000\n"
+"POT-Creation-Date: 2025-08-28 07:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,6 +187,10 @@ msgstr "Back to print"
 msgid "om_back_to_scanned"
 msgstr "Back to scanned"
 
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_signed"
+msgstr "Back to signed"
+
 msgid "om_back_to_validated"
 msgstr "Back to validated"
 
@@ -197,6 +201,10 @@ msgstr "Created"
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_mark_as_sent"
 msgstr "Mark as sent"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_mark_as_signed"
+msgstr "Mark as signed"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_propose_to_be_signed"
@@ -219,6 +227,10 @@ msgstr "Set to print"
 
 msgid "om_set_validated"
 msgstr "Set to validated"
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_signed"
+msgstr "Signed"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"
@@ -258,7 +270,7 @@ msgstr "Task in my groups"
 
 #: configure.zcml
 msgid "task-in-proposing-group"
-msgstr ""
+msgstr "Task in proposing group"
 
 #: configure.zcml
 msgid "task-validation"

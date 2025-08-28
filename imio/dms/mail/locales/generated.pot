@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-08-03 11:59+0000\n"
+"POT-Creation-Date: 2025-08-28 07:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -97,7 +97,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: ./setuphandlers.py:2547
+#: ./setuphandlers.py:2564
 msgid "All contacts export"
 msgstr ""
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Assigned user value"
 msgstr ""
 
-#: ./setuphandlers.py:2648
+#: ./setuphandlers.py:2665
 msgid "Base template"
 msgstr ""
 
@@ -198,7 +198,7 @@ msgstr ""
 msgid "Close outgoing mail on email send"
 msgstr ""
 
-#: ./setuphandlers.py:2453
+#: ./setuphandlers.py:2470
 msgid "Common templates"
 msgstr ""
 
@@ -224,7 +224,7 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
-#: ./setuphandlers.py:2575
+#: ./setuphandlers.py:2592
 msgid "Contacts audit"
 msgstr ""
 
@@ -236,11 +236,11 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:886
+#: ./utils.py:889
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
-#: ./browser/settings.py:1162
+#: ./browser/settings.py:1163
 msgid "Current product version"
 msgstr ""
 
@@ -276,11 +276,11 @@ msgstr ""
 msgid "Do mailing for each postal sending type."
 msgstr ""
 
-#: ./browser/settings.py:1150
+#: ./browser/settings.py:1151
 msgid "Document viewer preservation date"
 msgstr ""
 
-#: ./browser/settings.py:1146
+#: ./browser/settings.py:1147
 msgid "Document viewer preservation days number"
 msgstr ""
 
@@ -288,7 +288,7 @@ msgstr ""
 msgid "Due date extension"
 msgstr ""
 
-#: ./setuphandlers.py:2746
+#: ./setuphandlers.py:2763
 msgid "Email general template"
 msgstr ""
 
@@ -308,7 +308,7 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: ./setuphandlers.py:2618
+#: ./setuphandlers.py:2635
 msgid "Ending template"
 msgstr ""
 
@@ -316,7 +316,7 @@ msgstr ""
 msgid "Enter a regex pattern"
 msgstr ""
 
-#: ./setuphandlers.py:2561
+#: ./setuphandlers.py:2578
 msgid "Export users and groups"
 msgstr ""
 
@@ -349,7 +349,7 @@ msgstr ""
 msgid "Following held position"
 msgstr ""
 
-#: ./setuphandlers.py:2606
+#: ./setuphandlers.py:2623
 msgid "Footer template"
 msgstr ""
 
@@ -377,7 +377,7 @@ msgstr ""
 msgid "Groups hidden in dashboards filter"
 msgstr ""
 
-#: ./setuphandlers.py:2600
+#: ./setuphandlers.py:2617
 msgid "Header template"
 msgstr ""
 
@@ -425,7 +425,7 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
-#: ./browser/settings.py:1154
+#: ./browser/settings.py:1155
 msgid "Incoming mails folder period (month, week, day)"
 msgstr ""
 
@@ -433,7 +433,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:2612
+#: ./setuphandlers.py:2629
 msgid "Intro template"
 msgstr ""
 
@@ -449,15 +449,15 @@ msgstr ""
 msgid "Lowest N+ level, or agent"
 msgstr ""
 
-#: ./setuphandlers.py:2499
+#: ./setuphandlers.py:2516
 msgid "Mail listing template"
 msgstr ""
 
-#: ./setuphandlers.py:2515
+#: ./setuphandlers.py:2532
 msgid "Mail listing template sheet"
 msgstr ""
 
-#: ./setuphandlers.py:2531
+#: ./setuphandlers.py:2548
 msgid "Mail listing template sheet with details"
 msgstr ""
 
@@ -466,7 +466,7 @@ msgstr ""
 msgid "Mail type"
 msgstr ""
 
-#: ./setuphandlers.py:2624
+#: ./setuphandlers.py:2641
 msgid "Mailing template"
 msgstr ""
 
@@ -534,13 +534,13 @@ msgid "Outgoing Date"
 msgstr ""
 
 #: ./browser/settings.py:539
-#: ./setuphandlers.py:2726
+#: ./setuphandlers.py:2743
 msgid "Outgoing email"
 msgstr ""
 
 #: ./browser/settings.py:443
 #: ./migrations/migrate_to_0_2.py:126
-#: ./setuphandlers.py:2452
+#: ./setuphandlers.py:2469
 msgid "Outgoing mail"
 msgstr ""
 
@@ -554,7 +554,7 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/settings.py:1158
+#: ./browser/settings.py:1159
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr ""
 
@@ -580,7 +580,7 @@ msgstr ""
 msgid "Precise scan date"
 msgstr ""
 
-#: ./setuphandlers.py:2636
+#: ./setuphandlers.py:2653
 msgid "Print template"
 msgstr ""
 
@@ -588,7 +588,7 @@ msgstr ""
 msgid "Read TAL condition"
 msgstr ""
 
-#: ./setuphandlers.py:2667
+#: ./setuphandlers.py:2684
 msgid "Receipt template"
 msgstr ""
 
@@ -686,7 +686,7 @@ msgstr ""
 msgid "Stored value/id"
 msgstr ""
 
-#: ./setuphandlers.py:2591
+#: ./setuphandlers.py:2608
 msgid "Style template"
 msgstr ""
 
@@ -718,7 +718,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:1182
+#: ./dmsmail.py:1202
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -748,7 +748,7 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:890
+#: ./utils.py:893
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -824,7 +824,7 @@ msgstr ""
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./dmsmail.py:1210
+#: ./dmsmail.py:1230
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr ""
 
@@ -1050,7 +1050,7 @@ msgstr ""
 msgid "redirected_after_edition"
 msgstr ""
 
-#: ./wfadaptations.py:844
+#: ./wfadaptations.py:857
 msgid "searchfor: ${state}"
 msgstr ""
 
@@ -1094,6 +1094,6 @@ msgstr ""
 msgid "tasks_to_close"
 msgstr ""
 
-#: ./setuphandlers.py:2451
+#: ./setuphandlers.py:2468
 msgid "templates_tab"
 msgstr ""

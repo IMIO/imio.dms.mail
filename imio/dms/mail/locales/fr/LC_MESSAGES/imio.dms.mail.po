@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-08-03 11:59+0000\n"
+"POT-Creation-Date: 2025-08-28 07:38+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -117,7 +117,7 @@ msgstr "Agent"
 msgid "All"
 msgstr "Tout"
 
-#: ./setuphandlers.py:2547
+#: ./setuphandlers.py:2564
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -153,7 +153,7 @@ msgstr "Utilisateur obligatoire seulement au niveau n+1"
 msgid "Assigned user value"
 msgstr "Valeur utilisateur assigné"
 
-#: ./setuphandlers.py:2648
+#: ./setuphandlers.py:2665
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -242,7 +242,7 @@ msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:2453
+#: ./setuphandlers.py:2470
 msgid "Common templates"
 msgstr "Modèles communs"
 
@@ -268,7 +268,7 @@ msgstr "Listes de contact"
 msgid "Contacts"
 msgstr "Contacts"
 
-#: ./setuphandlers.py:2575
+#: ./setuphandlers.py:2592
 msgid "Contacts audit"
 msgstr "Audit contacts"
 
@@ -284,11 +284,11 @@ msgstr "Créer depuis modèle"
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:886
+#: ./utils.py:889
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
-#: ./browser/settings.py:1162
+#: ./browser/settings.py:1163
 msgid "Current product version"
 msgstr "Version actuelle du produit"
 
@@ -324,11 +324,11 @@ msgstr "Le fichier ged doit être au format odt (Libre Office)"
 msgid "Do mailing for each postal sending type."
 msgstr "Effectuer un publipostage pour les formes d'envoi postales"
 
-#: ./browser/settings.py:1150
+#: ./browser/settings.py:1151
 msgid "Document viewer preservation date"
 msgstr "Date de conservation pour les prévisualisations"
 
-#: ./browser/settings.py:1146
+#: ./browser/settings.py:1147
 msgid "Document viewer preservation days number"
 msgstr "Nombre de jours de conservation pour les prévisualisations"
 
@@ -336,7 +336,7 @@ msgstr "Nombre de jours de conservation pour les prévisualisations"
 msgid "Due date extension"
 msgstr "Échéance par défaut"
 
-#: ./setuphandlers.py:2746
+#: ./setuphandlers.py:2763
 msgid "Email general template"
 msgstr "Modèle générique"
 
@@ -368,7 +368,7 @@ msgstr "Un rédacteur de courrier sortant peut éditer les modèles bureautiques
 msgid "Enabled"
 msgstr "Activé"
 
-#: ./setuphandlers.py:2618
+#: ./setuphandlers.py:2635
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -376,7 +376,7 @@ msgstr "Sous-document de fin"
 msgid "Enter a regex pattern"
 msgstr "Entrez une expression régulière python"
 
-#: ./setuphandlers.py:2561
+#: ./setuphandlers.py:2578
 msgid "Export users and groups"
 msgstr "Exportation des utilisateurs et groupes"
 
@@ -409,7 +409,7 @@ msgstr "Recherches dossiers et chemises"
 msgid "Following held position"
 msgstr "* Suivant fonction occ. via email"
 
-#: ./setuphandlers.py:2606
+#: ./setuphandlers.py:2623
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
@@ -441,7 +441,7 @@ msgstr "Services à ne pas afficher dans les filtres \"Service traitant\", \"Ser
 msgid "Has response icon"
 msgstr "Une réponse est liée"
 
-#: ./setuphandlers.py:2600
+#: ./setuphandlers.py:2617
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
@@ -489,7 +489,7 @@ msgstr "Recherches courriers entrants"
 msgid "Incoming mails"
 msgstr "Courrier entrant"
 
-#: ./browser/settings.py:1154
+#: ./browser/settings.py:1155
 msgid "Incoming mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 
@@ -497,7 +497,7 @@ msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:2612
+#: ./setuphandlers.py:2629
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -513,15 +513,15 @@ msgstr "Éléments liés: ${list}"
 msgid "Lowest N+ level, or agent"
 msgstr "* Vers N+-, ou agent"
 
-#: ./setuphandlers.py:2499
+#: ./setuphandlers.py:2516
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
-#: ./setuphandlers.py:2515
+#: ./setuphandlers.py:2532
 msgid "Mail listing template sheet"
 msgstr "Listing courrier tabulé"
 
-#: ./setuphandlers.py:2531
+#: ./setuphandlers.py:2548
 msgid "Mail listing template sheet with details"
 msgstr "Listing courrier détaillé"
 
@@ -534,7 +534,7 @@ msgstr "Type de courrier"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:2624
+#: ./setuphandlers.py:2641
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -618,13 +618,13 @@ msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
 #: ./browser/settings.py:539
-#: ./setuphandlers.py:2726
+#: ./setuphandlers.py:2743
 msgid "Outgoing email"
 msgstr "Email sortant"
 
 #: ./browser/settings.py:443
 #: ./migrations/migrate_to_0_2.py:126
-#: ./setuphandlers.py:2452
+#: ./setuphandlers.py:2469
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
@@ -638,7 +638,7 @@ msgstr "Recherches courriers sortants"
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
-#: ./browser/settings.py:1158
+#: ./browser/settings.py:1159
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier sortant (mont, week, day)"
 
@@ -672,7 +672,7 @@ msgstr "Publipostage postal"
 msgid "Precise scan date"
 msgstr "Date précise de scan"
 
-#: ./setuphandlers.py:2636
+#: ./setuphandlers.py:2653
 msgid "Print template"
 msgstr "Pour impression"
 
@@ -680,7 +680,7 @@ msgstr "Pour impression"
 msgid "Read TAL condition"
 msgstr "Condition d'affichage"
 
-#: ./setuphandlers.py:2667
+#: ./setuphandlers.py:2684
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -782,7 +782,7 @@ msgstr "États pour lesquels afficher l'icône de \"remarque\" "
 msgid "Stored value/id"
 msgstr "Valeur stockée"
 
-#: ./setuphandlers.py:2591
+#: ./setuphandlers.py:2608
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -818,7 +818,7 @@ msgstr "Recherches tâches"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:1182
+#: ./dmsmail.py:1202
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -856,7 +856,7 @@ msgstr "Valeur service traitant"
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:890
+#: ./utils.py:893
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
@@ -932,7 +932,7 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./dmsmail.py:1210
+#: ./dmsmail.py:1230
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service traitant n'a pas de validateur et l'état va être modifié !"
 
@@ -1218,7 +1218,7 @@ msgstr "Sortant"
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
-#: ./wfadaptations.py:844
+#: ./wfadaptations.py:857
 msgid "searchfor: ${state}"
 msgstr "État: ${state}"
 
@@ -1268,6 +1268,10 @@ msgstr "État: scanné"
 #: dmsoutgoingmail
 msgid "searchfor_sent"
 msgstr "État: envoyé"
+
+#: dmsoutgoingmail
+msgid "searchfor_signed"
+msgstr "État: signé"
 
 #: task
 msgid "searchfor_to_assign"
@@ -1329,7 +1333,7 @@ msgstr "À assigner"
 msgid "tasks_to_close"
 msgstr "À clôturer"
 
-#: ./setuphandlers.py:2451
+#: ./setuphandlers.py:2468
 msgid "templates_tab"
 msgstr "Modèles"
 
