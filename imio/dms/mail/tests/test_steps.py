@@ -16,7 +16,7 @@ class TestSteps(unittest.TestCase):
 
     def test_create_persons_from_users(self):
         pf = self.portal["contacts"]["personnel-folder"]
-        self.assertListEqual(pf.objectIds(), ["chef", "agent", "lecteur", "agent1", "encodeur"])
+        self.assertListEqual(pf.objectIds(), ["chef", "agent", "lecteur", "agent1", "encodeur", "dirg", "bourgmestre"])
         member = self.portal.portal_registration.addMember(id="newuser", password="TestUser=6")
         member.setMemberProperties({"fullname": "Leloup Pierre", "email": "test@macommune.be"})
         orgs = get_registry_organizations()
@@ -27,7 +27,8 @@ class TestSteps(unittest.TestCase):
             "imio.dms.mail:singles", "imiodmsmail-create-persons-from-users-inverted", run_dependencies=False
         )
         # person
-        self.assertListEqual(pf.objectIds(), ["chef", "agent", "lecteur", "agent1", "encodeur", "newuser"])
+        self.assertListEqual(pf.objectIds(),
+                             ["chef", "agent", "lecteur", "agent1", "encodeur", "dirg", "bourgmestre", "newuser"])
         nu_p = pf["newuser"]
         self.assertEqual(nu_p.firstname, "Pierre")
         self.assertEqual(nu_p.lastname, "Leloup")
@@ -45,5 +46,7 @@ class TestSteps(unittest.TestCase):
         self.portal.portal_setup.runImportStepFromProfile(
             "imio.dms.mail:singles", "imiodmsmail-create-persons-from-users-inverted", run_dependencies=False
         )
-        self.assertListEqual(pf.objectIds(), ["chef", "agent", "lecteur", "agent1", "encodeur", "newuser_renamed"])
+        self.assertListEqual(pf.objectIds(),
+                             ["chef", "agent", "lecteur", "agent1", "encodeur", "dirg", "bourgmestre",
+                              "newuser_renamed"])
         self.assertListEqual(nu_p.objectIds(), ["%s_renamed" % orgs[0], orgs[1]])

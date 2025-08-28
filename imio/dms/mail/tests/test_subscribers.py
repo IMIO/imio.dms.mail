@@ -791,6 +791,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
@@ -812,6 +813,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef 2"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
@@ -829,6 +831,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 ("encodeur", u"Jean Encodeur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef 2"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent", u"Fred Agent (Désactivé)"),
@@ -904,7 +907,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         e_groups.append(("expedition", ("Contributor",)))
         e_groups.append(("dir_general", ("Contributor",)))
         self.assertSetEqual(set(self.omf.get_local_roles()), set(e_groups))
-        self.assertEqual(len(self.omf.get_local_roles()), 14)
+        self.assertEqual(len(self.omf.get_local_roles()), 15)
         set_registry_organizations(get_registry_organizations()[:3])
         self.assertEqual(len(self.omf.get_local_roles()), 6)
         # TODO tests other changes !!

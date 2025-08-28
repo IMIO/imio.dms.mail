@@ -195,9 +195,9 @@ class TestDocumentGenerator(unittest.TestCase):
         view1.real_context.send_modes = [u"post", u"post_registered", u"email"]
         self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Lettre, Email')
         self.assertEqual(view1.display_send_modes(filter_on=u'post_registered'), u'Lettre recommand\xe9e, Email')
-        self.assertEqual(view1.display_send_modes(filter_on=[u'post', u'post_registered']), u'Lettre, Lettre recommand\xe9e, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=[u'post', u'post_registered']),
+                         u'Lettre, Lettre recommand\xe9e, Email')
         self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
-
 
     def test_DocumentGenerationOMDashboardHelper(self):
         """
@@ -292,20 +292,22 @@ class TestDocumentGenerator(unittest.TestCase):
         res = [
             (1, self.ctct["personnel-folder"]["agent"]),
             (2, self.ctct["personnel-folder"]["agent1"]),
-            (3, self.chef),
-            (4, self.ctct["jeancourant"]),
-            (5, self.ctct["personnel-folder"]["encodeur"]),
-            (6, self.ctct["personnel-folder"]["lecteur"]),
-            (7, self.ctct["bernardlermitte"]),
-            (8, self.ctct["notencoded"]),
-            (9, self.ctct["sergerobinet"]),
+            (3, self.ctct["personnel-folder"]["bourgmestre"]),
+            (4, self.chef),
+            (5, self.ctct["jeancourant"]),
+            (6, self.ctct["personnel-folder"]["dirg"]),
+            (7, self.ctct["personnel-folder"]["encodeur"]),
+            (8, self.ctct["personnel-folder"]["lecteur"]),
+            (9, self.ctct["bernardlermitte"]),
+            (10, self.ctct["notencoded"]),
+            (11, self.ctct["sergerobinet"]),
         ]
         self.assertListEqual(view.get_persons(), res)
 
         # Test get_held_positions
         res = [
-            (1, 7, 27, self.ctct["bernardlermitte"]["agent-swde"]),
-            (2, 4, 1, self.ctct["jeancourant"]["agent-electrabel"]),
+            (1, 9, 27, self.ctct["bernardlermitte"]["agent-swde"]),
+            (2, 5, 1, self.ctct["jeancourant"]["agent-electrabel"]),
         ]
         self.assertListEqual(view.get_held_positions()[:2], res)
 

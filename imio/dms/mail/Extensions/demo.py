@@ -413,7 +413,7 @@ def clean_examples(self, doit="1"):
         if doit:
             api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     # Delete users
-    for userid in ["encodeur", "dirg", "chef", "agent", "agent1", "lecteur"]:
+    for userid in ["encodeur", "dirg", "chef", "agent", "agent1", "lecteur", "bourgmestre"]:
         user = api.user.get(userid=userid)
         for brain in find(unrestricted=True, Creator=userid, sort_on="path", sort_order="descending"):
             log_list(out, "Deleting object '%s' created by '%s'" % (brain.getPath(), userid))
