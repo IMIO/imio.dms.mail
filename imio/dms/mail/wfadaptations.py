@@ -744,90 +744,101 @@ class OMServiceValidation(WorkflowAdaptationBase):
                 type="warning",
             )
         # static_config local roles
-        updates = {
-            val_state_id: {
-                "expedition": {"roles": ["Editor", "Reviewer"]},
-                "encodeurs": {"roles": ["Reader"]},
-                "dir_general": {"roles": ["Reader"]},
+        c1 = c2 = c3 = False
+        lrsc = lr["static_config"]
+        if val_state_id not in lrsc:
+            updates = {
+                val_state_id: {
+                    "expedition": {"roles": ["Editor", "Reviewer"]},
+                    "encodeurs": {"roles": ["Reader"]},
+                    "dir_general": {"roles": ["Reader"]},
+                }
             }
-        }
-        c1 = update_roles_in_fti("dmsoutgoingmail", updates, notify=False)
+            c1 = update_roles_in_fti("dmsoutgoingmail", updates, notify=False)
         # treating_groups local roles
-        updates = {
-            new_state_id: {
-                new_id: {
-                    "roles": [
-                        "Contributor",
-                        "Editor",
-                        "Reviewer",
-                        "DmsFile Contributor",
-                        "Base Field Writer",
-                        "Treating Group Writer",
-                    ]
+        lrtg = lr["treating_groups"]
+        if new_state_id not in lrtg:
+            updates = {
+                new_state_id: {
+                    new_id: {
+                        "roles": [
+                            "Contributor",
+                            "Editor",
+                            "Reviewer",
+                            "DmsFile Contributor",
+                            "Base Field Writer",
+                            "Treating Group Writer",
+                        ]
+                    },
+                    "encodeur": {"roles": ["Reader"]},
                 },
-                "encodeur": {"roles": ["Reader"]},
-            },
-            val_state_id: {
-                "editeur": {"roles": ["Reader"]},
-                "encodeur": {
-                    "roles": [
-                        "Contributor",
-                        "Editor",
-                        "Reviewer",
-                        "DmsFile Contributor",
-                        "Base Field Writer",
-                        "Treating Group Writer",
-                    ]
+                val_state_id: {
+                    "editeur": {"roles": ["Reader"]},
+                    "encodeur": {
+                        "roles": [
+                            "Contributor",
+                            "Editor",
+                            "Reviewer",
+                            "DmsFile Contributor",
+                            "Base Field Writer",
+                            "Treating Group Writer",
+                        ]
+                    },
+                    "lecteur": {"roles": ["Reader"]},
+                    new_id: {
+                        "roles": [
+                            "Contributor",
+                            "Editor",
+                            "Reviewer",
+                            "DmsFile Contributor",
+                            "Base Field Writer",
+                            "Treating Group Writer",
+                        ]
+                    },
                 },
-                "lecteur": {"roles": ["Reader"]},
-                new_id: {
-                    "roles": [
-                        "Contributor",
-                        "Editor",
-                        "Reviewer",
-                        "DmsFile Contributor",
-                        "Base Field Writer",
-                        "Treating Group Writer",
-                    ]
-                },
-            },
-        }
-        for st in to_states:
-            if st in updates:
-                continue
-            updates.update({st: {new_id: {"roles": ["Reader"]}}})
-        updates.update({"signed": {new_id: {"roles": ["Reader"]}}})
-        c2 = update_roles_in_fti("dmsoutgoingmail", updates, keyname="treating_groups", notify=False)
+            }
+            for st in to_states:
+                if st in updates:
+                    continue
+                updates.update({st: {new_id: {"roles": ["Reader"]}}})
+            updates.update({"signed": {new_id: {"roles": ["Reader"]}}})
+            c2 = update_roles_in_fti("dmsoutgoingmail", updates, keyname="treating_groups", notify=False)
         # recipient_groups local roles
-        updates = {
-            new_state_id: {new_id: {"roles": ["Reader"]}},
-            val_state_id: {
-                "editeur": {"roles": ["Reader"]},
-                "encodeur": {"roles": ["Reader"]},
-                "lecteur": {"roles": ["Reader"]},
-                new_id: {"roles": ["Reader"]},
-            },
-        }
-        for st in to_states:
-            updates.update({st: {new_id: {"roles": ["Reader"]}}})
-        updates.update({"signed": {new_id: {"roles": ["Reader"]}}})
-        c3 = update_roles_in_fti("dmsoutgoingmail", updates, keyname="recipient_groups", notify=False)
+        lrrg = lr["recipient_groups"]
+        if new_state_id not in lrrg:
+            updates = {
+                new_state_id: {new_id: {"roles": ["Reader"]}},
+                val_state_id: {
+                    "editeur": {"roles": ["Reader"]},
+                    "encodeur": {"roles": ["Reader"]},
+                    "lecteur": {"roles": ["Reader"]},
+                    new_id: {"roles": ["Reader"]},
+                },
+            }
+            for st in to_states:
+                updates.update({st: {new_id: {"roles": ["Reader"]}}})
+            updates.update({"signed": {new_id: {"roles": ["Reader"]}}})
+            c3 = update_roles_in_fti("dmsoutgoingmail", updates, keyname="recipient_groups", notify=False)
         if c1 or c2 or c3:
             update_security_index(["dmsoutgoingmail"])
 
         # add local roles config on folders
         for i, ptype in enumerate(("ClassificationFolder", "ClassificationSubfolder")):
-            updates = {
-                "active": {new_id: {"roles": ["Contributor", "Editor"]}},
-                "deactivated": {new_id: {"roles": ["Contributor", "Editor"]}},
-            }
-            c4 = update_roles_in_fti(ptype, updates, keyname="treating_groups", notify=False)
-            updates = {
-                "active": {new_id: {"roles": ["Reader"]}},
-                "deactivated": {new_id: {"roles": ["Reader"]}},
-            }
-            c5 = update_roles_in_fti(ptype, updates, keyname="recipient_groups", notify=False)
-            if c4 or c5:
+            lr, fti = fti_configuration(portal_type=ptype)
+            tg_updates = {}
+            rg_updates = {}
+            for state in ("active", "deactivated"):
+                lrtg = lr["treating_groups"]
+                if state not in lrtg or new_id not in lrtg[state]:
+                    tg_updates[state] = {new_id: {"roles": ["Contributor", "Editor"]}}
+                lrrg = lr["recipient_groups"]
+                if state not in lrrg or new_id not in lrrg[state]:
+                    rg_updates[state] = {new_id: {"roles": ["Reader"]}}
+            if tg_updates:
+                update_roles_in_fti(ptype, tg_updates, keyname="treating_groups", notify=False)
+            if rg_updates:
+                update_roles_in_fti(ptype, rg_updates, keyname="recipient_groups", notify=False)
+            if tg_updates or rg_updates:
                 update_security_index([ptype])
 
         # update dms config
