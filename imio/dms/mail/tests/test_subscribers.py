@@ -164,9 +164,10 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.imail.assigned_user, "agent")
 
     def test_dmsoutgoingmail_modified(self):
-        chef_hp = self.portal["contacts"]["personnel-folder"]["chef"]["responsable-direction-generale"]
-        chef_hp.usages = ["signer", "approving"]
-        modified(chef_hp, Attributes(Interface, "usages"))
+        bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
+        bourgmestre_hp = bourgmestre["directeur-general-college-communal"]
+        bourgmestre_hp.usages = ["signer", "approving"]
+        modified(bourgmestre_hp, Attributes(Interface, "usages"))
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
         omail = sub_create(
             self.portal["outgoing-mail"],
@@ -412,7 +413,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "number": 1,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": chef_hp.UID(),
+                    "signer": bourgmestre_hp.UID(),
                 },
             ],
         )
@@ -433,7 +434,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "number": 1,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": chef_hp.UID(),
+                    "signer": bourgmestre_hp.UID(),
                 },
                 {
                     "valid_until": None,
@@ -450,7 +451,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": chef_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
 
         # Test seal (number 0)
         omail.signers = None
@@ -491,7 +492,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "number": 2,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": chef_hp.UID(),
+                    "signer": bourgmestre_hp.UID(),
                 },
                 {
                     "valid_until": None,
@@ -512,7 +513,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             omail.signers,
             [
                 {"signer": "_empty_", "approvings": [u"_empty_"], "number": 1},
-                {"signer": chef_hp.UID(), "approvings": [u"_empty_"], "number": 2},
+                {"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 2},
             ],
         )
 
@@ -531,7 +532,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "number": 1,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": chef_hp.UID(),
+                    "signer": bourgmestre_hp.UID(),
                 },
                 {
                     "valid_until": None,
@@ -543,16 +544,21 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "number": 2,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": chef_hp.UID(),
+                    "signer": bourgmestre_hp.UID(),
                 },
             ],
         )
         self.assertRaises(Invalid, modified, omail)
         self.assertIsNone(omail.signers)
 
-        chef_hp2 = self.portal["contacts"]["personnel-folder"]["chef"]["responsable-evenements"]
-        chef_hp2.usages = ["signer"]
-        modified(chef_hp2, Attributes(Interface, "usages"))
+        intids = getUtility(IIntIds)
+        params = {
+            "position": RelationValue(intids.getId(self.portal["contacts"]["plonegroup-organization"]["college-communal"])),
+            "usages": ["signer"],
+        }
+        bourgmestre_hp2 = bourgmestre.invokeFactory("held_position", "directeur-general-college-communal-2", **params)
+        bourgmestre_hp2 = bourgmestre[bourgmestre_hp2]
+        modified(bourgmestre_hp2, Attributes(Interface, "usages"))
         omail.signers = None
         api.portal.set_registry_record(
             rk,
@@ -567,7 +573,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "number": 1,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": chef_hp.UID(),
+                    "signer": bourgmestre_hp.UID(),
                 },
                 {
                     "valid_until": None,
@@ -579,7 +585,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "number": 2,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": chef_hp2.UID(),
+                    "signer": bourgmestre_hp2.UID(),
                 },
             ],
         )
@@ -714,8 +720,8 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # Test mail already has signers
         omail.signers = [
             {
-                "signer": chef_hp.UID(),
-                "approvings": [u"_themself_", chef_hp.UID()],
+                "signer": bourgmestre_hp.UID(),
+                "approvings": [u"_themself_", bourgmestre_hp.UID()],
                 "number": 1,
             }
         ]
@@ -724,8 +730,8 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             omail.signers,
             [
                 {
-                    "signer": chef_hp.UID(),
-                    "approvings": [u"_themself_", chef_hp.UID()],
+                    "signer": bourgmestre_hp.UID(),
+                    "approvings": [u"_themself_", bourgmestre_hp.UID()],
                     "number": 1,
                 }
             ],
