@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-08-28 07:38+0000\n"
+"POT-Creation-Date: 2025-09-01 21:04+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -21,49 +21,94 @@ msgstr ""
 msgid "${element_title} (Inactive)"
 msgstr "${element_title} (Désactivé)"
 
-#: ./browser/settings.py:655
+#: ./browser/settings.py:785
 msgid "${tab} tab: multiple value '${value}' in '${field}' setting !! Must be unique"
 msgstr "Onglet « ${tab} »: le champ « ${field} » contient plusieurs fois la valeur « ${value} » ! La valeur stockée doit être unique !"
 
-#: ./browser/settings.py:737
+#: ./browser/settings.py:867
 msgid "${tab} tab: send_modes field must have values starting with « post », « email » or « other »"
 msgstr "Onglet « ${tab} »: le champ « Formes d'envoi » doit uniquement contenir des « valeurs stockées » commencant par « post », « email » ou « other »"
 
-#: ./browser/settings.py:673
+#: ./browser/settings.py:803
 msgid "${tab} tab: unchecking '${field}' setting is not expected !!"
 msgstr "Onglet « ${tab} »: décocher le paramètre « ${field} » n'est pas prévu !"
 
-#: ./browser/settings.py:696
+#: ./browser/settings.py:826
 msgid "${tab} tab: « ${field} » rule ${rule} has an invalid pattern in « ${col} »"
 msgstr "Onglet « ${tab} »: champ « ${field} », la règle de routage ${rule} contient une expression régulière non valide dans « ${col} »"
 
-#: ./browser/settings.py:717
+#: ./browser/settings.py:847
 msgid "${tab} tab: « ${field} » rule ${rule} is configured with an assigned user « ${user} » not in the corresponding treating group « ${tg} »"
 msgstr "Onglet « ${tab} »: champ « ${field} », la règle de routage ${rule} est configurée avec un utilisateur assigné « ${user} » qui ne fait pas partie du service « ${tg} »"
 
-#: ./browser/settings.py:704
+#: ./browser/settings.py:834
 msgid "${tab} tab: « ${field} » rule ${rule} is configured with no values defined"
 msgstr "Onglet « ${tab} »: champ « ${field} », la règle de routage ${rule} contient au moins une colonne « valeur » non définie"
+
+#: ./browser/settings.py:930
+msgid "${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself."
+msgstr "Onglet « ${tab} »: champ « ${field} », la règle signataire ${data} contient un doublon d'approbateur avec lui-même."
+
+#: ./browser/settings.py:916
+msgid "${tab} tab: « ${field} », rule ${rule} has a number 0 but a signer is set. With 0, it can only be a seal or no signature."
+msgstr "Onglet « ${tab} »: champ « ${field} », la règle signataire ${rule} avec le numéro 0 contient un signataire. Seul un sceau ou aucune signature est permis."
+
+#: ./browser/settings.py:924
+msgid "${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. With a seal, it can only be 0."
+msgstr "Onglet « ${tab} »: champ « ${field} », la règle ${rule} a un sceau mais le numéro n'est pas 0."
+
+#: ./browser/settings.py:885
+msgid "${tab} tab: « ${field} », rule ${rule} has an invalid date in « ${date} » field"
+msgstr "Onglet « ${tab} »: champ « ${field} », la règle signataire ${rule} a une date invalide dans le sous-champ ${date}"
+
+#: ./browser/settings.py:904
+msgid "${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal to today"
+msgstr "Onglet « ${tab} »: champ « ${field} », la date « ${until} » doit être >= à aujourd'hui"
+
+#: ./browser/settings.py:895
+msgid "${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal to « ${from} »"
+msgstr "Onglet « ${tab} »: champ « ${field} », la date « ${until} » doit être >= à la date « ${from} »"
 
 #: ./browser/views.py:45
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
-#: ./browser/settings.py:374
+#: ./browser/settings.py:488
 msgid "${type} fields display"
 msgstr "Affichage des champs"
 
-#: ./browser/settings.py:415
+#: ./browser/settings.py:529
 msgid "${type} routing"
 msgstr "Table de routage ${type}"
 
-#: ./browser/settings.py:428
+#: ./browser/settings.py:624
+msgid "${type} signers rules"
+msgstr "Règles de signataires ${type}"
+
+#: ./browser/settings.py:542
 msgid "${type} state set"
 msgstr "État ${type}"
 
 #: ./browser/settings.py
 msgid "'${field}': position ${position}"
 msgstr "'${field}': position ${position}"
+
+#: ./browser/settings.py:239
+#: ./content/behaviors.py:80
+msgid "* No signature"
+msgstr "* Aucune signature"
+
+#: ./vocabularies.py:413
+msgid "* No validation"
+msgstr "* Aucune validation"
+
+#: ./browser/settings.py:240
+msgid "* Seal signature"
+msgstr "* Sceau"
+
+#: ./vocabularies.py:414
+msgid "* Themself"
+msgstr "* Lui-même"
 
 #: ./__init__.py:26
 msgid "++resource++imio.dms.mail/wf_again.png"
@@ -73,7 +118,7 @@ msgstr "Cet élément passe à nouveau par cet état dans le workflow."
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr "Cet élément est revenu en arrière dans le workflow."
 
-#: ./subscribers.py:731
+#: ./subscribers.py:824
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
@@ -81,17 +126,25 @@ msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 msgid "<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>"
 msgstr "<span class='unconfigured-fields'>Les champs non configurés et donc non affichés sont: ${list}</span>"
 
-#: ./browser/settings.py:583
+#: ./subscribers.py:468
+msgid "A signer is missing at position: ${positions} ! You have to adapt the rules !"
+msgstr "Un signataire est manquant aux positions ${positions} ! Il faut adapter les règles dans la configuration !"
+
+#: ./browser/settings.py:713
 msgid "A user can see all mail titles linked to a contact."
 msgstr "Un utilisateur peut voir les intitulés de tous les courriers liés à un contact, même ceux d'autres services."
 
-#: ./browser/settings.py:388
+#: ./browser/settings.py:502
 msgid "Activate group encoder"
 msgstr "Activation de plusieurs groupes d'indicatage"
 
-#: ./browser/settings.py:316
+#: ./browser/settings.py:430
 msgid "Active"
 msgstr "Activé"
+
+#: ./content/configure.zcml:41
+msgid "Add a field to list the users that have to sign the document"
+msgstr "Champ signataires, sceau, signature électronique"
 
 #: ./profiles.zcml:30
 msgid "Add minimal test examples for imio.dms.mail"
@@ -109,7 +162,27 @@ msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 msgid "Adds text field for data transfer"
 msgstr "Ajouter un champ texte 'Reprise données'"
 
-#: ./browser/settings.py:164
+#: ./browser/settings.py:343
+msgid "Affected from date. Format: YYYY/MM/DD."
+msgstr "Critère de validité « du » (inclus), au format AAAA/MM/JJ."
+
+#: ./browser/settings.py:355
+msgid "Affected groups for this rule."
+msgstr "Critère sur ces services."
+
+#: ./browser/settings.py:363
+msgid "Affected mail types for this rule."
+msgstr "Critère sur ces types de courrier."
+
+#: ./browser/settings.py:371
+msgid "Affected send modes for this rule."
+msgstr "Critère sur ces formes d'envoi."
+
+#: ./browser/settings.py:349
+msgid "Affected until date. Format: YYYY/MM/DD."
+msgstr "Critère de validité « au » (inclus), au format AAAA/MM/JJ."
+
+#: ./browser/settings.py:170
 msgid "Agent"
 msgstr "Agent"
 
@@ -133,23 +206,36 @@ msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Cour
 msgid "Apply"
 msgstr "Appliquer"
 
+#: ./vocabularies.py:131
+msgid "Approving"
+msgstr "Approbateur"
+
+#: ./browser/settings.py:326
+#: ./content/behaviors.py:104
+msgid "Approvings"
+msgstr "Approbateurs"
+
+#: ./content/behaviors.py:115
+msgid "Approvings have a duplicate approver with themself."
+msgstr "Les approbateurs ont un doublon avec lui-même."
+
 #: ./browser/templates/actions_panel_assign_user.pt:11
 msgid "Assign"
 msgstr "Assigner"
 
-#: ./browser/settings.py:273
+#: ./browser/settings.py:387
 msgid "Assigned user always mandatory"
 msgstr "Utilisateur assigné toujours obligatoire"
 
-#: ./browser/settings.py:349
+#: ./browser/settings.py:463
 msgid "Assigned user check"
 msgstr "Vérification sur l'utilisateur assigné"
 
-#: ./browser/settings.py:272
+#: ./browser/settings.py:386
 msgid "Assigned user mandatory only if there is a n+1 validation"
 msgstr "Utilisateur obligatoire seulement au niveau n+1"
 
-#: ./browser/settings.py:242
+#: ./browser/settings.py:280
 msgid "Assigned user value"
 msgstr "Valeur utilisateur assigné"
 
@@ -201,28 +287,33 @@ msgstr "Changement d'état par lot"
 msgid "Batch treating group change"
 msgstr "Changement de service traitant par lot"
 
+#: ./content/configure.zcml:35
+msgid "Can choose possible usages (on held position)"
+msgstr "Champ « Utilisé comme » (pour fonction occupée)"
+
 #: ./browser/views.py:243
 msgid "Cannot use localhost as smtp"
 msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 
-#: ./browser/settings.py:552
+#: ./browser/settings.py:682
 msgid "Check if a service encoder can edit his service email templates."
 msgstr "Cocher si les encodeurs d'un service peuvent modifier les modèles d'email sortant."
 
-#: ./browser/settings.py:482
+#: ./browser/settings.py:597
 msgid "Check if a service encoder can edit his service office templates."
 msgstr "Cocher si les encodeurs d'un service peuvent modifier les modèles bureautiques de courrier sortant."
 
-#: ./browser/settings.py:357
+#: ./browser/settings.py:471
 msgid "Check if the incoming mail 'original mail date' field must be required."
 msgstr "Cocher si le champ 'Date du courrier' d'un courrier entrant doit être requis."
 
-#: ./browser/settings.py:350
+#: ./browser/settings.py:464
 msgid "Check if there is an assigned user before proposing incoming mail to an agent."
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent."
 
-#: ./browser/settings.py:176
-#: ./vocabularies.py:192
+#: ./browser/settings.py:182
+#: ./content/behaviors.py:79
+#: ./vocabularies.py:206
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
@@ -234,7 +325,7 @@ msgstr "Choisir ce modèle"
 msgid "Choose to which state a manually forwarded email will go."
 msgstr "Choisir dans quel état un email, transféré manuellement par un agent, va aller."
 
-#: ./browser/settings.py:556
+#: ./browser/settings.py:686
 msgid "Close outgoing mail on email send"
 msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 
@@ -246,11 +337,11 @@ msgstr "Commentaire"
 msgid "Common templates"
 msgstr "Modèles communs"
 
-#: ./browser/settings.py:416
+#: ./browser/settings.py:530
 msgid "Configure rules carefully. You can order with arrows. Only first matched rule is used."
 msgstr "<span class='beware'>À modifier en toute connaissance de cause !</span><br />Seule la première règle valable est appliquée. L'ordre se gère via les flèches. Configurer les conditions précautionneusement (expression <a href='https://pagetemplates.readthedocs.io/en/latest/tal.html' target='_blank'>TAL</a> avec les variables: portal, context, member, etc.)"
 
-#: ./browser/settings.py:375
+#: ./browser/settings.py:489
 msgid "Configure this carefully. You can order with arrows."
 msgstr "<span class='beware'>À modifier en toute connaissance de cause !</span><br />L'ordre se gère via les flèches. Configurer les conditions précautionneusement (expression <a href='https://pagetemplates.readthedocs.io/en/latest/tal.html' target='_blank'>TAL</a> avec les variables: portal, context, member, etc.)"
 
@@ -264,7 +355,7 @@ msgstr "recherches listes de contact"
 msgid "Contact lists"
 msgstr "Listes de contact"
 
-#: ./browser/settings.py:581
+#: ./browser/settings.py:711
 msgid "Contacts"
 msgstr "Contacts"
 
@@ -280,7 +371,7 @@ msgstr "Export des contacts"
 msgid "Create from template"
 msgstr "Créer depuis modèle"
 
-#: ./content/behaviors.py:45
+#: ./content/behaviors.py:30
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
@@ -288,7 +379,7 @@ msgstr "Groupe indicateur"
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
-#: ./browser/settings.py:1163
+#: ./browser/settings.py:1379
 msgid "Current product version"
 msgstr "Version actuelle du produit"
 
@@ -296,15 +387,15 @@ msgstr "Version actuelle du produit"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
-#: ./content/behaviors.py:62
+#: ./content/behaviors.py:47
 msgid "Data transfer"
 msgstr "Reprise de données"
 
-#: ./browser/settings.py:567
+#: ./browser/settings.py:697
 msgid "Default bcc emails"
 msgstr "Valeurs par défaut du champ 'Emails des destinataires en copie cachée'"
 
-#: ./browser/settings.py:315
+#: ./browser/settings.py:429
 msgid "Displayed title"
 msgstr "Libellé"
 
@@ -316,25 +407,38 @@ msgstr "Champ 'Groupe indicateur' pour la gestion de courrier"
 msgid "Dms Mail Data Transfer"
 msgstr "Champ 'Reprise données' pour le gestion de courrier"
 
-#: ./browser/settings.py:476
+#: ./content/configure.zcml:35
+msgid "Dms Mail HP Usages"
+msgstr "Champ 'Utilisé comme' pour la gestion de courrier"
+
+#: ./content/configure.zcml:41
+msgid "Dms Mail Signers"
+msgstr "Champs 'signataires', 'sceau' et 'signature électronique' pour la gestion de courrier"
+
+#: ./browser/settings.py:591
 msgid "Dms file must be an odt format"
 msgstr "Le fichier ged doit être au format odt (Libre Office)"
 
-#: ./browser/settings.py:504
+#: ./browser/settings.py:619
 msgid "Do mailing for each postal sending type."
 msgstr "Effectuer un publipostage pour les formes d'envoi postales"
 
-#: ./browser/settings.py:1151
+#: ./browser/settings.py:1367
 msgid "Document viewer preservation date"
 msgstr "Date de conservation pour les prévisualisations"
 
-#: ./browser/settings.py:1147
+#: ./browser/settings.py:1363
 msgid "Document viewer preservation days number"
 msgstr "Nombre de jours de conservation pour les prévisualisations"
 
-#: ./browser/settings.py:362
+#: ./browser/settings.py:476
 msgid "Due date extension"
 msgstr "Échéance par défaut"
+
+#: ./browser/settings.py:336
+#: ./content/behaviors.py:150
+msgid "Electronic signature"
+msgstr "Signature élec."
 
 #: ./setuphandlers.py:2763
 msgid "Email general template"
@@ -348,7 +452,7 @@ msgstr "Transition d'un email transféré manuellement"
 msgid "Email sent at ${date_hour}."
 msgstr "Email envoyé le ${date_hour}."
 
-#: ./browser/settings.py:575
+#: ./browser/settings.py:705
 msgid "Email signature model"
 msgstr "Modèle de signature email"
 
@@ -356,13 +460,17 @@ msgstr "Modèle de signature email"
 msgid "Empty value"
 msgstr "Sans valeur"
 
-#: ./browser/settings.py:551
+#: ./browser/settings.py:681
 msgid "Enable edition of service email templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles d'email sortant de son service."
 
-#: ./browser/settings.py:481
+#: ./browser/settings.py:596
 msgid "Enable edition of service office templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles bureautiques de son service."
+
+#: ./browser/settings.py:337
+msgid "Enable electronic signature for this document."
+msgstr "Active la signature électronique pour cette règle."
 
 #: ./profiles/default/registry.xml
 msgid "Enabled"
@@ -372,7 +480,7 @@ msgstr "Activé"
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
-#: ./browser/settings.py:222
+#: ./browser/settings.py:257
 msgid "Enter a regex pattern"
 msgstr "Entrez une expression régulière python"
 
@@ -380,19 +488,19 @@ msgstr "Entrez une expression régulière python"
 msgid "Export users and groups"
 msgstr "Exportation des utilisateurs et groupes"
 
-#: ./browser/settings.py:363
+#: ./browser/settings.py:477
 msgid "Extends the due date by a number of days. 0 means no due date will be set by default."
 msgstr "Délai de l'échéance par défaut, en nombre de jours. 0 pour ne pas utiliser d'échéance par défaut."
 
-#: ./browser/settings.py:377
+#: ./browser/settings.py:491
 msgid "Field"
 msgstr "Champ"
 
-#: ./browser/settings.py:130
+#: ./browser/settings.py:136
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: ./browser/settings.py:279
+#: ./browser/settings.py:393
 msgid "Firstname Lastname"
 msgstr "Prénom Nom"
 
@@ -405,7 +513,7 @@ msgstr "Dossiers"
 msgid "Folders searches"
 msgstr "Recherches dossiers et chemises"
 
-#: ./browser/settings.py:193
+#: ./browser/settings.py:199
 msgid "Following held position"
 msgstr "* Suivant fonction occ. via email"
 
@@ -413,15 +521,15 @@ msgstr "* Suivant fonction occ. via email"
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
-#: ./browser/settings.py:214
+#: ./browser/settings.py:249
 msgid "Forward Type"
 msgstr "Type transfert"
 
-#: ./browser/settings.py:192
+#: ./browser/settings.py:198
 msgid "From primary organization"
 msgstr "* Selon org. principale"
 
-#: ./browser/settings.py:561
+#: ./browser/settings.py:691
 msgid "From where to get sender default email"
 msgstr "Valeur par défaut de l'adresse email d'expédition"
 
@@ -429,11 +537,11 @@ msgstr "Valeur par défaut de l'adresse email d'expédition"
 msgid "Full documentation"
 msgstr "Documentation complète"
 
-#: ./browser/settings.py:600
+#: ./browser/settings.py:730
 msgid "General config tab"
 msgstr "Général"
 
-#: ./browser/settings.py:605
+#: ./browser/settings.py:735
 msgid "Groups hidden in dashboards filter"
 msgstr "Services à ne pas afficher dans les filtres \"Service traitant\", \"Service en copie\" ou \"Groupe assigné\" des tableaux de bord"
 
@@ -455,7 +563,7 @@ msgstr "Fonctions occupées"
 msgid "Held positions searches"
 msgstr "Recherches fonctions occupées"
 
-#: ./browser/settings.py:205
+#: ./browser/settings.py:211
 msgid "Highest N+ level, or agent"
 msgstr "* Vers N++, ou agent"
 
@@ -463,11 +571,11 @@ msgstr "* Vers N++, ou agent"
 msgid "Imio Dms Mail testing profile"
 msgstr "Profil de testing pour imio.dms.mail"
 
-#: ./browser/settings.py:404
+#: ./browser/settings.py:518
 msgid "Incoming email"
 msgstr "Email entrant"
 
-#: ./browser/settings.py:326
+#: ./browser/settings.py:440
 msgid "Incoming mail"
 msgstr "Courrier entrant"
 
@@ -489,7 +597,7 @@ msgstr "Recherches courriers entrants"
 msgid "Incoming mails"
 msgstr "Courrier entrant"
 
-#: ./browser/settings.py:1155
+#: ./browser/settings.py:1371
 msgid "Incoming mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 
@@ -501,15 +609,19 @@ msgstr "Profil de base pour mio.dms.mail"
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
-#: ./browser/settings.py:280
+#: ./browser/settings.py:394
 msgid "Lastname Firstname"
 msgstr "Nom Prénom"
 
-#: ./subscribers.py:758
+#: ./subscribers.py:851
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./browser/settings.py:206
+#: ./content/behaviors.py:132
+msgid "List of users who have to sign this document"
+msgstr "Liste des signataires (avec l'intitulé de la fonction occupée)"
+
+#: ./browser/settings.py:212
 msgid "Lowest N+ level, or agent"
 msgstr "* Vers N+-, ou agent"
 
@@ -525,7 +637,7 @@ msgstr "Listing courrier tabulé"
 msgid "Mail listing template sheet with details"
 msgstr "Listing courrier détaillé"
 
-#: ./browser/settings.py:343
+#: ./browser/settings.py:362
 #: ./dmsmail.py:247
 msgid "Mail type"
 msgstr "Type de courrier"
@@ -550,7 +662,7 @@ msgstr "Champs obligatoires manquants: ${msg}"
 msgid "Multiple annexes"
 msgstr "Annexes multiples"
 
-#: ./browser/settings.py:271
+#: ./browser/settings.py:385
 msgid "No check"
 msgstr "Utilisateur assigné non obligatoire"
 
@@ -570,15 +682,20 @@ msgstr "Il n'y a aucun dossier où vous pouvez ajouter des modèles."
 msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
-#: ./browser/settings.py:587
+#: ./browser/settings.py:311
+#: ./content/behaviors.py:90
+msgid "Number"
+msgstr "Numéro"
+
+#: ./browser/settings.py:717
 msgid "ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />When activating this option, a group encoder function is added in the configuration, a new field is added to the contact form to choose the creating group and permissions are given to the selected creating group. Contacts are then separately handled following the creating groups. <br />This option can be combined with the mail creating group option."
 msgstr "<span class='beware'>Une fois activée, cette option ne peut pas être annulée facilement !!</span> <br />En activant cette option, une nouvelle fonction est ajoutée dans la configuration, ainsi qu'un nouveau champ dans le formulaire d'un contact pour choisir le groupe indicateur. Des permissions spécifiques en découlent pour le groupe indicateur sélectionné. Les contacts sont alors gérés séparément en fonction du nouveau champ.<br />Cette option peut être combinée avec celles de même nom définie sur les courriers entrant et/ou sortant."
 
-#: ./browser/settings.py:389
+#: ./browser/settings.py:503
 msgid "ONCE ACTIVATED, THIS OPTION CAN'T BE EASILY UNDONE !! <br />When activating this option, a group encoder function is added in the configuration, a new field is added to the mail form to choose the creating group and permissions are given to the selected creating group. Mails are then separately handled following the creating groups. <br />The creating group can be preset in scanning program. It's then possible to have multiple scanners and separated 'encoder' groups. The list of 'encoder' groups, can be generated to be used in 'scanner program'."
 msgstr "<span class='beware'>Une fois activée, cette option ne peut pas être annulée facilement !!</span> <br />En activant cette option, une nouvelle fonction est ajoutée dans la configuration, ainsi qu'un nouveau champ dans le formulaire du courrier pour choisir le groupe indicateur. Des permissions spécifiques en découlent pour le groupe indicateur sélectionné. <br />Le groupe indicateur peut être présélectionné dans le programme de scan des courriers. Il est alors possible de gérer plusieurs points de scan ayant chacun leur groupe indicateur spécifique. La liste des groupes indicateur peut être exportée pour être encodée dans le programme de scan."
 
-#: ./browser/settings.py:340
+#: ./browser/settings.py:454
 msgid "Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
 msgstr "Une fois l'élément créé et utilisé, la zone 'Valeur stockée' ne doit plus être modifiée."
 
@@ -600,11 +717,11 @@ msgstr "Recherches organisations"
 msgid "Original document in service"
 msgstr "Le document original est dans le service"
 
-#: ./browser/settings.py:227
+#: ./browser/settings.py:262
 msgid "Original email pattern"
 msgstr "Email original (expr. re.)"
 
-#: ./browser/settings.py:356
+#: ./browser/settings.py:470
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
@@ -617,12 +734,12 @@ msgstr "Email de l'expéditeur original"
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
-#: ./browser/settings.py:539
+#: ./browser/settings.py:669
 #: ./setuphandlers.py:2743
 msgid "Outgoing email"
 msgstr "Email sortant"
 
-#: ./browser/settings.py:443
+#: ./browser/settings.py:558
 #: ./migrations/migrate_to_0_2.py:126
 #: ./setuphandlers.py:2469
 msgid "Outgoing mail"
@@ -638,7 +755,7 @@ msgstr "Recherches courriers sortants"
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
-#: ./browser/settings.py:1159
+#: ./browser/settings.py:1375
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr "Regroupement des fiches du dossier Courrier sortant (mont, week, day)"
 
@@ -664,7 +781,7 @@ msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la f
 msgid "Position required for fields: ${msg}"
 msgstr "Position obligatoire pour les champs: ${msg}"
 
-#: ./browser/settings.py:503
+#: ./browser/settings.py:618
 msgid "Post mailing"
 msgstr "Publipostage postal"
 
@@ -676,7 +793,7 @@ msgstr "Date précise de scan"
 msgid "Print template"
 msgstr "Pour impression"
 
-#: ./browser/settings.py:135
+#: ./browser/settings.py:141
 msgid "Read TAL condition"
 msgstr "Condition d'affichage"
 
@@ -691,6 +808,11 @@ msgstr "Services en copie"
 #: ./browser/templates/sections.pt:25
 msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
+
+#: ./browser/settings.py:319
+#: ./content/behaviors.py:98
+msgid "Related userid will be the signer. Position name of the held position will be used."
+msgstr "Le signataire est l'utilisateur lié à la fonction occupée dont l'intitulé est utilisé dans la signature."
 
 #: ./columns.py:492
 msgid "Relative path"
@@ -708,17 +830,25 @@ msgstr "Répondre"
 msgid "Reply to ${ref}"
 msgstr "Répondre à ${ref}"
 
-#: ./browser/settings.py:474
+#: ./browser/settings.py:589
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./examples.py:913
+#: ./examples.py:950
 msgid "Response: "
 msgstr "Réponse: "
 
-#: ./browser/settings.py:418
+#: ./browser/settings.py:532
 msgid "Routing"
 msgstr "Routage"
+
+#: ./browser/settings.py:625
+msgid "Rules are read in order. Conditions must be left empty if not relevant. Dates with format YYYY/MM/DD."
+msgstr "Les règles de signataires sont lues dans l'ordre et appliquées sur la fiche après une modification. Les critères peuvent être laissés vides. Les dates sont au format AAAA/MM/JJ. Un sceau doit avoir le numéro 0."
+
+#: ./content/behaviors.py:145
+msgid "Seal"
+msgstr "Sceau"
 
 #: ./browser/batchactions.py:240
 msgid "Select multiple values (CTRL+click)"
@@ -728,11 +858,15 @@ msgstr "Sélectionner les éléments (CTRL+clic)"
 msgid "Send email"
 msgstr "Envoyer email"
 
-#: ./browser/settings.py:558
+#: ./browser/settings.py:688
 msgid "Send email with sender as reply to"
 msgstr "Envoi d'email: l'email d'expédition est placé dans 'Répondre à'"
 
-#: ./browser/settings.py:493
+#: ./browser/settings.py:370
+msgid "Send mode"
+msgstr "Forme d'envoi"
+
+#: ./browser/settings.py:608
 #: ./dmsmail.py:697
 msgid "Send modes"
 msgstr "Formes d'envoi"
@@ -742,43 +876,62 @@ msgstr "Formes d'envoi"
 msgid "Sender"
 msgstr "Expéditeurs"
 
-#: ./browser/settings.py:300
+#: ./browser/settings.py:414
 msgid "Sender held position email is used"
 msgstr "L'email de la fonction occupée (renseignée comme expéditeur)"
 
-#: ./browser/settings.py:301
+#: ./browser/settings.py:415
 msgid "Sender held position service email is used"
 msgstr "L'email du service de la fonction occupée (renseignée comme expéditeur)"
 
-#: ./browser/settings.py:478
+#: ./browser/settings.py:593
 msgid "Sender list is sorted on firstname"
 msgstr "La liste des expéditeurs est triée selon le prénom"
 
-#: ./browser/settings.py:165
+#: ./browser/settings.py:171
 msgid "Server"
 msgstr "Boîte mail"
 
-#: ./browser/settings.py:177
+#: ./browser/settings.py:183
 msgid "Set None"
 msgstr "* Pas de valeur"
+
+#: ./browser/settings.py:318
+#: ./content/behaviors.py:97
+#: ./vocabularies.py:130
+msgid "Signer"
+msgstr "Signataire"
+
+#: ./browser/settings.py:312
+#: ./content/behaviors.py:91
+msgid "Signer number on the document."
+msgstr "Numéro du signataire sur le document."
+
+#: ./browser/settings.py:887
+msgid "Signer rules"
+msgstr "Règles de signataires"
+
+#: ./content/behaviors.py:131
+msgid "Signers"
+msgstr "Signataires"
 
 #: ./profiles.zcml:45
 msgid "Single steps profile for imio.dms.mail"
 msgstr "Single steps profile for imio.dms.mail"
 
-#: ./browser/settings.py:431
+#: ./browser/settings.py:545
 msgid "State"
 msgstr "État"
 
-#: ./browser/settings.py:263
+#: ./browser/settings.py:301
 msgid "State value"
 msgstr "Valeur état"
 
-#: ./browser/settings.py:369
+#: ./browser/settings.py:483
 msgid "States for which to display remark icon"
 msgstr "États pour lesquels afficher l'icône de \"remarque\" "
 
-#: ./browser/settings.py:314
+#: ./browser/settings.py:428
 msgid "Stored value/id"
 msgstr "Valeur stockée"
 
@@ -786,15 +939,19 @@ msgstr "Valeur stockée"
 msgid "Style template"
 msgstr "Styles de base"
 
-#: ./browser/settings.py:576
+#: ./browser/settings.py:706
 msgid "TAL compliant with variables: view, context, user, dghv, sender, request and modules."
 msgstr "<span class='beware'>À modifier en toute connaissance de cause !</span><br />Peut contenir du <a href='https://pagetemplates.readthedocs.io/en/latest/tal.html' target='_blank'>TAL</a> avec les variables: view, context, user, dghv, sender, request et modules."
 
-#: ./browser/settings.py:233
+#: ./browser/settings.py:378
+msgid "TAL condition"
+msgstr "Condition TAL"
+
+#: ./browser/settings.py:268
 msgid "TAL condition 1"
 msgstr "Condition TAL 1"
 
-#: ./browser/settings.py:248
+#: ./browser/settings.py:286
 msgid "TAL condition 2"
 msgstr "Condition TAL 2"
 
@@ -834,11 +991,11 @@ msgstr "Cette adaptation de workflow est seulement valable pour le workflow '${w
 msgid "Toggle preview read mode"
 msgstr "Activer/Désactiver le mode lecture des courriers"
 
-#: ./browser/settings.py:221
+#: ./browser/settings.py:256
 msgid "Transfer email pattern"
 msgstr "Email qui transfère (expr. re.)"
 
-#: ./browser/settings.py:178
+#: ./browser/settings.py:184
 msgid "Transferer"
 msgstr "* Suivant email transfert"
 
@@ -846,7 +1003,11 @@ msgstr "* Suivant email transfert"
 msgid "Transition"
 msgstr "Transition"
 
-#: ./browser/settings.py:254
+#: ./browser/settings.py:354
+msgid "Treating group"
+msgstr "Service traitant"
+
+#: ./browser/settings.py:292
 msgid "Treating group value"
 msgstr "Valeur service traitant"
 
@@ -860,15 +1021,15 @@ msgstr "Service traitant"
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
-#: ./browser/settings.py:339
+#: ./browser/settings.py:453
 msgid "Types of incoming mail"
 msgstr "Types de courrier entrant"
 
-#: ./browser/settings.py:460
+#: ./browser/settings.py:575
 msgid "Types of outgoing mail"
 msgstr "Types de courrier sortant"
 
-#: ./browser/settings.py:191
+#: ./browser/settings.py:197
 msgid "Uniorg only"
 msgstr "* Seulement si 1 service"
 
@@ -876,19 +1037,36 @@ msgstr "* Seulement si 1 service"
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 
-#: ./browser/settings.py:487
+#: ./content/behaviors.py:60
+msgid "Usages"
+msgstr "Utilisé comme"
+
+#: ./browser/settings.py:602
 msgid "User fullname used format"
 msgstr "Format du nom complet de l'utilisateur"
 
-#: ./browser/settings.py:613
+#: ./browser/settings.py:327
+#: ./content/behaviors.py:105
+msgid "User(s) that can approve the item before the signing session."
+msgstr "Personnes qui peuvent approuver avant signature."
+
+#: ./browser/settings.py:743
 msgid "Users hidden in dashboards filter"
 msgstr "Utilisateurs à ne pas afficher dans les filtres \"Utilisateur assigné\" ou \"Auteur\" des tableaux de bord"
+
+#: ./browser/settings.py:342
+msgid "Valid from"
+msgstr "Du (inclus)"
+
+#: ./browser/settings.py:348
+msgid "Valid until"
+msgstr "Au (inclus)"
 
 #: ./profiles/default/actions.xml
 msgid "Video guides"
 msgstr "Guides Vidéo"
 
-#: ./browser/settings.py:140
+#: ./browser/settings.py:146
 msgid "Write TAL condition"
 msgstr "Condition d'édition"
 
@@ -900,37 +1078,49 @@ msgstr "Rédiger email"
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)"
 
-#: ./subscribers.py:893
+#: ./subscribers.py:986
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
-#: ./subscribers.py:107
+#: ./subscribers.py:110
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr "Vous ne pouvez pas copier cet élément '${title}' ! Pour un élément du tableau, vous devez utiliser les boutons sous le tableau."
 
-#: ./subscribers.py:853
+#: ./subscribers.py:946
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:792
+#: ./subscribers.py:885
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:752
+#: ./subscribers.py:845
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:722
+#: ./subscribers.py:815
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:711
+#: ./subscribers.py:804
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./subscribers.py:132
+#: ./subscribers.py:135
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
+
+#: ./subscribers.py:433
+msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
+msgstr "Vous ne pouvez pas avoir un sceau sans signature électronique ! Il faut adapter les règles dans la configuration !"
+
+#: ./subscribers.py:444
+msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
+msgstr "Vous ne pouvez pas avoir le même signataire plus fois (${signer_title}) ! Il faut adapter les règles dans la configuration !"
+
+#: ./browser/settings.py:218
+msgid "You cannot select approvings and no validation at the same time."
+msgstr "Vous ne pouvez pas sélectionner des approbateurs et pas de signature en même temps."
 
 #: ./dmsmail.py:1230
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
@@ -1214,7 +1404,7 @@ msgid "outgoing_mail_tab"
 msgstr "Sortant"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./subscribers.py:349
+#: ./subscribers.py:352
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
