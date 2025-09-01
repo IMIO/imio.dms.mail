@@ -621,7 +621,7 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     omail_signer_rules = schema.List(
-        title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
+        title=_(u"${type} signers rules", mapping={"type": _("Outgoing mail")}),
         description=_(u"Rules are read in order. Conditions must be left empty "
                       u"if not relevant. Dates with format YYYY/MM/DD."),
         value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),

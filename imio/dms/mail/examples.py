@@ -781,7 +781,7 @@ def configure_contact_plone_group(context):
                     "number": u"2",
                     "primary_organization": dep0.UID(),
                 },
-                "hps": {"phone": u"012345679", "label": u"Responsable {}"},
+                "hps": {"phone": u"012345679", "label": u"Responsable {}", "usages": ["approving"]},
             },
             "agent": {
                 "pers": {
@@ -849,10 +849,10 @@ def configure_contact_plone_group(context):
             for fld, val in persons[pers_id]["pers"].items():
                 setattr(person, fld, val)
             person.reindexObject()
-            for hp in person.objectValues():
+            for i, hp in enumerate(person.objectValues()):
                 setattr(hp, "phone", persons[pers_id]["hps"]["phone"])
                 setattr(hp, "label", persons[pers_id]["hps"]["label"].format(hp.get_organization().title))
-                if "usages" in persons[pers_id]["hps"]:
+                if "usages" in persons[pers_id]["hps"] and not i:  # doing for only one hp
                     setattr(hp, "usages", persons[pers_id]["hps"]["usages"])
                 api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
                 hp.reindexObject()
