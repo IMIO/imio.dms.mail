@@ -865,13 +865,13 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 {
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select {
     width: 100%;
     white-space: normal;
-    word-wrap: break-word; /* Force la coupure des mots longs */
+    word-wrap: break-word;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select option {
     white-space: normal;
     word-wrap: break-word;
-    padding: 2px 4px; /* Ajoute un peu d'espacement */
+    /*padding: 2px 4px;*/
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4 label {

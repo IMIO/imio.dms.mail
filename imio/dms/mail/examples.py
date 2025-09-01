@@ -837,7 +837,7 @@ def configure_contact_plone_group(context):
                     "number": u"1",
                     "primary_organization": departments[6].UID(),
                 },
-                "hps": {"phone": u"012345670", "label": u"Directeur Général {}", "usages": ["signer"]},
+                "hps": {"phone": u"012345670", "label": u"Bourgmestre {}", "usages": ["signer"]},
             },
         }
         pf = contacts["personnel-folder"]
@@ -852,6 +852,8 @@ def configure_contact_plone_group(context):
             for hp in person.objectValues():
                 setattr(hp, "phone", persons[pers_id]["hps"]["phone"])
                 setattr(hp, "label", persons[pers_id]["hps"]["label"].format(hp.get_organization().title))
+                if "usages" in persons[pers_id]["hps"]:
+                    setattr(hp, "usages", persons[pers_id]["hps"]["usages"])
                 api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
                 hp.reindexObject()
 

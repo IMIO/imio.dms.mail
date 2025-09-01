@@ -10,7 +10,8 @@ Changelog
   [chris-adam, sgeulette]
 - Added signers routing settings.
   [chris-adam, sgeulette]
-
+- Added signed state in om workflow.
+  [sgeulette]
 
 3.0 (2021-09-30)
 ----------------

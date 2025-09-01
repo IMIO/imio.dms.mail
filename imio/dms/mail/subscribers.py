@@ -27,7 +27,6 @@ from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
-
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import default_creating_group
@@ -35,7 +34,6 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
-
 # from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
@@ -48,7 +46,6 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
-
 # from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
@@ -74,7 +71,6 @@ from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
-
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
@@ -394,7 +390,7 @@ def dmsoutgoingmail_transition(mail, event):
 def dmsoutgoingmail_modified(mail, event):
     # Do not update signers field if mail is sent or to be signed
     mail_state = api.content.get_state(mail)
-    if mail_state in ("sent", "to_be_signed"):
+    if mail_state in ("sent", "signed", "to_be_signed"):
         return
 
     today = datetime.date.today()
@@ -403,7 +399,7 @@ def dmsoutgoingmail_modified(mail, event):
         mail.signers = []
         signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
         used_numbers = set()
-        used_persons = set()
+        used_signers = set()
         for signer in signer_rules:
             if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
                 continue
@@ -426,32 +422,33 @@ def dmsoutgoingmail_modified(mail, event):
             if signer["number"] == 0:
                 if signer["signer"] == u"_seal_":
                     mail.seal = True
+                    mail.esign = True
                 else:
                     mail.seal = False
-                continue
             elif signer["number"] == 1:
                 mail.esign = signer.get("esign", False)
-                if not mail.esign and mail.seal:
-                    raise Invalid(_("You cannot have a seal without electronic signature !"))
+
+            # only check if we have at least a signer 0 and 1 because 0 could be after 1 in rules
+            if 0 in used_numbers and 1 in used_numbers and mail.seal and not mail.esign:
+                raise Invalid(_(u"You cannot have a seal without electronic signature ! You have to adapt the rules !"))
+
+            if signer["number"] == 0:
+                continue
 
             person = None
-            if signer["signer"] == u"_seal_":
-                signer_title = _("seal")
-                person = signer_title
-            elif signer["signer"] != u"_empty_":
-                signer_hp = uuidToObject(signer["signer"])
-                person = signer_hp.get_person().UID()
-                signer_title = signer_hp.get_full_title()
-            if person in used_persons:
-                mail.signers = None
+            if signer["signer"] != u"_empty_":
+                signer_hp = uuidToObject(signer["signer"], unrestricted=True)
+                person = signer_hp.get_person()
+            if person.UID() in used_signers:
                 raise Invalid(
                     _(
-                        "You cannot have the same signer (${signer_title}) multiple times !",
-                        mapping={"signer_title": signer_title},
+                        u"You cannot have the same signer (${signer_title}) multiple times ! "
+                        u"You have to adapt the rules !",
+                        mapping={"signer_title": person.get_title()},
                     )
                 )
             if person:
-                used_persons.add(person)
+                used_signers.add(person.UID())
 
             mail.signers.append(
                 {
@@ -467,17 +464,17 @@ def dmsoutgoingmail_modified(mail, event):
         expected_numbers = list(range(1, max(numbers) + 1))
         missing_numbers = [num for num in expected_numbers if num not in numbers]
         if missing_numbers:
-            mail.signers = None
-            mail.esign = None
             raise Invalid(
                 _(
-                    "A signer is missing at position: ${positions} !",
+                    u"A signer is missing at position: ${positions} ! You have to adapt the rules !",
                     mapping={"positions": safe_unicode(", ".join(map(str, missing_numbers)))},
                 )
             )
+    else:
+        # if no signers, we add an empty one to not do again automatic assignment at next modification
+        mail.signers = [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"]}]
 
-    if mail.signers:
-        mail.signers.sort(key=itemgetter("number"))
+    mail.signers.sort(key=itemgetter("number"))
 
 
 def dv_handle_file_creation(obj, event):

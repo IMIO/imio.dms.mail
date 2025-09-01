@@ -227,7 +227,7 @@ def validate_approvings(approvings):
 
 def validate_signer_approvings(data, msg):
     if u"_themself_" in data.get("approvings", []):
-        signer_person = uuidToObject(data["signer"]).get_person()
+        signer_person = uuidToObject(data["signer"], unrestricted=True).get_person()
         if signer_person.UID() in data["approvings"]:
             raise Invalid(msg)
 
