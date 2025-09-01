@@ -1084,6 +1084,9 @@ def held_position_modified(obj, event):
 
 def held_position_removed(obj, event):
     if IPersonnelContact.providedBy(obj):
+        # at site removal
+        if event.object.portal_type == "Plone Site":
+            return
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
 
