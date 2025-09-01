@@ -81,11 +81,11 @@ class TestExamples(unittest.TestCase):
         # checking groups
         acl_users = getToolByName(self.portal, "acl_users")
         lecteurs = [gd for gd in acl_users.searchGroups() if gd["groupid"].endswith("_lecteur")]
-        self.assertEquals(len(lecteurs), 11)
+        self.assertEquals(len(lecteurs), 12)
         # checking users
         mt = getToolByName(self.portal, "portal_membership")
         users = [member for member in mt.listMembers() if member.getProperty("fullname").find(" ") >= 1]
-        self.assertEquals(len(users), 6)
+        self.assertEquals(len(users), 7)
 
     def test_configure_batch_import(self):
         registry = getUtility(IRegistry)

@@ -90,6 +90,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
@@ -111,6 +112,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
@@ -131,6 +133,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
@@ -150,6 +153,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("agent1", u"Stef Agent"),
                 ("test-user", u"test-user (Désactivé)"),
@@ -230,7 +234,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     def test_OMActiveSenderVocabulary(self):
         voc_inst = OMActiveSenderVocabulary()
-        self.assertEqual(len(voc_inst(self.omail)), 21)
+        self.assertEqual(len(voc_inst(self.omail)), 23)
         # get first part, as unique value, keeping order
         res = OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]).keys()
         # res is sorted by firstname
@@ -250,10 +254,10 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         pf = self.portal.contacts["personnel-folder"]
         api.content.transition(obj=pf["agent"]["agent-grh"], transition="deactivate")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
-        self.assertEqual(len(voc_inst(self.omail)), 20)
+        self.assertEqual(len(voc_inst(self.omail)), 22)
         # full sender vocabulary
         voc_all_inst = OMSenderVocabulary()
-        self.assertEqual(len(voc_all_inst(self.omail)), 29)
+        self.assertEqual(len(voc_all_inst(self.omail)), 34)
 
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
@@ -309,7 +313,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(voc_inst1(self.imail)), 0)
         self.assertEqual(len(voc_inst2(self.imail)), 0)
         configure_group_encoder("imail_group_encoder")
-        self.assertEqual(len(voc_inst1(self.imail)), 11)
+        self.assertEqual(len(voc_inst1(self.imail)), 12)
         self.assertEqual(len(voc_inst2(self.imail)), 0)
         # defining specific group_encoder orgs
         selected_orgs = [t.value for i, t in enumerate(voc_inst1(self.imail)) if i <= 1]

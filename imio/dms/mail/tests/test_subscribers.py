@@ -27,8 +27,10 @@ from zExceptions import Redirect
 from zope.annotation import IAnnotations
 from zope.component import getUtility
 from zope.interface import Interface
+from zope.interface import Invalid
 from zope.intid import IIntIds
 from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import modified
 from zope.lifecycleevent import ObjectModifiedEvent
 
 import unittest
@@ -55,6 +57,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             }
         )
         self.omf = self.portal["outgoing-mail"]
+        self.pgof = self.portal["contacts"]["plonegroup-organization"]
 
     def test_item_copied(self):
         # check if protection markers are removed from copied item
@@ -160,6 +163,586 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         api.content.transition(self.imail, "close")
         self.assertEqual(self.imail.assigned_user, "agent")
 
+    def test_dmsoutgoingmail_modified(self):
+        dirg = self.portal["contacts"]["personnel-folder"]["dirg"]
+        dirg_hp = dirg["directeur-general-direction-generale"]
+        bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
+        bourgmestre_hp = bourgmestre["bourgmestre-college-communal"]
+        # bourgmestre_hp.usages = ["signer", "approving"]
+        # modified(bourgmestre_hp, Attributes(Interface, "usages"))
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="type1",
+        )
+
+        # Test no rules
+        api.portal.set_registry_record(rk, [])
+        modified(omail)
+        self.assertListEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+
+        # Test treating groups
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [self.pgof["direction-generale"].UID()],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [self.pgof["direction-financiere"].UID()],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+
+        # Test mail types
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": ["type1"],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+
+        omail.signers = None
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types",
+            [
+                {"dtitle": u"Type 1", "active": True, "value": u"type1"},
+                {"dtitle": u"Type 2", "active": True, "value": u"type2"},
+            ],
+        )
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": ["type2"],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+
+        # Test valid_from / valid_until
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": u"2100/01/01",
+                    "valid_from": u"2000/01/01",
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": u"2100/01/01",
+                    "valid_from": u"2099/01/01",
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": u"2001/01/01",
+                    "valid_from": u"2000/01/01",
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+
+        # Test TAL condition
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": u"python:True",
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": u"python:False",
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+
+        # Test skip number if already present
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": dirg_hp.UID(),
+                },
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+
+        # Test seal (number 0)
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": False,
+                    "number": 0,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": u"_seal_",
+                },
+            ],
+        )
+        self.assertIsNone(omail.seal)
+        modified(omail)
+        self.assertTrue(omail.seal)
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+
+        # Test sort signers
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 2,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": dirg_hp.UID(),
+                },
+            ],
+        )
+        modified(omail)
+        self.assertEqual(
+            omail.signers,
+            [
+                {"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1},
+                {"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 2},
+            ],
+        )
+
+        # Test duplicate signer
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 2,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(cm.exception.message,
+                         u"You cannot have the same signer (${signer_title}) multiple times ! "
+                         u"You have to adapt the rules !")
+
+        intids = getUtility(IIntIds)
+        params = {
+            "position": RelationValue(intids.getId(
+                self.portal["contacts"]["plonegroup-organization"]["college-communal"])),
+            "usages": ["signer"],
+        }
+        bourgmestre_hp2 = bourgmestre.invokeFactory("held_position", "directeur-general-college-communal-2", **params)
+        bourgmestre_hp2 = bourgmestre[bourgmestre_hp2]
+        modified(bourgmestre_hp2, Attributes(Interface, "usages"))
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 2,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp2.UID(),
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(cm.exception.message,
+                         u"You cannot have the same signer (${signer_title}) multiple times ! "
+                         u"You have to adapt the rules !")
+
+        # Test missing number
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": dirg_hp.UID(),
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 3,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(cm.exception.message,
+                         u"A signer is missing at position: ${positions} ! You have to adapt the rules !")
+
+        # Test seal + esign
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 0,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": u"_seal_",
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+            ],
+        )
+        modified(omail)
+        self.assertTrue(omail.esign)
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+
+        omail.signers = None
+        omail.seal = None
+        omail.esign = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": False,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+            ],
+        )
+        modified(omail)
+        self.assertFalse(omail.esign)
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+
+        omail.signers = None
+        omail.seal = None
+        omail.esign = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 0,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": u"_seal_",
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": False,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(cm.exception.message,
+                         u"You cannot have a seal without electronic signature ! You have to adapt the rules !")
+
+        # Test mail already has signers
+        omail.signers = [
+            {
+                "signer": dirg_hp.UID(),
+                "approvings": [u"_themself_", bourgmestre_hp.UID()],
+                "number": 1,
+            }
+        ]
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": False,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                },
+            ],
+        )
+        modified(omail)
+        self.assertEqual(
+            omail.signers,
+            [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_", bourgmestre_hp.UID()],
+                    "number": 1,
+                }
+            ],
+        )
+
+        # Test mail in send or to_be_signed states
+        api.content.transition(omail, to_state="sent")
+        omail.signers = None
+        modified(omail)
+        self.assertIsNone(omail.signers)
+
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')
         task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
@@ -214,6 +797,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
@@ -235,6 +819,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 ("lecteur", u"Jef Lecteur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef 2"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
@@ -252,6 +837,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 ("encodeur", u"Jean Encodeur"),
                 ("dirg", u"Maxime DG"),
                 ("chef", u"Michel Chef 2"),
+                ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent", u"Fred Agent (Désactivé)"),
@@ -327,7 +913,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         e_groups.append(("expedition", ("Contributor",)))
         e_groups.append(("dir_general", ("Contributor",)))
         self.assertSetEqual(set(self.omf.get_local_roles()), set(e_groups))
-        self.assertEqual(len(self.omf.get_local_roles()), 14)
+        self.assertEqual(len(self.omf.get_local_roles()), 15)
         set_registry_organizations(get_registry_organizations()[:3])
         self.assertEqual(len(self.omf.get_local_roles()), 6)
         # TODO tests other changes !!

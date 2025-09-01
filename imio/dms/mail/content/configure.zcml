@@ -28,4 +28,16 @@
         provides=".behaviors.IDmsMailDataTransfer"
         />
 
+    <plone:behavior
+        title="Dms Mail HP Usages"
+        description="Can choose possible usages (on held position)"
+        provides=".behaviors.IUsagesBehavior"
+        />
+
+    <plone:behavior
+        title="Dms Mail Signers"
+        description="Add a field to list the users that have to sign the document"
+        provides=".behaviors.ISigningBehavior"
+        />
+
 </configure>

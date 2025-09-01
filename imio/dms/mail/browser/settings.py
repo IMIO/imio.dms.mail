@@ -2,6 +2,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
@@ -14,15 +15,17 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
-from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import vocabularyname_to_terms
+from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
+from imio.helpers.content import uuidToObject
 from natsort import humansorted
 from operator import attrgetter
 from plone import api
@@ -46,18 +49,21 @@ from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 from z3c.form.validator import NoInputData
 from zope import schema
 from zope.component import getUtility
-# from zope.interface import provider
-# from zope.schema.interfaces import IContextSourceBinder
+from zope.globalrequest import getRequest
 from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
 from zope.interface import invariant
+from zope.interface import provider
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema import ValidationError
+from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
+import datetime
 import logging
 import re
 
@@ -208,7 +214,36 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
-class IRuleSchema(Interface):
+class InvalidApprovings(ValidationError):
+    __doc__ = _(u"You cannot select approvings and no validation at the same time.")
+
+
+def validate_approvings(approvings):
+    if u"_empty_" in approvings and len(approvings) > 1:
+        raise InvalidApprovings(approvings)
+    return True
+
+
+def validate_signer_approvings(data, msg):
+    if u"_themself_" in data.get("approvings", []):
+        signer_person = uuidToObject(data["signer"], unrestricted=True).get_person()
+        if signer_person.UID() in data["approvings"]:
+            raise Invalid(msg)
+
+
+@provider(IContextSourceBinder)
+def signing_signers_with_seal(context):
+    """Return held positions vocabulary for signing."""
+    terms = [
+        SimpleTerm(value=None, title=_("Choose a value !")),
+        SimpleTerm(value=u"_empty_", title=_("* No signature")),
+        SimpleTerm(value=u"_seal_", title=_("* Seal signature")),
+    ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
+class IBaseRoutingRuleSchema(Interface):
 
     forward = schema.Choice(
         title=_("Forward Type"),
@@ -236,7 +271,10 @@ class IRuleSchema(Interface):
     )
 
 
-class IRoutingSchema(IRuleSchema):
+class IRoutingSchema(IBaseRoutingRuleSchema):
+    """
+    Routing schema for incoming emails
+    """
 
     user_value = schema.Choice(
         title=_(u"Assigned user value"),
@@ -257,12 +295,88 @@ class IRoutingSchema(IRuleSchema):
     )
 
 
-class IStateSetSchema(IRuleSchema):
+class IStateSetSchema(IBaseRoutingRuleSchema):
 
     state_value = schema.Choice(
         title=_(u"State value"),
         vocabulary="imio.dms.mail.StatesRoutingValueVocabulary",
         required=True,
+    )
+
+
+class ISignerRuleSchema(Interface):
+    """ Routing schema of outgoing mail signer rule"""
+
+    number = schema.Choice(
+        title=_(u"Number"),
+        description=_(u"Signer number on the document."),
+        vocabulary=SimpleVocabulary.fromValues(range(0, 10)),
+        required=True,
+    )
+
+    signer = schema.Choice(
+        title=_(u"Signer"),
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
+        source=signing_signers_with_seal,
+        required=True,
+        default=None,
+    )
+
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
+        required=True,
+        constraint=validate_approvings,
+        min_length=1,
+    )
+    widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    esign = schema.Bool(
+        title=_(u"Electronic signature"),
+        description=_(u"Enable electronic signature for this document."),
+        default=True,
+    )
+
+    valid_from = schema.TextLine(
+        title=_(u"Valid from"),
+        description=_(u"Affected from date. Format: YYYY/MM/DD."),
+        required=False,
+    )
+
+    valid_until = schema.TextLine(
+        title=_(u"Valid until"),
+        description=_(u"Affected until date. Format: YYYY/MM/DD."),
+        required=False,
+    )
+
+    treating_groups = schema.List(
+        title=_(u"Treating group"),
+        description=_(u"Affected groups for this rule."),
+        value_type=schema.Choice(vocabulary="collective.dms.basecontent.treating_groups"),
+        required=False,
+    )
+    widget('treating_groups', CheckBoxFieldWidget, multiple='multiple')
+
+    mail_types = schema.List(
+        title=_("Mail type"),
+        description=_(u"Affected mail types for this rule."),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.OMMailTypesVocabulary"),
+        required=False,
+    )
+    widget('mail_types', CheckBoxFieldWidget, multiple='multiple')
+
+    send_modes = schema.List(
+        title=_("Send mode"),
+        description=_(u"Affected send modes for this rule."),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.OMSendModesVocabulary"),
+        required=False,
+    )
+    widget('send_modes', CheckBoxFieldWidget, multiple='multiple')
+
+    tal_condition = schema.TextLine(
+        title=_("TAL condition"),
+        required=False,
     )
 
 
@@ -438,6 +552,7 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     # FIELDSET OM
+
     model.fieldset(
         "outgoingmail",
         label=_(u"Outgoing mail"),
@@ -451,11 +566,11 @@ class IImioDmsMailConfig(model.Schema):
             "omail_fullname_used_form",
             "omail_send_modes",
             "omail_post_mailing",
+            "omail_signer_rules",
             "omail_fields",
             "omail_group_encoder",
         ],
     )
-
     omail_types = schema.List(
         title=_(u"Types of outgoing mail"),
         description=_(
@@ -464,7 +579,7 @@ class IImioDmsMailConfig(model.Schema):
         value_type=DictRow(title=_("Mail type"), schema=ITableListSchema),
     )
 
-    widget("omail_types", DataGridFieldFactory, allow_reorder=True)
+    widget("omail_types", DataGridFieldFactory)
 
     omail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
@@ -503,6 +618,21 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u"Post mailing"),
         description=_(u"Do mailing for each postal sending type."),
         default=True,
+    )
+
+    omail_signer_rules = schema.List(
+        title=_(u"${type} routing", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Rules are read in order. Conditions must be left empty "
+                      u"if not relevant. Dates with format YYYY/MM/DD."),
+        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "omail_signer_rules",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=True,
     )
 
     omail_fields = schema.List(
@@ -741,6 +871,67 @@ class IImioDmsMailConfig(model.Schema):
                         )
             except NoInputData:
                 pass
+        # check omail_signer_rules
+        if fieldset == "outgoingmail" or not fieldset:
+            for i, rule in enumerate(data.omail_signer_rules or [], start=1):
+                # check dates
+                today = datetime.date.today()
+                for date_fld, date_title in (("valid_from", u"Valid from"), ("valid_until", u"Valid until")):
+                    if rule[date_fld]:
+                        try:
+                            datetime.datetime.strptime(rule[date_fld], "%Y/%m/%d")
+                        except ValueError:
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} », rule ${rule} has an invalid date in « ${date} » field",
+                                    mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
+                                             "date": _(date_title)},
+                                )
+                            )
+                if (rule["valid_from"] and rule["valid_until"] and  # noqa W504
+                        datetime.datetime.strptime(rule["valid_until"], "%Y/%m/%d") <  # noqa W504
+                        datetime.datetime.strptime(rule["valid_from"], "%Y/%m/%d")):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal "
+                            u"to « ${from} »",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
+                                     "until": _(u"Valid until"), "from": _(u"Valid from")},
+                        )
+                    )
+                if rule["valid_until"] and datetime.datetime.strptime(rule["valid_until"], "%Y/%m/%d").date() < today:
+                    api.portal.show_message(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal "
+                            u"to today",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
+                                     "until": _(u"Valid until")},
+                        ),
+                        request=getRequest(),
+                        type="warning",
+                    )
+                # check number
+                if rule["number"] == 0 and rule["signer"] not in (u"_seal_", u"_empty_"):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a number 0 but a signer is set. With 0, it "
+                            u"can only be a seal or no signature.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+                if rule["signer"] == u"_seal_" and rule["number"] != 0:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. "
+                            u"With a seal, it can only be 0.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+                validate_signer_approvings(rule, _(
+                    u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
+                    mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                ))
+
         # check fields
         constraints = {
             "imail_fields": {
@@ -960,6 +1151,31 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS["dmsoutgoingmail"]], "folder_period", event.newValue)
+
+
+def default_creating_group(user=None):
+    """default to current user creating group"""
+    voc = ActiveCreatingGroupVocabulary()(None)
+    creating_groups = set([term.value for term in voc])
+    if not creating_groups:
+        return None
+    if user is None:
+        user = api.user.get_current()
+    # user is anonymous when some widget are accessed in source search or masterselect
+    # check if we have a real user to avoid 404 because get_groups on None user
+    if user.getId():
+        user_groups = get_plone_groups_for_user(user=user)
+        # we check if user is in creating_group for incoming and contact_part for outgoing and contact
+        for fct in (CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX):
+            user_orgs = set([gp[:-14] for gp in user_groups if gp.endswith(fct)])
+            inter = creating_groups & user_orgs
+            if inter:
+                pers = get_person_from_userid(user.getId())
+                if pers and pers.primary_organization and pers.primary_organization in inter:
+                    return pers.primary_organization
+                ordered = [uid for uid in [term.value for term in voc] if uid in inter]
+                return ordered[0]
+    return [term.value for term in voc][0]  # take the first term (following plonegroup-organization items order)
 
 
 def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):

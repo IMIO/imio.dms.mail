@@ -11,6 +11,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.utils import message_status
+from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
@@ -57,7 +58,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
             logger.info("Current migration from version {} to {}".format(old_version, new_version))
-            # TEMPORARY TO 3.1.0
+
             # Update dashboard pod templates
             self.portal["templates"]["export-users-groups"].max_objects = 0
             self.portal["templates"]["all-contacts-export"].max_objects = 0
@@ -69,6 +70,11 @@ class Migrate_To_3_1(Migrator):  # noqa
                 api.portal.get_registry_record(
                     "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
             ))
+
+            # signing
+            self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
+            load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior
+            load_type_from_package("held_position", "profile-imio.dms.mail:default")  # behavior
 
             # Update wf changes
             reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
@@ -85,6 +91,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 logger.info("Updated {} items".format(count))
             else:
                 logger.error("outgoingmail_workflow not reloaded !")
+
             # update localroles
             lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
             changes = False
@@ -151,6 +158,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             createStateCollections(self.portal["outgoing-mail"]["mail-searches"], "dmsoutgoingmail")
             pos = col_folder.getObjectPosition("searchfor_to_be_signed")
             col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
+
             # END
 
             finished = True  # can be eventually returned and set by batched method

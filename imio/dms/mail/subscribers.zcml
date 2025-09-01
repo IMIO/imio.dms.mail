@@ -98,6 +98,12 @@
         handler=".subscribers.dmsoutgoingmail_transition"
       />
 
+    <subscriber
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.dmsoutgoingmail_modified"
+      />
+
     <!-- Various -->
     <subscriber
         for="plone.dexterity.interfaces.IDexterityContent
@@ -237,6 +243,17 @@
              zope.lifecycleevent.interfaces.IObjectMovedEvent"
         handler=".subscribers.organization_modified"
         />
+
+    <subscriber
+        for="collective.contact.core.interfaces.IHeldPosition
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.held_position_modified"
+        />
+
+    <subscriber
+        for="collective.contact.core.interfaces.IHeldPosition
+             zope.app.container.interfaces.IObjectRemovedEvent"
+        handler=".subscribers.held_position_removed" />
 
     <unconfigure>
         <subscriber

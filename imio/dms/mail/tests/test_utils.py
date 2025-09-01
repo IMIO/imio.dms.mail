@@ -363,7 +363,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general"},
+            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
+             "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
         )
 
     def test_UtilsMethods_highest_scan_id(self):
@@ -384,7 +385,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general"},
+            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
+             "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
         )
         # with groups
         self.assertFalse(view.is_in_user_groups(groups=["abc"]))
@@ -512,6 +514,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - B\xc3\xa2timents", "a"),
                 (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
                 (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
+                (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
             ],
         )
 
@@ -529,7 +532,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 {};Direction technique
 {};Direction technique - B\xc3\xa2timents
 {};Direction technique - Voiries
-{};\xc3\x89v\xc3\xa9nements""".format(
+{};\xc3\x89v\xc3\xa9nements
+{};Coll\xc3\xa8ge communal""".format(
                 pgo_contacts["direction-generale"].UID(),
                 pgo_contacts["direction-generale"]["secretariat"].UID(),
                 pgo_contacts["direction-generale"]["grh"].UID(),
@@ -541,6 +545,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 pgo_contacts["direction-technique"]["batiments"].UID(),
                 pgo_contacts["direction-technique"]["voiries"].UID(),
                 pgo_contacts["evenements"].UID(),
+                pgo_contacts["college-communal"].UID(),
             ),
         )
 
@@ -558,7 +563,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 {};Direction technique;a
 {};Direction technique - B\xc3\xa2timents;a
 {};Direction technique - Voiries;a
-{};\xc3\x89v\xc3\xa9nements;a""".format(
+{};\xc3\x89v\xc3\xa9nements;a
+{};Coll\xc3\xa8ge communal;a""".format(
                 pgo_contacts["direction-generale"].UID(),
                 pgo_contacts["direction-generale"]["secretariat"].UID(),
                 pgo_contacts["direction-generale"]["grh"].UID(),
@@ -570,6 +576,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 pgo_contacts["direction-technique"]["batiments"].UID(),
                 pgo_contacts["direction-technique"]["voiries"].UID(),
                 pgo_contacts["evenements"].UID(),
+                pgo_contacts["college-communal"].UID(),
             ),
         )
 
@@ -577,7 +584,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         from collective.contact.plonegroup.config import ORGANIZATIONS_REGISTRY
 
         org_uids = api.portal.get_registry_record(ORGANIZATIONS_REGISTRY) or []
-        org_uids.append(pgo_contacts["college-communal"].UID())
+        org_uids.append(pgo_contacts["conseil-communal"].UID())
         api.portal.set_registry_record(ORGANIZATIONS_REGISTRY, org_uids)
         pgo = view.pg_organizations(output="dict")
         self.assertEqual(
@@ -607,6 +614,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
                 (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
                 (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
+                (pgo_contacts["conseil-communal"].UID(), "Conseil communal", "a"),
             ],
         )
 
@@ -673,7 +681,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 ),
                 (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
                 (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
-                (pgo_contacts["conseil-communal"].UID(), "Conseil communal", "na"),
+                (pgo_contacts["conseil-communal"].UID(), "Conseil communal", "a"),
             ],
         )
 

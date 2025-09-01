@@ -357,6 +357,8 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
+    <!-- end -->
+
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />

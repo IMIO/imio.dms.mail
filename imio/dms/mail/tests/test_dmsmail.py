@@ -23,8 +23,8 @@ from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import logout
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
+# from plone.app.testing import setRoles
+# from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
@@ -85,16 +85,16 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
         voc_inst = TreatingGroupsVocabulary()
         voc = voc_inst(self.portal)
-        self.assertEquals(len([t for t in voc]), 11)
-        self.assertNotEqual(len(voc), 11)  # len = full vocabulary with hidden terms
+        self.assertEquals(len([t for t in voc]), 12)
+        self.assertNotEqual(len(voc), 12)  # len = full vocabulary with hidden terms
 
     def test_RecipientGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import RecipientGroupsVocabulary
 
         voc_inst = RecipientGroupsVocabulary()
         voc = voc_inst(self.portal)
-        self.assertEquals(len([t for t in voc]), 11)
-        self.assertNotEqual(len(voc), 11)  # len = full vocabulary with hidden terms
+        self.assertEquals(len([t for t in voc]), 12)
+        self.assertNotEqual(len(voc), 12)  # len = full vocabulary with hidden terms
 
     def test_IM_Title(self):
         imail1 = get_object(oid="courrier1", ptype="dmsincomingmail")

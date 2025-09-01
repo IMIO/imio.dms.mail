@@ -32,7 +32,8 @@ class TestBrowserTask(unittest.TestCase, ImioTestHelpers):
         # value is userid and not username
         self.assertListEqual(
             sorted([t.value for t in voc_inst(None)]),
-            ["agent", "agent1", "chef", "dirg", "encodeur", "lecteur", "scanner", "siteadmin", "test_user_1_"],
+            ["agent", "agent1", "bourgmestre", "chef", "dirg", "encodeur", "lecteur", "scanner", "siteadmin",
+             "test_user_1_"],
         )
         self.assertListEqual(
             [t.title for t in voc_inst(None)],
@@ -42,6 +43,7 @@ class TestBrowserTask(unittest.TestCase, ImioTestHelpers):
                 u"Jef Lecteur",
                 u"Maxime DG",
                 u"Michel Chef",
+                u"Paul BM",
                 u"siteadmin",
                 u"Scanner",
                 u"Stef Agent",

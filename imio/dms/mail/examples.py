@@ -584,6 +584,7 @@ def add_test_users_and_groups(context):
         ("agent", u"Fred Agent"): [],
         ("agent1", u"Stef Agent"): [],
         ("lecteur", u"Jef Lecteur"): [],
+        ("bourgmestre", u"Paul BM"): [],
     }
     password = "Dmsmail69!"
     if get_environment() == "prod":
@@ -630,6 +631,7 @@ def add_test_users_and_groups(context):
         api.group.add_user(groupname="gestion_contacts", username="encodeur")
     if api.group.get("lecteurs_globaux_ce") is None:
         api.group.create("lecteurs_globaux_ce", "2 Lecteurs Globaux CE")
+        api.group.add_user(groupname="lecteurs_globaux_ce", username="bourgmestre")
     if api.group.get("createurs_dossier") is None:
         api.group.create("createurs_dossier", "1 Créateurs dossiers")
         api.group.add_user(groupname="createurs_dossier", username="dirg")
@@ -637,6 +639,8 @@ def add_test_users_and_groups(context):
         api.group.add_user(groupname="createurs_dossier", username="chef")
     if api.group.get("lecteurs_globaux_cs") is None:
         api.group.create("lecteurs_globaux_cs", "2 Lecteurs Globaux CS")
+        api.group.add_user(groupname="lecteurs_globaux_cs", username="bourgmestre")
+        api.group.add_user(groupname="lecteurs_globaux_cs", username="dirg")
     if api.group.get("audit_contacts") is None:
         api.group.create("audit_contacts", "1 Audit contacts")
         api.group.add_user(groupname="audit_contacts", username="dirg")
@@ -707,7 +711,7 @@ def configure_contact_plone_group(context):
     if not get_registry_organizations():
         contacts = site["contacts"]
         own_orga = contacts["plonegroup-organization"]
-        # full list of orgs defined in add_test_plonegroup_services ~1600
+        # full list of orgs defined in add_test_plonegroup_services
         departments = own_orga.listFolderContents(contentFilter={"portal_type": "organization"})
         dep0 = departments[0]
         dep1 = departments[1]
@@ -727,6 +731,7 @@ def configure_contact_plone_group(context):
             services2[0],
             services2[1],
             departments[5],
+            departments[6],
         ]
         # selected orgs
         # u'Direction générale', (u'Secrétariat', u'GRH', u'Communication')
@@ -746,6 +751,8 @@ def configure_contact_plone_group(context):
         site.acl_users.source_groups.addPrincipalToGroup("agent1", "%s_encodeur" % departments[5].UID())
         site.acl_users.source_groups.addPrincipalToGroup("encodeur", "%s_editeur" % services0[0].UID())
         site.acl_users.source_groups.addPrincipalToGroup("encodeur", "%s_encodeur" % services0[0].UID())
+        site.acl_users.source_groups.addPrincipalToGroup("dirg", "%s_lecteur" % dep0.UID())
+        site.acl_users.source_groups.addPrincipalToGroup("bourgmestre", "%s_lecteur" % departments[6].UID())
         # internal persons and held_positions have been created
         persons = {
             "encodeur": {
@@ -804,6 +811,34 @@ def configure_contact_plone_group(context):
                 },
                 "hps": {"phone": u"012345670", "label": u"Agent {}"},
             },
+            "dirg": {
+                "pers": {
+                    "lastname": u"DG",
+                    "firstname": u"Maxime",
+                    "gender": u"M",
+                    "person_title": u"Monsieur",
+                    "zip_code": u"5000",
+                    "city": u"Namur",
+                    "street": u"Rue du couvent",
+                    "number": u"1",
+                    "primary_organization": dep0.UID(),
+                },
+                "hps": {"phone": u"012345670", "label": u"Directeur Général {}", "usages": ["signer"]},
+            },
+            "bourgmestre": {
+                "pers": {
+                    "lastname": u"BM",
+                    "firstname": u"Paul",
+                    "gender": u"M",
+                    "person_title": u"Monsieur",
+                    "zip_code": u"5000",
+                    "city": u"Namur",
+                    "street": u"Place des Célestines",
+                    "number": u"1",
+                    "primary_organization": departments[6].UID(),
+                },
+                "hps": {"phone": u"012345670", "label": u"Bourgmestre {}", "usages": ["signer"]},
+            },
         }
         pf = contacts["personnel-folder"]
         normalizer = getUtility(IIDNormalizer)
@@ -817,6 +852,8 @@ def configure_contact_plone_group(context):
             for hp in person.objectValues():
                 setattr(hp, "phone", persons[pers_id]["hps"]["phone"])
                 setattr(hp, "label", persons[pers_id]["hps"]["label"].format(hp.get_organization().title))
+                if "usages" in persons[pers_id]["hps"]:
+                    setattr(hp, "usages", persons[pers_id]["hps"]["usages"])
                 api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
                 hp.reindexObject()
 
