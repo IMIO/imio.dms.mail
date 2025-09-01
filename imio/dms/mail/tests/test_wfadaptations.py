@@ -9,7 +9,6 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import group_has_user
-from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
@@ -53,7 +52,8 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         tpa = OMToPrintAdaptation()
         tpa.patch_workflow("outgoingmail_workflow")
         # check workflow
-        self.assertSetEqual(set(self.omw.states), {"created", "scanned", "to_print", "to_be_signed", "sent"})
+        self.assertSetEqual(set(self.omw.states),
+                            {"created", "scanned", "to_print", "to_be_signed", "signed", "sent"})
         self.assertSetEqual(
             set(self.omw.transitions),
             {
@@ -62,10 +62,12 @@ class TestOMToPrintAdaptation(unittest.TestCase):
                 "back_to_scanned",
                 "back_to_print",
                 "back_to_be_signed",
+                "back_to_signed",
                 "set_scanned",
                 "set_to_print",
                 "propose_to_be_signed",
                 "mark_as_sent",
+                "mark_as_signed",
             },
         )
         self.assertSetEqual(
@@ -75,10 +77,16 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertSetEqual(set(self.omw.states["scanned"].transitions), {"back_to_agent", "mark_as_sent"})
         self.assertSetEqual(set(self.omw.states["to_print"].transitions), {"back_to_creation", "propose_to_be_signed"})
         self.assertSetEqual(
-            set(self.omw.states["to_be_signed"].transitions), {"back_to_creation", "back_to_print", "mark_as_sent"}
+            set(self.omw.states["to_be_signed"].transitions),
+            {"back_to_creation", "back_to_print", "mark_as_sent", "mark_as_signed"}
         )
         self.assertSetEqual(
-            set(self.omw.states["sent"].transitions), {"back_to_print", "back_to_be_signed", "back_to_scanned", "back_to_creation"}
+            set(self.omw.states["signed"].transitions),
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"}
+        )
+        self.assertSetEqual(
+            set(self.omw.states["sent"].transitions),
+            {"back_to_print", "back_to_be_signed", "back_to_signed", "back_to_scanned", "back_to_creation"}
         )
         # various
         fti = getUtility(IDexterityFTI, name="dmsoutgoingmail")
@@ -92,12 +100,12 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 11)
         self.assertEqual(folder.getObjectPosition("searchfor_to_print"), 10)
         factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
-        self.assertEqual(len(factory(self.portal)), 5)
+        self.assertEqual(len(factory(self.portal)), 6)
 
     def common_tests(self):
         # check workflow
         self.assertSetEqual(
-            set(self.omw.states), {"created", "scanned", "to_print", "to_be_signed", "sent"}
+            set(self.omw.states), {"created", "scanned", "to_print", "to_be_signed", "signed", "sent"}
         )
         self.assertSetEqual(
             set(self.omw.transitions),
@@ -107,10 +115,12 @@ class TestOMToPrintAdaptation(unittest.TestCase):
                 "back_to_scanned",
                 "back_to_print",
                 "back_to_be_signed",
+                "back_to_signed",
                 "set_scanned",
                 "set_to_print",
                 "propose_to_be_signed",
                 "mark_as_sent",
+                "mark_as_signed",
             },
         )
         self.assertSetEqual(
@@ -124,11 +134,15 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         )
         self.assertSetEqual(
             set(self.omw.states["to_be_signed"].transitions),
-            {"back_to_creation", "back_to_print", "mark_as_sent"},
+            {"back_to_creation", "back_to_print", "mark_as_sent", "mark_as_signed"},
+        )
+        self.assertSetEqual(
+            set(self.omw.states["signed"].transitions),
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"}
         )
         self.assertSetEqual(
             set(self.omw.states["sent"].transitions),
-            {"back_to_print", "back_to_be_signed", "back_to_scanned", "back_to_creation"},
+            {"back_to_print", "back_to_be_signed", "back_to_signed", "back_to_scanned", "back_to_creation"},
         )
         # check collection position
         folder = self.portal["outgoing-mail"]["mail-searches"]
@@ -185,7 +199,8 @@ class TestOMServiceValidation1(unittest.TestCase):
     def test_om_workflow1(self):
         """Check workflow"""
         self.assertSetEqual(
-            set(self.omw.states), {"created", "scanned", "proposed_to_n_plus_1", "validated", "to_be_signed", "sent"}
+            set(self.omw.states),
+            {"created", "scanned", "proposed_to_n_plus_1", "validated", "to_be_signed", "signed", "sent"}
         )
         self.assertSetEqual(
             set(self.omw.transitions),
@@ -196,11 +211,13 @@ class TestOMServiceValidation1(unittest.TestCase):
                 "back_to_n_plus_1",
                 "back_to_validated",
                 "back_to_be_signed",
+                "back_to_signed",
                 "propose_to_n_plus_1",
                 "set_scanned",
                 "set_validated",
                 "propose_to_be_signed",
                 "mark_as_sent",
+                "mark_as_signed",
             },
         )
         self.assertSetEqual(
@@ -217,11 +234,16 @@ class TestOMServiceValidation1(unittest.TestCase):
         )
         self.assertSetEqual(
             set(self.omw.states["to_be_signed"].transitions),
-            {"mark_as_sent", "back_to_validated", "back_to_n_plus_1", "back_to_creation"},
+            {"mark_as_sent", "mark_as_signed", "back_to_validated", "back_to_n_plus_1", "back_to_creation"},
+        )
+        self.assertSetEqual(
+            set(self.omw.states["signed"].transitions),
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"}
         )
         self.assertSetEqual(
             set(self.omw.states["sent"].transitions),
-            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "back_to_n_plus_1", "back_to_validated"},
+            {"back_to_be_signed", "back_to_signed", "back_to_scanned", "back_to_creation", "back_to_n_plus_1",
+             "back_to_validated"},
         )
 
     def test_OMServiceValidation1(self):
@@ -266,9 +288,9 @@ class TestOMServiceValidation1(unittest.TestCase):
         )
         # check vocabularies
         factory = getUtility(IVocabularyFactory, u"collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
-        self.assertEqual(len(factory(folder, folder)), 14)
+        self.assertEqual(len(factory(folder, folder)), 15)
         factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
-        self.assertEqual(len(factory(folder)), 6)
+        self.assertEqual(len(factory(folder)), 7)
         # check configuration
         lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")
         self.assertIn("dmsoutgoingmail.back_to_n_plus_1|", lst)

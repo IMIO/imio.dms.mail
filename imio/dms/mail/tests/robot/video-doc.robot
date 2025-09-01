@@ -58,7 +58,7 @@ Naviguer
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # bandeau principal
-    ${tit1}  Add title  Tutoriel vidéo iA.docs : Naviguer dans l'interface...
+    ${tit1}  Add title  Tutoriel vidéo iA.Docs : Naviguer dans l'interface...
     sleep  ${L_S}
     Remove element  ${tit1}
     Highlight  id=portal-globalnav
@@ -190,7 +190,7 @@ Traiter un courrier
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # visualisation
-    ${main1}  Add title  Tutoriel vidéo iA.docs : comment traiter un courrier entrant...
+    ${main1}  Add title  Tutoriel vidéo iA.Docs : comment traiter un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -468,7 +468,7 @@ Répondre à un courrier
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # répondre
-    ${main1}  Add title  Tutoriel vidéo iA.docs : comment répondre à un courrier entrant...
+    ${main1}  Add title  Tutoriel vidéo iA.Docs : comment répondre à un courrier entrant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -573,7 +573,7 @@ Créer un courrier sortant
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # créer cs
-    ${main1}  Add title  Tutoriel vidéo iA.docs : comment créer un courrier sortant...
+    ${main1}  Add title  Tutoriel vidéo iA.Docs : comment créer un courrier sortant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -713,7 +713,7 @@ Créer un document bureautique
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # visualisation
-    ${main1}  Add title  Tutoriel vidéo iA.docs : Comment créer un document bureautique
+    ${main1}  Add title  Tutoriel vidéo iA.Docs : Comment créer un document bureautique
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -810,11 +810,11 @@ Transférer un email entrant
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
-    ${note1}  Add title  Tutoriel vidéo iA.docs : comment transférer un email entrant...
+    ${note1}  Add title  Tutoriel vidéo iA.Docs : comment transférer un email entrant...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
-    ${main1}  Add main note  Depuis votre client mail, vous allez pouvoir transférer un email sélectionné vers l'application iA.docs pour en faire une fiche courrier entrant.
+    ${main1}  Add main note  Depuis votre client mail, vous allez pouvoir transférer un email sélectionné vers l'application iA.Docs pour en faire une fiche courrier entrant.
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -852,7 +852,7 @@ Transférer un email entrant
     Click element  css=#faceted_table tr:nth-child(1) td.pretty_link
     Wait until element is visible  css=.DV-pageImage  10
 
-    ${main1}  Add main note  Les données de la fiche ont été préremplies avec les données de l'email. Si l'agent qui a transféré est bien défini dans iA.docs, le service traitant est sélectionné et la fiche est mise "À traiter" (suivant la configuration). Sinon la fiche reste en création.
+    ${main1}  Add main note  Les données de la fiche ont été préremplies avec les données de l'email. Si l'agent qui a transféré est bien défini dans iA.Docs, le service traitant est sélectionné et la fiche est mise "À traiter" (suivant la configuration). Sinon la fiche reste en création.
     sleep  ${L_S}
     sleep  ${N_S}
     Remove element  id=${main1}
@@ -937,7 +937,7 @@ Envoyer un email sortant
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # visualisation
-    ${main1}  Add title  Tutoriel vidéo iA.docs : comment envoyer un email sortant...
+    ${main1}  Add title  Tutoriel vidéo iA.Docs : comment envoyer un email sortant...
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -1063,7 +1063,7 @@ Envoyer un email sortant
     ...  Dans ce cas, la fiche n'est plus modifiable et l'état est  position=left  color=blue  width=500
     sleep  ${L_S}
 
-    ${main1}  Add main note  Pour information, l'email envoyé par iA.docs ne se retrouvera pas dans la boîte email de l'agent. Il est juste visible dans iA.docs.
+    ${main1}  Add main note  Pour information, l'email envoyé par iA.Docs ne se retrouvera pas dans la boîte email de l'agent. Il est juste visible dans iA.Docs.
     sleep  ${L_S}
     Remove element  id=${main1}
 
@@ -1100,7 +1100,7 @@ Valider un courrier entrant
     # Start Video
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
-    ${tit1}  Add title  Tutoriel vidéo iA.docs : Comment valider un courrier
+    ${tit1}  Add title  Tutoriel vidéo iA.Docs : Comment valider un courrier
     sleep  ${L_S}
     Remove element  id=${tit1}
 
@@ -1242,7 +1242,7 @@ Ajouter un contact
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # édition
-    ${tit1}  Add title  Tutoriel vidéo iA.docs : Comment utiliser le champ de sélection d'un contact et comment en ajouter un nouveau.
+    ${tit1}  Add title  Tutoriel vidéo iA.Docs : Comment utiliser le champ de sélection d'un contact et comment en ajouter un nouveau.
     Sleep  ${L_S}
     Sleep  ${S_S}
     Remove element  id=${tit1}
@@ -1566,7 +1566,7 @@ Ajouter une annexe
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # Ajouter une annexe
-    ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une annexe dans une fiche courrier...
+    ${note1}  Add title  Tutoriel vidéo iA.Docs : comment ajouter une annexe dans une fiche courrier...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -1670,7 +1670,7 @@ Ajouter une tâche
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
     # Ajouter une tache
-    ${note1}  Add title  Tutoriel vidéo iA.docs : comment ajouter une tâche...
+    ${note1}  Add title  Tutoriel vidéo iA.Docs : comment ajouter une tâche...
     Sleep  ${L_S}
     Remove element  id=${note1}
 
@@ -1820,7 +1820,7 @@ Utiliser les recherches
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
     sleep  ${S_S}
-    ${note1}  Add title  Tutoriel vidéo iA.docs : comment utiliser les recherches...
+    ${note1}  Add title  Tutoriel vidéo iA.Docs : comment utiliser les recherches...
     Sleep  ${L_S}
     Remove element  id=${note1}
 

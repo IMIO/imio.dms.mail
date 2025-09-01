@@ -294,6 +294,7 @@ class SendEmail(BrowserView):
                 "scanned": ["mark_as_sent"],
                 "proposed_to_n_plus_1": ["mark_as_sent", "propose_to_be_signed", "set_validated"],
                 "to_be_signed": ["mark_as_sent"],
+                "signed": ["mark_as_sent"],
                 "validated": ["propose_to_be_signed", "mark_as_sent"],
                 "to_print": ["propose_to_be_signed"],
             }

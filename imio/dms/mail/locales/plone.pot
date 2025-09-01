@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-08-03 11:59+0000\n"
+"POT-Creation-Date: 2025-08-28 07:38+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -189,6 +189,10 @@ msgstr ""
 msgid "om_back_to_scanned"
 msgstr ""
 
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_back_to_signed"
+msgstr ""
+
 msgid "om_back_to_validated"
 msgstr ""
 
@@ -198,6 +202,10 @@ msgstr ""
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_mark_as_sent"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_mark_as_signed"
 msgstr ""
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
@@ -220,6 +228,10 @@ msgid "om_set_to_print"
 msgstr ""
 
 msgid "om_set_validated"
+msgstr ""
+
+#: profiles/default/workflows/outgoingmail_workflow/definition.xml
+msgid "om_signed"
 msgstr ""
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml

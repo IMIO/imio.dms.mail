@@ -1007,6 +1007,14 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridw
     border-color: green;
 }
 
+.state-signed {
+ color: #00D800 !important;
+}
+.viewlet_workflowstate span.state-signed {
+    background-color: #00D800;
+    border-color: #00D800;
+}
+
 .state-sent {
  color: dimgrey !important;
 }
