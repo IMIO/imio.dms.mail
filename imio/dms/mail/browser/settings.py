@@ -2,6 +2,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
@@ -14,13 +15,14 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
-from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import vocabularyname_to_terms
+from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.content import get_schema_fields
 from imio.helpers.content import uuidToObject
@@ -48,8 +50,6 @@ from z3c.form.validator import NoInputData
 from zope import schema
 from zope.component import getUtility
 from zope.globalrequest import getRequest
-# from zope.interface import provider
-# from zope.schema.interfaces import IContextSourceBinder
 from zope.interface import implements
 from zope.interface import Interface
 from zope.interface import Invalid
@@ -57,7 +57,6 @@ from zope.interface import invariant
 from zope.interface import provider
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema import ValidationError
-# from zope.schema import ValidationError
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
@@ -1152,6 +1151,31 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS["dmsoutgoingmail"]], "folder_period", event.newValue)
+
+
+def default_creating_group(user=None):
+    """default to current user creating group"""
+    voc = ActiveCreatingGroupVocabulary()(None)
+    creating_groups = set([term.value for term in voc])
+    if not creating_groups:
+        return None
+    if user is None:
+        user = api.user.get_current()
+    # user is anonymous when some widget are accessed in source search or masterselect
+    # check if we have a real user to avoid 404 because get_groups on None user
+    if user.getId():
+        user_groups = get_plone_groups_for_user(user=user)
+        # we check if user is in creating_group for incoming and contact_part for outgoing and contact
+        for fct in (CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX):
+            user_orgs = set([gp[:-14] for gp in user_groups if gp.endswith(fct)])
+            inter = creating_groups & user_orgs
+            if inter:
+                pers = get_person_from_userid(user.getId())
+                if pers and pers.primary_organization and pers.primary_organization in inter:
+                    return pers.primary_organization
+                ordered = [uid for uid in [term.value for term in voc] if uid in inter]
+                return ordered[0]
+    return [term.value for term in voc][0]  # take the first term (following plonegroup-organization items order)
 
 
 def set_group_encoder_on_existing_types(portal_types, portal=None, index=None):

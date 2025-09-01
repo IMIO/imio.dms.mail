@@ -11,7 +11,7 @@
   <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
   <element value="collective.task.behaviors.ITaskContainer" />
   <element value="collective.task.behaviors.ITask" />
-  <element value="imio.dms.mail.behaviors.ISigningBehavior" />
+  <element value="imio.dms.mail.content.behaviors.ISigningBehavior" />
  </property>
  <!--property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property-->
  <property name="klass">imio.dms.mail.dmsmail.ImioDmsOutgoingMail</property>

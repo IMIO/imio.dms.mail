@@ -22,7 +22,7 @@ from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
-from imio.dms.mail.content.behaviors import default_creating_group
+from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.examples import add_special_model_mail
 # from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolder

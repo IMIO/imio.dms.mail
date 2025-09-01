@@ -1,42 +1,27 @@
 # -*- coding: utf-8 -*-
-from collective.contact.plonegroup.utils import get_person_from_userid
+from collective.contact.plonegroup import _ as _ccp
+from collective.z3cform.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localrolesfield.field import LocalRoleField
 from imio.dms.mail import _
-from imio.dms.mail import CONTACTS_PART_SUFFIX
-from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
-from imio.helpers.cache import get_plone_groups_for_user
-from plone import api
-from plone.autoform import directives
+from imio.dms.mail.browser.settings import default_creating_group
+from imio.dms.mail.browser.settings import validate_approvings
+from imio.dms.mail.browser.settings import validate_signer_approvings
+from imio.dms.mail.utils import vocabularyname_to_terms
+from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.supermodel import directives
 from plone.supermodel import model
+from z3c.form.browser.checkbox import CheckBoxFieldWidget
+from zope import schema
 from zope.interface import alsoProvides
+from zope.interface import Interface
+from zope.interface import invariant
+from zope.interface import provider
 from zope.schema import Text
-
-
-def default_creating_group(user=None):
-    """default to current user creating group"""
-    voc = ActiveCreatingGroupVocabulary()(None)
-    creating_groups = set([term.value for term in voc])
-    if not creating_groups:
-        return None
-    if user is None:
-        user = api.user.get_current()
-    # user is anonymous when some widget are accessed in source search or masterselect
-    # check if we have a real user to avoid 404 because get_groups on None user
-    if user.getId():
-        user_groups = get_plone_groups_for_user(user=user)
-        # we check if user is in creating_group for incoming and contact_part for outgoing and contact
-        for fct in (CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX):
-            user_orgs = set([gp[:-14] for gp in user_groups if gp.endswith(fct)])
-            inter = creating_groups & user_orgs
-            if inter:
-                pers = get_person_from_userid(user.getId())
-                if pers and pers.primary_organization and pers.primary_organization in inter:
-                    return pers.primary_organization
-                ordered = [uid for uid in [term.value for term in voc] if uid in inter]
-                return ordered[0]
-    return [term.value for term in voc][0]  # take the first term (following plonegroup-organization items order)
+from zope.schema.interfaces import IContextSourceBinder
+from zope.schema.vocabulary import SimpleTerm
+from zope.schema.vocabulary import SimpleVocabulary
 
 
 class IDmsMailCreatingGroup(model.Schema):
@@ -66,3 +51,102 @@ class IDmsMailDataTransfer(model.Schema):
 
 
 alsoProvides(IDmsMailDataTransfer, IFormFieldProvider)
+
+
+@provider(IFormFieldProvider)
+class IUsagesBehavior(model.Schema):
+
+    usages = schema.List(
+        title=_("Usages"),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.HeldPositionUsagesVocabulary"),
+        required=False,
+        default=[],
+    )
+    form.widget("usages", CheckBoxFieldWidget, multiple="multiple")
+
+    form.read_permission(usages="collective.contact.plonegroup.read_userlink_fields")
+    form.write_permission(usages="collective.contact.plonegroup.write_userlink_fields")
+
+    directives.fieldset("app_parameters",
+                        label=_ccp(u"Application parameters"),
+                        fields=["usages"])
+
+
+@provider(IContextSourceBinder)
+def signing_signers(context):
+    """Return held positions vocabulary for signing."""
+    terms = [
+        SimpleTerm(value=None, title=_("Choose a value !")),
+        SimpleTerm(value=u"_empty_", title=_("* No signature")),
+    ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
+class ISignerSchema(Interface):
+    """Schema for the table of signers in the DataGridField."""
+
+    number = schema.Choice(
+        title=_(u"Number"),
+        description=_(u"Signer number on the document."),
+        vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
+        required=True,
+    )
+
+    signer = schema.Choice(
+        title=_(u"Signer"),
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
+        source=signing_signers,
+        required=True,
+    )
+
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
+        required=True,
+        constraint=validate_approvings,
+        min_length=1,
+    )
+    form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    @invariant
+    def validate_settings(data):  # noqa
+        validate_signer_approvings(data._Data_data___, _("Approvings have a duplicate approver with themself."))
+
+
+@provider(IFormFieldProvider)
+class ISigningBehavior(model.Schema):
+
+    # directives.fieldset(
+    #     "signing",
+    #     label=_(u"Signing"),
+    #     fields=[
+    #         "signers",
+    #         "seal",
+    #     ],
+    # )
+
+    signers = schema.List(
+        title=_(u"Signers"),
+        description=_("List of users who have to sign this document"),
+        value_type=DictRow(title=_("Signer"), schema=ISignerSchema),
+        required=False,
+        default=None,
+    )
+    form.widget(
+        "signers",
+        DataGridFieldFactory,
+        allow_reorder=False,
+        auto_append=False,
+    )
+
+    seal = schema.Bool(
+        title=_(u"Seal"),
+        required=False,
+    )
+
+    esign = schema.Bool(
+        title=_(u"Electronic signature"),
+        required=False,
+    )

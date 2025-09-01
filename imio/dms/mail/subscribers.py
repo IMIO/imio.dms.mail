@@ -28,8 +28,8 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 # from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
-from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem

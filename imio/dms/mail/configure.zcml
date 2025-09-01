@@ -357,20 +357,6 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
-    <!-- behaviors -->
-
-    <plone:behavior
-        title="Usages"
-        description="Can choose possible usages (on held position)"
-        provides=".behaviors.IUsagesBehavior"
-        />
-
-    <plone:behavior
-        title="Signers"
-        description="Add a field to list the users that have to sign the document"
-        provides=".behaviors.ISigningBehavior"
-        />
-
     <!-- end -->
 
     <include file="adapters.zcml" />
