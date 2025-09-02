@@ -993,6 +993,37 @@ class OMServiceValidation(WorkflowAdaptationBase):
         return True, ""
 
 
+class OMToApproveAdaptation(WorkflowAdaptationBase):
+    def patch_workflow(self, workflow_name, **parameters):
+        if not workflow_name == "outgoingmail_workflow":
+            return False, _(
+                "This workflow adaptation is only valid for ${workflow} !",
+                mapping={"workflow": "outgoingmail_workflow"},
+            )
+        portal = api.portal.get()
+        wtool = portal.portal_workflow
+        wf = wtool["outgoingmail_workflow"]
+        new_state_id = "to_approve"
+        to_tr_id = "propose_to_approve"
+        back_tr_id = "back_to_approve"
+        msg = self.check_state_in_workflow(wf, new_state_id)
+        if not msg:
+            return False, "State to_approve already in workflow"
+        """
+        possible cases:
+        1) basic: created -> to_approve -> to_be_signed
+        2) n+1 applied: created -> proposed_to_n_plus -> to_approve -> to_be_signed
+        3) to_print applied: created -> to_print -> to_approve -> to_be_signed
+        """
+        # what is already applied ?
+        already_applied = ""
+        applied_wfa = [dic["adaptation"] for dic in get_applied_adaptations()]
+        if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
+            already_applied = "n_plus"
+        if u"imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
+            already_applied = "to_print"
+
+
 class OMToPrintAdaptation(WorkflowAdaptationBase):
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == "outgoingmail_workflow":
