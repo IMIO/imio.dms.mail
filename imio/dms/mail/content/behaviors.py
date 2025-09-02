@@ -118,14 +118,15 @@ class ISignerSchema(Interface):
 @provider(IFormFieldProvider)
 class ISigningBehavior(model.Schema):
 
-    # directives.fieldset(
-    #     "signing",
-    #     label=_(u"Signing"),
-    #     fields=[
-    #         "signers",
-    #         "seal",
-    #     ],
-    # )
+    directives.fieldset(
+        "signing",
+        label=_(u"Signing"),
+        fields=[
+            "signers",
+            "seal",
+            "esign",
+        ],
+    )
 
     signers = schema.List(
         title=_(u"Signers"),

@@ -1415,6 +1415,8 @@ def manage_fields(the_form, config_key, mode):
         if field is not None and field_name in to_display:
             if field_name.startswith("email_"):
                 add(the_form, field, index=0, group="email")
+            elif field_name.startswith("ISigningBehavior."):
+                add(the_form, field, index=0, group="signing")
             else:
                 add(the_form, field, index=0)
             if mode != "view" and field_name not in to_input:
