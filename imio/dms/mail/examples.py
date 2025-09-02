@@ -857,6 +857,35 @@ def configure_contact_plone_group(context):
                 api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
                 hp.reindexObject()
 
+        # Add signer rules
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        api.portal.set_registry_record(rk, [
+            {
+                "number": 1,
+                "signer": pf["dirg"]["directeur-general-direction-generale"].UID(),
+                "approvings": [u"_empty_"],
+                "esign": False,
+                "valid_from": None,
+                "valid_until": None,
+                "treating_groups": [],
+                "mail_types": [],
+                "send_modes": [],
+                "tal_condition": None,
+            },
+            {
+                "number": 2,
+                "signer": pf["bourgmestre"]["bourgmestre-college-communal"].UID(),
+                "approvings": [u"_empty_"],
+                "esign": False,
+                "valid_from": None,
+                "valid_until": None,
+                "treating_groups": [],
+                "mail_types": [],
+                "send_modes": [],
+                "tal_condition": None,
+            },
+        ])
+
 
 def configure_imio_dms_mail(context):
     """

@@ -632,7 +632,7 @@ class IImioDmsMailConfig(model.Schema):
         "omail_signer_rules",
         DataGridFieldFactory,
         allow_reorder=True,
-        auto_append=True,
+        auto_append=False,
     )
 
     omail_fields = schema.List(
