@@ -140,6 +140,19 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # TODO : include n+ levels if necessary
         # ajouter config local roles
         for ptype in ("dmsincomingmail", "dmsincoming_email"):
+            lr, fti = fti_configuration(portal_type=ptype)
+            lrsc = lr["static_config"]
+            if new_state_id in lrsc:
+                continue
+            if "creating_group" in lr:
+                api.portal.show_message(
+                    _(
+                        "Please update manually ${type} local roles for creating_group !",
+                        mapping={"type": "dmsincomingmail, dmsincoming_email"},
+                    ),
+                    portal.REQUEST,
+                    type="warning",
+                )
             updates = {
                 new_state_id: {
                     "pre_manager": {"roles": ["Editor", "Reviewer"]},
@@ -152,7 +165,8 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             }
             for st in next_states:
                 updates.update({st: {"pre_manager": {"roles": ["Reader"]}}})
-            update_roles_in_fti(ptype, updates)
+            if update_roles_in_fti(ptype, updates):
+                update_security_index([ptype])
 
         # add collection
         folder = portal["incoming-mail"]["mail-searches"]
@@ -390,57 +404,70 @@ class IMServiceValidation(WorkflowAdaptationBase):
                     type="warning",
                 )
             # static_config local roles
-            updates = {
-                new_state_id: {
-                    "dir_general": {
-                        "roles": ["Contributor", "Editor", "Reviewer", "Base Field Writer", "Treating Group Writer"]
-                    },
-                    "encodeurs": {"roles": ["Reader"]},
-                    "lecteurs_globaux_ce": {"roles": ["Reader"]},
+            if new_state_id not in lr["static_config"]:
+                updates = {
+                    new_state_id: {
+                        "dir_general": {
+                            "roles": ["Contributor", "Editor", "Reviewer", "Base Field Writer", "Treating Group Writer"]
+                        },
+                        "encodeurs": {"roles": ["Reader"]},
+                        "lecteurs_globaux_ce": {"roles": ["Reader"]},
+                    }
                 }
-            }
-            c1 = update_roles_in_fti(ptype, updates, notify=False)
+                c1 = update_roles_in_fti(ptype, updates, notify=False)
+            else:
+                c1 = False
             # treating_groups local roles
-            updates = {
-                "in_treatment": {new_id: {"roles": ["Contributor", "Editor", "Reviewer"]}},
-                "closed": {new_id: {"roles": ["Reviewer"]}},  # TODO check car closed déjà dans next_states
-                new_state_id: {new_id: {"roles": ["Contributor", "Editor", "Reviewer", "Treating Group Writer"]}},
-            }
-            if i:
-                updates[new_state_id][new_id]["roles"].append("Base Field Writer")
-            for st in next_states:
-                if st == "closed":
-                    roles = ["Reviewer"]
-                else:
-                    roles = ["Contributor", "Editor", "Reviewer"]
-                    if i:
-                        roles += ["Base Field Writer", "Treating Group Writer"]
-                updates.update({st: {new_id: {"roles": roles}}})
-            c2 = update_roles_in_fti(ptype, updates, keyname="treating_groups", notify=False)
+            if new_state_id not in lr["treating_groups"]:
+                updates = {
+                    "in_treatment": {new_id: {"roles": ["Contributor", "Editor", "Reviewer"]}},
+                    "closed": {new_id: {"roles": ["Reviewer"]}},  # TODO check car closed déjà dans next_states
+                    new_state_id: {new_id: {"roles": ["Contributor", "Editor", "Reviewer", "Treating Group Writer"]}},
+                }
+                if i:
+                    updates[new_state_id][new_id]["roles"].append("Base Field Writer")
+                for st in next_states:
+                    if st == "closed":
+                        roles = ["Reviewer"]
+                    else:
+                        roles = ["Contributor", "Editor", "Reviewer"]
+                        if i:
+                            roles += ["Base Field Writer", "Treating Group Writer"]
+                    updates.update({st: {new_id: {"roles": roles}}})
+                c2 = update_roles_in_fti(ptype, updates, keyname="treating_groups", notify=False)
+            else:
+                c2 = False
             # recipient_groups local roles
-            updates = {
-                new_state_id: {new_id: {"roles": ["Reader"]}},
-                "in_treatment": {new_id: {"roles": ["Reader"]}},
-                "closed": {new_id: {"roles": ["Reader"]}},
-            }
-            for st in next_states:
-                updates.update({st: {new_id: {"roles": ["Reader"]}}})
-            c3 = update_roles_in_fti(ptype, updates, keyname="recipient_groups", notify=False)
+            if new_state_id not in lr["recipient_groups"]:
+                updates = {
+                    new_state_id: {new_id: {"roles": ["Reader"]}},
+                    "in_treatment": {new_id: {"roles": ["Reader"]}},
+                    "closed": {new_id: {"roles": ["Reader"]}},
+                }
+                for st in next_states:
+                    updates.update({st: {new_id: {"roles": ["Reader"]}}})
+                c3 = update_roles_in_fti(ptype, updates, keyname="recipient_groups", notify=False)
+            else:
+                c3 = False
             if c1 or c2 or c3:
                 update_security_index([ptype])
         # add local roles config on folders
         for i, ptype in enumerate(("ClassificationFolder", "ClassificationSubfolder")):
-            updates = {
-                "active": {new_id: {"roles": ["Contributor", "Editor"]}},
-                "deactivated": {new_id: {"roles": ["Contributor", "Editor"]}},
-            }
-            c4 = update_roles_in_fti(ptype, updates, keyname="treating_groups", notify=False)
-            updates = {
-                "active": {new_id: {"roles": ["Reader"]}},
-                "deactivated": {new_id: {"roles": ["Reader"]}},
-            }
-            c5 = update_roles_in_fti(ptype, updates, keyname="recipient_groups", notify=False)
-            if c4 or c5:
+            lr, fti = fti_configuration(portal_type=ptype)
+            tg_updates = {}
+            rg_updates = {}
+            for state in ("active", "deactivated"):
+                lrtg = lr["treating_groups"]
+                if state not in lrtg or new_id not in lrtg[state]:
+                    tg_updates[state] = {new_id: {"roles": ["Contributor", "Editor"]}}
+                lrrg = lr["recipient_groups"]
+                if state not in lrrg or new_id not in lrrg[state]:
+                    rg_updates[state] = {new_id: {"roles": ["Reader"]}}
+            if tg_updates:
+                update_roles_in_fti(ptype, tg_updates, keyname="treating_groups", notify=False)
+            if rg_updates:
+                update_roles_in_fti(ptype, rg_updates, keyname="recipient_groups", notify=False)
+            if tg_updates or rg_updates:
                 update_security_index([ptype])
 
         # add collection
@@ -868,7 +895,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
                             "o": "plone.app.querystring.operation.selection.is",
                             "v": ["dmsoutgoingmail"],
                         },
-                        {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": [state_id]},
+                        {
+                            "i": "review_state",
+                            "o": "plone.app.querystring.operation.selection.is",
+                            "v": [state_id],
+                        },
                     ],
                     customViewFields=tuple(folder[next_col_id].customViewFields),
                     showNumberOfItems=True,
@@ -1145,10 +1176,8 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
 
         # update actionspanel back transitions registry
         lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")
-        lst_len = len(lst)
         if "dmsoutgoingmail.{}|".format(back_tr_id) not in lst:
             lst.append("dmsoutgoingmail.{}|".format(back_tr_id))
-        if len(lst) != lst_len:
             api.portal.set_registry_record(
                 "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions", lst
             )
@@ -1161,9 +1190,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         )
         if new_state_id not in lst:
             lst.insert(0, new_state_id)
-            api.portal.set_registry_record(
-                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", lst
-            )
+            api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", lst)
         # update treating collection
         col = folder["om_treating"]
         query = list(col.query)
@@ -1261,18 +1288,22 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         lr._p_changed = True
 
         # add local roles config on folders
-        for i, ptype in enumerate(("ClassificationFolder", "ClassificationSubfolder")):
-            updates = {
-                "active": {new_id: {"roles": ["Contributor", "Editor"]}},
-                "deactivated": {new_id: {"roles": ["Contributor", "Editor"]}},
-            }
-            c4 = update_roles_in_fti(ptype, updates, keyname="treating_groups", notify=False)
-            updates = {
-                "active": {new_id: {"roles": ["Reader"]}},
-                "deactivated": {new_id: {"roles": ["Reader"]}},
-            }
-            c5 = update_roles_in_fti(ptype, updates, keyname="recipient_groups", notify=False)
-            if c4 or c5:
+        for ptype in ("ClassificationFolder", "ClassificationSubfolder"):
+            lr, fti = fti_configuration(portal_type=ptype)
+            tg_updates = {}
+            rg_updates = {}
+            for state in ("active", "deactivated"):
+                lrtg = lr["treating_groups"]
+                if state not in lrtg or new_id not in lrtg[state]:
+                    tg_updates[state] = {new_id: {"roles": ["Contributor", "Editor"]}}
+                lrrg = lr["recipient_groups"]
+                if state not in lrrg or new_id not in lrrg[state]:
+                    rg_updates[state] = {new_id: {"roles": ["Reader"]}}
+            if tg_updates:
+                update_roles_in_fti(ptype, tg_updates, keyname="treating_groups", notify=False)
+            if rg_updates:
+                update_roles_in_fti(ptype, rg_updates, keyname="recipient_groups", notify=False)
+            if tg_updates or rg_updates:
                 update_security_index([ptype])
 
         # update collections
