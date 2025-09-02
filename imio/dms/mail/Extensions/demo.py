@@ -480,7 +480,7 @@ def clean_examples(self, doit="1"):
 
 
 def activate_group_encoder(self, typ="imail"):
-    """Clean created examples"""
+    """Activate group encoder"""
     if not check_role(self):
         return "You must be a manager to run this script"
     portal = api.portal.getSite()
@@ -506,5 +506,28 @@ def activate_group_encoder(self, typ="imail"):
     ]:
         api.group.add_user(groupname="{}_{}".format(orgs[0], CREATING_GROUP_SUFFIX), username="encodeur")
         api.group.add_user(groupname="{}_{}".format(orgs[1], CREATING_GROUP_SUFFIX), username="agent1")
+
+    return portal.REQUEST.response.redirect(portal.absolute_url())
+
+
+def activate_signing(self):
+    """Activate signing process"""
+    if not check_role(self):
+        return "You must be a manager to run this script"
+    portal = api.portal.getSite()
+    omf = api.portal.get_registry_record(
+        "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
+    )
+    om_fns = [dic["field_name"] for dic in omf]
+    if "ISigningBehavior.signers" not in om_fns:
+        pos = om_fns.index("internal_reference_no")
+        omf.insert(pos + 1,
+                   {"field_name": "ISigningBehavior.signers", "read_tal_condition": u"", "write_tal_condition": u""})
+        omf.insert(pos + 2,
+                   {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"", "write_tal_condition": u""})
+        omf.insert(pos + 3,
+                   {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
+                                       omf)
 
     return portal.REQUEST.response.redirect(portal.absolute_url())
