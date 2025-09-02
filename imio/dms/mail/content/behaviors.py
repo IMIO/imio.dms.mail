@@ -120,7 +120,7 @@ class ISigningBehavior(model.Schema):
 
     directives.fieldset(
         "signing",
-        label=_(u"Signing"),
+        label=_(u"Signing fieldset"),
         fields=[
             "signers",
             "seal",
