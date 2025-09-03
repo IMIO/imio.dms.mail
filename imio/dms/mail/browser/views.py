@@ -292,11 +292,12 @@ class SendEmail(BrowserView):
             trans = {
                 "created": ["mark_as_sent", "propose_to_be_signed", "set_validated", "propose_to_n_plus_1"],
                 "scanned": ["mark_as_sent"],
+                "to_print": ["propose_to_be_signed"],
                 "proposed_to_n_plus_1": ["mark_as_sent", "propose_to_be_signed", "set_validated"],
+                "validated": ["propose_to_be_signed", "mark_as_sent"],
+                "to_approve": ["propose_to_be_signed", "mark_as_sent"],
                 "to_be_signed": ["mark_as_sent"],
                 "signed": ["mark_as_sent"],
-                "validated": ["propose_to_be_signed", "mark_as_sent"],
-                "to_print": ["propose_to_be_signed"],
             }
             state = api.content.get_state(self.context)
             i = 0

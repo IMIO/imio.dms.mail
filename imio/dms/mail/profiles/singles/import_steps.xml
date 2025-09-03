@@ -74,6 +74,14 @@
  </import-step>
 
  <import-step
+    id="imiodmsmail-om_to_approve_wfadaptation"
+    handler="imio.dms.mail.steps.om_to_approve_wfadaptation"
+    title="Add to_approve level in outgoingmail_workflow from imio.dms.mail"
+    version="2025-09-03T13:00:00.00000">
+    Add to_approve level in outgoingmail_workflow from imio.dms.mail
+ </import-step>
+
+ <import-step
     id="imiodmsmail-om_to_print_wfadaptation"
     handler="imio.dms.mail.steps.om_to_print_wfadaptation"
     title="Add to_print level in outgoingmail_workflow from imio.dms.mail"

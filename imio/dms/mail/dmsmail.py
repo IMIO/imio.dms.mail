@@ -874,6 +874,12 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
     def __init__(self, context):
         self.context = context
 
+    security.declarePublic("can_be_approved")
+
+    def can_be_approved(self):
+        """Used in guard expression for propose_to_approve transition."""
+        return self.can_be_handsigned()
+
     security.declarePublic("can_be_handsigned")
 
     def can_be_handsigned(self):
