@@ -338,6 +338,11 @@
     />
 
     <utility
+        name="imio.dms.mail.wfadaptations.OMToApprove"
+        factory=".wfadaptations.OMToApproveAdaptation"
+    />
+
+    <utility
         name="imio.dms.mail.wfadaptations.OMToPrint"
         factory=".wfadaptations.OMToPrintAdaptation"
     />
