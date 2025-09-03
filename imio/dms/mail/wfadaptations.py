@@ -18,6 +18,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.pyutils.utils import insert_in_ordereddict
 from plone import api
+from Products.CMFPlone.utils import safe_unicode
 from zope import schema
 from zope.interface import Interface
 from zope.interface import provider
@@ -382,7 +383,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             functions.append(
                 {
                     "fct_title": parameters["function_title"],
-                    "fct_id": unicode(new_id),
+                    "fct_id": safe_unicode(new_id),
                     "fct_orgs": [],
                     "fct_management": True,
                     "enabled": True,
@@ -745,7 +746,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             functions.append(
                 {
                     "fct_title": parameters["function_title"],
-                    "fct_id": unicode(new_id),
+                    "fct_id": safe_unicode(new_id),
                     "fct_orgs": [],
                     "fct_management": True,
                     "enabled": True,
@@ -1010,13 +1011,198 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         2) n+1 applied: created -> proposed_to_n_plus -> to_approve -> to_be_signed
         3) to_print applied: created -> to_print -> to_approve -> to_be_signed
         """
+        # TODO : handle cases 2 and 3
+        transitions = ["propose_to_be_signed", "back_to_creation"]
         # what is already applied ?
         already_applied = ""
         applied_wfa = [dic["adaptation"] for dic in get_applied_adaptations()]
         if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
             already_applied = "n_plus"
+            transitions.append("back_to_n_plus_1")
         if u"imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
             already_applied = "to_print"
+            transitions.append("back_to_print")
+        """
+        default settings for case 1
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
+                       [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed")],
+        set_dms_config(["review_levels", "dmsoutgoingmail"], OrderedDict())
+        set_dms_config(["review_states", "dmsoutgoingmail"], OrderedDict())
+    )
+        """
+        # modify wf_from_to
+        nplus_to = get_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"])
+        to_states = [st for (st, tr) in nplus_to]
+        if (new_state_id, to_tr_id) not in nplus_to:
+            nplus_to.append((new_state_id, to_tr_id))
+            set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"], nplus_to)
+        # update dms config
+        update_transitions_levels_config(["dmsoutgoingmail"])
+
+        # add state
+        wf.states.addState(new_state_id)
+        state = wf.states[new_state_id]
+        state.setProperties(title="om_to_approve", description="", transitions=transitions)
+        # permissions
+        perms = {
+            "Access contents information": ("Editor", "Manager", "Owner", "Reader", "Reviewer", "Site Administrator"),
+            "Add portal content": ("Contributor", "Manager", "Site Administrator"),
+            "Delete objects": ("Manager", "Site Administrator"),
+            "Modify portal content": ("Editor", "Manager", "Site Administrator"),
+            "Review portal content": ("Manager", "Reviewer", "Site Administrator"),
+            "View": ("Editor", "Manager", "Owner", "Reader", "Reviewer", "Site Administrator"),
+            "collective.dms.basecontent: Add DmsFile": ("DmsFile Contributor", "Manager", "Site Administrator"),
+            "imio.dms.mail: Write mail base fields": ("Manager", "Site Administrator", "Base Field Writer"),
+            "imio.dms.mail: Write treating group field": ("Manager", "Site Administrator", "Treating Group Writer"),
+        }
+        state.permission_roles = perms
+
+        # add transitions
+        wf.transitions.addTransition(to_tr_id)
+        wf.transitions[to_tr_id].setProperties(
+            title="om_propose_to_approve",
+            new_state_id=new_state_id,
+            trigger_type=1,
+            script_name="",
+            actbox_name="om_propose_to_approve",
+            actbox_url="",
+            actbox_icon="%(portal_url)s/++resource++imio.dms.mail/om_propose_to_approve.png",
+            actbox_category="workflow",
+            props={
+                "guard_permissions": "Review portal content",
+                "guard_expr": "python:object.wf_conditions().can_be_approved()",
+            },
+        )
+        wf.transitions.addTransition(back_tr_id)
+        wf.transitions[back_tr_id].setProperties(
+            title="om_back_to_approve",
+            new_state_id=new_state_id,
+            trigger_type=1,
+            script_name="",
+            actbox_name="om_back_to_approve",
+            actbox_url="",
+            actbox_icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_approve.png",
+            actbox_category="workflow",
+            props={
+                "guard_permissions": "Review portal content",
+                "guard_expr": "python:object.wf_conditions().can_be_approved()",
+            },
+        )
+
+        # created transitions
+        transitions = list(wf.states["created"].transitions)
+        transitions.append(to_tr_id)
+        wf.states["created"].transitions = tuple(transitions)
+        # add new back_to transition on next states
+        for next_state_id in to_states:
+            if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
+                continue
+            next_state = wf.states[next_state_id]
+            transitions = list(next_state.transitions)
+            if back_tr_id not in transitions:
+                transitions.append(back_tr_id)
+            next_state.transitions = tuple(transitions)
+
+        # ajouter config local roles
+        lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
+        lrsc = lr["static_config"]
+        if new_state_id not in lrsc:
+            lrsc[new_state_id] = {
+                "expedition": {"roles": ["Reader"]},
+                "encodeurs": {"roles": ["Reader"]},
+                "dir_general": {"roles": ["Contributor", "Editor", "DmsFile Contributor", "Base Field Writer"]},
+            }
+        lrtg = lr["treating_groups"]
+        if new_state_id not in lrtg:
+            dic = {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            }
+            if already_applied:
+                dic.update({"n_plus_1": {"roles": ["Reader"]}})
+            lrtg[new_state_id] = dic
+        lrrg = lr["recipient_groups"]
+        if new_state_id not in lrrg:
+            dic = {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            }
+            if already_applied:
+                dic.update({"n_plus_1": {"roles": ["Reader"]}})
+            lrrg[new_state_id] = dic
+        # We need to indicate that the object has been modified and must be 'saved'
+        lr._p_changed = True
+
+        # add collection
+        folder = portal["outgoing-mail"]["mail-searches"]
+        col_id = "searchfor_to_approve"
+        if col_id not in folder:
+            next_col = folder["searchfor_to_be_signed"]
+            folder.invokeFactory(
+                "DashboardCollection",
+                id=col_id,
+                title=_(col_id),
+                query=[
+                    {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
+                    {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": [new_state_id]},
+                ],
+                customViewFields=tuple(next_col.customViewFields),
+                tal_condition=None,
+                showNumberOfItems=False,
+                roles_bypassing_talcondition=["Manager", "Site Administrator"],
+                sort_on=u"sortable_title",
+                sort_reversed=True,
+                b_size=30,
+                limit=0,
+                enabled=True,
+            )
+            col = folder[col_id]
+            col.setSubject((u"search",))
+            col.reindexObject(["Subject"])
+            col.setLayout("tabular_view")
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
+            # Add template to folder
+            tmpl = portal["templates"]["om"]["d-print"]
+            cols = tmpl.dashboard_collections
+            if col.UID() not in cols:
+                cols.append(col.UID())
+                tmpl.dashboard_collections = cols
+
+        # update treating collection
+        col = folder["om_treating"]
+        query = list(col.query)
+        modif = False
+        for dic in query:
+            if dic["i"] == "review_state" and new_state_id not in dic["v"]:
+                modif = True
+                dic["v"] += [new_state_id]
+        if modif:
+            col.query = query
+
+        # update actionspanel back transitions registry
+        lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")
+        if "dmsoutgoingmail.{}|".format(back_tr_id) not in lst:
+            lst.append("dmsoutgoingmail.{}|".format(back_tr_id))
+            api.portal.set_registry_record(
+                "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions", lst
+            )
+        # update remark states
+        lst = (
+            api.portal.get_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", default=False
+            )
+            or []
+        )
+        if new_state_id not in lst:
+            lst.insert(0, new_state_id)
+            api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", lst)
+
+        invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
+
+        return True, ""
 
 
 class OMToPrintAdaptation(WorkflowAdaptationBase):
@@ -1190,13 +1376,15 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                 cols.append(col.UID())
                 tmpl.dashboard_collections = cols
 
+        # update treating collection
         col = folder["om_treating"]
         query = list(col.query)
         modif = False
         for dic in query:
-            if dic["i"] == "review_state" and new_state_id not in dic["v"]:
-                modif = True
-                dic["v"] += [new_state_id]
+            if dic["i"] == "review_state":
+                if new_state_id not in dic["v"]:
+                    modif = True
+                    dic["v"] += [new_state_id]
         if modif:
             col.query = query
 
@@ -1217,17 +1405,6 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         if new_state_id not in lst:
             lst.insert(0, new_state_id)
             api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", lst)
-        # update treating collection
-        col = folder["om_treating"]
-        query = list(col.query)
-        modif = False
-        for dic in query:
-            if dic["i"] == "review_state":
-                if new_state_id not in dic["v"]:
-                    modif = True
-                    dic["v"] += [new_state_id]
-        if modif:
-            col.query = query
 
         invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
 
@@ -1278,7 +1455,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
             functions.append(
                 {
                     "fct_title": function_title,
-                    "fct_id": unicode(new_id),
+                    "fct_id": safe_unicode(new_id),
                     "fct_orgs": [],
                     "fct_management": True,
                     "enabled": True,
