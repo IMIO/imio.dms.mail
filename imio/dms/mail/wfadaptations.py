@@ -1011,7 +1011,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         2) n+1 applied: created -> proposed_to_n_plus -> to_approve -> to_be_signed
         3) to_print applied: created -> to_print -> to_approve -> to_be_signed
         """
-        # TODO : handle cases 2 and 3
+        # TODO : Check cases 2 and 3
         transitions = ["propose_to_be_signed", "back_to_creation"]
         # what is already applied ?
         already_applied = ""
@@ -1094,6 +1094,10 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         transitions = list(wf.states["created"].transitions)
         transitions.append(to_tr_id)
         wf.states["created"].transitions = tuple(transitions)
+        if already_applied == "to_print":
+            transitions = list(wf.states["to_print"].transitions)
+            transitions.append(to_tr_id)
+            wf.states["to_print"].transitions = tuple(transitions)
         # add new back_to transition on next states
         for next_state_id in to_states:
             if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
@@ -1120,7 +1124,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 "encodeur": {"roles": ["Reader"]},
                 "lecteur": {"roles": ["Reader"]},
             }
-            if already_applied:
+            if already_applied == "n_plus":
                 dic.update({"n_plus_1": {"roles": ["Reader"]}})
             lrtg[new_state_id] = dic
         lrrg = lr["recipient_groups"]
@@ -1130,7 +1134,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 "encodeur": {"roles": ["Reader"]},
                 "lecteur": {"roles": ["Reader"]},
             }
-            if already_applied:
+            if already_applied == "n_plus":
                 dic.update({"n_plus_1": {"roles": ["Reader"]}})
             lrrg[new_state_id] = dic
         # We need to indicate that the object has been modified and must be 'saved'
