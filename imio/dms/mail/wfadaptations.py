@@ -393,6 +393,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add local roles config
         for i, ptype in enumerate(("dmsincomingmail", "dmsincoming_email")):
             lr, fti = fti_configuration(portal_type=ptype)
+            c1 = c2 = c3 = False
             # TODO replace with im option check
             if "creating_group" in lr:
                 api.portal.show_message(
@@ -415,8 +416,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
                     }
                 }
                 c1 = update_roles_in_fti(ptype, updates, notify=False)
-            else:
-                c1 = False
             # treating_groups local roles
             if new_state_id not in lr["treating_groups"]:
                 updates = {
@@ -435,8 +434,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
                             roles += ["Base Field Writer", "Treating Group Writer"]
                     updates.update({st: {new_id: {"roles": roles}}})
                 c2 = update_roles_in_fti(ptype, updates, keyname="treating_groups", notify=False)
-            else:
-                c2 = False
             # recipient_groups local roles
             if new_state_id not in lr["recipient_groups"]:
                 updates = {
@@ -447,8 +444,6 @@ class IMServiceValidation(WorkflowAdaptationBase):
                 for st in next_states:
                     updates.update({st: {new_id: {"roles": ["Reader"]}}})
                 c3 = update_roles_in_fti(ptype, updates, keyname="recipient_groups", notify=False)
-            else:
-                c3 = False
             if c1 or c2 or c3:
                 update_security_index([ptype])
         # add local roles config on folders
