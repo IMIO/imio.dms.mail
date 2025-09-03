@@ -147,10 +147,28 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
+msgid "om_back_to_approve"
+msgstr ""
+
+msgid "om_back_to_print"
+msgstr ""
+
 msgid "om_back_to_validated"
 msgstr ""
 
+msgid "om_propose_to_approve"
+msgstr ""
+
+msgid "om_set_to_print"
+msgstr ""
+
 msgid "om_set_validated"
+msgstr ""
+
+msgid "om_to_approve"
+msgstr ""
+
+msgid "om_to_print"
 msgstr ""
 
 msgid "om_validated"

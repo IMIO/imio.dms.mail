@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-09-02 07:40+0000\n"
+"POT-Creation-Date: 2025-09-03 13:36+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -773,7 +773,7 @@ msgstr "Recherches personnes"
 msgid "Pipeline to use to import contacts"
 msgstr "Pipeline pour importer des contacts"
 
-#: ./wfadaptations.py:385
+#: ./wfadaptations.py:150
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la fonction creating_group !"
 
@@ -979,7 +979,7 @@ msgstr "Recherches tâches"
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:1202
+#: ./dmsmail.py:1208
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -987,7 +987,7 @@ msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 msgid "This contact '${title}' has missing address fields: ${keys}"
 msgstr "Ce contact ${title} a des champs d'adresse vides: ${keys}"
 
-#: ./wfadaptations.py:53
+#: ./wfadaptations.py:54
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr "Cette adaptation de workflow est seulement valable pour le workflow '${workflow}' !"
 
@@ -1126,7 +1126,7 @@ msgstr "Vous ne pouvez pas avoir le même signataire plus fois (${signer_title})
 msgid "You cannot select approvings and no validation at the same time."
 msgstr "Vous ne pouvez pas sélectionner des approbateurs et pas de signature en même temps."
 
-#: ./dmsmail.py:1230
+#: ./dmsmail.py:1236
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service traitant n'a pas de validateur et l'état va être modifié !"
 
@@ -1412,7 +1412,7 @@ msgstr "Sortant"
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
-#: ./wfadaptations.py:857
+#: ./wfadaptations.py:880
 msgid "searchfor: ${state}"
 msgstr "État: ${state}"
 
@@ -1466,6 +1466,10 @@ msgstr "État: envoyé"
 #: dmsoutgoingmail
 msgid "searchfor_signed"
 msgstr "État: signé"
+
+#: dmsoutgoingmail
+msgid "searchfor_to_approve"
+msgstr "État: à approuver"
 
 #: task
 msgid "searchfor_to_assign"

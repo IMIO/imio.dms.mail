@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-09-02 07:40+0000\n"
+"POT-Creation-Date: 2025-09-03 13:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -771,7 +771,7 @@ msgstr ""
 msgid "Pipeline to use to import contacts"
 msgstr ""
 
-#: ./wfadaptations.py:385
+#: ./wfadaptations.py:150
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr ""
 
@@ -977,7 +977,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:1202
+#: ./dmsmail.py:1208
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -985,7 +985,7 @@ msgstr ""
 msgid "This contact '${title}' has missing address fields: ${keys}"
 msgstr ""
 
-#: ./wfadaptations.py:53
+#: ./wfadaptations.py:54
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr ""
 
@@ -1124,7 +1124,7 @@ msgstr ""
 msgid "You cannot select approvings and no validation at the same time."
 msgstr ""
 
-#: ./dmsmail.py:1230
+#: ./dmsmail.py:1236
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr ""
 
@@ -1410,7 +1410,7 @@ msgstr "Out. mail"
 msgid "redirected_after_edition"
 msgstr ""
 
-#: ./wfadaptations.py:857
+#: ./wfadaptations.py:880
 msgid "searchfor: ${state}"
 msgstr "State: ${state}"
 
@@ -1464,6 +1464,10 @@ msgstr "State: sent"
 #: dmsoutgoingmail
 msgid "searchfor_signed"
 msgstr "State: signed"
+
+#: dmsoutgoingmail
+msgid "searchfor_to_approve"
+msgstr "State: to approve"
 
 #: task
 msgid "searchfor_to_assign"
