@@ -192,7 +192,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
             time.sleep(0.5)
             continue
         with open(add_path("Extensions/%s" % doc), "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
+            file_object = NamedBlobFile(fo.read(), filename=safe_unicode(doc))
 
         irn = internalReferenceIncomingMailDefaultValue(DummyView(portal, portal.REQUEST))
         doc_metadata = copy.copy(docs[ptype][doc]["c"])
@@ -215,7 +215,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
         # attachments
         for attachment in docs[ptype][doc].get("a", []):
             with open(add_path("Extensions/%s" % attachment), "rb") as fo:
-                file_object = NamedBlobFile(fo.read(), filename=unicode(doc))
+                file_object = NamedBlobFile(fo.read(), filename=safe_unicode(doc))
             createContentInContainer(document, "dmsappendixfile", title=attachment, file=file_object)
         # state
         if "s" in docs[ptype][doc]:
@@ -529,5 +529,9 @@ def activate_signing(self):
                    {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
                                        omf)
+
+    portal.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+    )
 
     return portal.REQUEST.response.redirect(portal.absolute_url())
