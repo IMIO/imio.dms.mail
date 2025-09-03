@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-08-28 07:38+0000\n"
+"POT-Creation-Date: 2025-09-03 13:36+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -172,6 +172,9 @@ msgstr ""
 msgid "om_back_to_agent"
 msgstr "Back to agent"
 
+msgid "om_back_to_approve"
+msgstr "Back to approve"
+
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_be_signed"
 msgstr "Back to be signed"
@@ -206,6 +209,9 @@ msgstr "Mark as sent"
 msgid "om_mark_as_signed"
 msgstr "Mark as signed"
 
+msgid "om_propose_to_approve"
+msgstr "Propose to approve"
+
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_propose_to_be_signed"
 msgstr "Propose to be signed"
@@ -231,6 +237,9 @@ msgstr "Set to validated"
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_signed"
 msgstr "Signed"
+
+msgid "om_to_approve"
+msgstr "To approve"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_to_be_signed"
