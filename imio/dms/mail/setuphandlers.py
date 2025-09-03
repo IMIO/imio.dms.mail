@@ -1596,6 +1596,38 @@ def createOMailCollections(folder):
             "rev": True,
             "count": False,
         },
+        {
+            "id": "esign_sessions",
+            "tit": _("om_esign_sessions"),
+            "subj": (u"search",),
+            "query": [
+                {
+                    "i": "CompoundCriterion",
+                    "o": "plone.app.querystring.operation.compound.is",
+                    "v": " files-belonging-to-a-given-session",
+                },
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": (
+                u"select_row",
+                u"pretty_link",
+                u"review_state",
+                u"treating_groups",
+                u"sender",
+                u"recipients",
+                u"send_modes",
+                u"mail_type",
+                u"assigned_user",
+                u"CreationDate",
+                u"outgoing_date",
+                u"classification_folders",
+                u"actions",
+            ),
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
     ]
     createDashboardCollections(folder, collections)
 

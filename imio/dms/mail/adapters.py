@@ -1043,3 +1043,34 @@ class SendableAnnexesToPMAdapter(object):
                     "title": child.title,
                     "UID": child.UID(),
                 }
+
+
+class ItemSignersAdapter(object):
+    """Adapter to get signers of a given item."""
+
+    def __init__(self, context):
+        self.context = context
+
+    def get_signers(self):
+        """Return the list of signers for the item."""
+        pc = api.portal.get_tool("portal_catalog")
+        # make sure signers are sorted by signature number
+        for signer in self.context.signers:
+            if "signer" not in signer or not signer["signer"]:
+                continue
+            hp = uuidToObject(signer["signer"])
+            if hp:
+                yield {
+                    "held_position": hp,
+                    "name": hp.get_person().get_title(include_person_title=False),
+                    "function": hp.get_title(),
+                }
+
+    def get_files_uids(self):
+        """List of file uids.
+
+        :return: list of uid of files
+        """
+        for sub_content in self.context.values():
+            if sub_content.portal_type in ("dmsommainfile", "dmsappendixfile"):
+                yield sub_content.UID()

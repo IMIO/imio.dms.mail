@@ -932,4 +932,26 @@
         permission="zope2.View"
         />
 
+    <!-- eSignature -->
+    <configure package="imio.esign">
+        <browser:page
+            name="esign-sessions-listing"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            class="imio.dms.mail.browser.views.ImioSessionsListingView"
+            permission="zope2.Public"
+            template="browser/templates/sessions.pt"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+        <browser:viewlet
+            for="eea.facetednavigation.subtypes.interfaces.IFacetedNavigable"
+            manager="collective.eeafaceted.z3ctable.interfaces.ITopAboveNavManager"
+            name="esign-faceted-session-info"
+            template="browser/templates/faceted_session_info.pt"
+            class="imio.dms.mail.browser.viewlets.ImioFacetedSessionInfoViewlet"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+    </configure>
+
 </configure>
