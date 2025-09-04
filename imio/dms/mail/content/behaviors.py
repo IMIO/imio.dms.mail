@@ -8,14 +8,17 @@ from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.utils import vocabularyname_to_terms
+from operator import itemgetter
 from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.supermodel import directives
 from plone.supermodel import model
+from Products.CMFPlone.utils import safe_unicode
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
 from zope.interface import alsoProvides
 from zope.interface import Interface
+from zope.interface import Invalid
 from zope.interface import invariant
 from zope.interface import provider
 from zope.schema import Text
@@ -110,10 +113,6 @@ class ISignerSchema(Interface):
     )
     form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
-    @invariant
-    def validate_settings(data):  # noqa
-        validate_signer_approvings(data._Data_data___, _("Approvings have a duplicate approver with themself."))
-
 
 @provider(IFormFieldProvider)
 class ISigningBehavior(model.Schema):
@@ -151,3 +150,29 @@ class ISigningBehavior(model.Schema):
         title=_(u"Electronic signature"),
         required=False,
     )
+
+    @invariant
+    def validate_signing(data):
+        if not data.signers or []:
+            return
+        for i, signer in enumerate(data.signers, start=1):
+            validate_signer_approvings(signer, _("Signer line ${nb} has a duplicate approver with themself.",
+                                                 mapping={"nb": i}))
+        numbers = sorted(map(itemgetter("number"), data.signers))
+        if numbers:
+            # Check for missing numbers in sequence
+            expected_numbers = list(range(1, max(numbers) + 1))
+            missing_numbers = [num for num in expected_numbers if num not in numbers]
+            if missing_numbers:
+                raise Invalid(
+                    _(
+                        u"A signer is missing at position: ${positions} ! You have to adapt the rules !",
+                        mapping={"positions": safe_unicode(", ".join(map(str, missing_numbers)))},
+                    )
+                )
+            # check if there are no approvings at all
+            if all(u"_empty_" in s["approvings"] for s in data.signers):
+                if data.esign:
+                    raise Invalid(_("You have to define approvings for each signer if electronic signature is used !"))
+            elif any(u"_empty_" in s["approvings"] for s in data.signers):
+                raise Invalid(_("You cannot have empty and defined approvings at the same time !"))
