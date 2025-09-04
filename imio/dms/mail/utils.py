@@ -738,6 +738,12 @@ class UtilsMethods(BrowserView):
         user = api.user.get_current()
         return user.has_role(["Manager", "Site Administrator"])
 
+    def user_is_approving(self, user=None):
+        """Test if current user is an approving."""
+        if user is None:
+            user = api.user.get_current()
+        return user.id in get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[])
+
 
 class VariousUtilsMethods(UtilsMethods):
     """View containing various utils methods. It can be used with `various-utils` name on all types."""

@@ -1174,6 +1174,32 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             if col.UID() not in cols:
                 cols.append(col.UID())
                 tmpl.dashboard_collections = cols
+        col_id = "to_approve"
+        if col_id not in folder:
+            next_col = folder["to_treat"]
+            folder.invokeFactory(
+                "DashboardCollection",
+                id=col_id,
+                title=_("om_to_approve"),
+                query=[
+                    {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
+                    {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": [new_state_id]},
+                ],
+                customViewFields=tuple(next_col.customViewFields),
+                tal_condition=u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+                showNumberOfItems=True,
+                roles_bypassing_talcondition=["Manager", "Site Administrator"],
+                sort_on=u"sortable_title",
+                sort_reversed=True,
+                b_size=30,
+                limit=0,
+                enabled=True,
+            )
+            col = folder[col_id]
+            col.setSubject((u"todo",))
+            col.reindexObject(["Subject"])
+            col.setLayout("tabular_view")
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition("to_validate") + 1)
 
         # update treating collection
         col = folder["om_treating"]
