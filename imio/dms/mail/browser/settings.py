@@ -19,6 +19,7 @@ from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
+from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
@@ -1137,6 +1138,21 @@ def imiodmsmail_settings_changed(event):
             api.group.revoke_roles(groupname=groupname, roles=all_roles, obj=folder)
             api.group.grant_roles(groupname=groupname, roles=roles, obj=folder)
 
+    if event.record.fieldName == "omail_signer_rules":
+        approvings = []
+        for rule in event.newValue or []:
+            for approving in rule["approvings"] or []:
+                if approving == "_empty_":
+                    continue
+                if approving == "_themself_":
+                    signer_person = uuidToObject(rule["signer"], unrestricted=True).get_person()
+                    if signer_person.userid not in approvings:
+                        approvings.append(signer_person.userid)
+                else:
+                    approving_person = uuidToObject(approving, unrestricted=True)
+                    if approving_person.userid not in approvings:
+                        approvings.append(approving_person.userid)
+        set_dms_config(["approvings"], approvings)
     if event.record.fieldName == "imail_group_encoder":
         if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"):
             configure_group_encoder("imail_group_encoder")

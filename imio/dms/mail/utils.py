@@ -110,6 +110,7 @@ dms_config
                            présence des validateurs. (n+_users indique si le groupe a des utilisateurs pour cet état)
     * ['dmsincomingmail'][state] = {'org1': ('propose_to_n_plus_1', 'from_states', False), 'org2': (...) }
     ('from_states' est une valeur spéciale qui représente les transitions stockées dans from_states)
+* ['approvings'] : [user1, user2, ...] : liste des approbateurs configurés (pour test affichage collection)
 """
 
 
