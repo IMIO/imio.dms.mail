@@ -927,6 +927,15 @@ class IImioDmsMailConfig(model.Schema):
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
                         )
                     )
+                # check approvings
+                if rule["esign"] and (not rule["approvings"] or "_empty_" in rule["approvings"]):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} must have at least one approving if "
+                            u"electronic signature is enabled.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
                 validate_signer_approvings(rule, _(
                     u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
                     mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
