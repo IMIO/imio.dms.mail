@@ -281,6 +281,7 @@
             unread_criteria
             user_has_review_level
             user_is_admin
+            user_is_approving
             user_usages
         "
     />
