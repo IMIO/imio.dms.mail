@@ -8,6 +8,7 @@ from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.utils import vocabularyname_to_terms
+from imio.helpers.content import uuidToObject
 from operator import itemgetter
 from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
@@ -155,9 +156,22 @@ class ISigningBehavior(model.Schema):
     def validate_signing(data):
         if not data.signers or []:
             return
+        persons = []
         for i, signer in enumerate(data.signers, start=1):
             validate_signer_approvings(signer, _("Signer line ${nb} has a duplicate approver with themself.",
                                                  mapping={"nb": i}))
+            if signer["signer"] == "_empty_":
+                continue
+            person = uuidToObject(signer["signer"], unrestricted=True).get_person()
+            if person in persons:
+                raise Invalid(
+                    _(
+                        u"You cannot have the same signer (${signer_title}) multiple times !",
+                        mapping={"signer_title": person.get_title()},
+                    )
+                )
+            persons.append(person)
+
         numbers = sorted(map(itemgetter("number"), data.signers))
         if numbers:
             # Check for missing numbers in sequence
@@ -166,13 +180,15 @@ class ISigningBehavior(model.Schema):
             if missing_numbers:
                 raise Invalid(
                     _(
-                        u"A signer is missing at position: ${positions} ! You have to adapt the rules !",
+                        u"A signer is missing at position: ${positions} !",
                         mapping={"positions": safe_unicode(", ".join(map(str, missing_numbers)))},
                     )
                 )
             # check if there are no approvings at all
             if all(u"_empty_" in s["approvings"] for s in data.signers):
                 if data.esign:
-                    raise Invalid(_("You have to define approvings for each signer if electronic signature is used !"))
+                    raise Invalid(_(u"You have to define approvings for each signer if electronic signature is used !"))
             elif any(u"_empty_" in s["approvings"] for s in data.signers):
-                raise Invalid(_("You cannot have empty and defined approvings at the same time !"))
+                raise Invalid(_(u"You cannot have empty and defined approvings at the same time !"))
+            if data.seal and not data.esign:
+                raise Invalid(_(u"You cannot have a seal without electronic signature !"))
