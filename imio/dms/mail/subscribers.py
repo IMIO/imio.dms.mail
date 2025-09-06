@@ -55,6 +55,8 @@ from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
 from operator import itemgetter
+from persistent.list import PersistentList
+from persistent.mapping import PersistentMapping
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
@@ -390,7 +392,7 @@ def dmsoutgoingmail_transition(mail, event):
 def dmsoutgoingmail_modified(mail, event):
     # Do not update signers field if mail is sent or to be signed
     mail_state = api.content.get_state(mail)
-    if mail_state in ("sent", "signed", "to_be_signed"):
+    if mail_state in ("sent", "signed", "to_approve", "to_be_signed"):
         return
 
     today = datetime.date.today()
@@ -439,15 +441,15 @@ def dmsoutgoingmail_modified(mail, event):
             if signer["signer"] != u"_empty_":
                 signer_hp = uuidToObject(signer["signer"], unrestricted=True)
                 person = signer_hp.get_person()
-            if person.UID() in used_signers:
-                raise Invalid(
-                    _(
-                        u"You cannot have the same signer (${signer_title}) multiple times ! "
-                        u"You have to adapt the rules !",
-                        mapping={"signer_title": person.get_title()},
-                    )
-                )
             if person:
+                if person.UID() in used_signers:
+                    raise Invalid(
+                        _(
+                            u"You cannot have the same signer (${signer_title}) multiple times ! "
+                            u"You have to adapt the rules !",
+                            mapping={"signer_title": person.get_title()},
+                        )
+                    )
                 used_signers.add(person.UID())
 
             mail.signers.append(
@@ -458,23 +460,43 @@ def dmsoutgoingmail_modified(mail, event):
                 }
             )
 
-    # Check for missing numbers in sequence
-    numbers = sorted(map(itemgetter("number"), mail.signers or []))
-    if numbers:
-        expected_numbers = list(range(1, max(numbers) + 1))
-        missing_numbers = [num for num in expected_numbers if num not in numbers]
-        if missing_numbers:
-            raise Invalid(
-                _(
-                    u"A signer is missing at position: ${positions} ! You have to adapt the rules !",
-                    mapping={"positions": safe_unicode(", ".join(map(str, missing_numbers)))},
-                )
-            )
-    else:
-        # if no signers, we add an empty one to not do again automatic assignment at next modification
-        mail.signers = [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"]}]
+    # check if this is the signers field that is modified
+    mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
+    if not mod_attr or "ISigningBehavior.signers" in mod_attr:
+        if not mail.signers:
+            # if no signers, we add an empty one to not do again automatic assignment at next modification
+            mail.signers = [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"]}]
 
-    mail.signers.sort(key=itemgetter("number"))
+        mail.signers.sort(key=itemgetter("number"))
+
+        annot = IAnnotations(mail)
+        approval = annot.setdefault("idm.approval", {"users": PersistentMapping(), "numbers": PersistentMapping(),
+                                                     "current": None})
+        # "awaiting" (w), "pending" (p), "approved" (a)
+        for i, signer in enumerate(mail.signers, start=1):
+            if signer["signer"] == "_empty_":
+                continue
+            for approving in signer["approvings"] or []:
+                if approving == "_empty_":
+                    continue
+                if approving == "_themself_":
+                    person = uuidToObject(signer["signer"], unrestricted=True).get_person()
+                else:
+                    person = uuidToObject(approving, unrestricted=True)
+                userid = person.userid
+                # TODO: is this check required ?
+                if userid in approval["users"] and approval["users"][userid]["order"] != i:
+                    raise Invalid(_("The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
+                                    mapping={"userid": userid, "o": approval["users"][userid]["order"],
+                                             "c": i}))
+                approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title()})
+                numbers = approval["numbers"].setdefault(i, PersistentMapping(
+                    {"status": "w", "users": PersistentList()}))
+                # TODO: is this check required ?
+                if numbers["status"] != "w":
+                    raise Invalid(_("You cannot have an approving number ${c} with status ${status} <=> w",
+                                    mapping={"status": numbers["status"], "c": i}))
+                numbers["users"].append(userid)
 
 
 def dv_handle_file_creation(obj, event):
