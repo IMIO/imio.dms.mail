@@ -439,6 +439,19 @@ class TaskPrettyLinkAdapter(PrettyLinkAdapter):
 ####################
 
 
+@indexer(IImioDmsOutgoingMail)
+def approval_index(obj):
+    """Indexer of 'approvings' for IImioDmsOutgoingMail.
+
+    Stores userid:number for each approver.
+    """
+    annot = IAnnotations(obj)
+    approval = annot.get("idm.approval", {"current": None})
+    if approval["current"]:
+        return [a["userid"] for a in approval["numbers"][approval["current"]]["users"]]
+    return common_marker
+
+
 @indexer(IDmsMailCreatingGroup)
 def creating_group_index(obj):
     """Indexer of 'assigned_group' for IDmsMailCreatingGroup. Stores creating_group !"""
