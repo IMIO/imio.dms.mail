@@ -97,7 +97,7 @@
     <adapter factory=".adapters.OdmSearchableExtender"
              name="imio.dms.mail.adapters.OdmSearchableExtender" />
 
-    <adapter name="approval" factory=".adapters.approval_index" />
+    <adapter name="approving" factory=".adapters.approving_index" />
     <adapter name="assigned_group" factory=".adapters.creating_group_index" />
     <adapter name="email" factory=".adapters.im_sender_email_index" />
     <adapter name="email" factory=".adapters.om_sender_email_index" />
