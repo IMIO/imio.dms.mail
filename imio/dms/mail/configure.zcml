@@ -322,7 +322,7 @@
         "
     />
 
-    <!-- wf adaptations -->
+    <!-- wf adaptations (name must be same as factory)-->
     <utility
         name="imio.dms.mail.wfadaptations.IMServiceValidation"
         factory=".wfadaptations.IMServiceValidation"
@@ -339,12 +339,12 @@
     />
 
     <utility
-        name="imio.dms.mail.wfadaptations.OMToApprove"
+        name="imio.dms.mail.wfadaptations.OMToApproveAdaptation"
         factory=".wfadaptations.OMToApproveAdaptation"
     />
 
     <utility
-        name="imio.dms.mail.wfadaptations.OMToPrint"
+        name="imio.dms.mail.wfadaptations.OMToPrintAdaptation"
         factory=".wfadaptations.OMToPrintAdaptation"
     />
 
