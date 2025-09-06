@@ -1184,6 +1184,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 query=[
                     {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                     {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": [new_state_id]},
+                    {"i": "approving", "o": "plone.app.querystring.operation.string.currentUser"},
                 ],
                 customViewFields=tuple(next_col.customViewFields),
                 tal_condition=u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
@@ -1219,6 +1220,9 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             api.portal.set_registry_record(
                 "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions", lst
             )
+
+        invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
+
         # update remark states
         lst = (
             api.portal.get_registry_record(
@@ -1229,8 +1233,6 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         if new_state_id not in lst:
             lst.insert(0, new_state_id)
             api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", lst)
-
-        invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
 
         return True, ""
 
