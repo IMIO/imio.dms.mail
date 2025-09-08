@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-09-04 08:01+0000\n"
+"POT-Creation-Date: 2025-09-08 12:51+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -98,7 +98,7 @@ msgid "'${field}': position ${position}"
 msgstr "'${field}': position ${position}"
 
 #: ./browser/settings.py:240
-#: ./content/behaviors.py:80
+#: ./content/behaviors.py:84
 msgid "* No signature"
 msgstr "* Aucune signature"
 
@@ -122,13 +122,17 @@ msgstr "Cet élément passe à nouveau par cet état dans le workflow."
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr "Cet élément est revenu en arrière dans le workflow."
 
-#: ./subscribers.py:824
+#: ./subscribers.py:855
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
 #: ./browser/settings.py:422
 msgid "<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>"
 msgstr "<span class='unconfigured-fields'>Les champs non configurés et donc non affichés sont: ${list}</span>"
+
+#: ./content/behaviors.py:182
+msgid "A signer is missing at position: ${positions} !"
+msgstr "Un signataire est manquant aux positions ${positions} !"
 
 #: ./subscribers.py:468
 msgid "A signer is missing at position: ${positions} ! You have to adapt the rules !"
@@ -190,7 +194,7 @@ msgstr "Critère de validité « au » (inclus), au format AAAA/MM/JJ."
 msgid "Agent"
 msgstr "Agent"
 
-#: ./dmsmail.py:114
+#: ./dmsmail.py:115
 msgid "All"
 msgstr "Tout"
 
@@ -215,13 +219,9 @@ msgid "Approving"
 msgstr "Approbateur"
 
 #: ./browser/settings.py:327
-#: ./content/behaviors.py:104
+#: ./content/behaviors.py:108
 msgid "Approvings"
 msgstr "Approbateurs"
-
-#: ./content/behaviors.py:115
-msgid "Approvings have a duplicate approver with themself."
-msgstr "Les approbateurs ont un doublon avec lui-même."
 
 #: ./browser/templates/actions_panel_assign_user.pt:11
 msgid "Assign"
@@ -316,7 +316,7 @@ msgid "Check if there is an assigned user before proposing incoming mail to an a
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent."
 
 #: ./browser/settings.py:183
-#: ./content/behaviors.py:79
+#: ./content/behaviors.py:83
 #: ./vocabularies.py:206
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
@@ -375,11 +375,11 @@ msgstr "Export des contacts"
 msgid "Create from template"
 msgstr "Créer depuis modèle"
 
-#: ./content/behaviors.py:30
+#: ./content/behaviors.py:34
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:890
+#: ./utils.py:896
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
@@ -391,7 +391,7 @@ msgstr "Version actuelle du produit"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
-#: ./content/behaviors.py:47
+#: ./content/behaviors.py:51
 msgid "Data transfer"
 msgstr "Reprise de données"
 
@@ -617,7 +617,7 @@ msgstr "Sous-document d'introduction"
 msgid "Lastname Firstname"
 msgstr "Nom Prénom"
 
-#: ./subscribers.py:851
+#: ./subscribers.py:882
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
@@ -642,7 +642,7 @@ msgid "Mail listing template sheet with details"
 msgstr "Listing courrier détaillé"
 
 #: ./browser/settings.py:363
-#: ./dmsmail.py:247
+#: ./dmsmail.py:248
 msgid "Mail type"
 msgstr "Type de courrier"
 
@@ -687,7 +687,7 @@ msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
 #: ./browser/settings.py:312
-#: ./content/behaviors.py:90
+#: ./content/behaviors.py:94
 msgid "Number"
 msgstr "Numéro"
 
@@ -717,7 +717,7 @@ msgstr "Organisations"
 msgid "Organizations searches"
 msgstr "Recherches organisations"
 
-#: ./dmsmail.py:255
+#: ./dmsmail.py:256
 msgid "Original document in service"
 msgstr "Le document original est dans le service"
 
@@ -729,12 +729,12 @@ msgstr "Email original (expr. re.)"
 msgid "Original mail date requirement"
 msgstr "Obligation d'une date de courrier entrant"
 
-#: ./dmsmail.py:198
+#: ./dmsmail.py:199
 msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
 #: ./browser/batchactions.py:144
-#: ./dmsmail.py:704
+#: ./dmsmail.py:705
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
@@ -805,7 +805,7 @@ msgstr "Condition d'affichage"
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
-#: ./dmsmail.py:239
+#: ./dmsmail.py:240
 msgid "Recipient groups"
 msgstr "Services en copie"
 
@@ -814,7 +814,7 @@ msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
 
 #: ./browser/settings.py:320
-#: ./content/behaviors.py:98
+#: ./content/behaviors.py:102
 msgid "Related userid will be the signer. Position name of the held position will be used."
 msgstr "Le signataire est l'utilisateur lié à la fonction occupée dont l'intitulé est utilisé dans la signature."
 
@@ -871,11 +871,11 @@ msgid "Send mode"
 msgstr "Forme d'envoi"
 
 #: ./browser/settings.py:609
-#: ./dmsmail.py:697
+#: ./dmsmail.py:698
 msgid "Send modes"
 msgstr "Formes d'envoi"
 
-#: ./dmsmail.py:204
+#: ./dmsmail.py:205
 #: ./profiles/default/registry.xml
 msgid "Sender"
 msgstr "Expéditeurs"
@@ -901,13 +901,17 @@ msgid "Set None"
 msgstr "* Pas de valeur"
 
 #: ./browser/settings.py:319
-#: ./content/behaviors.py:97
+#: ./content/behaviors.py:101
 #: ./vocabularies.py:130
 msgid "Signer"
 msgstr "Signataire"
 
+#: ./content/behaviors.py:161
+msgid "Signer line ${nb} has a duplicate approver with themself."
+msgstr "La ligne ${nb} des signataires a un doublon d'approbateur avec lui-même."
+
 #: ./browser/settings.py:313
-#: ./content/behaviors.py:91
+#: ./content/behaviors.py:95
 msgid "Signer number on the document."
 msgstr "Numéro du signataire sur le document."
 
@@ -979,11 +983,15 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
+#: ./subscribers.py:498
+msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
+msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} <=> ${c}"
+
 #: ./overrides.zcml:42
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./dmsmail.py:1208
+#: ./dmsmail.py:1217
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -1021,11 +1029,11 @@ msgstr "Valeur service traitant"
 
 #: ./browser/batchactions.py:49
 #: ./browser/table.py:123
-#: ./dmsmail.py:218
+#: ./dmsmail.py:219
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:894
+#: ./utils.py:900
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
@@ -1045,7 +1053,7 @@ msgstr "* Seulement si 1 service"
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 
-#: ./content/behaviors.py:60
+#: ./content/behaviors.py:64
 msgid "Usages"
 msgstr "Utilisé comme"
 
@@ -1054,7 +1062,7 @@ msgid "User fullname used format"
 msgstr "Format du nom complet de l'utilisateur"
 
 #: ./browser/settings.py:328
-#: ./content/behaviors.py:105
+#: ./content/behaviors.py:109
 msgid "User(s) that can approve the item before the signing session."
 msgstr "Personnes qui peuvent approuver avant signature."
 
@@ -1086,55 +1094,75 @@ msgstr "Rédiger email"
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)"
 
-#: ./subscribers.py:986
+#: ./subscribers.py:1017
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
-#: ./subscribers.py:110
+#: ./subscribers.py:112
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr "Vous ne pouvez pas copier cet élément '${title}' ! Pour un élément du tableau, vous devez utiliser les boutons sous le tableau."
 
-#: ./subscribers.py:946
+#: ./subscribers.py:977
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:885
+#: ./subscribers.py:916
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:845
+#: ./subscribers.py:876
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:815
+#: ./subscribers.py:846
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:804
+#: ./subscribers.py:835
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./subscribers.py:135
+#: ./subscribers.py:137
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./subscribers.py:433
+#: ./content/behaviors.py:194
+msgid "You cannot have a seal without electronic signature !"
+msgstr "Vous ne pouvez pas avoir un sceau sans signature électronique !"
+
+#: ./subscribers.py:443
 msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
 msgstr "Vous ne pouvez pas avoir un sceau sans signature électronique ! Il faut adapter les règles dans la configuration !"
 
-#: ./subscribers.py:444
+#: ./subscribers.py:506
+msgid "You cannot have an approving number ${c} with status ${status} <=> w"
+msgstr "Vous ne pouvez pas avoir un approbateur à la ligne ${c} qui a déjà le statut ${status} <=> w"
+
+#: ./content/behaviors.py:192
+msgid "You cannot have empty and defined approvings at the same time !"
+msgstr "Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides, parfois non !"
+
+#: ./content/behaviors.py:168
+msgid "You cannot have the same signer (${signer_title}) multiple times !"
+msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) !"
+
+#: ./subscribers.py:455
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
-msgstr "Vous ne pouvez pas avoir le même signataire plus fois (${signer_title}) ! Il faut adapter les règles dans la configuration !"
+msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) ! Il faut adapter les règles dans la configuration !"
 
 #: ./browser/settings.py:219
 msgid "You cannot select approvings and no validation at the same time."
 msgstr "Vous ne pouvez pas sélectionner des approbateurs et pas de signature en même temps."
 
-#: ./dmsmail.py:1236
+#: ./content/behaviors.py:190
+msgid "You have to define approvings for each signer if electronic signature is used !"
+msgstr "Vous devez définir des approbateurs pour chaque signataire si la signature électronique est utilisée !"
+
+#: ./dmsmail.py:1245
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service traitant n'a pas de validateur et l'état va être modifié !"
 
-#: ./dmsmail.py:411
+#: ./dmsmail.py:412
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
@@ -1416,7 +1444,7 @@ msgid "outgoing_mail_tab"
 msgstr "Sortant"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./subscribers.py:352
+#: ./subscribers.py:354
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
