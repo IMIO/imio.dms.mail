@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <object name="portal_catalog" meta_type="Plone Catalog Tool">
 
- <index name="approving" meta_type="KeywordIndex">
-  <indexed_attr value="approving"/>
+ <index name="approvings" meta_type="KeywordIndex">
+  <indexed_attr value="approvings"/>
  </index>
- <!--column value="approving"/-->
+ <!--column value="approvings"/-->
 
  <index name="organization_type" meta_type="FieldIndex">
   <indexed_attr value="organization_type"/>

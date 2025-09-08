@@ -440,7 +440,7 @@ class TaskPrettyLinkAdapter(PrettyLinkAdapter):
 
 
 @indexer(IImioDmsOutgoingMail)
-def approving_index(obj):
+def approvings_index(obj):
     """Indexer of 'approvings' for IImioDmsOutgoingMail.
 
     Stores userid:number for each approver.
