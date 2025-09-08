@@ -389,11 +389,11 @@ def dmsoutgoingmail_transition(mail, event):
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
     if event.transition and event.transition.id == "propose_to_approve":
         annot = IAnnotations(mail).get("idm.approval", None)
-        # set current to first if not set yet
-        # what happens if not None ??
-        if annot and annot["approval"] is None:
+        # set approval number to first if not set yet
+        # what happens if already set ??
+        if annot and annot["users"] and annot["approval"] is None:
             annot["approval"] = 1
-            modified(mail)
+            mail.reindexObject(idxs=("approvings",), update_metadata=0)
 
 
 def dmsoutgoingmail_modified(mail, event):
