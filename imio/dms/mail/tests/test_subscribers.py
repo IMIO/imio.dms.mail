@@ -562,6 +562,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 },
             ],
         )
+        # TODO this check has been moved to invariant. Must be adapted
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(cm.exception.message,

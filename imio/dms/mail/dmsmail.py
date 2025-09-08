@@ -734,7 +734,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         # get ordered files
         files = reversed([f for f in object_values(self, ["ImioDmsFile"])
                           if f.file.contentType == "application/vnd.oasis.opendocument.text"])
-        return [list(files)[:1]]
+        return list(files)[:1]
 
     def get_mainfiles(self):
         """Overiddes dmsdocument method"""
