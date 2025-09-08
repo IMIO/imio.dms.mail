@@ -446,9 +446,9 @@ def approving_index(obj):
     Stores userid:number for each approver.
     """
     annot = IAnnotations(obj)
-    approval = annot.get("idm.approval", {"current": None})
-    if approval["current"]:
-        return [a["userid"] for a in approval["numbers"][approval["current"]]["users"]]
+    approval = annot.get("idm.approval", {"approval": None})
+    if approval["approval"]:
+        return [a["userid"] for a in approval["numbers"][approval["approval"]]["users"]]
     return common_marker
 
 
