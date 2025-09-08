@@ -480,7 +480,7 @@ def dmsoutgoingmail_modified(mail, event):
 
         annot = IAnnotations(mail)
         approval = annot.setdefault("idm.approval", {"users": PersistentMapping(), "numbers": PersistentMapping(),
-                                                     "approval": None})
+                                                     "approval": None, "files": PersistentMapping()})
         # "awaiting" (w), "pending" (p), "approved" (a)
         for i, signer in enumerate(mail.signers, start=1):
             if signer["signer"] == "_empty_":
@@ -506,6 +506,10 @@ def dmsoutgoingmail_modified(mail, event):
                     raise Invalid(_("You cannot have an approving number ${c} with status ${status} <=> w",
                                     mapping={"status": numbers["status"], "c": i}))
                 numbers["users"].append(userid)
+        # files
+        for fil in mail.get_files_to_sign():
+            if fil.id not in approval["files"]:
+                approval["files"][fil.id] = PersistentMapping({"status": "w", "UID": fil.UID()})
 
 
 def dv_handle_file_creation(obj, event):
