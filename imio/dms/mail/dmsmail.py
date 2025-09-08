@@ -885,7 +885,8 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
         # Protect from scanned state
         if not self.context.treating_groups or not self.context.title:
             return False
-        # TODO must check if there are files to approve
+        if not self.context.get_files_to_sign():
+            return False
         return self.context.has_approvings()
 
     security.declarePublic("can_be_handsigned")
