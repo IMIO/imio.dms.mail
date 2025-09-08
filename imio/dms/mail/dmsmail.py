@@ -80,6 +80,7 @@ from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
+from zope.annotation import IAnnotations
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
@@ -728,20 +729,16 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u"recipient_groups"])
 
+    def get_files_to_sign(self):
+        """Returns the list of ImioDmsFile objects to sign"""
+        # get ordered files
+        files = reversed([f for f in object_values(self, ["ImioDmsFile"])
+                          if f.file.contentType == "application/vnd.oasis.opendocument.text"])
+        return [list(files)[:1]]
+
     def get_mainfiles(self):
         """Overiddes dmsdocument method"""
         return object_values(self, ["ImioDmsFile"])
-
-    def wf_condition_may_set_scanned(self, state_change):  # noqa, pragma: no cover  NO MORE USED
-        """method used in wf condition"""
-        # python: here.wf_condition_may_set_scanned(state_change)
-        user = api.user.get_current()
-        if "expedition" in get_plone_groups_for_user(user=user):
-            return True
-        roles = api.user.get_roles(user=user)
-        if "Manager" in roles or "Site Administrator" in roles:
-            return True
-        return False
 
     @ram.cache(object_modified_cachekey)
     def OM_get_back_or_again_icon(self):
@@ -861,6 +858,13 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
                     emails.append(email)
         return u", ".join(emails)
 
+    def has_approvings(self):
+        """Check if the outgoing mail must be approved.
+        :return: boolean
+        """
+        annot = IAnnotations(self).get("idm.approval", {})
+        return bool(annot.get("users", []))
+
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
         return IImioDmsOutgoingMailWfConditions(self)
@@ -877,8 +881,12 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
     security.declarePublic("can_be_approved")
 
     def can_be_approved(self):
-        """Used in guard expression for propose_to_approve transition."""
-        return self.can_be_handsigned()
+        """Used in guard expression for propose_to_approve and back_to_approve transitions."""
+        # Protect from scanned state
+        if not self.context.treating_groups or not self.context.title:
+            return False
+        # TODO must check if there are files to approve
+        return self.context.has_approvings()
 
     security.declarePublic("can_be_handsigned")
 
