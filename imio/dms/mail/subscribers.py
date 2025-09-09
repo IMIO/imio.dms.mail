@@ -393,7 +393,7 @@ def dmsoutgoingmail_transition(mail, event):
         # what happens if already set ??
         if annot and annot["users"] and annot["approval"] is None:
             annot["approval"] = 1
-            mail.reindexObject(idxs=("approvings",), update_metadata=0)
+            mail.portal_catalog.reindexObject(idxs=("approvings",), update_metadata=0)
 
 
 def dmsoutgoingmail_modified(mail, event):
