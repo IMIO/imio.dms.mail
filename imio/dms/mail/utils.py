@@ -43,6 +43,7 @@ from natsort import natsorted
 from operator import attrgetter
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
+from persistent.mapping import PersistentMapping
 from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer
@@ -464,6 +465,25 @@ def get_scan_id(obj):
         sid_long = u"IMIO%s" % sid
         sid_short = len(sid) == 15 and sid[7:].lstrip("0") or sid
     return [sid, sid_long, sid_short]
+
+
+def get_approval_annot(obj):
+    """Return approval annotation."""
+    annot = IAnnotations(obj)
+    approval = annot.setdefault("idm.approval", {"users": PersistentMapping(), "numbers": PersistentMapping(),
+                                                 "approval": None, "files": PersistentMapping()})
+    return approval
+
+
+def change_approval_user_status(approval, number, status, userid=None):
+    """Change user status in approval annotation."""
+    if userid and userid in approval["users"]:
+        approval["users"][userid]["status"] = status
+    if number in approval["numbers"]:
+        approval["numbers"][number]["status"] = status
+    for f_uid in approval["files"]:
+        if number in approval["files"][f_uid]:
+            approval["files"][f_uid][number]["status"] = status
 
 
 def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
