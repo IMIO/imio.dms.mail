@@ -1184,7 +1184,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 query=[
                     {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                     {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": [new_state_id]},
-                    {"i": "approving", "o": "plone.app.querystring.operation.string.currentUser"},
+                    {"i": "approvings", "o": "plone.app.querystring.operation.string.currentUser"},
                 ],
                 customViewFields=tuple(next_col.customViewFields),
                 tal_condition=u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",

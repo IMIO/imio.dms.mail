@@ -394,7 +394,7 @@ def dmsoutgoingmail_transition(mail, event):
         # what happens if already set ??
         if annot and annot["users"] and annot["approval"] is None:
             annot["approval"] = 1
-            mail.portal_catalog.reindexObject(idxs=("approvings",), update_metadata=0)
+            mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
 
 
 def dmsoutgoingmail_modified(mail, event):
@@ -506,7 +506,8 @@ def dmsoutgoingmail_modified(mail, event):
                 if numbers["status"] != "w":
                     raise Invalid(_("You cannot have an approving number ${c} with status ${status} <=> w",
                                     mapping={"status": numbers["status"], "c": i}))
-                numbers["users"].append(userid)
+                if userid not in numbers["users"]:
+                    numbers["users"].append(userid)
         # files
         for fil in mail.get_files_to_sign():
             if fil.UID() not in approval["files"]:
