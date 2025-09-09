@@ -90,6 +90,7 @@ from zope.lifecycleevent import modified
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from zope.ramcache.interfaces.ram import IRAMCache
 
+import copy
 import datetime
 import logging
 import os
@@ -508,8 +509,8 @@ def dmsoutgoingmail_modified(mail, event):
                 numbers["users"].append(userid)
         # files
         for fil in mail.get_files_to_sign():
-            if fil.id not in approval["files"]:
-                approval["files"][fil.id] = PersistentMapping({"status": "w", "UID": fil.UID()})
+            if fil.UID() not in approval["files"]:
+                approval["files"][fil.UID()] = copy.deepcopy(approval["numbers"])
 
 
 def dv_handle_file_creation(obj, event):
