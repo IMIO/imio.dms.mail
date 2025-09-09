@@ -35,10 +35,12 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 # from imio.dms.mail.utils import separate_fullname
+from imio.dms.mail.utils import change_approval_user_status
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
@@ -389,11 +391,12 @@ def dmsoutgoingmail_transition(mail, event):
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
     if event.transition and event.transition.id == "propose_to_approve":
-        annot = IAnnotations(mail).get("idm.approval", None)
+        approval = get_approval_annot(mail)
         # set approval number to first if not set yet
         # what happens if already set ??
-        if annot and annot["users"] and annot["approval"] is None:
-            annot["approval"] = 1
+        if approval["users"] and approval["approval"] is None:
+            approval["approval"] = 1
+            change_approval_user_status(approval, approval["approval"], "p")
             mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
 
 
@@ -479,9 +482,7 @@ def dmsoutgoingmail_modified(mail, event):
 
         mail.signers.sort(key=itemgetter("number"))
 
-        annot = IAnnotations(mail)
-        approval = annot.setdefault("idm.approval", {"users": PersistentMapping(), "numbers": PersistentMapping(),
-                                                     "approval": None, "files": PersistentMapping()})
+        approval = get_approval_annot(mail)
         # "awaiting" (w), "pending" (p), "approved" (a)
         for i, signer in enumerate(mail.signers, start=1):
             if signer["signer"] == "_empty_":
