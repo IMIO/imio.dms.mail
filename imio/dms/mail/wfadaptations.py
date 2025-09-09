@@ -1102,6 +1102,8 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         for next_state_id in to_states:
             if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
                 continue
+            if new_state_id == next_state_id:
+                continue
             next_state = wf.states[next_state_id]
             transitions = list(next_state.transitions)
             if back_tr_id not in transitions:
