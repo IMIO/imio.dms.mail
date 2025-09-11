@@ -562,7 +562,6 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 },
             ],
         )
-        # TODO this check has been moved to invariant. Must be adapted
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(cm.exception.message,
@@ -600,10 +599,11 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 },
             ],
         )
-        with self.assertRaises(Invalid) as cm:
-            modified(omail)
-        self.assertEqual(cm.exception.message,
-                         u"A signer is missing at position: ${positions} ! You have to adapt the rules !")
+        # TODO this check has been moved to invariant. Test must be moved to invariant test
+        # with self.assertRaises(Invalid) as cm:
+        #     modified(omail)
+        # self.assertEqual(cm.exception.message,
+        #                  u"A signer is missing at position: ${positions} ! You have to adapt the rules !")
 
         # Test seal + esign
         omail.signers = None
@@ -743,6 +743,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         omail.signers = None
         modified(omail)
         self.assertIsNone(omail.signers)
+        # TODO add tests for 2 other raises
+        # The ${userid} already exists ...
+        # You cannot have an approving number
 
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')
