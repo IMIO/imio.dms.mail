@@ -482,16 +482,20 @@ def dmsoutgoingmail_modified(mail, event):
 
         mail.signers.sort(key=itemgetter("number"))
 
-        approval = get_approval_annot(mail)
+        approval = get_approval_annot(mail, reset=True)
         # "awaiting" (w), "pending" (p), "approved" (a)
         for i, signer in enumerate(mail.signers, start=1):
             if signer["signer"] == "_empty_":
                 continue
+            signer_person = uuidToObject(signer["signer"], unrestricted=True).get_person()
+            user_email = api.user.get(signer_person.userid).getProperty("email")
+            numbers = approval["numbers"].setdefault(i, PersistentMapping(
+                {"status": "w", "users": PersistentList(), "signer": user_email}))
             for approving in signer["approvings"] or []:
                 if approving == "_empty_":
                     continue
                 if approving == "_themself_":
-                    person = uuidToObject(signer["signer"], unrestricted=True).get_person()
+                    person = signer_person
                 else:
                     person = uuidToObject(approving, unrestricted=True)
                 userid = person.userid
@@ -501,8 +505,6 @@ def dmsoutgoingmail_modified(mail, event):
                                     mapping={"userid": userid, "o": approval["users"][userid]["order"],
                                              "c": i}))
                 approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title()})
-                numbers = approval["numbers"].setdefault(i, PersistentMapping(
-                    {"status": "w", "users": PersistentList()}))
                 # TODO: is this check required ?
                 if numbers["status"] != "w":
                     raise Invalid(_("You cannot have an approving number ${c} with status ${status} <=> w",

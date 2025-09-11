@@ -467,9 +467,11 @@ def get_scan_id(obj):
     return [sid, sid_long, sid_short]
 
 
-def get_approval_annot(obj):
+def get_approval_annot(obj, reset=False):
     """Return approval annotation."""
     annot = IAnnotations(obj)
+    if reset and "idm.approval" in annot:
+        del annot["idm.approval"]
     approval = annot.setdefault("idm.approval", {"users": PersistentMapping(), "numbers": PersistentMapping(),
                                                  "approval": None, "files": PersistentMapping()})
     return approval
