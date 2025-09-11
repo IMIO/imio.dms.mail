@@ -92,7 +92,6 @@ from zope.lifecycleevent import modified
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from zope.ramcache.interfaces.ram import IRAMCache
 
-import copy
 import datetime
 import logging
 import os
@@ -489,8 +488,9 @@ def dmsoutgoingmail_modified(mail, event):
                 continue
             signer_person = uuidToObject(signer["signer"], unrestricted=True).get_person()
             user_email = api.user.get(signer_person.userid).getProperty("email")
+            signer_tup = (signer_person.userid, user_email, signer_person.get_title(include_person_title=False), i)
             numbers = approval["numbers"].setdefault(i, PersistentMapping(
-                {"status": "w", "users": PersistentList(), "signer": user_email}))
+                {"status": "w", "users": PersistentList(), "signer": signer_tup}))
             for approving in signer["approvings"] or []:
                 if approving == "_empty_":
                     continue
@@ -514,7 +514,8 @@ def dmsoutgoingmail_modified(mail, event):
         # files
         for fil in mail.get_files_to_sign():
             if fil.UID() not in approval["files"]:
-                approval["files"][fil.UID()] = copy.deepcopy(approval["numbers"])
+                approval["files"][fil.UID()] = PersistentMapping({nb: PersistentMapping({"status": "w"})
+                                                                  for nb in approval["numbers"]})
 
 
 def dv_handle_file_creation(obj, event):
