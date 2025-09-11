@@ -928,6 +928,23 @@ class IImioDmsMailConfig(model.Schema):
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
                         )
                     )
+                # check signer
+                if rule["signer"] not in (u"_empty_", u"_seal_"):
+                    signer_person = uuidToObject(rule["signer"], unrestricted=True).get_person()
+                    if not signer_person:
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: « ${field} », rule ${rule} has an invalid signer.",
+                                mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                            )
+                        )
+                    if not signer_person.userid:
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: « ${field} », rule ${rule} has a signer without userid.",
+                                mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
+                            )
+                        )
                 # check approvings
                 if rule["esign"] and (not rule["approvings"] or "_empty_" in rule["approvings"]):
                     raise Invalid(
