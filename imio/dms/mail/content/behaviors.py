@@ -75,6 +75,8 @@ class IUsagesBehavior(model.Schema):
                         label=_ccp(u"Application parameters"),
                         fields=["usages"])
 
+    # TODO: add invariant to check that userid is defined
+
 
 @provider(IContextSourceBinder)
 def signing_signers(context):
@@ -167,6 +169,13 @@ class ISigningBehavior(model.Schema):
                 raise Invalid(
                     _(
                         u"You cannot have the same signer (${signer_title}) multiple times !",
+                        mapping={"signer_title": person.get_title()},
+                    )
+                )
+            if not person.userid:
+                raise Invalid(
+                    _(
+                        u"The signer '${signer_title}' has no userid, you cannot use it !",
                         mapping={"signer_title": person.get_title()},
                     )
                 )
