@@ -472,8 +472,13 @@ def get_approval_annot(obj, reset=False):
     annot = IAnnotations(obj)
     if reset and "idm.approval" in annot:
         del annot["idm.approval"]
-    approval = annot.setdefault("idm.approval", {"users": PersistentMapping(), "numbers": PersistentMapping(),
-                                                 "approval": None, "files": PersistentMapping()})
+    approval = annot.setdefault(
+        "idm.approval",
+        PersistentMapping({
+            "users": PersistentMapping(),
+            "numbers": PersistentMapping(),
+            "approval": None,
+            "files": PersistentMapping()}))
     return approval
 
 
