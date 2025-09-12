@@ -230,5 +230,9 @@
         for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
         />
 
+    <!-- eSignature -->
+    <adapter for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        factory=".adapters.ItemSignersAdapter"
+        provides="imio.esign.adapters.ISignable"/>
 
 </configure>

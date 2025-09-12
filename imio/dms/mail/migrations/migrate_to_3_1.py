@@ -71,6 +71,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                     "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
             ))
 
+            self.install(["imio.esign"])
+
             # signing
             self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
             load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior

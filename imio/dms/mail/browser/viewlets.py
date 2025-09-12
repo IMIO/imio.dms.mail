@@ -8,7 +8,9 @@ from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
 from imio.dms.mail.browser.table import OMVersionsTable
+from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.esign.browser.views import FacetedSessionInfoViewlet
 from imio.helpers.content import richtextval
 from imio.helpers.xhtml import object_link
 from imio.prettylink.interfaces import IPrettyLink
@@ -153,3 +155,11 @@ class ImioFooterViewlet(FooterViewlet):
         super(FooterViewlet, self).update()
         self.version = api.portal.get_registry_record("imio.dms.mail.product_version", default="3.0") or "unknown"
         self.dashversion = self.version.replace(".", "-")
+
+
+class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
+    sessions_listing_view = ImioSessionsListingView
+
+    @property
+    def sessions_collection_uid(self):
+        return api.portal.get()["outgoing-mail"]["mail-searches"]["in_esign_sessions"].UID()
