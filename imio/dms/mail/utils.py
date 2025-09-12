@@ -3,6 +3,7 @@ from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import organizations_with_suffixes
+from collective.documentgenerator.utils import convert_and_save_odt
 from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
@@ -21,6 +22,7 @@ from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.esign.utils import add_files_to_session
 from imio.helpers.batching import batch_delete_files
 from imio.helpers.batching import batch_get_keys
 from imio.helpers.batching import batch_handle_key
@@ -491,6 +493,47 @@ def change_approval_user_status(approval, number, status, userid=None):
     for f_uid in approval["files"]:
         if number in approval["files"][f_uid]:
             approval["files"][f_uid][number]["status"] = status
+
+
+def add_mail_files_to_session(mail, approval=None):
+    """Add mail files to sign session."""
+    if not approval:
+        approval = get_approval_annot(mail)
+    if not approval["files"]:
+        return False, "No files"
+    """
+    {'approval': None,
+     'files': {'48b13604e05843e4ae747e168af83ae5': {1: {'status': 'w'}, 2: {'status': 'w'}}},
+     'numbers': {1: {'status': 'w', 'signer': ('dirg', 'dirg@macommune.be', u'Maxime DG', 1), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'bourgmestre@macommune.be', u'Paul BM', 2), 'users': ['bourgmestre']}},
+     'users': {'bourgmestre': {'status': 'w', 'order': 2, 'name': u'Monsieur Paul BM'}, 'dirg': {'status': 'w', 'order': 1, 'name': u'Monsieur Maxime DG'}}}
+    """  # noqa
+    not_approved = [fuid for fuid in approval["files"] for nb in approval["files"][fuid]
+                    if approval["files"][fuid][nb]["status"] != "a"]
+    if not_approved:
+        return False, "Not all files approved"
+    file_uids = []
+    for f_uid in approval["files"]:
+        fobj = uuidToObject(f_uid)
+        if not fobj:
+            continue
+        if not fobj.scan_id or len(fobj.scan_id) != 15:
+            api.portal.show_message(
+                message=_("File '${file}' has no or a wrong scan id, it cannot be added to sign session.",
+                          mapping={"file": fobj.absolute_url()}),
+                request=mail.REQUEST,
+                type="error",
+            )
+            return Redirect(mail.absolute_url())
+            # return False, "File without scan id"
+        new_filename = os.path.splitext(fobj.file.filename)[0] + ".pdf"
+        # TODO which pdf format to choose ?
+        pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf')
+        pdf_file.scan_id = fobj.scan_id
+        # TODO copy other metadata ?
+        file_uids.append(pdf_file.UID())
+    signers = [approval["numbers"][nb]["signer"] for nb in approval["numbers"]]
+    session_id, session = add_files_to_session(signers, file_uids, mail.seal, watchers=[])
+    return True, "{} files added to session number {}".format(len(file_uids), session_id)
 
 
 def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
