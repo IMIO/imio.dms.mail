@@ -480,14 +480,22 @@ def dmsoutgoingmail_modified(mail, event):
             mail.signers = [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"]}]
 
         mail.signers.sort(key=itemgetter("number"))
-
         approval = get_approval_annot(mail, reset=True)
         # "awaiting" (w), "pending" (p), "approved" (a)
+        signer_emails = []
         for i, signer in enumerate(mail.signers, start=1):
             if signer["signer"] == "_empty_":
                 continue
             signer_person = uuidToObject(signer["signer"], unrestricted=True).get_person()
             user_email = api.user.get(signer_person.userid).getProperty("email")
+            if user_email in signer_emails:
+                raise Invalid(
+                    _(
+                        u"You cannot have the same email (${email}) for multiple signers !",
+                        mapping={"email": user_email},
+                    )
+                )
+            signer_emails.append(user_email)
             signer_tup = (signer_person.userid, user_email, signer_person.get_title(include_person_title=False), i)
             numbers = approval["numbers"].setdefault(i, PersistentMapping(
                 {"status": "w", "users": PersistentList(), "signer": signer_tup}))
