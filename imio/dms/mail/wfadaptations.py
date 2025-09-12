@@ -1178,7 +1178,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 tmpl.dashboard_collections = cols
         col_id = "to_approve"
         if col_id not in folder:
-            next_col = folder["to_treat"]
+            next_col = folder["to_validate"]
             folder.invokeFactory(
                 "DashboardCollection",
                 id=col_id,
@@ -1203,6 +1203,35 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("to_validate") + 1)
+        col_id = "in_esign_sessions"
+        if col_id not in folder:
+            next_col = folder["to_validate"]
+            folder.invokeFactory(
+                "DashboardCollection",
+                id=col_id,
+                title=_("om_in_sessions"),
+                query=[
+                    {
+                        "i": "CompoundCriterion",
+                        "o": "plone.app.querystring.operation.compound.is",
+                        "v": " files-belonging-to-a-given-session",
+                    },
+                ],
+                customViewFields=tuple(next_col.customViewFields),
+                tal_condition=u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+                showNumberOfItems=False,
+                roles_bypassing_talcondition=["Manager", "Site Administrator"],
+                sort_on=u"sortable_title",
+                sort_reversed=True,
+                b_size=30,
+                limit=0,
+                enabled=True,
+            )
+            col = folder[col_id]
+            col.setSubject((u"search",))
+            col.reindexObject(["Subject"])
+            col.setLayout("tabular_view")
+            folder.moveObjectToPosition(col_id, folder.getObjectPosition("in_copy") + 1)
 
         # update treating collection
         col = folder["om_treating"]

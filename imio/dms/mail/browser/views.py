@@ -468,9 +468,10 @@ class DmsMailRestClientView(BrowserView):
 class ImioSessionsListingView(SessionsListingView):
 
     def get_dashboard_link(self, session):
-        collection_uid = api.portal.get()["outgoing-mail"]["mail-searches"]["esign_sessions"].UID()
-        return "{portal_url}/outgoing-mail/mail-searches#c3=20&b_start=0&c1={collection_uid}&esign_session_id={session_id}".format(
-            portal_url=api.portal.get().absolute_url(),
-            collection_uid=collection_uid,
-            session_id=session["id"],
-        )
+        collection_uid = api.portal.get()["outgoing-mail"]["mail-searches"]["in_esign_sessions"].UID()
+        return "{portal_url}/outgoing-mail/mail-searches#c3=20&b_start=0&c1={collection_uid}" \
+            "&esign_session_id={session_id}".format(
+                portal_url=api.portal.get().absolute_url(),
+                collection_uid=collection_uid,
+                session_id=session["id"],
+            )
