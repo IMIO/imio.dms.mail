@@ -1066,17 +1066,16 @@ class ItemSignersAdapter(object):
 
     def get_signers(self):
         """Return the list of signers for the item."""
-        pc = api.portal.get_tool("portal_catalog")
         # make sure signers are sorted by signature number
         for signer in self.context.signers:
-            if "signer" not in signer or not signer["signer"]:
+            if signer["signer"] == "_empty_":
                 continue
-            hp = uuidToObject(signer["signer"])
+            hp = uuidToObject(signer["signer"], unrestricted=True)
             if hp:
                 yield {
                     "held_position": hp,
                     "name": hp.get_person().get_title(include_person_title=False),
-                    "function": hp.get_title(),
+                    "function": hp.label or u"",
                 }
 
     def get_files_uids(self):
@@ -1084,6 +1083,8 @@ class ItemSignersAdapter(object):
 
         :return: list of uid of files
         """
-        for sub_content in self.context.values():
-            if sub_content.portal_type in ("dmsommainfile", "dmsappendixfile"):
-                yield sub_content.UID()
+        # must get here already converted file in pdf format...
+        return []
+        # for sub_content in self.context.values():
+        #     if sub_content.portal_type in ("dmsommainfile", "dmsappendixfile"):
+        #         yield sub_content.UID()
