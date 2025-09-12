@@ -486,7 +486,8 @@ def dmsoutgoingmail_modified(mail, event):
         for i, signer in enumerate(mail.signers, start=1):
             if signer["signer"] == "_empty_":
                 continue
-            signer_person = uuidToObject(signer["signer"], unrestricted=True).get_person()
+            signer_hp = uuidToObject(signer["signer"], unrestricted=True)
+            signer_person = signer_hp.get_person()
             user_email = api.user.get(signer_person.userid).getProperty("email")
             if user_email in signer_emails:
                 raise Invalid(
@@ -496,7 +497,8 @@ def dmsoutgoingmail_modified(mail, event):
                     )
                 )
             signer_emails.append(user_email)
-            signer_tup = (signer_person.userid, user_email, signer_person.get_title(include_person_title=False), i)
+            signer_tup = (signer_person.userid, user_email, signer_person.get_title(include_person_title=False),
+                          signer_hp.label or u"")
             numbers = approval["numbers"].setdefault(i, PersistentMapping(
                 {"status": "w", "users": PersistentList(), "signer": signer_tup}))
             for approving in signer["approvings"] or []:
