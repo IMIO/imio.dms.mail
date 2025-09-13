@@ -13,6 +13,7 @@ from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHe
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
+from imio.dms.mail.utils import get_approval_annot
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -223,18 +224,14 @@ class OMDGHelper(BaseDGHelper):
                 term = vocab.getTerm(mode)
                 send_modes.append(term.title)
         return separator.join(send_modes)
-    
+
     def get_signers(self):
         """Return a list of tuple (position, name, function) containing signers."""
         signers = []
-        if self.real_context.signers:
-            for sign in self.real_context.signers:
-                held_position = uuidToObject(sign['signer'], unrestricted=True)
-                if held_position is not None:
-                    person = held_position.get_person()
-                    signer = (sign['number'], person.get_title(include_person_title=False), held_position.label)
-                    signers.append(signer)
-        signers = sorted(signers, key=lambda x: x[0])
+        approval = get_approval_annot(self.real_context)
+        for nb in sorted(list(approval.get("numbers", {}).keys())):
+            userid, email, name, label = approval["numbers"][nb]["signer"]
+            signers.append((nb, name, label))
         return signers
 
 
