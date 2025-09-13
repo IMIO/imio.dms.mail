@@ -199,6 +199,13 @@ class TestDocumentGenerator(unittest.TestCase):
                          u'Lettre, Lettre recommand\xe9e, Email')
         self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
 
+        # Test get_signers
+        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général Direction générale'), (2, u'Paul BM', u'Bourgmestre Collège communal')])
+        view1.real_context.signers.append({'signer': self.resp_grh.UID(),'approvings': [u'_empty_'],'number': 3})
+        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général Direction générale'), (2, u'Paul BM', u'Bourgmestre Collège communal'), (3, u'Michel Chef', u'Responsable GRH')])
+        view1.real_context.signers = []
+        self.assertEqual(view1.get_signers(), [])
+
     def test_DocumentGenerationOMDashboardHelper(self):
         """
         Test all methods of DocumentGenerationOMDashboardHelper view

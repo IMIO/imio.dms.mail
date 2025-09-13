@@ -223,6 +223,19 @@ class OMDGHelper(BaseDGHelper):
                 term = vocab.getTerm(mode)
                 send_modes.append(term.title)
         return separator.join(send_modes)
+    
+    def get_signers(self):
+        """Return a list of tuple (position, name, function) containing signers."""
+        signers = []
+        if self.real_context.signers:
+            for sign in self.real_context.signers:
+                held_position = uuidToObject(sign['signer'], unrestricted=True)
+                if held_position is not None:
+                    person = held_position.get_person()
+                    signer = (sign['number'], person.get_title(include_person_title=False), held_position.label)
+                    signers.append(signer)
+        signers = sorted(signers, key=lambda x: x[0])
+        return signers
 
 
 class DashboardDGBaseHelper:  # noqa
