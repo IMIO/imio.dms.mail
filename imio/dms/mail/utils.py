@@ -532,7 +532,10 @@ def add_mail_files_to_session(mail, approval=None):
         # TODO copy other metadata ?
         file_uids.append(pdf_file.UID())
     signers = [approval["numbers"][nb]["signer"] for nb in sorted(list(approval["numbers"].keys()))]
-    session_id, session = add_files_to_session(signers, file_uids, mail.seal, watchers=[])
+    seal = None
+    if mail.seal:
+        seal = ""  # TODO where to get a value ?
+    session_id, session = add_files_to_session(signers, file_uids, seal, watchers=[])
     return True, "{} files added to session number {}".format(len(file_uids), session_id)
 
 
