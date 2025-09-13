@@ -2,6 +2,7 @@
 """ documentgenerator.py tests for this package."""
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
+from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
@@ -10,9 +11,12 @@ from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import ObjectModifiedEvent
 
 import mocker  # must be replaced in Plone 5 with python 3 unittest.mock
 import unittest
+import zope.event
 
 
 class TestDocumentGenerator(unittest.TestCase):
@@ -200,11 +204,19 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
 
         # Test get_signers
-        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général Direction générale'), (2, u'Paul BM', u'Bourgmestre Collège communal')])
-        view1.real_context.signers.append({'signer': self.resp_grh.UID(),'approvings': [u'_empty_'],'number': 3})
-        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général Direction générale'), (2, u'Paul BM', u'Bourgmestre Collège communal'), (3, u'Michel Chef', u'Responsable GRH')])
+        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général'),
+                                               (2, u'Paul BM', u'Bourgmestre')])
+        view1.real_context.signers.append({'signer': self.resp_grh.UID(), 'approvings': [u'_empty_'], 'number': 3})
+        zope.event.notify(ObjectModifiedEvent(view1.real_context,
+                                              Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général'), (2, u'Paul BM', u'Bourgmestre'),
+                                               (3, u'Michel Chef', u'Responsable GRH')])
         view1.real_context.signers = []
-        self.assertEqual(view1.get_signers(), [])
+        # rules will be reapplied
+        zope.event.notify(ObjectModifiedEvent(view1.real_context,
+                                              Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général'),
+                                               (2, u'Paul BM', u'Bourgmestre')])
 
     def test_DocumentGenerationOMDashboardHelper(self):
         """

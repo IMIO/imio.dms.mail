@@ -504,7 +504,7 @@ def add_mail_files_to_session(mail, approval=None):
     """
     {'approval': None,
      'files': {'48b13604e05843e4ae747e168af83ae5': {1: {'status': 'w'}, 2: {'status': 'w'}}},
-     'numbers': {1: {'status': 'w', 'signer': ('dirg', 'dirg@macommune.be', u'Maxime DG', 1), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'bourgmestre@macommune.be', u'Paul BM', 2), 'users': ['bourgmestre']}},
+     'numbers': {1: {'status': 'w', 'signer': ('dirg', 'dirg@macommune.be', u'Maxime DG', u"Directeur général"), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'bourgmestre@macommune.be', u'Paul BM', u"Bourgmestre"), 'users': ['bourgmestre']}},
      'users': {'bourgmestre': {'status': 'w', 'order': 2, 'name': u'Monsieur Paul BM'}, 'dirg': {'status': 'w', 'order': 1, 'name': u'Monsieur Maxime DG'}}}
     """  # noqa
     not_approved = [fuid for fuid in approval["files"] for nb in approval["files"][fuid]

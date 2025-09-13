@@ -823,7 +823,7 @@ def configure_contact_plone_group(context):
                     "number": u"1",
                     "primary_organization": dep0.UID(),
                 },
-                "hps": {"phone": u"012345670", "label": u"Directeur Général {}", "usages": ["signer"]},
+                "hps": {"phone": u"012345670", "label": u"Directeur Général", "usages": ["signer"]},
             },
             "bourgmestre": {
                 "pers": {
@@ -837,7 +837,7 @@ def configure_contact_plone_group(context):
                     "number": u"1",
                     "primary_organization": departments[6].UID(),
                 },
-                "hps": {"phone": u"012345670", "label": u"Bourgmestre {}", "usages": ["signer"]},
+                "hps": {"phone": u"012345670", "label": u"Bourgmestre", "usages": ["signer"]},
             },
         }
         pf = contacts["personnel-folder"]
@@ -851,7 +851,10 @@ def configure_contact_plone_group(context):
             person.reindexObject()
             for i, hp in enumerate(person.objectValues()):
                 setattr(hp, "phone", persons[pers_id]["hps"]["phone"])
-                setattr(hp, "label", persons[pers_id]["hps"]["label"].format(hp.get_organization().title))
+                if u"{}" in persons[pers_id]["hps"]["label"]:
+                    setattr(hp, "label", persons[pers_id]["hps"]["label"].format(hp.get_organization().title))
+                else:
+                    setattr(hp, "label", persons[pers_id]["hps"]["label"])
                 if "usages" in persons[pers_id]["hps"] and not i:  # doing for only one hp
                     setattr(hp, "usages", persons[pers_id]["hps"]["usages"])
                 api.content.rename(obj=hp, new_id=normalizer.normalize(hp.label))
@@ -862,7 +865,7 @@ def configure_contact_plone_group(context):
         api.portal.set_registry_record(rk, [
             {
                 "number": 1,
-                "signer": pf["dirg"]["directeur-general-direction-generale"].UID(),
+                "signer": pf["dirg"]["directeur-general"].UID(),
                 "approvings": [u"_empty_"],
                 "esign": False,
                 "valid_from": None,
@@ -874,7 +877,7 @@ def configure_contact_plone_group(context):
             },
             {
                 "number": 2,
-                "signer": pf["bourgmestre"]["bourgmestre-college-communal"].UID(),
+                "signer": pf["bourgmestre"]["bourgmestre"].UID(),
                 "approvings": [u"_empty_"],
                 "esign": False,
                 "valid_from": None,

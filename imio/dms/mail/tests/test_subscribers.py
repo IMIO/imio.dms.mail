@@ -165,9 +165,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
     def test_dmsoutgoingmail_modified(self):
         dirg = self.portal["contacts"]["personnel-folder"]["dirg"]
-        dirg_hp = dirg["directeur-general-direction-generale"]
+        dirg_hp = dirg["directeur-general"]
         bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
-        bourgmestre_hp = bourgmestre["bourgmestre-college-communal"]
+        bourgmestre_hp = bourgmestre["bourgmestre"]
         # bourgmestre_hp.usages = ["signer", "approving"]
         # modified(bourgmestre_hp, Attributes(Interface, "usages"))
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
@@ -531,7 +531,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         }
         bourgmestre_hp2 = bourgmestre.invokeFactory("held_position", "directeur-general-college-communal-2", **params)
         bourgmestre_hp2 = bourgmestre[bourgmestre_hp2]
-        modified(bourgmestre_hp2, Attributes(Interface, "usages"))
+        modified(bourgmestre_hp2, Attributes(Interface, "usages"))  # interface behavior
         omail.signers = None
         api.portal.set_registry_record(
             rk,
