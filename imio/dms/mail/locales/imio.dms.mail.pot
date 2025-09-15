@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-09-08 12:51+0000\n"
+"POT-Creation-Date: 2025-09-13 22:29+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,7 +45,7 @@ msgstr ""
 msgid "${tab} tab: « ${field} » rule ${rule} is configured with no values defined"
 msgstr ""
 
-#: ./browser/settings.py:940
+#: ./browser/settings.py:957
 msgid "${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself."
 msgstr ""
 
@@ -57,11 +57,19 @@ msgstr ""
 msgid "${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. With a seal, it can only be 0."
 msgstr ""
 
+#: ./browser/settings.py:943
+msgid "${tab} tab: « ${field} », rule ${rule} has a signer without userid."
+msgstr ""
+
 #: ./browser/settings.py:886
 msgid "${tab} tab: « ${field} », rule ${rule} has an invalid date in « ${date} » field"
 msgstr ""
 
-#: ./browser/settings.py:934
+#: ./browser/settings.py:936
+msgid "${tab} tab: « ${field} », rule ${rule} has an invalid signer."
+msgstr ""
+
+#: ./browser/settings.py:951
 msgid "${tab} tab: « ${field} », rule ${rule} must have at least one approving if electronic signature is enabled."
 msgstr ""
 
@@ -73,7 +81,7 @@ msgstr ""
 msgid "${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal to « ${from} »"
 msgstr ""
 
-#: ./browser/views.py:45
+#: ./browser/views.py:46
 msgid "${title}: create from template"
 msgstr ""
 
@@ -98,7 +106,7 @@ msgid "'${field}': position ${position}"
 msgstr ""
 
 #: ./browser/settings.py:240
-#: ./content/behaviors.py:84
+#: ./content/behaviors.py:86
 msgid "* No signature"
 msgstr ""
 
@@ -122,7 +130,7 @@ msgstr ""
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr ""
 
-#: ./subscribers.py:855
+#: ./subscribers.py:875
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -130,7 +138,7 @@ msgstr ""
 msgid "<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>"
 msgstr ""
 
-#: ./content/behaviors.py:182
+#: ./content/behaviors.py:191
 msgid "A signer is missing at position: ${positions} !"
 msgstr ""
 
@@ -219,7 +227,8 @@ msgid "Approving"
 msgstr ""
 
 #: ./browser/settings.py:327
-#: ./content/behaviors.py:108
+#: ./content/behaviors.py:110
+#: ./profiles/default/registry.xml
 msgid "Approvings"
 msgstr ""
 
@@ -295,7 +304,7 @@ msgstr ""
 msgid "Can choose possible usages (on held position)"
 msgstr ""
 
-#: ./browser/views.py:243
+#: ./browser/views.py:244
 msgid "Cannot use localhost as smtp"
 msgstr ""
 
@@ -316,12 +325,12 @@ msgid "Check if there is an assigned user before proposing incoming mail to an a
 msgstr ""
 
 #: ./browser/settings.py:183
-#: ./content/behaviors.py:83
+#: ./content/behaviors.py:85
 #: ./vocabularies.py:206
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:50
+#: ./browser/views.py:51
 msgid "Choose this template"
 msgstr ""
 
@@ -379,11 +388,11 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:896
+#: ./utils.py:969
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
-#: ./browser/settings.py:1404
+#: ./browser/settings.py:1421
 msgid "Current product version"
 msgstr ""
 
@@ -427,11 +436,11 @@ msgstr ""
 msgid "Do mailing for each postal sending type."
 msgstr ""
 
-#: ./browser/settings.py:1392
+#: ./browser/settings.py:1409
 msgid "Document viewer preservation date"
 msgstr ""
 
-#: ./browser/settings.py:1388
+#: ./browser/settings.py:1405
 msgid "Document viewer preservation days number"
 msgstr ""
 
@@ -440,7 +449,7 @@ msgid "Due date extension"
 msgstr ""
 
 #: ./browser/settings.py:337
-#: ./content/behaviors.py:151
+#: ./content/behaviors.py:153
 msgid "Electronic signature"
 msgstr ""
 
@@ -502,6 +511,10 @@ msgstr ""
 
 #: ./browser/settings.py:137
 msgid "Field name"
+msgstr ""
+
+#: ./utils.py:521
+msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr ""
 
 #: ./browser/settings.py:394
@@ -601,7 +614,7 @@ msgstr ""
 msgid "Incoming mails"
 msgstr ""
 
-#: ./browser/settings.py:1396
+#: ./browser/settings.py:1413
 msgid "Incoming mails folder period (month, week, day)"
 msgstr ""
 
@@ -617,11 +630,11 @@ msgstr ""
 msgid "Lastname Firstname"
 msgstr ""
 
-#: ./subscribers.py:882
+#: ./subscribers.py:902
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./content/behaviors.py:133
+#: ./content/behaviors.py:135
 msgid "List of users who have to sign this document"
 msgstr ""
 
@@ -687,7 +700,7 @@ msgid "No incoming mail !"
 msgstr ""
 
 #: ./browser/settings.py:312
-#: ./content/behaviors.py:94
+#: ./content/behaviors.py:96
 msgid "Number"
 msgstr ""
 
@@ -759,7 +772,7 @@ msgstr ""
 msgid "Outgoing mails"
 msgstr ""
 
-#: ./browser/settings.py:1400
+#: ./browser/settings.py:1417
 msgid "Outgoing mails folder period (month, week, day)"
 msgstr ""
 
@@ -814,7 +827,7 @@ msgid "Refresh tab count"
 msgstr ""
 
 #: ./browser/settings.py:320
-#: ./content/behaviors.py:102
+#: ./content/behaviors.py:104
 msgid "Related userid will be the signer. Position name of the held position will be used."
 msgstr ""
 
@@ -838,7 +851,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./examples.py:979
+#: ./examples.py:982
 msgid "Response: "
 msgstr ""
 
@@ -850,7 +863,7 @@ msgstr ""
 msgid "Rules are read in order. Conditions must be left empty if not relevant. Dates with format YYYY/MM/DD."
 msgstr ""
 
-#: ./content/behaviors.py:146
+#: ./content/behaviors.py:148
 msgid "Seal"
 msgstr ""
 
@@ -901,17 +914,17 @@ msgid "Set None"
 msgstr ""
 
 #: ./browser/settings.py:319
-#: ./content/behaviors.py:101
+#: ./content/behaviors.py:103
 #: ./vocabularies.py:130
 msgid "Signer"
 msgstr ""
 
-#: ./content/behaviors.py:161
+#: ./content/behaviors.py:163
 msgid "Signer line ${nb} has a duplicate approver with themself."
 msgstr ""
 
 #: ./browser/settings.py:313
-#: ./content/behaviors.py:95
+#: ./content/behaviors.py:97
 msgid "Signer number on the document."
 msgstr ""
 
@@ -919,11 +932,11 @@ msgstr ""
 msgid "Signer rules"
 msgstr ""
 
-#: ./content/behaviors.py:132
+#: ./content/behaviors.py:134
 msgid "Signers"
 msgstr ""
 
-#: ./content/behaviors.py:123
+#: ./content/behaviors.py:125
 msgid "Signing fieldset"
 msgstr ""
 
@@ -983,7 +996,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./subscribers.py:498
+#: ./subscribers.py:514
 msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr ""
 
@@ -993,6 +1006,10 @@ msgstr ""
 
 #: ./dmsmail.py:1217
 msgid "The assigned user is not in the selected group !"
+msgstr ""
+
+#: ./content/behaviors.py:177
+msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr ""
 
 #: ./browser/viewlets.py:115
@@ -1033,7 +1050,7 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:900
+#: ./utils.py:973
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -1062,7 +1079,7 @@ msgid "User fullname used format"
 msgstr ""
 
 #: ./browser/settings.py:328
-#: ./content/behaviors.py:109
+#: ./content/behaviors.py:111
 msgid "User(s) that can approve the item before the signing session."
 msgstr ""
 
@@ -1094,59 +1111,63 @@ msgstr ""
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
-#: ./subscribers.py:1017
+#: ./subscribers.py:1037
 msgid "You cannot add a group in a group !"
 msgstr ""
 
-#: ./subscribers.py:112
+#: ./subscribers.py:114
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr ""
 
-#: ./subscribers.py:977
+#: ./subscribers.py:997
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:916
+#: ./subscribers.py:936
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
-#: ./subscribers.py:876
+#: ./subscribers.py:896
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:846
+#: ./subscribers.py:866
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:835
+#: ./subscribers.py:855
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./subscribers.py:137
+#: ./subscribers.py:139
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./content/behaviors.py:194
+#: ./content/behaviors.py:203
 msgid "You cannot have a seal without electronic signature !"
 msgstr ""
 
-#: ./subscribers.py:443
+#: ./subscribers.py:446
 msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
 msgstr ""
 
-#: ./subscribers.py:506
+#: ./subscribers.py:520
 msgid "You cannot have an approving number ${c} with status ${status} <=> w"
 msgstr ""
 
-#: ./content/behaviors.py:192
+#: ./content/behaviors.py:201
 msgid "You cannot have empty and defined approvings at the same time !"
 msgstr ""
 
-#: ./content/behaviors.py:168
+#: ./subscribers.py:494
+msgid "You cannot have the same email (${email}) for multiple signers !"
+msgstr ""
+
+#: ./content/behaviors.py:170
 msgid "You cannot have the same signer (${signer_title}) multiple times !"
 msgstr ""
 
-#: ./subscribers.py:455
+#: ./subscribers.py:458
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr ""
 
@@ -1154,7 +1175,7 @@ msgstr ""
 msgid "You cannot select approvings and no validation at the same time."
 msgstr ""
 
-#: ./content/behaviors.py:190
+#: ./content/behaviors.py:199
 msgid "You have to define approvings for each signer if electronic signature is used !"
 msgstr ""
 
@@ -1166,11 +1187,11 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./browser/views.py:271
+#: ./browser/views.py:272
 msgid "Your email has been sent."
 msgstr ""
 
-#: ./browser/views.py:243
+#: ./browser/views.py:244
 msgid "Your email has not been sent: ${error}."
 msgstr ""
 
@@ -1415,7 +1436,11 @@ msgstr ""
 msgid "om_in_my_group"
 msgstr ""
 
-#: ./wfadaptations.py:1183
+#: ./wfadaptations.py:1212
+msgid "om_in_sessions"
+msgstr ""
+
+#: ./wfadaptations.py:1185
 msgid "om_to_approve"
 msgstr ""
 
@@ -1444,7 +1469,7 @@ msgid "outgoing_mail_tab"
 msgstr ""
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./subscribers.py:354
+#: ./subscribers.py:356
 msgid "redirected_after_edition"
 msgstr ""
 
