@@ -30,6 +30,7 @@ from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
@@ -88,7 +89,9 @@ from zope.interface import alsoProvides
 from zope.interface import Invalid
 from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
+from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
+from zope.lifecycleevent import ObjectModifiedEvent
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from zope.ramcache.interfaces.ram import IRAMCache
 
@@ -96,6 +99,7 @@ import datetime
 import logging
 import os
 import transaction
+import zope.event
 
 
 try:
@@ -526,6 +530,12 @@ def dmsoutgoingmail_modified(mail, event):
             if fil.UID() not in approval["files"]:
                 approval["files"][fil.UID()] = PersistentMapping({nb: PersistentMapping({"status": "w"})
                                                                   for nb in approval["numbers"]})
+
+
+def dmsoutgoingmail_added(mail, event):
+    """If the content is manually created, we call the modified event after creation to set signers."""
+    if mail.title:  # TODO handle email correctly ! owner info is different from scanner ?
+        zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
 
 def dv_handle_file_creation(obj, event):
