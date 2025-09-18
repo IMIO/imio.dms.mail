@@ -106,13 +106,6 @@ class ISignerSchema(Interface):
         required=True,
     )
 
-    editor = schema.Bool(
-        title=_(u"Editor"),
-        description=_(u"Enable edition when approving."),
-        required=False,
-        default=False,
-    )
-
     approvings = schema.List(
         title=_(u"Approvings"),
         description=_(u"User(s) that can approve the item before the signing session."),
@@ -122,6 +115,13 @@ class ISignerSchema(Interface):
         min_length=1,
     )
     form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    editor = schema.Bool(
+        title=_(u"Editor"),
+        description=_(u"Enable edition when approving."),
+        required=False,
+        default=False,
+    )
 
 
 @provider(IFormFieldProvider)

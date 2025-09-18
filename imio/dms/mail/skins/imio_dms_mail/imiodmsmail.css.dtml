@@ -231,9 +231,9 @@ body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers s
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3,
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4,
 body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
+body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 {
     width: 1%;
     white-space: nowrap;
 }
@@ -248,14 +248,14 @@ body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widget
     word-wrap: break-word;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 label {
-    display: none;
-}
-
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
     word-wrap: break-word;
     white-space: normal;
     width: 39%;
+}
+
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label {
+    display: none;
 }
 
 .template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-email_body div.richTextWidget  #cke_2_contents {
@@ -914,7 +914,6 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7 inpu
     max-width: 10ch;
 }
 
-/* L'ancienne .cell-10 devient .cell-11 */
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-11 {
     width: 3%;
 }

@@ -323,11 +323,10 @@ class ISignerRuleSchema(Interface):
         default=None,
     )
 
-    editor = schema.Bool(
-        title=_(u"Editor"),
-        description=_(u"Enable edition when approving."),
-        required=False,
-        default=False,
+    esign = schema.Bool(
+        title=_(u"Electronic signature"),
+        description=_(u"Enable electronic signature for this document."),
+        default=True,
     )
 
     approvings = schema.List(
@@ -340,10 +339,11 @@ class ISignerRuleSchema(Interface):
     )
     widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
-    esign = schema.Bool(
-        title=_(u"Electronic signature"),
-        description=_(u"Enable electronic signature for this document."),
-        default=True,
+    editor = schema.Bool(
+        title=_(u"Editor"),
+        description=_(u"Enable edition when approving."),
+        required=False,
+        default=False,
     )
 
     valid_from = schema.TextLine(
