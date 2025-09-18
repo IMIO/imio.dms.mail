@@ -1,6 +1,7 @@
 # encoding: utf-8
 
 from AccessControl import getSecurityManager
+from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
 from collective.contact.core.content.held_position import IHeldPosition
@@ -23,6 +24,7 @@ from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
@@ -46,6 +48,7 @@ from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.ATContentTypes.interfaces.folder import IATFolder
 from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.utils import getToolByName
+from Products.CMFCore.WorkflowCore import WorkflowException
 from Products.CMFPlone.CatalogTool import sortable_title
 from Products.CMFPlone.utils import base_hasattr
 from Products.PluginIndexes.common.UnIndex import _marker as common_marker
@@ -447,7 +450,7 @@ def approvings_index(obj):
     """
     annot = IAnnotations(obj)
     approval = annot.get("idm.approval", {"approval": None})
-    if approval["approval"]:
+    if approval["approval"] and approval["approval"] != 99:
         return [userid for userid in approval["numbers"][approval["approval"]]["users"]]
     return common_marker
 
@@ -1059,7 +1062,9 @@ class SendableAnnexesToPMAdapter(object):
 
 
 class ItemSignersAdapter(object):
-    """Adapter to get signers of a given item."""
+    """Adapter to get signers of a given item.
+
+    Not used for the moment because we use approval mechanism."""
 
     def __init__(self, context):
         self.context = context
@@ -1088,3 +1093,50 @@ class ItemSignersAdapter(object):
         # for sub_content in self.context.values():
         #     if sub_content.portal_type in ("dmsommainfile", "dmsappendixfile"):
         #         yield sub_content.UID()
+
+
+@implementer(ILocalRoleProvider)
+class ApproverRoleAdapter(object):
+    """borg.localrole adapter to set localrole for signing approvers"""
+
+    def __init__(self, context):
+        self.context = context
+
+    def getRoles(self, principal):
+        """Returns an iterable of roles granted to the specified user object"""
+        return self.config.get(principal, ())
+
+    def getAllRoles(self):
+        """Returns an iterable consisting of tuples of the form: (principal_id, sequence_of_roles)"""
+        config = self.config
+        if not config:
+            yield "", ("",)
+            return
+        for principal, roles in config.items():
+            yield principal, roles
+
+    @property
+    def current_state(self):
+        """Return the state of the current object"""
+        try:
+            return api.content.get_state(obj=self.context)
+        except (WorkflowException, api.portal.CannotGetPortalError):
+            return None
+
+    """
+    {'approval': None,
+     'files': {'48b13604e05843e4ae747e168af83ae5': {1: {'status': 'w'}, 2: {'status': 'w'}}},
+     'numbers': {1: {'status': 'w', 'signer': ('dirg', 'dirg@macommune.be', u'Maxime DG', u"Directeur général"), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'bourgmestre@macommune.be', u'Paul BM', u"Bourgmestre"), 'users': ['bourgmestre']}},
+     'users': {'bourgmestre': {'status': 'w', 'order': 2, 'name': u'Monsieur Paul BM'}, 'dirg': {'status': 'w', 'order': 1, 'name': u'Monsieur Maxime DG'}}}
+    """  # noqa
+    @property
+    def config(self):
+        annot = get_approval_annot(self.context)
+        if annot["approval"] is None or self.current_state not in ("to_approve", "to_be_signed", "signed", "sent"):
+            return {}
+        roles = {}
+        for userid in annot.get("users", {}):
+            if annot["approval"] != 99 and annot["users"][userid]["order"] > annot["approval"]:
+                continue  # only users that can approve have visibility
+            roles[userid] = ("Reader", )
+        return roles
