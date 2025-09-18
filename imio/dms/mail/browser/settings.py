@@ -323,6 +323,13 @@ class ISignerRuleSchema(Interface):
         default=None,
     )
 
+    editor = schema.Bool(
+        title=_(u"Editor"),
+        description=_(u"Enable edition when approving."),
+        required=False,
+        default=False,
+    )
+
     approvings = schema.List(
         title=_(u"Approvings"),
         description=_(u"User(s) that can approve the item before the signing session."),

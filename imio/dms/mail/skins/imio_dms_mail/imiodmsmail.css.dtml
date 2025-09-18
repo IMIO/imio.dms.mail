@@ -231,22 +231,28 @@ body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers s
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1{
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3,
+body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
+body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
     width: 1%;
     white-space: nowrap;
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 {
-    width: 59%;
+    width: 55%;
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 select {
     width: 100%;
     white-space: normal;
     word-wrap: break-word;
-},
+}
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 label {
+    display: none;
+}
+
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 {
     word-wrap: break-word;
     white-space: normal;
     width: 39%;
@@ -874,43 +880,46 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 sele
     /*padding: 2px 4px;*/
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4 label {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 label,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label {
     display: none;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-10 {
     width: 15%;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 label,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7 label,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4 label,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 label,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 label {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 label,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-10 label {
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7 {
     width: 2%;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 input,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6 input {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6 input,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7 input {
     width: 10ch;
     min-width: 10ch;
     max-width: 10ch;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-10 {
+/* L'ancienne .cell-10 devient .cell-11 */
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-11 {
     width: 3%;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-10 input {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-11 input {
     width: 15ch;
     min-width: 15ch;
 }

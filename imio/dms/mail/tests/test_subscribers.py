@@ -184,9 +184,11 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
 
         # Test no rules
+        omail.signers = None
         api.portal.set_registry_record(rk, [])
         modified(omail)
-        self.assertListEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+        self.assertListEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
+                                              'editor': False}])
 
         # Test treating groups
         omail.signers = None
@@ -204,11 +206,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [self.pgof["direction-generale"].UID()],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
+                                          "editor": False}])
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -225,11 +229,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [self.pgof["direction-financiere"].UID()],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": True,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
+                                          'editor': False}])
 
         # Test mail types
         omail.signers = None
@@ -247,11 +253,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
+                                          "editor": False}])
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -275,11 +283,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
+                                          'editor': False}])
 
         # Test valid_from / valid_until
         omail.signers = None
@@ -297,11 +307,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
+                                          "editor": False}])
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -318,11 +330,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
+                                          'editor': False}])
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -339,11 +353,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
+                                          'editor': False}])
 
         # Test TAL condition
         omail.signers = None
@@ -361,11 +377,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
+                                          "editor": False}])
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -382,11 +400,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 }
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
+                                          'editor': False}])
 
         # Test skip number if already present
         omail.signers = None
@@ -404,6 +424,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
                 {
                     "valid_until": None,
@@ -416,11 +437,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": dirg_hp.UID(),
+                    "editor": True,
                 },
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
+                                          "editor": False}])
 
         # Test seal (number 0)
         omail.signers = None
@@ -438,13 +461,15 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": u"_seal_",
+                    "editor": False,
                 },
             ],
         )
         self.assertIsNone(omail.seal)
         modified(omail)
         self.assertTrue(omail.seal)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1}])
+        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
+                                          'editor': False}])
 
         # Test sort signers
         omail.signers = None
@@ -462,6 +487,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
                 {
                     "valid_until": None,
@@ -474,6 +500,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": dirg_hp.UID(),
+                    "editor": True,
                 },
             ],
         )
@@ -481,8 +508,8 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             omail.signers,
             [
-                {"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1},
-                {"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 2},
+                {"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": True},
+                {"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 2, "editor": False},
             ],
         )
 
@@ -502,6 +529,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
                 {
                     "valid_until": None,
@@ -514,6 +542,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
             ],
         )
@@ -547,6 +576,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
                 {
                     "valid_until": None,
@@ -559,6 +589,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp2.UID(),
+                    "editor": False,
                 },
             ],
         )
@@ -584,6 +615,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": dirg_hp.UID(),
+                    "editor": False,
                 },
                 {
                     "valid_until": None,
@@ -596,6 +628,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
             ],
         )
@@ -621,6 +654,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": u"_seal_",
+                    "editor": False,
                 },
                 {
                     "valid_until": None,
@@ -633,12 +667,14 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
             ],
         )
         modified(omail)
         self.assertTrue(omail.esign)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
+                                          "editor": False}])
 
         omail.signers = None
         omail.seal = None
@@ -657,12 +693,14 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
             ],
         )
         modified(omail)
         self.assertFalse(omail.esign)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1}])
+        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
+                                          "editor": False}])
 
         omail.signers = None
         omail.seal = None
@@ -681,6 +719,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": u"_seal_",
+                    "editor": False,
                 },
                 {
                     "valid_until": None,
@@ -693,6 +732,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
             ],
         )
@@ -707,6 +747,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 "signer": dirg_hp.UID(),
                 "approvings": [u"_themself_", bourgmestre_hp.UID()],
                 "number": 1,
+                "editor": True,
             }
         ]
         api.portal.set_registry_record(
@@ -723,6 +764,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "treating_groups": [],
                     "send_modes": [],
                     "signer": bourgmestre_hp.UID(),
+                    "editor": False,
                 },
             ],
         )
@@ -734,6 +776,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                     "signer": dirg_hp.UID(),
                     "approvings": [u"_themself_", bourgmestre_hp.UID()],
                     "number": 1,
+                    "editor": True,
                 }
             ],
         )

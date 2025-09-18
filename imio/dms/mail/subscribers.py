@@ -471,6 +471,7 @@ def dmsoutgoingmail_modified(mail, event):
                 {
                     "number": signer["number"],
                     "signer": signer["signer"],
+                    "editor": signer["editor"],
                     "approvings": signer["approvings"],
                 }
             )
@@ -481,7 +482,7 @@ def dmsoutgoingmail_modified(mail, event):
     if signers_update or not mod_attr or "ISigningBehavior.signers" in mod_attr:
         if not mail.signers:
             # if no signers, we add an empty one to not do again automatic assignment at next modification
-            mail.signers = [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"]}]
+            mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
 
         mail.signers.sort(key=itemgetter("number"))
         approval = get_approval_annot(mail, reset=True)
@@ -518,7 +519,8 @@ def dmsoutgoingmail_modified(mail, event):
                     raise Invalid(_("The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
                                     mapping={"userid": userid, "o": approval["users"][userid]["order"],
                                              "c": i}))
-                approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title()})
+                approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title(),
+                                                               "editor": signer["editor"]})
                 # TODO: is this check required ?
                 if numbers["status"] != "w":
                     raise Invalid(_("You cannot have an approving number ${c} with status ${status} <=> w",

@@ -418,7 +418,7 @@ def add_test_mails(context):
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
     files = [
-        unicode(name)
+        safe_unicode(name)
         for name in os.listdir(filespath)  # noqa
         if os.path.splitext(name)[1][1:] in ("pdf", "doc", "jpg")
     ]
@@ -866,6 +866,7 @@ def configure_contact_plone_group(context):
             {
                 "number": 1,
                 "signer": pf["dirg"]["directeur-general"].UID(),
+                "editor": True,
                 "approvings": [u"_empty_"],
                 "esign": False,
                 "valid_from": None,
@@ -878,6 +879,7 @@ def configure_contact_plone_group(context):
             {
                 "number": 2,
                 "signer": pf["bourgmestre"]["bourgmestre"].UID(),
+                "editor": False,
                 "approvings": [u"_empty_"],
                 "esign": False,
                 "valid_from": None,
