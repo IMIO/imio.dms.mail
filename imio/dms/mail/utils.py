@@ -477,10 +477,12 @@ def get_approval_annot(obj, reset=False):
     approval = annot.setdefault(
         "idm.approval",
         PersistentMapping({
-            "users": PersistentMapping(),
-            "numbers": PersistentMapping(),
             "approval": None,
-            "files": PersistentMapping()}))
+            "files": PersistentMapping(),
+            "numbers": PersistentMapping(),
+            "session_id": None,
+            "users": PersistentMapping(),
+        }))
     return approval
 
 
@@ -503,7 +505,7 @@ def add_mail_files_to_session(mail, approval=None):
         return False, "No files"
     """
     {'files': {'4115fb4c265647ca82d85285504973b8': {1: {'status': 'p'}, 2: {'status': 'w'}}}, 
-     'approval': 1,
+     'approval': 1, 'session_id': None,
      'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
      'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}}}
     """  # noqa
@@ -536,6 +538,7 @@ def add_mail_files_to_session(mail, approval=None):
     if mail.seal:
         seal = ""  # TODO where to get a value ?
     session_id, session = add_files_to_session(signers, file_uids, seal, watchers=[])
+    approval["session_id"] = session_id
     return True, "{} files added to session number {}".format(len(file_uids), session_id)
 
 
