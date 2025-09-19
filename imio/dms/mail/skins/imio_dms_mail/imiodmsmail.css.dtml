@@ -896,6 +896,11 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 sele
     /*padding: 2px 4px;*/
 }
 
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-3,
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-5 {
+    text-align: center;
+}
+
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 label,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label {
     display: none;

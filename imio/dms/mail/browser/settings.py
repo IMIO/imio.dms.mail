@@ -311,7 +311,7 @@ class ISignerRuleSchema(Interface):
     number = schema.Choice(
         title=_(u"Number"),
         description=_(u"Signer number on the document."),
-        vocabulary=SimpleVocabulary.fromValues(range(0, 10)),
+        vocabulary=SimpleVocabulary.fromValues(range(0, 15)),
         required=True,
     )
 
