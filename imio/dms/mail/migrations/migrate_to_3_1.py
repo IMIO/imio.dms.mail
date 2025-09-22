@@ -161,6 +161,11 @@ class Migrate_To_3_1(Migrator):  # noqa
             pos = col_folder.getObjectPosition("searchfor_to_be_signed")
             col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
 
+            # reindex om markers
+            for brain in self.omf.portal_catalog.unrestrictedSearchResults(portal_type="dmsoutgoingmail"):
+                obj = brain._unrestrictedGetObject()
+                obj.reindexObject(idxs=["markers"])
+
             # END
 
             finished = True  # can be eventually returned and set by batched method

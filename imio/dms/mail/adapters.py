@@ -652,6 +652,9 @@ def om_markers(obj):
     dfiles = object_values(obj, ["ImioDmsFile"])
     if dfiles and dfiles[-1].is_odt():
         markers.append("lastDmsFileIsOdt")
+    # Set emailSent:
+    if obj.email_status:
+        markers.append("emailSent")
     # Stores on obj
     annot = IAnnotations(obj)
     annot["dmsmail.markers"] = markers

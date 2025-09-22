@@ -8,9 +8,15 @@ Changelog
   [chris-adam, sgeulette]
 - Added 'Signers' field on outgoing mails to select 'signer' held positions.
   [chris-adam, sgeulette]
-- Added signers routing settings.
+- Added signers rules settings.
   [chris-adam, sgeulette]
 - Added signed state in om workflow.
+  [sgeulette]
+- Added OMToApproveAdaptation wdadaptation on om workflow.
+  [sgeulette]
+- Added approvings mechanism (index, search, mail annotation).
+  [sgeulette]
+- Used session from imio.esign.
   [sgeulette]
 
 3.0 (2021-09-30)
