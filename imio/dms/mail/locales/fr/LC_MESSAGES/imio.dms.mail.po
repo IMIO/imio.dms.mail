@@ -112,7 +112,7 @@ msgstr "* Aucune signature"
 
 #: ./vocabularies.py:413
 msgid "* No validation"
-msgstr "* Aucune validation"
+msgstr "* Aucune approbation"
 
 #: ./browser/settings.py:241
 msgid "* Seal signature"
