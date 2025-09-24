@@ -190,6 +190,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                     logger.info('CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
                 if message_status("doc", older=timedelta(days=90), to_state="inactive"):
                     logger.info("doc message deactivated")
+                manage_addExternalMethod(self.portal, "idm_activate_signing", "", "imio.dms.mail.demo",
+                                         "activate_signing")
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
                 if ARCHIVE_SITE:
                     cssr = self.portal.portal_css
