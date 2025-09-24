@@ -82,6 +82,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
             applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
                                    if dic["workflow"] == "outgoingmail_workflow"]
+            finished1 = finished2 = True
             if reset:
                 logger.info("outgoingmail_workflow reloaded")
                 for name in applied_adaptations:
@@ -89,86 +90,94 @@ class Migrate_To_3_1(Migrator):  # noqa
                     if errors:
                         logger.error("Problem applying wf adaptations '%s': %d errors" % (name, errors))
                 # update permissions, roles and reindex allowedRolesAndUsers
-                count = self.portal.portal_workflow.updateRoleMappings()
-                logger.info("Updated {} items".format(count))
+                # count = self.portal.portal_workflow.updateRoleMappings()  out of memory
+                # logger.info("Updated {} items".format(count))
+                finished1 = self.reindexIndexes(['allowedRolesAndUsers'], portal_types=['dmsoutgoingmail'])
+                if finished1:
+                    finished2 = self.reindexIndexes(['allowedRolesAndUsers'],
+                                                    portal_types=['dmsommainfile', "dmsappendixfile", "task"])
+                else:
+                    finished2 = False
             else:
                 logger.error("outgoingmail_workflow not reloaded !")
 
             # update localroles
-            lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
-            changes = False
-            if "imio.dms.mail.content.behaviors.IDmsMailCreatingGroup" in fti.behaviors:
-                lrcg = lr["creating_group"]
-                if "signed" not in lrcg:
+            finished = finished1 and finished2
+            if finished:
+                lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
+                changes = False
+                if "imio.dms.mail.content.behaviors.IDmsMailCreatingGroup" in fti.behaviors:
+                    lrcg = lr["creating_group"]
+                    if "signed" not in lrcg:
+                        changes = True
+                        lrcg["signed"] = {CREATING_GROUP_SUFFIX: {"roles": ["Reader", "Reviewer"]}}
+                    if "to_be_signed" in lrcg and CREATING_GROUP_SUFFIX in lrcg["to_be_signed"] and "Editor" in \
+                            lrcg["to_be_signed"][CREATING_GROUP_SUFFIX]["roles"]:
+                        changes = True
+                        # correction !
+                        lrcg["to_be_signed"][CREATING_GROUP_SUFFIX]["roles"].remove("Editor")
+                lrsc = lr["static_config"]
+                if "signed" not in lrsc:
                     changes = True
-                    lrcg["signed"] = {CREATING_GROUP_SUFFIX: {"roles": ["Reader", "Reviewer"]}}
-                if "to_be_signed" in lrcg and CREATING_GROUP_SUFFIX in lrcg["to_be_signed"] and "Editor" in \
-                        lrcg["to_be_signed"][CREATING_GROUP_SUFFIX]["roles"]:
+                    lrsc["signed"] = {
+                        "expedition": {"roles": ["Editor", "Reviewer"]},
+                        "encodeurs": {"roles": ["Reader"]},
+                        "dir_general": {"roles": ["Contributor", "Editor", "Reviewer", "DmsFile Contributor"]},
+                        "lecteurs_globaux_cs": {"roles": ["Reader"]},
+                    }
+                lrtg = lr["treating_groups"]
+                if "signed" not in lrtg:
+                    changes = True
+                    lrtg["signed"] = {
+                        "editeur": {"roles": ["Reader"]},
+                        "encodeur": {"roles": ["Reader", "Reviewer"]},
+                        "lecteur": {"roles": ["Reader"]},
+                    }
+                if "to_be_signed" in lrtg and "encodeur" in lrtg["to_be_signed"] and "Editor" in \
+                        lrtg["to_be_signed"]["encodeur"]["roles"]:
                     changes = True
                     # correction !
-                    lrcg["to_be_signed"][CREATING_GROUP_SUFFIX]["roles"].remove("Editor")
-            lrsc = lr["static_config"]
-            if "signed" not in lrsc:
-                changes = True
-                lrsc["signed"] = {
-                    "expedition": {"roles": ["Editor", "Reviewer"]},
-                    "encodeurs": {"roles": ["Reader"]},
-                    "dir_general": {"roles": ["Contributor", "Editor", "Reviewer", "DmsFile Contributor"]},
-                    "lecteurs_globaux_cs": {"roles": ["Reader"]},
-                }
-            lrtg = lr["treating_groups"]
-            if "signed" not in lrtg:
-                changes = True
-                lrtg["signed"] = {
-                    "editeur": {"roles": ["Reader"]},
-                    "encodeur": {"roles": ["Reader", "Reviewer"]},
-                    "lecteur": {"roles": ["Reader"]},
-                }
-            if "to_be_signed" in lrtg and "encodeur" in lrtg["to_be_signed"] and "Editor" in \
-                    lrtg["to_be_signed"]["encodeur"]["roles"]:
-                changes = True
-                # correction !
-                lrtg["to_be_signed"]["encodeur"]["roles"].remove("Editor")
-            lrrg = lr["recipient_groups"]
-            if "signed" not in lrrg:
-                changes = True
-                lrrg["signed"] = {
-                    "editeur": {"roles": ["Reader"]},
-                    "encodeur": {"roles": ["Reader"]},
-                    "lecteur": {"roles": ["Reader"]},
-                }
-            if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_adaptations:
-                if "signed" in lrtg and "n_plus_1" not in lrtg["signed"]:
+                    lrtg["to_be_signed"]["encodeur"]["roles"].remove("Editor")
+                lrrg = lr["recipient_groups"]
+                if "signed" not in lrrg:
                     changes = True
-                    lrtg["signed"]["n_plus_1"] = {"roles": ["Reader"]}
-                if "signed" in lrrg and "n_plus_1" not in lrrg["signed"]:
-                    changes = True
-                    lrrg["signed"]["n_plus_1"] = {"roles": ["Reader"]}
+                    lrrg["signed"] = {
+                        "editeur": {"roles": ["Reader"]},
+                        "encodeur": {"roles": ["Reader"]},
+                        "lecteur": {"roles": ["Reader"]},
+                    }
+                if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_adaptations:
+                    if "signed" in lrtg and "n_plus_1" not in lrtg["signed"]:
+                        changes = True
+                        lrtg["signed"]["n_plus_1"] = {"roles": ["Reader"]}
+                    if "signed" in lrrg and "n_plus_1" not in lrrg["signed"]:
+                        changes = True
+                        lrrg["signed"]["n_plus_1"] = {"roles": ["Reader"]}
 
-            if changes:
-                lr._p_changed = True
+                if changes:
+                    lr._p_changed = True
 
-            # change back confirmation message
-            key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
-            values = list(api.portal.get_registry_record(key, default=[]))
-            if values and "dmsoutgoingmail.back_to_signed|" not in values:
-                values.append("dmsoutgoingmail.back_to_signed|")
-                api.portal.set_registry_record(key, values)
+                # change back confirmation message
+                key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
+                values = list(api.portal.get_registry_record(key, default=[]))
+                if values and "dmsoutgoingmail.back_to_signed|" not in values:
+                    values.append("dmsoutgoingmail.back_to_signed|")
+                    api.portal.set_registry_record(key, values)
 
-            # add signed collection
-            col_folder = self.portal["outgoing-mail"]["mail-searches"]
-            createStateCollections(self.portal["outgoing-mail"]["mail-searches"], "dmsoutgoingmail")
-            pos = col_folder.getObjectPosition("searchfor_to_be_signed")
-            col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
+                # add signed collection
+                col_folder = self.portal["outgoing-mail"]["mail-searches"]
+                createStateCollections(self.portal["outgoing-mail"]["mail-searches"], "dmsoutgoingmail")
+                pos = col_folder.getObjectPosition("searchfor_to_be_signed")
+                col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
 
-            # reindex om markers
-            for brain in self.omf.portal_catalog.unrestrictedSearchResults(portal_type="dmsoutgoingmail"):
-                obj = brain._unrestrictedGetObject()
-                obj.reindexObject(idxs=["markers"])
+                # reindex om markers
+                for brain in self.omf.portal_catalog.unrestrictedSearchResults(portal_type="dmsoutgoingmail"):
+                    obj = brain._unrestrictedGetObject()
+                    obj.reindexObject(idxs=["markers"])
 
-            # END
+                # END
 
-            finished = True  # can be eventually returned and set by batched method
+            # finished = True  # can be eventually returned and set by batched method
             if finished and old_version != new_version:
                 zope_app = self.portal
                 while not isinstance(zope_app, OFS.Application.Application):
