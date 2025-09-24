@@ -168,8 +168,6 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         dirg_hp = dirg["directeur-general"]
         bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
         bourgmestre_hp = bourgmestre["bourgmestre"]
-        # bourgmestre_hp.usages = ["signer", "approving"]
-        # modified(bourgmestre_hp, Attributes(Interface, "usages"))
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
         omail = sub_create(
             self.portal["outgoing-mail"],
@@ -187,8 +185,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         omail.signers = None
         api.portal.set_registry_record(rk, [])
         modified(omail)
-        self.assertListEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
-                                              'editor': False}])
+        self.assertListEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         # Test treating groups
         omail.signers = None
@@ -211,8 +210,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
-                                          "editor": False}])
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -234,8 +234,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
-                                          'editor': False}])
+        self.assertEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         # Test mail types
         omail.signers = None
@@ -258,8 +259,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
-                                          "editor": False}])
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -288,8 +290,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
-                                          'editor': False}])
+        self.assertEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         # Test valid_from / valid_until
         omail.signers = None
@@ -312,8 +315,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
-                                          "editor": False}])
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -335,8 +339,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
-                                          'editor': False}])
+        self.assertEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -358,8 +363,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
-                                          'editor': False}])
+        self.assertEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         # Test TAL condition
         omail.signers = None
@@ -382,8 +388,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
-                                          "editor": False}])
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         omail.signers = None
         api.portal.set_registry_record(
@@ -405,8 +412,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
-                                          'editor': False}])
+        self.assertEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         # Test skip number if already present
         omail.signers = None
@@ -442,8 +450,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
         modified(omail)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
-                                          "editor": False}])
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         # Test seal (number 0)
         omail.signers = None
@@ -468,8 +477,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertIsNone(omail.seal)
         modified(omail)
         self.assertTrue(omail.seal)
-        self.assertEqual(omail.signers, [{'signer': u'_empty_', 'approvings': [u'_empty_'], 'number': 1,
-                                          'editor': False}])
+        self.assertEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         # Test sort signers
         omail.signers = None
@@ -548,14 +558,15 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message,
-                         u"You cannot have the same signer (${signer_title}) multiple times ! "
-                         u"You have to adapt the rules !")
+        self.assertEqual(
+            cm.exception.message,
+            u"You cannot have the same signer (${signer_title}) multiple times ! " u"You have to adapt the rules !",
+        )
 
-        intids = getUtility(IIntIds)
         params = {
-            "position": RelationValue(intids.getId(
-                self.portal["contacts"]["plonegroup-organization"]["college-communal"])),
+            "position": RelationValue(
+                self.intids.getId(self.portal["contacts"]["plonegroup-organization"]["college-communal"])
+            ),
             "usages": ["signer"],
         }
         bourgmestre_hp2 = bourgmestre.invokeFactory("held_position", "directeur-general-college-communal-2", **params)
@@ -595,9 +606,10 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message,
-                         u"You cannot have the same signer (${signer_title}) multiple times ! "
-                         u"You have to adapt the rules !")
+        self.assertEqual(
+            cm.exception.message,
+            u"You cannot have the same signer (${signer_title}) multiple times ! " u"You have to adapt the rules !",
+        )
 
         # Test missing number
         omail.signers = None
@@ -632,11 +644,6 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 },
             ],
         )
-        # TODO this check has been moved to invariant. Test must be moved to invariant test
-        # with self.assertRaises(Invalid) as cm:
-        #     modified(omail)
-        # self.assertEqual(cm.exception.message,
-        #                  u"A signer is missing at position: ${positions} ! You have to adapt the rules !")
 
         # Test seal + esign
         omail.signers = None
@@ -673,8 +680,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertTrue(omail.esign)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
-                                          "editor": False}])
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         omail.signers = None
         omail.seal = None
@@ -699,8 +707,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertFalse(omail.esign)
-        self.assertEqual(omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1,
-                                          "editor": False}])
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
         omail.signers = None
         omail.seal = None
@@ -738,8 +747,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message,
-                         u"You cannot have a seal without electronic signature ! You have to adapt the rules !")
+        self.assertEqual(
+            cm.exception.message, u"You cannot have a seal without electronic signature ! You have to adapt the rules !"
+        )
 
         # Test mail already has signers
         omail.signers = [
