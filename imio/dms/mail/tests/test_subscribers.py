@@ -8,9 +8,11 @@ from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
+from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
@@ -21,6 +23,7 @@ from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield import RelationValue
 from zExceptions import Redirect
@@ -58,6 +61,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         self.omf = self.portal["outgoing-mail"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
+        self.pf = self.portal["contacts"]["personnel-folder"]
 
     def test_item_copied(self):
         # check if protection markers are removed from copied item
@@ -164,9 +168,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.imail.assigned_user, "agent")
 
     def test_dmsoutgoingmail_modified(self):
-        dirg = self.portal["contacts"]["personnel-folder"]["dirg"]
+        dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]
-        bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
+        bourgmestre = self.pf["bourgmestre"]
         bourgmestre_hp = bourgmestre["bourgmestre"]
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
         omail = sub_create(
@@ -791,14 +795,100 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             ],
         )
 
-        # Test mail in send or to_be_signed states
+        # Test duplicate approvings userids
+        chef = self.pf["chef"]
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [chef.UID()],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": dirg_hp.UID(),
+                    "editor": True,
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [chef.UID()],
+                    "esign": True,
+                    "number": 2,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                    "editor": False,
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(
+            cm.exception.message, u"The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
+        )
+
+        # Test signers have same email
+        api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
+        api.user.get("dirg").setMemberProperties({"email": "duplicate@belleville.eb"})
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": dirg_hp.UID(),
+                    "editor": True,
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 2,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                    "editor": False,
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(cm.exception.message, u"You cannot have the same email (${email}) for multiple signers !")
+        api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
+
+        # Test mail in sent or to_be_signed states
+        filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
+        with open(filepath, "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            createContentInContainer(omail, "dmsommainfile", id="1", title="Example", file=file_object)
+        api.content.transition(omail, to_state="to_be_signed")
+        omail.signers = None
+        modified(omail)
+        self.assertIsNone(omail.signers)
+
         api.content.transition(omail, to_state="sent")
         omail.signers = None
         modified(omail)
         self.assertIsNone(omail.signers)
-        # TODO add tests for 2 other raises
-        # The ${userid} already exists ...
-        # You cannot have an approving number
 
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')

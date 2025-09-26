@@ -514,17 +514,12 @@ def dmsoutgoingmail_modified(mail, event):
                 else:
                     person = uuidToObject(approving, unrestricted=True)
                 userid = person.userid
-                # TODO: is this check required ?
                 if userid in approval["users"] and approval["users"][userid]["order"] != i:
                     raise Invalid(_("The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
                                     mapping={"userid": userid, "o": approval["users"][userid]["order"],
                                              "c": i}))
                 approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title(),
                                                                "editor": signer["editor"]})
-                # TODO: is this check required ?
-                if numbers["status"] != "w":
-                    raise Invalid(_("You cannot have an approving number ${c} with status ${status} <=> w",
-                                    mapping={"status": numbers["status"], "c": i}))
                 if userid not in numbers["users"]:
                     numbers["users"].append(userid)
         # files
