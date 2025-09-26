@@ -1641,3 +1641,15 @@ def vocabularyname_to_terms(vocabulary_name, context=None, sort_on=None):
     if sort_on:
         return sorted([term for term in vocab], key=attrgetter(sort_on))
     return [term for term in vocab]
+
+
+def clean_borg_cache(req):
+    """Remove borg localroles cache values from request (needed in tests)."""
+    annotations = IAnnotations(req)
+    annotations_to_delete = []
+    for annotation in annotations.keys():
+        if annotation.startswith("borg.localrole.workspace.checkLocalRolesAllowed"):
+            annotations_to_delete.append(annotation)
+    # directly deleting in BTree doesn't work, we must do it in a second time
+    for annotation_to_delete in annotations_to_delete:
+        del annotations[annotation_to_delete]
