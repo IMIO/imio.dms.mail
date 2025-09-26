@@ -77,6 +77,9 @@ class Migrate_To_3_1(Migrator):  # noqa
             self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
             load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior
             load_type_from_package("held_position", "profile-imio.dms.mail:default")  # behavior
+            load_type_from_package("dmsappendixfile", "profile-imio.dms.mail:default")  # iconified
+            load_type_from_package("dmsommainfile", "profile-imio.dms.mail:default")  # iconified
+            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
 
             # Update wf changes
             reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
