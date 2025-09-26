@@ -24,6 +24,7 @@
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   <element value="collective.dms.scanbehavior.behaviors.behaviors.IScanFields"/>
   <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
+  <element value="collective.iconifiedcategory.behaviors.iconifiedcategorization.IIconifiedCategorization" />
  </property>
  <property name="schema" />
  <!-- DO NOT use a model_source or it removes manually added fields while reapplying the profile -->

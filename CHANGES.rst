@@ -18,6 +18,8 @@ Changelog
   [sgeulette]
 - Used session from imio.esign.
   [sgeulette]
+- Added 'imio.annex' and iconified categories to dms files and dms appendix files.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
