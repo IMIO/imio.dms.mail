@@ -535,6 +535,17 @@ def postInstall(context):
     # hide plone.portalheader message viewlet
     site.portal_setup.runImportStepFromProfile("profile-plonetheme.imioapps:default", "viewlets")
 
+    # Annexes Types
+    portal = api.portal.get()
+    if 'annexes_types' not in portal:
+        api.content.create(
+            container=portal,
+            id='annexes_types',
+            title=_(u"Annexes Types"),
+            type="ContentCategoryConfiguration",
+            exclude_from_nav=True
+        )
+
 
 def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
     """

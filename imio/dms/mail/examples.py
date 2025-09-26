@@ -12,6 +12,7 @@ from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefa
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
 from collective.dms.mailcontent.dmsmail import receptionDateDefaultValue
+from collective.iconifiedcategory.utils import calculate_category_id
 from DateTime.DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import BLDT_DIR
@@ -98,8 +99,10 @@ def add_test_annexes_types(context):
     site = context.getSite()
     logger.info("Adding annexes types")
     ccc = site["annexes_types"]
+
+    # Content Category Group for classification folders
     if "annexes" not in ccc:
-        category_group = api.content.create(
+        annexes_category_group = api.content.create(
             type="ContentCategoryGroup",
             title="Annexes",
             container=ccc,
@@ -108,10 +111,11 @@ def add_test_annexes_types(context):
             # to_be_printed_activated=True,
             # signed_activated=True,
             # publishable_activated=True,
+            # approved_activated=True,
         )
-        do_transitions(category_group, ["show_internally"])
+        do_transitions(annexes_category_group, ["show_internally"])
     else:
-        category_group = ccc["annexes"]
+        annexes_category_group = ccc["annexes"]
     icats = (
         ("annex", u"Annexe", u"attach.png", True),
         ("deliberation", u"Délibération", u"deliberation_signed.png", True),
@@ -129,7 +133,7 @@ def add_test_annexes_types(context):
             type="ContentCategory",
             title=title,
             description=u"",
-            container=category_group,
+            container=annexes_category_group,
             icon=icon,
             id=oid,
             predefined_title=title,
@@ -139,6 +143,92 @@ def add_test_annexes_types(context):
             # signed=True,
             # publishable=True,
             # only_pdf=True,
+            show_preview=show_pv,
+        )
+
+    # Content Category Group for dms main files and dms appendix files
+    if "signable_files" not in ccc:
+        signable_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title="Fichiers signables",
+            container=ccc,
+            id="signable_files",
+            # confidentiality_activated=True,
+            to_be_printed_activated=True,
+            signed_activated=True,
+            # publishable_activated=True,
+            approved_activated=True,
+        )
+        do_transitions(signable_files_category_group, ["show_internally"])
+    else:
+        signable_files_category_group = ccc["signable_files"]
+    icats = (
+        ("signable-ged-file", u"Fichier signable", u"attach.png", True),
+    )
+    for oid, title, img, show_pv in icats:
+        if oid in ccc["signable_files"]:
+            continue
+        icon_path = os.path.join(context._profile_path, "images", img)
+        with open(icon_path, "rb") as fl:
+            icon = NamedBlobImage(fl.read(), filename=img)
+        api.content.create(
+            type="ContentCategory",
+            title=title,
+            description=u"",
+            container=signable_files_category_group,
+            icon=icon,
+            id=oid,
+            predefined_title=title,
+            # confidential=True,
+            # to_print=True,
+            # to_sign=True,
+            # signed=True,
+            # publishable=True,
+            # only_pdf=True,
+            # approved=False,
+            show_preview=show_pv,
+        )
+
+    # Content Category Group for dms main files and dms appendix files
+    if "classic_files" not in ccc:
+        classic_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title="Fichiers classiques",
+            container=ccc,
+            id="classic_files",
+            # confidentiality_activated=True,
+            # to_be_printed_activated=True,
+            # signed_activated=True,
+            # publishable_activated=True,
+            # approved_activated=True,
+        )
+        do_transitions(classic_files_category_group, ["show_internally"])
+    else:
+        classic_files_category_group = ccc["classic_files"]
+    icats = (
+        ("classic-ged-file", u"Fichier classique", u"attach.png", True),
+    )
+    for oid, title, img, show_pv in icats:
+        if oid in ccc["classic_files"]:
+            continue
+        icon_path = os.path.join(context._profile_path, "images", img)
+        with open(icon_path, "rb") as fl:
+            icon = NamedBlobImage(fl.read(), filename=img)
+        api.content.create(
+            type="ContentCategory",
+            title=title,
+            description=u"",
+            container=classic_files_category_group,
+            icon=icon,
+            id=oid,
+            predefined_title=title,
+            # confidential=True,
+            # to_print=True,
+            # to_sign=True,
+            # signed=True,
+            # publishable=True,
+            # only_pdf=True,
+            # approved=False,
             show_preview=show_pv,
         )
 
@@ -467,6 +557,7 @@ def add_test_mails(context):
                     file=file_object,
                     scan_id="0509999000000%02d" % i,
                     scan_date=scan_date,
+                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["signable_files"]["signable-ged-file"]),
                 )
 
     # tasks
@@ -525,7 +616,14 @@ def add_test_mails(context):
             filename = next(files_cycle)
             with open(u"%s/%s" % (filespath, filename), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
-                createContentInContainer(mail, "dmsommainfile", id="1", title="", file=file_object)
+                createContentInContainer(
+                    mail,
+                    "dmsommainfile",
+                    id="1",
+                    title="",
+                    file=file_object,
+                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["signable_files"]["signable-ged-file"]),
+                )
 
 
 def add_test_plonegroup_services(context):
@@ -946,7 +1044,7 @@ def configure_imio_dms_mail(context):
                 u"transfer_email_pat": u"",
                 u"original_email_pat": u"",
                 u"tal_condition_1": u"python: agent_id and 'encodeurs' in modules['imio.dms.mail.utils']."
-                                    u"current_user_groups_ids(userid=agent_id)",
+                u"current_user_groups_ids(userid=agent_id)",
                 u"user_value": u"_empty_",
                 u"tal_condition_2": u"",
                 u"tg_value": u"_empty_",
@@ -969,7 +1067,7 @@ def configure_imio_dms_mail(context):
                 u"transfer_email_pat": u"",
                 u"original_email_pat": u"",
                 u"tal_condition_1": u"",
-                u"state_value": u"proposed_to_agent"
+                u"state_value": u"proposed_to_agent",
             },
         ]
 

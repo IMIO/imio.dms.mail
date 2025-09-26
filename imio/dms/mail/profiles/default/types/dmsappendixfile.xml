@@ -8,4 +8,7 @@
   <element value="view"/>
   <element value="documentviewer"/>
  </property>
+ <property name="behaviors" purge="False">
+  <element value="collective.iconifiedcategory.behaviors.iconifiedcategorization.IIconifiedCategorization" />
+ </property>
 </object>
