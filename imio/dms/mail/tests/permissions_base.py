@@ -68,7 +68,8 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         self.imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
         self.annex = api.content.create(container=self.imail, id="annex", type="dmsappendixfile")
         self.file = api.content.create(container=self.imail, id="file", type="dmsmainfile")
-        self.task = api.content.create(container=self.imail, id="task", type="task", assigned_group=self.imail.treating_groups)
+        self.task = api.content.create(container=self.imail, id="task", type="task",
+                                       assigned_group=self.imail.treating_groups)
 
     def permissions_incoming_mail(self):
         clean_borg_cache(self.portal.REQUEST)
@@ -100,7 +101,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
             {
                 "Access contents information": True,
                 # apc not handled in workflow. Permission inherited from im for Contributor.
-                # encodeur cannot add subtask !!  Only owner role. TODO: to be improved
+                # encodeur cannot add subtask !!  Only owner role. Must be modified: see DMS-1056
                 "Add portal content": False,
                 "Delete objects": True,
                 "Modify portal content": True,
@@ -121,7 +122,6 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
             self.get_perms("dirg", self.imail),
             {
                 "Access contents information": True,
-                # First error: apc is given to Contributor role and manager is Contributor
                 "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": True,
@@ -146,7 +146,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": True,  # raison ?
                 "imio.dms.mail: Write treating group field": False,
             },
         )
@@ -870,7 +870,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
-    
+
 
 class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
     def setUp(self):
@@ -892,7 +892,8 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
         self.omail = sub_create(self.omf, "dmsoutgoingmail", datetime.today(), "my-id", **params)
         self.annex = api.content.create(container=self.omail, id="annex", type="dmsappendixfile")
         self.file = api.content.create(container=self.omail, id="file", type="dmsommainfile")
-        self.task = api.content.create(container=self.omail, id="task", type="task", assigned_group=self.omail.treating_groups)
+        self.task = api.content.create(container=self.omail, id="task", type="task",
+                                       assigned_group=self.omail.treating_groups)
 
     def permissions_outgoing_mail(self):
         clean_borg_cache(self.portal.REQUEST)
@@ -1625,7 +1626,8 @@ class TestPermissionsBaseIncomingEmail(TestPermissionsBase):
         self.iemail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
         self.annex = api.content.create(container=self.iemail, id="annex", type="dmsappendixfile")
         self.file = api.content.create(container=self.iemail, id="file", type="dmsmainfile")
-        self.task = api.content.create(container=self.iemail, id="task", type="task", assigned_group=self.iemail.treating_groups)
+        self.task = api.content.create(container=self.iemail, id="task", type="task",
+                                       assigned_group=self.iemail.treating_groups)
 
     def permissions_incoming_email(self):
         clean_borg_cache(self.portal.REQUEST)
@@ -1657,7 +1659,7 @@ class TestPermissionsBaseIncomingEmail(TestPermissionsBase):
             {
                 "Access contents information": True,
                 # apc not handled in workflow. Permission inherited from im for Contributor.
-                # encodeur cannot add subtask !!  Only owner role. TODO: to be improved
+                # encodeur cannot add subtask !!  Only owner role. Must be modified: see DMS-1056
                 "Add portal content": False,
                 "Delete objects": True,
                 "Modify portal content": True,
@@ -1678,7 +1680,6 @@ class TestPermissionsBaseIncomingEmail(TestPermissionsBase):
             self.get_perms("dirg", self.iemail),
             {
                 "Access contents information": True,
-                # First error: apc is given to Contributor role and manager is Contributor
                 "Add portal content": True,
                 "Delete objects": False,
                 "Modify portal content": True,
@@ -1703,7 +1704,7 @@ class TestPermissionsBaseIncomingEmail(TestPermissionsBase):
                 "Review portal content": False,
                 "View": True,
                 "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": True,
+                "imio.dms.mail: Write mail base fields": True,  # raison ?
                 "imio.dms.mail: Write treating group field": False,
             },
         )
