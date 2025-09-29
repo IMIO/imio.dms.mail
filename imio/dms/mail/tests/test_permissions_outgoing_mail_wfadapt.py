@@ -132,21 +132,7 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
         )
         self.assertHasNoPerms("agent1", self.annex)
         self.assertHasNoPerms("encodeur", self.annex)
-        self.assertEqual(
-            self.get_perms("chef", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": True,
-                "Modify portal content": True,
-                "Request review": True,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
+        self.assertHasAllPerms("chef", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         # Potential problem
@@ -275,21 +261,7 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
 
         self.assertOnlyViewPerms("lecteur", self.annex)
         self.assertOnlyViewPerms("dirg", self.annex)
-        self.assertEqual(
-            self.get_perms("agent", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": True,
-                "Modify portal content": True,
-                "Request review": True,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
+        self.assertHasAllPerms("agent", self.annex)
         self.assertHasNoPerms("agent1", self.annex)
         self.assertEqual(
             self.get_perms("encodeur", self.annex),
@@ -306,21 +278,7 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
-        self.assertEqual(
-            self.get_perms("chef", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": True,
-                "Modify portal content": True,
-                "Request review": True,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
+        self.assertHasAllPerms("chef", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         self.assertHasNoPerms("dirg", self.task)

@@ -1005,21 +1005,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
             },
         )
         self.assertHasNoPerms("agent1", self.omail)
-        self.assertEqual(
-            self.get_perms("encodeur", self.omail),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": True,
-                "Modify portal content": True,
-                "Request review": True,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
+        self.assertHasAllPerms("encodeur", self.omail)
 
         self.assertHasNoPerms("lecteur", self.file)
         self.assertHasNoPerms("dirg", self.file)
@@ -1039,21 +1025,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
             },
         )
         self.assertHasNoPerms("agent1", self.file)
-        self.assertEqual(
-            self.get_perms("encodeur", self.file),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": True,
-                "Modify portal content": True,
-                "Request review": True,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
+        self.assertHasAllPerms("encodeur", self.file)
 
         self.assertHasNoPerms("lecteur", self.annex)
         self.assertHasNoPerms("dirg", self.annex)
@@ -1073,21 +1045,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
             },
         )
         self.assertHasNoPerms("agent1", self.annex)
-        self.assertEqual(
-            self.get_perms("encodeur", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": True,
-                "Delete objects": True,
-                "Modify portal content": True,
-                "Request review": True,
-                "Review portal content": True,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": True,
-                "imio.dms.mail: Write mail base fields": True,
-                "imio.dms.mail: Write treating group field": True,
-            },
-        )
+        self.assertHasAllPerms("encodeur", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         self.assertHasNoPerms("dirg", self.task)
