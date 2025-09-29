@@ -175,36 +175,8 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
         self.pw.doActionFor(self.omail, "set_validated")
         clean_borg_cache(self.portal.REQUEST)
 
-        self.assertEqual(
-            self.get_perms("lecteur", self.omail),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-        self.assertEqual(
-            self.get_perms("dirg", self.omail),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
+        self.assertOnlyViewPerms("lecteur", self.omail)
+        self.assertOnlyViewPerms("dirg", self.omail)
         self.assertEqual(
             self.get_perms("agent", self.omail),
             {
@@ -252,36 +224,8 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
             },
         )
 
-        self.assertEqual(
-            self.get_perms("lecteur", self.file),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-        self.assertEqual(
-            self.get_perms("dirg", self.file),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
+        self.assertOnlyViewPerms("lecteur", self.file)
+        self.assertOnlyViewPerms("dirg", self.file)
         self.assertEqual(
             self.get_perms("agent", self.file),
             {
@@ -329,36 +273,8 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
             },
         )
 
-        self.assertEqual(
-            self.get_perms("lecteur", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-        self.assertEqual(
-            self.get_perms("dirg", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
+        self.assertOnlyViewPerms("lecteur", self.annex)
+        self.assertOnlyViewPerms("dirg", self.annex)
         self.assertEqual(
             self.get_perms("agent", self.annex),
             {
@@ -539,7 +455,6 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
         self.assertHasNoPerms("chef", self.annex)
         self.assertHasNoPerms("chef", self.task)
 
-
     def test_permissions_outgoing_mail_wfadapt_to_print(self):
         change_user(self.portal)
         tpa = OMToPrintAdaptation()
@@ -552,36 +467,8 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
         clean_borg_cache(self.portal.REQUEST)
         change_user(self.portal, "encodeur")
 
-        self.assertEqual(
-            self.get_perms("lecteur", self.omail),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-        self.assertEqual(
-            self.get_perms("dirg", self.omail),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
+        self.assertOnlyViewPerms("lecteur", self.omail)
+        self.assertOnlyViewPerms("dirg", self.omail)
         self.assertEqual(
             self.get_perms("agent", self.omail),
             {
@@ -614,36 +501,8 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
             },
         )
 
-        self.assertEqual(
-            self.get_perms("lecteur", self.file),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-        self.assertEqual(
-            self.get_perms("dirg", self.file),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
+        self.assertOnlyViewPerms("lecteur", self.file)
+        self.assertOnlyViewPerms("dirg", self.file)
         self.assertEqual(
             self.get_perms("agent", self.file),
             {
@@ -676,36 +535,8 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
             },
         )
 
-        self.assertEqual(
-            self.get_perms("lecteur", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
-        self.assertEqual(
-            self.get_perms("dirg", self.annex),
-            {
-                "Access contents information": True,
-                "Add portal content": False,
-                "Delete objects": False,
-                "Modify portal content": False,
-                "Request review": False,
-                "Review portal content": False,
-                "View": True,
-                "collective.dms.basecontent: Add DmsFile": False,
-                "imio.dms.mail: Write mail base fields": False,
-                "imio.dms.mail: Write treating group field": False,
-            },
-        )
+        self.assertOnlyViewPerms("lecteur", self.annex)
+        self.assertOnlyViewPerms("dirg", self.annex)
         self.assertEqual(
             self.get_perms("agent", self.annex),
             {
