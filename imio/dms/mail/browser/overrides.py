@@ -347,9 +347,6 @@ class DocsImportSecondStepView(ImportSecondStepView):
 # collective.solr maintenance view
 
 try:
-    from collective.solr.browser.maintenance import checkpointIterator
-    from collective.solr.browser.maintenance import MAX_ROWS
-    from collective.solr.browser.maintenance import notimeout
     from collective.solr.browser.maintenance import SolrMaintenanceView
     from collective.solr.browser.maintenance import timer
     from collective.solr.indexer import SolrIndexProcessor
@@ -358,7 +355,15 @@ try:
     from collective.solr.parser import parse_date_as_datetime
     from collective.solr.parser import SolrResponse
     from collective.solr.parser import unmarshallers
-
+    from imio.helpers.batching import batch_delete_files
+    from imio.helpers.batching import batch_get_keys
+    from imio.helpers.batching import batch_globally_finished
+    from imio.helpers.batching import batch_handle_key
+    from imio.helpers.batching import batch_hashed_filename
+    from imio.helpers.batching import batch_loop_else
+    from imio.helpers.batching import batch_skip_key
+    from imio.helpers.batching import can_delete_batch_files
+    from Products.ZCatalog.ProgressHandler import ZLogHandler
     BaseMaintenanceView = SolrMaintenanceView
 except ImportError:
     BaseMaintenanceView = BrowserView
@@ -384,17 +389,20 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         proc = SolrIndexProcessor(manager)
         conn = manager.getConnection()
         key = queryUtility(ISolrConnectionManager).getSchema().uniqueKey
-        zodb_conn = self.context._p_jar
         catalog = getToolByName(self.context, "portal_catalog")
         getIndex = catalog._catalog.getIndex
         modified_index = getIndex("modified")
         uid_index = getIndex(key)
         log = self.mklog()
         real = timer()  # real time
-        lap = timer()  # real lap time (for intermediate commits)
         cpu = timer(clock)  # cpu time
+
         # get Solr status
-        response = conn.search(q=preImportDeleteQuery, rows=MAX_ROWS, fl="%s modified" % key)
+        response = conn.search(
+            q=preImportDeleteQuery,
+            rows=10000000,
+            fl="%s modified" % key,
+        )
         # avoid creating DateTime instances
         simple_unmarshallers = unmarshallers.copy()
         simple_unmarshallers["date"] = parse_date_as_datetime
@@ -411,36 +419,23 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
             uid = flare[key]
             solr_uids.add(uid)
             solr_results[uid] = _utc_convert(flare["modified"])
+
         # get catalog status
         cat_results = {}
         cat_uids = set()
         for uid, rid in uid_index._index.items():
             cat_uids.add(uid)
             cat_results[uid] = rid
+
         # differences
         index = cat_uids.difference(solr_uids)
-        solr_uids.difference_update(cat_uids)
-        unindex = solr_uids
-        processed = 0
-        flush = notimeout(lambda: conn.flush())
+        unindex = solr_uids.difference(cat_uids)
+        self._processed = 0
 
-        def checkPoint():
-            msg = "intermediate commit (%d items processed, " "last batch in %s)...\n" % (processed, lap.next())
-            log(msg)
-            logger.info(msg)
-            flush()
-            zodb_conn.cacheGC()
-            if self.batch_value and processed >= self.batch_value:
-                logger.info("EXITED following BATCH env value {}".format(self.batch_value))
-                conn.commit()
-                sys.exit(0)
-
-        cpi = checkpointIterator(checkPoint, batch)
         # Look up objects
         uid_rid_get = cat_results.get
         rid_path_get = catalog._catalog.paths.get
         catalog_traverse = catalog.unrestrictedTraverse
-
         def lookup(
             uid, rid=None, uid_rid_get=uid_rid_get, rid_path_get=rid_path_get, catalog_traverse=catalog_traverse
         ):
@@ -459,51 +454,119 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
                 return None
             return obj
 
-        log('processing %d "unindex" operations next...\n' % len(unindex))
-        op = notimeout(lambda uid: conn.delete(id=uid))
-        for uid in unindex:
-            obj = lookup(uid)
-            if obj is None:
-                op(uid)
-                processed += 1
-                cpi.next()
-            else:
-                log("not unindexing existing object %r.\n" % uid)
-        log('processing %d "index" operations next...\n' % len(index))
-        op = notimeout(lambda obj: proc.index(obj))
-        for uid in index:
-            obj = lookup(uid)
-            if ICheckIndexable(obj)():
-                op(obj)
-                processed += 1
-                cpi.next()
-            else:
-                log("not indexing unindexable object %r.\n" % uid)
-            if obj is not None:
-                obj._p_deactivate()
-        log('processing "reindex" operations next...\n')
-        op = notimeout(lambda obj: proc.reindex(obj))
-        cat_mod_get = modified_index._unindex.get
-        solr_mod_get = solr_results.get
-        done = unindex.union(index)
-        for uid, rid in cat_results.items():
-            if uid in done:
-                continue
-            if isinstance(rid, IITreeSet):
-                rid = rid.keys()[0]
-            if cat_mod_get(rid) != solr_mod_get(uid):
-                obj = lookup(uid, rid=rid)
-                if ICheckIndexable(obj)():
-                    op(obj)
-                    processed += 1
-                    cpi.next()
+        # Unindex items in Solr but not in Plone catalog
+        def batch_unindex(unindex):
+            pghandler = ZLogHandler(steps=batch)
+            i = 0
+            pghandler.init('sync', len(unindex))
+            pklfile = batch_hashed_filename('collective.solr.sync.unindex.pkl')
+            batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(unindex))
+            for uid in unindex:
+                if batch_skip_key(uid, batch_keys, batch_config):
+                    continue
+                i += 1
+                if pghandler:
+                    pghandler.report(i)
+                obj = lookup(uid)
+                if obj is None:
+                    conn.delete(id=uid)
+                    self._processed += 1
                 else:
-                    log("not reindexing unindexable object %r.\n" % uid)
+                    log("not unindexing existing object %r.\n" % uid)
+                if batch_handle_key(uid, batch_keys, batch_config):
+                    break
+            else:
+                batch_loop_else(batch_keys, batch_config)
+            conn.commit()
+            if can_delete_batch_files(batch_keys, batch_config):
+                batch_delete_files(batch_keys, batch_config)
+            if pghandler:
+                pghandler.finish()
+            return batch_globally_finished(batch_keys, batch_config)
+
+        log('processing %d "unindex" operations next...\n' % len(unindex))
+        finished_unindex = batch_unindex(unindex)
+
+        # Index items in Plone catalog but not in Solr
+        def batch_index(index):
+            pghandler = ZLogHandler(steps=batch)
+            i = 0
+            pghandler.init('sync', len(index))
+            pklfile = batch_hashed_filename('collective.solr.sync.index.pkl')
+            batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(index))
+            for uid in index:
+                if batch_skip_key(uid, batch_keys, batch_config):
+                    continue
+                i += 1
+                if pghandler:
+                    pghandler.report(i)
+                obj = lookup(uid)
+                if ICheckIndexable(obj)():
+                    proc.index(obj)
+                    self._processed += 1
+                else:
+                    log("not indexing unindexable object %r.\n" % uid)
                 if obj is not None:
                     obj._p_deactivate()
-        conn.commit()
+                if batch_handle_key(uid, batch_keys, batch_config):
+                    break
+            else:
+                batch_loop_else(batch_keys, batch_config)
+            conn.commit()
+            if can_delete_batch_files(batch_keys, batch_config):
+                batch_delete_files(batch_keys, batch_config)
+            if pghandler:
+                pghandler.finish()
+            return batch_globally_finished(batch_keys, batch_config)
+
+        finished_index = False
+        if finished_unindex:
+            log('processing %d "index" operations next...\n' % len(index))
+            finished_index = batch_index(index)
+
+        # Reindex items modified in Plone catalog since last indexing in Solr
+        def batch_reindex(reindex):
+            pghandler = ZLogHandler(steps=batch)
+            i = 0
+            pghandler.init('sync', len(reindex))
+            pklfile = batch_hashed_filename('collective.solr.sync.reindex.pkl')
+            batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(reindex))
+            for uid, rid in reindex.items():
+                if batch_skip_key(uid, batch_keys, batch_config):
+                    continue
+                i += 1
+                if pghandler:
+                    pghandler.report(i)
+                if isinstance(rid, IITreeSet):
+                    rid = rid.keys()[0]
+                if modified_index._unindex.get(rid) != solr_results.get(uid):
+                    obj = lookup(uid, rid=rid)
+                    if ICheckIndexable(obj)():
+                        proc.reindex(obj)
+                        self._processed += 1
+                    else:
+                        log("not reindexing unindexable object %r.\n" % uid)
+                    if obj is not None:
+                        obj._p_deactivate()
+                if batch_handle_key(uid, batch_keys, batch_config):
+                    break
+            else:
+                batch_loop_else(batch_keys, batch_config)
+            conn.commit()
+            if can_delete_batch_files(batch_keys, batch_config):
+                batch_delete_files(batch_keys, batch_config)
+            if pghandler:
+                pghandler.finish()
+            return batch_globally_finished(batch_keys, batch_config)
+
+        if finished_index:
+            log('processing "reindex" operations next...\n')
+            done = unindex.union(index)
+            cat_results = {uid: rid for uid, rid in cat_results.items() if uid not in done}
+            batch_reindex(cat_results)
+
         log("solr index synced.\n")
-        msg = "processed %d object(s) in %s (%s cpu time)."
-        msg = msg % (processed, real.next(), cpu.next())
+        msg = "self._processed %d object(s) in %s (%s cpu time)."
+        msg = msg % (self._processed, real.next(), cpu.next())
         log(msg)
         logger.info(msg)

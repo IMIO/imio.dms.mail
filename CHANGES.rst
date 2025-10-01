@@ -18,6 +18,8 @@ Changelog
   [sgeulette, chris-adam]
 - Used session from imio.esign.
   [sgeulette]
+- Solr sync batching.
+  [chris-adam]
 - Added 'imio.annex' and iconified categories to dms files and dms appendix files.
   [sgeulette, chris-adam]
 - Added esign_watchers group.
