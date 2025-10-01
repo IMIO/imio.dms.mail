@@ -18,6 +18,8 @@ Changelog
   [sgeulette]
 - Used session from imio.esign.
   [sgeulette]
+- Solr sync batching.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
