@@ -504,8 +504,10 @@ def dmsoutgoingmail_modified(mail, event):
             signer_emails.append(user_email)
             signer_tup = (signer_person.userid, user_email, signer_person.get_title(include_person_title=False),
                           signer_hp.label or u"")
+            # numbers = approval["numbers"].setdefault(i, PersistentMapping(
+            #     {"status": "w", "users": PersistentList(), "signer": signer_tup}))
             numbers = approval["numbers"].setdefault(i, PersistentMapping(
-                {"status": "w", "users": PersistentList(), "signer": signer_tup}))
+                {"users": PersistentList(), "signer": signer_tup}))
             for approving in signer["approvings"] or []:
                 if approving == "_empty_":
                     continue
@@ -518,7 +520,9 @@ def dmsoutgoingmail_modified(mail, event):
                     raise Invalid(_("The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
                                     mapping={"userid": userid, "o": approval["users"][userid]["order"],
                                              "c": i}))
-                approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title(),
+                # approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title(),
+                #                                                "editor": signer["editor"]})
+                approval["users"][userid] = PersistentMapping({"order": i, "name": person.get_title(),
                                                                "editor": signer["editor"]})
                 if userid not in numbers["users"]:
                     numbers["users"].append(userid)

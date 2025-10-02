@@ -488,10 +488,10 @@ def get_approval_annot(obj, reset=False):
 
 def change_approval_user_status(approval, number, status, userid=None):
     """Change user status in approval annotation."""
-    if userid and userid in approval["users"]:
-        approval["users"][userid]["status"] = status
-    if number in approval["numbers"]:
-        approval["numbers"][number]["status"] = status
+    # if userid and userid in approval["users"]:
+    #     approval["users"][userid]["status"] = status
+    # if number in approval["numbers"]:
+    #     approval["numbers"][number]["status"] = status
     for f_uid in approval["files"]:
         if number in approval["files"][f_uid]:
             approval["files"][f_uid][number]["status"] = status
