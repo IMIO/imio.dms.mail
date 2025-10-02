@@ -11,6 +11,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.utils import message_status
+from imio.dms.mail.utils import update_solr_config
 from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
 from imio.migrator.migrator import Migrator
@@ -47,6 +48,14 @@ class Migrate_To_3_1(Migrator):  # noqa
     def run(self):
         logger.info("Migrating to imio.dms.mail 3.1...")
         self.log_mem("START")
+
+        if self.is_in_part("a"):  # install and upgrade products
+            # check if oo port or solr port must be changed
+            update_solr_config()
+            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+            if active_solr:
+                logger.info("Deactivating solr")
+                api.portal.set_registry_record("collective.solr.active", False)
 
         if self.is_in_part("q"):  # upgrade other products
             # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
