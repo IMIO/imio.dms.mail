@@ -50,6 +50,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
+from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import get_environment
@@ -395,11 +396,40 @@ def dmsoutgoingmail_transition(mail, event):
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
     if event.transition and event.transition.id == "propose_to_approve":
         approval = get_approval_annot(mail)
-        # set approval number to first if not set yet
-        # what happens if already set ??
-        if approval["users"] and approval["approval"] is None:
-            approval["approval"] = 1
-            change_approval_user_status(approval, approval["approval"], "p")
+        orig_nb = approval["approval"]
+        if approval["users"]:
+            if approval["approval"] is None:  # first time transition
+                approval["approval"] = 1
+                change_approval_user_status(approval, approval["approval"], "p")
+            else:  # approve again after a back... maybe some approvements are already done
+                c_a = None
+                for fuid in approval["files"]:
+                    for a_nb in sorted(list(approval["numbers"].keys())):
+                        if "approved_on" not in approval["files"][fuid][a_nb]:
+                            if not c_a or a_nb < c_a:
+                                c_a = a_nb
+                            continue
+                        brain = uuidToCatalogBrain(fuid, unrestricted=True)
+                        last_mod = brain.modified
+                        last_mod = datetime.datetime(
+                            last_mod.year(), last_mod.month(), last_mod.day(), last_mod.hour(),
+                            last_mod.minute(), int(last_mod.second()), int(last_mod.micros() % 1000000)
+                        )
+                        if last_mod > approval["files"][fuid][a_nb]["approved_on"]:
+                            del approval["files"][fuid][a_nb]["approved_by"]
+                            del approval["files"][fuid][a_nb]["approved_on"]
+                            if not c_a or a_nb < c_a:
+                                c_a = a_nb
+                            approval["files"][fuid][a_nb]["status"] = "p"
+                if c_a:
+                    approval["approval"] = c_a
+                    for fuid in approval["files"]:
+                        for a_nb in sorted(list(approval["numbers"].keys())):
+                            if a_nb > c_a and approval["files"][fuid][a_nb]["status"] == "p":
+                                approval["files"][fuid][a_nb]["status"] = "w"
+        else:
+            approval["approval"] = None  # if users removed...
+        if orig_nb != approval["approval"]:
             mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
 
 
