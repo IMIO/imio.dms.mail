@@ -949,6 +949,31 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridw
     min-width: 16px;
 }
 
+/* session viewlet */
+
+#content #context_viewlet_session_table td {
+    padding-bottom: 0px;
+    padding-top: 0px;
+}
+
+#content .faceted-session-info fieldset {
+    padding-bottom: 0px;
+}
+
+#content table#context_viewlet_signers_table {
+    margin-bottom: 0px;
+}
+
+#context_viewlet_signers_table td {
+    padding-right: 10px;
+}
+
+#content #context_viewlet_session_signers td.table_widget_label,
+#content #context_viewlet_session_table td.table_widget_label {
+    width: auto;
+    padding-right: 1.5em;
+}
+
 /* colorization for incoming_mail_workflow */
 
 .state-created {
