@@ -115,6 +115,7 @@ class Migrate_To_3_1(Migrator):  # noqa
 
             # update localroles
             finished = finished1 and finished2
+            finished3 = False
             if finished:
                 lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
                 changes = False
@@ -183,11 +184,10 @@ class Migrate_To_3_1(Migrator):  # noqa
                 col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
 
                 # reindex om markers
-                for brain in self.omf.portal_catalog.unrestrictedSearchResults(portal_type="dmsoutgoingmail"):
-                    obj = brain._unrestrictedGetObject()
-                    obj.reindexObject(idxs=["markers"])
+                finished3 = self.reindexIndexes(['markers'], portal_types=['dmsoutgoingmail'])
 
                 # END
+            finished = finished and finished3
 
             # finished = True  # can be eventually returned and set by batched method
             if finished and old_version != new_version:
