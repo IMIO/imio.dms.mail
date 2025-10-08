@@ -731,6 +731,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
     def get_files_to_sign(self):
         """Returns the list of ImioDmsFile objects to sign"""
+        # TODO to be removed
         # get ordered files
         files = reversed([f for f in object_values(self, ["ImioDmsFile"])
                           if f.file and f.file.contentType == "application/vnd.oasis.opendocument.text"])

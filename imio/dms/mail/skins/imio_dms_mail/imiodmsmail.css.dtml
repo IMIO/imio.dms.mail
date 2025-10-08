@@ -484,6 +484,16 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     display: none;
 }
 
+#content #fieldset-versions table.iconified-listing {
+    width: auto;
+}
+
+#fieldset-versions table td.iconified-print,
+#fieldset-versions table td.iconified-signed,
+#fieldset-versions table td.iconified-approved {
+    text-align: center;
+}
+
 #collections-count-refresh {
     vertical-align: middle;
     margin-left: 1em;

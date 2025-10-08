@@ -497,6 +497,26 @@ def change_approval_user_status(approval, number, status, userid=None):
             approval["files"][f_uid][number]["status"] = status
 
 
+def add_file_to_approval(approval, f_uid):
+    """Add a file to approval annotation."""
+    if f_uid not in approval["files"]:
+        approval["files"][f_uid] = PersistentMapping({nb: PersistentMapping({"status": "w"})
+                                                      for nb in approval["numbers"]})
+
+
+def remove_file_from_approval(approval, f_uid):
+    """Remove a file from approval annotation."""
+    if f_uid in approval["files"]:
+        del approval["files"][f_uid]
+        # if not approval["files"]:
+        #     approval["approval"] = None
+        #     approval["session_id"] = None
+        #     for nb in approval["numbers"]:
+        #         approval["numbers"][nb]["status"] = "w"
+        #     for userid in approval["users"]:
+        #         approval["users"][userid]["status"] = "w"
+
+
 def add_mail_files_to_session(mail, approval=None):
     """Add mail files to sign session."""
     if not approval:
