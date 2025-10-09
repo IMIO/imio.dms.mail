@@ -112,7 +112,8 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     # TODO TO BE HANDLED
                 else:
                     # the status is changed (if totally approved) in sub method
-                    ret, self.reload = approve_file(self.a_a, self.parent, self.context, self.userid, values=values)
+                    ret, self.reload = approve_file(self.a_a, self.parent, self.context, self.userid, values=values,
+                                                    transition="propose_to_be_signed")
                     status = int(ret)
         elif self.p_state not in ("to_be_signed", "signed", "sent"):
             # before to_approve state, we can only enable or disable to_approve

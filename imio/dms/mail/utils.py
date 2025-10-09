@@ -550,13 +550,15 @@ def can_approve(approval, userid, f_uid, editable=True):
     return True
 
 
-def approve_file(approval, mail, afile, userid, values=None):
+def approve_file(approval, mail, afile, userid, values=None, transition=None):
     """Approve the current file.
 
     :param approval: approval annotation
     :param mail: mail object
     :param afile: file to approve
     :param userid: current user id
+    :param values: optional dict to update
+    :param transition: optional transition to do after approval
     :return: approval status bool (True=ok), reload bool (True=reload page)
     """
 #    user = api.user.get_current()
@@ -633,6 +635,17 @@ def approve_file(approval, mail, afile, userid, values=None):
                         type="info",
                     )
                     return True, True
+        if transition:
+            # must use the following ?
+            # do_next_transition(mail, mail.portal_type, state="to_approve")
+            with api.env.adopt_roles(["Reviewer"]):
+                do_transitions(mail, [transition])
+                # api.portal.show_message(
+                #     message=_(u"The mail has been automatically transitioned to state '${state}'.",
+                #               mapping={"state": mail.portal_workflow.getInfoFor(mail, "review_state")}),
+                #     request=request,
+                #     type="info",
+                # )
         return True, True
     return True, False
 
