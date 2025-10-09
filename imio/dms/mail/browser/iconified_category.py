@@ -44,24 +44,35 @@ class ApprovedColumn(BaseApprovedColumn):
     # original method waiting to be modified
     def css_class(self, content):
         av = self.get_action_view(content)
-        # import ipdb; ipdb.set_trace()
+        editable = self.is_editable(content) and " editable" or ""
+        # when deactivated, anyone see a grey icon
         if self.is_deactivated(content):
-            return " deactivated"
+            if editable:
+                return " deactivated editable"
+            else:
+                return " deactivated"
+        # when to_approve, the red icon (no class) is shown if :
+        #  * no approval at all
+        #  * but the current approver see a green icon when he just approved
         if av.p_state == "to_approve":
             if can_approve(self.a_a, av.userid, av.uid):
                 if self.a_a["files"][content.UID][self.a_a["approval"]]["status"] == "a":
-                    return " active editable"
+                    return " active{}".format(editable)
+                return editable
+        # after a first approval, we show a partially or totally approved icon even for a previously or future approver
         if content["approved"]:  # all approved
-            return " globally-approved"
-        elif is_file_approved(self.a_a, content.UID, globally=False):
+            return " totally-approved"
+        elif is_file_approved(self.a_a, content.UID, totally=False):
             return " partially-approved"
         return ""
 
     def get_url(self, content):
         av = self.get_action_view(content)
-        if av.p_state == "to_approve" and not can_approve(self.a_a, av.userid, av.uid):
-            return "#"
+        # after to_approve state, no one can click on the icon
         if av.p_state in ("to_be_signed", "signed", "sent"):
+            return "#"
+        # when to_approve, only an approver can click on the icon
+        if av.p_state == "to_approve" and not can_approve(self.a_a, av.userid, av.uid):
             return "#"
         return '{url}/@@{action}'.format(
             url=content.getURL(),
@@ -70,6 +81,7 @@ class ApprovedColumn(BaseApprovedColumn):
 
 
 class ApprovedChangeView(BaseApprovedChangeView):
+    permission = "View"
 
     def __init__(self, context, request):
         super(ApprovedChangeView, self).__init__(context, request)
@@ -92,7 +104,17 @@ class ApprovedChangeView(BaseApprovedChangeView):
         status = 0
         logger.info("Before annot change: %s", self.a_a)
         logger.info("Before values change: %s", old_values)
-        if self.p_state not in ("to_approve", "to_be_signed", "signed", "sent"):
+        if self.p_state == "to_approve":
+            # in to_approve state, only an approver can approve or not
+            if can_approve(self.a_a, self.userid, self.uid):
+                if self.a_a["files"][self.uid][self.a_a["approval"]]["status"] == "a":
+                    status = 0
+                    # TODO TO BE HANDLED
+                else:
+                    # the status is changed (if totally approved) in sub method
+                    ret, self.reload = approve_file(self.a_a, self.parent, self.context, self.userid, values=values)
+                    status = int(ret)
+        elif self.p_state not in ("to_be_signed", "signed", "sent"):
             # before to_approve state, we can only enable or disable to_approve
             if old_values['to_approve'] is False:
                 values['to_approve'] = True
@@ -105,31 +127,9 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 status = -1
                 remove_file_from_approval(self.a_a, self.uid)
             self.reload = False
-        elif self.p_state == "to_approve":
-            # in to_approve state, an approver can only approve or not
-            # when not an approver, we must show another icon
-            if can_approve(self.a_a, self.userid, self.uid):
-                if self.a_a["files"][self.uid][self.a_a["approval"]]["status"] == "a":
-                    status = 0
-                    # TODO TO BE HANDLED
-                else:
-                    ret, self.reload = approve_file(self.a_a, self.parent, self.context, self.userid, values=values)
-                    status = int(ret)
         else:
-            if old_values['to_approve'] is False:
-                values['to_approve'] = True
-                values['approved'] = False
-                status = 0
-            elif old_values['to_sign'] is True and old_values['signed'] is False:
-                values['to_approve'] = True
-                values['approved'] = True
-                status = 1
-            else:
-                # old_values['to_sign'] is True and old_values['signed'] is True
-                # disable to_sign and signed
-                values['to_approve'] = False
-                values['approved'] = False
-                status = -1
+            # cannot be in after to_approve state because get_url column method
+            pass
         logger.info("After annot change: %s, ", self.a_a)
         logger.info("After values change: %s, %s", status, values)
         return status, values
@@ -140,7 +140,6 @@ class ApprovedChangeView(BaseApprovedChangeView):
         return super(ApprovedChangeView, self)._may_set_values(values)
 
     def set_values(self, values):
-        # import ipdb; ipdb.set_trace()
         old_values = self.get_current_values()
         status, values = self._get_next_values(old_values)
         super(BaseApprovedChangeView, self).set_values(values)

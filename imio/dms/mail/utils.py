@@ -517,18 +517,18 @@ def remove_file_from_approval(approval, f_uid):
         #         approval["users"][userid]["status"] = "w"
 
 
-def is_file_approved(approval, f_uid, globally=True):
+def is_file_approved(approval, f_uid, totally=True):
     """Check if file is approved.
 
     :param approval: approval annotation
     :param f_uid: file uid
-    :param globally: if True, return True if at least one approval number is approved
-                      if False, return True if all approval numbers are approved
+    :param totally: if True, return True if at least one approval number is approved
+                    if False, return True if all approval numbers are approved
     :return: bool
     """
     if f_uid not in approval["files"]:
         return False
-    if globally:
+    if totally:
         return all(approval["files"][f_uid][nb]["status"] == "a" for nb in approval["numbers"])
     else:
         return any(approval["files"][f_uid][nb]["status"] == "a" for nb in approval["numbers"])
@@ -557,7 +557,7 @@ def approve_file(approval, mail, afile, userid, values=None):
     :param mail: mail object
     :param afile: file to approve
     :param userid: current user id
-    :return: status bool (True=ok), reload bool (True=reload page)
+    :return: approval status bool (True=ok), reload bool (True=reload page)
     """
 #    user = api.user.get_current()
     request = afile.REQUEST
@@ -571,42 +571,7 @@ def approve_file(approval, mail, afile, userid, values=None):
      'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
     }
     """  # noqa
-    # checks
-    # if not c_a:
-    #     api.portal.show_message(
-    #         message=_(u"You cannot approve for now !"),
-    #         request=request,
-    #         type="warning",
-    #     )
-    #     raise Redirect(mail.absolute_url())
-    #     # return request.RESPONSE.redirect(mail.absolute_url())
-    # if userid not in approval["users"] or approval["users"][userid]["order"] != c_a:
-    #     # TODO get fullname from userid
-    #     api.portal.show_message(
-    #         message=_(u"Current user ${user} cannot approve the file !", mapping={"user": userid}),
-    #         request=request,
-    #         type="warning",
-    #     )
-    #     raise Redirect(mail.absolute_url())
     f_uid = afile.UID()
-    # if f_uid not in approval["files"]:
-    #     api.portal.show_message(
-    #         message=_(u"The file '${file}' is not in the list of files to approve !",
-    #                   mapping={"file": safe_unicode(afile.Title())}),
-    #         request=request,
-    #         type="warning",
-    #     )
-    #     raise Redirect(mail.absolute_url())
-    # if approval["files"][f_uid][c_a]["status"] == "a":
-    #     # TODO get fullname from userid
-    #     api.portal.show_message(
-    #         message=_(u"The file '${file}' has already been approved by ${user} !",
-    #                   mapping={"file": safe_unicode(afile.Title()),
-    #                            "user": approval["files"][f_uid][c_a].get("approved_by", "?")}),
-    #         request=request,
-    #         type="warning",
-    #     )
-    #     return False
     # "awaiting" (w), "pending" (p), "approved" (a)
     # approve
     approval["files"][f_uid][c_a]["approved_by"] = userid
@@ -616,15 +581,6 @@ def approve_file(approval, mail, afile, userid, values=None):
         afile.approved = True
         if values is not None:
             values["approved"] = True
-    """
-    {
-     'approval': 1,
-     'files': {'4115fb4c265647ca82d85285504973b8': {1: {'status': 'p'}, 2: {'status': 'w'}}}, 
-     'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}},
-     'session_id': None,
-     'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
-    }
-    """  # noqa
     yet_to_approve = [fuid for fuid in approval["files"] if approval["files"][fuid][c_a]["status"] != "a"]
     if yet_to_approve:
         # TODO get fullname from userid
@@ -677,6 +633,7 @@ def approve_file(approval, mail, afile, userid, values=None):
                         type="info",
                     )
                     return True, True
+        return True, True
     return True, False
 
 
