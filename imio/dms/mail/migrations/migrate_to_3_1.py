@@ -88,9 +88,6 @@ class Migrate_To_3_1(Migrator):  # noqa
             self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
             load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior
             load_type_from_package("held_position", "profile-imio.dms.mail:default")  # behavior
-            load_type_from_package("dmsappendixfile", "profile-imio.dms.mail:default")  # iconified
-            load_type_from_package("dmsommainfile", "profile-imio.dms.mail:default")  # iconified
-            self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
 
             # Update wf changes
             reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
@@ -191,12 +188,12 @@ class Migrate_To_3_1(Migrator):  # noqa
 
             # imio.annex integration to dms files with iconified category
             self.context.runImportStepFromProfile('collective.dms.basecontent:default', 'catalog')
-            self.context.runImportStepFromProfile('imio.dms.mail:default', 'catalog')
             load_type_from_package("dmsmainfile", "imio.dms.mail:default")
             load_type_from_package("dmsommainfile", "imio.dms.mail:default")
             load_type_from_package("dmsappendixfile", "imio.dms.mail:default")
             self.context.runImportStepFromProfile(u'imio.dms.mail:examples', u'imiodmsmail-add-test-annexes-types')
-            files = self.portal.portal_catalog.unrestrictedSearchResults(portal_type=["dmsmainfile", "dmsommainfile", "dmsappendixfile"])
+            files = self.portal.portal_catalog.unrestrictedSearchResults(portal_type=["dmsmainfile", "dmsommainfile",
+                                                                                      "dmsappendixfile"])
             category = self.portal["annexes_types"]["signable_files"]["signable-ged-file"]
             for f in files:
                 obj = f.getObject()
