@@ -102,8 +102,8 @@ class ApprovedChangeView(BaseApprovedChangeView):
         """ """
         values = {}
         status = 0
-        logger.info("Before annot change: %s", self.a_a)
-        logger.info("Before values change: %s", old_values)
+        # logger.info("Before annot change: %s", self.a_a)
+        # logger.info("Before values change: %s", old_values)
         if self.p_state == "to_approve":
             # in to_approve state, only an approver can approve or not
             if can_approve(self.a_a, self.userid, self.uid):
@@ -131,8 +131,8 @@ class ApprovedChangeView(BaseApprovedChangeView):
         else:
             # cannot be in after to_approve state because get_url column method
             pass
-        logger.info("After annot change: %s, ", self.a_a)
-        logger.info("After values change: %s, %s", status, values)
+        # logger.info("After annot change: %s, ", self.a_a)
+        # logger.info("After values change: %s, %s", status, values)
         return status, values
 
     def _may_set_values(self, values, ):
