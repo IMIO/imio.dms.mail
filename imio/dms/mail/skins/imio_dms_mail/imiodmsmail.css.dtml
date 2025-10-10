@@ -484,6 +484,32 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     display: none;
 }
 
+#content #fieldset-versions table.iconified-listing {
+    width: auto;
+}
+
+#fieldset-versions table td.iconified-print,
+#fieldset-versions table td.iconified-signed,
+#fieldset-versions table td.iconified-approved {
+    text-align: center;
+}
+
+#content .iconified-listing td.iconified-approved a.partially-approved::before,
+#content .iconified-listing td.iconified-approved a.totally-approved::before
+/*, div.tooltipster-categorized-elements span.iconified-approved::before*/
+{
+  content: "\f560";
+}
+
+#content .iconified-listing td.iconified-approved a.partially-approved {
+  color: #FFB627 !important;
+}
+
+#content .iconified-listing td.iconified-approved a.totally-approved {
+  color: #75ad0a !important;
+}
+
+
 #collections-count-refresh {
     vertical-align: middle;
     margin-left: 1em;

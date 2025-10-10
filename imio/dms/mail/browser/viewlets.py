@@ -162,4 +162,7 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
 
     @property
     def sessions_collection_uid(self):
-        return api.portal.get()["outgoing-mail"]["mail-searches"]["in_esign_sessions"].UID()
+        om_searches_folder = api.portal.get()["outgoing-mail"]["mail-searches"]
+        if "in_esign_sessions" not in om_searches_folder:
+            return None
+        return om_searches_folder["in_esign_sessions"].UID()

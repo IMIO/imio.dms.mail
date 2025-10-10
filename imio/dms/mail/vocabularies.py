@@ -8,6 +8,7 @@ from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_organizations
 from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import organizations_with_suffixes
+from collective.iconifiedcategory.vocabularies import CategoryVocabulary
 from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _
 from imio.dms.mail import _tr
@@ -710,3 +711,23 @@ class ActiveInactiveStatesVocabulary(object):
         return SimpleVocabulary(
             [SimpleTerm("active", title=pmf(u"Active")), SimpleTerm("deactivated", title=pmf(u"Deactivated"))]
         )
+
+
+class DmsFilesCategoryVocabulary(CategoryVocabulary):
+    """"""
+
+    implements(IVocabularyFactory)
+
+    def _get_categories(self, context, only_enabled=True):
+        if context.portal_type in ("dmsmainfile", "dmsommainfile", "dmsappendixfile", "dmsincomingmail", "dmsoutgoingmail"):
+            catalog = api.portal.get_tool('portal_catalog')
+            query = {
+                'object_provides': 'collective.iconifiedcategory.content.category.ICategory',
+                'enabled': True,
+                'path': [
+                    '/{}/annexes_types/signable_files'.format(api.portal.get().getId()),
+                    '/{}/annexes_types/classic_files'.format(api.portal.get().getId()),
+                ],
+            }
+            return [b.getObject() for b in catalog.unrestrictedSearchResults(**query)]
+        return super(DmsFilesCategoryVocabulary, self)._get_categories(context, only_enabled)

@@ -186,6 +186,15 @@
     />
 
   <adapter
+    name="approved-column"
+    for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.ApprovedColumn"
+    />
+
+  <adapter
     for="imio.dms.mail.dmsmail.IImioDmsIncomingMail
          zope.interface.Interface
          collective.dms.basecontent.browser.listing.VersionsTable"

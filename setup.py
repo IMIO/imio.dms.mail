@@ -63,6 +63,7 @@ setup(
         "collective.externaleditor",
         "collective.fontawesome",
         "collective.iconifieddocumentactions",
+        "collective.iconifiedcategory",
         "collective.js.fancytree",
         "collective.js.tooltipster",
         "collective.messagesviewlet",

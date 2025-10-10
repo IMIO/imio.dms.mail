@@ -1142,6 +1142,7 @@ class ApproverRoleAdapter(object):
             if annot["approval"] != 99 and annot["users"][userid]["order"] > annot["approval"]:
                 continue  # only users that can approve have visibility
             def_roles = ["Reader"]
+            # TODO add a specific role and permission to manage approval ?
             if annot["users"][userid].get("editor"):
                 def_roles.append("Editor")
             roles[userid] = tuple(def_roles)

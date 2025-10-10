@@ -497,6 +497,159 @@ def change_approval_user_status(approval, number, status, userid=None):
             approval["files"][f_uid][number]["status"] = status
 
 
+def add_file_to_approval(approval, f_uid):
+    """Add a file to approval annotation."""
+    if f_uid not in approval["files"]:
+        approval["files"][f_uid] = PersistentMapping({nb: PersistentMapping({"status": "w"})
+                                                      for nb in approval["numbers"]})
+
+
+def remove_file_from_approval(approval, f_uid):
+    """Remove a file from approval annotation."""
+    if f_uid in approval["files"]:
+        del approval["files"][f_uid]
+        # if not approval["files"]:
+        #     approval["approval"] = None
+        #     approval["session_id"] = None
+        #     for nb in approval["numbers"]:
+        #         approval["numbers"][nb]["status"] = "w"
+        #     for userid in approval["users"]:
+        #         approval["users"][userid]["status"] = "w"
+
+
+def is_file_approved(approval, f_uid, totally=True):
+    """Check if file is approved.
+
+    :param approval: approval annotation
+    :param f_uid: file uid
+    :param totally: if True, return True if at least one approval number is approved
+                    if False, return True if all approval numbers are approved
+    :return: bool
+    """
+    if f_uid not in approval["files"]:
+        return False
+    if totally:
+        return all(approval["files"][f_uid][nb]["status"] == "a" for nb in approval["numbers"])
+    else:
+        return any(approval["files"][f_uid][nb]["status"] == "a" for nb in approval["numbers"])
+
+
+def can_approve(approval, userid, f_uid, editable=True):
+    """Check if user can approve the file."""
+    c_a = approval["approval"]  # current approval
+    if not c_a:  # to early
+        return False
+    if userid not in approval["users"] or approval["users"][userid]["order"] != c_a:  # cannot approuve now
+        return False
+    if f_uid not in approval["files"]:  # file not in approval
+        return False
+    if not editable:
+        return False
+    # if approval["files"][f_uid][c_a]["status"] == "a":
+    #     return False
+    return True
+
+
+def approve_file(approval, mail, afile, userid, values=None, transition=None):
+    """Approve the current file.
+
+    :param approval: approval annotation
+    :param mail: mail object
+    :param afile: file to approve
+    :param userid: current user id
+    :param values: optional dict to update
+    :param transition: optional transition to do after approval
+    :return: approval status bool (True=ok), reload bool (True=reload page)
+    """
+#    user = api.user.get_current()
+    request = afile.REQUEST
+    c_a = approval["approval"]  # current approval
+    """
+    {
+     'approval': 1,
+     'files': {'4115fb4c265647ca82d85285504973b8': {1: {'status': 'p'}, 2: {'status': 'w'}}}, 
+     'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}},
+     'session_id': None,
+     'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
+    }
+    """  # noqa
+    f_uid = afile.UID()
+    # "awaiting" (w), "pending" (p), "approved" (a)
+    # approve
+    approval["files"][f_uid][c_a]["approved_by"] = userid
+    approval["files"][f_uid][c_a]["approved_on"] = datetime.now()
+    approval["files"][f_uid][c_a]["status"] = "a"
+    if is_file_approved(approval, f_uid):
+        afile.approved = True
+        if values is not None:
+            values["approved"] = True
+    yet_to_approve = [fuid for fuid in approval["files"] if approval["files"][fuid][c_a]["status"] != "a"]
+    if yet_to_approve:
+        # TODO get fullname from userid
+        api.portal.show_message(
+            message=_(u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
+                      u"to approve on this mail.", mapping={"file": safe_unicode(afile.Title()), "user": userid,
+                                                            "nb": len(yet_to_approve)}),
+            request=request,
+            type="info",
+        )
+        return True, True
+    change_approval_user_status(approval, c_a, "a", userid=userid)
+    message = u"The file '${file}' has been approved by ${user}. "
+    max_number = max(approval["numbers"].keys())
+    if c_a < max_number:
+        approval["approval"] += 1
+        change_approval_user_status(approval, approval["approval"], "p")
+        mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+        mail.reindexObjectSecurity()  # to update local roles from adapter
+        message += u"Next approval number is ${nb}."
+        api.portal.show_message(
+            message=_(message,
+                      mapping={"file": safe_unicode(afile.Title()), "user": userid, "nb": approval["approval"]}),
+            request=request, type="info")
+        return True, True
+    else:
+        approval["approval"] = 99  # all approved
+        mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+        message += u"All approvals have been done for this file."
+        api.portal.show_message(
+            message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": userid}),
+            request=request, type="info")
+        # we create a signing session if needed
+        if mail.esign:
+            with api.env.adopt_roles(["Manager"]):
+                ret, msg = add_mail_files_to_session(mail, approval=approval)
+                if not ret:
+                    api.portal.show_message(
+                        message=_(u"There was an error while creating the signing session: ${msg} !",
+                                  mapping={"msg": msg}),
+                        request=request,
+                        type="error",
+                    )
+                    return False, True
+                else:
+                    api.portal.show_message(
+                        message=_(u"A signing session has been created: ${msg}.",
+                                  mapping={"msg": msg}),
+                        request=request,
+                        type="info",
+                    )
+                    return True, True
+        if transition:
+            # must use the following ?
+            # do_next_transition(mail, mail.portal_type, state="to_approve")
+            with api.env.adopt_roles(["Reviewer"]):
+                do_transitions(mail, [transition])
+                # api.portal.show_message(
+                #     message=_(u"The mail has been automatically transitioned to state '${state}'.",
+                #               mapping={"state": mail.portal_workflow.getInfoFor(mail, "review_state")}),
+                #     request=request,
+                #     type="info",
+                # )
+        return True, True
+    return True, False
+
+
 def add_mail_files_to_session(mail, approval=None):
     """Add mail files to sign session."""
     if not approval:

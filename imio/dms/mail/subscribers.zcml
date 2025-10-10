@@ -161,6 +161,11 @@
         handler=".subscribers.imiodmsfile_added"
         />
 
+    <!--subscriber
+        for="imio.dms.mail.dmsfile.IImioDmsFile
+             collective.iconifiedcategory.interfaces.IIconifiedAttrChangedEvent"
+         handler=".subscribers.imiodmsfile_iconified_attr_changed" /-->
+
     <subscriber
         for="imio.dms.mail.interfaces.IMemberAreaFolder
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
