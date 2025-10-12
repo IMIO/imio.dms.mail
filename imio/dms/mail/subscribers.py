@@ -1406,5 +1406,7 @@ def zope_ready(event):
                 if ret:
                     logger.info('=> CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
                 change = True
+        # from Extensions.demo import disable_resources_debug_mode
+        # disable_resources_debug_mode(site)
     if change:
         transaction.commit()
