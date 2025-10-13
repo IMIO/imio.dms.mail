@@ -515,7 +515,9 @@ def dmsoutgoingmail_modified(mail, event):
             mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
 
         mail.signers.sort(key=itemgetter("number"))
-        approval = get_approval_annot(mail, reset=True)
+        approval = get_approval_annot(mail)
+        reset = approval["approval"] is None and True or False
+        approval = get_approval_annot(mail, reset=reset)
         # "awaiting" (w), "pending" (p), "approved" (a)
         signer_emails = []
         for i, signer in enumerate(mail.signers, start=1):
