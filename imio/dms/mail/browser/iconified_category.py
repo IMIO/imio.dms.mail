@@ -2,7 +2,6 @@
 """
     collective.iconifiedcategory overrided views
 """
-from collective.iconifiedcategory import utils
 from collective.iconifiedcategory.browser.actionview import ApprovedChangeView as BaseApprovedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from imio.dms.mail.utils import add_file_to_approval
@@ -13,6 +12,7 @@ from imio.dms.mail.utils import is_file_approved
 from imio.dms.mail.utils import logger  # noqa F401
 from imio.dms.mail.utils import remove_file_from_approval
 from plone import api
+from zope.i18n import translate
 
 
 """
@@ -40,29 +40,51 @@ class ApprovedColumn(BaseApprovedColumn):
         super(ApprovedColumn, self).__init__(context, request, table)
         # self.context is the mail here
         self.a_a = get_approval_annot(self.context)
+        self.msg = u""
 
-    # original method waiting to be modified
+    def alt(self, content):
+        return translate(
+            self.msg,
+            context=self.table.request,
+            domain='collective.iconifiedcategory',
+        )
+
     def css_class(self, content):
         av = self.get_action_view(content)
         editable = self.is_editable(content) and " editable" or ""
         # when deactivated, anyone see a grey icon
-        if self.is_deactivated(content):
-            if editable:
-                return " deactivated editable"
+        if av.p_state not in ("to_approve", "to_be_signed", "signed", "sent"):
+            if self.is_deactivated(content):
+                if editable:
+                    self.msg = u"Deactivated for approval (click to activate)"
+                    return " deactivated editable"
+                else:
+                    self.msg = u"Deactivated for approval"
+                    return " deactivated"
+            elif editable:
+                self.msg = u"Activated for approval (click to deactivate)"
+                return editable
             else:
-                return " deactivated"
+                self.msg = u"Activated for approval"
+                return ""
         # when to_approve, the red icon (no class) is shown if :
         #  * no approval at all
         #  * but the current approver see a green icon when he just approved
-        if av.p_state == "to_approve":
+        elif av.p_state == "to_approve":
             if can_approve(self.a_a, av.userid, av.uid):
                 if self.a_a["files"][content.UID][self.a_a["approval"]]["status"] == "a":
+                    self.msg = u"Already approved (click to change)"
                     return " active{}".format(editable)
+                self.msg = u"Waiting for your approval (click to approve)"
                 return editable
+            else:
+                self.msg = u"Waiting for approval but you can't approve (now)"
         # after a first approval, we show a partially or totally approved icon even for a previously or future approver
         if content["approved"]:  # all approved
+            self.msg = u"Totally approved"
             return " totally-approved"
         elif is_file_approved(self.a_a, content.UID, totally=False):
+            self.msg = u"Partially approved. Still waiting for other approval(s)"
             return " partially-approved"
         return ""
 
@@ -91,6 +113,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         self.reload = False
         self.user_id = None
         self.uid = self.context.UID()
+        self.msg = u""
 
     @property
     def userid(self):
@@ -109,8 +132,10 @@ class ApprovedChangeView(BaseApprovedChangeView):
             if can_approve(self.a_a, self.userid, self.uid):
                 if self.a_a["files"][self.uid][self.a_a["approval"]]["status"] == "a":
                     status = 0
+                    self.msg = u"Already approved (click to change)"
                     # TODO TO BE HANDLED
                 else:
+                    self.msg = u"Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method
                     ret, self.reload = approve_file(self.a_a, self.parent, self.context, self.userid, values=values,
                                                     transition="propose_to_be_signed")
@@ -122,15 +147,17 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 values['approved'] = False
                 status = 0
                 add_file_to_approval(self.a_a, self.uid)
+                self.msg = u"Activated for approval (click to deactivate)"
             else:
                 values['to_approve'] = False
                 values['approved'] = False
                 status = -1
                 remove_file_from_approval(self.a_a, self.uid)
+                self.msg = u"Deactivated for approval (click to activate)"
             self.reload = False
         else:
-            # cannot be in after to_approve state because get_url column method
-            pass
+            # cannot be in after to_approve state because get_url column method ?
+            logger.warn("IN else of approved change view ???")
         # logger.info("After annot change: %s, ", self.a_a)
         # logger.info("After values change: %s, %s", status, values)
         return status, values
@@ -144,7 +171,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         old_values = self.get_current_values()
         status, values = self._get_next_values(old_values)
         super(BaseApprovedChangeView, self).set_values(values)
-        return status, utils.approved_message(self.context)
+        return status, self.msg
 
     def __call__(self):
         # TODO ajouter un comparatif de date afin de voir si on agit bien sur qlq chose à jour...
