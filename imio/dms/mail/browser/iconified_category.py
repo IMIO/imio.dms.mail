@@ -137,6 +137,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 else:
                     self.msg = u"Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method
+                    # must we pass self to update self.msg: no need for now because we reload in all cases !!
                     ret, self.reload = approve_file(self.a_a, self.parent, self.context, self.userid, values=values,
                                                     transition="propose_to_be_signed")
                     status = int(ret)
