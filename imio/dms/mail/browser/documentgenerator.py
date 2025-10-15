@@ -13,6 +13,7 @@ from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHe
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
+from collective.iconifiedcategory.utils import calculate_category_id
 from imio.dms.mail.utils import get_approval_annot
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
@@ -496,7 +497,10 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 scan_id=scan_id,
                 scan_user=scan_user,
                 file=file_object,
+                content_category=calculate_category_id(
+                    api.portal.get()["annexes_types"]["signable_files"]["signable-ged-file"])
             )
+        # TODO sign : replace content_category upper by the one selected on the model
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
 
