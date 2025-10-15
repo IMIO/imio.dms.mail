@@ -515,7 +515,9 @@ def dmsoutgoingmail_modified(mail, event):
             mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
 
         mail.signers.sort(key=itemgetter("number"))
-        approval = get_approval_annot(mail, reset=True)
+        approval = get_approval_annot(mail)
+        reset = approval["approval"] is None and True or False
+        approval = get_approval_annot(mail, reset=reset)
         # "awaiting" (w), "pending" (p), "approved" (a)
         signer_emails = []
         for i, signer in enumerate(mail.signers, start=1):
@@ -557,10 +559,10 @@ def dmsoutgoingmail_modified(mail, event):
                 if userid not in numbers["users"]:
                     numbers["users"].append(userid)
         # files
-        for fil in mail.get_files_to_sign():
-            if fil.UID() not in approval["files"]:
-                approval["files"][fil.UID()] = PersistentMapping({nb: PersistentMapping({"status": "w"})
-                                                                  for nb in approval["numbers"]})
+        # for fil in mail.get_files_to_sign():
+        #     if fil.UID() not in approval["files"]:
+        #         approval["files"][fil.UID()] = PersistentMapping({nb: PersistentMapping({"status": "w"})
+        #                                                           for nb in approval["numbers"]})
 
 
 def dmsoutgoingmail_added(mail, event):
@@ -693,6 +695,14 @@ def imiodmsfile_added(obj, event):
     # we check if the file is added manually or generated
     if obj.scan_id and obj.id == obj.scan_id:  # generated
         obj.generated = 1
+
+
+def imiodmsfile_iconified_attr_changed(obj, event):
+    """When an iconified attribute is changed. Not used for the moment."""
+    if event.attr_name == 'approved':
+        if event.is_created:
+            return
+        fil = event.object  # noqa F841
 
 
 def dexterity_transition(obj, event):
@@ -1398,5 +1408,7 @@ def zope_ready(event):
                 if ret:
                     logger.info('=> CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
                 change = True
+        # from Extensions.demo import disable_resources_debug_mode
+        # disable_resources_debug_mode(site)
     if change:
         transaction.commit()

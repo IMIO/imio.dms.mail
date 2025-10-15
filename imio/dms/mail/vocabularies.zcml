@@ -159,4 +159,15 @@
         factory="imio.dms.mail.vocabularies.ActiveInactiveStatesVocabulary"
         />
 
+    <unconfigure package="collective.iconifiedcategory">
+        <utility
+            name="collective.iconifiedcategory.categories"
+            provides="zope.schema.interfaces.IVocabularyFactory"
+            />
+    </unconfigure>
+    <utility
+        name="collective.iconifiedcategory.categories"
+        factory="imio.dms.mail.vocabularies.DmsFilesCategoryVocabulary"
+        />
+
 </configure>

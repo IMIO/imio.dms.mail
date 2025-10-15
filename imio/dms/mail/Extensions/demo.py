@@ -535,3 +535,13 @@ def activate_signing(self):
     )
 
     return portal.REQUEST.response.redirect(portal.absolute_url())
+
+
+def disable_resources_debug_mode(self):
+    portal = self
+    css_tool = portal.portal_css
+    js_tool = portal.portal_javascripts
+    if getattr(css_tool, 'getDebugMode', None):
+        css_tool.setDebugMode(False)
+    if getattr(js_tool, 'getDebugMode', None):
+        js_tool.setDebugMode(False)
