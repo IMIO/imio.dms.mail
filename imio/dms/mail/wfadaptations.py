@@ -1008,7 +1008,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         """
         possible cases:
         1) basic: created -> to_approve -> to_be_signed
-        2) n+1 applied: created -> proposed_to_n_plus -> to_approve -> to_be_signed
+        2) n+1 applied: created -> proposed_to_n_plus -> validated -> to_approve -> to_be_signed
         3) to_print applied: created -> to_print -> to_approve -> to_be_signed
         """
         # TODO : Check cases 2 and 3
