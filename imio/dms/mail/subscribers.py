@@ -979,6 +979,7 @@ def group_deleted(event):
         "expedition",
         "lecteurs_globaux_cs",
         "lecteurs_globaux_ce",
+        "esign_watchers",
         "Administrators",
         "Reviewers",
         "Site Administrators",

@@ -65,6 +65,11 @@ class Migrate_To_3_1(Migrator):  # noqa
                 omit=[u"imio.dms.mail:default"]
             )
 
+            # add group
+            if api.group.get("esign_watchers") is None:
+                api.group.create("esign_watchers", "2 Observateurs module signature")
+                api.group.add_user(groupname="esign_watchers", username="dirg")
+
         if self.is_in_part("r"):  # update templates
             old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
