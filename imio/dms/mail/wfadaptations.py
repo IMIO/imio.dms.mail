@@ -1214,7 +1214,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                     {
                         "i": "CompoundCriterion",
                         "o": "plone.app.querystring.operation.compound.is",
-                        "v": " files-belonging-to-a-given-session",
+                        "v": "files-belonging-to-a-given-session",
                     },
                 ],
                 customViewFields=tuple(next_col.customViewFields),
