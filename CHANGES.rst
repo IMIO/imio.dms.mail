@@ -20,6 +20,8 @@ Changelog
   [sgeulette]
 - Added 'imio.annex' and iconified categories to dms files and dms appendix files.
   [sgeulette, chris-adam]
+- Defined new Content Category Groups for dms files and appendix files.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
