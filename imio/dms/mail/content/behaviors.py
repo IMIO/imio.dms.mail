@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup import _ as _ccp
+from collective.contact.plonegroup.behaviors import IPlonegroupUserLink
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localrolesfield.field import LocalRoleField
@@ -10,6 +11,7 @@ from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.content import uuidToObject
 from operator import itemgetter
+from plone import api
 from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
 from plone.supermodel import directives
@@ -164,7 +166,7 @@ class ISigningBehavior(model.Schema):
     @invariant
     def validate_signing(data):
         if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in data.signers]):
-                raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
+            raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
 
         if not data.signers or []:
             return
@@ -209,3 +211,50 @@ class ISigningBehavior(model.Schema):
                     raise Invalid(_(u"You have to define approvings for each signer if electronic signature is used !"))
             elif any(u"_empty_" in s["approvings"] for s in data.signers):
                 raise Invalid(_(u"You cannot have empty and defined approvings at the same time !"))
+
+
+@provider(IFormFieldProvider)
+class IImioPlonegroupUserLink(IPlonegroupUserLink):
+    @invariant
+    def validate_userid(data):
+        context = data.__context__
+        if not hasattr(context, 'userid') or getattr(context, 'userid', None) is None:
+            return
+
+        # Raise if trying to remove an existing userid
+        if data.userid is None:
+            raise Invalid(_(u"You cannot remove a userid once it is set."))
+
+        # Raise if changing userid but user has pending esign approvals
+        if data.userid != context.userid:
+            catalog = api.portal.get_tool('portal_catalog')
+
+            # Get person(s) with approving held positions for the user
+            hps = catalog.unrestrictedSearchResults(
+                portal_type='held_position',
+                userid=context.userid,
+            )
+            approving_persons = set()
+            for b in hps:
+                hp = b.getObject()
+                if 'signer'in hp.usages or 'approving' in hp.usages:
+                    approving_persons.add(hp.get_person().UID())
+
+            # Get all persons with pending esign approvals
+            mails = catalog.unrestrictedSearchResults(
+                portal_type='dmsoutgoingmail',
+                review_state='to_approve',
+            )
+            pending_approvings = set()
+            for b in mails:
+                mail = b.getObject()
+                signers = mail.signers
+                for signer in signers:
+                    for approving in signer.get('approvings', []):
+                        if approving == "_themself_":
+                            pending_approvings.add(uuidToObject(signer.get('signer'), unrestricted=True).get_person().UID())
+                        else:
+                            pending_approvings.add(approving)
+
+            if approving_persons.intersection(pending_approvings):
+                raise Invalid(_(u"You cannot change the userid because the user has pending esign approvals."))
