@@ -92,7 +92,7 @@ def add_special_model_mail(portal):
 
 def add_test_annexes_types(context):
     """
-    Add french test data: ContentCategoryGroup and ContentCategory
+    Add French test data: ContentCategoryGroup and ContentCategory
     """
     if not context.readDataFile("imiodmsmail_examples_marker.txt"):
         return
@@ -146,27 +146,27 @@ def add_test_annexes_types(context):
             show_preview=show_pv,
         )
 
-    # Content Category Group for dms main files and dms appendix files
-    if "signable_files" not in ccc:
-        signable_files_category_group = api.content.create(
+    # Content Category Group for dms main files in incoming mails
+    if "incoming_dms_files" not in ccc:
+        incoming_dms_files_category_group = api.content.create(
             type="ContentCategoryGroup",
-            title="Fichiers signables",
+            title="Fichiers entrants",
             container=ccc,
-            id="signable_files",
+            id="incoming_dms_files",
             # confidentiality_activated=True,
-            to_be_printed_activated=True,
-            signed_activated=True,
+            # to_be_printed_activated=True,
+            # signed_activated=True,
             # publishable_activated=True,
-            approved_activated=True,
+            # approved_activated=True,
         )
-        do_transitions(signable_files_category_group, ["show_internally"])
+        do_transitions(incoming_dms_files_category_group, ["show_internally"])
     else:
-        signable_files_category_group = ccc["signable_files"]
+        incoming_dms_files_category_group = ccc["incoming_dms_files"]
     icats = (
-        ("signable-ged-file", u"Fichier signable", u"attach.png", True),
+        ("incoming-dms-file", u"Fichier entrant", u"attach.png", True),
     )
     for oid, title, img, show_pv in icats:
-        if oid in ccc["signable_files"]:
+        if oid in ccc["incoming_dms_files"]:
             continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
@@ -175,7 +175,7 @@ def add_test_annexes_types(context):
             type="ContentCategory",
             title=title,
             description=u"",
-            container=signable_files_category_group,
+            container=incoming_dms_files_category_group,
             icon=icon,
             id=oid,
             predefined_title=title,
@@ -189,27 +189,27 @@ def add_test_annexes_types(context):
             show_preview=show_pv,
         )
 
-    # Content Category Group for dms main files and dms appendix files
-    if "classic_files" not in ccc:
-        classic_files_category_group = api.content.create(
+    # Content Category Group for appendix files in incoming mails
+    if "incoming_appendix_files" not in ccc:
+        incoming_appendix_files_category_group = api.content.create(
             type="ContentCategoryGroup",
-            title="Fichiers classiques",
+            title="Annexes entrantes",
             container=ccc,
-            id="classic_files",
+            id="incoming_appendix_files",
             # confidentiality_activated=True,
             # to_be_printed_activated=True,
             # signed_activated=True,
             # publishable_activated=True,
             # approved_activated=True,
         )
-        do_transitions(classic_files_category_group, ["show_internally"])
+        do_transitions(incoming_appendix_files_category_group, ["show_internally"])
     else:
-        classic_files_category_group = ccc["classic_files"]
+        incoming_appendix_files_category_group = ccc["incoming_appendix_files"]
     icats = (
-        ("classic-ged-file", u"Fichier classique", u"attach.png", True),
+        ("incoming-appendix-file", u"Annexe entrante", u"attach.png", True),
     )
     for oid, title, img, show_pv in icats:
-        if oid in ccc["classic_files"]:
+        if oid in ccc["incoming_appendix_files"]:
             continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
@@ -218,7 +218,93 @@ def add_test_annexes_types(context):
             type="ContentCategory",
             title=title,
             description=u"",
-            container=classic_files_category_group,
+            container=incoming_appendix_files_category_group,
+            icon=icon,
+            id=oid,
+            predefined_title=title,
+            # confidential=True,
+            # to_print=True,
+            # to_sign=True,
+            # signed=True,
+            # publishable=True,
+            # only_pdf=True,
+            # approved=False,
+            show_preview=show_pv,
+        )
+
+    # Content Category Group for dms main files in outgoing mails
+    if "outgoing_dms_files" not in ccc:
+        outgoing_dms_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title="Fichiers sortants",
+            container=ccc,
+            id="outgoing_dms_files",
+            # confidentiality_activated=True,
+            to_be_printed_activated=True,
+            signed_activated=True,
+            # publishable_activated=True,
+            approved_activated=True,
+        )
+        do_transitions(outgoing_dms_files_category_group, ["show_internally"])
+    else:
+        outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
+    icats = (
+        ("outgoing-dms-file", u"Fichier sortant", u"attach.png", True),
+    )
+    for oid, title, img, show_pv in icats:
+        if oid in ccc["outgoing_dms_files"]:
+            continue
+        icon_path = os.path.join(context._profile_path, "images", img)
+        with open(icon_path, "rb") as fl:
+            icon = NamedBlobImage(fl.read(), filename=img)
+        api.content.create(
+            type="ContentCategory",
+            title=title,
+            description=u"",
+            container=outgoing_dms_files_category_group,
+            icon=icon,
+            id=oid,
+            predefined_title=title,
+            # confidential=True,
+            # to_print=True,
+            # to_sign=True,
+            # signed=True,
+            # publishable=True,
+            # only_pdf=True,
+            # approved=False,
+            show_preview=show_pv,
+        )
+
+    # Content Category Group for appendix files in outgoing mails
+    if "outgoing_appendix_files" not in ccc:
+        outgoing_appendix_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title="Annexes sortantes",
+            container=ccc,
+            id="outgoing_appendix_files",
+            # confidentiality_activated=True,
+            to_be_printed_activated=True,
+            signed_activated=True,
+            # publishable_activated=True,
+            approved_activated=True,
+        )
+        do_transitions(outgoing_appendix_files_category_group, ["show_internally"])
+    else:
+        outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
+    icats = (
+        ("outgoing-appendix-file", u"Annexe sortante", u"attach.png", True),
+    )
+    for oid, title, img, show_pv in icats:
+        if oid in ccc["outgoing_appendix_files"]:
+            continue
+        icon_path = os.path.join(context._profile_path, "images", img)
+        with open(icon_path, "rb") as fl:
+            icon = NamedBlobImage(fl.read(), filename=img)
+        api.content.create(
+            type="ContentCategory",
+            title=title,
+            description=u"",
+            container=outgoing_appendix_files_category_group,
             icon=icon,
             id=oid,
             predefined_title=title,
@@ -557,7 +643,7 @@ def add_test_mails(context):
                     file=file_object,
                     scan_id="0509999000000%02d" % i,
                     scan_date=scan_date,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["signable_files"]["signable-ged-file"]),
+                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]),
                 )
 
     # tasks
@@ -622,7 +708,7 @@ def add_test_mails(context):
                     id="1",
                     title="",
                     file=file_object,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["signable_files"]["signable-ged-file"]),
+                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]),
                 )
 
 

@@ -209,7 +209,10 @@ class Migrate_To_3_1(Migrator):  # noqa
             self.context.runImportStepFromProfile(u'imio.dms.mail:examples', u'imiodmsmail-add-test-annexes-types')
             files = self.portal.portal_catalog.unrestrictedSearchResults(portal_type=["dmsmainfile", "dmsommainfile",
                                                                                       "dmsappendixfile"])
-            category = self.portal["annexes_types"]["signable_files"]["signable-ged-file"]
+            incoming_dms_category = self.portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+            incoming_appendix_category = self.portal["annexes_types"]["incoming_appendix_files"]["incoming-appendix-file"]
+            outgoing_dms_category = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+            outgoing_appendix_category = self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"]
             for f in files:
                 obj = f.getObject()
                 if not hasattr(obj, "approved"):
@@ -217,6 +220,16 @@ class Migrate_To_3_1(Migrator):  # noqa
                 if not hasattr(obj, "to_print"):
                     obj.to_print = False
                 if not hasattr(obj, "content_category"):
+                    if obj.portal_type == "dmsmainfile":
+                        category = incoming_dms_category
+                    elif obj.portal_type == "dmsommainfile":
+                        category = outgoing_dms_category
+                    elif obj.portal_type == "dmsappendixfile":
+                        parent_type = obj.aq_parent.portal_type
+                        if parent_type == "dmsincomingmail":
+                            category = incoming_appendix_category
+                        elif parent_type == "dmsoutgoingmail":
+                            category = outgoing_appendix_category
                     obj.content_category = calculate_category_id(category)
                     update_categorized_elements(obj.aq_parent, obj, category)
             catalog = self.portal.portal_catalog
