@@ -690,7 +690,7 @@ def add_mail_files_to_session(mail, approval=None):
     seal = None
     if mail.seal:
         seal = ""  # TODO where to get a value ?
-    watcher_users = api.group.get("esign_watchers").getGroupMembers()
+    watcher_users = api.user.get_users(groupname='esign_watchers')
     watcher_emails = [user.getProperty("email") for user in watcher_users]
     session_id, session = add_files_to_session(signers, file_uids, seal, watchers=watcher_emails)
     approval["session_id"] = session_id
