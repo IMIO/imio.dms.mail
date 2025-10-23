@@ -742,6 +742,9 @@ def add_test_users_and_groups(context):
     if api.group.get("audit_contacts") is None:
         api.group.create("audit_contacts", "1 Audit contacts")
         api.group.add_user(groupname="audit_contacts", username="dirg")
+    if api.group.get("esign_watchers") is None:
+        api.group.create("esign_watchers", "2 Observateurs module signature")
+        api.group.add_user(groupname="esign_watchers", username="dirg")
 
 
 def configure_batch_import(context):
