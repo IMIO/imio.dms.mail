@@ -100,7 +100,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
             applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
                                    if dic["workflow"] == "outgoingmail_workflow"]
-            finished1 = finished2 = True
+            finished1 = finished2 = finished3 = True
             if reset:
                 logger.info("outgoingmail_workflow reloaded")
                 for name in applied_adaptations:
@@ -121,7 +121,6 @@ class Migrate_To_3_1(Migrator):  # noqa
 
             # update localroles
             finished = finished1 and finished2
-            finished3 = False
             if finished:
                 lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
                 changes = False

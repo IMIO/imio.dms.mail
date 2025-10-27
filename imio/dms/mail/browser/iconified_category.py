@@ -15,6 +15,10 @@ from plone import api
 from zope.i18n import translate
 
 
+# TODO esign
+# ajouter des couleurs différentes pour quelqu'un qui ne peut pas approuver ou pas encore...
+
+
 """
 {
     'approval': 1,
@@ -63,7 +67,7 @@ class ApprovedColumn(BaseApprovedColumn):
                     return " deactivated"
             elif editable:
                 self.msg = u"Activated for approval (click to deactivate)"
-                return editable
+                return editable and " activated editable" or " activated"
             else:
                 self.msg = u"Activated for approval"
                 return ""
@@ -71,6 +75,9 @@ class ApprovedColumn(BaseApprovedColumn):
         #  * no approval at all
         #  * but the current approver see a green icon when he just approved
         elif av.p_state == "to_approve":
+            if self.is_deactivated(content):
+                self.msg = u"Deactivated for approval"
+                return " deactivated"
             if can_approve(self.a_a, av.userid, av.uid):
                 if self.a_a["files"][content.UID][self.a_a["approval"]]["status"] == "a":
                     self.msg = u"Already approved (click to change)"
@@ -79,6 +86,9 @@ class ApprovedColumn(BaseApprovedColumn):
                 return editable
             else:
                 self.msg = u"Waiting for approval but you can't approve (now)"
+        elif self.is_deactivated(content):
+            self.msg = u"Deactivated for approval"
+            return " deactivated"
         # after a first approval, we show a partially or totally approved icon even for a previously or future approver
         if content["approved"]:  # all approved
             self.msg = u"Totally approved"

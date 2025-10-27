@@ -731,7 +731,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
     def get_files_to_sign(self):
         """Returns the list of ImioDmsFile objects to sign"""
-        # TODO to be removed
+        # TODO to be modified to take into account to be signed attribute
         # get ordered files
         files = reversed([f for f in object_values(self, ["ImioDmsFile"])
                           if f.file and f.file.contentType == "application/vnd.oasis.opendocument.text"])
@@ -859,12 +859,19 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
                     emails.append(email)
         return u", ".join(emails)
 
-    def has_approvings(self):
+    def has_approvings(self, all_done=False):
         """Check if the outgoing mail must be approved.
+
+        :param all_done: if True, check if all approvings are done
         :return: boolean
         """
         annot = IAnnotations(self).get("idm.approval", {})
-        return bool(annot.get("users", []))
+        if not annot.get("users", []):
+            return False
+        elif not all_done:
+            return True
+        else:  # has approvals and all done
+            return annot.get("approval", 0) == 99
 
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
@@ -892,12 +899,20 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
 
     security.declarePublic("can_be_handsigned")
 
+    # TODO can be renamed as can_be_signed
     def can_be_handsigned(self):
         """Used in guard expression for to_be_signed transition."""
+        # TODO use to be printed criteria...
         brains = self.context.portal_catalog.unrestrictedSearchResults(
             portal_type="dmsommainfile", path="/".join(self.context.getPhysicalPath())
         )
-        return bool(brains)
+        if not bool(brains):
+            return False
+        if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
+            return False
+         # elif self.context.seal:
+        #     return True
+        return True
 
     security.declarePublic("can_be_sent")
 

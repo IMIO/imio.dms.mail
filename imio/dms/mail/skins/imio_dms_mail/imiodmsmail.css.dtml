@@ -498,7 +498,19 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 #content .iconified-listing td.iconified-approved a.totally-approved::before
 /*, div.tooltipster-categorized-elements span.iconified-approved::before*/
 {
-  content: "\f560";
+  content: "\f560";  /* check-double */
+}
+
+#content .iconified-listing td.iconified-approved a.deactivated::before
+{
+  content: "\f05e";  /* ban */
+}
+
+#content .iconified-listing td.iconified-approved a.cant-approve::before
+{
+  content: "\f254";  /* hourglass */
+  color: black;
+  font-weight: initial;
 }
 
 #content .iconified-listing td.iconified-approved a.partially-approved {
