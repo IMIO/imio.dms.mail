@@ -45,6 +45,7 @@ class ApprovedColumn(BaseApprovedColumn):
         # self.context is the mail here
         self.a_a = get_approval_annot(self.context)
         self.msg = u""
+        self.base_class = "iconified-action"
 
     def alt(self, content):
         return translate(
@@ -57,51 +58,59 @@ class ApprovedColumn(BaseApprovedColumn):
         av = self.get_action_view(content)
         editable = self.is_editable(content) and " editable" or ""
         # when deactivated, anyone see a grey icon
-        if av.p_state not in ("to_approve", "to_be_signed", "signed", "sent"):
+        if av.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+            # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):
                 if editable:
                     self.msg = u"Deactivated for approval (click to activate)"
-                    return " deactivated editable"
+                    return " to-approve editable"
                 else:
                     self.msg = u"Deactivated for approval"
-                    return " deactivated"
+                    return " to-approve "
             elif editable:
                 self.msg = u"Activated for approval (click to deactivate)"
-                return editable and " activated editable" or " activated"
+                return " active to-approve editable"
             else:
                 self.msg = u"Activated for approval"
-                return ""
+                return " active to-approve"
+        elif self.is_deactivated(content):
+            self.base_class = "iconified-action-approved"
+            self.msg = u"Deactivated for approval"
+            return " to-approve"
         # when to_approve, the red icon (no class) is shown if :
         #  * no approval at all
         #  * but the current approver see a green icon when he just approved
         elif av.p_state == "to_approve":
-            if self.is_deactivated(content):
-                self.msg = u"Deactivated for approval"
-                return " deactivated"
+            self.base_class = "iconified-action-approved"
+            # current user can approve now
             if can_approve(self.a_a, av.userid, av.uid):
                 if self.a_a["files"][content.UID][self.a_a["approval"]]["status"] == "a":
                     self.msg = u"Already approved (click to change)"
                     return " active{}".format(editable)
                 self.msg = u"Waiting for your approval (click to approve)"
                 return editable
-            else:
-                self.msg = u"Waiting for approval but you can't approve (now)"
-        elif self.is_deactivated(content):
-            self.msg = u"Deactivated for approval"
-            return " deactivated"
-        # after a first approval, we show a partially or totally approved icon even for a previously or future approver
+            # current user cannot approve now but is an approver
+            elif av.userid in self.a_a["users"]:
+                # approver must yet approve
+                if self.a_a["users"][av.userid]["order"] > self.a_a["approval"]:
+                    self.msg = u"Waiting for other approval before you can approve"
+                    return " waiting"
+        # after a first approval, we show a partially or totally approved icon even for a previously approver
         if content["approved"]:  # all approved
             self.msg = u"Totally approved"
             return " totally-approved"
-        elif is_file_approved(self.a_a, content.UID, totally=False):
+        elif True or is_file_approved(self.a_a, content.UID, totally=False):
             self.msg = u"Partially approved. Still waiting for other approval(s)"
             return " partially-approved"
+        else:
+            self.msg = u"Must be approved by other people"
+            return " cant-approve"
         return ""
 
     def get_url(self, content):
         av = self.get_action_view(content)
         # after to_approve state, no one can click on the icon
-        if av.p_state in ("to_be_signed", "signed", "sent"):
+        if av.p_state in ("to_print", "to_be_signed", "signed", "sent"):
             return "#"
         # when to_approve, only an approver can click on the icon
         if av.p_state == "to_approve" and not can_approve(self.a_a, av.userid, av.uid):
@@ -109,6 +118,16 @@ class ApprovedColumn(BaseApprovedColumn):
         return '{url}/@@{action}'.format(
             url=content.getURL(),
             action=self.get_action_view_name(content),
+        )
+
+    def renderCell(self, content):
+        link = (u'<a href="{0}" class="{3}{1}" alt="{2}" '
+                u'title="{2}"></a>')
+        return link.format(
+            self.get_url(content),
+            self.css_class(content),
+            self.alt(content),
+            self.base_class,
         )
 
 
@@ -151,18 +170,18 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     ret, self.reload = approve_file(self.a_a, self.parent, self.context, self.userid, values=values,
                                                     transition="propose_to_be_signed")
                     status = int(ret)
-        elif self.p_state not in ("to_be_signed", "signed", "sent"):
+        elif self.p_state not in ("to_print", "to_be_signed", "signed", "sent"):
             # before to_approve state, we can only enable or disable to_approve
             if old_values['to_approve'] is False:
                 values['to_approve'] = True
                 values['approved'] = False
-                status = 0
+                status = 1
                 add_file_to_approval(self.a_a, self.uid)
                 self.msg = u"Activated for approval (click to deactivate)"
             else:
                 values['to_approve'] = False
                 values['approved'] = False
-                status = -1
+                status = 0
                 remove_file_from_approval(self.a_a, self.uid)
                 self.msg = u"Deactivated for approval (click to activate)"
             self.reload = False
@@ -173,8 +192,8 @@ class ApprovedChangeView(BaseApprovedChangeView):
         # logger.info("After values change: %s, %s", status, values)
         return status, values
 
-    def _may_set_values(self, values, ):
-        if self.p_state in ("to_be_signed", "signed", "sent"):
+    def _may_set_values(self, values):
+        if self.p_state in ("to_print", "to_be_signed", "signed", "sent"):
             return False
         return super(ApprovedChangeView, self)._may_set_values(values)
 

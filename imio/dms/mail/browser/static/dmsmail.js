@@ -182,4 +182,21 @@ $(document).ready(function(){
         dmsmail.initialize_fancytree();
     });
 
+    $('a.iconified-action-approved').click(function() {
+    var obj = $(this);
+    if (!obj.hasClass('editable')) {
+      return false;
+    }
+    var values = {'iconified-value': !obj.hasClass('active')};
+    $.getJSON(
+      obj.attr('href'),
+      values,
+      function(data) {
+        window.location.reload();
+        return;
+      }
+    );
+    return false;
+    });
+
 });

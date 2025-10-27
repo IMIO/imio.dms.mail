@@ -535,11 +535,20 @@ def is_file_approved(approval, f_uid, totally=True):
 
 
 def can_approve(approval, userid, f_uid, editable=True):
-    """Check if user can approve the file."""
+    """Check if user can approve the file.
+
+    :param approval: approval annotation
+    :param userid: user id
+    :param f_uid: file uid
+    :param editable: is file editable
+    :return: bool
+    """
     c_a = approval["approval"]  # current approval
     if not c_a:  # to early
         return False
-    if userid not in approval["users"] or approval["users"][userid]["order"] != c_a:  # cannot approuve now
+    if userid not in approval["users"]:
+        return False
+    if approval["users"][userid]["order"] != c_a:  # cannot approuve now
         return False
     if f_uid not in approval["files"]:  # file not in approval
         return False
