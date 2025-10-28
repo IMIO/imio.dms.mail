@@ -29,7 +29,7 @@ msgstr "Approuvé (cliquer pour changer)"
 
 #: tabview.py
 msgid "Approved"
-msgstr "(À) Approuvé?"
+msgstr ""
 
 #: ./browser/iconified_category.py
 msgid "Deactivated for approval"
@@ -45,7 +45,7 @@ msgstr "Approbation partielle. En attente d'autres approbations"
 
 #: tabview.py
 msgid "Signed"
-msgstr "(À) Signé?"
+msgstr ""
 
 #: ./browser/iconified_category.py
 msgid "Totally approved"
