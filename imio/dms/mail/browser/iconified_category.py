@@ -103,7 +103,7 @@ class ApprovedColumn(BaseApprovedColumn):
             self.msg = u"Partially approved. Still waiting for other approval(s)"
             return " partially-approved"
         else:
-            self.msg = u"Must be approved by other people"
+            self.msg = u"Waiting for the first approval"
             return " cant-approve"
         return ""
 

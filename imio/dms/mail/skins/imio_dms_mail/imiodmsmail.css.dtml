@@ -511,6 +511,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 
 #content .iconified-listing td.iconified-approved a.waiting::before
 {
+  /*content: "\f251";  /* hourglass-start */
   content: "\f254";  /* hourglass */
   color: red;
   font-weight: initial;
@@ -522,7 +523,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 }
 
 #content .iconified-listing td.iconified-approved a.partially-approved::before {
-  content: "\f560";  /* check-double */
+  content: "\f252";  /* hourglass-half */
   color: #FFB627;
 }
 
