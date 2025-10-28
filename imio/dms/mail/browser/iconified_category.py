@@ -61,12 +61,12 @@ class ApprovedColumn(BaseApprovedColumn):
         if av.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):
-                if editable:
-                    self.msg = u"Deactivated for approval (click to activate)"
-                    return " to-approve editable"
-                else:
+                if not self.a_a["users"] or not editable:
                     self.msg = u"Deactivated for approval"
                     return " to-approve "
+                else:
+                    self.msg = u"Deactivated for approval (click to activate)"
+                    return " to-approve editable"
             elif editable:
                 self.msg = u"Activated for approval (click to deactivate)"
                 return " active to-approve editable"
