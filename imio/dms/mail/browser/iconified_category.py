@@ -99,7 +99,7 @@ class ApprovedColumn(BaseApprovedColumn):
         if content["approved"]:  # all approved
             self.msg = u"Totally approved"
             return " totally-approved"
-        elif True or is_file_approved(self.a_a, content.UID, totally=False):
+        elif is_file_approved(self.a_a, content.UID, totally=False):
             self.msg = u"Partially approved. Still waiting for other approval(s)"
             return " partially-approved"
         else:
