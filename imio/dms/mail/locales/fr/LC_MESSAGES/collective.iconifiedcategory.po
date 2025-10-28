@@ -1,0 +1,64 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2013-06-27 09:55+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: fr\n"
+"Language-Name: French\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: collective.iconifiedcategory\n"
+"X-is-fallback-for: fr-fr fr-be fr-ca\n"
+
+#: ./browser/iconified_category.py
+msgid "Activated for approval"
+msgstr "Approbation activée"
+
+#: ./browser/iconified_category.py
+msgid "Activated for approval (click to deactivate)"
+msgstr "Approbation activée (cliquer pour désactiver)"
+
+#: ./browser/iconified_category.py
+msgid "Already approved (click to change)"
+msgstr "Approuvé (cliquer pour changer)"
+
+#: tabview.py
+msgid "Approved"
+msgstr "(À) Approuvé?"
+
+#: ./browser/iconified_category.py
+msgid "Deactivated for approval"
+msgstr "Approbation désactivée"
+
+#: ./browser/iconified_category.py
+msgid "Deactivated for approval (click to activate)"
+msgstr "Approbation désactivée (cliquer pour activer)"
+
+#: ./browser/iconified_category.py
+msgid "Partially approved. Still waiting for other approval(s)"
+msgstr "Approbation partielle. En attente d'autres approbations"
+
+#: tabview.py
+msgid "Signed"
+msgstr "(À) Signé?"
+
+#: ./browser/iconified_category.py
+msgid "Totally approved"
+msgstr "Approbation complète"
+
+#: ./browser/iconified_category.py
+msgid "Waiting for other approval before you can approve"
+msgstr "En attente d'approbation par d'autres personnes avant la vôtre"
+
+#: ./browser/iconified_category.py
+msgid "Waiting for the first approval"
+msgstr "En attente du premier approbateur"
+
+#: ./browser/iconified_category.py
+msgid "Waiting for your approval (click to approve)"
+msgstr "En attente de votre approbation (cliquer pour approuver)"

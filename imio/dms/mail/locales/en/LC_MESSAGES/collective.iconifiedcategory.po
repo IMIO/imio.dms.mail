@@ -1,0 +1,64 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2013-06-27 09:55+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"Language-Code: en\n"
+"Language-Name: English\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: collective.iconifiedcategory\n"
+"X-is-fallback-for: en-au en-ca en-gb en-us\n"
+
+#: ./browser/iconified_category.py
+msgid "Activated for approval"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Activated for approval (click to deactivate)"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Already approved (click to change)"
+msgstr ""
+
+#: tabview.py
+msgid "Approved"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Deactivated for approval"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Deactivated for approval (click to activate)"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Partially approved. Still waiting for other approval(s)"
+msgstr ""
+
+#: tabview.py
+msgid "Signed"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Totally approved"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Waiting for other approval before you can approve"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Waiting for the first approval"
+msgstr ""
+
+#: ./browser/iconified_category.py
+msgid "Waiting for your approval (click to approve)"
+msgstr ""

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-10-16 12:37+0000\n"
+"POT-Creation-Date: 2025-10-28 14:26+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -146,7 +146,7 @@ msgstr ""
 msgid "A signer is missing at position: ${positions} ! You have to adapt the rules !"
 msgstr ""
 
-#: ./utils.py:632
+#: ./utils.py:641
 msgid "A signing session has been created: ${msg}."
 msgstr ""
 
@@ -396,7 +396,7 @@ msgstr ""
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:1125
+#: ./utils.py:1133
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
@@ -531,7 +531,7 @@ msgstr ""
 msgid "Field name"
 msgstr ""
 
-#: ./utils.py:676
+#: ./utils.py:685
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr ""
 
@@ -869,7 +869,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./examples.py:1082
+#: ./examples.py:1085
 msgid "Response: "
 msgstr ""
 
@@ -1022,7 +1022,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./dmsmail.py:1218
+#: ./dmsmail.py:1233
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
@@ -1030,7 +1030,7 @@ msgstr ""
 msgid "The file '${file}' has been approved by ${user}. All approvals have been done for this file."
 msgstr ""
 
-#: ./utils.py:590
+#: ./utils.py:599
 msgid "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files to approve on this mail."
 msgstr ""
 
@@ -1042,7 +1042,7 @@ msgstr ""
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr ""
 
-#: ./utils.py:624
+#: ./utils.py:633
 msgid "There was an error while creating the signing session: ${msg} !"
 msgstr ""
 
@@ -1084,7 +1084,7 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:1129
+#: ./utils.py:1137
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -1145,7 +1145,7 @@ msgstr ""
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
-#: ./subscribers.py:1088
+#: ./subscribers.py:1089
 msgid "You cannot add a group in a group !"
 msgstr ""
 
@@ -1153,11 +1153,11 @@ msgstr ""
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr ""
 
-#: ./subscribers.py:1048
+#: ./subscribers.py:1049
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:987
+#: ./subscribers.py:988
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
@@ -1175,10 +1175,6 @@ msgstr ""
 
 #: ./subscribers.py:144
 msgid "You cannot delete, cut or rename this item '${title}' !"
-msgstr ""
-
-#: ./content/behaviors.py:210
-msgid "You cannot have a seal without electronic signature !"
 msgstr ""
 
 #: ./subscribers.py:480
@@ -1213,7 +1209,7 @@ msgstr ""
 msgid "You have to define approvings for each signer if electronic signature is used !"
 msgstr ""
 
-#: ./dmsmail.py:1246
+#: ./dmsmail.py:1261
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr ""
 
