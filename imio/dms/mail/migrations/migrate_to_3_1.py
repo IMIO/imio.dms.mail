@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.messagesviewlet.utils import add_message
 from collective.wfadaptations.api import apply_from_registry
@@ -14,6 +15,14 @@ from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import update_solr_config
+from imio.helpers.batching import batch_delete_files
+from imio.helpers.batching import batch_get_keys
+from imio.helpers.batching import batch_globally_finished
+from imio.helpers.batching import batch_handle_key
+from imio.helpers.batching import batch_hashed_filename
+from imio.helpers.batching import batch_loop_else
+from imio.helpers.batching import batch_skip_key
+from imio.helpers.batching import can_delete_batch_files
 from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
 from imio.migrator.migrator import Migrator
@@ -23,6 +32,7 @@ from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from Products.ZCatalog.ProgressHandler import ZLogHandler
 from zope.component import getUtility
 from zope.event import notify
 
@@ -200,38 +210,44 @@ class Migrate_To_3_1(Migrator):  # noqa
 
                 # reindex om markers
                 finished3 = self.reindexIndexes(['markers'], portal_types=['dmsoutgoingmail'])
+            finished = finished and finished3
 
             # imio.annex integration to dms files with iconified category
             self.context.runImportStepFromProfile('collective.dms.basecontent:default', 'catalog')
             load_type_from_package("dmsmainfile", "imio.dms.mail:default")
             load_type_from_package("dmsommainfile", "imio.dms.mail:default")
             load_type_from_package("dmsappendixfile", "imio.dms.mail:default")
+            if "annexes" in self.portal["annexes_types"] and "folders_appendix_files" not in self.portal["annexes_types"]:
+                obj = self.portal["annexes_types"]["annexes"]
+                api.content.rename(obj=obj, new_id='folders_appendix_files')
+                obj.title = _("Folders Appendix Files")
             self.context.runImportStepFromProfile(u'imio.dms.mail:examples', u'imiodmsmail-add-test-annexes-types')
-            files = self.portal.portal_catalog.unrestrictedSearchResults(portal_type=["dmsmainfile", "dmsommainfile",
-                                                                                      "dmsappendixfile"])
-            incoming_dms_category = self.portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
-            incoming_appendix_category = self.portal["annexes_types"]["incoming_appendix_files"]["incoming-appendix-file"]
-            outgoing_dms_category = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-            outgoing_appendix_category = self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"]
-            for f in files:
-                obj = f.getObject()
-                if not hasattr(obj, "approved"):
-                    obj.approved = False
-                if not hasattr(obj, "to_print"):
-                    obj.to_print = False
-                if not hasattr(obj, "content_category"):
-                    if obj.portal_type == "dmsmainfile":
-                        category = incoming_dms_category
-                    elif obj.portal_type == "dmsommainfile":
-                        category = outgoing_dms_category
-                    elif obj.portal_type == "dmsappendixfile":
-                        parent_type = obj.aq_parent.portal_type
-                        if parent_type == "dmsincomingmail":
-                            category = incoming_appendix_category
-                        elif parent_type == "dmsoutgoingmail":
-                            category = outgoing_appendix_category
-                    obj.content_category = calculate_category_id(category)
+            if finished:
+                files = self.portal.portal_catalog.unrestrictedSearchResults(portal_type=["dmsmainfile", "dmsommainfile",
+                                                                                        "dmsappendixfile"])
+                def update_category(obj):
+                    incoming_dms_category = self.portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                    incoming_appendix_category = self.portal["annexes_types"]["incoming_appendix_files"]["incoming-appendix-file"]
+                    outgoing_dms_category = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+                    outgoing_appendix_category = self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"]
+                    if not hasattr(obj, "content_category"):
+                        if obj.portal_type == "dmsmainfile":
+                            category = incoming_dms_category
+                        elif obj.portal_type == "dmsommainfile":
+                            category = outgoing_dms_category
+                        elif obj.portal_type == "dmsappendixfile":
+                            parent_type = obj.aq_parent.portal_type
+                            if parent_type == "dmsincomingmail":
+                                category = incoming_appendix_category
+                            elif parent_type == "dmsoutgoingmail":
+                                category = outgoing_appendix_category
+                        return calculate_category_id(category)
+                def post_update_category(obj):
+                    category = get_category_object(obj, obj.content_category)
                     update_categorized_elements(obj.aq_parent, obj, category)
+                finished4 = self.set_attribute(files, "content_category", func=update_category, post_func=post_update_category)
+            finished = finished and finished4
+
             catalog = self.portal.portal_catalog
             indexes = catalog.indexes()
             wanted = [
@@ -253,7 +269,6 @@ class Migrate_To_3_1(Migrator):  # noqa
             # END
 
                 # END
-            finished = finished and finished3
 
             # finished = True  # can be eventually returned and set by batched method
             if finished and old_version != new_version:
@@ -350,6 +365,45 @@ class Migrate_To_3_1(Migrator):  # noqa
         maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
         maintenance.sync()  # BATCHED
         response.write = original
+
+    def set_attribute(self, brains, attribute_name, func=None, post_func=None, batch=1000):
+        """
+        Batched method to set an attribute
+        :param brains: catalog brains list
+        :param attribute_name: attribute name to set
+        :param func(obj): function to infer value from brain
+        :param post_func(obj): function to call after setting attribute on object
+        :param batch: batch size
+        :return: True if finished, False if not
+        """
+        if func is None:
+            func = lambda x: x
+        if post_func is None:
+            post_func = lambda x: None
+        pghandler = ZLogHandler(steps=batch)
+        pghandler.init('sync', len(brains))
+        pklfile = batch_hashed_filename('imio.dms.mail.{}.pkl'.format(attribute_name))
+        batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(brains))
+        for i, b in enumerate(brains):
+            uid = b.UID
+            if batch_skip_key(uid, batch_keys, batch_config):
+                continue
+            obj = b.getObject()
+            value = func(b)
+            setattr(obj, attribute_name, value)
+            obj._p_changed = True
+            post_func(obj)
+            if pghandler:
+                pghandler.report(i)
+            if batch_handle_key(uid, batch_keys, batch_config):
+                break
+        else:
+            batch_loop_else(batch_keys, batch_config)
+        if can_delete_batch_files(batch_keys, batch_config):
+            batch_delete_files(batch_keys, batch_config)
+        if pghandler:
+            pghandler.finish()
+        return batch_globally_finished(batch_keys, batch_config)
 
 
 def migrate(context):

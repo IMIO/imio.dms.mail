@@ -25,6 +25,7 @@ from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
+from imio.dms.mail.examples import add_annexes_types
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.Extensions.demo import clean_examples
 # from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -227,6 +228,9 @@ def postInstall(context):
     update_task_workflow(site)
 
     # we create the basic folders
+    if not base_hasattr(site, "annexes_types"):
+        add_annexes_types(site)
+
     if not base_hasattr(site, "incoming-mail"):
         folderid = site.invokeFactory("Folder", id="incoming-mail", title=_(u"incoming_mail_tab"))
         im_folder = getattr(site, folderid)

@@ -90,23 +90,17 @@ def add_special_model_mail(portal):
     return obj
 
 
-def add_test_annexes_types(context):
-    """
-    Add French test data: ContentCategoryGroup and ContentCategory
-    """
-    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
-        return
+def add_annexes_types(context):
     site = context.getSite()
-    logger.info("Adding annexes types")
     ccc = site["annexes_types"]
 
     # Content Category Group for classification folders
-    if "annexes" not in ccc:
+    if "folders_appendix_files" not in ccc:
         annexes_category_group = api.content.create(
             type="ContentCategoryGroup",
-            title="Annexes",
+            title=_("Folders Appendix Files"),
             container=ccc,
-            id="annexes",
+            id="folders_appendix_files",
             # confidentiality_activated=True,
             # to_be_printed_activated=True,
             # signed_activated=True,
@@ -115,16 +109,17 @@ def add_test_annexes_types(context):
         )
         do_transitions(annexes_category_group, ["show_internally"])
     else:
-        annexes_category_group = ccc["annexes"]
+        annexes_category_group = ccc["folders_appendix_files"]
+    alsoProvides(annexes_category_group, IProtectedItem)
     icats = (
-        ("annex", u"Annexe", u"attach.png", True),
-        ("deliberation", u"Délibération", u"deliberation_signed.png", True),
-        ("cahier-charges", u"Cahier des charges", u"cahier.png", False),
-        ("legal-advice", u"Avis légal", u"legalAdvice.png", False),
-        ("budget", u"Facture", u"budget.png", False),
+        ("annex", _("Annex"), u"attach.png", True),
+        ("deliberation", _("Deliberation"), u"deliberation_signed.png", True),
+        ("cahier-charges", _("Technical specifications"), u"cahier.png", False),
+        ("legal-advice", _("Legal advice"), u"legalAdvice.png", False),
+        ("budget", _("Invoice"), u"budget.png", False),
     )
     for oid, title, img, show_pv in icats:
-        if oid in ccc["annexes"]:
+        if oid in ccc["folders_appendix_files"]:
             continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
@@ -150,7 +145,7 @@ def add_test_annexes_types(context):
     if "incoming_dms_files" not in ccc:
         incoming_dms_files_category_group = api.content.create(
             type="ContentCategoryGroup",
-            title="Fichiers entrants",
+            title=_("Incoming DMS Files"),
             container=ccc,
             id="incoming_dms_files",
             # confidentiality_activated=True,
@@ -162,8 +157,9 @@ def add_test_annexes_types(context):
         do_transitions(incoming_dms_files_category_group, ["show_internally"])
     else:
         incoming_dms_files_category_group = ccc["incoming_dms_files"]
+    alsoProvides(incoming_dms_files_category_group, IProtectedItem)
     icats = (
-        ("incoming-dms-file", u"Fichier entrant", u"attach.png", True),
+        ("incoming-dms-file", _("Incoming DMS File"), u"attach.png", True),
     )
     for oid, title, img, show_pv in icats:
         if oid in ccc["incoming_dms_files"]:
@@ -193,7 +189,7 @@ def add_test_annexes_types(context):
     if "incoming_appendix_files" not in ccc:
         incoming_appendix_files_category_group = api.content.create(
             type="ContentCategoryGroup",
-            title="Annexes entrantes",
+            title=_("Incoming Appendix Files"),
             container=ccc,
             id="incoming_appendix_files",
             # confidentiality_activated=True,
@@ -205,8 +201,9 @@ def add_test_annexes_types(context):
         do_transitions(incoming_appendix_files_category_group, ["show_internally"])
     else:
         incoming_appendix_files_category_group = ccc["incoming_appendix_files"]
+    alsoProvides(incoming_appendix_files_category_group, IProtectedItem)
     icats = (
-        ("incoming-appendix-file", u"Annexe entrante", u"attach.png", True),
+        ("incoming-appendix-file", _("Incoming Appendix File"), u"attach.png", True),
     )
     for oid, title, img, show_pv in icats:
         if oid in ccc["incoming_appendix_files"]:
@@ -236,7 +233,7 @@ def add_test_annexes_types(context):
     if "outgoing_dms_files" not in ccc:
         outgoing_dms_files_category_group = api.content.create(
             type="ContentCategoryGroup",
-            title="Fichiers sortants",
+            title=_("Outgoing DMS Files"),
             container=ccc,
             id="outgoing_dms_files",
             # confidentiality_activated=True,
@@ -248,8 +245,9 @@ def add_test_annexes_types(context):
         do_transitions(outgoing_dms_files_category_group, ["show_internally"])
     else:
         outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
+    alsoProvides(outgoing_dms_files_category_group, IProtectedItem)
     icats = (
-        ("outgoing-dms-file", u"Fichier sortant", u"attach.png", True),
+        ("outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True),
     )
     for oid, title, img, show_pv in icats:
         if oid in ccc["outgoing_dms_files"]:
@@ -279,7 +277,7 @@ def add_test_annexes_types(context):
     if "outgoing_appendix_files" not in ccc:
         outgoing_appendix_files_category_group = api.content.create(
             type="ContentCategoryGroup",
-            title="Annexes sortantes",
+            title=_("Outgoing Appendix Files"),
             container=ccc,
             id="outgoing_appendix_files",
             # confidentiality_activated=True,
@@ -291,8 +289,9 @@ def add_test_annexes_types(context):
         do_transitions(outgoing_appendix_files_category_group, ["show_internally"])
     else:
         outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
+    alsoProvides(outgoing_appendix_files_category_group, IProtectedItem)
     icats = (
-        ("outgoing-appendix-file", u"Annexe sortante", u"attach.png", True),
+        ("outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png", True),
     )
     for oid, title, img, show_pv in icats:
         if oid in ccc["outgoing_appendix_files"]:
@@ -317,6 +316,16 @@ def add_test_annexes_types(context):
             # approved=False,
             show_preview=show_pv,
         )
+
+
+def add_test_annexes_types(context):
+    """
+    Add test data: ContentCategoryGroup and ContentCategory
+    """
+    if not context.readDataFile("imiodmsmail_examples_marker.txt"):
+        return
+    logger.info("Adding annexes types")
+    add_annexes_types(context)
 
 
 def add_test_contact_lists(context):
