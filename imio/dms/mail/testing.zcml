@@ -2,6 +2,14 @@
            xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
            i18n_domain="imio.dms.mail">
 
+   <!-- Load z3c.unconfigure meta directives before anything else -->
+   <include package="z3c.unconfigure" file="meta.zcml" />
+
+   <!-- Load packages that will be unconfigured in adapters.zcml BEFORE configure.zcml -->
+   <include package="ftw.labels"/>
+   <include package="collective.contact.core"/>
+   <include package="collective.task"/>
+
    <include file="configure.zcml"/>
    <includeDependencies package="." />
 
@@ -15,7 +23,6 @@
    <include package="collective.messagesviewlet"/>
    <include package="collective.MockMailHost"/>
    <include package="collective.documentgenerator"/>
-   <include package="ftw.labels"/>
 
    <includeOverrides file="overrides.zcml" />
    <includeOverrides package="collective.eeafaceted.dashboard" file="overrides.zcml" />
