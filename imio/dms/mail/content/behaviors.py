@@ -163,6 +163,9 @@ class ISigningBehavior(model.Schema):
 
     @invariant
     def validate_signing(data):
+        if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in data.signers]):
+                raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
+
         if not data.signers or []:
             return
         persons = []
@@ -206,5 +209,3 @@ class ISigningBehavior(model.Schema):
                     raise Invalid(_(u"You have to define approvings for each signer if electronic signature is used !"))
             elif any(u"_empty_" in s["approvings"] for s in data.signers):
                 raise Invalid(_(u"You cannot have empty and defined approvings at the same time !"))
-            # if data.seal and not data.esign:
-            #     raise Invalid(_(u"You cannot have a seal without electronic signature !"))
