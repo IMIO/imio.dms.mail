@@ -729,12 +729,12 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
             'path': [],
         }
         portal_path = '/'.join(api.portal.get().getPhysicalPath())
-        if 'dmsincomingmail' in (parent_type, context_type):
+        if {'dmsincomingmail', 'dmsincoming_email'}.intersection({parent_type, context_type}):
             if context_type == 'dmsmainfile' or url.endswith('dmsmainfile'):
                 query['path'] = '{}/annexes_types/incoming_dms_files'.format(portal_path)
             elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile'):
                 query['path'] = '{}/annexes_types/incoming_appendix_files'.format(portal_path)
-        elif 'dmsoutgoingmail' in (parent_type, context_type):
+        elif {'dmsoutgoingmail', 'dmsoutgoing_email'}.intersection({parent_type, context_type}):
             if context_type == 'dmsommainfile' or url.endswith('dmsommainfile'):
                 query['path'] = '{}/annexes_types/outgoing_dms_files'.format(portal_path)
             elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile'):
