@@ -90,6 +90,13 @@ class Migrate_To_3_1(Migrator):  # noqa
 
             # signing
             self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
+            behavior_to_remove = "collective.contact.plonegroup.behaviors.IPlonegroupUserLink"
+            fti = self.portal.portal_types.get("person")
+            old_behaviors = list(fti.behaviors)
+            if behavior_to_remove in old_behaviors:
+                old_behaviors.remove(behavior_to_remove)
+                fti.behaviors = tuple(old_behaviors)
+                fti._p_changed = True
             load_type_from_package("person", "imio.dms.mail:default")  # behavior
             load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior
             load_type_from_package("held_position", "profile-imio.dms.mail:default")  # behavior

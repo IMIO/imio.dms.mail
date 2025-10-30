@@ -42,14 +42,6 @@
         provides=".behaviors.ISigningBehavior"
         />
 
-    <unconfigure package="collective.contact.plonegroup">
-        <plone:behavior
-            title="Plonegroup user link"
-            description="Adds user related fields"
-            provides="collective.contact.plonegroup.behaviors.IPlonegroupUserLink"
-            />
-    </unconfigure>
-
     <plone:behavior
         title="Plonegroup user link"
         description="Adds user related fields"
