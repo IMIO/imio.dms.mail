@@ -22,6 +22,8 @@ Changelog
   [sgeulette, chris-adam]
 - Added esign_watchers group.
   [chris-adam]
+- Added validator on person's userid.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

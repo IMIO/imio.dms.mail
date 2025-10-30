@@ -4,6 +4,8 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
 
+    <include package="z3c.unconfigure" file="meta.zcml" />
+
     <include package="plone.behavior" file="meta.zcml" />
 
     <include package="plone.directives.form" file="meta.zcml" />
@@ -38,6 +40,12 @@
         title="Dms Mail Signers"
         description="Add a field to list the users that have to sign the document"
         provides=".behaviors.ISigningBehavior"
+        />
+
+    <plone:behavior
+        title="Plonegroup user link"
+        description="Adds user related fields"
+        provides=".behaviors.IImioPlonegroupUserLink"
         />
 
 </configure>
