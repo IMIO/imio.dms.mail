@@ -8,6 +8,7 @@ from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
@@ -591,7 +592,7 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
     pc = getToolByName(mail, "portal_catalog")
     if is_file_approved(approval, f_uid):
         afile.approved = True
-        # beware that catalog metadata has not been updated TODO make method to update index and only one metadata
+        afile.reindexObject(idxs=("approved",))
         if values is not None:
             values["approved"] = True
     yet_to_approve = [fuid for fuid in approval["files"] if approval["files"][fuid][c_a]["status"] != "a"]
@@ -637,7 +638,7 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
                         request=request,
                         type="error",
                     )
-                    return False, True
+                    status, reload = False, True
                 else:
                     api.portal.show_message(
                         message=_(u"A signing session has been created: ${msg}.",
@@ -645,7 +646,7 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
                         request=request,
                         type="info",
                     )
-                    return True, True
+                    status, reload = True, True
         if transition:
             # must use the following ?
             # do_next_transition(mail, mail.portal_type, state="to_approve")
@@ -657,7 +658,7 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
                 #     request=request,
                 #     type="info",
                 # )
-        return True, True
+        return status, reload
     return True, False
 
 
@@ -692,10 +693,19 @@ def add_mail_files_to_session(mail, approval=None):
             return Redirect(mail.absolute_url())
             # return False, "File without scan id"
         new_filename = os.path.splitext(fobj.file.filename)[0] + ".pdf"
-        # TODO which pdf format to choose ?
-        pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid)
-        pdf_file.scan_id = fobj.scan_id
-        pdf_file.content_category = fobj.content_category
+        # FIXME What about appendix files ?
+        pdf_file = convert_and_save_odt(
+            fobj.file,
+            mail,
+            "dmsommainfile",
+            new_filename,
+            fmt='pdf',
+            from_uid=f_uid,
+            attributes={
+                "scan_id": fobj.scan_id,
+                "content_category": calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]["esign-generated-file"]),
+            }
+        )
         # TODO copy other metadata ?
         file_uids.append(pdf_file.UID())
     signers = [approval["numbers"][nb]["signer"] for nb in sorted(list(approval["numbers"].keys()))]

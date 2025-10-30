@@ -254,10 +254,10 @@ class Migrate_To_3_1(Migrator):  # noqa
                     category = get_category_object(obj, obj.content_category)
                     update_categorized_elements(obj.aq_parent, obj, category)
                 finished4 = self.set_attribute(files, "content_category", func=update_category,
-                                               post_func=post_update_category)
-                finished4 = finished4 and self.set_attribute(files, "to_approve", False)
-                finished4 = finished4 and self.set_attribute(files, "approved", False)
-                finished4 = finished4 and self.set_attribute(files, "to_print", False)
+                                               post_func=post_update_category, force=False)
+                finished4 = finished4 and self.set_attribute(files, "to_approve", False, force=False)
+                finished4 = finished4 and self.set_attribute(files, "approved", False, force=False)
+                finished4 = finished4 and self.set_attribute(files, "to_print", False, force=False)
             finished = finished and finished4
 
             catalog = self.portal.portal_catalog
@@ -376,7 +376,7 @@ class Migrate_To_3_1(Migrator):  # noqa
         maintenance.sync()  # BATCHED
         response.write = original
 
-    def set_attribute(self, brains, attribute_name, func=None, post_func=None, batch=1000):
+    def set_attribute(self, brains, attribute_name, func=None, post_func=None, force=True, batch=1000):
         """
         Batched method to set an attribute
         :param brains: catalog brains list
@@ -400,10 +400,11 @@ class Migrate_To_3_1(Migrator):  # noqa
             if batch_skip_key(uid, batch_keys, batch_config):
                 continue
             obj = b.getObject()
-            value = func(b)
-            setattr(obj, attribute_name, value)
-            obj._p_changed = True
-            post_func(obj)
+            if force or not hasattr(obj, attribute_name):
+                value = func(b)
+                setattr(obj, attribute_name, value)
+                obj._p_changed = True
+                post_func(obj)
             if pghandler:
                 pghandler.report(i)
             if batch_handle_key(uid, batch_keys, batch_config):

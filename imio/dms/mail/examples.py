@@ -164,8 +164,13 @@ def add_test_annexes_types(context):
 
     # Category Group for dms main files in outgoing mails
     outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
-    oid, title, img, show_pv = "outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True
-    if oid not in outgoing_dms_files_category_group:
+    icats = (
+        ("outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True, True),
+        ("esign-generated-file", _("eSign Generated File"), u"attach.png", True, False),
+    )
+    for oid, title, img, show_pv, to_approve in icats:
+        if oid in annexes_category_group:
+            continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -178,14 +183,19 @@ def add_test_annexes_types(context):
             id=oid,
             predefined_title=title,
             to_sign=True,
-            to_approve=True,
+            to_approve=to_approve,
             show_preview=show_pv,
         )
 
     # Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
-    oid, title, img, show_pv = "outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png", True
-    if oid not in outgoing_appendix_files_category_group:
+    icats = (
+        ("outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png", True),
+        ("esign-generated-appendix", _("eSign Generated Appendix"), u"attach.png", True),
+    )
+    for oid, title, img, show_pv in icats:
+        if oid in annexes_category_group:
+            continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -525,7 +535,9 @@ def add_test_mails(context):
                     file=file_object,
                     scan_id="0509999000000%02d" % i,
                     scan_date=scan_date,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]),
+                    content_category=calculate_category_id(
+                        api.portal.get()["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                    ),
                 )
 
     # tasks
@@ -590,7 +602,9 @@ def add_test_mails(context):
                     id="1",
                     title="",
                     file=file_object,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]),
+                    content_category=calculate_category_id(
+                        api.portal.get()["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+                    ),
                 )
 
 
