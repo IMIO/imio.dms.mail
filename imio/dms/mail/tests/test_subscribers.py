@@ -10,9 +10,9 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
-from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
@@ -167,7 +167,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         api.content.transition(self.imail, "close")
         self.assertEqual(self.imail.assigned_user, "agent")
 
-    def test_dmsoutgoingmail_modified(self):
+    def test_dmsoutgoingmail_modified_signer_rules(self):
         dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]
         bourgmestre = self.pf["bourgmestre"]
@@ -889,6 +889,43 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         omail.signers = None
         modified(omail)
         self.assertIsNone(omail.signers)
+
+    def test_dmsoutgoingmail_modified_approval_annot(self):
+        dirg = self.pf["dirg"]
+        dirg_hp = dirg["directeur-general"]
+        bourg = self.pf["bourgmestre"]
+        bourg_hp = bourg["bourgmestre"]
+        omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="type1",
+        )
+        self.assertEqual(
+            omail.signers,
+            [{'signer': dirg_hp.UID(), 'approvings': [u'_empty_'], 'number': 1, 'editor': True},
+             {'signer': bourg_hp.UID(), 'approvings': [u'_empty_'], 'number': 2, 'editor': False}])
+        self.assertFalse(omail.esign)
+        annot = get_approval_annot(omail)
+        # after creation, default rules are applied
+        self.assertEqual(
+            annot,
+            {
+                "approval": None,
+                "files": {},
+                "numbers": {
+                    1: {'signer': ('dirg', 'dirg@macommune.be', u'Maxime DG', u'Directeur Général'), 'users': []},
+                    2: {'signer': ('bourgmestre', 'bourgmestre@macommune.be', u'Paul BM', u'Bourgmestre'), 'users': []}
+                },
+                "session_id": None,
+                "users": {},
+            })
+        # we remove a signer
 
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')

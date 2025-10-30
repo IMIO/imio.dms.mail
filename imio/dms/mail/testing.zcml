@@ -5,10 +5,12 @@
    <!-- Load z3c.unconfigure meta directives before anything else -->
    <include package="z3c.unconfigure" file="meta.zcml" />
 
-   <!-- Load packages that will be unconfigured in adapters.zcml BEFORE configure.zcml -->
-   <include package="ftw.labels"/>
+   <!-- Load packages that will be unconfigured in zcml BEFORE configure.zcml -->
    <include package="collective.contact.core"/>
+   <include package="collective.dms.basecontent"/>
+   <include package="collective.iconifiedcategory"/>
    <include package="collective.task"/>
+   <include package="ftw.labels"/>
 
    <include file="configure.zcml"/>
    <includeDependencies package="." />
