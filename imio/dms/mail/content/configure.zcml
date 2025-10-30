@@ -4,8 +4,6 @@
     xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
 
-    <include package="z3c.unconfigure" file="meta.zcml" />
-
     <include package="plone.behavior" file="meta.zcml" />
 
     <include package="plone.directives.form" file="meta.zcml" />

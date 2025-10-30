@@ -19,9 +19,11 @@ from imio.helpers.setup import load_workflow_from_package
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from plone import api
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.events import RecordModifiedEvent
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from zope.component import getUtility
 from zope.event import notify
 
 import logging
@@ -91,15 +93,15 @@ class Migrate_To_3_1(Migrator):  # noqa
             # signing
             self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
             behavior_to_remove = "collective.contact.plonegroup.behaviors.IPlonegroupUserLink"
-            fti = self.portal.portal_types.get("person")
+            fti = getUtility(IDexterityFTI, name="person")
             old_behaviors = list(fti.behaviors)
             if behavior_to_remove in old_behaviors:
                 old_behaviors.remove(behavior_to_remove)
                 fti.behaviors = tuple(old_behaviors)
                 fti._p_changed = True
-            load_type_from_package("person", "imio.dms.mail:default")  # behavior
-            load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # behavior
-            load_type_from_package("held_position", "profile-imio.dms.mail:default")  # behavior
+            load_type_from_package("person", "imio.dms.mail:default")  # IImioPlonegroupUserLink behavior
+            load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # ISigningBehavior behavior
+            load_type_from_package("held_position", "profile-imio.dms.mail:default")  # IUsagesBehavior behavior
             load_type_from_package("dmsappendixfile", "profile-imio.dms.mail:default")  # iconified
             load_type_from_package("dmsommainfile", "profile-imio.dms.mail:default")  # iconified
             self.runProfileSteps('imio.dms.mail', steps=['imiodmsmail-add-test-annexes-types'], profile='examples')
