@@ -15,6 +15,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
+from collective.iconifiedcategory.content.events import categorized_content_created
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -516,7 +517,6 @@ def dmsoutgoingmail_added(mail, event):
     if mail.title:  # TODO handle email correctly ! owner info is different from scanner ?
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
-
 def dv_handle_file_creation(obj, event):
     """Intermediate function to avoid converting some files in documentviewer"""
     if obj.portal_type in DV_AVOIDED_TYPES:
@@ -602,6 +602,13 @@ def dmsmainfile_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
+        if not hasattr(obj, "to_approve"):
+            categorized_content_created(obj, event)
+            if not get_approval_annot(obj.__parent__)["users"] and obj.to_approve:
+                obj.to_approve = False
+            obj.reindexObject(idxs=["to_approve"])
+        if obj.to_approve:
+            add_file_to_approval(get_approval_annot(obj.__parent__), obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):

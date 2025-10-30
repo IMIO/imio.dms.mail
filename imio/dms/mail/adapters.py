@@ -1512,7 +1512,7 @@ class OMApprovalAdapter(object):
         pc = getToolByName(self.context, "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
-            # beware that catalog metadata has not been updated TODO make method to update index and only one metadata
+            afile.reindexObject(idxs=("approved",))
             if values is not None:
                 values["approved"] = True
         yet_to_approve = [fuid for fuid in self.files_uids if not self.is_file_approved(fuid, userid=userid)]
