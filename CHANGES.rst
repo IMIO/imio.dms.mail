@@ -24,6 +24,8 @@ Changelog
   [chris-adam]
 - Added validator on person's userid.
   [chris-adam]
+- Added eSign session creation for seal without signers.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

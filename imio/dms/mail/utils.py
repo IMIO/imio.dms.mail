@@ -693,6 +693,7 @@ def add_mail_files_to_session(mail, approval=None):
         # TODO which pdf format to choose ?
         pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf')
         pdf_file.scan_id = fobj.scan_id
+        pdf_file.content_category = fobj.content_category
         # TODO copy other metadata ?
         file_uids.append(pdf_file.UID())
     signers = [approval["numbers"][nb]["signer"] for nb in sorted(list(approval["numbers"].keys()))]

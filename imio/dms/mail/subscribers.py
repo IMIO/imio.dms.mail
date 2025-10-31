@@ -36,6 +36,8 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 # from imio.dms.mail.utils import separate_fullname
+from imio.dms.mail.utils import add_file_to_approval
+from imio.dms.mail.utils import add_mail_files_to_session
 from imio.dms.mail.utils import change_approval_user_status
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
@@ -47,6 +49,7 @@ from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.esign.browser.views import ExternalSessionCreateView
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
@@ -431,6 +434,19 @@ def dmsoutgoingmail_transition(mail, event):
             approval["approval"] = None  # if users removed...
         if orig_nb != approval["approval"]:
             mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+    if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:  # seal without signers (due to constraints)
+        annot = get_approval_annot(mail)
+        for f in mail.values():
+            if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
+                add_file_to_approval(annot, f.UID())
+        added, msg = add_mail_files_to_session(mail)
+        if added:
+            ExternalSessionCreateView(mail, mail.REQUEST)(session_id=annot['session_id'])
+        api.portal.show_message(
+            message=_(msg),
+            request=mail.REQUEST,
+            type=added and "info" or "error",
+        )
 
 
 def dmsoutgoingmail_modified(mail, event):
