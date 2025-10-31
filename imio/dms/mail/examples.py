@@ -100,10 +100,6 @@ def add_test_annexes_types(context):
     site = context.getSite()
     ccc = site["annexes_types"]
 
-    # Create Content Category Groups
-    from imio.dms.mail.setuphandlers import setup_iconified_categories
-    setup_iconified_categories(context)
-
     # Category Group for classification folders
     annexes_category_group = ccc["annexes"]
     icats = (

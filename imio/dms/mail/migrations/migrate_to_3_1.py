@@ -13,7 +13,9 @@ from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.examples import add_special_model_mail
+from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import createStateCollections
+from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import update_solr_config
 from imio.helpers.batching import batch_delete_files
@@ -36,6 +38,7 @@ from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from Products.ZCatalog.ProgressHandler import ZLogHandler
 from zope.component import getUtility
 from zope.event import notify
+from zope.interface import alsoProvides
 
 import logging
 import OFS
@@ -117,10 +120,10 @@ class Migrate_To_3_1(Migrator):  # noqa
             load_type_from_package("dmsommainfile", "profile-imio.dms.mail:default")  # iconified
 
             # Update wf changes
+            finished1 = finished2 = finished3 = finished4 = True
             reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
             applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
                                    if dic["workflow"] == "outgoingmail_workflow"]
-            finished1 = finished2 = finished3 = True
             if reset:
                 logger.info("outgoingmail_workflow reloaded")
                 for name in applied_adaptations:
@@ -217,17 +220,23 @@ class Migrate_To_3_1(Migrator):  # noqa
             load_type_from_package("dmsmainfile", "imio.dms.mail:default")
             load_type_from_package("dmsommainfile", "imio.dms.mail:default")
             load_type_from_package("dmsappendixfile", "imio.dms.mail:default")
-            self.portal["annexes_types"]["annexes"].title = _("Folders Appendix Files")
+            setup_iconified_categories(self.portal)
+            a_t_f = self.portal["annexes_types"]
+            a_t_f["annexes"].title = _("Folders Appendix Files")
+            alsoProvides(a_t_f["annexes"], IProtectedItem)
+            a_t_f["annexes"].reindexObject()
             self.context.runImportStepFromProfile(u'imio.dms.mail:examples', u'imiodmsmail-add-test-annexes-types')
             if finished:
-                files = self.portal.portal_catalog.unrestrictedSearchResults(portal_type=["dmsmainfile", "dmsommainfile",
-                                                                                        "dmsappendixfile"])
+                files = self.portal.portal_catalog.unrestrictedSearchResults(
+                    portal_type=["dmsmainfile", "dmsommainfile", "dmsappendixfile"])
+
                 def update_category(obj):
-                    incoming_dms_category = self.portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
-                    incoming_appendix_category = self.portal["annexes_types"]["incoming_appendix_files"]["incoming-appendix-file"]
-                    outgoing_dms_category = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-                    outgoing_appendix_category = self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"]
+                    incoming_dms_category = a_t_f["incoming_dms_files"]["incoming-dms-file"]
+                    incoming_appendix_category = a_t_f["incoming_appendix_files"]["incoming-appendix-file"]
+                    outgoing_dms_category = a_t_f["outgoing_dms_files"]["outgoing-dms-file"]
+                    outgoing_appendix_category = a_t_f["outgoing_appendix_files"]["outgoing-appendix-file"]
                     if not hasattr(obj, "content_category"):
+                        category = None
                         if obj.portal_type == "dmsmainfile":
                             category = incoming_dms_category
                         elif obj.portal_type == "dmsommainfile":
@@ -236,13 +245,16 @@ class Migrate_To_3_1(Migrator):  # noqa
                             parent_type = obj.getObject().aq_parent.portal_type
                             if parent_type in ("dmsincomingmail", "dmsincoming_email"):
                                 category = incoming_appendix_category
-                            elif parent_type in ("dmsoutgoingmail", "dmsoutgoing_email"):
+                            elif parent_type == "dmsoutgoingmail":
                                 category = outgoing_appendix_category
                         return calculate_category_id(category)
+                    return obj.content_category
+
                 def post_update_category(obj):
                     category = get_category_object(obj, obj.content_category)
                     update_categorized_elements(obj.aq_parent, obj, category)
-                finished4 = self.set_attribute(files, "content_category", func=update_category, post_func=post_update_category)
+                finished4 = self.set_attribute(files, "content_category", func=update_category,
+                                               post_func=post_update_category)
                 finished4 = finished4 and self.set_attribute(files, "to_approve", False)
                 finished4 = finished4 and self.set_attribute(files, "approved", False)
                 finished4 = finished4 and self.set_attribute(files, "to_print", False)
@@ -265,10 +277,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 self.reindexIndexes(idxs=list(added),
                                     portal_types=["dmsmainfile", "dmsommainfile", "dmsappendixfile"],
                                     update_metadata=True)
-
             # END
-
-                # END
 
             # finished = True  # can be eventually returned and set by batched method
             if finished and old_version != new_version:
@@ -285,7 +294,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                     logger.info("doc message deactivated")
                 if "idm_activate_signing" not in self.portal:
                     manage_addExternalMethod(self.portal, "idm_activate_signing", "", "imio.dms.mail.demo",
-                                            "activate_signing")
+                                             "activate_signing")
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
                 if ARCHIVE_SITE:
                     cssr = self.portal.portal_css
@@ -372,16 +381,16 @@ class Migrate_To_3_1(Migrator):  # noqa
         Batched method to set an attribute
         :param brains: catalog brains list
         :param attribute_name: attribute name to set
-        :param func(obj): function to infer value from brain
-        :param post_func(obj): function to call after setting attribute on object
+        :param func: function to infer value from brain
+        :param post_func: function to call after setting attribute on object
         :param batch: batch size
         :return: True if finished, False if not
         """
         if not callable(func):
             value = func
-            func = lambda x: value
+            func = lambda x: value  # noqa E731
         if post_func is None:
-            post_func = lambda x: None
+            post_func = lambda x: None  # noqa E731
         pghandler = ZLogHandler(steps=batch)
         pghandler.init('sync', len(brains))
         pklfile = batch_hashed_filename('imio.dms.mail.{}.pkl'.format(attribute_name))
