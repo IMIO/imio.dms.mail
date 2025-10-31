@@ -719,15 +719,27 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
     implements(IVocabularyFactory)
 
     def _get_categories(self, context, only_enabled=True):
-        if context.portal_type in ("dmsmainfile", "dmsommainfile", "dmsappendixfile", "dmsincomingmail", "dmsoutgoingmail"):
-            catalog = api.portal.get_tool('portal_catalog')
-            query = {
-                'object_provides': 'collective.iconifiedcategory.content.category.ICategory',
-                'enabled': True,
-                'path': [
-                    '/{}/annexes_types/signable_files'.format(api.portal.get().getId()),
-                    '/{}/annexes_types/classic_files'.format(api.portal.get().getId()),
-                ],
-            }
-            return [b.getObject() for b in catalog.unrestrictedSearchResults(**query)]
-        return super(DmsFilesCategoryVocabulary, self)._get_categories(context, only_enabled)
+        catalog = api.portal.get_tool('portal_catalog')
+        parent_type = context.aq_parent.portal_type
+        context_type = context.portal_type
+        url = context.REQUEST.getURL()
+        query = {
+            'object_provides': 'collective.iconifiedcategory.content.category.ICategory',
+            'enabled': True,
+            'path': [],
+        }
+        portal_path = '/'.join(api.portal.get().getPhysicalPath())
+        if {'dmsincomingmail', 'dmsincoming_email'}.intersection({parent_type, context_type}):
+            if context_type == 'dmsmainfile' or url.endswith('dmsmainfile'):
+                query['path'] = '{}/annexes_types/incoming_dms_files'.format(portal_path)
+            elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile'):
+                query['path'] = '{}/annexes_types/incoming_appendix_files'.format(portal_path)
+        elif {'dmsoutgoingmail', 'dmsoutgoing_email'}.intersection({parent_type, context_type}):
+            if context_type == 'dmsommainfile' or url.endswith('dmsommainfile'):
+                query['path'] = '{}/annexes_types/outgoing_dms_files'.format(portal_path)
+            elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile'):
+                query['path'] = '{}/annexes_types/outgoing_appendix_files'.format(portal_path)
+        else:
+            return super(DmsFilesCategoryVocabulary, self)._get_categories(context, only_enabled)
+
+        return [b.getObject() for b in catalog.unrestrictedSearchResults(**query)]
