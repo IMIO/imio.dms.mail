@@ -434,7 +434,8 @@ def dmsoutgoingmail_transition(mail, event):
             approval["approval"] = None  # if users removed...
         if orig_nb != approval["approval"]:
             mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
-    if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:  # seal without signers (due to constraints)
+    # seal without signers (due to constraints)
+    if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:
         annot = get_approval_annot(mail)
         for f in mail.values():
             if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
