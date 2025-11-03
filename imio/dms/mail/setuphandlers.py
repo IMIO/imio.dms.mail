@@ -226,7 +226,6 @@ def postInstall(context):
     configure_task_config(context)
     update_task_workflow(site)
 
-    # we create the basic folders
     if not base_hasattr(site, "incoming-mail"):
         folderid = site.invokeFactory("Folder", id="incoming-mail", title=_(u"incoming_mail_tab"))
         im_folder = getattr(site, folderid)
@@ -469,6 +468,9 @@ def postInstall(context):
             plugins_list.append(autolink_plugin)
             ckprops.manage_changeProperties(plugins=plugins_list)
 
+    # create iconified categories folders
+    setup_iconified_categories(site)
+
     key = "collective.documentgenerator.browser.controlpanel.IDocumentGeneratorControlPanelSchema.use_stream"
     if api.portal.get_registry_record(key):
         api.portal.set_registry_record(key, False)
@@ -535,17 +537,6 @@ def postInstall(context):
     # hide plone.portalheader message viewlet
     site.portal_setup.runImportStepFromProfile("profile-plonetheme.imioapps:default", "viewlets")
 
-    # Annexes Types
-    portal = api.portal.get()
-    if 'annexes_types' not in portal:
-        api.content.create(
-            container=portal,
-            id='annexes_types',
-            title=_(u"Annexes Types"),
-            type="ContentCategoryConfiguration",
-            exclude_from_nav=True
-        )
-
 
 def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
     """
@@ -560,6 +551,89 @@ def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone
     blacklist = getMultiAdapter((obj, manager), ILocalPortletAssignmentManager)
     # Turn off the manager
     blacklist.setBlacklistStatus(category, value)
+
+
+def setup_iconified_categories(portal):
+    if 'annexes_types' not in portal:
+        api.content.create(
+            container=portal,
+            id='annexes_types',
+            title=_(u"Annexes Types"),
+            type="ContentCategoryConfiguration",
+            exclude_from_nav=True
+        )
+    ccc = portal["annexes_types"]
+
+    # Content Category Group for classification folders
+    if "annexes" not in ccc:
+        annexes_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title=_("Folders Appendix Files"),
+            container=ccc,
+            id="annexes",
+        )
+        do_transitions(annexes_category_group, ["show_internally"])
+        alsoProvides(annexes_category_group, IProtectedItem)
+    else:
+        annexes_category_group = ccc["annexes"]
+
+    # Content Category Group for dms main files in incoming mails
+    if "incoming_dms_files" not in ccc:
+        incoming_dms_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title=_("Incoming DMS Files"),
+            container=ccc,
+            id="incoming_dms_files",
+        )
+        do_transitions(incoming_dms_files_category_group, ["show_internally"])
+        alsoProvides(incoming_dms_files_category_group, IProtectedItem)
+    else:
+        incoming_dms_files_category_group = ccc["incoming_dms_files"]
+
+    # Content Category Group for appendix files in incoming mails
+    if "incoming_appendix_files" not in ccc:
+        incoming_appendix_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title=_("Incoming Appendix Files"),
+            container=ccc,
+            id="incoming_appendix_files",
+        )
+        do_transitions(incoming_appendix_files_category_group, ["show_internally"])
+        alsoProvides(incoming_appendix_files_category_group, IProtectedItem)
+    else:
+        incoming_appendix_files_category_group = ccc["incoming_appendix_files"]
+
+    # Content Category Group for dms main files in outgoing mails
+    if "outgoing_dms_files" not in ccc:
+        outgoing_dms_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title=_("Outgoing DMS Files"),
+            container=ccc,
+            id="outgoing_dms_files",
+            to_be_printed_activated=True,
+            signed_activated=True,
+            approved_activated=True,
+        )
+        do_transitions(outgoing_dms_files_category_group, ["show_internally"])
+        alsoProvides(outgoing_dms_files_category_group, IProtectedItem)
+    else:
+        outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
+
+    # Content Category Group for appendix files in outgoing mails
+    if "outgoing_appendix_files" not in ccc:
+        outgoing_appendix_files_category_group = api.content.create(
+            type="ContentCategoryGroup",
+            title=_("Outgoing Appendix Files"),
+            container=ccc,
+            id="outgoing_appendix_files",
+            to_be_printed_activated=True,
+            signed_activated=True,
+            approved_activated=True,
+        )
+        do_transitions(outgoing_appendix_files_category_group, ["show_internally"])
+        alsoProvides(outgoing_appendix_files_category_group, IProtectedItem)
+    else:
+        outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
 
 
 def createStateCollections(folder, content_type):

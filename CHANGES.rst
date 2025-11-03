@@ -26,6 +26,8 @@ Changelog
   [chris-adam]
 - Added eSign session creation for seal without signers.
   [chris-adam]
+- Defined new Content Category Groups for dms files and appendix files.
+  [chris-adam, sgeulette]
 
 3.0 (2021-09-30)
 ----------------
