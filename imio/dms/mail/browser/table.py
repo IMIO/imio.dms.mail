@@ -93,7 +93,7 @@ class GenerationColumn(NoEscapeLinkColumn):
     def has_mailing(self, item):
         obj = item.getObject()
         annot = IAnnotations(obj)
-        if "documentgenerator" in annot and annot["documentgenerator"]["need_mailing"]:
+        if "documentgenerator" in annot and annot["documentgenerator"].get("need_mailing", False):
             return True
         return False
 

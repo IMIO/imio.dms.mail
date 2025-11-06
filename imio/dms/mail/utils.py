@@ -691,7 +691,7 @@ def add_mail_files_to_session(mail, approval=None):
             # return False, "File without scan id"
         new_filename = os.path.splitext(fobj.file.filename)[0] + ".pdf"
         # TODO which pdf format to choose ?
-        pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf')
+        pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid)
         pdf_file.scan_id = fobj.scan_id
         pdf_file.content_category = fobj.content_category
         # TODO copy other metadata ?
@@ -1218,25 +1218,35 @@ class VariousUtilsMethods(UtilsMethods):
     def template_infos(self):
         """Get from a generated document the original template."""
         annot = IAnnotations(self.context)
-        if "documentgenerator" not in annot or "template_uid" not in annot["documentgenerator"]:
-            return "No template"
-        uid = annot["documentgenerator"]["template_uid"]
-        doc = uuidToObject(uid, unrestricted=True)
-        if doc:
-            ret = [u"<p>Template: {}</p>".format(object_link(doc, target="_blank"))]
-            merge = doc.get_templates_to_merge()
-            if merge:
-                ret.append(u"<ul>")
-                for name in sorted(merge.keys()):
-                    ret.append(u"<li>{} = {}</li>".format(name, object_link(merge[name][0], target="_blank")))
-                else:
-                    ret.append(u"</ul>")
-            style = doc.get_style_template()
-            if style:
-                ret.append(u"<p>Style: {}</p>".format(object_link(style, target="_blank")))
-            return u"".join(ret)
-        else:
-            return "No template found with uid '{}'".format(uid)
+        if ("documentgenerator" not in annot or ("template_uid" not in annot["documentgenerator"] and  # noqa W504
+                                                 "conv_from_uid" not in annot["documentgenerator"])):
+            return "No template infos"
+        uid = annot["documentgenerator"].get("template_uid")
+        ret = []
+        if uid:
+            doc = uuidToObject(uid, unrestricted=True)
+            if doc:
+                ret.append(u"<p>Template: {}</p>".format(object_link(doc, target="_blank")))
+                merge = doc.get_templates_to_merge()
+                if merge:
+                    ret.append(u"<ul>")
+                    for name in sorted(merge.keys()):
+                        ret.append(u"<li>{} = {}</li>".format(name, object_link(merge[name][0], target="_blank")))
+                    else:
+                        ret.append(u"</ul>")
+                style = doc.get_style_template()
+                if style:
+                    ret.append(u"<p>Style: {}</p>".format(object_link(style, target="_blank")))
+            else:
+                ret.append("No template found with uid '{}'".format(uid))
+        uid = annot["documentgenerator"].get("conv_from_uid")
+        if uid:
+            doc = uuidToObject(uid, unrestricted=True)
+            if doc:
+                ret.append(u"<p>Converted from: {}</p>".format(object_link(doc, target="_blank")))
+            else:
+                ret.append("No converted from found with uid '{}'".format(uid))
+        return u"".join(ret)
 
     def unread_criteria(self):
         """ """
