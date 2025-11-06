@@ -588,8 +588,10 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
     approval["files"][f_uid][c_a]["approved_by"] = userid
     approval["files"][f_uid][c_a]["approved_on"] = datetime.now()
     approval["files"][f_uid][c_a]["status"] = "a"
+    pc = getToolByName(mail, "portal_catalog")
     if is_file_approved(approval, f_uid):
         afile.approved = True
+        # beware that catalog metadata has not been updated TODO make method to update index and only one metadata
         if values is not None:
             values["approved"] = True
     yet_to_approve = [fuid for fuid in approval["files"] if approval["files"][fuid][c_a]["status"] != "a"]
@@ -609,7 +611,7 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
     if c_a < max_number:
         approval["approval"] += 1
         change_approval_user_status(approval, approval["approval"], "p")
-        mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+        pc.reindexObject(mail, idxs=("approvings",), update_metadata=0)
         mail.reindexObjectSecurity()  # to update local roles from adapter
         message += u"Next approval number is ${nb}."
         api.portal.show_message(
@@ -619,7 +621,7 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
         return True, True
     else:
         approval["approval"] = 99  # all approved
-        mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+        pc.reindexObject(mail, idxs=("approvings",), update_metadata=0)
         message += u"All approvals have been done for this file."
         api.portal.show_message(
             message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": userid}),

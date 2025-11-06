@@ -96,7 +96,8 @@ class ApprovedColumn(BaseApprovedColumn):
                     self.msg = u"Waiting for other approval before you can approve"
                     return " waiting"
         # after a first approval, we show a partially or totally approved icon even for a previously approver
-        if content["approved"]:  # all approved
+        # if content["approved"]:  # all approved  metadata not updated in approve_file function
+        if is_file_approved(self.a_a, content.UID):  # all approved
             self.msg = u"Totally approved"
             return " totally-approved"
         elif is_file_approved(self.a_a, content.UID, totally=False):
