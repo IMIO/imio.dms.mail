@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import im_sender_email_index
@@ -218,10 +219,14 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         omail.send_modes = ["email"]
         self.assertTrue(indexer())
         # email with a doc not signed
-        createContentInContainer(omail, "dmsommainfile")
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         self.assertFalse(indexer())
         # email with another doc signed
-        createContentInContainer(omail, "dmsommainfile", signed=True)
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename), signed=True)
         self.assertTrue(indexer())
 
     def test_state_group_index(self):
@@ -350,7 +355,9 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         )
         ext = OdmSearchableExtender(omail)
         self.assertEqual(ext(), None)
-        createContentInContainer(omail, "dmsommainfile", id="testid1", scan_id="011999900000690")
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(omail, "dmsommainfile", id="testid1", scan_id="011999900000690", file=NamedBlobFile(fo.read(), filename=filename))
         self.assertEqual(ext(), u"011999900000690 IMIO011999900000690 690")
         pc = omail.portal_catalog
         rid = pc(id="my-id")[0].getRID()
@@ -358,7 +365,9 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             index_value, ["s0010", "my", "title", "description", u"011999900000690", "imio011999900000690", u"690"]
         )
-        createContentInContainer(omail, "dmsommainfile", id="testid2", scan_id="011999900000700")
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(omail, "dmsommainfile", id="testid2", scan_id="011999900000700", file=NamedBlobFile(fo.read(), filename=filename))
         self.assertEqual(ext(), u"011999900000690 IMIO011999900000690 690 011999900000700 IMIO011999900000700 700")
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(

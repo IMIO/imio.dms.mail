@@ -1332,7 +1332,10 @@ class OMApprovalAdapter(object):
     def update_signers(self):
         """Update the annotation with the current signers from the mail context."""
         # TODO FIXME This breaks if signers are changed after an approval has been done
+        files_uids = []
         if self.current_nb is None:
+            for fuid in self.files_uids:
+                files_uids.append(fuid)
             self.reset()
         signer_emails = set()
         signers = sorted(self.context.signers, key=lambda s: s["number"])
@@ -1402,6 +1405,10 @@ class OMApprovalAdapter(object):
                         }
                     )
                 )
+
+            # Re-add files if the annotation was reset
+            for f_uid in files_uids:
+                self.add_file_to_approval(f_uid)
 
     def add_file_to_approval(self, f_uid):
         """Add a file to approval annotation."""
@@ -1512,7 +1519,6 @@ class OMApprovalAdapter(object):
         pc = getToolByName(self.context, "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
-            afile.reindexObject(idxs=("approved",))
             if values is not None:
                 values["approved"] = True
         yet_to_approve = [fuid for fuid in self.files_uids if not self.is_file_approved(fuid, userid=userid)]
@@ -1669,6 +1675,7 @@ class OMApprovalAdapter(object):
             if pdf_file.to_approve or pdf_file.approved != fobj.approved:
                 pdf_file.to_approve = False
                 pdf_file.approved = fobj.approved
+                self.remove_file_from_approval(pdf_uid)
                 update_categorized_elements(
                     self.context,
                     pdf_file,
@@ -1677,7 +1684,6 @@ class OMApprovalAdapter(object):
                     sort=False,
                     logging=True,
                 )
-            # TODO copy other metadata ?
             file_uids.append(pdf_uid)
         sort_categorized_elements(self.context)
         signers = []

@@ -153,7 +153,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         if self.p_state == "to_approve":
             # in to_approve state, only an approver can approve or not
             values = old_values.copy()
-            if self.approval.can_approve(self.userid, self.uid):
+            if self.approval.can_approve(self.userid, self.uid) and old_values["to_approve"]:
                 if self.approval.is_file_approved(self.uid, userid=self.userid):
                     status = 0
                     self.msg = u"Already approved (click to change)"
@@ -186,7 +186,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 values["to_approve"] = False
                 values["approved"] = False
                 status = 0
-                self.approval.add_file_to_approval(self.uid)
+                self.approval.remove_file_from_approval(self.uid)
                 self.msg = u"Deactivated for approval (click to activate)"
             self.reload = False
         else:

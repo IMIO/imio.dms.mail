@@ -32,7 +32,7 @@ class TestTable(unittest.TestCase):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(
+            file1 = createContentInContainer(
                 imail,
                 "dmsmainfile",
                 id="testid1",
@@ -53,11 +53,11 @@ class TestTable(unittest.TestCase):
         self.assertEqual(col.getLinkTitle(cc), u"Identifiant de scan: 123456789\nDate de scan: \nVersion: ")
         self.assertEqual(
             col.renderCell(cc),
-            u'<a class="version-link" href="http://nohost/plone/incoming-mail/202546/my-id/testid1" '
-            u'alt="Identifiant de scan: 123456789\nDate de scan: \nVersion: " title="Identifiant de '
-            u'scan: 123456789\nDate de scan: \nVersion: "><img src="annexes_types/incoming_dms_files'
-            u'/incoming-dms-file/@@images/%s" alt="Incoming DMS File" title="Incoming DMS File" /> '
-            u'E0010 - </a><p class="discreet"></p>' % icon_name
+            u'<a class="version-link" href="%s" alt="Identifiant de scan: 123456789\nDate de scan: '
+            u'\nVersion: " title="Identifiant de scan: 123456789\nDate de scan: \nVersion: ">'
+            u'<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/%s" '
+            u'alt="Fichier ged courrier entrant" title="Fichier ged courrier entrant" /> '
+            u'title</a><p class="discreet"></p>' % (file1.absolute_url(), icon_name)
         )
 
     def test_AssignedGroupColumn(self):

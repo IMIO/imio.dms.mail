@@ -16,6 +16,7 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -504,8 +505,6 @@ def dmsoutgoingmail_modified(mail, event):
 
         mail.signers.sort(key=itemgetter("number"))
         approval = OMApprovalAdapter(mail)
-        if approval.current_nb is None:
-            approval.reset()
         try:
             approval.update_signers()
         except ValueError as e:
@@ -602,13 +601,10 @@ def dmsmainfile_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
-        if not hasattr(obj, "to_approve"):
-            categorized_content_created(obj, event)
-            if not get_approval_annot(obj.__parent__)["users"] and obj.to_approve:
-                obj.to_approve = False
-            obj.reindexObject(idxs=["to_approve"])
-        if obj.to_approve:
-            add_file_to_approval(get_approval_annot(obj.__parent__), obj.UID())
+        categorized_content_created(obj, event)
+        if getattr(obj, "to_approve", False):
+            approval = OMApprovalAdapter(obj.__parent__)
+            approval.add_file_to_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):
