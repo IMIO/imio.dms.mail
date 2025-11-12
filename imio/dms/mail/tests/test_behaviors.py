@@ -217,5 +217,5 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir un sceau sans signature \xe9lectronique !"
+        error_msg = u"Vous ne pouvez pas avoir un sceau et des signataires sans signature électronique !"
         self.assertEqual(_tr(errors[0].message), error_msg)

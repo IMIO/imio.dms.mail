@@ -1057,7 +1057,11 @@ msgstr ""
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./subscribers.py:480
+#: ../content/behaviors.py:169
+msgid "You cannot have a seal and signers but no electronic signature !"
+msgstr "Vous ne pouvez pas avoir un sceau et des signataires sans signature électronique !"
+
+#: ../subscribers.py:498
 msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
 msgstr ""
 

@@ -166,7 +166,7 @@ def add_test_annexes_types(context):
     outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
     icats = (
         ("outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True, True),
-        ("esign-generated-file", _("eSign Generated File"), u"attach.png", True, False),
+        ("esign-generated-file", _("eSign Generated GED File"), u"attach.png", True, False),
     )
     for oid, title, img, show_pv, to_approve in icats:
         if oid in annexes_category_group:
