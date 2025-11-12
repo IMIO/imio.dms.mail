@@ -691,13 +691,18 @@ def add_mail_files_to_session(mail, approval=None):
             )
             return Redirect(mail.absolute_url())
             # return False, "File without scan id"
-        new_filename = os.path.splitext(fobj.file.filename)[0] + ".pdf"
+        # new_filename like u'Modele de base avec sceau S0013 Test sceau 4.odt (limited to 120 chars)
+        f_title = os.path.splitext(fobj.file.filename)[0]
+        new_filename = "{}.pdf".format(f_title)
         # TODO which pdf format to choose ?
         pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid)
+        pdf_uid = pdf_file.UID()
+        # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
+        pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
         pdf_file.scan_id = fobj.scan_id
         pdf_file.content_category = fobj.content_category
         # TODO copy other metadata ?
-        file_uids.append(pdf_file.UID())
+        file_uids.append(pdf_uid)
     signers = [approval["numbers"][nb]["signer"] for nb in sorted(list(approval["numbers"].keys()))]
     watcher_users = api.user.get_users(groupname='esign_watchers')
     watcher_emails = [user.getProperty("email") for user in watcher_users]
