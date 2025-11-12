@@ -8,6 +8,9 @@ from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import sort_categorized_elements
+from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
@@ -701,8 +704,18 @@ def add_mail_files_to_session(mail, approval=None):
         pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
         pdf_file.scan_id = fobj.scan_id
         pdf_file.content_category = fobj.content_category
+        # we have to update mail categorized elements for the new pdf file
+        update_categorized_elements(
+            mail,
+            pdf_file,
+            get_category_object(mail, pdf_file.content_category),
+            limited=False,
+            sort=False,
+            logging=True
+        )
         # TODO copy other metadata ?
         file_uids.append(pdf_uid)
+    sort_categorized_elements(mail)
     signers = [approval["numbers"][nb]["signer"] for nb in sorted(list(approval["numbers"].keys()))]
     watcher_users = api.user.get_users(groupname='esign_watchers')
     watcher_emails = [user.getProperty("email") for user in watcher_users]
