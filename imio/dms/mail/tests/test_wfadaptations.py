@@ -4,6 +4,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from datetime import datetime
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
@@ -19,6 +20,7 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from zope.component import getUtility
 from zope.interface import Interface
 from zope.lifecycleevent import Attributes
@@ -346,7 +348,10 @@ class TestOMServiceValidation1(unittest.TestCase):
         api.group.remove_user(groupname=groupname, username="chef")
         self.assertFalse(group_has_user(groupname))
         self.assertFalse(adapted.can_do_transition("back_to_n_plus_1"))
-        createContentInContainer(self.omail, "dmsommainfile")  # add a file so it's possible to do transition
+        # add a file so it's possible to do transition
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(self.omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         api.content.transition(self.omail, transition="propose_to_be_signed")
         self.assertEqual(api.content.get_state(self.omail), "to_be_signed")
         # tg ok, no user in group

@@ -16,6 +16,7 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -674,11 +675,20 @@ def dmsmainfile_added(obj, event):
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
         if not hasattr(obj, "to_approve"):
-            categorized_content_created(obj, event)
-            if not get_approval_annot(obj.__parent__)["users"] and obj.to_approve:
-                obj.to_approve = False
-            obj.reindexObject(idxs=["to_approve"])
-        if obj.to_approve:
+            if not hasattr(obj, "content_category"):
+                portal = api.portal.get()
+                try:
+                    # FIXME What if this category has been deleted ?
+                    category = portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+                    obj.content_category = calculate_category_id(category)
+                except KeyError:
+                    pass
+            if hasattr(obj, "content_category"):
+                categorized_content_created(obj, event)
+                if not get_approval_annot(obj.__parent__)["users"] and obj.to_approve:
+                    obj.to_approve = False
+                obj.reindexObject(idxs=["to_approve"])
+        if hasattr(obj, "to_approve") and obj.to_approve:
             add_file_to_approval(get_approval_annot(obj.__parent__), obj.UID())
 
 
