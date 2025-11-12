@@ -16,6 +16,7 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
