@@ -6,6 +6,9 @@
 # locales/[language]/LC_MESSAGES/collective.messagesviewlet.po
 # (e.g. locales/de/LC_MESSAGES/collective.messagesviewlet.po)
 
+echo "This script is deprecated, please use mk_sync_locales.sh instead."
+exit 0
+
 CATALOGNAME=imio.dms.mail
 
 i18ndude rebuild-pot --pot generated_tmp.pot --create $CATALOGNAME ../
