@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-10-28 14:26+0000\n"
+"POT-Creation-Date: 2025-11-12 12:43+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -182,6 +182,10 @@ msgstr "Ajoute un champ 'Groupe indicateur' de type 'localroles'"
 msgid "Adds text field for data transfer"
 msgstr "Ajouter un champ texte 'Reprise données'"
 
+#: ./content/configure.zcml:47
+msgid "Adds user related fields"
+msgstr "Ajoute des champs relatifs à l'utilisateur plone"
+
 #: ./browser/settings.py:351
 msgid "Affected from date. Format: YYYY/MM/DD."
 msgstr "Critère de validité « du » (inclus), au format AAAA/MM/JJ."
@@ -222,7 +226,11 @@ msgstr "TOUT"
 msgid "An assigned user is not in this new treating group. Mail \"${mail}\" !"
 msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Courrier \"${mail}\" !"
 
-#: ./setuphandlers.py:544
+#: ./examples.py:106
+msgid "Annex"
+msgstr "Annexe"
+
+#: ./setuphandlers.py:561
 msgid "Annexes Types"
 msgstr "Types d'annexes"
 
@@ -416,6 +424,10 @@ msgstr "Reprise de données"
 msgid "Default bcc emails"
 msgstr "Valeurs par défaut du champ 'Emails des destinataires en copie cachée'"
 
+#: ./examples.py:107
+msgid "Deliberation"
+msgstr "Délibération"
+
 #: ./browser/settings.py:437
 msgid "Displayed title"
 msgstr "Libellé"
@@ -544,6 +556,11 @@ msgstr "Prénom Nom"
 msgid "Folders"
 msgstr "Dossiers"
 
+#: ./migrations/migrate_to_3_1.py:225
+#: ./setuphandlers.py:571
+msgid "Folders Appendix Files"
+msgstr "Annexes de dossiers"
+
 #: ./setuphandlers.py:183
 msgid "Folders searches"
 msgstr "Recherches dossiers et chemises"
@@ -606,6 +623,22 @@ msgstr "* Vers N++, ou agent"
 msgid "Imio Dms Mail testing profile"
 msgstr "Profil de testing pour imio.dms.mail"
 
+#: ./examples.py:149
+msgid "Incoming Appendix File"
+msgstr "Annexe Entrante"
+
+#: ./setuphandlers.py:597
+msgid "Incoming Appendix Files"
+msgstr "Annexes Entrantes"
+
+#: ./examples.py:131
+msgid "Incoming DMS File"
+msgstr "Fichier GED Entrant"
+
+#: ./setuphandlers.py:584
+msgid "Incoming DMS Files"
+msgstr "Fichiers DMS Entrants"
+
 #: ./browser/settings.py:526
 msgid "Incoming email"
 msgstr "Email entrant"
@@ -644,11 +677,19 @@ msgstr "Profil de base pour mio.dms.mail"
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
+#: ./examples.py:110
+msgid "Invoice"
+msgstr "Facture"
+
 #: ./browser/settings.py:402
 msgid "Lastname Firstname"
 msgstr "Nom Prénom"
 
-#: ./subscribers.py:953
+#: ./examples.py:109
+msgid "Legal advice"
+msgstr "Conseil légal"
+
+#: ./subscribers.py:977
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
@@ -764,6 +805,22 @@ msgstr "Obligation d'une date de courrier entrant"
 msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
+#: ./examples.py:193
+msgid "Outgoing Appendix File"
+msgstr "Annexe Sortante"
+
+#: ./setuphandlers.py:626
+msgid "Outgoing Appendix Files"
+msgstr "Annexes Sortantes"
+
+#: ./examples.py:168
+msgid "Outgoing DMS File"
+msgstr "Fichier DMS Sortant"
+
+#: ./setuphandlers.py:610
+msgid "Outgoing DMS Files"
+msgstr "Fichiers DMS Sortants"
+
 #: ./browser/batchactions.py:144
 #: ./dmsmail.py:705
 msgid "Outgoing Date"
@@ -811,6 +868,10 @@ msgstr "Pipeline pour importer des contacts"
 #: ./wfadaptations.py:150
 msgid "Please update manually ${type} local roles for creating_group !"
 msgstr "Il faut adapter manuellement les rôles locaux du type ${type} avec la fonction creating_group !"
+
+#: ./content/configure.zcml:47
+msgid "Plonegroup user link"
+msgstr "Lien utilisateur de Plonegroup"
 
 #: ./browser/settings.py:466
 msgid "Position required for fields: ${msg}"
@@ -1014,7 +1075,11 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./subscribers.py:552
+#: ./examples.py:108
+msgid "Technical specifications"
+msgstr "Cahier des charges"
+
+#: ./subscribers.py:570
 msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} <=> ${c}"
 
@@ -1149,7 +1214,11 @@ msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
-#: ./subscribers.py:119
+#: ./content/behaviors.py:260
+msgid "You cannot change the userid because the user has pending esign approvals."
+msgstr "Vous ne pouvez pas changer l'utilisateur Plone car il a encore des signatures électroniques à approuver."
+
+#: ./subscribers.py:123
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr "Vous ne pouvez pas copier cet élément '${title}' ! Pour un élément du tableau, vous devez utiliser les boutons sous le tableau."
 
@@ -1177,7 +1246,11 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./subscribers.py:480
+#: ./content/behaviors.py:169
+msgid "You cannot have a seal and signers but no electronic signature !"
+msgstr "Vous ne pouvez pas avoir un sceau et des signataires sans signature électronique !"
+
+#: ./subscribers.py:498
 msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
 msgstr "Vous ne pouvez pas avoir un sceau sans signature électronique ! Il faut adapter les règles dans la configuration !"
 
@@ -1200,6 +1273,10 @@ msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_ti
 #: ./subscribers.py:492
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) ! Il faut adapter les règles dans la configuration !"
+
+#: ./content/behaviors.py:226
+msgid "You cannot remove a userid once it is set."
+msgstr "Vous ne pouvez pas supprimer l'utilisateur Plone une fois qu'il a été défini."
 
 #: ./browser/settings.py:219
 msgid "You cannot select approvings and no validation at the same time."
@@ -1318,6 +1395,14 @@ msgstr "Créer une organisation"
 #: ./browser/templates/category_contact.pt:11
 msgid "create_person"
 msgstr "Créer une personne"
+
+#: ./examples.py:194
+msgid "eSign Generated Appendix"
+msgstr "Annexe générée pour signature électronique"
+
+#: ./examples.py:169
+msgid "eSign Generated GED File"
+msgstr "Fichier GED générée pour signature électronique"
 
 #: ./setuphandlers.py:116
 msgid "folders_tab"

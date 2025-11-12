@@ -15,6 +15,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
+from collective.iconifiedcategory.content.events import categorized_content_created
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -436,13 +437,13 @@ def dmsoutgoingmail_transition(mail, event):
             mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
     # seal without signers (due to constraints)
     if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:
-        annot = get_approval_annot(mail)
+        approval = get_approval_annot(mail)
         for f in mail.values():
             if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
-                add_file_to_approval(annot, f.UID())
+                add_file_to_approval(approval, f.UID())
         added, msg = add_mail_files_to_session(mail)
         if added:
-            ExternalSessionCreateView(mail, mail.REQUEST)(session_id=annot['session_id'])
+            ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval["session_id"])
         api.portal.show_message(
             message=_(msg),
             request=mail.REQUEST,
@@ -533,7 +534,7 @@ def dmsoutgoingmail_modified(mail, event):
 
         mail.signers.sort(key=itemgetter("number"))
         approval = get_approval_annot(mail)
-        reset = approval["approval"] is None and True or False
+        reset = approval["approval"] is None and not approval["files"]
         approval = get_approval_annot(mail, reset=reset)
         # "awaiting" (w), "pending" (p), "approved" (a)
         signer_emails = []
@@ -586,7 +587,6 @@ def dmsoutgoingmail_added(mail, event):
     """If the content is manually created, we call the modified event after creation to set signers."""
     if mail.title:  # TODO handle email correctly ! owner info is different from scanner ?
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
-
 
 def dv_handle_file_creation(obj, event):
     """Intermediate function to avoid converting some files in documentviewer"""
@@ -673,6 +673,13 @@ def dmsmainfile_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
+        if not hasattr(obj, "to_approve"):
+            categorized_content_created(obj, event)
+            if not get_approval_annot(obj.__parent__)["users"] and obj.to_approve:
+                obj.to_approve = False
+            obj.reindexObject(idxs=["to_approve"])
+        if obj.to_approve:
+            add_file_to_approval(get_approval_annot(obj.__parent__), obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):
