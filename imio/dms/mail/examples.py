@@ -591,6 +591,7 @@ def add_test_mails(context):
                     id="1",
                     title="",
                     file=file_object,
+                    scan_id="0529999000000%02d" % i,
                     content_category=calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]
                                                            ["outgoing-dms-file"]),
                 )
