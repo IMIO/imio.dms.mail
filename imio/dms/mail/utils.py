@@ -703,6 +703,7 @@ def add_mail_files_to_session(mail, approval=None):
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
         pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
         pdf_file.scan_id = fobj.scan_id
+        pdf_file.scan_user = fobj.scan_user
         pdf_file.content_category = fobj.content_category
         # we have to update mail categorized elements for the new pdf file
         update_categorized_elements(
