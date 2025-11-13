@@ -178,7 +178,7 @@ def add_test_annexes_types(context):
             id=oid,
             predefined_title=title,
             to_sign=True,
-            to_approve=True,
+            to_approve=False,
             show_preview=show_pv,
         )
 
@@ -525,7 +525,8 @@ def add_test_mails(context):
                     file=file_object,
                     scan_id="0509999000000%02d" % i,
                     scan_date=scan_date,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]),
+                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["incoming_dms_files"]
+                                                           ["incoming-dms-file"]),
                 )
 
     # tasks
@@ -590,7 +591,8 @@ def add_test_mails(context):
                     id="1",
                     title="",
                     file=file_object,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]),
+                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]
+                                                           ["outgoing-dms-file"]),
                 )
 
 
