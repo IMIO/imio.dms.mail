@@ -523,7 +523,7 @@ def add_test_mails(context):
                     "dmsmainfile",
                     title="",
                     file=file_object,
-                    scan_id="0509999000000%02d" % i,
+                    scan_id="0109999000000%02d" % i,
                     scan_date=scan_date,
                     content_category=calculate_category_id(api.portal.get()["annexes_types"]["incoming_dms_files"]
                                                            ["incoming-dms-file"]),
@@ -591,7 +591,7 @@ def add_test_mails(context):
                     id="1",
                     title="",
                     file=file_object,
-                    scan_id="0529999000000%02d" % i,
+                    scan_id="0129999000000%02d" % i,
                     content_category=calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]
                                                            ["outgoing-dms-file"]),
                 )
