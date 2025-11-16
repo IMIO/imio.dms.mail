@@ -696,7 +696,7 @@ def add_mail_files_to_session(mail, approval=None):
             # return False, "File without scan id"
         # new_filename like u'Modele de base avec sceau S0013 Test sceau 4.odt (limited to 120 chars)
         f_title = os.path.splitext(fobj.file.filename)[0]
-        new_filename = "{}.pdf".format(f_title)
+        new_filename = u"{}.pdf".format(f_title)
         # TODO which pdf format to choose ?
         pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid)
         pdf_uid = pdf_file.UID()
