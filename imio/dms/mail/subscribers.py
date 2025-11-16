@@ -408,7 +408,7 @@ def dmsoutgoingmail_transition(mail, event):
                 c_a = None
                 for fuid in approval["files"]:
                     for a_nb in sorted(list(approval["numbers"].keys())):
-                        if "approved_on" not in approval["files"][fuid][a_nb]:
+                        if "approved_on" not in approval["files"][fuid]["nb"][a_nb]:
                             if not c_a or a_nb < c_a:
                                 c_a = a_nb
                             continue
@@ -418,18 +418,18 @@ def dmsoutgoingmail_transition(mail, event):
                             last_mod.year(), last_mod.month(), last_mod.day(), last_mod.hour(),
                             last_mod.minute(), int(last_mod.second()), int(last_mod.micros() % 1000000)
                         )
-                        if last_mod > approval["files"][fuid][a_nb]["approved_on"]:
-                            del approval["files"][fuid][a_nb]["approved_by"]
-                            del approval["files"][fuid][a_nb]["approved_on"]
+                        if last_mod > approval["files"][fuid]["nb"][a_nb]["approved_on"]:
+                            del approval["files"][fuid]["nb"][a_nb]["approved_by"]
+                            del approval["files"][fuid]["nb"][a_nb]["approved_on"]
                             if not c_a or a_nb < c_a:
                                 c_a = a_nb
-                            approval["files"][fuid][a_nb]["status"] = "p"
+                            approval["files"][fuid]["nb"][a_nb]["status"] = "p"
                 if c_a:
                     approval["approval"] = c_a
                     for fuid in approval["files"]:
                         for a_nb in sorted(list(approval["numbers"].keys())):
-                            if a_nb > c_a and approval["files"][fuid][a_nb]["status"] == "p":
-                                approval["files"][fuid][a_nb]["status"] = "w"
+                            if a_nb > c_a and approval["files"][fuid]["nb"][a_nb]["status"] == "p":
+                                approval["files"][fuid]["nb"][a_nb]["status"] = "w"
         else:
             approval["approval"] = None  # if users removed...
         if orig_nb != approval["approval"]:

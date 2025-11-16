@@ -8,9 +8,9 @@ from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
-from collective.iconifiedcategory.utils import get_category_object
+# from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import sort_categorized_elements
-from collective.iconifiedcategory.utils import update_categorized_elements
+# from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
@@ -496,15 +496,16 @@ def change_approval_user_status(approval, number, status, userid=None):
     # if number in approval["numbers"]:
     #     approval["numbers"][number]["status"] = status
     for f_uid in approval["files"]:
-        if number in approval["files"][f_uid]:
-            approval["files"][f_uid][number]["status"] = status
+        if number in approval["files"][f_uid]["nb"]:
+            approval["files"][f_uid]["nb"][number]["status"] = status
 
 
 def add_file_to_approval(approval, f_uid):
     """Add a file to approval annotation."""
     if f_uid not in approval["files"]:
-        approval["files"][f_uid] = PersistentMapping({nb: PersistentMapping({"status": "w"})
-                                                      for nb in approval["numbers"]})
+        f_uid_dic = approval["files"].setdefault(f_uid, PersistentMapping({"nb": PersistentMapping(), "pdf": None}))
+        f_uid_dic["nb"] = PersistentMapping({nb: PersistentMapping({"status": "w"})
+                                             for nb in approval["numbers"]})
 
 
 def remove_file_from_approval(approval, f_uid):
@@ -532,9 +533,9 @@ def is_file_approved(approval, f_uid, totally=True):
     if f_uid not in approval["files"]:
         return False
     if totally:
-        return all(approval["files"][f_uid][nb]["status"] == "a" for nb in approval["numbers"])
+        return all(approval["files"][f_uid]["nb"][nb]["status"] == "a" for nb in approval["numbers"])
     else:
-        return any(approval["files"][f_uid][nb]["status"] == "a" for nb in approval["numbers"])
+        return any(approval["files"][f_uid]["nb"][nb]["status"] == "a" for nb in approval["numbers"])
 
 
 def can_approve(approval, userid, f_uid, editable=True):
@@ -579,7 +580,7 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
     """
     {
      'approval': 1,
-     'files': {'4115fb4c265647ca82d85285504973b8': {1: {'status': 'p'}, 2: {'status': 'w'}}}, 
+     'files': {'4115fb4c265647ca82d85285504973b8': {"nb": {1: {'status': 'p'}, 2: {'status': 'w'}}, "pdf": None}},  
      'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}},
      'session_id': None,
      'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
@@ -588,16 +589,16 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
     f_uid = afile.UID()
     # "awaiting" (w), "pending" (p), "approved" (a)
     # approve
-    approval["files"][f_uid][c_a]["approved_by"] = userid
-    approval["files"][f_uid][c_a]["approved_on"] = datetime.now()
-    approval["files"][f_uid][c_a]["status"] = "a"
+    approval["files"][f_uid]["nb"][c_a]["approved_by"] = userid
+    approval["files"][f_uid]["nb"][c_a]["approved_on"] = datetime.now()
+    approval["files"][f_uid]["nb"][c_a]["status"] = "a"
     pc = getToolByName(mail, "portal_catalog")
     if is_file_approved(approval, f_uid):
         afile.approved = True
         # beware that catalog metadata has not been updated TODO make method to update index and only one metadata
         if values is not None:
             values["approved"] = True
-    yet_to_approve = [fuid for fuid in approval["files"] if approval["files"][fuid][c_a]["status"] != "a"]
+    yet_to_approve = [fuid for fuid in approval["files"] if approval["files"][fuid]["nb"][c_a]["status"] != "a"]
     if yet_to_approve:
         # TODO get fullname from userid
         api.portal.show_message(
@@ -671,19 +672,21 @@ def add_mail_files_to_session(mail, approval=None):
     if not approval["files"]:
         return False, "No files"
     """
-    {'files': {'4115fb4c265647ca82d85285504973b8': {1: {'status': 'p'}, 2: {'status': 'w'}}}, 
+    {'files': {'4115fb4c265647ca82d85285504973b8': {"nb": {1: {'status': 'p'}, 2: {'status': 'w'}}, "pdf": None}}, 
      'approval': 1, 'session_id': None,
      'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
      'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}}}
     """  # noqa
-    not_approved = [fuid for fuid in approval["files"] for nb in approval["files"][fuid]
-                    if approval["files"][fuid][nb]["status"] != "a"]
+    not_approved = [fuid for fuid in approval["files"] for nb in approval["files"][fuid]["nb"]
+                    if approval["files"][fuid]["nb"][nb]["status"] != "a"]
     if not_approved:
         return False, "Not all files approved"
     file_uids = []
     for f_uid in approval["files"]:
         fobj = uuidToObject(f_uid)
         if not fobj:
+            continue
+        if approval["files"][f_uid]["pdf"]:  # already done ??
             continue
         if not fobj.scan_id or len(fobj.scan_id) != 15:
             api.portal.show_message(
@@ -698,22 +701,23 @@ def add_mail_files_to_session(mail, approval=None):
         f_title = os.path.splitext(fobj.file.filename)[0]
         new_filename = u"{}.pdf".format(f_title)
         # TODO which pdf format to choose ?
-        pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid)
+        pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid,
+                                        attributes={"to_sign": True, "content_category": fobj.content_category,
+                                                    "scan_id": fobj.scan_id, "scan_user": fobj.scan_user})
+        # TODO is to_sign attribute set from content_category
         pdf_uid = pdf_file.UID()
+        approval["files"][f_uid]["pdf"] = pdf_uid
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
         pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
-        pdf_file.scan_id = fobj.scan_id
-        pdf_file.scan_user = fobj.scan_user
-        pdf_file.content_category = fobj.content_category
         # we have to update mail categorized elements for the new pdf file
-        update_categorized_elements(
-            mail,
-            pdf_file,
-            get_category_object(mail, pdf_file.content_category),
-            limited=False,
-            sort=False,
-            logging=True
-        )
+        # update_categorized_elements(
+        #     mail,
+        #     pdf_file,
+        #     get_category_object(mail, pdf_file.content_category),
+        #     limited=False,
+        #     sort=False,
+        #     logging=True
+        # )
         # TODO copy other metadata ?
         file_uids.append(pdf_uid)
     sort_categorized_elements(mail)
