@@ -22,7 +22,7 @@ from zope.i18n import translate
 """
 {
     'approval': 1,
-    'files': {'4115fb4c265647ca82d85285504973b8': {1: {'status': 'p'}, 2: {'status': 'w'}}},
+    'files': {'4115fb4c265647ca82d85285504973b8': {"nb": {1: {'status': 'p'}, 2: {'status': 'w'}}, "pdf": None}},
     'numbers': {
         1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'),
             'users': ['dirg']},
@@ -84,7 +84,7 @@ class ApprovedColumn(BaseApprovedColumn):
             self.base_class = "iconified-action-approved"
             # current user can approve now
             if can_approve(self.a_a, av.userid, av.uid):
-                if self.a_a["files"][content.UID][self.a_a["approval"]]["status"] == "a":
+                if self.a_a["files"][content.UID]["nb"][self.a_a["approval"]]["status"] == "a":
                     self.msg = u"Already approved (click to change)"
                     return " active{}".format(editable)
                 self.msg = u"Waiting for your approval (click to approve)"
@@ -160,7 +160,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         if self.p_state == "to_approve":
             # in to_approve state, only an approver can approve or not
             if can_approve(self.a_a, self.userid, self.uid):
-                if self.a_a["files"][self.uid][self.a_a["approval"]]["status"] == "a":
+                if self.a_a["files"][self.uid]["nb"][self.a_a["approval"]]["status"] == "a":
                     status = 0
                     self.msg = u"Already approved (click to change)"
                     # TODO TO BE HANDLED
