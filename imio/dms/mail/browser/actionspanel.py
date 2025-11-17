@@ -276,6 +276,18 @@ class DmsOMActionsPanelView(ActionsPanelView):
     __call__ = DmsOMActionsPanelView__call__
 
 
+class DmsFileActionsPanelView(ActionsPanelView):
+
+    def __init__(self, context, request):
+        super(DmsFileActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ["edit", "external_edit", "delete", "documentviewer_convert", "download", "mailing"]
+
+    def listObjectButtonsActions(self):
+        actions = super(DmsFileActionsPanelView, self).listObjectButtonsActions()
+        actions.sort(key=lambda x: self.ACCEPTABLE_ACTIONS.index(x['id']))
+        return actions
+
+
 class DmsTaskActionsPanelView(ActionsPanelView):
 
     transitions = [

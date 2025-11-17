@@ -304,6 +304,9 @@ class ImioDmsIncomingMail(DmsIncomingMail):
         """Returns the adapter providing workflow conditions"""
         return IImioDmsIncomingMailWfConditions(self)
 
+    def has_mailing(self, document):
+        return False
+
 
 class ImioDmsIncomingMailWfConditionsAdapter(object):
     implements(IImioDmsIncomingMailWfConditions)
@@ -876,6 +879,10 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
         return IImioDmsOutgoingMailWfConditions(self)
+
+    def has_mailing(self, document):
+        view = self.restrictedTraverse('@@mailing-loop-persistent-document-generation')
+        return view.has_mailing(document_uid=document.UID())
 
 
 class ImioDmsOutgoingMailWfConditionsAdapter(object):

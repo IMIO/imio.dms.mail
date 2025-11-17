@@ -6,6 +6,7 @@ from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.documentgenerator.utils import convert_and_save_odt
 from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
+from collective.documentviewer.settings import Settings
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from collective.iconifiedcategory.utils import get_category_object
@@ -1395,6 +1396,18 @@ class VariousUtilsMethods(UtilsMethods):
         else:
             log_list(out, u"<p>none</p>")
         return u"\n".join(out)
+
+    def dv_enabled(self):
+        from imio.dms.mail.adapters import markers_conversion_error
+        if "dvConvError" in (markers_conversion_error(self.context) or []):  # Missing.Value is False
+            return False
+        if self.is_in_user_groups(groups=["encodeurs", "expedition"], admin=True):
+            return True
+        else:
+            if api.user.has_permission("Modify portal content", obj=self.context):
+                settings = Settings(self.context)
+                return not settings.successfully_converted
+            return False
 
 
 class IdmUtilsMethods(UtilsMethods):

@@ -83,8 +83,32 @@
    <property name="available_expr">python: checkPermission("Copy or Move", object) and checkPermission("Add portal content", object) and not globals_view.isPortalOrPortalDefaultPage() and object.restrictedTraverse('@@various-utils').is_unprotected()</property>
   </object>
 
-  <object name="documentviewer_convert" meta_type="CMF Action">
-   <property name="icon_expr">string:$portal_url/++resource++imio.dms.mail/documentviewer_convert.png</property>
+  <object name="documentviewer_convert" meta_type="CMF Action" i18n:domain="collective.documentviewer">
+   <property name="title">Document Viewer Convert</property>
+   <property name="description"></property>
+   <property
+      name="url_expr">string:object_url/@@convert-to-documentviewer</property>
+   <property name="icon_expr">string:$portal_url/++resource++imio.dms.mail/dv_convert.svg</property>
+   <property
+      name="available_expr">object/@@various-utils/dv_enabled</property>
+   <property name="permissions">
+    <element value="Modify view template"/>
+   </property>
+   <property name="visible">True</property>
+  </object>
+
+  <object name="mailing" meta_type="CMF Action" i18n:domain="imio.dms.mail">
+   <property name="title">Mailing</property>
+   <property name="description"></property>
+   <property
+      name="url_expr">python:context.aq_parent.absolute_url()+"/@@mailing-loop-persistent-document-generation?document_uid="+context.UID()</property>
+   <property name="icon_expr">string:$portal_url/++resource++imio.dms.mail/mailing.gif</property>
+   <property
+      name="available_expr">python:context.aq_parent.has_mailing(context)</property>
+   <property name="permissions">
+    <element value="View"/>
+   </property>
+   <property name="visible">True</property>
   </object>
 
  </object>

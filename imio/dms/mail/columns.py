@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
-from AccessControl import getSecurityManager
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
-from collective.dms.basecontent.browser.column import ExternalEditColumn as eec_base
-from collective.dms.basecontent.browser.column import IconColumn
-from collective.dms.basecontent.browser.column import LinkColumn as lc_base
 from collective.documentgenerator.browser.table import ActionsColumn as DGActionsColumn
-from collective.documentviewer.settings import Settings
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.eeafaceted.z3ctable.columns import ActionsColumn
 from collective.eeafaceted.z3ctable.columns import BaseColumn
@@ -265,131 +260,6 @@ class TaskActionsColumn(ObjectBrowserViewCallColumn):
     view_name = "actions_panel"
     attrName = "actions"
     params = {"showHistory": True, "showActions": True}
-
-
-# Columns for collective.dms.basecontent.browser.listing.VersionsTable
-
-
-class ExternalEditColumn(eec_base):
-    """Versions table. xss ok"""
-
-    lockedLinkName = "view"
-    lockedIconName = "lock_icon.png"
-    lockedLinkContent = ""
-
-    def actionAvailable(self, obj):
-        sm = getSecurityManager()
-        if not sm.checkPermission("Modify portal content", obj):
-            return False, False
-
-        if obj.file is None:
-            return False, False
-
-        ext = os.path.splitext(obj.file.filename)[-1].lower()
-        if ext in (u".pdf", u".jpg", ".jpeg"):
-            return False, False
-
-        view = getMultiAdapter((obj, self.request), name="externalEditorEnabled")
-        # check locking separately
-        available = (
-            view.isEnabledOnThisContentType()
-            and view.isActivatedInMemberProperty()
-            and view.isActivatedInSiteProperty()
-            and view.isWebdavEnabled()
-            and not view.isObjectTemporary()
-            and not view.isStructuralFolder()
-            and view.isExternalEditLink_()
-        )
-        return available, view.isObjectLocked()
-
-    def renderCell(self, item):
-        obj = item.getObject()
-        available, locked = self.actionAvailable(obj)
-        # don't display icon if not available and object not locked
-        if not available and not locked:
-            return u""
-        if locked:
-            link_url = "%s/view" % item.getURL()
-            icon_name = "lock_icon.png"
-            lock_info = getMultiAdapter((obj, self.request), name="plone_lock_info")
-            lock_details = lock_info.lock_info()
-            link_title = translate(
-                "description_webdav_locked_by_author_on_time",
-                domain="plone",
-                context=self.request,
-                mapping={
-                    "author": escape(safe_unicode(lock_details["fullname"])),
-                    "time": lock_details["time_difference"],
-                },
-            )
-        else:
-            link_url = "%s/@@external_edit" % item.getURL()
-            icon_name = "extedit_icon.png"
-            link_title = translate(self.linkContent, context=self.request)
-
-        link_content = u"""<img title="%s" src="%s" />""" % (link_title, "%s/%s" % (self.table.portal_url, icon_name))
-
-        return '<a href="%s"%s%s%s>%s</a>' % (
-            link_url,
-            self.getLinkTarget(item),
-            self.getLinkCSS(item),
-            self.getLinkTitle(item),
-            link_content,
-        )
-
-
-class NoExternalEditColumn(eec_base):
-    """IM Versions table. xss ok"""
-
-    cssClasses = {"th": "empty_col", "td": "empty_cell"}
-
-    def renderCell(self, item):
-        return u""
-
-
-class DVConvertColumn(IconColumn):
-    """Versions table. xss ok"""
-
-    header = u""
-    weight = 20
-    linkName = "@@convert-to-documentviewer"
-    # linkTarget = '_blank'
-    linkContent = _("Update preview")
-    iconName = "++resource++imio.dms.mail/dv_convert.svg"
-    cssClasses = {"td": "td_cell_convert"}
-
-    def actionAvailable(self, item):
-        if "dvConvError" in (item.markers or []):  # Missing.Value is False
-            return False
-        various = getMultiAdapter((self.context, self.request), name="various-utils")
-        if various.is_in_user_groups(groups=["encodeurs", "expedition"], admin=True):
-            return True
-        else:
-            obj = item.getObject()
-            if api.user.has_permission("Modify portal content", obj=obj):
-                settings = Settings(obj)
-                return not settings.successfully_converted
-            return False
-
-    def renderCell(self, item):
-        if not self.actionAvailable(item):
-            return u""
-        return super(DVConvertColumn, self).renderCell(item)
-
-
-class HistoryColumn(lc_base):
-    """Not used because history view don't show old file version"""
-
-    linkName = "@@historyview"
-    header = u""
-    weight = 60
-
-    def getLinkContent(self, item):
-        title = translate("history.gif_icon_title", context=self.request, domain="imio.actionspanel")
-        return u"""<img title="%s" src="%s" />""" % (
-            title,
-            "%s/++resource++imio.actionspanel/history.gif" % self.table.portal_url,
-        )
 
 
 # Columns for contacts dashboard

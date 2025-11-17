@@ -546,6 +546,15 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
     def _get_title(self, doc_name, gen_context):
         return u"%s, %s" % (self.pod_template.title, self.document.title)
 
+    def has_mailing(self, document_uid=''):
+        if not document_uid:
+            return False
+        obj = uuidToObject(document_uid)
+        annot = IAnnotations(obj)
+        if "documentgenerator" in annot and annot["documentgenerator"].get("need_mailing", False):
+            return True
+        return False
+
 
 # # # VIEWLETS # # #
 
