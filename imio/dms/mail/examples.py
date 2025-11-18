@@ -80,7 +80,14 @@ def add_special_model_mail(portal):
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=filename)
-            filo = createContentInContainer(obj, "dmsommainfile", id="1", title=u"Modèle de base", file=file_object)
+            filo = createContentInContainer(
+                obj, "dmsommainfile",
+                id="1",
+                title=u"Modèle de base",
+                file=file_object,
+                content_category=calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]
+                                                       ["outgoing-dms-file"]),
+            )
             client_id = base.get_config("client_id")
             filo.scan_id = "%s2%s00000000" % (client_id[0:2], client_id[2:6])
             if not IProtectedItem.providedBy(filo):
@@ -525,7 +532,7 @@ def add_test_mails(context):
                     file=file_object,
                     scan_id="0109999000000%02d" % i,
                     scan_date=scan_date,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["incoming_dms_files"]
+                    content_category=calculate_category_id(site["annexes_types"]["incoming_dms_files"]
                                                            ["incoming-dms-file"]),
                 )
 
