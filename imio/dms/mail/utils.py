@@ -41,6 +41,7 @@ from imio.helpers.cache import obj_modified
 from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
+from imio.helpers.security import separate_fullname
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
@@ -736,27 +737,6 @@ def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
     )
     if default_UID:
         _updateDefaultCollectionFor(folder, default_UID)
-
-
-def separate_fullname(user, fn_first=True, fullname=None):
-    """Separate firstname and lastname from fullname"""
-    if not fullname:
-        fullname = safe_unicode(user.getProperty("fullname"))
-    lastname = firstname = u""
-    if fullname:
-        parts = fullname.split()
-        if len(parts) == 1:
-            lastname = parts[0]
-        elif len(parts) > 1:
-            if fn_first:
-                firstname = parts[0]
-                lastname = " ".join(parts[1:])
-            else:
-                lastname = parts[0]
-                firstname = " ".join(parts[1:])
-    elif user:
-        lastname = safe_unicode(user.id)
-    return firstname, lastname
 
 
 def dv_clean(portal, days_back="365", date_back=None):
@@ -1571,7 +1551,7 @@ def create_personnel_content(
         elif assignment:
             if fn_first is None:
                 start = api.portal.get_registry_record(
-                    "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_fullname_used_form", default="firstname"
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fullname_used_form", default="firstname"
                 )
                 fn_first = start == "firstname"
             firstname, lastname = separate_fullname(user, fn_first=fn_first)
