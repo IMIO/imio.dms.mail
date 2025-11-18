@@ -695,7 +695,7 @@ def add_mail_files_to_session(mail, approval=None):
                 request=mail.REQUEST,
                 type="error",
             )
-            return Redirect(mail.absolute_url())
+            return False, "Bad scan_id for file uid {}".format(f_uid)
             # return False, "File without scan id"
         # new_filename like u'Modele de base avec sceau S0013 Test sceau 4.odt (limited to 120 chars)
         f_title = os.path.splitext(fobj.file.filename)[0]
