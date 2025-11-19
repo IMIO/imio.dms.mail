@@ -524,7 +524,7 @@ class Migrate_To_3_1(Migrator):  # noqa
         Batched method to set an attribute
         :param brains: catalog brains list
         :param attribute_name: attribute name to set
-        :param func: function to infer value from brain
+        :param func: function to infer value from brain. If func is not callable, it will be considered as a value
         :param post_func: function to call after setting attribute on object
         :param batch: batch size
         :return: True if finished, False if not

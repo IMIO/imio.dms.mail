@@ -279,3 +279,14 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
 
 
 validator.WidgetValidatorDiscriminators(PlonegroupUserLinkUseridValidator, field=IPlonegroupUserLink['userid'])
+
+
+@provider(IFormFieldProvider)
+class IContentCategoryBehavior(model.Schema):
+
+    content_category = schema.Choice(
+        title=_(u"Content Category"),
+        description=_("Category to apply on generated documents from this template."),
+        vocabulary=u"imio.dms.mail.PODTemplateContentCategoriesVocabulary",
+        required=True,
+    )
