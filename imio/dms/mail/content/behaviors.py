@@ -258,3 +258,14 @@ class IImioPlonegroupUserLink(IPlonegroupUserLink):
 
             if approving_persons.intersection(pending_approvings):
                 raise Invalid(_(u"You cannot change the userid because the user has pending esign approvals."))
+
+
+@provider(IFormFieldProvider)
+class IContentCategoryBehavior(model.Schema):
+
+    content_category = schema.Choice(
+        title=_(u"Content Category"),
+        description=_("Category to apply on generated documents from this template."),
+        vocabulary=u"imio.dms.mail.PODTemplateContentCategoriesVocabulary",
+        required=True,
+    )

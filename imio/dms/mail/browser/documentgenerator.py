@@ -497,8 +497,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 scan_id=scan_id,
                 scan_user=scan_user,
                 file=file_object,
-                content_category=calculate_category_id(
-                    api.portal.get()["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"])
+                content_category=pod_template.content_category,
             )
         # TODO sign : replace content_category upper by the one selected on the model
         # store informations on persisted doc

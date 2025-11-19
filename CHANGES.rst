@@ -28,6 +28,8 @@ Changelog
   [chris-adam]
 - Defined new Content Category Groups for dms files and appendix files.
   [chris-adam, sgeulette]
+- Added behavior on Configurable POD Templates to set content category on generated documents.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
