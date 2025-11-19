@@ -74,24 +74,28 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("lecteur", self.imail)
+        self.assertHasNoPerms("bourgmestre", self.imail)
         self.assertHasNoPerms("dirg", self.imail)
         self.assertHasNoPerms("agent", self.imail)
         self.assertHasNoPerms("agent1", self.imail)
         self.assertHasAllPerms("encodeur", self.imail)
 
         self.assertHasNoPerms("lecteur", self.file)
+        self.assertHasNoPerms("bourgmestre", self.file)
         self.assertHasNoPerms("dirg", self.file)
         self.assertHasNoPerms("agent", self.file)
         self.assertHasNoPerms("agent1", self.file)
         self.assertHasAllPerms("encodeur", self.file)
 
         self.assertHasNoPerms("lecteur", self.annex)
+        self.assertHasNoPerms("bourgmestre", self.annex)
         self.assertHasNoPerms("dirg", self.annex)
         self.assertHasNoPerms("agent", self.annex)
         self.assertHasNoPerms("agent1", self.annex)
         self.assertHasAllPerms("encodeur", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
+        self.assertHasNoPerms("bourgmestre", self.task)
         self.assertHasNoPerms("dirg", self.task)
         self.assertHasNoPerms("agent", self.task)
         self.assertHasNoPerms("agent1", self.task)
@@ -117,6 +121,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         clean_borg_cache(self.portal.REQUEST)
 
         self.assertHasNoPerms("lecteur", self.imail)
+        self.assertOnlyViewPerms("bourgmestre", self.imail)
         self.assertEqual(
             self.get_perms("dirg", self.imail),
             {
@@ -153,6 +158,21 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
 
         self.assertHasNoPerms("lecteur", self.file)
         self.assertEqual(
+            self.get_perms("bourgmestre", self.file),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
             self.get_perms("dirg", self.file),
             {
                 "Access contents information": True,
@@ -187,6 +207,21 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
 
         self.assertHasNoPerms("lecteur", self.annex)
         self.assertEqual(
+            self.get_perms("bourgmestre", self.annex),
+            {
+                "Access contents information": True,
+                "Add portal content": False,
+                "Delete objects": False,
+                "Modify portal content": False,
+                "Request review": False,
+                "Review portal content": False,
+                "View": True,
+                "collective.dms.basecontent: Add DmsFile": False,
+                "imio.dms.mail: Write mail base fields": False,
+                "imio.dms.mail: Write treating group field": False,
+            },
+        )
+        self.assertEqual(
             self.get_perms("dirg", self.annex),
             {
                 "Access contents information": True,
@@ -220,6 +255,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         )
 
         self.assertHasNoPerms("lecteur", self.task)
+        self.assertHasNoPerms("bourgmestre", self.task)
         self.assertHasNoPerms("dirg", self.task)
         self.assertHasNoPerms("agent", self.task)
         self.assertHasNoPerms("agent1", self.task)
