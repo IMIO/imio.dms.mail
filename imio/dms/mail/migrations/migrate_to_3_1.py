@@ -118,9 +118,10 @@ class Migrate_To_3_1(Migrator):  # noqa
             load_type_from_package("held_position", "profile-imio.dms.mail:default")  # IUsagesBehavior behavior
             load_type_from_package("dmsappendixfile", "profile-imio.dms.mail:default")  # iconified
             load_type_from_package("dmsommainfile", "profile-imio.dms.mail:default")  # iconified
+            load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # behavior for content category
 
             # Update wf changes
-            finished1 = finished2 = finished3 = finished4 = True
+            finished1 = finished2 = finished3 = finished4 = finished5 = True
             reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
             applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
                                    if dic["workflow"] == "outgoingmail_workflow"]
@@ -260,6 +261,12 @@ class Migrate_To_3_1(Migrator):  # noqa
                 finished4 = finished4 and self.set_attribute(files, "to_print", False)
             finished = finished and finished4
 
+            if finished:
+                templates = self.portal.portal_catalog.unrestrictedSearchResults(portal_type=["ConfigurablePODTemplate"])
+                category = a_t_f["outgoing_dms_files"]["outgoing-dms-file"]
+                finished5 = self.set_attribute(templates, "content_category", calculate_category_id(category))
+            finished = finished and finished5
+
             catalog = self.portal.portal_catalog
             indexes = catalog.indexes()
             wanted = [
@@ -381,7 +388,7 @@ class Migrate_To_3_1(Migrator):  # noqa
         Batched method to set an attribute
         :param brains: catalog brains list
         :param attribute_name: attribute name to set
-        :param func: function to infer value from brain
+        :param func: function to infer value from brain. If func is not callable, it will be considered as a value
         :param post_func: function to call after setting attribute on object
         :param batch: batch size
         :return: True if finished, False if not

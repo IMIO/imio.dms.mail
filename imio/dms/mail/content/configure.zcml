@@ -46,4 +46,10 @@
         provides=".behaviors.IImioPlonegroupUserLink"
         />
 
+    <plone:behavior
+        title="POD templates content categories"
+        description="Iconified Content Category to apply on generated documents from the selected POD template"
+        provides=".behaviors.IContentCategoryBehavior"
+        />
+
 </configure>
