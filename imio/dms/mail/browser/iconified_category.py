@@ -61,6 +61,7 @@ class ApprovedColumn(BaseApprovedColumn):
         if av.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):
+                # TODO esign : add condition on mailing (cannot edit if mailing)
                 if not self.a_a["users"] or not editable:
                     self.msg = u"Deactivated for approval"
                     return " to-approve "

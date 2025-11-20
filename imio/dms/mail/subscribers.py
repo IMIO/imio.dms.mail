@@ -35,7 +35,6 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
-# from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import add_file_to_approval
 from imio.dms.mail.utils import add_mail_files_to_session
 from imio.dms.mail.utils import change_approval_user_status
@@ -944,7 +943,7 @@ def user_deleted(event):
                 '<a href="${url}" target="_blank">Linked groups</a> : ${list}',
                 mapping={
                     "list": ", ".join(titles),
-                    "url": "%s/@@usergroup-usermembership?" "userid=%s" % (portal.absolute_url(), princ),
+                    "url": "%s/@@usergroup-usermembership?userid=%s" % (portal.absolute_url(), princ),
                 },
             ),
             request=request,
