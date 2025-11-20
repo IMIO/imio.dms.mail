@@ -287,7 +287,7 @@ class SendEmail(BrowserView):
 
         # 3 Close if necessary
         close = api.portal.get_registry_record(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_close_on_email_send"
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_close_on_email_send"
         )
         if close:
             trans = {
@@ -415,7 +415,7 @@ class RenderEmailSignature(BrowserView):
     def __init__(self, context, request):
         super(RenderEmailSignature, self).__init__(context, request)
         model = api.portal.get_registry_record(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_email_signature"
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature"
         )
         self.pt = PageTemplate()
         self.pt.pt_source_file = lambda: "none"

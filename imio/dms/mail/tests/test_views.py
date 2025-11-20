@@ -279,7 +279,7 @@ class TestRenderEmailSignature(unittest.TestCase):
 
     def test_call(self):
         model = api.portal.get_registry_record(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_email_signature"
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature"
         )
         self.assertIn("http://localhost:8081/", model)  # $url well replaced by PUBLIC_URL
         omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")

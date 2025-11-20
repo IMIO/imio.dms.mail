@@ -183,7 +183,7 @@ class AssignedUsersForFacetedFilterVocabulary(object):
         factory = getUtility(IVocabularyFactory, "imio.dms.mail.AssignedUsersWithDeactivatedVocabulary")
         vocab = factory(context)
         hidden_users = api.portal.get_registry_record(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "users_hidden_in_dashboard_filter", default=[]
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter", default=[]
         )
         return SimpleVocabulary([term for term in vocab._terms if term.value not in hidden_users])
 
@@ -682,7 +682,7 @@ class TreatingGroupsForFacetedFilterVocabulary(object):
         vocab = factory(context)
         hidden_orgs = (
             api.portal.get_registry_record(
-                "imio.dms.mail.browser.settings.IImioDmsMailConfig." "groups_hidden_in_dashboard_filter", default=[]
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.groups_hidden_in_dashboard_filter", default=[]
             )
             or []
         )

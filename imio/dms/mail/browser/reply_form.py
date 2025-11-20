@@ -35,7 +35,7 @@ class ReplyForm(BaseReplyForm):
             return
         prefix = (
             api.portal.get_registry_record(
-                "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_response_prefix", default=""
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix", default=""
             )
             or ""
         )
@@ -130,7 +130,7 @@ class MultipleReplyForm(BaseReplyForm):
             form = self.request.form
             prefix = (
                 api.portal.get_registry_record(
-                    "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_response_prefix", default=""
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix", default=""
                 )
                 or ""
             )

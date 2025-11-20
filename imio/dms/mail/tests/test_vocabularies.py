@@ -242,7 +242,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             res, [u"Monsieur Fred Agent", u"Monsieur Jean Encodeur", u"Monsieur Michel Chef", u"Monsieur Stef Agent"]
         )
         api.portal.set_registry_record(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_sender_firstname_sorting", False
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_firstname_sorting", False
         )
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
         res = OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]).keys()

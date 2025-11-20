@@ -189,7 +189,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
                     {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": [new_state_id]},
                 ],
                 customViewFields=tuple(next_col.customViewFields),
-                tal_condition="python: object.restrictedTraverse('idm-utils')." "proposed_to_pre_manager_col_cond()",
+                tal_condition="python: object.restrictedTraverse('idm-utils').proposed_to_pre_manager_col_cond()",
                 showNumberOfItems=False,
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
                 sort_on=u"organization_type",
@@ -486,7 +486,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                     {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": [new_state_id]},
                 ],
                 customViewFields=tuple(next_col.customViewFields),
-                tal_condition="python: object.restrictedTraverse('idm-utils')." "proposed_to_n_plus_col_cond()",
+                tal_condition="python: object.restrictedTraverse('idm-utils').proposed_to_n_plus_col_cond()",
                 showNumberOfItems=False,
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
                 sort_on=u"organization_type",
@@ -1508,7 +1508,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
             tr = wf.transitions[tr_id]
             guard = tr.getGuard()
             if guard.changeFromProperties(
-                {"guard_expr": "python:object.get_methods_adapter()." "can_do_transition('{}')".format(tr_id)}
+                {"guard_expr": "python:object.get_methods_adapter().can_do_transition('{}')".format(tr_id)}
             ):
                 tr.guard = guard
 

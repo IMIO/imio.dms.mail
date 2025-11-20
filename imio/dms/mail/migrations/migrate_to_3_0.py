@@ -147,7 +147,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             )
             mtypes = [dic.get("mt_value", dic.get("value")) for dic in mtypes]
             smodes = api.portal.get_registry_record(
-                "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_send_modes", default=[]
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes", default=[]
             )
             if smodes:
                 smodes = [dic.get("mt_value", dic.get("value")) for dic in smodes]
@@ -966,7 +966,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         )
         # registry
         api.portal.set_registry_record(
-            name="Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings." "allowed", value=False
+            name="Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.allowed", value=False
         )
 
         if (
@@ -997,7 +997,7 @@ class Migrate_To_3_0(Migrator):  # noqa
         self.portal.templates.setLayout("folder_listing")
         add_oem_templates(self.portal)
         record = self.registry.records.get(
-            "collective.contact.plonegroup.browser.settings." "IContactPlonegroupConfig.organizations"
+            "collective.contact.plonegroup.browser.settings.IContactPlonegroupConfig.organizations"
         )
         notify(RecordModifiedEvent(record, [], []))
 
@@ -1020,7 +1020,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             "sent": {"encodeur": {"roles": ["Reviewer"]}},
         }
         send_modes = api.portal.get_registry_record(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "omail_send_modes"
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"
         )
         email_modes = [sm["value"] for sm in send_modes if sm["value"].startswith("email") and sm["active"]]
         change2 = False
@@ -1403,7 +1403,7 @@ class Migrate_To_3_0(Migrator):  # noqa
             del self.registry.records["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields_order"]
         # general config
         if not api.portal.get_registry_record(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "users_hidden_in_dashboard_filter"
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter"
         ):
             api.portal.set_registry_record(
                 "imio.dms.mail.browser.settings.IImioDmsMailConfig.users_hidden_in_dashboard_filter", ["scanner"]
@@ -1432,7 +1432,7 @@ class Migrate_To_3_0(Migrator):  # noqa
 
         # update maybe bad local roles (because this record change wasn't handled)
         record = getUtility(IRegistry).records.get(
-            "imio.dms.mail.browser.settings.IImioDmsMailConfig." "org_templates_encoder_can_edit"
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit"
         )
         notify(RecordModifiedEvent(record, [], []))
         # update wsclient settings

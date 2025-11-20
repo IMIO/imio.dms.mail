@@ -203,7 +203,7 @@ class DmsmailLayerNP1(DmsmailLayer):
         setRoles(portal, TEST_USER_ID, ["Manager"])
         # Change some settings
         api.portal.set_registry_record(
-            "collective.contact.core.interfaces.IContactCoreParameters." "contact_source_metadata_content",
+            "collective.contact.core.interfaces.IContactCoreParameters.contact_source_metadata_content",
             u"{gft} # {number}, {street}, {zip_code}, {city} # {email}",
         )
         # Activate n+1
@@ -221,14 +221,14 @@ class DmsmailLayerNP1(DmsmailLayer):
         for brain in brains:
             api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig." "outgoingmail_number", 1
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number", 1
         )
         # Delete im
         brains = api.content.find(portal_type=["dmsincomingmail", "dmsincoming_email"])
         for brain in brains:
             api.content.delete(obj=brain.getObject(), check_linkintegrity=False)
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig." "incomingmail_number", 1
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_number", 1
         )
 
         setRoles(portal, TEST_USER_ID, ["Member"])
