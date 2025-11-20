@@ -27,6 +27,7 @@ from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
 from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
+from collective.documentgenerator.utils import need_mailing_value
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.select2.widget.widget import SingleSelect2FieldWidget
@@ -881,8 +882,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return IImioDmsOutgoingMailWfConditions(self)
 
     def has_mailing(self, document):
-        view = self.restrictedTraverse('@@mailing-loop-persistent-document-generation')
-        return view.has_mailing(document_uid=document.UID())
+        return need_mailing_value(document=document)
 
 
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
@@ -917,7 +917,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
             return False
         if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
             return False
-         # elif self.context.seal:
+        # elif self.context.seal:
         #     return True
         return True
 
