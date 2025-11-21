@@ -62,7 +62,7 @@
         />
 
     <browser:page
-        for="imio.dms.mail.dmsfile.IImioDmsFile"
+        for="collective.dms.basecontent.dmsfile.IDmsFile"
         name="iconified-approved"
         layer="collective.iconifiedcategory.interfaces.ICollectiveIconifiedCategoryLayer"
         class=".iconified_category.ApprovedChangeView"
@@ -856,23 +856,26 @@
     />
 
     <!-- VersionsTitleColumn -->
+    <!-- This overrides the title column from collective.iconifiedcategory and imio.annex -->
     <adapter
         for="zope.interface.Interface
              zope.publisher.interfaces.browser.IBrowserRequest
              collective.dms.basecontent.browser.listing.VersionsTable"
         factory=".table.IMVersionsTitleColumn"
         provides="z3c.table.interfaces.IColumn"
-        name="dms.title"
+        name="title-column"
     />
 
-    <adapter
-        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
-             zope.publisher.interfaces.browser.IBrowserRequest
-             imio.dms.mail.browser.table.OMVersionsTable"
-        factory=".table.GenerationColumn"
-        provides="z3c.table.interfaces.IColumn"
-        name="dms.generation"
-    />
+    <unconfigure package="imio.annex">
+        <adapter
+            name="number-column"
+            for="zope.interface.Interface
+                zope.interface.Interface
+                collective.iconifiedcategory.interfaces.ICategorizedTable"
+            provides="z3c.table.interfaces.IColumn"
+            factory="collective.eeafaceted.z3ctable.columns.ElementNumberColumn"
+            />
+    </unconfigure>
 
     <!-- Override @@usergroup-userprefs -->
     <configure package="plone.app.controlpanel">

@@ -6,14 +6,10 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task import _ as _task
 from html import escape
 from imio.dms.mail import _
-from imio.dms.mail import _tr
-from imio.helpers.adapters import NoEscapeLinkColumn
-from imio.helpers.content import base_getattr
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from z3c.table.table import Table
-from zope.annotation.interfaces import IAnnotations
 from zope.cachedescriptors.property import CachedProperty
 from zope.component import getUtility
 from zope.i18n import translate
@@ -40,67 +36,32 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
             for (name, value) in scan_infos
         ]
 
-        return 'title="%s"' % "\n".join(scan_infos)
+        return "\n".join(scan_infos)
 
-    def getLinkContent(self, item):
-        iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
-        content = super(VersionsTitleColumn, self).getLinkContent(item)  # escaped
-        obj = item.getObject()
-        if base_getattr(obj, "signed"):
-            return u"""%s <img title="%s" src="%s" />""" % (
-                content,
-                translate(u"Signed version", domain="collective.dms.basecontent", context=item.REQUEST),
-                "%s/%s" % (self.table.portal_url, iconName),
-            )
-        else:
-            return content
-
-
-'''
-Choose to add icon at end of filename
-class OMSignedColumn(Column):
-
-    weight = 25  # before author = 30
-
-    def renderCell(self, item):
-        iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
-        if item.signed:
-            return u"""<img title="%s" src="%s" />""" % (
-                translate(u"Signed version", domain='collective.dms.basecontent', context=item.REQUEST),
-                '%s/%s' % (self.table.portal_url, iconName))
-        else:
-            return ""
-'''
-
-
-class GenerationColumn(NoEscapeLinkColumn):
-    """Mailing icon column. xss ok"""
-
-    header = ""
-    weight = 12  # before label = 15
-    iconName = "++resource++imio.dms.mail/mailing.gif"
-
-    def getLinkURL(self, item):
-        """Setup link url."""
-        url = item.getURL()
-        om_url = url.rsplit("/", 1)[0]
-        # must use new view with title given and reference to mailing template
-        return "%s/@@mailing-loop-persistent-document-generation?document_uid=%s" % (om_url, item.UID)
-
-    def getLinkContent(self, item):
-        return u"""<img title="%s" src="%s" />""" % (_tr(u"Mailing"), "%s/%s" % (self.table.portal_url, self.iconName))
-
-    def has_mailing(self, item):
-        obj = item.getObject()
-        annot = IAnnotations(obj)
-        if "documentgenerator" in annot and annot["documentgenerator"].get("need_mailing", False):
-            return True
-        return False
-
-    def renderCell(self, item):
-        if not self.has_mailing(item):
-            return ""
-        return super(GenerationColumn, self).renderCell(item)
+    def renderCell(self, content):
+        pattern = (
+            u'<a class="version-link" href="{link}" alt="{title}" title="{title}">'
+            u'<img src="{icon}" alt="{category}" title="{category}" />'
+            u'{signed}'
+            u' {text}</a><p class="discreet">{description}</p>'
+        )
+        url = content.getURL()
+        signed = u''
+        # if base_getattr(content, "signed"):
+        #     iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
+        #     signed = u"""<img title="%s" src="%s" />""" % (
+        #         translate(u"Signed version", domain="collective.dms.basecontent", context=content.REQUEST),
+        #         "%s/%s" % (self.table.portal_url, iconName),
+        #     )
+        return pattern.format(
+            text=safe_unicode(content.Title()),
+            link=url,
+            title=self.getLinkTitle(content),
+            icon=content.icon_url,
+            category=escape(safe_unicode(content.category_title)),
+            description=escape(safe_unicode(content.Description)),
+            signed=signed,
+        )
 
 
 class EnquirerColumn(Column):

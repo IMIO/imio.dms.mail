@@ -6,6 +6,10 @@ from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.documentgenerator.utils import convert_and_save_odt
 from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
+from collective.documentviewer.settings import GlobalSettings
+from collective.documentviewer.settings import Settings
+from collective.documentviewer.utils import allowedDocumentType
+from collective.documentviewer.utils import getPortal
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 # from collective.iconifiedcategory.utils import get_category_object
@@ -928,6 +932,17 @@ def eml_preview(obj):
     annot["successfully_converted"] = True
 
 
+def is_dv_conv_in_error(obj):
+    """Check if document viewer conversion is in error for the object.
+    This is used to know if the conversion button must be displayed."""
+    if base_hasattr(obj, "file") and (obj.file.filename.endswith(".eml") or obj.file.contentType == "message/rfc822"):
+        return True
+    annot = IAnnotations(obj).get("collective.documentviewer", {})
+    if annot and annot.get("last_updated") == "2050-01-01T00:00:00":
+        return True
+    return False
+
+
 # views
 
 
@@ -1380,6 +1395,14 @@ class VariousUtilsMethods(UtilsMethods):
         else:
             log_list(out, u"<p>none</p>")
         return u"\n".join(out)
+
+    def dv_conv_enabled(self):
+        if is_dv_conv_in_error(self.context):
+            return False
+        if not allowedDocumentType(self.context, GlobalSettings(getPortal(self.context)).auto_layout_file_types):
+            return False
+        settings = Settings(self.context)
+        return not settings.successfully_converted
 
 
 class IdmUtilsMethods(UtilsMethods):

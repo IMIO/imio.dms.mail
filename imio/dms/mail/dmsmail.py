@@ -27,6 +27,7 @@ from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
 from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
+from collective.documentgenerator.utils import need_mailing_value
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
 from collective.z3cform.select2.widget.widget import SingleSelect2FieldWidget
@@ -303,6 +304,9 @@ class ImioDmsIncomingMail(DmsIncomingMail):
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
         return IImioDmsIncomingMailWfConditions(self)
+
+    def has_mailing(self, document):
+        return False
 
 
 class ImioDmsIncomingMailWfConditionsAdapter(object):
@@ -877,6 +881,9 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         """Returns the adapter providing workflow conditions"""
         return IImioDmsOutgoingMailWfConditions(self)
 
+    def has_mailing(self, document):
+        return need_mailing_value(document=document)
+
 
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
     implements(IImioDmsOutgoingMailWfConditions)
@@ -910,7 +917,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
             return False
         if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
             return False
-         # elif self.context.seal:
+        # elif self.context.seal:
         #     return True
         return True
 

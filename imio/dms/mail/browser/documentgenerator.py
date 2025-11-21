@@ -563,7 +563,6 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
     def _get_title(self, doc_name, gen_context):
         return u"%s, %s" % (self.pod_template.title, self.document.title)
 
-
 # # # VIEWLETS # # #
 
 

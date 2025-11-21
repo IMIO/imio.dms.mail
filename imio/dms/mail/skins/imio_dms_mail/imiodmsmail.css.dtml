@@ -408,17 +408,6 @@ body.template-item_view h1 .pretty_link_icons img{
     display: None;
 } /* NoExternalEditColumn */
 
-.portaltype-dmsincomingmail #fieldset-versions thead {
-    display: none;
-}
-
-.portaltype-dmsincomingmail #fieldset-versions table.listing th.th_header_author,
-.portaltype-dmsincomingmail #fieldset-versions table.listing td.td_cell_author,
-.portaltype-dmsincomingmail #fieldset-versions table.listing th.th_header_modified,
-.portaltype-dmsincomingmail #fieldset-versions table.listing td.td_cell_modified {
-    display: None;
-}
-
 td.td_cell_actions select.apButtonAction_assign {
     color: rgba(0,0,0,0);
     text-shadow: 0 0 0 #213C68;

@@ -105,7 +105,8 @@ class Migrate_To_3_1(Migrator):  # noqa
             self.install(["imio.esign"])
 
             # signing
-            self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry"])
+            self.runProfileSteps("collective.dms.basecontent", steps=["actions"])
+            self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry", "actions"])
             behavior_to_remove = "collective.contact.plonegroup.behaviors.IPlonegroupUserLink"
             fti = getUtility(IDexterityFTI, name="person")
             old_behaviors = list(fti.behaviors)

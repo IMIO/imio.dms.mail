@@ -176,14 +176,6 @@
     />
 
   <!-- collective.dms.basecontent.browser.listing.VersionsTable -->
-  <adapter
-    for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
-         zope.interface.Interface
-         collective.dms.basecontent.browser.listing.VersionsTable"
-    factory=".columns.ExternalEditColumn"
-    provides="z3c.table.interfaces.IColumn"
-    name="dms.extedit"
-    />
 
   <adapter
     name="approved-column"
@@ -195,21 +187,12 @@
     />
 
   <adapter
-    for="imio.dms.mail.dmsmail.IImioDmsIncomingMail
-         zope.interface.Interface
-         collective.dms.basecontent.browser.listing.VersionsTable"
-    factory=".columns.NoExternalEditColumn"
-    provides="z3c.table.interfaces.IColumn"
-    name="dms.extedit"
-    />
-
-  <adapter
-    for="zope.interface.Interface
-         zope.interface.Interface
-         collective.dms.basecontent.browser.listing.VersionsTable"
-    factory=".columns.DVConvertColumn"
-    provides="z3c.table.interfaces.IColumn"
-    name="dms.dvconvert"
+        for="zope.interface.Interface
+             zope.publisher.interfaces.browser.IBrowserRequest
+             collective.dms.basecontent.browser.listing.VersionsTable"
+        factory=".columns.FileActionsColumn"
+        provides="z3c.table.interfaces.IColumn"
+        name="action-column"
     />
 
   <unconfigure package="collective.dms.basecontent">
