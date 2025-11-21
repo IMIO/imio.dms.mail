@@ -186,6 +186,15 @@
     factory=".browser.iconified_category.ApprovedColumn"
     />
 
+  <adapter
+        for="zope.interface.Interface
+             zope.publisher.interfaces.browser.IBrowserRequest
+             collective.dms.basecontent.browser.listing.VersionsTable"
+        factory=".columns.FileActionsColumn"
+        provides="z3c.table.interfaces.IColumn"
+        name="action-column"
+    />
+
   <unconfigure package="collective.dms.basecontent">
     <!-- remove state column -->
     <adapter

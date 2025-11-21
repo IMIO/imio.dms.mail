@@ -29,7 +29,7 @@ Changelog
 - Defined new Content Category Groups for dms files and appendix files.
   [chris-adam, sgeulette]
 - Refactored VersionsTable into an iconified Categorizedtable.
-  [chris-adam]
+  [chris-adam, sgeulette]
 
 3.0 (2021-09-30)
 ----------------

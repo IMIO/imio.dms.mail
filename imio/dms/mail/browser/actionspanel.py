@@ -280,7 +280,7 @@ class DmsFileActionsPanelView(ActionsPanelView):
 
     def __init__(self, context, request):
         super(DmsFileActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = ["edit", "external_edit", "delete", "documentviewer_convert", "download", "mailing"]
+        self.ACCEPTABLE_ACTIONS = ["edit", "external_edit", "mailing", "documentviewer_convert", "download", "delete"]
 
     def listObjectButtonsActions(self):
         actions = super(DmsFileActionsPanelView, self).listObjectButtonsActions()

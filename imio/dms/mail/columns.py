@@ -15,6 +15,7 @@ from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
 from collective.task.interfaces import ITaskMethods
 from html import escape
+from imio.annex.columns import ActionsColumn as AnnexActionsColumn
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.helpers.content import uuidToCatalogBrain
@@ -233,6 +234,12 @@ class ReviewStateColumn(I18nColumn):
         wtool = api.portal.get_tool("portal_workflow")
         state_title = wtool.getTitleForStateOnType(value, item.portal_type)
         return translate(safe_unicode(state_title), domain=self.i18n_domain, context=self.request)
+
+
+class FileActionsColumn(AnnexActionsColumn):
+    """IM dashboard. xss ok"""
+
+    params = {'showHistory': False, 'showActions': True, 'showArrows': True}
 
 
 # Columns for collective.task.browser.table.TasksTable
