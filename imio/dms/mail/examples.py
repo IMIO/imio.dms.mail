@@ -185,7 +185,7 @@ def add_test_annexes_types(context):
             id=oid,
             predefined_title=title,
             to_sign=True,
-            to_approve=False,
+            to_approve=True,
             show_preview=show_pv,
         )
 

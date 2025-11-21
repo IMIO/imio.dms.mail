@@ -10,6 +10,7 @@ from collective.documentgenerator.browser.generation_view import MailingLoopPers
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
+from collective.documentgenerator.utils import need_mailing_value
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
@@ -507,20 +508,23 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
         # handle to_approve attribute
+        orig_value = persisted_doc.to_approve
+        new_value = False
         approval_annot = get_approval_annot(self.context)
-        if approval_annot["users"]:  # have approvers
-            docgen_annot = IAnnotations(persisted_doc).get("documentgenerator", {})
-            if not docgen_annot.get("need_mailing", False):
-                persisted_doc.to_approve = True
+        if orig_value and persisted_doc.to_sign and approval_annot["users"]:  # have approvers
+            if not need_mailing_value(document=persisted_doc):
+                new_value = True
                 add_file_to_approval(approval_annot, persisted_doc.UID())
-                update_categorized_elements(
-                    self.context,
-                    persisted_doc,
-                    category_object,
-                    limited=True,
-                    sort=False,
-                    logging=True
-                )
+        if orig_value != new_value:  # only when new_value is False normally
+            persisted_doc.to_approve = new_value
+            update_categorized_elements(
+                self.context,
+                persisted_doc,
+                category_object,
+                limited=True,
+                sort=False,
+                logging=True
+            )
         return persisted_doc
 
     def redirects(self, persisted_doc):
