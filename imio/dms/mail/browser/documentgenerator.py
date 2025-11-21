@@ -15,8 +15,7 @@ from collective.documentgenerator.viewlets.generationlinks import DocumentGenera
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.utils import update_categorized_elements
-from imio.dms.mail.utils import add_file_to_approval
-from imio.dms.mail.utils import get_approval_annot
+from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -230,12 +229,7 @@ class OMDGHelper(BaseDGHelper):
 
     def get_signers(self):
         """Return a list of tuple (position, name, function) containing signers."""
-        signers = []
-        approval = get_approval_annot(self.real_context)
-        for nb in sorted(list(approval.get("numbers", {}).keys())):
-            userid, email, name, label = approval["numbers"][nb]["signer"]
-            signers.append((nb, name, label))
-        return signers
+        return OMApprovalAdapter(self.real_context).signers_details
 
 
 class DashboardDGBaseHelper:  # noqa
@@ -507,12 +501,12 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
         # handle to_approve attribute
-        approval_annot = get_approval_annot(self.context)
-        if approval_annot["users"]:  # have approvers
+        approval = OMApprovalAdapter(self.context)
+        if approval.approvers:  # have approvers
             docgen_annot = IAnnotations(persisted_doc).get("documentgenerator", {})
             if not docgen_annot.get("need_mailing", False):
                 persisted_doc.to_approve = True
-                add_file_to_approval(approval_annot, persisted_doc.UID())
+                approval.add_file_to_approval(persisted_doc.UID())
                 update_categorized_elements(
                     self.context,
                     persisted_doc,

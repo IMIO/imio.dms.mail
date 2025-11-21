@@ -81,8 +81,8 @@ from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
-from zope.annotation import IAnnotations
 from zope.component import adapts
+from zope.component import getAdapter
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -869,13 +869,13 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         :param all_done: if True, check if all approvings are done
         :return: boolean
         """
-        annot = IAnnotations(self).get("idm.approval", {})
-        if not annot.get("users", []):
+        approval = getAdapter(self, name="approvals")
+        if not approval.approvers:
             return False
         elif not all_done:
             return True
         else:  # has approvals and all done
-            return annot.get("approval", 0) == 99
+            return approval.number() == 99
 
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
