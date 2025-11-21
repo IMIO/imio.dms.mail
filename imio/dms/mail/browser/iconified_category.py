@@ -80,7 +80,7 @@ class ApprovedColumn(BaseApprovedColumn):
             self.base_class = "iconified-action-approved"
             # current user can approve now
             if self.approval.can_approve(av.userid, av.uid):
-                if self.approval.is_approved(content.UID):
+                if self.approval.is_file_approved(content.UID, userid=av.userid):
                     self.msg = u"Already approved (click to change)"
                     return " active{}".format(editable)
                 self.msg = u"Waiting for your approval (click to approve)"
@@ -157,7 +157,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         if self.p_state == "to_approve":
             # in to_approve state, only an approver can approve or not
             if self.approval.can_approve(self.userid, self.uid):
-                if self.approval.is_approved(self.uid):
+                if self.approval.is_file_approved(self.uid, userid=self.userid):
                     status = 0
                     self.msg = u"Already approved (click to change)"
                     # TODO TO BE HANDLED
