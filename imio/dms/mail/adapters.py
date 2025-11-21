@@ -16,7 +16,10 @@ from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.documentgenerator.utils import convert_and_save_odt
+from collective.iconifiedcategory.utils import sort_categorized_elements
 from collective.task.interfaces import ITaskContent
+from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
@@ -24,20 +27,24 @@ from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.utils import back_or_again_state
-from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.esign.utils import add_files_to_session
 from imio.helpers import EMPTY_DATE
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import get_relations
 from imio.helpers.content import object_values
+from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
+from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
+from persistent.list import PersistentList
+from persistent.mapping import PersistentMapping
 from plone import api
 from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuItem
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
@@ -52,6 +59,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFCore.WorkflowCore import WorkflowException
 from Products.CMFPlone.CatalogTool import sortable_title
 from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
 from Products.PluginIndexes.common.UnIndex import _marker as common_marker
 from z3c.form.datamanager import AttributeField
 from z3c.form.interfaces import IContextAware
@@ -74,6 +82,7 @@ from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
+import os
 import time
 
 
@@ -449,11 +458,8 @@ def approvings_index(obj):
 
     Stores userid:number for each approver.
     """
-    annot = IAnnotations(obj)
-    approval = annot.get("idm.approval", {"approval": None})
-    if approval["approval"] and approval["approval"] != 99:
-        return [userid for userid in approval["numbers"][approval["approval"]]["users"]]
-    return common_marker
+    approval = OMApprovalAdapter(obj)
+    return approval.current_approvers
 
 
 @indexer(IDmsMailCreatingGroup)
@@ -1119,31 +1125,436 @@ class ApproverRoleAdapter(object):
             yield principal, roles
 
     @property
-    def current_state(self):
-        """Return the state of the current object"""
-        try:
-            return api.content.get_state(obj=self.context)
-        except (WorkflowException, api.portal.CannotGetPortalError):
-            return None
-
-    """
-    {'files': {'4115fb4c265647ca82d85285504973b8': {1: {'status': 'p'}, 2: {'status': 'w'}}}, 
-     'approval': 1, 'session_id': None,
-     'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
-     'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}}}
-    """  # noqa
-    @property
     def config(self):
-        annot = get_approval_annot(self.context)
-        if annot["approval"] is None or self.current_state not in ("to_approve", "to_be_signed", "signed", "sent"):
-            return {}
+        approval = OMApprovalAdapter(self.context)
+        return approval.roles
+
+
+class OMApprovalAdapter(object):
+    """Adapter for outgoing mail approval."""
+
+    def __init__(self, context):
+        self.context = context
+        self.annot = IAnnotations(self.context).setdefault(
+            "idm.approval",
+            PersistentMapping({
+                "approval": None,
+                "files": PersistentMapping(),
+                "numbers": PersistentMapping(),
+                "session_id": None,
+                "users": PersistentMapping(),
+            }))
+
+    @property
+    def files_uids(self):
+        """Return the UIDs of the files to be approved."""
+        return list(self.annot["files"].keys())
+
+    @property
+    def pdf_files_uids(self):
+        """Return the UIDs of the approved files after conversion to pdf."""
+        return [self.annot["files"][f_uid]["pdf"] for f_uid in self.annot["files"]]
+
+    @property
+    def signers(self):
+        """Return the list of users ids who are signers in order."""
+        # FIXME These were approvers, not signers
+        signers = [(nb, self.annot["numbers"][nb]["signer"][0]) for nb in self.annot["numbers"]]
+        signers.sort()
+        signers = [s[1] for s in signers]
+        return signers
+
+    @property
+    def signers_details(self):
+        """Return a list of tuple (position, name, function) containing signers."""
+        signers = []
+        for nb in sorted(list(self.annot.get("numbers", {}).keys())):
+            userid, email, name, label = self.annot["numbers"][nb]["signer"]
+            signers.append((nb, name, label))
+        return signers
+
+    @property
+    def approvers(self):
+        """Return the list of users ids who are approvers."""
+        """
+        {
+        'approval': 1,
+        'files': {'4115fb4c265647ca82d85285504973b8': {"nb": {1: {'status': 'p'}, 2: {'status': 'w'}}, "pdf": None}},  
+        'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}},
+        'session_id': None,
+        'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
+        }
+        """  # noqa
+        return list(self.annot["users"].keys())
+
+    @property
+    def current_approvers(self):
+        if self.number() not in (None, 99):
+            return [userid for userid in self.annot["numbers"][self.number()]["users"]]
+        return []
+
+    @property
+    def roles(self):
         roles = {}
-        for userid in annot.get("users", {}):
-            if annot["approval"] != 99 and annot["users"][userid]["order"] > annot["approval"]:
+        if self.number() is None:
+            return roles
+        for userid in self.annot.get("users", {}):
+            if self.annot["approval"] != 99 and self.annot["users"][userid]["order"] > self.annot["approval"]:
                 continue  # only users that can approve have visibility
             def_roles = ["Reader"]
             # TODO add a specific role and permission to manage approval ?
-            if annot["users"][userid].get("editor"):
+            if self.annot["users"][userid].get("editor"):
                 def_roles.append("Editor")
             roles[userid] = tuple(def_roles)
         return roles
+    
+    @property
+    def session_id(self):
+        return self.annot['session_id']
+
+    def number(self, userid=None):
+        """
+        Return current approval number or user approval number.
+        Or None if userid not an approver.     
+        """
+        if userid is None:
+            return self.annot["approval"]
+        if userid in self.annot["users"]:
+            return self.annot["users"][userid]["order"]
+
+    def set_number(self, number):
+        """
+        Set current approval number.
+        """
+        self.annot["approval"] = number
+    
+    def propose_to_approve(self):
+        orig_nb = self.number()
+        if self.approvers:
+            if self.number() is None:  # first time transition
+                self.set_number(1)
+                self.change_approval_user_status(self.number(), "p")
+            else:  # approve again after a back... maybe some approvements are already done
+                c_a = None
+                for fuid in self.files_uids:
+                    for a_nb in sorted(list(self.annot["numbers"].keys())):
+                        if "approved_on" not in self.annot["files"][fuid]["nb"][a_nb]:
+                            if not c_a or a_nb < c_a:
+                                c_a = a_nb
+                            continue
+                        brain = uuidToCatalogBrain(fuid, unrestricted=True)
+                        last_mod = brain.modified
+                        last_mod = datetime.datetime(
+                            last_mod.year(), last_mod.month(), last_mod.day(), last_mod.hour(),
+                            last_mod.minute(), int(last_mod.second()), int(last_mod.micros() % 1000000)
+                        )
+                        if last_mod > self.annot["files"][fuid]["nb"][a_nb]["approved_on"]:
+                            del self.annot["files"][fuid]["nb"][a_nb]["approved_by"]
+                            del self.annot["files"][fuid]["nb"][a_nb]["approved_on"]
+                            if not c_a or a_nb < c_a:
+                                c_a = a_nb
+                            self.annot["files"][fuid]["nb"][a_nb]["status"] = "p"
+                if c_a:
+                    self.annot["approval"] = c_a
+                    for fuid in self.annot["files"]:
+                        for a_nb in sorted(list(self.annot["numbers"].keys())):
+                            if a_nb > c_a and self.annot["files"][fuid]["nb"][a_nb]["status"] == "p":
+                                self.annot["files"][fuid]["nb"][a_nb]["status"] = "w"
+        else:
+            self.annot["approval"] = None  # if users removed...
+        if orig_nb != self.annot["approval"]:
+            self.context.portal_catalog.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
+
+    def update_signers(self):
+        # "awaiting" (w), "pending" (p), "approved" (a)
+        signer_emails = []
+        for i, signer in enumerate(self.context.signers, start=1):
+            if signer["signer"] == "_empty_":
+                continue
+            signer_hp = uuidToObject(signer["signer"], unrestricted=True)
+            if signer_hp is None:
+                raise ValueError(
+                    _(
+                        u"The signer held position with UID ${uid} does not exist !",
+                        mapping={"uid": signer["signer"]},
+                    )
+                )
+            signer_person = signer_hp.get_person()
+            user_email = api.user.get(signer_person.userid).getProperty("email")
+            if user_email in signer_emails:
+                raise ValueError(
+                    _(
+                        u"You cannot have the same email (${email}) for multiple signers !",
+                        mapping={"email": user_email},
+                    )
+                )
+            signer_emails.append(user_email)
+            signer_tup = (signer_person.userid, user_email, signer_person.get_title(include_person_title=False),
+                          signer_hp.label or u"")
+            # numbers = approval["numbers"].setdefault(i, PersistentMapping(
+            #     {"status": "w", "users": PersistentList(), "signer": signer_tup}))
+            numbers = self.annot["numbers"].setdefault(i, PersistentMapping(
+                {"users": PersistentList(), "signer": signer_tup}))
+            for approving in signer["approvings"] or []:
+                if approving == "_empty_":
+                    continue
+                if approving == "_themself_":
+                    person = signer_person
+                else:
+                    person = uuidToObject(approving, unrestricted=True)
+                userid = person.userid
+                if userid in self.annot["users"] and self.annot["users"][userid]["order"] != i:
+                    raise ValueError(_("The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
+                                    mapping={"userid": userid, "o": self.annot["users"][userid]["order"],
+                                             "c": i}))
+                self.annot["users"][userid] = PersistentMapping({"order": i, "name": person.get_title(),
+                                                               "editor": signer["editor"]})
+                if userid not in numbers["users"]:
+                    numbers["users"].append(userid)
+
+    def reset(self):
+        """Reset approval annotation."""
+        self.annot["approval"] = None
+        self.annot["files"] = PersistentMapping()
+        self.annot["numbers"] = PersistentMapping()
+        self.annot["session_id"] = None
+        self.annot["users"] = PersistentMapping()
+
+    def change_approval_user_status(self, number, status, userid=None):
+        """Change user status in approval annotation."""
+        # if userid and userid in approval["users"]:
+        #     approval["users"][userid]["status"] = status
+        # if number in approval["numbers"]:
+        #     approval["numbers"][number]["status"] = status
+        for f_uid in self.annot["files"]:
+            if number in self.annot["files"][f_uid]["nb"]:
+                self.annot["files"][f_uid]["nb"][number]["status"] = status
+
+    def add_file_to_approval(self, f_uid):
+        """Add a file to approval annotation."""
+        if f_uid not in self.annot["files"]:
+            f_uid_dic = self.annot["files"].setdefault(f_uid, PersistentMapping({"nb": PersistentMapping(), "pdf": None}))
+            f_uid_dic["nb"] = PersistentMapping({nb: PersistentMapping({"status": "w"})
+                                                for nb in self.annot["numbers"]})
+
+
+    def remove_file_from_approval(self, f_uid):
+        """Remove a file from approval annotation."""
+        if f_uid in self.annot["files"]:
+            del self.annot["files"][f_uid]
+            # if not self.annot["files"]:
+            #     self.annot["approval"] = None
+            #     self.annot["session_id"] = None
+            #     for nb in self.annot["numbers"]:
+            #         self.annot["numbers"][nb]["status"] = "w"
+            #     for userid in self.annot["users"]:
+            #         self.annot["users"][userid]["status"] = "w"
+    
+    def is_approved(self, f_uid, number=None):
+        """Check if file is approved for given number.
+
+        :param approval: approval annotation
+        :param f_uid: file uid
+        :param number: approval number
+        :return: bool
+        """
+        if f_uid not in self.annot["files"]:
+            return False
+        if number is None:
+            number = self.annot["approval"]
+        return self.annot["files"][f_uid]["nb"][number]["status"] == "a"
+
+    def is_file_approved(self, f_uid, totally=True):
+        """Check if file is approved.
+
+        :param approval: approval annotation
+        :param f_uid: file uid
+        :param totally: if True, return True if at least one approval number is approved
+                        if False, return True if all approval numbers are approved
+        :return: bool
+        """
+        if f_uid not in self.annot["files"]:
+            return False
+        if totally:
+            return all(self.annot["files"][f_uid]["nb"][nb]["status"] == "a" for nb in self.annot["numbers"])
+        else:
+            return any(self.annot["files"][f_uid]["nb"][nb]["status"] == "a" for nb in self.annot["numbers"])
+
+    def can_approve(self, userid, f_uid, editable=True):
+        """Check if user can approve the file.
+
+        :param approval: approval annotation
+        :param userid: user id
+        :param f_uid: file uid
+        :param editable: is file editable
+        :return: bool
+        """
+        c_a = self.annot["approval"]  # current approval
+        if not c_a:  # to early
+            return False
+        if userid not in self.annot["users"]:
+            return False
+        if self.annot["users"][userid]["order"] != c_a:  # cannot approve now
+            return False
+        if f_uid not in self.annot["files"]:  # file not in approval
+            return False
+        if not editable:
+            return False
+        # if self.annot["files"][f_uid][c_a]["status"] == "a":
+        #     return False
+        return True
+
+    def approve_file(self, afile, userid, values=None, transition=None):
+        """Approve the current file.
+
+        :param afile: file to approve
+        :param userid: current user id
+        :param values: optional dict to update
+        :param transition: optional transition to do after approval
+        :return: approval status bool (True=ok), reload bool (True=reload page)
+        """
+        approval = self.annot
+    #    user = api.user.get_current()
+        request = afile.REQUEST
+        c_a = approval["approval"]  # current approval
+        f_uid = afile.UID()
+        # "awaiting" (w), "pending" (p), "approved" (a)
+        # approve
+        approval["files"][f_uid]["nb"][c_a]["approved_by"] = userid
+        approval["files"][f_uid]["nb"][c_a]["approved_on"] = datetime.datetime.now()
+        approval["files"][f_uid]["nb"][c_a]["status"] = "a"
+        mail = self.context
+        pc = getToolByName(mail, "portal_catalog")
+        if self.is_file_approved(f_uid):
+            afile.approved = True
+            # beware that catalog metadata has not been updated TODO make method to update index and only one metadata
+            if values is not None:
+                values["approved"] = True
+        yet_to_approve = [fuid for fuid in approval["files"] if approval["files"][fuid]["nb"][c_a]["status"] != "a"]
+        if yet_to_approve:
+            # TODO get fullname from userid
+            api.portal.show_message(
+                message=_(u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
+                        u"to approve on this mail.", mapping={"file": safe_unicode(afile.Title()), "user": userid,
+                                                                "nb": len(yet_to_approve)}),
+                request=request,
+                type="info",
+            )
+            return True, True
+        self.change_approval_user_status(c_a, "a", userid=userid)
+        message = u"The file '${file}' has been approved by ${user}. "
+        max_number = max(approval["numbers"].keys())
+        if c_a < max_number:
+            approval["approval"] += 1
+            self.change_approval_user_status(approval["approval"], "p")
+            pc.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+            mail.reindexObjectSecurity()  # to update local roles from adapter
+            message += u"Next approval number is ${nb}."
+            api.portal.show_message(
+                message=_(message,
+                        mapping={"file": safe_unicode(afile.Title()), "user": userid, "nb": approval["approval"]}),
+                request=request, type="info")
+            return True, True
+        else:
+            approval["approval"] = 99  # all approved
+            pc.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+            message += u"All approvals have been done for this file."
+            api.portal.show_message(
+                message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": userid}),
+                request=request, type="info")
+            # we create a signing session if needed
+            if mail.esign:
+                with api.env.adopt_roles(["Manager"]):
+                    ret, msg = self.add_mail_files_to_session()
+                    if not ret:
+                        api.portal.show_message(
+                            message=_(u"There was an error while creating the signing session: ${msg} !",
+                                    mapping={"msg": msg}),
+                            request=request,
+                            type="error",
+                        )
+                        return False, True
+                    else:
+                        api.portal.show_message(
+                            message=_(u"A signing session has been created: ${msg}.",
+                                    mapping={"msg": msg}),
+                            request=request,
+                            type="info",
+                        )
+                        return True, True
+            if transition:
+                # must use the following ?
+                # do_next_transition(mail, mail.portal_type, state="to_approve")
+                with api.env.adopt_roles(["Reviewer"]):
+                    do_transitions(mail, [transition])
+                    # api.portal.show_message(
+                    #     message=_(u"The mail has been automatically transitioned to state '${state}'.",
+                    #               mapping={"state": mail.portal_workflow.getInfoFor(mail, "review_state")}),
+                    #     request=request,
+                    #     type="info",
+                    # )
+            return True, True
+        return True, False
+
+    def add_mail_files_to_session(self):
+        """Add mail files to sign session."""
+        approval = self.annot
+        if not approval["files"]:
+            return False, "No files"
+        """
+        {'files': {'4115fb4c265647ca82d85285504973b8': {"nb": {1: {'status': 'p'}, 2: {'status': 'w'}}, "pdf": None}}, 
+        'approval': 1, 'session_id': None,
+        'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2}, 'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2}, 'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
+        'numbers': {1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'), 'users': ['dirg']}, 2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'), 'users': ['bourgmestre', 'chef']}}}
+        """  # noqa
+        not_approved = [fuid for fuid in approval["files"] for nb in approval["files"][fuid]["nb"]
+                        if approval["files"][fuid]["nb"][nb]["status"] != "a"]
+        if not_approved:
+            return False, "Not all files approved"
+        file_uids = []
+        mail = self.context
+        for f_uid in approval["files"]:
+            fobj = uuidToObject(f_uid)
+            if not fobj:
+                continue
+            if approval["files"][f_uid]["pdf"]:  # already done ??
+                continue
+            if not fobj.scan_id or len(fobj.scan_id) != 15:
+                api.portal.show_message(
+                    message=_("File '${file}' has no or a wrong scan id, it cannot be added to sign session.",
+                            mapping={"file": fobj.absolute_url()}),
+                    request=mail.REQUEST,
+                    type="error",
+                )
+                return False, "Bad scan_id for file uid {}".format(f_uid)
+                # return False, "File without scan id"
+            # new_filename like u'Modele de base avec sceau S0013 Test sceau 4.odt (limited to 120 chars)
+            f_title = os.path.splitext(fobj.file.filename)[0]
+            new_filename = u"{}.pdf".format(f_title)
+            # TODO which pdf format to choose ?
+            pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid,
+                                            attributes={"to_sign": True, "content_category": fobj.content_category,
+                                                        "scan_id": fobj.scan_id, "scan_user": fobj.scan_user})
+            # TODO is to_sign attribute set from content_category
+            pdf_uid = pdf_file.UID()
+            approval["files"][f_uid]["pdf"] = pdf_uid
+            # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
+            pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
+            # we have to update mail categorized elements for the new pdf file
+            # update_categorized_elements(
+            #     mail,
+            #     pdf_file,
+            #     get_category_object(mail, pdf_file.content_category),
+            #     limited=False,
+            #     sort=False,
+            #     logging=True
+            # )
+            # TODO copy other metadata ?
+            file_uids.append(pdf_uid)
+        sort_categorized_elements(mail)
+        signers = [approval["numbers"][nb]["signer"] for nb in sorted(list(approval["numbers"].keys()))]
+        watcher_users = api.user.get_users(groupname='esign_watchers')
+        watcher_emails = [user.getProperty("email") for user in watcher_users]
+        session_id, session = add_files_to_session(signers, file_uids, bool(mail.seal), watchers=watcher_emails)
+        approval["session_id"] = session_id
+        return True, "{} files added to session number {}".format(len(file_uids), session_id)
