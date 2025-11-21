@@ -2,6 +2,7 @@
 """
     collective.iconifiedcategory overrided views
 """
+from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.browser.actionview import ApprovedChangeView as BaseApprovedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from imio.dms.mail.utils import add_file_to_approval
@@ -62,7 +63,8 @@ class ApprovedColumn(BaseApprovedColumn):
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):
                 # TODO esign : add condition on mailing (cannot edit if mailing)
-                if not self.a_a["users"] or not editable:
+                if (not self.a_a["users"] or not content.to_sign or not editable or  # noqa W504
+                        need_mailing_value(document=content.getObject())):
                     self.msg = u"Deactivated for approval"
                     return " to-approve "
                 else:
