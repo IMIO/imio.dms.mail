@@ -42,11 +42,11 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         pattern = (
             u'<a class="version-link" href="{link}" alt="{title}" title="{title}">'
             u'<img src="{icon}" alt="{category}" title="{category}" />'
-            u'{signed}'
+            # u'{signed}'
             u' {text}</a><p class="discreet">{description}</p>'
         )
         url = content.getURL()
-        signed = u''
+        # signed = u''
         # if base_getattr(content, "signed"):
         #     iconName = "++resource++imio.dms.mail/itemIsSignedYes.png"
         #     signed = u"""<img title="%s" src="%s" />""" % (
@@ -54,13 +54,13 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         #         "%s/%s" % (self.table.portal_url, iconName),
         #     )
         return pattern.format(
-            text=safe_unicode(content.Title()),
+            text=safe_unicode(content.title),
             link=url,
             title=self.getLinkTitle(content),
             icon=content.icon_url,
             category=escape(safe_unicode(content.category_title)),
             description=escape(safe_unicode(content.Description)),
-            signed=signed,
+            # signed=signed,
         )
 
 
