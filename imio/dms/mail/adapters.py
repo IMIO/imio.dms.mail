@@ -28,6 +28,7 @@ from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
+from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
 from imio.helpers import EMPTY_DATE
 from imio.helpers.cache import get_plone_groups_for_user
@@ -674,8 +675,7 @@ def markers_conversion_error(obj):
     """
     annot = IAnnotations(obj)
     markers = []
-    if (obj.file and (obj.file.filename.endswith(".eml") or obj.file.contentType == "message/rfc822")) or \
-            (annot.get("collective.documentviewer", {}).get("last_updated", "") == "2050-01-01T00:00:00"):
+    if is_dv_conv_in_error(obj):
         markers.append("dvConvError")
     # Stores on obj
     annot["dmsmail.markers"] = markers

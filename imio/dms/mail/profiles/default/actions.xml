@@ -88,11 +88,11 @@
    <property name="description"></property>
    <property
       name="url_expr">string:object_url/@@convert-to-documentviewer</property>
-   <property name="icon_expr">string:$portal_url/++resource++imio.dms.mail/dv_convert.svg</property>
+   <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/dv_convert.svg</property>
    <property
-      name="available_expr">object/@@various-utils/dv_enabled</property>
+      name="available_expr">object/@@various-utils/dv_conv_enabled</property>
    <property name="permissions">
-    <element value="Modify view template"/>
+    <element value="Modify portal content"/>
    </property>
    <property name="visible">True</property>
   </object>
@@ -102,7 +102,7 @@
    <property name="description"></property>
    <property
       name="url_expr">python:context.aq_parent.absolute_url()+"/@@mailing-loop-persistent-document-generation?document_uid="+context.UID()</property>
-   <property name="icon_expr">string:$portal_url/++resource++imio.dms.mail/mailing.gif</property>
+   <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/mailing.gif</property>
    <property
       name="available_expr">python:context.aq_parent.has_mailing(context)</property>
    <property name="permissions">
