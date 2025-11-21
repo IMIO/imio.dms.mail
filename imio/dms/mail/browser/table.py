@@ -6,8 +6,12 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task import _ as _task
 from html import escape
 from imio.dms.mail import _
+from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.helpers.content import uuidToObject
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
+from Products.Five import BrowserView
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.table.column import Column
 from z3c.table.table import Table
 from zope.cachedescriptors.property import CachedProperty
@@ -148,3 +152,135 @@ class PersonnelTable(Table):
     @CachedProperty
     def values(self):
         return self.results
+
+
+class FileNameColumn(Column):
+    """Column displaying file name."""
+
+    header = _(u"File name")
+
+    def renderCell(self, item):
+        return item.title
+
+
+class SignerColumn(Column):
+    """Column with checkboxes for each signer."""
+
+    def __init__(self, context, request, table, signer):
+        super(SignerColumn, self).__init__(context, request, table)
+        self.userid, self.signer = signer
+        if self.signer:
+            self.header = self.signer["name"]
+
+    def renderCell(self, item):
+        row_id = item.title
+        order = self.signer["order"]
+        checked = False
+        if item.UID() in self.table.annot["files"]:
+            checked = self.table.annot["files"].get(item.UID())['nb'][order]["status"] == "a"
+        name = "approvals.%s.%s" % (item.UID(), self.userid)
+        checked_attr = 'checked="checked"' if checked else ''
+        return u'<input type="checkbox" name="%s" %s />' % (name, checked_attr)
+
+
+class ApprovalTable(Table):
+    """Table displaying approval state for admins."""
+
+    cssClassEven = u"even"
+    cssClassOdd = u"odd"
+    cssClasses = {'table': 'listing'}
+    sortOn = None
+
+    def __init__(self, context, request):
+        super(ApprovalTable, self).__init__(context, request)
+        self.approval = OMApprovalAdapter(self.context)
+        self.portal = api.portal.getSite()
+
+    def setUpColumns(self):
+        cols = super(ApprovalTable, self).setUpColumns()
+
+        # Add approving columns
+        for signer in self.approval.signers:
+            col = SignerColumn(self.context, self.request, self, signer)
+            cols.append(col)
+
+        return cols
+
+    @property
+    def values(self):
+        values = list()
+        for file_uid in self.approval.files_uids:
+            file = uuidToObject(file_uid)
+            values.append(file)
+        return values
+
+
+class ApprovalTableView(BrowserView):
+    """Main view for approvals table."""
+
+    __table__ = ApprovalTable
+
+    def __init__(self, context, request):
+        super(ApprovalTableView, self).__init__(context, request)
+        self.table = self.__table__(context, request)
+
+    def __call__(self):
+        self.update()
+        self.handle_form()
+        return self.index()
+
+    def update(self):
+        self.table.results = self.context.listFolderContents({'portal_type': ['dmsommainfile', 'dmsappendixfile']})
+        self.table.update()
+
+    def handle_form(self):
+        def is_file_approved_by(annot, file_uid, userid):
+            if file_uid not in annot["files"]:
+                add_file_to_approval(annot, file_uid)
+            order = annot["users"][userid]["order"]
+            return annot["files"][file_uid]['nb'][order]["status"] == "a"
+
+        form = self.request.form
+        save_button = form.get('form.button.Save', None) is not None
+        cancel_button = form.get('form.button.Cancel', None) is not None
+        if save_button and not cancel_button:
+            if not self.validate(form):
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u"You cannot select approvings and no validation at the same time."), type='error')
+                return
+            # TODO Process form data here
+            import ipdb; ipdb.set_trace()
+            # {'approvals.72915d8251584494a7b6e451d0df5bab.bourgmestre': 'on', 'approvals.34e8a991403f411f900064811039b288.dirg': 'on', 'form.button.Save': 'Save'}
+            return
+
+            annot = self.table.annot
+            current_userid = api.user.get_current().getId()
+            print(form)
+            print(annot)
+            for key, value in form.items():
+                if not key.startswith("approvals."):
+                    continue
+                prefix, file_uid, userid = key.split(".")
+                if userid == "no_approval":
+                    remove_file_from_approval(annot, file_uid)
+                elif not is_file_approved_by(annot, file_uid, userid):  # FIXME Fix approval number changes (KeyError: 99)
+                    approve_file(annot, uuidToObject(file_uid), current_userid)
+                # TODO Manage removing approvals
+            print(annot)
+            print ""
+
+            IStatusMessage(self.request).addStatusMessage(
+                _(u"Changes saved."), type='info')
+
+    def validate(self, form):
+        """Validator: no_approval and signer's approval cannot both be checked."""
+        res = {}
+        for key in form.keys():
+            if not key.startswith("approvals."):
+                continue
+            prefix, file_uid, userid = key.split(".")
+            if file_uid not in res:
+                res[file_uid] = userid != "no_approval"
+            elif userid == "no_approval" and res[file_uid]:
+                return False
+        return True

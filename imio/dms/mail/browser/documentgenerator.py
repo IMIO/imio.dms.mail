@@ -15,8 +15,7 @@ from collective.documentgenerator.viewlets.generationlinks import DocumentGenera
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.utils import update_categorized_elements
-from imio.dms.mail.utils import add_file_to_approval
-from imio.dms.mail.utils import get_approval_annot
+from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -230,12 +229,7 @@ class OMDGHelper(BaseDGHelper):
 
     def get_signers(self):
         """Return a list of tuple (position, name, function) containing signers."""
-        signers = []
-        approval = get_approval_annot(self.real_context)
-        for nb in sorted(list(approval.get("numbers", {}).keys())):
-            userid, email, name, label = approval["numbers"][nb]["signer"]
-            signers.append((nb, name, label))
-        return signers
+        return OMApprovalAdapter(self.real_context).signers_details
 
 
 class DashboardDGBaseHelper:  # noqa
