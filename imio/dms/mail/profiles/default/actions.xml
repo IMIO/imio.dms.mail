@@ -104,7 +104,7 @@
       name="url_expr">python:context.aq_parent.absolute_url()+"/@@mailing-loop-persistent-document-generation?document_uid="+context.UID()</property>
    <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/mailing.gif</property>
    <property
-      name="available_expr">python:context.aq_parent.has_mailing(context)</property>
+      name="available_expr">python:context.portal_type == "dmsommainfile" and context.aq_parent.has_mailing(context)</property>
    <property name="permissions">
     <element value="View"/>
    </property>
