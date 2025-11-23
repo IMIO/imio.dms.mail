@@ -12,9 +12,9 @@ from collective.documentviewer.utils import allowedDocumentType
 from collective.documentviewer.utils import getPortal
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
-# from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import sort_categorized_elements
-# from collective.iconifiedcategory.utils import update_categorized_elements
+from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
@@ -708,21 +708,25 @@ def add_mail_files_to_session(mail, approval=None):
         # TODO which pdf format to choose ?
         pdf_file = convert_and_save_odt(fobj.file, mail, "dmsommainfile", new_filename, fmt='pdf', from_uid=f_uid,
                                         attributes={"to_sign": True, "content_category": fobj.content_category,
+                                                    "to_approve": False, "approved": fobj.approved,
                                                     "scan_id": fobj.scan_id, "scan_user": fobj.scan_user})
         # TODO is to_sign attribute set from content_category
         pdf_uid = pdf_file.UID()
         approval["files"][f_uid]["pdf"] = pdf_uid
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
         pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
-        # we have to update mail categorized elements for the new pdf file
-        # update_categorized_elements(
-        #     mail,
-        #     pdf_file,
-        #     get_category_object(mail, pdf_file.content_category),
-        #     limited=False,
-        #     sort=False,
-        #     logging=True
-        # )
+        # check if special attributes must be updated (when to_approve and approved False, event set default values)
+        if pdf_file.to_approve or pdf_file.approved != fobj.approved:
+            pdf_file.to_approve = False
+            pdf_file.approved = fobj.approved
+            update_categorized_elements(
+                mail,
+                pdf_file,
+                get_category_object(mail, pdf_file.content_category),
+                limited=True,
+                sort=False,
+                logging=True
+            )
         # TODO copy other metadata ?
         file_uids.append(pdf_uid)
     sort_categorized_elements(mail)
