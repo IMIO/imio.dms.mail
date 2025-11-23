@@ -187,6 +187,15 @@
     />
 
   <adapter
+    name="signed-column"
+    for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.SignedColumn"
+    />
+
+  <adapter
         for="zope.interface.Interface
              zope.publisher.interfaces.browser.IBrowserRequest
              collective.dms.basecontent.browser.listing.VersionsTable"

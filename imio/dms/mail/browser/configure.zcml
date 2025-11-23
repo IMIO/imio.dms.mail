@@ -78,6 +78,22 @@
         />
 
     <browser:page
+        for="collective.dms.basecontent.dmsfile.IDmsFile"
+        name="iconified-signed"
+        layer="collective.iconifiedcategory.interfaces.ICollectiveIconifiedCategoryLayer"
+        class=".iconified_category.SignedChangeView"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="collective.dms.basecontent.dmsfile.IDmsAppendixFile"
+        name="iconified-signed"
+        layer="collective.iconifiedcategory.interfaces.ICollectiveIconifiedCategoryLayer"
+        class=".iconified_category.SignedChangeView"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="imio.dms.mail.interfaces.IPersonnelFolder"
         name="personnel-listing"
         class=".views.PersonnelListing"

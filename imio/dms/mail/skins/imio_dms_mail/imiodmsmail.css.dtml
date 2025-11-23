@@ -483,17 +483,21 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     text-align: center;
 }
 
-#content .iconified-listing td.iconified-approved a.to-approve::before {
+#content .iconified-listing td.iconified-approved a.to-approve::before,
+#content .iconified-listing td.iconified-signed a.deactivated::before {
     content: "\f204";  /* toggle-off */
 }
-#content .iconified-listing td.iconified-approved a.to-approve {
+#content .iconified-listing td.iconified-approved a.to-approve,
+#content .iconified-listing td.iconified-signed a.deactivated {
     color: #999;
 }
-#content .iconified-listing td.iconified-approved a.to-approve:hover {
+#content .iconified-listing td.iconified-approved a.to-approve:hover,
+#content .iconified-listing td.iconified-signed a.deactivated:hover {
     color: #666 !important;
 }
 
-#content .iconified-listing td.iconified-approved a.active.to-approve::before {
+#content .iconified-listing td.iconified-approved a.active.to-approve::before,
+#content .iconified-listing td.iconified-signed a::before {
     content: "\f205";  /* toggle-on */
 }
 #content .iconified-listing td.iconified-approved a.active.to-approve {
@@ -501,6 +505,10 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 }
 #content .iconified-listing td.iconified-approved a.active.to-approve:hover {
     color: #B50000 !important;
+}
+
+#content .iconified-listing td.iconified-signed a.active::before {
+    content: "\f044";  /* pen-to-square */
 }
 
 #content .iconified-listing td.iconified-approved a.cant-approve::before

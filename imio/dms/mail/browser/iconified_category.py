@@ -4,7 +4,9 @@
 """
 from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.browser.actionview import ApprovedChangeView as BaseApprovedChangeView
+from collective.iconifiedcategory.browser.actionview import SignedChangeView as BaseSignedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
+from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
 from imio.dms.mail.utils import add_file_to_approval
 from imio.dms.mail.utils import approve_file
 from imio.dms.mail.utils import can_approve
@@ -14,10 +16,6 @@ from imio.dms.mail.utils import logger  # noqa F401
 from imio.dms.mail.utils import remove_file_from_approval
 from plone import api
 from zope.i18n import translate
-
-
-# TODO esign
-# ajouter des couleurs différentes pour quelqu'un qui ne peut pas approuver ou pas encore...
 
 
 """
@@ -38,8 +36,6 @@ from zope.i18n import translate
 
 
 class ApprovedColumn(BaseApprovedColumn):
-
-    the_object = True
 
     def __init__(self, context, request, table):
         super(ApprovedColumn, self).__init__(context, request, table)
@@ -62,7 +58,6 @@ class ApprovedColumn(BaseApprovedColumn):
         if av.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):
-                # TODO esign : add condition on mailing (cannot edit if mailing)
                 if (not self.a_a["users"] or not content.to_sign or not editable or  # noqa W504
                         need_mailing_value(document=content.getObject())):
                     self.msg = u"Deactivated for approval"
@@ -214,3 +209,87 @@ class ApprovedChangeView(BaseApprovedChangeView):
             # logger.info("RELOAD TRUE")
             json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
         return json_resp
+
+
+class SignedColumn(BaseSignedColumn):
+
+    def __init__(self, context, request, table):
+        super(SignedColumn, self).__init__(context, request, table)
+        # self.context is the mail here
+        self.base_class = "iconified-action"
+
+    def css_class(self, content):
+        av = self.get_action_view(content)
+        editable = self.is_editable(content) and " editable" or ""
+        # when deactivated, anyone see a grey icon
+        if av.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+            if self.is_deactivated(content):
+                if not editable or need_mailing_value(document=content.getObject()):
+                    return " deactivated "
+                else:
+                    return " deactivated editable"
+            elif editable:
+                return " editable"
+            else:
+                return ""
+        elif self.is_deactivated(content):
+            # self.base_class = "iconified-action-approved"
+            return " deactivated"
+        else:
+            base_css = self.is_active(content) and ' active' or ''
+            if av.p_state in ("to_be_signed", "signed"):
+                # self.base_class = "iconified-action-approved"
+                if editable:
+                    return '{0} editable'.format(base_css)
+            return base_css
+
+    def get_url(self, content):
+        av = self.get_action_view(content)
+        if av.p_state in ("to_approve", "sent"):
+            return "#"
+        return '{url}/@@{action}'.format(
+            url=content.getURL(),
+            action=self.get_action_view_name(content),
+        )
+
+
+class SignedChangeView(BaseSignedChangeView):
+    permission = "View"
+
+    def __init__(self, context, request):
+        super(SignedChangeView, self).__init__(context, request)
+        self.parent = self.context.__parent__
+        self.p_state = api.content.get_state(self.parent)
+
+    def _get_next_values(self, old_values):
+        """ """
+        values = {}
+        status = 0
+        # logger.info("Before values change: %s", old_values)
+        if self.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+            # before to_approve state, we can only enable or disable to_sign
+            if old_values['to_sign'] is False:
+                values['to_sign'] = True
+                values['signed'] = False
+                status = 0
+            else:
+                values['to_sign'] = False
+                values['signed'] = False
+                status = -1
+            self.reload = False
+        elif old_values['to_sign'] and self.p_state in ("to_be_signed", "signed"):
+            if old_values['signed'] is False:
+                values['to_sign'] = True
+                values['signed'] = True
+                status = 1
+            else:
+                values['to_sign'] = True
+                values['signed'] = False
+                status = 0
+        # logger.info("After values change: %s, %s", status, values)
+        return status, values
+
+    def _may_set_values(self, values):
+        if self.p_state in ("to_approve", "to_print", "sent"):
+            return False
+        return super(SignedChangeView, self)._may_set_values(values)
