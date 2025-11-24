@@ -654,7 +654,6 @@ def approve_file(approval, mail, afile, userid, values=None, transition=None):
                         request=request,
                         type="info",
                     )
-                    return True, True
         if transition:
             # must use the following ?
             # do_next_transition(mail, mail.portal_type, state="to_approve")
