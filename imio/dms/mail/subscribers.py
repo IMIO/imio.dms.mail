@@ -441,11 +441,19 @@ def dmsoutgoingmail_transition(mail, event):
                 add_file_to_approval(annot, f.UID())
         added, msg = add_mail_files_to_session(mail)
         if added:
-            ExternalSessionCreateView(mail, mail.REQUEST)(session_id=annot['session_id'])
+            if not api.portal.get_registry_record("imio.esign.seal_code", default=""):
+                msg2 = "Seal code must be defined in eSign settings befode sending session"
+            else:
+                ExternalSessionCreateView(mail, mail.REQUEST)(session_id=annot['session_id'])
         api.portal.show_message(
             message=_(msg),
             request=mail.REQUEST,
             type=added and "info" or "error",
+        )
+        api.portal.show_message(
+            message=_(msg2),
+            request=mail.REQUEST,
+            type="error",
         )
 
 
