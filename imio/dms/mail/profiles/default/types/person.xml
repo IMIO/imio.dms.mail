@@ -3,6 +3,6 @@
  <property name="global_allow">True</property>
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
-  <element value="imio.dms.mail.content.behaviors.IImioPlonegroupUserLink" />
+  <element value="collective.contact.plonegroup.behaviors.IPlonegroupUserLink" />
  </property>
 </object>

@@ -8,7 +8,9 @@ from imio.dms.mail import _
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
+from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import vocabularyname_to_terms
+from imio.helpers.content import find
 from imio.helpers.content import uuidToObject
 from operator import itemgetter
 from plone import api
@@ -17,6 +19,7 @@ from plone.autoform.interfaces import IFormFieldProvider
 from plone.supermodel import directives
 from plone.supermodel import model
 from Products.CMFPlone.utils import safe_unicode
+from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from zope import schema
 from zope.interface import alsoProvides
@@ -213,48 +216,66 @@ class ISigningBehavior(model.Schema):
                 raise Invalid(_(u"You cannot have empty and defined approvings at the same time !"))
 
 
-@provider(IFormFieldProvider)
-class IImioPlonegroupUserLink(IPlonegroupUserLink):
-    @invariant
-    def validate_userid(data):
-        context = data.__context__
-        if not hasattr(context, 'userid') or getattr(context, 'userid', None) is None:
+class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
+
+    def validate(self, value, force=False):
+        # if old value is None, nothing to do
+        if not hasattr(self.context, "userid") or getattr(self.context, "userid", None) is None:
             return
 
         # Raise if trying to remove an existing userid
-        if data.userid is None:
+        if not value:
             raise Invalid(_(u"You cannot remove a userid once it is set."))
 
-        # Raise if changing userid but user has pending esign approvals
-        if data.userid != context.userid:
-            catalog = api.portal.get_tool('portal_catalog')
+        if not IPersonnelContact.providedBy(self.context):
+            return
 
-            # Get person(s) with approving held positions for the user
-            hps = catalog.unrestrictedSearchResults(
-                portal_type='held_position',
-                userid=context.userid,
-            )
-            approving_persons = set()
+        # Raise if changing person userid when held positions are used but user has pending esign approvals
+        if value != self.context.userid:
+            catalog = api.portal.get_tool("portal_catalog")
+
+            # Get held positions for this person
+            hps = find(context=self.context, portal_type="held_position", unrestricted=True)
+            signer_uids = set()
+            person_uid = None
             for b in hps:
-                hp = b.getObject()
-                if 'signer'in hp.usages or 'approving' in hp.usages:
-                    approving_persons.add(hp.get_person().UID())
+                hp = b._unrestrictedGetObject()
+                if "signer" in hp.usages:
+                    signer_uids.add(hp.UID())
+                if "approving" in hp.usages:
+                    person_uid = self.context.UID()
 
-            # Get all persons with pending esign approvals
+            if not signer_uids and not person_uid:
+                return
+
+            # Get all potential mails with pending esign approvals
             mails = catalog.unrestrictedSearchResults(
-                portal_type='dmsoutgoingmail',
-                review_state='to_approve',
+                portal_type="dmsoutgoingmail",
+                review_state=["created", "proposed_to_n_plus_1", "validated", "to_approve"],
             )
             pending_approvings = set()
+            found = 0
             for b in mails:
-                mail = b.getObject()
-                signers = mail.signers
-                for signer in signers:
-                    for approving in signer.get('approvings', []):
-                        if approving == "_themself_":
-                            pending_approvings.add(uuidToObject(signer.get('signer'), unrestricted=True).get_person().UID())
-                        else:
-                            pending_approvings.add(approving)
+                mail = b._unrestrictedGetObject()
+                if found >= 10:
+                    break
+                mail_added = False
+                for signer_dic in mail.signers:
+                    if not signer_dic.get("signer") or signer_dic.get("signer") == "_empty_":
+                        continue
+                    for approving in signer_dic.get("approvings", []):
+                        if (approving == "_themself_" and signer_dic["signer"] in signer_uids) or \
+                                approving == person_uid:
+                            pending_approvings.add(b.getPath())
+                            found += 1
+                            mail_added = True
+                            break
+                    if mail_added:
+                        break
+            if pending_approvings:
+                raise Invalid(_(u"You cannot change the userid because the user is in approvals on "
+                                u"following objects ${paths}",
+                                mapping={"paths": safe_unicode(", ".join(pending_approvings))}))
 
-            if approving_persons.intersection(pending_approvings):
-                raise Invalid(_(u"You cannot change the userid because the user has pending esign approvals."))
+
+validator.WidgetValidatorDiscriminators(PlonegroupUserLinkUseridValidator, field=IPlonegroupUserLink['userid'])

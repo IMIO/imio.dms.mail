@@ -23,7 +23,7 @@ Changelog
 - Added esign_watchers group.
   [chris-adam]
 - Added validator on person's userid.
-  [chris-adam]
+  [chris-adam, sgeulette]
 - Added eSign session creation for seal without signers.
   [chris-adam]
 - Defined new Content Category Groups for dms files and appendix files.
