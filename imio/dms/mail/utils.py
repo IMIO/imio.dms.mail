@@ -11,9 +11,8 @@ from collective.documentviewer.utils import allowedDocumentType
 from collective.documentviewer.utils import getPortal
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
-from collective.iconifiedcategory.utils import get_category_object
-from collective.iconifiedcategory.utils import sort_categorized_elements
-from collective.iconifiedcategory.utils import update_categorized_elements
+# from collective.iconifiedcategory.utils import get_category_object
+# from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
