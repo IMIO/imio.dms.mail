@@ -245,6 +245,13 @@
         provides="borg.localrole.interfaces.ILocalRoleProvider"
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="approver-role-adapter"
-      />
+        />
+
+    <adapter
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        factory="imio.dms.mail.adapters.OMApprovalAdapter"
+        provides="imio.dms.mail.interfaces.IOMApproval"
+        name="approvals"
+        />
 
 </configure>
