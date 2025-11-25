@@ -1011,4 +1011,21 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
     />
 
+    <browser:page
+        name="approvals"
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        class="imio.dms.mail.browser.table.ApprovalTableView"
+        template="templates/approvals.pt"
+        permission="zope.Public"
+    />
+
+    <adapter
+        name="filename_approvals"
+        for="zope.interface.Interface
+            zope.publisher.interfaces.browser.IBrowserRequest
+            imio.dms.mail.browser.table.ApprovalTable"
+        provides="z3c.table.interfaces.IColumn"
+        factory="imio.dms.mail.browser.table.FileNameColumn"
+        />
+
 </configure>
