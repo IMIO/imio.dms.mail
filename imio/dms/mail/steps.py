@@ -65,6 +65,40 @@ def create_persons_from_users(portal, fn_first=True, functions=ALL_SERVICE_FUNCT
 # #############
 
 
+def activate_esigning(context):
+    """Activate approbation and esigning functionality for imio.dms.mail"""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info("Activate signing functionality")
+    site = context.getSite()
+
+    site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
+    log = ["Installed imio.esign"]
+
+    omf = api.portal.get_registry_record(
+        "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
+    )
+    om_fns = [dic["field_name"] for dic in omf]
+    if "ISigningBehavior.signers" not in om_fns:
+        pos = om_fns.index("internal_reference_no")
+        omf.insert(pos + 1,
+                   {"field_name": "ISigningBehavior.signers", "read_tal_condition": u"", "write_tal_condition": u""})
+        omf.insert(pos + 2,
+                   {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"", "write_tal_condition": u""})
+        omf.insert(pos + 3,
+                   {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
+                                       omf)
+        log.append("Updated omail_fields registry record")
+
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+    )
+    log.append("Updated outgoingmail_workflow with to_approve state")
+
+    return "\n".join(log)
+
+
 def create_templates_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
@@ -809,5 +843,5 @@ condition = python:item.get('_id', u'') == u'0'
 [stop]
 blueprint = collective.contact.importexport.stop
 condition = python:True
-""",
-    )  # noqa: E501
+""",  # noqa: E501
+    )
