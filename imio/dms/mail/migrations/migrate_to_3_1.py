@@ -75,9 +75,10 @@ class Migrate_To_3_1(Migrator):  # noqa
 
         if self.is_in_part("q"):  # upgrade other products
             # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
-            self.upgradeAll(
-                omit=[u"imio.dms.mail:default"]
-            )
+            # collective.contact.facetednav
+            # collective.iconifiedcategory (on existing objects, folders only if the first time)
+            # imio.pm.wsclient
+            self.upgradeAll(omit=[u"imio.dms.mail:default"])
 
             # add group
             if api.group.get("esign_watchers") is None:
@@ -100,10 +101,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                     "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
             ))
 
-            self.install(["imio.esign"])
-
             # signing
-            self.runProfileSteps("collective.dms.basecontent", steps=["actions"])
+            self.runProfileSteps("collective.dms.basecontent", steps=["actions"])  # for actions columns
             self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry", "actions"])
             load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # ISigningBehavior behavior
             load_type_from_package("held_position", "profile-imio.dms.mail:default")  # IUsagesBehavior behavior

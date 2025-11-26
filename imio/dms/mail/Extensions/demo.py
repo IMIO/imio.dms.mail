@@ -515,6 +515,9 @@ def activate_signing(self):
     if not check_role(self):
         return "You must be a manager to run this script"
     portal = api.portal.getSite()
+
+    portal.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
+
     omf = api.portal.get_registry_record(
         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
     )

@@ -396,7 +396,7 @@ def dmsoutgoingmail_transition(mail, event):
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
-    if event.transition and event.transition.id == "propose_to_approve":
+    if event.transition and event.transition.id == "propose_to_approve":  # only if
         approval = get_approval_annot(mail)
         orig_nb = approval["approval"]
         if approval["users"]:
@@ -434,7 +434,8 @@ def dmsoutgoingmail_transition(mail, event):
         if orig_nb != approval["approval"]:
             mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
     # seal without signers (due to constraints)
-    if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:
+    if (event.transition and base_hasattr(mail, "seal") and event.transition.id == "propose_to_be_signed"
+            and mail.seal and not mail.esign):
         annot = get_approval_annot(mail)
         for f in mail.values():
             if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
@@ -460,6 +461,8 @@ def dmsoutgoingmail_transition(mail, event):
 
 
 def dmsoutgoingmail_modified(mail, event):
+    if not ISigningBehavior.providedBy(mail):
+        return
     # Do not update signers field if mail is sent or to be signed
     mail_state = api.content.get_state(mail)
     if mail_state in ("sent", "signed", "to_approve", "to_be_signed"):

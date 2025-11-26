@@ -40,11 +40,9 @@
     <dependency>profile-imio.dashboard:default</dependency>
     <dependency>profile-imio.fpaudit:default</dependency>
     <dependency>profile-imio.helpers:default</dependency>
-    <dependency>profile-imio.esign:default</dependency>
     <dependency>profile-plone.app.versioningbehavior:default</dependency>
     <dependency>profile-plonetheme.imioapps:dmsmailskin</dependency>
     <dependency>profile-Products.cron4plone:default</dependency>
-    <dependency>profile-imio.esign:default</dependency>
     <!-- comment: must be at the end to hide viewlets -->
     <dependency>profile-imio.history:default</dependency>
   </dependencies>
