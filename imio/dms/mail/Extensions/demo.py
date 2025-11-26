@@ -510,6 +510,12 @@ def activate_group_encoder(self, typ="imail"):
     return portal.REQUEST.response.redirect(portal.absolute_url())
 
 
+def activate_signing(self):
+    self.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+    )
+
+
 def disable_resources_debug_mode(self):
     portal = self
     css_tool = portal.portal_css
