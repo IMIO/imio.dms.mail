@@ -363,14 +363,15 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs", "esign_watchers",
+            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
+             "esign_watchers",
              "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
         )
 
     def test_UtilsMethods_highest_scan_id(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
         view = UtilsMethods(imail, imail.REQUEST)
-        self.assertEqual(view.highest_scan_id(), "dmsmainfiles: '9', highest scan_id: '050999900000009'")
+        self.assertEqual(view.highest_scan_id(), "dmsmainfiles: '9', highest scan_id: '010999900000009'")
 
     def test_UtilsMethods_is_in_user_groups(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
@@ -385,7 +386,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs", "esign_watchers",
+            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
+             "esign_watchers",
              "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
         )
         # with groups

@@ -17,7 +17,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
     def setUp(self):
         self.portal = self.layer["portal"]
         self.change_user("siteadmin")
-        ct = self.portal["annexes_types"]["signable_files"]["signable-ged-file"]
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         self.omail = sub_create(
             self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", title=u"Test",
             content_category=calculate_category_id(ct)

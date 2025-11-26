@@ -162,8 +162,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous devez d\xe9finir des approbateurs pour chaque signataire si la signature \xe9lectronique est utilis\xe9e !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(_tr(errors[0].message), u"Vous devez définir des approbateurs pour chaque signataire si "
+                                                 u"la signature électronique est utilisée !")
 
         # Test no approvings with esign deactivated
         data = {
@@ -217,5 +217,5 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir un sceau sans signature \xe9lectronique !"
+        error_msg = u"Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
         self.assertEqual(_tr(errors[0].message), error_msg)

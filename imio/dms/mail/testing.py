@@ -36,7 +36,7 @@ from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.globalrequest.local import setLocal
 from zope.i18n import translate
-from zope.intid import IIntIds
+# from zope.intid import IIntIds
 from zope.ramcache.interfaces.ram import IRAMCache
 
 import datetime
@@ -340,12 +340,13 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
     import imio.dms.mail as imiodmsmail
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
-    files = [unicode(name) for name in os.listdir(filespath) if os.path.splitext(name)[1][1:] in ("pdf", "doc", "jpg")]
+    files = [safe_unicode(name) for name in os.listdir(filespath)
+             if os.path.splitext(name)[1][1:] in ("pdf", "doc", "jpg")]
     files_cycle = cycle(files)
 
-    intids = getUtility(IIntIds)
-    isenders = [intids.getId(ct) for ct in senders]
-    senders_cycle = cycle(isenders)
+    # intids = getUtility(IIntIds)
+    # isenders = [intids.getId(ct) for ct in senders]
+    # senders_cycle = cycle(isenders)
 
     services = get_registry_organizations()
     selected_orgs = [org for i, org in enumerate(services) if i in (0, 1, 2, 4, 5, 6)]
@@ -383,7 +384,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
                         "dmsmainfile",
                         title="",
                         file=file_object,
-                        scan_id="0509999{:08d}".format(i),
+                        scan_id="01099991{:07d}".format(i),
                         scan_date=scan_date,
                     )
                 do_transitions(mail, transitions)

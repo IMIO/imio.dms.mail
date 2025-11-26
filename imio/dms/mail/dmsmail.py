@@ -49,6 +49,7 @@ from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import do_next_transition
+from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_n_plus_level_obsolete
@@ -81,7 +82,6 @@ from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
-from zope.annotation import IAnnotations
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
@@ -869,7 +869,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         :param all_done: if True, check if all approvings are done
         :return: boolean
         """
-        annot = IAnnotations(self).get("idm.approval", {})
+        annot = get_approval_annot(self)
         if not annot.get("users", []):
             return False
         elif not all_done:
@@ -989,6 +989,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
         # expedition can always mark as signed
         if is_in_user_groups(["expedition"], admin=True):
             return True
+        # TODO esign check if esign process is terminated
         return False
 
 

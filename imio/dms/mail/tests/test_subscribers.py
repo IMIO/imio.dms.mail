@@ -40,7 +40,7 @@ import unittest
 import zope.event
 
 
-class TestDmsmail(unittest.TestCase, ImioTestHelpers):
+class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
