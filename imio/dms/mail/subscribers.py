@@ -440,6 +440,7 @@ def dmsoutgoingmail_transition(mail, event):
             if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
                 add_file_to_approval(annot, f.UID())
         added, msg = add_mail_files_to_session(mail)
+        msg2 = ""
         if added:
             if not api.portal.get_registry_record("imio.esign.seal_code", default=""):
                 msg2 = "Seal code must be defined in eSign settings befode sending session"
@@ -450,11 +451,12 @@ def dmsoutgoingmail_transition(mail, event):
             request=mail.REQUEST,
             type=added and "info" or "error",
         )
-        api.portal.show_message(
-            message=_(msg2),
-            request=mail.REQUEST,
-            type="error",
-        )
+        if msg2:
+            api.portal.show_message(
+                message=_(msg2),
+                request=mail.REQUEST,
+                type="error",
+            )
 
 
 def dmsoutgoingmail_modified(mail, event):
