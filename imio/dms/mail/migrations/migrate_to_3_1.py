@@ -206,7 +206,6 @@ class Migrate_To_3_1(Migrator):  # noqa
             finished = finished and finished3
 
             # imio.annex integration to dms files with iconified category
-            self.context.runImportStepFromProfile('collective.dms.basecontent:default', 'catalog')
             load_type_from_package("dmsmainfile", "imio.dms.mail:default")
             load_type_from_package("dmsommainfile", "imio.dms.mail:default")
             load_type_from_package("dmsappendixfile", "imio.dms.mail:default")
@@ -249,24 +248,6 @@ class Migrate_To_3_1(Migrator):  # noqa
                 finished4 = finished4 and self.set_attribute(files, "approved", False)
                 finished4 = finished4 and self.set_attribute(files, "to_print", False)
             finished = finished and finished4
-
-            catalog = self.portal.portal_catalog
-            indexes = catalog.indexes()
-            wanted = [
-                ('to_print', 'BooleanIndex'),
-                ('to_be_signed', 'BooleanIndex'),
-                ('signed', 'BooleanIndex'),
-                ('approved', 'BooleanIndex'),
-            ]
-            added = set()
-            for name, meta_type in wanted:
-                if name not in indexes:
-                    catalog.addIndex(name, meta_type)
-                    added.add(name)
-            if added:
-                self.reindexIndexes(idxs=list(added),
-                                    portal_types=["dmsmainfile", "dmsommainfile", "dmsappendixfile"],
-                                    update_metadata=True)
             # END
 
             # finished = True  # can be eventually returned and set by batched method
