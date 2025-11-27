@@ -11,6 +11,7 @@ from imio.helpers.content import uuidToObject
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.table.column import Column
 from z3c.table.table import Table
@@ -170,10 +171,9 @@ class SignerColumn(Column):
         super(SignerColumn, self).__init__(context, request, table)
         self.userid, signer_name = signer
         self.header = signer_name or self.userid
-        self.approval = self.table.approval
 
     def renderCell(self, item):
-        checked = self.approval.is_file_approved(item.UID(), self.userid)
+        checked = self.table.approval.is_file_approved(item.UID(), self.userid)
         name = "approvals.%s.%s" % (item.UID(), self.userid)
         checked_attr = 'checked="checked"' if checked else ""
         return u'<input type="checkbox" name="%s" %s />' % (name, checked_attr)
@@ -205,16 +205,17 @@ class ApprovalTable(Table):
 
     @property
     def values(self):
-        values = list()
+        results = list()
         for file_uid in self.approval.files_uids:
             file = uuidToObject(file_uid)
-            values.append(file)
-        return values
+            results.append(file)
+        return results
 
 
 class ApprovalTableView(BrowserView):
     """Main view for approvals table."""
 
+    index = ViewPageTemplateFile("templates/approvals.pt")
     __table__ = ApprovalTable
 
     def __init__(self, context, request):
@@ -227,7 +228,6 @@ class ApprovalTableView(BrowserView):
         return self.index()
 
     def update(self):
-        self.table.results = self.context.listFolderContents({"portal_type": ["dmsommainfile", "dmsappendixfile"]})
         self.table.update()
 
     def handle_form(self):
