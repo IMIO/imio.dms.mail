@@ -282,10 +282,10 @@ validator.WidgetValidatorDiscriminators(PlonegroupUserLinkUseridValidator, field
 
 
 @provider(IFormFieldProvider)
-class IContentCategoryBehavior(model.Schema):
+class IDefaultContentCategoryBehavior(model.Schema):
 
-    content_category = schema.Choice(
-        title=_(u"Content Category"),
+    default_content_category = schema.Choice(
+        title=_(u"Default content category"),
         description=_("Category to apply on generated documents from this template."),
         vocabulary=u"imio.dms.mail.PODTemplateContentCategoriesVocabulary",
         required=True,

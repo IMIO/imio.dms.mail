@@ -500,7 +500,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 scan_id=scan_id,
                 scan_user=scan_user,
                 file=file_object,
-                content_category=pod_template.content_category,
+                content_category=pod_template.default_content_category,
             )
         # TODO sign : replace content_category upper by the one selected on the model
         # store informations on persisted doc
@@ -515,7 +515,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 add_file_to_approval(approval_annot, persisted_doc.UID())
         if orig_value != new_value:  # only when new_value is False normally
             persisted_doc.to_approve = new_value
-            category_object = get_category_object(persisted_doc, pod_template.content_category)
+            category_object = get_category_object(persisted_doc, persisted_doc.content_category)
             update_categorized_elements(
                 self.context,
                 persisted_doc,

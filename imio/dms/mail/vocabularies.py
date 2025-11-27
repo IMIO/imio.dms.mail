@@ -760,5 +760,5 @@ class PODTemplateContentCategoriesVocabulary(object):
             'path': ['{}/annexes_types/outgoing_dms_files'.format(portal_path)],
         }
         brains = catalog.unrestrictedSearchResults(**query)
-        content_categories = [b.getObject() for b in brains]
-        return SimpleVocabulary([SimpleTerm(value=calculate_category_id(cc), token=calculate_category_id(cc), title=cc.Title()) for cc in content_categories])
+        content_categories = [(calculate_category_id(b.getObject()), b.Title) for b in brains]
+        return SimpleVocabulary([SimpleTerm(value=cc, token=cc, title=tit) for cc, tit in content_categories])

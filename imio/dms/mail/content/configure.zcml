@@ -44,9 +44,9 @@
         factory=".behaviors.PlonegroupUserLinkUseridValidator" />
 
     <plone:behavior
-        title="POD templates content categories"
-        description="Iconified Content Category to apply on generated documents from the selected POD template"
-        provides=".behaviors.IContentCategoryBehavior"
+        title="Define default content category"
+        description="Default iconified content category that can be used on generated documents by example"
+        provides=".behaviors.IDefaultContentCategoryBehavior"
         />
 
 </configure>

@@ -6,6 +6,6 @@
   <element value="documentviewer"/>
  </property>
  <property name="behaviors" purge="False">
-  <element value="imio.dms.mail.content.behaviors.IContentCategoryBehavior"/>
+  <element value="imio.dms.mail.content.behaviors.IDefaultContentCategoryBehavior"/>
  </property>
 </object>
