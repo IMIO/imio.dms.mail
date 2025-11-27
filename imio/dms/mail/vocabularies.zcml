@@ -176,4 +176,9 @@
         factory="imio.dms.mail.vocabularies.DmsFilesCategoryVocabulary"
         />
 
+    <utility
+        name="imio.dms.mail.PODTemplateContentCategoriesVocabulary"
+        factory="imio.dms.mail.vocabularies.PODTemplateContentCategoriesVocabulary"
+        />
+
 </configure>

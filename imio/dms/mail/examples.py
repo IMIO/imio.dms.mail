@@ -188,6 +188,12 @@ def add_test_annexes_types(context):
             to_approve=True,
             show_preview=show_pv,
         )
+    templates = site.portal_catalog.unrestrictedSearchResults(portal_type=["ConfigurablePODTemplate"])
+    category_id = calculate_category_id(site["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"])
+    for template in templates:
+        obj = template.getObject()
+        if not obj.default_content_category:
+            obj.default_content_category = category_id
 
     # Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]

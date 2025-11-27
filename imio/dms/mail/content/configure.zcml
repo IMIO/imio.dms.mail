@@ -43,4 +43,10 @@
     <adapter
         factory=".behaviors.PlonegroupUserLinkUseridValidator" />
 
+    <plone:behavior
+        title="Define default content category"
+        description="Default iconified content category that can be used on generated documents by example"
+        provides=".behaviors.IDefaultContentCategoryBehavior"
+        />
+
 </configure>

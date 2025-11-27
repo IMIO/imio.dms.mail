@@ -14,7 +14,7 @@ from collective.documentgenerator.utils import need_mailing_value
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
-from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from imio.dms.mail.utils import add_file_to_approval
 from imio.dms.mail.utils import get_approval_annot
@@ -491,8 +491,6 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         scan_params = [param for param in ("PD", "PC", "PVS") if gen_context.get(param, False)]
         # Could be stored in annotation
         scan_user = scan_params and "|".join(scan_params) or None
-        category_object = api.portal.get()["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-        # category_object = api.portal.get()["annexes_types"]["signable_files"]["signable-ged-file"]
         with api.env.adopt_roles(["Manager"]):
             persisted_doc = createContentInContainer(
                 self.context,
@@ -502,7 +500,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 scan_id=scan_id,
                 scan_user=scan_user,
                 file=file_object,
-                content_category=calculate_category_id(category_object)
+                content_category=pod_template.default_content_category,
             )
         # TODO sign : replace content_category upper by the one selected on the model
         # store informations on persisted doc
@@ -517,6 +515,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 add_file_to_approval(approval_annot, persisted_doc.UID())
         if orig_value != new_value:  # only when new_value is False normally
             persisted_doc.to_approve = new_value
+            category_object = get_category_object(persisted_doc, persisted_doc.content_category)
             update_categorized_elements(
                 self.context,
                 persisted_doc,

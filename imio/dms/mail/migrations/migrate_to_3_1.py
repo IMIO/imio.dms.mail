@@ -208,11 +208,19 @@ class Migrate_To_3_1(Migrator):  # noqa
                 load_type_from_package("dmsommainfile", "imio.dms.mail:default")  # iconified
                 load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # iconified
                 load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # iconified
+                load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
                 setup_iconified_categories(self.portal)
                 a_t_f["annexes"].title = _("Folders Appendix Files")
                 alsoProvides(a_t_f["annexes"], IProtectedItem)
                 a_t_f["annexes"].reindexObject()
                 self.context.runImportStepFromProfile(u'imio.dms.mail:examples', u'imiodmsmail-add-test-annexes-types')
+                templates = self.catalog.unrestrictedSearchResults(portal_type=["ConfigurablePODTemplate"])
+                category_id = calculate_category_id(self.portal["annexes_types"]["outgoing_dms_files"]
+                                                    ["outgoing-dms-file"])
+                for template in templates:
+                    obj = template.getObject()
+                    if not obj.default_content_category:
+                        obj.default_content_category = category_id
 
             gsm = getGlobalSiteManager()
             gsm.unregisterHandler(content_updated, (IIconifiedCategorizationMarker, IObjectModifiedEvent))
@@ -524,7 +532,7 @@ class Migrate_To_3_1(Migrator):  # noqa
         Batched method to set an attribute
         :param brains: catalog brains list
         :param attribute_name: attribute name to set
-        :param func: function to infer value from brain
+        :param func: function to infer value from brain. If func is not callable, it will be considered as a value
         :param post_func: function to call after setting attribute on object
         :param batch: batch size
         :return: True if finished, False if not

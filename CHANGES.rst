@@ -30,6 +30,8 @@ Changelog
   [chris-adam, sgeulette]
 - Refactored VersionsTable into an iconified Categorizedtable.
   [chris-adam, sgeulette]
+- Added behavior on Configurable POD Templates to set content category on generated documents.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
