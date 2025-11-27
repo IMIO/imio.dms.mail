@@ -21,6 +21,7 @@ from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.setuphandlers import add_templates
+from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import create_personnel_content
@@ -95,6 +96,12 @@ def activate_esigning(context):
         "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
     )
     log.append("Updated outgoingmail_workflow with to_approve state")
+
+    # add signed collection
+    col_folder = site["outgoing-mail"]["mail-searches"]
+    createStateCollections(col_folder, "dmsoutgoingmail")
+    pos = col_folder.getObjectPosition("searchfor_to_be_signed")
+    col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
 
     return "\n".join(log)
 
