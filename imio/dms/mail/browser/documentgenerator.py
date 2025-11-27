@@ -8,6 +8,7 @@ from collective.documentgenerator import _ as _dg
 from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
+from collective.documentgenerator.content.pod_template import ConfigurablePODTemplate
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from collective.documentgenerator.utils import need_mailing_value
@@ -491,6 +492,12 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         scan_params = [param for param in ("PD", "PC", "PVS") if gen_context.get(param, False)]
         # Could be stored in annotation
         scan_user = scan_params and "|".join(scan_params) or None
+
+        if isinstance(pod_template, ConfigurablePODTemplate):
+            category = pod_template.default_content_category
+        else:  # MailingLoopTemplate
+            category = self.document.content_category
+
         with api.env.adopt_roles(["Manager"]):
             persisted_doc = createContentInContainer(
                 self.context,
@@ -500,7 +507,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 scan_id=scan_id,
                 scan_user=scan_user,
                 file=file_object,
-                content_category=pod_template.default_content_category,
+                content_category=category,
             )
         # TODO sign : replace content_category upper by the one selected on the model
         # store informations on persisted doc
