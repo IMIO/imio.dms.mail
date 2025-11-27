@@ -465,7 +465,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.change_user("admin")
         self.portal.restrictedTraverse("idm_activate_signing")()
 
-        # Create outgoing mail with two eSign signers and one file to approve
+        # Create outgoing mail with two eSign signers and two files to approve
         intids = getUtility(IIntIds)
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
@@ -790,11 +790,67 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             },
         )
 
-        # Approval has started
+        # Approval has started, signers are reset but approvals are left unchanged
         self.pw.doActionFor(self.omail, "propose_to_approve")
         self.approval.approve_file(self.files[0], "dirg")
-        # FIXME It breaks if signers are changed after an approval has been done
-        self.assertRaises(ValueError, self.approval.update_signers)
+        approval_datetime = self.approval.annot["approval"][0][0]["approved_on"]
+        self.assertEqual(
+            self.approval.annot,
+            {
+                "files": [self.files[0].UID(), self.files[1].UID()],
+                "approvers": [["dirg"], ["bourgmestre", "chef"]],
+                "session_id": None,
+                "pdf_files": [None, None],
+                "approval": [
+                    [
+                        {
+                            "status": "a",
+                            "approved_on": approval_datetime,
+                            "approved_by": "dirg",
+                        },
+                        {"status": "p", "approved_on": None, "approved_by": None},
+                    ],
+                    [
+                        {"status": "w", "approved_on": None, "approved_by": None},
+                        {"status": "w", "approved_on": None, "approved_by": None},
+                    ],
+                ],
+                "editors": [True, False],
+                "signers": [
+                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                ],
+            },
+        )
+        self.approval.update_signers()
+        self.assertEqual(
+            self.approval.annot,
+            {
+                "files": [self.files[0].UID(), self.files[1].UID()],
+                "approvers": [["dirg"], ["bourgmestre", "chef"]],
+                "session_id": None,
+                "pdf_files": [None, None],
+                "approval": [
+                    [
+                        {
+                            "status": "a",
+                            "approved_on": approval_datetime,
+                            "approved_by": "dirg",
+                        },
+                        {"status": "p", "approved_on": None, "approved_by": None},
+                    ],
+                    [
+                        {"status": "w", "approved_on": None, "approved_by": None},
+                        {"status": "w", "approved_on": None, "approved_by": None},
+                    ],
+                ],
+                "editors": [True, False],
+                "signers": [
+                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                ],
+            },
+        )
 
         # A signer does not exist
         self.omail.signers[0]["signer"] = "wrong-uid"

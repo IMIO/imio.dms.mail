@@ -1334,12 +1334,19 @@ class OMApprovalAdapter(object):
 
     def update_signers(self):
         """Update the annotation with the current signers from the mail context."""
-        # TODO FIXME This breaks if signers are changed after an approval has been done
-        files_uids = []
-        if self.current_nb is None:
-            for fuid in self.files_uids:
-                files_uids.append(fuid)
-            self.reset()
+        # Create approvals backup to restore after update
+        backup_files_uids = []
+        backup_approvals = []
+        for fuid_index, fuid in enumerate(self.files_uids):
+            backup_files_uids.append(fuid)
+            backup_approvals.append([])
+            for nb in range(len(self.annot["approval"])):
+                if self.annot["approval"][nb][fuid_index]["status"] == "a":
+                    backup_approval = self.annot["approval"][nb][fuid_index]
+                    backup_approval["signer"] = self.signers[nb]
+                    backup_approvals[fuid_index].append(backup_approval)
+        self.reset()
+
         signer_emails = set()
         signers = sorted(self.context.signers, key=lambda s: s["number"])
         for signer in signers:
@@ -1409,9 +1416,25 @@ class OMApprovalAdapter(object):
                     )
                 )
 
-            # Re-add files if the annotation was reset
-            for f_uid in files_uids:
-                self.add_file_to_approval(f_uid)
+        for fuid in backup_files_uids:
+            self.add_file_to_approval(fuid)
+        if api.content.get_state(self.context) == "to_approve":
+            self.propose_to_approve()
+
+        # Restore backups
+        for fuid_index, fuid in enumerate(backup_files_uids):
+            for backup_approval in backup_approvals[fuid_index]:
+                if backup_approval["signer"] not in self.signers:
+                    continue  # signer removed
+                signer_index = self.signers.index(backup_approval["signer"])
+                self.approve_file(
+                    uuidToObject(fuid, unrestricted=True),
+                    backup_approval["approved_by"],
+                    transition="propose_to_be_signed",
+                    c_a=signer_index,
+                )
+                approved_on = backup_approval["approved_on"]
+                self.annot["approval"][signer_index][fuid_index]["approved_on"] = approved_on
 
     def add_file_to_approval(self, f_uid):
         """Add a file to approval annotation."""
