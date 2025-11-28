@@ -9,6 +9,7 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.table import ApprovalTableView
 from imio.dms.mail.browser.table import AssignedGroupColumn
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
@@ -75,7 +76,7 @@ class TestTable(unittest.TestCase):
         self.assertEqual(col.renderCell(task).encode("utf8"), "Direction générale")
 
     def test_ApprovalTable(self):
-        self.portal.restrictedTraverse("idm_activate_signing")()
+        activate_signing(self.portal)
 
         # Create outgoing mail with two eSign signers and two files to approve
         intids = getUtility(IIntIds)

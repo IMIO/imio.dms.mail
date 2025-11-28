@@ -7,6 +7,7 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -30,7 +31,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         self.pw = self.portal.portal_workflow
         self.change_user("siteadmin")
-        self.portal.restrictedTraverse("idm_activate_signing")()
+        activate_signing(self.portal)
 
         # TODO patch workflow to add to_print state
         # sva = OMToPrintAdaptation()

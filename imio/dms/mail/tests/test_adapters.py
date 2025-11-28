@@ -25,6 +25,7 @@ from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
@@ -463,8 +464,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         self.pw = self.portal.portal_workflow
         self.change_user("admin")
-        self.portal.restrictedTraverse("idm_activate_signing")()
-
+        activate_signing(self.portal)
         # Create outgoing mail with two eSign signers and two files to approve
         intids = getUtility(IIntIds)
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
