@@ -46,6 +46,7 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.interfaces import IImioDmsIncomingMailWfConditions
 from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import do_next_transition
@@ -82,7 +83,6 @@ from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
 from zope.component import adapts
-from zope.component import getAdapter
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -869,7 +869,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         :param all_done: if True, check if all approvings are done
         :return: boolean
         """
-        approval = getAdapter(self, name="approvals")
+        approval = IOMApproval(self)
         if not approval.approvers:
             return False
         elif not all_done:

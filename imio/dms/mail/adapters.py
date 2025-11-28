@@ -28,6 +28,7 @@ from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -1131,6 +1132,7 @@ class ApprovalRoleAdapter(object):
         return approval.roles
 
 
+@implementer(IOMApproval)
 class OMApprovalAdapter(object):
     """Adapter for outgoing mail approval.
 
@@ -1298,24 +1300,24 @@ class OMApprovalAdapter(object):
             else:
                 c_a = None
                 for i_fuid, fuid in enumerate(self.files_uids):
+                    # If file approved, check if modified since approval
+                    brain = uuidToCatalogBrain(fuid, unrestricted=True)
+                    last_mod = brain.modified
+                    last_mod = datetime.datetime(
+                        last_mod.year(),
+                        last_mod.month(),
+                        last_mod.day(),
+                        last_mod.hour(),
+                        last_mod.minute(),
+                        int(last_mod.second()),
+                        int(last_mod.micros() % 1000000),
+                    )
                     for nb in range(len(self.annot["approval"])):
                         # If file not approved, save current approval nb
                         if self.annot["approval"][nb][i_fuid]["status"] != "a":
                             if c_a is None or nb < c_a:
                                 c_a = nb
                             continue
-                        # If file approved, check if modified since approval
-                        brain = uuidToCatalogBrain(fuid, unrestricted=True)
-                        last_mod = brain.modified
-                        last_mod = datetime.datetime(
-                            last_mod.year(),
-                            last_mod.month(),
-                            last_mod.day(),
-                            last_mod.hour(),
-                            last_mod.minute(),
-                            int(last_mod.second()),
-                            int(last_mod.micros() % 1000000),
-                        )
                         if last_mod > self.annot["approval"][nb][i_fuid]["approved_on"]:
                             self.annot["approval"][nb][i_fuid]["approved_on"] = None
                             self.annot["approval"][nb][i_fuid]["approved_by"] = None
