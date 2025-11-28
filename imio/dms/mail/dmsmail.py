@@ -49,7 +49,6 @@ from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import do_next_transition
-from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_n_plus_level_obsolete

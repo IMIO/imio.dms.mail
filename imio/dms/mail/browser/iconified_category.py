@@ -43,7 +43,7 @@ class ApprovedColumn(BaseApprovedColumn):
         return translate(
             self.msg,
             context=self.table.request,
-            domain='collective.iconifiedcategory',
+            domain="collective.iconifiedcategory",
         )
 
     def css_class(self, content):
@@ -101,7 +101,6 @@ class ApprovedColumn(BaseApprovedColumn):
         else:
             self.msg = u"Waiting for the first approval"
             return " cant-approve"
-        return ""
 
     def get_url(self, content):
         av = self.get_action_view(content)
@@ -111,14 +110,13 @@ class ApprovedColumn(BaseApprovedColumn):
         # when to_approve, only an approver can click on the icon
         if av.p_state == "to_approve" and not self.approval.can_approve(av.userid, av.uid):
             return "#"
-        return '{url}/@@{action}'.format(
+        return "{url}/@@{action}".format(
             url=content.getURL(),
             action=self.get_action_view_name(content),
         )
 
     def renderCell(self, content):
-        link = (u'<a href="{0}" class="{3}{1}" alt="{2}" '
-                u'title="{2}"></a>')
+        link = u'<a href="{0}" class="{3}{1}" alt="{2}" ' u'title="{2}"></a>'
         return link.format(
             self.get_url(content),
             self.css_class(content),
@@ -133,18 +131,18 @@ class ApprovedChangeView(BaseApprovedChangeView):
     def __init__(self, context, request):
         super(ApprovedChangeView, self).__init__(context, request)
         self.parent = self.context.__parent__
-        self.p_state = api.content.get_state(self.parent)
         self.approval = OMApprovalAdapter(self.parent)
         self.reload = False
-        self.user_id = None
         self.uid = self.context.UID()
         self.msg = u""
 
     @property
+    def p_state(self):
+        return api.content.get_state(self.parent)
+
+    @property
     def userid(self):
-        if self.user_id is None:
-            self.user_id = api.user.get_current().getId()
-        return self.user_id
+        return api.user.get_current().getId()
 
     def _get_next_values(self, old_values):
         """ """
@@ -154,15 +152,18 @@ class ApprovedChangeView(BaseApprovedChangeView):
         # logger.info("Before values change: %s", old_values)
         if self.p_state == "to_approve":
             # in to_approve state, only an approver can approve or not
-            if self.approval.can_approve(self.userid, self.uid):
+            values = old_values.copy()
+            if self.approval.can_approve(self.userid, self.uid) and old_values["to_approve"]:
                 if self.approval.is_file_approved(self.uid, userid=self.userid):
                     status = 0
                     self.msg = u"Already approved (click to change)"
                     # TODO TO BE HANDLED
+                    values["approved"] = True
                 else:
                     self.msg = u"Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method
                     # must we pass self to update self.msg: no need for now because we reload in all cases !!
+                    # FIXME This triggers a transition that further raise Unauthorized in _may_set_values
                     ret, self.reload = self.approval.approve_file(
                         afile=self.context,
                         userid=self.userid,
@@ -170,22 +171,26 @@ class ApprovedChangeView(BaseApprovedChangeView):
                         transition="propose_to_be_signed",
                     )
                     status = int(ret)
+                    values["approved"] = ret
+            elif not values["to_approve"]:
+                values["approved"] = False
         elif self.p_state not in ("to_print", "to_be_signed", "signed", "sent"):
             # before to_approve state, we can only enable or disable to_approve
-            if old_values['to_approve'] is False:
-                values['to_approve'] = True
-                values['approved'] = False
+            if not old_values["to_approve"]:
+                values["to_approve"] = True
+                values["approved"] = False
                 status = 1
                 self.approval.add_file_to_approval(self.uid)
                 self.msg = u"Activated for approval (click to deactivate)"
             else:
-                values['to_approve'] = False
-                values['approved'] = False
+                values["to_approve"] = False
+                values["approved"] = False
                 status = 0
-                self.approval.add_file_to_approval(self.uid)
+                self.approval.remove_file_from_approval(self.uid)
                 self.msg = u"Deactivated for approval (click to activate)"
             self.reload = False
         else:
+            values=old_values.copy()
             # cannot be in after to_approve state because get_url column method ?
             logger.warn("IN else of approved change view ???")
         # logger.info("After annot change: %s, ", self.approval.annot)

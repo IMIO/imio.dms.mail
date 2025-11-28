@@ -1271,7 +1271,8 @@ class OMApprovalAdapter(object):
     def roles(self):
         roles = {}
         current_nb = self.current_nb
-        if current_nb is None:
+        state = api.content.get_state(self.context)
+        if current_nb is None or state not in ("to_approve", "to_be_signed", "signed", "sent"):
             return roles
         for nb, nb_approvers in enumerate(self.annot["approvers"]):
             if 0 <= current_nb < nb:
@@ -1324,16 +1325,28 @@ class OMApprovalAdapter(object):
                 if c_a is not None:
                     for nb in range(c_a, len(self.annot["approval"])):
                         for i_fuid in range(len(self.files_uids)):
-                            if self.annot["approval"][nb][i_fuid]["status"] == "p":
+                            if c_a == nb and self.annot["approval"][nb][i_fuid]["status"] != "a":
+                                self.annot["approval"][nb][i_fuid]["status"] = "p"
+                            elif self.annot["approval"][nb][i_fuid]["status"] == "p":
                                 self.annot["approval"][nb][i_fuid]["status"] = "w"
         if orig_nb != self.current_nb:
             self.context.portal_catalog.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
 
     def update_signers(self):
         """Update the annotation with the current signers from the mail context."""
-        # TODO FIXME This breaks if signers are changed after an approval has been done
-        if self.current_nb is None:
-            self.reset()
+        # Create approvals backup to restore after update
+        backup_files_uids = []
+        backup_approvals = []
+        for fuid_index, fuid in enumerate(self.files_uids):
+            backup_files_uids.append(fuid)
+            backup_approvals.append([])
+            for nb in range(len(self.annot["approval"])):
+                if self.annot["approval"][nb][fuid_index]["status"] == "a":
+                    backup_approval = self.annot["approval"][nb][fuid_index]
+                    backup_approval["signer"] = self.signers[nb]
+                    backup_approvals[fuid_index].append(backup_approval)
+        self.reset()
+
         signer_emails = set()
         signers = sorted(self.context.signers, key=lambda s: s["number"])
         for signer in signers:
@@ -1403,6 +1416,26 @@ class OMApprovalAdapter(object):
                     )
                 )
 
+        for fuid in backup_files_uids:
+            self.add_file_to_approval(fuid)
+        if api.content.get_state(self.context) == "to_approve":
+            self.propose_to_approve()
+
+        # Restore backups
+        for fuid_index, fuid in enumerate(backup_files_uids):
+            for backup_approval in backup_approvals[fuid_index]:
+                if backup_approval["signer"] not in self.signers:
+                    continue  # signer removed
+                signer_index = self.signers.index(backup_approval["signer"])
+                self.approve_file(
+                    uuidToObject(fuid, unrestricted=True),
+                    backup_approval["approved_by"],
+                    transition="propose_to_be_signed",
+                    c_a=signer_index,
+                )
+                approved_on = backup_approval["approved_on"]
+                self.annot["approval"][signer_index][fuid_index]["approved_on"] = approved_on
+
     def add_file_to_approval(self, f_uid):
         """Add a file to approval annotation."""
         if f_uid in self.files_uids:
@@ -1453,7 +1486,7 @@ class OMApprovalAdapter(object):
             return self.annot["approval"][approver_index][file_index]["status"] == "a"
 
         if nb is not None:
-            if 0 < nb <= len(self.annot["approval"]):
+            if 0 <= nb < len(self.annot["approval"]):
                 return self.annot["approval"][nb][file_index]["status"] == "a"
             return False
 
@@ -1501,9 +1534,11 @@ class OMApprovalAdapter(object):
         request = afile.REQUEST
         if c_a is None:
             c_a = self.current_nb  # current approval
+        if c_a is None:
+            raise ValueError("There is no approval in progress !")
         f_uid = afile.UID()
         if f_uid not in self.files_uids:
-            raise ValueError("The file '${}' is not in the approval list !" % f_uid)
+            raise ValueError("The file '%s' is not in the approval list !" % f_uid)
         f_index = self.annot["files"].index(f_uid)
         # approve
         self.annot["approval"][c_a][f_index]["status"] = "a"
@@ -1512,12 +1547,14 @@ class OMApprovalAdapter(object):
         pc = getToolByName(self.context, "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
-            # beware that catalog metadata has not been updated TODO make method to update index and only one metadata
             if values is not None:
                 values["approved"] = True
         yet_to_approve = [fuid for fuid in self.files_uids if not self.is_file_approved(fuid, userid=userid)]
         if yet_to_approve:
-            fullname = api.user.get(userid).getProperty("fullname") or userid
+            user = api.user.get(userid)
+            if user is None:
+                raise ValueError("The user '%s' does not exist !" % userid)
+            fullname = user.getProperty("fullname") or userid
             api.portal.show_message(
                 message=_(
                     u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
@@ -1593,11 +1630,11 @@ class OMApprovalAdapter(object):
         """
         f_uid = afile.UID()
         if f_uid not in self.files_uids:
-            raise ValueError("The file '${}' is not in the approval list !" % afile.Title())
+            raise ValueError("The file '%s' is not in the approval list !" % afile.Title())
         f_index = self.annot["files"].index(f_uid)
 
         if signer_userid not in self.signers:
-            raise ValueError("The user '${}' is not a signer !" % signer_userid)
+            raise ValueError("The user '%s' is not a signer !" % signer_userid)
 
         orig_nb = self.current_nb
         nb = self.signers.index(signer_userid)
@@ -1669,6 +1706,7 @@ class OMApprovalAdapter(object):
             if pdf_file.to_approve or pdf_file.approved != fobj.approved:
                 pdf_file.to_approve = False
                 pdf_file.approved = fobj.approved
+                self.remove_file_from_approval(pdf_uid)
                 update_categorized_elements(
                     self.context,
                     pdf_file,
@@ -1677,7 +1715,6 @@ class OMApprovalAdapter(object):
                     sort=False,
                     logging=True,
                 )
-            # TODO copy other metadata ?
             file_uids.append(pdf_uid)
         sort_categorized_elements(self.context)
         signers = []

@@ -15,6 +15,8 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
+from collective.iconifiedcategory.content.events import categorized_content_created
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -496,15 +498,13 @@ def dmsoutgoingmail_modified(mail, event):
 
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if signers_update or not mod_attr or "ISigningBehavior.signers" in mod_attr:
+    if signers_update or "ISigningBehavior.signers" in mod_attr or not mail.signers:
         if not mail.signers:
             # if no signers, we add an empty one to not do again automatic assignment at next modification
             mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
 
         mail.signers.sort(key=itemgetter("number"))
         approval = OMApprovalAdapter(mail)
-        if approval.current_nb is None:
-            approval.reset()
         try:
             approval.update_signers()
         except ValueError as e:
@@ -515,7 +515,6 @@ def dmsoutgoingmail_added(mail, event):
     """If the content is manually created, we call the modified event after creation to set signers."""
     if mail.title:  # TODO handle email correctly ! owner info is different from scanner ?
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
-
 
 def dv_handle_file_creation(obj, event):
     """Intermediate function to avoid converting some files in documentviewer"""
@@ -602,6 +601,10 @@ def dmsmainfile_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
+        categorized_content_created(obj, event)
+        if getattr(obj, "to_approve", False):
+            approval = OMApprovalAdapter(obj.__parent__)
+            approval.add_file_to_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):
