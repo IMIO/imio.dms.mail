@@ -498,7 +498,7 @@ def dmsoutgoingmail_modified(mail, event):
 
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if signers_update or not mod_attr or "ISigningBehavior.signers" in mod_attr:
+    if signers_update or "ISigningBehavior.signers" in mod_attr or not mail.signers:
         if not mail.signers:
             # if no signers, we add an empty one to not do again automatic assignment at next modification
             mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]

@@ -1015,7 +1015,6 @@
         name="approvals"
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         class="imio.dms.mail.browser.table.ApprovalTableView"
-        template="templates/approvals.pt"
         permission="zope.Public"
     />
 
