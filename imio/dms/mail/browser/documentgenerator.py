@@ -503,7 +503,6 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 file=file_object,
                 content_category=category,
             )
-        # TODO sign : replace content_category upper by the one selected on the model
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
         # handle to_approve attribute
@@ -511,6 +510,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         new_value = False
         approval = OMApprovalAdapter(self.context)
         if orig_value and persisted_doc.to_sign and approval.approvers:  # have approvers
+            # TODO esign : do not include pdf file version in approval
             if not need_mailing_value(document=persisted_doc):
                 new_value = True
                 approval.add_file_to_approval(persisted_doc.UID())

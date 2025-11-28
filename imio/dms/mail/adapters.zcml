@@ -241,7 +241,7 @@
         provides="imio.esign.adapters.ISignable"/>
 
     <adapter
-        factory=".adapters.ApproverRoleAdapter"
+        factory=".adapters.ApprovalRoleAdapter"
         provides="borg.localrole.interfaces.ILocalRoleProvider"
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="approver-role-adapter"

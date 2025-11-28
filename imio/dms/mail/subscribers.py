@@ -16,7 +16,6 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
-from collective.iconifiedcategory.utils import calculate_category_id
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -395,7 +394,7 @@ def dmsoutgoingmail_transition(mail, event):
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
     if event.transition and event.transition.id == "propose_to_approve":  # only if
         approval = OMApprovalAdapter(mail)
-        approval.propose_to_approve()
+        approval.start_approval_process()
     # seal without signers (due to constraints)
     if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:
         approval = OMApprovalAdapter(mail)
@@ -515,6 +514,7 @@ def dmsoutgoingmail_added(mail, event):
     """If the content is manually created, we call the modified event after creation to set signers."""
     if mail.title:  # TODO handle email correctly ! owner info is different from scanner ?
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+
 
 def dv_handle_file_creation(obj, event):
     """Intermediate function to avoid converting some files in documentviewer"""

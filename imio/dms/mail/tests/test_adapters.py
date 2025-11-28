@@ -25,6 +25,7 @@ from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
@@ -40,9 +41,12 @@ from plone.registry.interfaces import IRegistry
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 
 import unittest
+import zope.event
 
 
 class TestAdapters(unittest.TestCase, ImioTestHelpers):
@@ -234,7 +238,8 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         # email with another doc signed
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename), signed=True)
+            createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename),
+                                     signed=True)
         self.assertTrue(indexer())
 
     def test_state_group_index(self):
@@ -365,7 +370,8 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(ext(), None)
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(omail, "dmsommainfile", id="testid1", scan_id="011999900000690", file=NamedBlobFile(fo.read(), filename=filename))
+            createContentInContainer(omail, "dmsommainfile", id="testid1", scan_id="011999900000690",
+                                     file=NamedBlobFile(fo.read(), filename=filename))
         self.assertEqual(ext(), u"011999900000690 IMIO011999900000690 690")
         pc = omail.portal_catalog
         rid = pc(id="my-id")[0].getRID()
@@ -375,7 +381,8 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         )
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(omail, "dmsommainfile", id="testid2", scan_id="011999900000700", file=NamedBlobFile(fo.read(), filename=filename))
+            createContentInContainer(omail, "dmsommainfile", id="testid2", scan_id="011999900000700",
+                                     file=NamedBlobFile(fo.read(), filename=filename))
         self.assertEqual(ext(), u"011999900000690 IMIO011999900000690 690 011999900000700 IMIO011999900000700 700")
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(
@@ -608,7 +615,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.roles, {})
 
         # First approver
-        self.approval.propose_to_approve()
+        self.approval.start_approval_process()
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.omail, "propose_to_approve")
         self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Editor")})
@@ -617,17 +624,57 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Second approvers
         self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader", "Editor")}
+            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
         )
         self.approval.approve_file(self.files[0], "bourgmestre")
         self.approval.approve_file(self.files[1], "bourgmestre")
 
         # Approval process finished
         self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader", "Editor")}
+            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
         )
 
-    def test_propose_to_approve(self):
+    def test_roles2(self):
+        self.omail.signers = [
+            {
+                "number": 1,
+                "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
+                "approvings": [u"_themself_"],
+                "editor": True,
+            },
+            {
+                "number": 2,
+                "signer": self.pf["dirg"]["directeur-general"].UID(),
+                "approvings": [self.pf["chef"].UID()],
+                "editor": False,
+            },
+        ]
+        zope.event.notify(ObjectModifiedEvent(self.omail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+
+        # Empty, no approval session started
+        self.assertEqual(self.approval.roles, {})
+
+        # First approver
+        self.approval.start_approval_process()
+        self.assertEqual(self.approval.roles, {})
+        self.pw.doActionFor(self.omail, "propose_to_approve")
+        self.assertEqual(self.approval.roles, {"bourgmestre": ("Reader", "Editor")})
+        self.approval.approve_file(self.files[0], "bourgmestre")
+        self.approval.approve_file(self.files[1], "bourgmestre")
+
+        # Second approvers and signer
+        self.assertEqual(
+            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
+        )
+        self.approval.approve_file(self.files[0], "chef")
+        self.approval.approve_file(self.files[1], "chef")
+
+        # Approval process finished
+        self.assertEqual(
+            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
+        )
+
+    def test_start_approval_process(self):
         # Initial state
         self.assertEqual(
             self.approval.annot["approval"],
@@ -642,7 +689,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
             ],
         )
-        self.approval.propose_to_approve()
+        self.approval.start_approval_process()
         self.assertEqual(
             self.approval.annot["approval"],
             [
@@ -669,7 +716,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 {"status": "w", "approved_on": None, "approved_by": None},
             ],
         ]
-        self.approval.propose_to_approve()
+        self.approval.start_approval_process()
         self.assertEqual(
             self.approval.annot["approval"],
             [
@@ -695,7 +742,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 {"status": "w", "approved_on": None, "approved_by": None},
             ],
         ]
-        self.approval.propose_to_approve()
+        self.approval.start_approval_process()
         self.assertEqual(
             self.approval.annot["approval"],
             [
@@ -721,7 +768,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 {"status": "w", "approved_on": None, "approved_by": None},
             ],
         ]
-        self.approval.propose_to_approve()
+        self.approval.start_approval_process()
         self.assertEqual(
             self.approval.annot["approval"],
             [
@@ -747,7 +794,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 {"status": "w", "approved_on": None, "approved_by": None},
             ],
         ]
-        self.approval.propose_to_approve()
+        self.approval.start_approval_process()
         self.assertEqual(
             self.approval.annot["approval"],
             [
@@ -1034,7 +1081,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # dirg approves files
         self.approval.add_file_to_approval(self.files[1].UID())
-        self.approval.propose_to_approve()
+        self.approval.start_approval_process()
         self.assertEqual(
             self.approval.annot,
             {

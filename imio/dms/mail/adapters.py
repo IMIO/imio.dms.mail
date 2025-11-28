@@ -1106,8 +1106,8 @@ class ItemSignersAdapter(object):
 
 
 @implementer(ILocalRoleProvider)
-class ApproverRoleAdapter(object):
-    """borg.localrole adapter to set localrole for signing approvers"""
+class ApprovalRoleAdapter(object):
+    """borg.localrole adapter to set localrole for signing approvers and signers"""
 
     def __init__(self, context):
         self.context = context
@@ -1132,8 +1132,7 @@ class ApproverRoleAdapter(object):
 
 
 class OMApprovalAdapter(object):
-    """
-    Adapter for outgoing mail approval.
+    """Adapter for outgoing mail approval.
 
     Annotation structure: metadata + 2D matrix with n signers and m files
 
@@ -1208,7 +1207,7 @@ class OMApprovalAdapter(object):
     @property
     def signers(self):
         """Return the list of users ids who are signers, in order."""
-        return list(map(lambda x: x[0], self.annot["signers"]))
+        return [x[0] for x in self.annot["signers"]]
 
     @property
     def signers_details(self):
@@ -1235,17 +1234,16 @@ class OMApprovalAdapter(object):
         """
         if len(self.files_uids) == 0:
             return None
-        waiting = True
+        # TODO pourquoi recalculer tout le temps une valeur qui pourrait etre stockée à chaque changement ?
         for nb in range(len(self.annot["approval"])):
-            waiting_statuses = list(map(lambda x: x["status"] == "w", self.annot["approval"][nb]))
+            waiting_statuses = [d["status"] == "w" for d in self.annot["approval"][nb]]
             if not all(waiting_statuses):
-                waiting = False
                 break
-        if waiting:
+        else:
             return None
 
         for nb in range(len(self.annot["approval"])):
-            approved_statuses = list(map(lambda x: x["status"] == "a", self.annot["approval"][nb]))
+            approved_statuses = [d["status"] == "a" for d in self.annot["approval"][nb]]
             # Checks if any file pending approval at this nb
             if not all(approved_statuses):
                 return nb
@@ -1272,20 +1270,23 @@ class OMApprovalAdapter(object):
         roles = {}
         current_nb = self.current_nb
         state = api.content.get_state(self.context)
-        if current_nb is None or state not in ("to_approve", "to_be_signed", "signed", "sent"):
+        if current_nb is None or state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
             return roles
         for nb, nb_approvers in enumerate(self.annot["approvers"]):
             if 0 <= current_nb < nb:
                 continue  # only users that can approve have visibility
+            userid, __, __ = self.annot["signers"][nb]
+            roles[userid] = ("Reader",)
             for approver in nb_approvers:
                 def_roles = ["Reader"]
                 # TODO add a specific role and permission to manage approval ?
-                if self.annot["editors"][nb]:
+                if self.annot["editors"][nb] and current_nb == nb:  # only current approvers are editors
                     def_roles.append("Editor")
+                # normally we don't overwrite existing userid because an approver cannot be signer
                 roles[approver] = tuple(def_roles)
         return roles
 
-    def propose_to_approve(self):
+    def start_approval_process(self):
         """Update the annotation to start the approval process."""
         orig_nb = self.current_nb
         if self.approvers:
@@ -1419,7 +1420,7 @@ class OMApprovalAdapter(object):
         for fuid in backup_files_uids:
             self.add_file_to_approval(fuid)
         if api.content.get_state(self.context) == "to_approve":
-            self.propose_to_approve()
+            self.start_approval_process()
 
         # Restore backups
         for fuid_index, fuid in enumerate(backup_files_uids):
@@ -1615,7 +1616,8 @@ class OMApprovalAdapter(object):
                     do_transitions(self.context, [transition])
                     # api.portal.show_message(
                     #     message=_(u"The mail has been automatically transitioned to state '${state}'.",
-                    #               mapping={"state": self.context.portal_workflow.getInfoFor(self.context, "review_state")}),
+                    #               mapping={"state": self.context.portal_workflow.getInfoFor(self.context,
+                    #               "review_state")}),
                     #     request=request,
                     #     type="info",
                     # )
@@ -1650,7 +1652,7 @@ class OMApprovalAdapter(object):
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             self.context.reindexObjectSecurity()  # to update local roles from adapter
 
-        self.propose_to_approve()
+        self.start_approval_process()
 
     def add_mail_files_to_session(self):
         """Add mail files to sign session."""
