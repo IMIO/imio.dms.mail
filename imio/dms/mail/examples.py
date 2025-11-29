@@ -176,7 +176,7 @@ def add_test_annexes_types(context):
         ("esign-generated-file", _("eSign Generated GED File"), u"attach.png", True, False),
     )
     for oid, title, img, show_pv, to_approve in icats:
-        if oid in annexes_category_group:
+        if oid in outgoing_dms_files_category_group:
             continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
@@ -207,7 +207,7 @@ def add_test_annexes_types(context):
         ("esign-generated-appendix", _("eSign Generated Appendix"), u"attach.png", True),
     )
     for oid, title, img, show_pv in icats:
-        if oid in annexes_category_group:
+        if oid in outgoing_appendix_files_category_group:
             continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:

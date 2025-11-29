@@ -604,7 +604,8 @@ def dmsmainfile_added(obj, event):
         categorized_content_created(obj, event)
         if getattr(obj, "to_approve", False):
             approval = OMApprovalAdapter(obj.__parent__)
-            approval.add_file_to_approval(obj.UID())
+            if not base_hasattr(obj, "conv_from_uid"):
+                approval.add_file_to_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):

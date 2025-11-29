@@ -15,7 +15,7 @@ Changelog
 - Added OMToApproveAdaptation wdadaptation on om workflow.
   [sgeulette]
 - Added approvings mechanism (index, search, mail annotation).
-  [sgeulette]
+  [sgeulette, chris-adam]
 - Used session from imio.esign.
   [sgeulette]
 - Added 'imio.annex' and iconified categories to dms files and dms appendix files.
@@ -31,8 +31,6 @@ Changelog
 - Refactored VersionsTable into an iconified Categorizedtable.
   [chris-adam, sgeulette]
 - Added behavior on Configurable POD Templates to set content category on generated documents.
-  [chris-adam]
-- Refactor idm.approval annotation.
   [chris-adam]
 - Added eSign admin table to manage approvals.
   [chris-adam]

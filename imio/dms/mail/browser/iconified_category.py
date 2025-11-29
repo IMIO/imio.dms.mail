@@ -152,7 +152,6 @@ class ApprovedChangeView(BaseApprovedChangeView):
         # logger.info("Before values change: %s", old_values)
         if self.p_state == "to_approve":
             # in to_approve state, only an approver can approve or not
-            # import ipdb; ipdb.set_trace()  # noqa
             values = old_values.copy()
             if old_values["to_approve"] and self.approval.can_approve(self.userid, self.uid):
                 # if a second approver tries to also approve after a first one has already, he can't change anything !

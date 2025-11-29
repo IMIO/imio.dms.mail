@@ -18,7 +18,6 @@ from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import convert_and_save_odt
 from collective.iconifiedcategory.utils import get_category_object
-from collective.iconifiedcategory.utils import sort_categorized_elements
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
 from imio.dms.mail import _
@@ -1571,9 +1570,8 @@ class OMApprovalAdapter(object):
             )
             return True, True
         message = u"The file '${file}' has been approved by ${user}. "
-        max_number = len(self.annot["approval"])
         c_a = self.current_nb  # current approval
-        if c_a is not None and 0 <= c_a < max_number:
+        if c_a is not None and 0 <= c_a < len(self.annot["approval"]):
             for i in range(len(self.files_uids)):
                 if self.annot["approval"][c_a][i]["status"] != "a":
                     self.annot["approval"][c_a][i]["status"] = "p"
@@ -1666,7 +1664,7 @@ class OMApprovalAdapter(object):
         not_approved = [fuid for fuid in self.files_uids if not self.is_file_approved(fuid)]
         if not_approved:
             return False, "Not all files approved"
-        file_uids = []
+        session_file_uids = []
         for i, f_uid in enumerate(self.files_uids):
             fobj = uuidToObject(f_uid)
             if not fobj:
@@ -1696,34 +1694,30 @@ class OMApprovalAdapter(object):
                 fmt="pdf",
                 from_uid=f_uid,
                 attributes={
-                    "to_sign": True,
                     "content_category": fobj.content_category,
-                    "to_approve": False,
-                    "approved": fobj.approved,
                     "scan_id": fobj.scan_id,
                     "scan_user": fobj.scan_user,
                 },
             )
-            # TODO is to_sign attribute set from content_category
+            # we must set attribute after creation
+            pdf_file.to_sign = True
+            pdf_file.to_approve = False
+            pdf_file.approved = fobj.approved
+            update_categorized_elements(
+                self.context,
+                pdf_file,
+                get_category_object(self.context, pdf_file.content_category),
+                limited=True,
+                sort=False,
+                logging=True,
+            )
+
             pdf_uid = pdf_file.UID()
             self.pdf_files_uids[i] = pdf_uid
             # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
             pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
-            # check if special attributes must be updated (when to_approve and approved False, event set default values)
-            if pdf_file.to_approve or pdf_file.approved != fobj.approved:
-                pdf_file.to_approve = False
-                pdf_file.approved = fobj.approved
-                self.remove_file_from_approval(pdf_uid)
-                update_categorized_elements(
-                    self.context,
-                    pdf_file,
-                    get_category_object(self.context, pdf_file.content_category),
-                    limited=True,
-                    sort=False,
-                    logging=True,
-                )
-            file_uids.append(pdf_uid)
-        sort_categorized_elements(self.context)
+            session_file_uids.append(pdf_uid)
+        # sort_categorized_elements(self.context)  # not needed
         signers = []
         for signer, (nb, name, label) in zip(self.signers, self.signers_details):
             user = api.user.get(signer)
@@ -1731,6 +1725,7 @@ class OMApprovalAdapter(object):
             signers.append((signer, email, name, label))
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
-        session_id, session = add_files_to_session(signers, file_uids, bool(self.context.seal), watchers=watcher_emails)
+        session_id, session = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
+                                                   watchers=watcher_emails)
         self.annot["session_id"] = session_id
-        return True, "{} files added to session number {}".format(len(file_uids), session_id)
+        return True, "{} files added to session number {}".format(len(session_file_uids), session_id)
