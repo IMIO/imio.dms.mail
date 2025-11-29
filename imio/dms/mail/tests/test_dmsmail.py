@@ -4,6 +4,7 @@ from datetime import datetime
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.reply_form import ReplyForm
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.dmsmail import AssignedUserValidator
@@ -26,6 +27,7 @@ from plone.app.testing import logout
 # from plone.app.testing import setRoles
 # from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
@@ -357,7 +359,10 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertEquals(edit.widgets["internal_reference_no"].mode, "input")  # not hidden
         self.clean_request()
         # is a response, workflow and not initial state
-        createContentInContainer(om, "dmsommainfile")  # add a file so it's possible to do transition
+        # add a file so it's possible to do transition
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(om, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         api.content.transition(om, "propose_to_be_signed")
         edit.update()
         self.assertEquals(api.content.get_state(om), "to_be_signed")
@@ -569,7 +574,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(adapted.can_be_handsigned())
         createContentInContainer(omail, "dmsappendixfile")
         self.assertFalse(adapted.can_be_handsigned())
-        createContentInContainer(omail, "dmsommainfile")
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         self.assertTrue(adapted.can_be_handsigned())
 
     def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_sent(self):

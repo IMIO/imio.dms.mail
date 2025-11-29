@@ -154,3 +154,7 @@ class IMemberAreaFolder(IDexterityContainer):
 
 class IProtectedItem(Interface):
     """Marker interface to protect object against deletion, cut and rename"""
+
+
+class IOMApproval(Interface):
+    """Interface for outgoing mail approval adapter."""

@@ -2,6 +2,7 @@
 """ user permissions tests for this package."""
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from datetime import datetime
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
@@ -9,6 +10,7 @@ from imio.dms.mail.utils import clean_borg_cache
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from plone import api
+from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
@@ -769,7 +771,9 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
         change_user(self.portal, "agent")
         self.omail = sub_create(self.omf, "dmsoutgoingmail", datetime.today(), "my-id", **params)
         self.annex = api.content.create(container=self.omail, id="annex", type="dmsappendixfile")
-        self.file = api.content.create(container=self.omail, id="file", type="dmsommainfile")
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            self.file = api.content.create(container=self.omail, id="file", type="dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         self.task = api.content.create(container=self.omail, id="task", type="task",
                                        assigned_group=self.omail.treating_groups)
 

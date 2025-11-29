@@ -204,19 +204,19 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
 
         # Test get_signers
-        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général'),
-                                               (2, u'Paul BM', u'Bourgmestre')])
-        view1.real_context.signers.append({'signer': self.resp_grh.UID(), 'approvings': [u'_empty_'], 'number': 3})
+        self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'),
+                                               (1, u'Paul BM', u'Bourgmestre')])
+        view1.real_context.signers.append({'signer': self.resp_grh.UID(), 'approvings': [u'_empty_'], 'number': 3, "editor": False})
         zope.event.notify(ObjectModifiedEvent(view1.real_context,
                                               Attributes(ISigningBehavior, "ISigningBehavior.signers")))
-        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général'), (2, u'Paul BM', u'Bourgmestre'),
-                                               (3, u'Michel Chef', u'Responsable GRH')])
+        self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'), (1, u'Paul BM', u'Bourgmestre'),
+                                               (2, u'Michel Chef', u'Responsable GRH')])
         view1.real_context.signers = []
         # rules will be reapplied
         zope.event.notify(ObjectModifiedEvent(view1.real_context,
                                               Attributes(ISigningBehavior, "ISigningBehavior.signers")))
-        self.assertEqual(view1.get_signers(), [(1, u'Maxime DG', u'Directeur Général'),
-                                               (2, u'Paul BM', u'Bourgmestre')])
+        self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'),
+                                               (1, u'Paul BM', u'Bourgmestre')])
 
     def test_DocumentGenerationOMDashboardHelper(self):
         """

@@ -1,0 +1,32 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+    xmlns:tal="http://xml.zope.org/namespaces/tal"
+    xmlns:metal="http://xml.zope.org/namespaces/metal"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    metal:use-macro="context/main_template/macros/master"
+    i18n:domain="imio.dms.mail">
+    <body>
+
+        <metal:main fill-slot="content-core">
+            <metal:content-core define-macro="content-core">
+
+                <form method="post"
+                    tal:attributes="action string:${context/absolute_url}/@@approvals">
+
+                    <div id="esign-approvals-table-container">
+                        <tal:block define="results view/table/values;" tal:condition="results">
+                            <tal:listing replace="structure view/table/render" />
+                        </tal:block>
+                    </div>
+
+                    <input id="esign-approvals-save-button" class="context allowMultiSubmit" type="submit"
+                        name="form.button.Save" value="Save" i18n:attributes="value label_save" />
+                    <input class="standalone" type="submit" name="form.button.Cancel" value="Cancel"
+                        i18n:attributes="value label_cancel" />
+
+                </form>
+
+            </metal:content-core>
+        </metal:main>
+
+    </body>
+</html>
