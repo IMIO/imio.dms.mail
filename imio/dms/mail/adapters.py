@@ -1336,7 +1336,7 @@ class OMApprovalAdapter(object):
             self.context.portal_catalog.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
 
     def update_signers(self):
-        """Update the annotation with the current signers from the mail context."""
+        """Update the annotation with the current signers and approvers from the mail context."""
         # Create approvals backup to restore after update
         backup_files_uids = []
         backup_approvals = []
@@ -1472,8 +1472,8 @@ class OMApprovalAdapter(object):
         :param f_uid: file uid
         :param userid: if set, check only for this approver's userid, and ignores 'totally' and 'nb' param if set.
         :param nb: if set, check only for this approval number, and ignores 'totally' param if set.
-        :param totally: if True, return True if at least one approval number is approved
-                        if False, return True if all approval numbers are approved
+        :param totally: if True, return True if all approval numbers are approved
+                        if False, return True if at least one approval number is approved
         :return: bool
         """
         if f_uid not in self.files_uids:
@@ -1510,14 +1510,14 @@ class OMApprovalAdapter(object):
         :param editable: is file editable
         :return: bool
         """
+        if not editable:
+            return False
         c_a = self.current_nb  # current approval
         if c_a is None:  # to early
             return False
         if userid not in self.approvers:  # not an approver
             return False
         if f_uid not in self.files_uids:  # file not in approval
-            return False
-        if not editable:
             return False
         approver_index = next(nb for nb, nb_approvers in enumerate(self.annot["approvers"]) if userid in nb_approvers)
         if approver_index != c_a:  # cannot approve now
@@ -1534,6 +1534,7 @@ class OMApprovalAdapter(object):
         :param c_a: overrides current approval number to mark approval, if None uses current_nb
         :return: approval status bool (True=ok), reload bool (True=reload page)
         """
+        # TODO ajouter un check sur le niveau de validation afin d'être certain de ne pas approuver au mauvais niveau !!
         request = afile.REQUEST
         if c_a is None:
             c_a = self.current_nb  # current approval
@@ -1543,6 +1544,10 @@ class OMApprovalAdapter(object):
         if f_uid not in self.files_uids:
             raise ValueError("The file '%s' is not in the approval list !" % f_uid)
         f_index = self.annot["files"].index(f_uid)
+        user = api.user.get(userid)
+        if user is None:
+            raise ValueError("The user '%s' does not exist !" % userid)
+        fullname = user.getProperty("fullname") or userid
         # approve
         self.annot["approval"][c_a][f_index]["status"] = "a"
         self.annot["approval"][c_a][f_index]["approved_on"] = datetime.datetime.now()
@@ -1552,17 +1557,14 @@ class OMApprovalAdapter(object):
             afile.approved = True
             if values is not None:
                 values["approved"] = True
-        yet_to_approve = [fuid for fuid in self.files_uids if not self.is_file_approved(fuid, userid=userid)]
+        yet_to_approve = [fuid for fuid in self.files_uids if not self.is_file_approved(fuid, nb=c_a)]
         if yet_to_approve:
-            user = api.user.get(userid)
-            if user is None:
-                raise ValueError("The user '%s' does not exist !" % userid)
-            fullname = user.getProperty("fullname") or userid
             api.portal.show_message(
                 message=_(
                     u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
                     u"to approve on this mail.",
-                    mapping={"file": safe_unicode(afile.Title()), "user": fullname, "nb": len(yet_to_approve)},
+                    mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname),
+                             "nb": len(yet_to_approve)},
                 ),
                 request=request,
                 type="info",
@@ -1579,7 +1581,8 @@ class OMApprovalAdapter(object):
             self.context.reindexObjectSecurity()  # to update local roles from adapter
             message += u"Next approval number is ${nb}."
             api.portal.show_message(
-                message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": userid, "nb": c_a + 1}),
+                message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname),
+                                            "nb": c_a + 1}),
                 request=request,
                 type="info",
             )
@@ -1588,7 +1591,7 @@ class OMApprovalAdapter(object):
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             message += u"All approvals have been done for this file."
             api.portal.show_message(
-                message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": userid}),
+                message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname)}),
                 request=request,
                 type="info",
             )

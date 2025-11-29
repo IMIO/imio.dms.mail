@@ -152,9 +152,17 @@ class ApprovedChangeView(BaseApprovedChangeView):
         # logger.info("Before values change: %s", old_values)
         if self.p_state == "to_approve":
             # in to_approve state, only an approver can approve or not
+            # import ipdb; ipdb.set_trace()  # noqa
             values = old_values.copy()
-            if self.approval.can_approve(self.userid, self.uid) and old_values["to_approve"]:
-                if self.approval.is_file_approved(self.uid, userid=self.userid):
+            if old_values["to_approve"] and self.approval.can_approve(self.userid, self.uid):
+                # if a second approver tries to also approve after a first one has already, he can't change anything !
+                # 1) with one file, the current_nb has changed and can_approve returns False => OK
+                # 2) with multiple files, the current_nb is the same, can_approve returns True => problem
+                approved = self.approval.is_file_approved(self.uid, nb=self.approval.current_nb)
+                # if xxx:
+                #     self.reload = True  # force reload because state changed meanwhile
+                #     return int(approved), {}
+                if approved:
                     status = 0
                     self.msg = u"Already approved (click to change)"
                     # TODO TO BE HANDLED
@@ -190,7 +198,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 self.msg = u"Deactivated for approval (click to activate)"
             self.reload = False
         else:
-            values=old_values.copy()
+            values = old_values.copy()
             # cannot be in after to_approve state because get_url column method ?
             logger.warn("IN else of approved change view ???")
         # logger.info("After annot change: %s, ", self.approval.annot)

@@ -495,13 +495,13 @@ def dmsoutgoingmail_modified(mail, event):
             )
             signers_update = True
 
+    if not mail.signers:
+        # if no signers, we add an empty one to not do again automatic assignment at next modification
+        mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
+        signers_update = True
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if signers_update or "ISigningBehavior.signers" in mod_attr or not mail.signers:
-        if not mail.signers:
-            # if no signers, we add an empty one to not do again automatic assignment at next modification
-            mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
-
+    if signers_update or "ISigningBehavior.signers" in mod_attr:
         mail.signers.sort(key=itemgetter("number"))
         approval = OMApprovalAdapter(mail)
         try:
