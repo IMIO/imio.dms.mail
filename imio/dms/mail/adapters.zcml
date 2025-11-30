@@ -237,12 +237,12 @@
     <!-- eSignature -->
     <adapter
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
-        factory=".adapters.ItemSignersAdapter"
+        factory="imio.dms.mail.adapters.ItemSignersAdapter"
         provides="imio.esign.adapters.ISignable"/>
 
     <adapter
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
-        factory=".adapters.ApprovalRoleAdapter"
+        factory="imio.dms.mail.adapters.ApprovalRoleAdapter"
         provides="borg.localrole.interfaces.ILocalRoleProvider"
         />
 

@@ -159,13 +159,15 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 # 2) with multiple files, the current_nb is the same, can_approve returns True => problem
                 approved = self.approval.is_file_approved(self.uid, nb=self.approval.current_nb)
                 # if xxx:
-                #     self.reload = True  # force reload because state changed meanwhile
+                #     self.reload = True  # force reload because real value changed meanwhile
                 #     return int(approved), {}
                 if approved:
                     status = 0
+                    # the message is displayed after the change and must reflect the new status, not the current one !!
                     self.msg = u"Already approved (click to change)"
                     # TODO TO BE HANDLED
-                    values["approved"] = True
+                    # TODO use unapprove_file
+                    values["approved"] = True  # why this
                 else:
                     self.msg = u"Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method
