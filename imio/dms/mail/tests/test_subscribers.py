@@ -920,6 +920,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             annot,
             {
                 "files": [],
+                "current_nb": None,
                 "approvers": [[], []],
                 "session_id": None,
                 "pdf_files": [],

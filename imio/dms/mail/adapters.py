@@ -1166,6 +1166,7 @@ class OMApprovalAdapter(object):
             PersistentMapping(
                 {
                     # Metadata
+                    "current_nb": None,
                     "session_id": None,
                     "signers": PersistentList(),
                     "editors": PersistentList(),
@@ -1181,6 +1182,7 @@ class OMApprovalAdapter(object):
     def reset(self):
         """Reset approval annotation."""
         # Metadata
+        self.annot["current_nb"] = None
         self.annot["session_id"] = None
         self.annot["signers"] = PersistentList()
         self.annot["editors"] = PersistentList()
@@ -1228,6 +1230,10 @@ class OMApprovalAdapter(object):
 
     @property
     def current_nb(self):
+        """Return the current store approbal number."""
+        return self.annot["current_nb"]
+
+    def calculate_current_nb(self):
         """
         Return the index of the approval to be approved.
         -1 if all approved
@@ -1235,7 +1241,6 @@ class OMApprovalAdapter(object):
         """
         if len(self.files_uids) == 0:
             return None
-        # TODO pourquoi recalculer tout le temps une valeur qui pourrait etre stockée à chaque changement ?
         for nb in range(len(self.annot["approval"])):
             waiting_statuses = [d["status"] == "w" for d in self.annot["approval"][nb]]
             if not all(waiting_statuses):
@@ -1289,12 +1294,13 @@ class OMApprovalAdapter(object):
 
     def start_approval_process(self):
         """Update the annotation to start the approval process."""
-        orig_nb = self.current_nb
+        orig_nb = self.calculate_current_nb()
         if self.approvers:
             # first time transition, set the first level to "proposed"
             if orig_nb is None:
                 for i_fuid in range(len(self.files_uids)):
                     self.annot["approval"][0][i_fuid]["status"] = "p"
+                self.annot["current_nb"] = 0
             # approve again after a back... maybe some approvals are already done
             else:
                 c_a = None
@@ -1331,7 +1337,9 @@ class OMApprovalAdapter(object):
                                 self.annot["approval"][nb][i_fuid]["status"] = "p"
                             elif self.annot["approval"][nb][i_fuid]["status"] == "p":
                                 self.annot["approval"][nb][i_fuid]["status"] = "w"
-        if orig_nb != self.current_nb:
+        new_nb = self.calculate_current_nb()
+        self.annot["current_nb"] = new_nb
+        if orig_nb != new_nb:
             self.context.portal_catalog.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
 
     def update_signers(self):
@@ -1437,6 +1445,7 @@ class OMApprovalAdapter(object):
                 )
                 approved_on = backup_approval["approved_on"]
                 self.annot["approval"][signer_index][fuid_index]["approved_on"] = approved_on
+        self.annot["current_nb"] = self.calculate_current_nb()
 
     def add_file_to_approval(self, f_uid):
         """Add a file to approval annotation."""
@@ -1551,6 +1560,7 @@ class OMApprovalAdapter(object):
         self.annot["approval"][c_a][f_index]["status"] = "a"
         self.annot["approval"][c_a][f_index]["approved_on"] = datetime.datetime.now()
         self.annot["approval"][c_a][f_index]["approved_by"] = userid
+        self.annot["current_nb"] = self.calculate_current_nb()
         pc = getToolByName(self.context, "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
@@ -1575,6 +1585,7 @@ class OMApprovalAdapter(object):
             for i in range(len(self.files_uids)):
                 if self.annot["approval"][c_a][i]["status"] != "a":
                     self.annot["approval"][c_a][i]["status"] = "p"
+            self.annot["current_nb"] = self.calculate_current_nb()
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             self.context.reindexObjectSecurity()  # to update local roles from adapter
             message += u"Next approval number is ${nb}."
@@ -1651,6 +1662,7 @@ class OMApprovalAdapter(object):
         afile.approved = False
 
         if orig_nb != self.current_nb:
+            self.annot["current_nb"] = self.calculate_current_nb()
             pc = getToolByName(self.context, "portal_catalog")
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             self.context.reindexObjectSecurity()  # to update local roles from adapter

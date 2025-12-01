@@ -525,10 +525,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.approval = OMApprovalAdapter(self.omail)
 
     def test_reset(self):
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -550,10 +552,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             },
         )
         self.approval.reset()
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [],
+                "current_nb": None,
                 "approvers": [],
                 "session_id": None,
                 "pdf_files": [],
@@ -812,10 +816,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
     def test_update_signers(self):
         self.approval.update_signers()
         # The annotation was reset and rebuilt by the method, Nothing changes
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -841,10 +847,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.pw.doActionFor(self.omail, "propose_to_approve")
         self.approval.approve_file(self.files[0], "dirg")
         approval_datetime = self.approval.annot["approval"][0][0]["approved_on"]
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -870,10 +878,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             },
         )
         self.approval.update_signers()
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -919,10 +929,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
     def test_add_remove_file_to_approval(self):
         self.approval.remove_file_from_approval(self.files[0].UID())
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[1].UID()],
+                "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None],
@@ -940,10 +952,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # File is already removed, nothing changes
         self.approval.remove_file_from_approval(self.files[0].UID())
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[1].UID()],
+                "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None],
@@ -961,10 +975,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Add a new file
         self.approval.add_file_to_approval(self.files[0].UID())
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[1].UID(), self.files[0].UID()],
+                "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -988,10 +1004,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # File is already added, nothing changes
         self.approval.add_file_to_approval(self.files[0].UID())
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[1].UID(), self.files[0].UID()],
+                "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -1082,10 +1100,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         # dirg approves files
         self.approval.add_file_to_approval(self.files[1].UID())
         self.approval.start_approval_process()
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -1113,10 +1133,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         )
         self.assertEqual(values, {})
         dirg_approval_datetime_1 = self.approval.annot["approval"][0][0]["approved_on"]
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -1144,10 +1166,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             (True, True),
         )
         bourgmestre_approval_datetime_2 = self.approval.annot["approval"][1][1]["approved_on"]
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -1175,10 +1199,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         )
         self.assertEqual(values, {"approved": True})
         dirg_approval_datetime_2 = self.approval.annot["approval"][0][1]["approved_on"]
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": 1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
                 "pdf_files": [None, None],
@@ -1209,10 +1235,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         )
         self.assertEqual(values, {"approved": True})
         bourgmestre_approval_datetime_1 = self.approval.annot["approval"][1][0]["approved_on"]
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID(), self.files[1].UID()],
+                "current_nb": -1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
                 "pdf_files": [self.omail["reponse-salle.pdf"].UID(), self.omail["reponse-salle-1.pdf"].UID()],
@@ -1248,10 +1276,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         dirg_approval_datetime = self.approval.annot["approval"][0][0]["approved_on"]
         self.approval.approve_file(self.files[0], "bourgmestre")
         bourgmestre_approval_datetime = self.approval.annot["approval"][1][0]["approved_on"]
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID()],
+                "current_nb": -1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
                 "pdf_files": [self.omail["reponse-salle.pdf"].UID()],
@@ -1273,10 +1303,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Unapprove first approver
         self.approval.unapprove_file(self.files[0], "dirg")
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID()],
+                "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
                 "pdf_files": [self.omail["reponse-salle.pdf"].UID()],
@@ -1301,10 +1333,12 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Unapprove second approver
         self.approval.unapprove_file(self.files[0], "bourgmestre")
+        self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())
         self.assertEqual(
             self.approval.annot,
             {
                 "files": [self.files[0].UID()],
+                "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
                 "pdf_files": [self.omail["reponse-salle.pdf"].UID()],
