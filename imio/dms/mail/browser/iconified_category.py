@@ -37,7 +37,6 @@ class ApprovedColumn(BaseApprovedColumn):
         # self.context is the mail here
         self.approval = OMApprovalAdapter(self.context)
         self.msg = u""
-        self.base_class = "iconified-action"
 
     def alt(self, content):
         return translate(
@@ -67,14 +66,12 @@ class ApprovedColumn(BaseApprovedColumn):
                 self.msg = u"Activated for approval"
                 return " active to-approve"
         elif self.is_deactivated(content):
-            self.base_class = "iconified-action-approved"
             self.msg = u"Deactivated for approval"
             return " to-approve"
         # when to_approve, the red icon (no class) is shown if :
         #  * no approval at all
         #  * but the current approver see a green icon when he just approved
         elif av.p_state == "to_approve":
-            self.base_class = "iconified-action-approved"
             approver_number = self.approval.get_approver_nb(av.userid)
             # current user can approve now
             if self.approval.can_approve(av.userid, av.uid):
@@ -113,15 +110,6 @@ class ApprovedColumn(BaseApprovedColumn):
         return "{url}/@@{action}".format(
             url=content.getURL(),
             action=self.get_action_view_name(content),
-        )
-
-    def renderCell(self, content):
-        link = u'<a href="{0}" class="{3}{1}" alt="{2}" ' u'title="{2}"></a>'
-        return link.format(
-            self.get_url(content),
-            self.css_class(content),
-            self.alt(content),
-            self.base_class,
         )
 
 
@@ -233,7 +221,6 @@ class SignedColumn(BaseSignedColumn):
     def __init__(self, context, request, table):
         super(SignedColumn, self).__init__(context, request, table)
         # self.context is the mail here
-        self.base_class = "iconified-action"
 
     def css_class(self, content):
         av = self.get_action_view(content)
@@ -250,12 +237,10 @@ class SignedColumn(BaseSignedColumn):
             else:
                 return ""
         elif self.is_deactivated(content):
-            # self.base_class = "iconified-action-approved"
             return " deactivated"
         else:
             base_css = self.is_active(content) and ' active' or ''
             if av.p_state in ("to_be_signed", "signed"):
-                # self.base_class = "iconified-action-approved"
                 if editable:
                     return '{0} editable'.format(base_css)
             return base_css
