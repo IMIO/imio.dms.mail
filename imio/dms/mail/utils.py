@@ -11,9 +11,6 @@ from collective.documentviewer.utils import allowedDocumentType
 from collective.documentviewer.utils import getPortal
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
-from collective.iconifiedcategory.utils import get_category_object
-from collective.iconifiedcategory.utils import sort_categorized_elements
-from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
@@ -51,7 +48,6 @@ from natsort import natsorted
 from operator import attrgetter
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
-from persistent.mapping import PersistentMapping
 from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer

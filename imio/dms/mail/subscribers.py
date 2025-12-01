@@ -604,7 +604,8 @@ def dmsmainfile_added(obj, event):
         categorized_content_created(obj, event)
         if getattr(obj, "to_approve", False):
             approval = OMApprovalAdapter(obj.__parent__)
-            if not base_hasattr(obj, "conv_from_uid"):
+            dg_annot = IAnnotations(obj).get("documentgenerator", {})
+            if "conv_from_uid" not in dg_annot:
                 approval.add_file_to_approval(obj.UID())
 
 
