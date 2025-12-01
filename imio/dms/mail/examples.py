@@ -171,13 +171,8 @@ def add_test_annexes_types(context):
 
     # Category Group for dms main files in outgoing mails
     outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
-    icats = (
-        ("outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True, True),
-        ("esign-generated-file", _("eSign Generated GED File"), u"attach.png", True, False),
-    )
-    for oid, title, img, show_pv, to_approve in icats:
-        if oid in outgoing_dms_files_category_group:
-            continue
+    oid, title, img, show_pv = "outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True
+    if oid not in outgoing_dms_files_category_group:
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -190,7 +185,7 @@ def add_test_annexes_types(context):
             id=oid,
             predefined_title=title,
             to_sign=True,
-            to_approve=to_approve,
+            to_approve=True,
             show_preview=show_pv,
         )
     templates = site.portal_catalog.unrestrictedSearchResults(portal_type=["ConfigurablePODTemplate"])
