@@ -1474,12 +1474,11 @@ class OMApprovalAdapter(object):
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].pop(file_index)
 
-    def is_file_approved(self, f_uid, userid=None, nb=None, totally=True):
+    def is_file_approved(self, f_uid, nb=None, totally=True):
         """Check if file is approved.
 
         :param f_uid: file uid
-        :param userid: if set, check only for this approver's userid, and ignores 'totally' and 'nb' param if set.
-        :param nb: if set, check only for this approval number, and ignores 'totally' param if set.
+        :param nb: if set, check only for this approval number and ignores 'totally' parameter.
         :param totally: if True, return True if all approval numbers are approved
                         if False, return True if at least one approval number is approved
         :return: bool
@@ -1487,14 +1486,6 @@ class OMApprovalAdapter(object):
         if f_uid not in self.files_uids:
             return False
         file_index = self.files_uids.index(f_uid)
-
-        if userid is not None:
-            if userid not in self.approvers:
-                return False
-            approver_index = next(
-                nb for nb, nb_approvers in enumerate(self.annot["approvers"]) if userid in nb_approvers
-            )
-            return self.annot["approval"][approver_index][file_index]["status"] == "a"
 
         if nb is not None:
             if 0 <= nb < len(self.annot["approval"]):

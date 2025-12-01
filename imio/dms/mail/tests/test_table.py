@@ -176,10 +176,10 @@ class TestTable(unittest.TestCase):
         )
 
         # Test form
-        self.assertTrue(table.approval.is_file_approved(files[0].UID(), "dirg"))
-        self.assertFalse(table.approval.is_file_approved(files[1].UID(), "dirg"))
-        self.assertFalse(table.approval.is_file_approved(files[0].UID(), "bourgmestre"))
-        self.assertFalse(table.approval.is_file_approved(files[1].UID(), "bourgmestre"))
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=1))
 
         # Approve more files
         form_data = {
@@ -191,10 +191,10 @@ class TestTable(unittest.TestCase):
         }
         table.request.form = form_data
         view()
-        self.assertTrue(table.approval.is_file_approved(files[0].UID(), "dirg"))
-        self.assertTrue(table.approval.is_file_approved(files[1].UID(), "dirg"))
-        self.assertFalse(table.approval.is_file_approved(files[0].UID(), "bourgmestre"))
-        self.assertTrue(table.approval.is_file_approved(files[1].UID(), "bourgmestre"))
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=1))
 
         # Unapprove files in a weird pattern
         form_data = {
@@ -206,10 +206,10 @@ class TestTable(unittest.TestCase):
         }
         table.request.form = form_data
         view()
-        self.assertTrue(table.approval.is_file_approved(files[0].UID(), "dirg"))
-        self.assertFalse(table.approval.is_file_approved(files[1].UID(), "dirg"))
-        self.assertFalse(table.approval.is_file_approved(files[0].UID(), "bourgmestre"))
-        self.assertTrue(table.approval.is_file_approved(files[1].UID(), "bourgmestre"))
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=1))
 
         # Cancel form
         form_data = {
@@ -221,7 +221,7 @@ class TestTable(unittest.TestCase):
         }
         table.request.form = form_data
         view()
-        self.assertTrue(table.approval.is_file_approved(files[0].UID(), "dirg"))
-        self.assertFalse(table.approval.is_file_approved(files[1].UID(), "dirg"))
-        self.assertFalse(table.approval.is_file_approved(files[0].UID(), "bourgmestre"))
-        self.assertTrue(table.approval.is_file_approved(files[1].UID(), "bourgmestre"))
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=1))

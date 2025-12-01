@@ -75,9 +75,10 @@ class ApprovedColumn(BaseApprovedColumn):
         #  * but the current approver see a green icon when he just approved
         elif av.p_state == "to_approve":
             self.base_class = "iconified-action-approved"
+            approver_number = self.approval.get_approver_nb(av.userid)
             # current user can approve now
             if self.approval.can_approve(av.userid, av.uid):
-                if self.approval.is_file_approved(content.UID, userid=av.userid):
+                if self.approval.is_file_approved(content.UID, nb=approver_number):
                     self.msg = u"Already approved (click to change)"
                     return " active{}".format(editable)
                 self.msg = u"Waiting for your approval (click to approve)"
@@ -85,7 +86,6 @@ class ApprovedColumn(BaseApprovedColumn):
             # current user cannot approve now but is an approver
             elif av.userid in self.approval.approvers:
                 # approver must yet approve
-                approver_number = self.approval.get_approver_nb(av.userid)
                 current_nb = self.approval.current_nb
                 if approver_number is not None and current_nb is not None and approver_number > current_nb:
                     self.msg = u"Waiting for other approval before you can approve"
@@ -157,17 +157,19 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 # if a second approver tries to also approve after a first one has already, he can't change anything !
                 # 1) with one file, the current_nb has changed and can_approve returns False => OK
                 # 2) with multiple files, the current_nb is the same, can_approve returns True => problem
-                approved = self.approval.is_file_approved(self.uid, nb=self.approval.current_nb)
+                approver_number = self.approval.get_approver_nb(self.userid)
+                approved = self.approval.is_file_approved(self.uid, nb=approver_number)
                 # if xxx:
                 #     self.reload = True  # force reload because real value changed meanwhile
                 #     return int(approved), {}
-                if approved:
+                if approved and self.approval.current_nb is not None:
                     status = 0
                     # the message is displayed after the change and must reflect the new status, not the current one !!
                     self.msg = u"Already approved (click to change)"
-                    # TODO TO BE HANDLED
-                    # TODO use unapprove_file
-                    values["approved"] = True  # why this
+                    signer_userid = self.approval.signers[self.approval.current_nb]
+                    self.approval.unapprove_file(afile=self.context, signer_userid=signer_userid)
+                    self.reload = True
+                    values["approved"] = False
                 else:
                     self.msg = u"Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method

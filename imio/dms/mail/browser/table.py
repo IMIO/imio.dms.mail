@@ -173,7 +173,8 @@ class SignerColumn(Column):
         self.header = signer_name or self.userid
 
     def renderCell(self, item):
-        checked = self.table.approval.is_file_approved(item.UID(), self.userid)
+        signer_index = self.table.approval.signers.index(self.userid)
+        checked = self.table.approval.is_file_approved(item.UID(), nb=signer_index)
         name = "approvals.%s.%s" % (item.UID(), self.userid)
         checked_attr = 'checked="checked"' if checked else ""
         return u'<input type="checkbox" name="%s" %s />' % (name, checked_attr)
@@ -241,10 +242,10 @@ class ApprovalTableView(BrowserView):
                 for i_fuid, fuid in enumerate(approval.files_uids):
                     key = "approvals.%s.%s" % (fuid, signer)
                     if key in form:
-                        if not approval.is_file_approved(fuid, signer):
+                        if not approval.is_file_approved(fuid, nb=i_signer):
                             to_approve.append((uuidToObject(fuid), signer, i_signer))
                     else:
-                        if approval.is_file_approved(fuid, signer):
+                        if approval.is_file_approved(fuid, nb=i_signer):
                             approval.unapprove_file(uuidToObject(fuid), signer)
 
             # Approve only now to avoid unwanted transition

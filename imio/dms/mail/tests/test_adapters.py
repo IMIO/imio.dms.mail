@@ -1049,13 +1049,6 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(self.approval.is_file_approved(self.files[1].UID(), totally=False))
         self.assertFalse(self.approval.is_file_approved(self.files[1].UID(), totally=True))
 
-        # Test userid
-        self.assertFalse(self.approval.is_file_approved(self.files[1].UID(), userid="unknown-user"))
-        self.assertTrue(self.approval.is_file_approved(self.files[0].UID(), userid="dirg"))
-        self.assertTrue(self.approval.is_file_approved(self.files[1].UID(), userid="dirg"))
-        self.assertTrue(self.approval.is_file_approved(self.files[0].UID(), userid="bourgmestre"))
-        self.assertFalse(self.approval.is_file_approved(self.files[1].UID(), userid="bourgmestre"))
-
         # Test nb
         self.assertFalse(self.approval.is_file_approved(self.files[0].UID(), nb=999))
         self.assertTrue(self.approval.is_file_approved(self.files[0].UID(), nb=0))
