@@ -1357,29 +1357,15 @@ class OMApprovalAdapter(object):
                     backup_approvals[fuid_index].append(backup_approval)
         self.reset()
 
-        signer_emails = set()
         signers = sorted(self.context.signers, key=lambda s: s["number"])
         for signer in signers:
             if signer["signer"] == "_empty_":
                 continue
             signer_hp = uuidToObject(signer["signer"], unrestricted=True)
-            if signer_hp is None:
-                raise ValueError(
-                    _(
-                        u"The signer held position with UID ${uid} does not exist !",
-                        mapping={"uid": signer["signer"]},
-                    )
-                )
-            signer_person = signer_hp.get_person()
-            user_email = api.user.get(signer_person.userid).getProperty("email")
-            if user_email in signer_emails:
-                raise ValueError(
-                    _(
-                        u"You cannot have the same email (${email}) for multiple signers !",
-                        mapping={"email": user_email},
-                    )
-                )
-            signer_emails.add(user_email)
+            try:
+                signer_person = signer_hp.get_person()
+            except AttributeError:
+                import ipdb; ipdb.set_trace()
 
             approvers = []
             for approving in signer["approvings"] or []:
@@ -1390,22 +1376,6 @@ class OMApprovalAdapter(object):
                 else:
                     person = uuidToObject(approving, unrestricted=True)
                 userid = person.userid
-                if userid in self.approvers:
-                    raise ValueError(
-                        _(
-                            "The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
-                            mapping={
-                                "userid": userid,
-                                "o": next(
-                                    nb
-                                    for nb, nb_approvers in enumerate(self.annot["approvers"])
-                                    if userid in nb_approvers
-                                )
-                                + 1,
-                                "c": len(self.annot["approvers"]) + 1,
-                            },
-                        )
-                    )
                 approvers.append(userid)
 
             # Add signer in annotation
