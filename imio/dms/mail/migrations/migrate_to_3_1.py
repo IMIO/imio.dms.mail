@@ -20,7 +20,6 @@ from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import update_solr_config
 from imio.helpers.batching import batch_delete_files
 from imio.helpers.batching import batch_get_keys
-from imio.helpers.batching import batch_globally_finished
 from imio.helpers.batching import batch_handle_key
 from imio.helpers.batching import batch_hashed_filename
 from imio.helpers.batching import batch_loop_else
@@ -35,7 +34,6 @@ from plone import api
 from plone.registry.events import RecordModifiedEvent
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
-from Products.ZCatalog.ProgressHandler import ZLogHandler
 from zope.component import getGlobalSiteManager
 from zope.event import notify
 from zope.interface import alsoProvides
@@ -267,171 +265,6 @@ class Migrate_To_3_1(Migrator):  # noqa
                 batch_delete_files(batch_keys, batch_config, log=True)
 
         if self.is_in_part("g"):  # final steps
-            old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
-            new_version = safe_unicode(get_git_tag(BLDT_DIR))
-            logger.info("Current migration from version {} to {}".format(old_version, new_version))
-
-            # Update dashboard pod templates
-            # self.portal["templates"]["export-users-groups"].max_objects = 0
-            # self.portal["templates"]["all-contacts-export"].max_objects = 0
-            #
-            # # Update imio.pm.wsclient generated actions translations
-            # notify(RecordModifiedEvent(
-            #     self.registry.records.get("imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
-            #     [],
-            #     api.portal.get_registry_record(
-            #         "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
-            # ))
-
-            # signing
-            # self.runProfileSteps("collective.dms.basecontent", steps=["actions"])  # for actions columns
-            # self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry", "actions"])
-            # load_type_from_package("dmsoutgoingmail", "profile-imio.dms.mail:default")  # ISigningBehavior behavior
-            # load_type_from_package("held_position", "profile-imio.dms.mail:default")  # IUsagesBehavior behavior
-            # load_type_from_package("dmsappendixfile", "profile-imio.dms.mail:default")  # iconified
-            # load_type_from_package("dmsommainfile", "profile-imio.dms.mail:default")  # iconified
-
-            # Update wf changes
-            # finished1 = finished2 = finished3 = finished4 = True
-            # reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
-            # applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
-            #                        if dic["workflow"] == "outgoingmail_workflow"]
-            # if reset:
-            #     logger.info("outgoingmail_workflow reloaded")
-            #     for name in applied_adaptations:
-            #         success, errors = apply_from_registry(reapply=True, name=name)
-            #         if errors:
-            #             logger.error("Problem applying wf adaptations '%s': %d errors" % (name, errors))
-            #     # update permissions, roles and reindex allowedRolesAndUsers
-            #     # count = self.portal.portal_workflow.updateRoleMappings()  out of memory
-            #     # logger.info("Updated {} items".format(count))
-            #     finished1 = self.reindexIndexes(['allowedRolesAndUsers'], portal_types=['dmsoutgoingmail'])
-            #     if finished1:
-            #         finished2 = self.reindexIndexes(['allowedRolesAndUsers'],
-            #                                         portal_types=['dmsommainfile', "dmsappendixfile", "task"])
-            #     else:
-            #         finished2 = False
-            # else:
-            #     logger.error("outgoingmail_workflow not reloaded !")
-            #
-            # # update localroles
-            # finished = finished1 and finished2
-            # if finished:
-            #     lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
-            #     changes = False
-            #     if "imio.dms.mail.content.behaviors.IDmsMailCreatingGroup" in fti.behaviors:
-            #         lrcg = lr["creating_group"]
-            #         if "signed" not in lrcg:
-            #             changes = True
-            #             lrcg["signed"] = {CREATING_GROUP_SUFFIX: {"roles": ["Reader", "Reviewer"]}}
-            #         if "to_be_signed" in lrcg and CREATING_GROUP_SUFFIX in lrcg["to_be_signed"] and "Editor" in \
-            #                 lrcg["to_be_signed"][CREATING_GROUP_SUFFIX]["roles"]:
-            #             changes = True
-            #             # correction !
-            #             lrcg["to_be_signed"][CREATING_GROUP_SUFFIX]["roles"].remove("Editor")
-            #     lrsc = lr["static_config"]
-            #     if "signed" not in lrsc:
-            #         changes = True
-            #         lrsc["signed"] = {
-            #             "expedition": {"roles": ["Editor", "Reviewer"]},
-            #             "encodeurs": {"roles": ["Reader"]},
-            #             "dir_general": {"roles": ["Contributor", "Editor", "Reviewer", "DmsFile Contributor"]},
-            #             "lecteurs_globaux_cs": {"roles": ["Reader"]},
-            #         }
-            #     lrtg = lr["treating_groups"]
-            #     if "signed" not in lrtg:
-            #         changes = True
-            #         lrtg["signed"] = {
-            #             "editeur": {"roles": ["Reader"]},
-            #             "encodeur": {"roles": ["Reader", "Reviewer"]},
-            #             "lecteur": {"roles": ["Reader"]},
-            #         }
-            #     if "to_be_signed" in lrtg and "encodeur" in lrtg["to_be_signed"] and "Editor" in \
-            #             lrtg["to_be_signed"]["encodeur"]["roles"]:
-            #         changes = True
-            #         # correction !
-            #         lrtg["to_be_signed"]["encodeur"]["roles"].remove("Editor")
-            #     lrrg = lr["recipient_groups"]
-            #     if "signed" not in lrrg:
-            #         changes = True
-            #         lrrg["signed"] = {
-            #             "editeur": {"roles": ["Reader"]},
-            #             "encodeur": {"roles": ["Reader"]},
-            #             "lecteur": {"roles": ["Reader"]},
-            #         }
-            #     if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_adaptations:
-            #         if "signed" in lrtg and "n_plus_1" not in lrtg["signed"]:
-            #             changes = True
-            #             lrtg["signed"]["n_plus_1"] = {"roles": ["Reader"]}
-            #         if "signed" in lrrg and "n_plus_1" not in lrrg["signed"]:
-            #             changes = True
-            #             lrrg["signed"]["n_plus_1"] = {"roles": ["Reader"]}
-            #
-            #     if changes:
-            #         lr._p_changed = True
-            #
-            #     # change back confirmation message
-            #     key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
-            #     values = list(api.portal.get_registry_record(key, default=[]))
-            #     if values and "dmsoutgoingmail.back_to_signed|" not in values:
-            #         values.append("dmsoutgoingmail.back_to_signed|")
-            #         api.portal.set_registry_record(key, values)
-            #
-            #     # add signed collection
-            #     col_folder = self.portal["outgoing-mail"]["mail-searches"]
-            #     createStateCollections(self.portal["outgoing-mail"]["mail-searches"], "dmsoutgoingmail")
-            #     pos = col_folder.getObjectPosition("searchfor_to_be_signed")
-            #     col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
-            #
-            #     # reindex om markers
-            #     finished3 = self.reindexIndexes(['markers'], portal_types=['dmsoutgoingmail'])
-            # finished = finished and finished3
-
-            # imio.annex integration to dms files with iconified category
-            # load_type_from_package("dmsmainfile", "imio.dms.mail:default")
-            # load_type_from_package("dmsommainfile", "imio.dms.mail:default")
-            # load_type_from_package("dmsappendixfile", "imio.dms.mail:default")
-            # setup_iconified_categories(self.portal)
-            # a_t_f = self.portal["annexes_types"]
-            # a_t_f["annexes"].title = _("Folders Appendix Files")
-            # alsoProvides(a_t_f["annexes"], IProtectedItem)
-            # a_t_f["annexes"].reindexObject()
-            # self.context.runImportStepFromProfile(u'imio.dms.mail:examples', u'imiodmsmail-add-test-annexes-types')
-            # if finished:
-            #     files = self.portal.portal_catalog.unrestrictedSearchResults(
-            #         portal_type=["dmsmainfile", "dmsommainfile", "dmsappendixfile"])
-            #
-            #     def update_category(obj):
-            #         incoming_dms_category = a_t_f["incoming_dms_files"]["incoming-dms-file"]
-            #         incoming_appendix_category = a_t_f["incoming_appendix_files"]["incoming-appendix-file"]
-            #         outgoing_dms_category = a_t_f["outgoing_dms_files"]["outgoing-dms-file"]
-            #         outgoing_appendix_category = a_t_f["outgoing_appendix_files"]["outgoing-appendix-file"]
-            #         if not hasattr(obj, "content_category"):
-            #             category = None
-            #             if obj.portal_type == "dmsmainfile":
-            #                 category = incoming_dms_category
-            #             elif obj.portal_type == "dmsommainfile":
-            #                 category = outgoing_dms_category
-            #             elif obj.portal_type == "dmsappendixfile":
-            #                 parent_type = obj.getObject().aq_parent.portal_type
-            #                 if parent_type in ("dmsincomingmail", "dmsincoming_email"):
-            #                     category = incoming_appendix_category
-            #                 elif parent_type == "dmsoutgoingmail":
-            #                     category = outgoing_appendix_category
-            #             return calculate_category_id(category)
-            #         return obj.content_category
-            #
-            #     def post_update_category(obj):
-            #         category = get_category_object(obj, obj.content_category)
-            #         update_categorized_elements(obj.aq_parent, obj, category)
-            #     finished4 = self.set_attribute(files, "content_category", func=update_category,
-            #                                    post_func=post_update_category)
-            #     finished4 = finished4 and self.set_attribute(files, "to_approve", False)
-            #     finished4 = finished4 and self.set_attribute(files, "approved", False)
-            #     finished4 = finished4 and self.set_attribute(files, "to_print", False)
-            # finished = finished and finished4
-            # END
-
             # finished = True  # can be eventually returned and set by batched method
             if old_version != new_version:
                 zope_app = self.portal
@@ -526,47 +359,6 @@ class Migrate_To_3_1(Migrator):  # noqa
         maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
         maintenance.sync()  # BATCHED
         response.write = original
-
-    def set_attribute(self, brains, attribute_name, func=None, post_func=None, force=True, batch=1000):
-        """
-        Batched method to set an attribute
-        :param brains: catalog brains list
-        :param attribute_name: attribute name to set
-        :param func: function to infer value from brain. If func is not callable, it will be considered as a value
-        :param post_func: function to call after setting attribute on object
-        :param batch: batch size
-        :return: True if finished, False if not
-        """
-        if not callable(func):
-            value = func
-            func = lambda x: value  # noqa E731
-        if post_func is None:
-            post_func = lambda x: None  # noqa E731
-        pghandler = ZLogHandler(steps=batch)
-        pghandler.init('sync', len(brains))
-        pklfile = batch_hashed_filename('imio.dms.mail.{}.pkl'.format(attribute_name))
-        batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(brains))
-        for i, b in enumerate(brains):
-            uid = b.UID
-            if batch_skip_key(uid, batch_keys, batch_config):
-                continue
-            obj = b.getObject()
-            if force or not hasattr(obj, attribute_name):
-                value = func(b)
-                setattr(obj, attribute_name, value)
-                obj._p_changed = True
-                post_func(obj)
-            if pghandler:
-                pghandler.report(i)
-            if batch_handle_key(uid, batch_keys, batch_config):
-                break
-        else:
-            batch_loop_else(batch_keys, batch_config)
-        if can_delete_batch_files(batch_keys, batch_config):
-            batch_delete_files(batch_keys, batch_config)
-        if pghandler:
-            pghandler.finish()
-        return batch_globally_finished(batch_keys, batch_config)
 
 
 def migrate(context):
