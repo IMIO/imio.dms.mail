@@ -17,8 +17,7 @@ from collective.documentgenerator.viewlets.generationlinks import DocumentGenera
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
-from imio.dms.mail.utils import add_file_to_approval
-from imio.dms.mail.utils import get_approval_annot
+from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -232,12 +231,7 @@ class OMDGHelper(BaseDGHelper):
 
     def get_signers(self):
         """Return a list of tuple (position, name, function) containing signers."""
-        signers = []
-        approval = get_approval_annot(self.real_context)
-        for nb in sorted(list(approval.get("numbers", {}).keys())):
-            userid, email, name, label = approval["numbers"][nb]["signer"]
-            signers.append((nb, name, label))
-        return signers
+        return OMApprovalAdapter(self.real_context).signers_details
 
 
 class DashboardDGBaseHelper:  # noqa
@@ -509,17 +503,17 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 file=file_object,
                 content_category=category,
             )
-        # TODO sign : replace content_category upper by the one selected on the model
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
         # handle to_approve attribute
         orig_value = persisted_doc.to_approve
         new_value = False
-        approval_annot = get_approval_annot(self.context)
-        if orig_value and persisted_doc.to_sign and approval_annot["users"]:  # have approvers
+        approval = OMApprovalAdapter(self.context)
+        if orig_value and persisted_doc.to_sign and approval.approvers:  # have approvers
+            # TODO esign : do not include pdf file version in approval
             if not need_mailing_value(document=persisted_doc):
                 new_value = True
-                add_file_to_approval(approval_annot, persisted_doc.UID())
+                approval.add_file_to_approval(persisted_doc.UID())
         if orig_value != new_value:  # only when new_value is False normally
             persisted_doc.to_approve = new_value
             category_object = get_category_object(persisted_doc, persisted_doc.content_category)

@@ -6,8 +6,13 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.task import _ as _task
 from html import escape
 from imio.dms.mail import _
+from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.helpers.content import uuidToObject
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
+from Products.Five import BrowserView
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.table.column import Column
 from z3c.table.table import Table
 from zope.cachedescriptors.property import CachedProperty
@@ -148,3 +153,103 @@ class PersonnelTable(Table):
     @CachedProperty
     def values(self):
         return self.results
+
+
+class FileNameColumn(Column):
+    """Column displaying file name."""
+
+    header = _(u"File name")
+
+    def renderCell(self, item):
+        return item.title
+
+
+class SignerColumn(Column):
+    """Column with checkboxes for each signer."""
+
+    def __init__(self, context, request, table, signer):
+        super(SignerColumn, self).__init__(context, request, table)
+        self.userid, signer_name = signer
+        self.header = signer_name or self.userid
+
+    def renderCell(self, item):
+        signer_index = self.table.approval.signers.index(self.userid)
+        checked = self.table.approval.is_file_approved(item.UID(), nb=signer_index)
+        name = "approvals.%s.%s" % (item.UID(), self.userid)
+        checked_attr = 'checked="checked"' if checked else ""
+        return u'<input type="checkbox" name="%s" %s />' % (name, checked_attr)
+
+
+class ApprovalTable(Table):
+    """Table displaying approval state for admins."""
+
+    cssClassEven = u"even"
+    cssClassOdd = u"odd"
+    cssClasses = {"table": "listing"}
+    sortOn = None
+
+    def __init__(self, context, request):
+        super(ApprovalTable, self).__init__(context, request)
+        self.approval = OMApprovalAdapter(self.context)
+        self.portal = api.portal.getSite()
+
+    def setUpColumns(self):
+        cols = super(ApprovalTable, self).setUpColumns()
+
+        # Add approving columns
+        for nb, signer_name, signer_label in self.approval.signers_details:
+            signer_userid = self.approval.signers[nb]
+            col = SignerColumn(self.context, self.request, self, (signer_userid, signer_name))
+            cols.append(col)
+
+        return cols
+
+    @property
+    def values(self):
+        results = list()
+        for file_uid in self.approval.files_uids:
+            file = uuidToObject(file_uid)
+            results.append(file)
+        return results
+
+
+class ApprovalTableView(BrowserView):
+    """Main view for approvals table."""
+
+    index = ViewPageTemplateFile("templates/approvals.pt")
+    __table__ = ApprovalTable
+
+    def __init__(self, context, request):
+        super(ApprovalTableView, self).__init__(context, request)
+        self.table = self.__table__(context, request)
+
+    def __call__(self):
+        self.update()
+        self.handle_form()
+        return self.index()
+
+    def update(self):
+        self.table.update()
+
+    def handle_form(self):
+        form = self.request.form
+        save_button = form.get("form.button.Save", None) is not None
+        cancel_button = form.get("form.button.Cancel", None) is not None
+        if save_button and not cancel_button:
+            approval = OMApprovalAdapter(self.context)
+            to_approve = []
+            for i_signer, signer in enumerate(approval.signers):
+                for i_fuid, fuid in enumerate(approval.files_uids):
+                    key = "approvals.%s.%s" % (fuid, signer)
+                    if key in form:
+                        if not approval.is_file_approved(fuid, nb=i_signer):
+                            to_approve.append((uuidToObject(fuid), signer, i_signer))
+                    else:
+                        if approval.is_file_approved(fuid, nb=i_signer):
+                            approval.unapprove_file(uuidToObject(fuid), signer)
+
+            # Approve only now to avoid unwanted transition
+            for fobj, signer, i_signer in to_approve:
+                approval.approve_file(fobj, signer, c_a=i_signer, transition="propose_to_be_signed")
+
+            IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")

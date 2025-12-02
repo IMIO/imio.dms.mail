@@ -15,6 +15,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
+from collective.iconifiedcategory.content.events import categorized_content_created
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -27,6 +28,7 @@ from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail.adapters import OMApprovalAdapter
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
@@ -35,14 +37,11 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
-from imio.dms.mail.utils import add_file_to_approval
-from imio.dms.mail.utils import add_mail_files_to_session
-from imio.dms.mail.utils import change_approval_user_status
+# from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
-from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
@@ -52,7 +51,6 @@ from imio.esign.browser.views import ExternalSessionCreateView
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
-from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import get_environment
@@ -61,8 +59,6 @@ from imio.helpers.security import set_site_from_package_config
 from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
 from operator import itemgetter
-from persistent.list import PersistentList
-from persistent.mapping import PersistentMapping
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
@@ -397,55 +393,21 @@ def dmsoutgoingmail_transition(mail, event):
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
     if event.transition and event.transition.id == "propose_to_approve":  # only if
-        approval = get_approval_annot(mail)
-        orig_nb = approval["approval"]
-        if approval["users"]:
-            if approval["approval"] is None:  # first time transition
-                approval["approval"] = 1
-                change_approval_user_status(approval, approval["approval"], "p")
-            else:  # approve again after a back... maybe some approvements are already done
-                c_a = None
-                for fuid in approval["files"]:
-                    for a_nb in sorted(list(approval["numbers"].keys())):
-                        if "approved_on" not in approval["files"][fuid]["nb"][a_nb]:
-                            if not c_a or a_nb < c_a:
-                                c_a = a_nb
-                            continue
-                        brain = uuidToCatalogBrain(fuid, unrestricted=True)
-                        last_mod = brain.modified
-                        last_mod = datetime.datetime(
-                            last_mod.year(), last_mod.month(), last_mod.day(), last_mod.hour(),
-                            last_mod.minute(), int(last_mod.second()), int(last_mod.micros() % 1000000)
-                        )
-                        if last_mod > approval["files"][fuid]["nb"][a_nb]["approved_on"]:
-                            del approval["files"][fuid]["nb"][a_nb]["approved_by"]
-                            del approval["files"][fuid]["nb"][a_nb]["approved_on"]
-                            if not c_a or a_nb < c_a:
-                                c_a = a_nb
-                            approval["files"][fuid]["nb"][a_nb]["status"] = "p"
-                if c_a:
-                    approval["approval"] = c_a
-                    for fuid in approval["files"]:
-                        for a_nb in sorted(list(approval["numbers"].keys())):
-                            if a_nb > c_a and approval["files"][fuid]["nb"][a_nb]["status"] == "p":
-                                approval["files"][fuid]["nb"][a_nb]["status"] = "w"
-        else:
-            approval["approval"] = None  # if users removed...
-        if orig_nb != approval["approval"]:
-            mail.portal_catalog.reindexObject(mail, idxs=("approvings",), update_metadata=0)
+        approval = OMApprovalAdapter(mail)
+        approval.start_approval_process()
     # seal without signers (due to constraints)
     if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:
-        annot = get_approval_annot(mail)
+        approval = OMApprovalAdapter(mail)
         for f in mail.values():
             if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
-                add_file_to_approval(annot, f.UID())
-        added, msg = add_mail_files_to_session(mail)
+                approval.add_file_to_approval(f.UID())
+        added, msg = approval.add_mail_files_to_session()
         msg2 = ""
         if added:
             if not api.portal.get_registry_record("imio.esign.seal_code", default=""):
                 msg2 = "Seal code must be defined in eSign settings befode sending session"
             else:
-                ExternalSessionCreateView(mail, mail.REQUEST)(session_id=annot['session_id'])
+                ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
         api.portal.show_message(
             message=_(msg),
             request=mail.REQUEST,
@@ -533,62 +495,19 @@ def dmsoutgoingmail_modified(mail, event):
             )
             signers_update = True
 
+    if not mail.signers:
+        # if no signers, we add an empty one to not do again automatic assignment at next modification
+        mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
+        signers_update = True
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if signers_update or not mod_attr or "ISigningBehavior.signers" in mod_attr:
-        if not mail.signers:
-            # if no signers, we add an empty one to not do again automatic assignment at next modification
-            mail.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
-
+    if signers_update or "ISigningBehavior.signers" in mod_attr:
         mail.signers.sort(key=itemgetter("number"))
-        approval = get_approval_annot(mail)
-        reset = approval["approval"] is None and True or False
-        approval = get_approval_annot(mail, reset=reset)
-        # "awaiting" (w), "pending" (p), "approved" (a)
-        signer_emails = []
-        for i, signer in enumerate(mail.signers, start=1):
-            if signer["signer"] == "_empty_":
-                continue
-            signer_hp = uuidToObject(signer["signer"], unrestricted=True)
-            signer_person = signer_hp.get_person()
-            user_email = api.user.get(signer_person.userid).getProperty("email")
-            if user_email in signer_emails:
-                raise Invalid(
-                    _(
-                        u"You cannot have the same email (${email}) for multiple signers !",
-                        mapping={"email": user_email},
-                    )
-                )
-            signer_emails.append(user_email)
-            signer_tup = (signer_person.userid, user_email, signer_person.get_title(include_person_title=False),
-                          signer_hp.label or u"")
-            # numbers = approval["numbers"].setdefault(i, PersistentMapping(
-            #     {"status": "w", "users": PersistentList(), "signer": signer_tup}))
-            numbers = approval["numbers"].setdefault(i, PersistentMapping(
-                {"users": PersistentList(), "signer": signer_tup}))
-            for approving in signer["approvings"] or []:
-                if approving == "_empty_":
-                    continue
-                if approving == "_themself_":
-                    person = signer_person
-                else:
-                    person = uuidToObject(approving, unrestricted=True)
-                userid = person.userid
-                if userid in approval["users"] and approval["users"][userid]["order"] != i:
-                    raise Invalid(_("The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
-                                    mapping={"userid": userid, "o": approval["users"][userid]["order"],
-                                             "c": i}))
-                # approval["users"][userid] = PersistentMapping({"status": "w", "order": i, "name": person.get_title(),
-                #                                                "editor": signer["editor"]})
-                approval["users"][userid] = PersistentMapping({"order": i, "name": person.get_title(),
-                                                               "editor": signer["editor"]})
-                if userid not in numbers["users"]:
-                    numbers["users"].append(userid)
-        # files
-        # for fil in mail.get_files_to_sign():
-        #     if fil.UID() not in approval["files"]:
-        #         approval["files"][fil.UID()] = PersistentMapping({nb: PersistentMapping({"status": "w"})
-        #                                                           for nb in approval["numbers"]})
+        approval = OMApprovalAdapter(mail)
+        try:
+            approval.update_signers()
+        except ValueError as e:
+            raise Invalid(e.message)
 
 
 def dmsoutgoingmail_added(mail, event):
@@ -682,6 +601,10 @@ def dmsmainfile_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
+        categorized_content_created(obj, event)
+        if getattr(obj, "to_approve", False) and not base_hasattr(obj, "conv_from_uid"):
+            approval = OMApprovalAdapter(obj.__parent__)
+            approval.add_file_to_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):

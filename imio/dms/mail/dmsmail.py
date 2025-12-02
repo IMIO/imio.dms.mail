@@ -46,10 +46,10 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.interfaces import IImioDmsIncomingMailWfConditions
 from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import do_next_transition
-from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_n_plus_level_obsolete
@@ -869,13 +869,13 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         :param all_done: if True, check if all approvings are done
         :return: boolean
         """
-        annot = get_approval_annot(self)
-        if not annot.get("users", []):
+        approval = IOMApproval(self)
+        if not approval.approvers:
             return False
         elif not all_done:
             return True
         else:  # has approvals and all done
-            return annot.get("approval", 0) == 99
+            return approval.current_nb == -1
 
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""

@@ -9,8 +9,8 @@ from datetime import datetime
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.utils import get_approval_annot
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.helpers import EMPTY_STRING
@@ -908,23 +908,30 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         self.assertEqual(
             omail.signers,
-            [{'signer': dirg_hp.UID(), 'approvings': [u'_empty_'], 'number': 1, 'editor': True},
-             {'signer': bourg_hp.UID(), 'approvings': [u'_empty_'], 'number': 2, 'editor': False}])
+            [
+                {"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": True},
+                {"signer": bourg_hp.UID(), "approvings": [u"_empty_"], "number": 2, "editor": False},
+            ],
+        )
         self.assertFalse(omail.esign)
-        annot = get_approval_annot(omail)
+        annot = OMApprovalAdapter(omail).annot
         # after creation, default rules are applied
         self.assertEqual(
             annot,
             {
-                "approval": None,
-                "files": {},
-                "numbers": {
-                    1: {'signer': ('dirg', 'dirg@macommune.be', u'Maxime DG', u'Directeur Général'), 'users': []},
-                    2: {'signer': ('bourgmestre', 'bourgmestre@macommune.be', u'Paul BM', u'Bourgmestre'), 'users': []}
-                },
+                "files": [],
+                "current_nb": None,
+                "approvers": [[], []],
                 "session_id": None,
-                "users": {},
-            })
+                "pdf_files": [],
+                "approval": [[], []],
+                "editors": [True, False],
+                "signers": [
+                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                ],
+            },
+        )
         # we remove a signer
 
     def test_task_transition(self):

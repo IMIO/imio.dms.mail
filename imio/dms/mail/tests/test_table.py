@@ -2,16 +2,24 @@
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.dms.basecontent.browser.listing import CategorizedContent
 from collective.dms.basecontent.browser.listing import VersionsTable
+from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.browser.table import ApprovalTableView
 from imio.dms.mail.browser.table import AssignedGroupColumn
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
+from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from z3c.relationfield.relation import RelationValue
+from zope.component import getUtility
+from zope.intid.interfaces import IIntIds
 
 import unittest
 
@@ -32,7 +40,7 @@ class TestTable(unittest.TestCase):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(
+            file1 = createContentInContainer(
                 imail,
                 "dmsmainfile",
                 id="testid1",
@@ -53,11 +61,11 @@ class TestTable(unittest.TestCase):
         self.assertEqual(col.getLinkTitle(cc), u"Identifiant de scan: 123456789\nDate de scan: \nVersion: ")
         self.assertEqual(
             col.renderCell(cc),
-            u'<a class="version-link" href="http://nohost/plone/incoming-mail/202546/my-id/testid1" '
-            u'alt="Identifiant de scan: 123456789\nDate de scan: \nVersion: " title="Identifiant de '
-            u'scan: 123456789\nDate de scan: \nVersion: "><img src="annexes_types/incoming_dms_files'
-            u'/incoming-dms-file/@@images/%s" alt="Incoming DMS File" title="Incoming DMS File" /> '
-            u'E0010 - </a><p class="discreet"></p>' % icon_name
+            u'<a class="version-link" href="%s" alt="Identifiant de scan: 123456789\nDate de scan: '
+            u'\nVersion: " title="Identifiant de scan: 123456789\nDate de scan: \nVersion: ">'
+            u'<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/%s" '
+            u'alt="Fichier ged courrier entrant" title="Fichier ged courrier entrant" /> '
+            u'title</a><p class="discreet"></p>' % (file1.absolute_url(), icon_name)
         )
 
     def test_AssignedGroupColumn(self):
@@ -66,3 +74,154 @@ class TestTable(unittest.TestCase):
         task = createContentInContainer(imail, "task", id="testid1", assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
         self.assertEqual(col.renderCell(task).encode("utf8"), "Direction générale")
+
+    def test_ApprovalTable(self):
+        activate_signing(self.portal)
+
+        # Create outgoing mail with two eSign signers and two files to approve
+        intids = getUtility(IIntIds)
+        pgof = self.portal["contacts"]["plonegroup-organization"]
+        pf = self.portal["contacts"]["personnel-folder"]
+        params = {
+            "title": u"Courrier sortant test",
+            "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
+                DummyView(self.portal, self.portal.REQUEST)
+            ),
+            "mail_type": "type1",
+            "treating_groups": pgof["direction-generale"]["grh"].UID(),
+            "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "assigned_user": "agent",
+            "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+            "send_modes": u"post",
+            "signers": [
+                {
+                    "number": 1,
+                    "signer": pf["dirg"]["directeur-general"].UID(),
+                    "approvings": [u"_themself_"],
+                    "editor": True,
+                },
+                {
+                    "number": 2,
+                    "signer": pf["bourgmestre"]["bourgmestre"].UID(),
+                    "approvings": [u"_themself_", pf["chef"].UID()],
+                    "editor": False,
+                },
+            ],
+            "esign": True,
+        }
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", **params)
+
+        filename = u"Réponse salle.odt"
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        files = []
+        for i in range(2):
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                file_object = NamedBlobFile(fo.read(), filename=filename)
+                files.append(
+                    createContentInContainer(
+                        omail,
+                        "dmsommainfile",
+                        id="file%s" % i,
+                        scan_id="012999900000601",
+                        file=file_object,
+                        content_category=calculate_category_id(ct),
+                    )
+                )
+
+        view = ApprovalTableView(
+            omail,
+            omail.REQUEST,
+        )
+        view.update()
+        table = view.table
+
+        # Test table
+        self.assertEqual(len(table.columns), 3)
+        self.assertEqual(table.values, files)
+
+        # Test column FileName
+        filename_col = table.columns[0]
+        self.assertEqual(filename_col.header, u"File name")
+        self.assertEqual(filename_col.renderCell(files[0]), u"R\xe9ponse salle.odt")
+        self.assertEqual(filename_col.renderCell(files[1]), u"R\xe9ponse salle.odt")
+
+        # Test column Signer
+        signer_col1 = table.columns[1]
+        self.assertEqual(signer_col1.header, u"Maxime DG")
+        self.assertEqual(signer_col1.userid, "dirg")
+        self.assertEqual(
+            signer_col1.renderCell(files[0]), u'<input type="checkbox" name="approvals.%s.dirg"  />' % files[0].UID()
+        )
+        self.assertEqual(
+            signer_col1.renderCell(files[1]), u'<input type="checkbox" name="approvals.%s.dirg"  />' % files[1].UID()
+        )
+
+        signer_col2 = table.columns[2]
+        self.assertEqual(signer_col2.header, u"Paul BM")
+        self.assertEqual(signer_col2.userid, "bourgmestre")
+        self.assertEqual(
+            signer_col2.renderCell(files[0]),
+            u'<input type="checkbox" name="approvals.%s.bourgmestre"  />' % files[0].UID(),
+        )
+        self.assertEqual(
+            signer_col2.renderCell(files[1]),
+            u'<input type="checkbox" name="approvals.%s.bourgmestre"  />' % files[1].UID(),
+        )
+
+        api.content.transition(obj=omail, transition="propose_to_approve")
+        table.approval.approve_file(files[0], "dirg")
+        self.assertEqual(
+            signer_col1.renderCell(files[0]),
+            u'<input type="checkbox" name="approvals.%s.dirg" checked="checked" />' % files[0].UID(),
+        )
+
+        # Test form
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=1))
+
+        # Approve more files
+        form_data = {
+            "form.button.Save": "Save",
+            "approvals.%s.dirg" % files[0].UID(): "on",
+            "approvals.%s.dirg" % files[1].UID(): "on",
+            # bourgmestre checkbox not checked for file[0]
+            "approvals.%s.bourgmestre" % files[1].UID(): "on",
+        }
+        table.request.form = form_data
+        view()
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=1))
+
+        # Unapprove files in a weird pattern
+        form_data = {
+            "form.button.Save": "Save",
+            "approvals.%s.dirg" % files[0].UID(): "on",
+            # dirg checkbox not checked for file[1]
+            # bourgmestre checkbox not checked for file[0]
+            "approvals.%s.bourgmestre" % files[1].UID(): "on",
+        }
+        table.request.form = form_data
+        view()
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=1))
+
+        # Cancel form
+        form_data = {
+            "form.button.Cancel": "Cancel",
+            "approvals.%s.dirg" % files[0].UID(): "on",
+            "approvals.%s.dirg" % files[1].UID(): "on",
+            "approvals.%s.bourgmestre" % files[0].UID(): "on",
+            "approvals.%s.bourgmestre" % files[1].UID(): "on",
+        }
+        table.request.form = form_data
+        view()
+        self.assertTrue(table.approval.is_file_approved(files[0].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[1].UID(), nb=0))
+        self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
+        self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=1))

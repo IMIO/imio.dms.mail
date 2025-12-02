@@ -197,8 +197,13 @@ def add_test_annexes_types(context):
 
     # Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
-    oid, title, img, show_pv = "outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png", True
-    if oid not in outgoing_appendix_files_category_group:
+    icats = (
+        ("outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png", True),
+        ("esign-generated-appendix", _("eSign Generated Appendix"), u"attach.png", True),
+    )
+    for oid, title, img, show_pv in icats:
+        if oid in outgoing_appendix_files_category_group:
+            continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -605,7 +610,7 @@ def add_test_mails(context):
                     title="",
                     file=file_object,
                     scan_id="0129999000000%02d" % i,
-                    content_category=calculate_category_id(api.portal.get()["annexes_types"]["outgoing_dms_files"]
+                    content_category=calculate_category_id(site["annexes_types"]["outgoing_dms_files"]
                                                            ["outgoing-dms-file"]),
                 )
 
