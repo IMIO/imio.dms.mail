@@ -909,6 +909,24 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             },
         )
 
+        # A signer does not exist
+        self.omail.signers[0]["signer"] = "wrong-uid"
+        self.approval.reset()
+        self.assertRaises(ValueError, self.approval.update_signers)
+        self.omail.signers[0]["signer"] = self.pf["dirg"]["directeur-general"].UID()
+
+        # Duplicate approvers
+        self.omail.signers[0]["approvings"].append(self.pf["chef"].UID())
+        self.approval.reset()
+        self.assertRaises(ValueError, self.approval.update_signers)
+        self.omail.signers[0]["approvings"] = [u"_themself_"]
+
+        # Duplicate emails for approvers
+        api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
+        api.user.get("dirg").setMemberProperties({"email": "duplicate@belleville.eb"})
+        self.approval.reset()
+        self.assertRaises(ValueError, self.approval.update_signers)
+
     def test_add_remove_file_to_approval(self):
         self.approval.remove_file_from_approval(self.files[0].UID())
         self.assertEqual(self.approval.annot["current_nb"], self.approval.calculate_current_nb())

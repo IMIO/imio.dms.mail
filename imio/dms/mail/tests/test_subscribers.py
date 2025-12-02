@@ -795,6 +795,86 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             ],
         )
 
+        # Test duplicate approvings userids
+        chef = self.pf["chef"]
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [chef.UID()],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": dirg_hp.UID(),
+                    "editor": True,
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [chef.UID()],
+                    "esign": True,
+                    "number": 2,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                    "editor": False,
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(
+            cm.exception.message, u"The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
+        )
+
+        # Test signers have same email
+        api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
+        api.user.get("dirg").setMemberProperties({"email": "duplicate@belleville.eb"})
+        omail.signers = None
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 1,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": dirg_hp.UID(),
+                    "editor": True,
+                },
+                {
+                    "valid_until": None,
+                    "valid_from": None,
+                    "tal_condition": None,
+                    "mail_types": [],
+                    "approvings": [u"_empty_"],
+                    "esign": True,
+                    "number": 2,
+                    "treating_groups": [],
+                    "send_modes": [],
+                    "signer": bourgmestre_hp.UID(),
+                    "editor": False,
+                },
+            ],
+        )
+        with self.assertRaises(Invalid) as cm:
+            modified(omail)
+        self.assertEqual(cm.exception.message, u"You cannot have the same email (${email}) for multiple signers !")
+        api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
+
         # Test mail in sent or to_be_signed states
         filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
         with open(filepath, "rb") as fo:

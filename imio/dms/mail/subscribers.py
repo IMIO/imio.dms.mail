@@ -504,7 +504,10 @@ def dmsoutgoingmail_modified(mail, event):
     if signers_update or "ISigningBehavior.signers" in mod_attr:
         mail.signers.sort(key=itemgetter("number"))
         approval = OMApprovalAdapter(mail)
-        approval.update_signers()
+        try:
+            approval.update_signers()
+        except ValueError as e:
+            raise Invalid(e.message)
 
 
 def dmsoutgoingmail_added(mail, event):
