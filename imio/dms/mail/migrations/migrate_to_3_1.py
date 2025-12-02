@@ -85,7 +85,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             # imio.pm.wsclient
             self.upgradeAll(omit=[u"imio.dms.mail:default"])
 
-        if self.is_in_part("c"):
+        if self.is_in_part("c"):  # update workflow, localroles and security
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -186,7 +186,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             finished = self.reindexIndexes(['allowedRolesAndUsers'], portal_types=['dmsoutgoingmail'])
             logger.info("Part c is {}finished".format("" if finished else "not "))
 
-        if self.is_in_part("d"):
+        if self.is_in_part("d"):  # finish security update
             finished = self.reindexIndexes(['allowedRolesAndUsers'],
                                            portal_types=['dmsommainfile', "dmsappendixfile", "task"])
             logger.info("Part d is {}finished".format("" if finished else "not "))
@@ -196,7 +196,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             finished = self.reindexIndexes(['markers'], portal_types=['dmsoutgoingmail'])
             logger.info("Part e is {}finished".format("" if finished else "not "))
 
-        if self.is_in_part("f"):
+        if self.is_in_part("f"):  # reload types, added categories and update items using categories
             a_t_f = self.portal["annexes_types"]
             if "incoming_dms_files" not in a_t_f:
                 self.runProfileSteps("collective.dms.basecontent", steps=["actions"])  # for actions columns
@@ -266,7 +266,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             if can_delete_batch_files(batch_keys, batch_config):
                 batch_delete_files(batch_keys, batch_config, log=True)
 
-        if self.is_in_part("g"):
+        if self.is_in_part("g"):  # final steps
             old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
             new_version = safe_unicode(get_git_tag(BLDT_DIR))
             logger.info("Current migration from version {} to {}".format(old_version, new_version))
