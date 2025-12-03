@@ -452,7 +452,7 @@ class PlusPortaltabContent(BrowserView):
 
     def get_tabs(self):
         res = self.portal.portal_catalog(
-            id=("contacts", "templates", "tree", "annexes_types"),
+            id=("contacts", "templates", "tree", "annexes_types", "sessions"),
             path={"query": "/".join(self.portal.getPhysicalPath()), "depth": 1},
             sort_on="getObjPositionInParent",
         )
