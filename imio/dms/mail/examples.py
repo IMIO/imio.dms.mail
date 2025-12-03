@@ -135,7 +135,7 @@ def add_test_annexes_types(context):
 
     # Category Group for dms main files in incoming mails
     incoming_dms_files_category_group = ccc["incoming_dms_files"]
-    oid, title, img, show_pv = "incoming-dms-file", _("Incoming DMS File"), u"attach.png", True
+    oid, title, img = "incoming-dms-file", _("Incoming DMS File"), u"attach.png"
     if oid not in incoming_dms_files_category_group:
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
@@ -148,12 +148,12 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            show_preview=show_pv,
+            show_preview=True,
         )
 
     # Category Group for appendix files in incoming mails
     incoming_appendix_files_category_group = ccc["incoming_appendix_files"]
-    oid, title, img, show_pv = "incoming-appendix-file", _("Incoming Appendix File"), u"attach.png", True
+    oid, title, img = "incoming-appendix-file", _("Incoming Appendix File"), u"attach.png"
     if oid not in incoming_appendix_files_category_group:
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
@@ -166,13 +166,18 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            show_preview=show_pv,
+            show_preview=True,
         )
 
     # Category Group for dms main files in outgoing mails
     outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
-    oid, title, img, show_pv = "outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True
-    if oid not in outgoing_dms_files_category_group:
+    icats = (
+        ("outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True, True),
+        ("outgoing-scanned-dms-file", _("Outgoing Scanned DMS File"), u"attach.png", True, False),
+    )
+    for oid, title, img, to_sign, to_approve in icats:
+        if oid in outgoing_dms_files_category_group:
+            continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -184,9 +189,9 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            to_sign=True,
-            to_approve=True,
-            show_preview=show_pv,
+            to_sign=to_sign,
+            to_approve=to_approve,
+            show_preview=True,
         )
     templates = site.portal_catalog.unrestrictedSearchResults(portal_type=["ConfigurablePODTemplate"])
     category_id = calculate_category_id(site["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"])
@@ -197,13 +202,8 @@ def add_test_annexes_types(context):
 
     # Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
-    icats = (
-        ("outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png", True),
-        ("esign-generated-appendix", _("eSign Generated Appendix"), u"attach.png", True),
-    )
-    for oid, title, img, show_pv in icats:
-        if oid in outgoing_appendix_files_category_group:
-            continue
+    oid, title, img = "outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png"
+    if oid not in outgoing_appendix_files_category_group:
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -215,7 +215,7 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            show_preview=show_pv,
+            show_preview=True,
         )
 
 
