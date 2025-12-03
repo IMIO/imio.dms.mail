@@ -227,7 +227,15 @@ def validate_approvings(approvings):
 
 def validate_signer_approvings(data, msg):
     if u"_themself_" in data.get("approvings", []):
-        signer_person = uuidToObject(data["signer"], unrestricted=True).get_person()
+        signer = uuidToObject(data["signer"], unrestricted=True)
+        if signer is None:
+            raise Invalid(
+                _(
+                    u"The signer with UID ${uid} does not exist !",
+                    mapping={"uid": data["signer"]},
+                )
+            )
+        signer_person = signer.get_person()
         if signer_person.UID() in data["approvings"]:
             raise Invalid(msg)
 
