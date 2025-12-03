@@ -64,7 +64,7 @@ class TestTable(unittest.TestCase):
             u'<a class="version-link" href="%s" alt="Identifiant de scan: 123456789\nDate de scan: '
             u'\nVersion: " title="Identifiant de scan: 123456789\nDate de scan: \nVersion: ">'
             u'<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/%s" '
-            u'alt="Fichier ged courrier entrant" title="Fichier ged courrier entrant" /> '
+            u'alt="Fichier ged CE" title="Fichier ged CE" /> '
             u'title</a><p class="discreet"></p>' % (file1.absolute_url(), icon_name)
         )
 
