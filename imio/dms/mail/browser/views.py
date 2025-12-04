@@ -478,6 +478,9 @@ class ImioSessionsListingView(SessionsListingView):
                 session_id=session["id"],
             )
 
+    def get_sessions_url(self):
+        return api.portal.get()["sessions"].absolute_url()
+
 
 class SigningUsersCsv(BaseSigningUsersCsv):
 
