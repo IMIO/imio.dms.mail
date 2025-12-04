@@ -45,6 +45,7 @@ from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
+from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.esign.browser.views import ExternalSessionCreateView
@@ -1132,6 +1133,10 @@ def held_position_modified(obj, event):
     if IPersonnelContact.providedBy(obj):
         invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+        mod_attr = [at for at in getattr(event, "descriptions", []) if base_hasattr(at, "attributes")
+                    and "IUsagesBehavior.usages" in at.attributes]
+        if mod_attr:
+            update_approvers_settings()
 
 
 def held_position_removed(obj, event):
