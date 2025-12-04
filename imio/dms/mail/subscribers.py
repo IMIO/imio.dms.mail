@@ -647,6 +647,28 @@ def imiodmsfile_added(obj, event):
         obj.generated = 1
 
 
+def imiodmsfile_will_be_removed(obj, event):
+    """when an om file wiil be removed"""
+    try:
+        portal = api.portal.get()
+        pp = portal.portal_properties
+    except api.portal.CannotGetPortalError:
+        # When deleting site, the portal is no more found...
+        return
+    if pp.site_properties.enable_link_integrity_checks:
+        approval = OMApprovalAdapter(obj.__parent__)
+        if obj.UID() in approval.files_uids:
+            storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
+            storage.addBreach(obj.__parent__, obj)
+
+
+def imiodmsfile_removed(obj, event):
+    """when an om file is removed"""
+    approval = OMApprovalAdapter(obj.__parent__)
+    if obj.UID() in approval.files_uids:
+        approval.remove_file_from_approval(obj.UID())
+
+
 def imiodmsfile_iconified_attr_changed(obj, event):
     """When an iconified attribute is changed. Not used for the moment."""
     if event.attr_name == 'approved':
