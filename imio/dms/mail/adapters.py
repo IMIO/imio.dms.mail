@@ -496,7 +496,7 @@ def ready_for_email_index(obj):
         if not IDmsFile.providedBy(doc):
             continue
         docs.append(doc)
-        if doc.signed:
+        if getattr(doc, "signed", False):
             return True
     if not docs:
         return True
