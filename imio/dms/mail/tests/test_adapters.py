@@ -669,7 +669,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Second approvers and signer
         self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader", "Reviewer"), "dirg": ("Reader",)}
+            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader", "Reviewer"),
+                                  "dirg": ("Reader", "Reviewer")}
         )
         self.approval.approve_file(self.files[0], "chef")
         self.approval.approve_file(self.files[1], "chef")

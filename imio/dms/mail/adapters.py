@@ -1282,7 +1282,6 @@ class OMApprovalAdapter(object):
             if 0 <= current_nb < nb:
                 continue  # only users that can approve have visibility
             userid, __, __ = self.annot["signers"][nb]
-            roles[userid] = ("Reader",)
             for approver in nb_approvers:
                 def_roles = ["Reader"]
                 # TODO add a specific role and permission to manage approval ?
@@ -1292,6 +1291,8 @@ class OMApprovalAdapter(object):
                         def_roles.append("Editor")
                 # normally we don't overwrite existing userid because an approver cannot be signer
                 roles[approver] = tuple(def_roles)
+                if userid not in roles:
+                    roles[userid] = roles[approver]  # give the signer the same roles as approver
         return roles
 
     def start_approval_process(self):
