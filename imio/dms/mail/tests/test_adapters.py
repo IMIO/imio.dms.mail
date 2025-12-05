@@ -622,13 +622,14 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.approval.start_approval_process()
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.omail, "propose_to_approve")
-        self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Editor")})
+        self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Reviewer", "Editor")})
         self.approval.approve_file(self.files[0], "dirg")
         self.approval.approve_file(self.files[1], "dirg")
 
         # Second approvers
         self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
+            self.approval.roles, {"bourgmestre": ("Reader", "Reviewer"), "chef": ("Reader", "Reviewer"),
+                                  "dirg": ("Reader",)}
         )
         self.approval.approve_file(self.files[0], "bourgmestre")
         self.approval.approve_file(self.files[1], "bourgmestre")
@@ -662,13 +663,13 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.approval.start_approval_process()
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.omail, "propose_to_approve")
-        self.assertEqual(self.approval.roles, {"bourgmestre": ("Reader", "Editor")})
+        self.assertEqual(self.approval.roles, {"bourgmestre": ("Reader", "Reviewer", "Editor")})
         self.approval.approve_file(self.files[0], "bourgmestre")
         self.approval.approve_file(self.files[1], "bourgmestre")
 
         # Second approvers and signer
         self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
+            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader", "Reviewer"), "dirg": ("Reader",)}
         )
         self.approval.approve_file(self.files[0], "chef")
         self.approval.approve_file(self.files[1], "chef")

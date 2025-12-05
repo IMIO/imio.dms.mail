@@ -1286,8 +1286,10 @@ class OMApprovalAdapter(object):
             for approver in nb_approvers:
                 def_roles = ["Reader"]
                 # TODO add a specific role and permission to manage approval ?
-                if self.annot["editors"][nb] and current_nb == nb:  # only current approvers are editors
-                    def_roles.append("Editor")
+                if current_nb == nb:
+                    def_roles.append("Reviewer")
+                    if self.annot["editors"][nb]:  # only current approvers are editors
+                        def_roles.append("Editor")
                 # normally we don't overwrite existing userid because an approver cannot be signer
                 roles[approver] = tuple(def_roles)
         return roles
