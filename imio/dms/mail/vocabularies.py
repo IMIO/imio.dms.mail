@@ -740,6 +740,8 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
                 query['path'] = '{}/annexes_types/outgoing_dms_files'.format(portal_path)
             elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile'):
                 query['path'] = '{}/annexes_types/outgoing_appendix_files'.format(portal_path)
+        elif "folders" in context.getPhysicalPath():
+            query['path'] = '{}/annexes_types/annexes'.format(portal_path)
         else:
             return super(DmsFilesCategoryVocabulary, self)._get_categories(context, only_enabled)
 
