@@ -34,6 +34,8 @@ Changelog
   [chris-adam]
 - Added eSign admin table to manage approvals.
   [chris-adam]
+- Removed 'to_sign' and 'signed' fields from scanbehavior.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

@@ -58,7 +58,7 @@ setup(
         "collective.dms.basecontent",
         "collective.dms.batchimport",
         "collective.dms.mailcontent",
-        "collective.dms.scanbehavior",
+        "collective.dms.scanbehavior>=1.3.2",
         "collective.documentgenerator",
         "collective.externaleditor",
         "collective.fontawesome",
