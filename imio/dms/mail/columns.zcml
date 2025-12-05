@@ -204,6 +204,15 @@
         name="action-column"
     />
 
+  <adapter
+    name="category-column"
+    for="zope.interface.Interface
+          zope.interface.Interface
+          collective.iconifiedcategory.interfaces.ICategorizedTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory="collective.iconifiedcategory.browser.tabview.CategoryColumn"
+    />
+
   <unconfigure package="collective.dms.basecontent">
     <!-- remove state column -->
     <adapter

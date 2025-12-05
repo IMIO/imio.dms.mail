@@ -7,6 +7,7 @@ from collective.messagesviewlet.browser.messagesviewlet import GlobalMessagesVie
 from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
+from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
@@ -71,6 +72,12 @@ class ContactContentBackrefsViewlet(ViewletBase):
 class DMSTaskParentViewlet(TaskParentViewlet):
 
     display_above_element = False
+
+
+class IMVersionsViewlet(VersionsViewlet):
+
+    portal_type = "dmsmainfile"
+    __table__ = IMVersionsTable
 
 
 class OMVersionsViewlet(VersionsViewlet):

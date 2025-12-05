@@ -135,7 +135,7 @@ def add_test_annexes_types(context):
 
     # Category Group for dms main files in incoming mails
     incoming_dms_files_category_group = ccc["incoming_dms_files"]
-    oid, title, img = "incoming-dms-file", _("Incoming DMS File"), u"attach.png"
+    oid, title, img = "incoming-dms-file", _("Incoming DMS File"), u"cahier.png"
     if oid not in incoming_dms_files_category_group:
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
@@ -172,8 +172,8 @@ def add_test_annexes_types(context):
     # Category Group for dms main files in outgoing mails
     outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
     icats = (
-        ("outgoing-dms-file", _("Outgoing DMS File"), u"attach.png", True, True),
-        ("outgoing-scanned-dms-file", _("Outgoing Scanned DMS File"), u"attach.png", True, False),
+        ("outgoing-dms-file", _("Outgoing DMS File"), u"cahier.png", True, True),
+        ("outgoing-scanned-dms-file", _("Outgoing Scanned DMS File"), u"cahier.png", True, False),
     )
     for oid, title, img, to_sign, to_approve in icats:
         if oid in outgoing_dms_files_category_group:

@@ -34,6 +34,8 @@ Changelog
   [chris-adam]
 - Added eSign admin table to manage approvals.
   [chris-adam]
+- Merged versions tables of GED files and appendix files.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
