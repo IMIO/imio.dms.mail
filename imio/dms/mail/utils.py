@@ -1611,7 +1611,7 @@ def update_approvers_settings():
         person = hp.get_person()
         if person.userid and person.userid not in approvings:
             approvings.append(person.userid)
-    old_approvings = set(get_dms_config(["approvings"]))
+    old_approvings = set(get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]))
     if old_approvings != set(approvings):
         set_dms_config(["approvings"], approvings)
         s_approvings = set(approvings)

@@ -27,6 +27,7 @@ from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
@@ -117,6 +118,9 @@ def activate_esigning(context):
     s_l.manage_setLocalRoles("dir_general", ["Contributor"])
     s_l.manage_setLocalRoles("esign_watchers", ["Contributor"])
     s_l.reindexObject()
+
+    # update approvers settings
+    update_approvers_settings()
     return "\n".join(log)
 
 
