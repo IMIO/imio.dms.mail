@@ -837,13 +837,14 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+
         self.assertEqual(
             self.get_perms("agent", self.omail),
             {
                 "Access contents information": True,
                 "Add portal content": True,
                 "Delete objects": False,
-                "Modify portal content": True,
+                "Modify portal content": False,
                 "Request review": True,
                 "Review portal content": True,
                 "View": True,
@@ -891,7 +892,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
                 "Access contents information": True,
                 "Add portal content": True,
                 "Delete objects": False,
-                "Modify portal content": True,
+                "Modify portal content": False,
                 "Request review": True,
                 "Review portal content": True,
                 "View": True,
@@ -939,7 +940,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
                 "Access contents information": True,
                 "Add portal content": True,
                 "Delete objects": True,
-                "Modify portal content": True,
+                "Modify portal content": False,
                 "Request review": True,
                 "Review portal content": True,
                 "View": True,
