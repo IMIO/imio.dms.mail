@@ -17,6 +17,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import convert_and_save_odt
+from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
@@ -1735,3 +1736,18 @@ class OMApprovalAdapter(object):
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
         return True, "{} files added to session number {}".format(len(session_file_uids), session_id)
+
+
+class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
+
+    def get_infos(self, category, limited=False):
+        base_infos = super(DmsCategorizedObjectInfoAdapter, self).get_infos(category, limited=limited)
+        if limited:
+            return base_infos
+        infos = {}
+        if hasattr(self.context, 'scan_id'):
+            infos = {
+                'scan_id': self.context.scan_id,
+            }
+            infos.update(base_infos)
+        return infos
