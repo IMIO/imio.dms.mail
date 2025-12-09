@@ -185,7 +185,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
-        self.ACCEPTABLE_ACTIONS = ["delete"]
+        self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
             "render_create_new_message",
