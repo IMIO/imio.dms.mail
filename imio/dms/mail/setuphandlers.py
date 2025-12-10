@@ -50,6 +50,7 @@ from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
+from imio.helpers.security import generate_password
 from imio.helpers.security import get_environment
 from imio.helpers.workflow import do_transitions
 from plone import api
@@ -536,6 +537,9 @@ def postInstall(context):
 
     # hide plone.portalheader message viewlet
     site.portal_setup.runImportStepFromProfile("profile-plonetheme.imioapps:default", "viewlets")
+
+    # Add users and groups
+    add_scanner_and_groups(site)
 
 
 def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
@@ -2926,6 +2930,61 @@ class HiddenProfiles(object):
         return [
             "imio.dms.mail:singles",
         ]
+
+
+def add_scanner_and_groups(site):
+    """
+    Add French scanner user and groups
+    """
+
+    # creating scanner user
+    password = "Dmsmail69!"
+    if get_environment() == "prod":
+        # password = site.portal_registration.generatePassword()
+        password = generate_password()
+    logger.info("Generated password='%s'" % password)
+    uid = "scanner"
+    try:
+        member = site.portal_registration.addMember(
+            id=uid, password=password, roles=["Member"] + ["Batch importer"]
+        )
+        member.setMemberProperties({"fullname": u"Scanner", "email": "{}@macommune.be".format(uid)})
+    except ValueError as exc:
+        if not str(exc).startswith("The login name you selected is already in use"):
+            logger.error("Error creating user '%s': %s" % (uid, exc))
+
+    if api.group.get("encodeurs") is None:
+        api.group.create("encodeurs", "1 Encodeurs courrier entrant")
+        site["incoming-mail"].manage_addLocalRoles("encodeurs", ["Contributor", "Reader"])
+        site["contacts"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
+        site["contacts"]["contact-lists-folder"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
+        #        site['incoming-mail'].reindexObjectSecurity()
+        api.group.add_user(groupname="encodeurs", username="scanner")
+    if api.group.get("dir_general") is None:
+        api.group.create("dir_general", "1 Directeur général")
+        site["outgoing-mail"].manage_addLocalRoles("dir_general", ["Contributor"])
+        site["contacts"].manage_addLocalRoles("dir_general", ["Contributor", "Editor", "Reader"])
+        site["contacts"]["contact-lists-folder"].manage_addLocalRoles(
+            "dir_general", ["Contributor", "Editor", "Reader"]
+        )
+    if api.group.get("expedition") is None:
+        api.group.create("expedition", "1 Expédition courrier sortant")
+        site["outgoing-mail"].manage_addLocalRoles("expedition", ["Contributor"])
+        site["contacts"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
+        site["contacts"]["contact-lists-folder"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
+        api.group.add_user(groupname="expedition", username="scanner")
+    if api.group.get("gestion_contacts") is None:
+        api.group.create("gestion_contacts", "1 Gestion doublons contacts")
+    if api.group.get("lecteurs_globaux_ce") is None:
+        api.group.create("lecteurs_globaux_ce", "2 Lecteurs Globaux CE")
+    if api.group.get("createurs_dossier") is None:
+        api.group.create("createurs_dossier", "1 Créateurs dossiers")
+    if api.group.get("lecteurs_globaux_cs") is None:
+        api.group.create("lecteurs_globaux_cs", "2 Lecteurs Globaux CS")
+    if api.group.get("audit_contacts") is None:
+        api.group.create("audit_contacts", "1 Audit contacts")
+    if api.group.get("esign_watchers") is None:
+        api.group.create("esign_watchers", "2 Observateurs module signature")
 
 
 def clean_examples_step(context):
