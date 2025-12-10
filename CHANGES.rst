@@ -34,6 +34,8 @@ Changelog
   [chris-adam]
 - Added eSign admin table to manage approvals.
   [chris-adam]
+- Moved groups and scanner user from examples to setuphandlers.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
