@@ -85,18 +85,21 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         self.assertHasNoPerms("agent", self.imail)
         self.assertHasNoPerms("agent1", self.imail)
         self.assertHasAllPerms("encodeur", self.imail)
+        self.assertHasNoPerms("bourgmestre", self.imail)
 
         self.assertHasNoPerms("lecteur", self.file)
         self.assertHasNoPerms("dirg", self.file)
         self.assertHasNoPerms("agent", self.file)
         self.assertHasNoPerms("agent1", self.file)
         self.assertHasAllPerms("encodeur", self.file)
+        self.assertHasNoPerms("bourgmestre", self.file)
 
         self.assertHasNoPerms("lecteur", self.annex)
         self.assertHasNoPerms("dirg", self.annex)
         self.assertHasNoPerms("agent", self.annex)
         self.assertHasNoPerms("agent1", self.annex)
         self.assertHasAllPerms("encodeur", self.annex)
+        self.assertHasNoPerms("bourgmestre", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         self.assertHasNoPerms("dirg", self.task)
@@ -119,6 +122,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertHasNoPerms("bourgmestre", self.task)
 
         self.pw.doActionFor(self.imail, "propose_to_manager")
         clean_borg_cache(self.portal.REQUEST)
@@ -156,6 +160,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.imail)
 
         self.assertHasNoPerms("lecteur", self.file)
         self.assertEqual(
@@ -190,6 +195,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.file)
 
         self.assertHasNoPerms("lecteur", self.annex)
         self.assertEqual(
@@ -224,6 +230,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         self.assertHasNoPerms("dirg", self.task)
@@ -244,6 +251,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertHasNoPerms("bourgmestre", self.task)
 
         change_user(self.portal, "dirg")
         if "proposed_to_n_plus_1" in set(self.pw["incomingmail_workflow"].states):
@@ -299,6 +307,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.imail)
 
         self.assertOnlyViewPerms("lecteur", self.file)
         self.assertEqual(
@@ -347,6 +356,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.file)
 
         self.assertOnlyViewPerms("lecteur", self.annex)
         self.assertEqual(
@@ -395,6 +405,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         self.assertHasNoPerms("dirg", self.task)
@@ -415,6 +426,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertHasNoPerms("bourgmestre", self.task)
 
         change_user(self.portal, "agent")
         self.pw.doActionFor(self.imail, "treat")
@@ -467,6 +479,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.imail)
 
         self.assertOnlyViewPerms("lecteur", self.file)
         self.assertEqual(
@@ -515,6 +528,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.file)
 
         self.assertOnlyViewPerms("lecteur", self.annex)
         self.assertEqual(
@@ -563,6 +577,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         self.assertHasNoPerms("dirg", self.task)
@@ -583,6 +598,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertHasNoPerms("bourgmestre", self.task)
 
         self.pw.doActionFor(self.imail, "close")
         clean_borg_cache(self.portal.REQUEST)
@@ -634,6 +650,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.imail)
 
         self.assertOnlyViewPerms("lecteur", self.file)
         self.assertEqual(
@@ -682,6 +699,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.file)
 
         self.assertOnlyViewPerms("lecteur", self.annex)
         self.assertEqual(
@@ -730,6 +748,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertOnlyViewPerms("bourgmestre", self.annex)
 
         self.assertHasNoPerms("lecteur", self.task)
         self.assertHasNoPerms("dirg", self.task)
@@ -750,6 +769,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
                 "imio.dms.mail: Write treating group field": False,
             },
         )
+        self.assertHasNoPerms("bourgmestre", self.task)
 
 
 class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
