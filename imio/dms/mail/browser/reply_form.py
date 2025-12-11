@@ -27,7 +27,7 @@ class ReplyForm(BaseReplyForm):
         super(ReplyForm, self).updateFields()
         manage_email_fields(self, "add")
         manage_fields(self, "omail_fields", "edit")
-        imio_dmsoutgoingmail_updatefields(self, "add")
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(ReplyForm, self).updateWidgets()
@@ -121,7 +121,7 @@ class MultipleReplyForm(BaseReplyForm):
                     [sender for b in self.brains for sender in b.sender_index if not sender.startswith("l:")]
                 )
                 form["form.widgets.recipients"] = [b.getPath() for b in brains_from_uids(list(sender_uids))]
-        imio_dmsoutgoingmail_updatefields(self, "add")
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(BaseReplyForm, self).updateWidgets()  # skipping BaseReplyForm itself

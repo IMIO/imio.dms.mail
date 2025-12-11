@@ -996,38 +996,12 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
 InitializeClass(ImioDmsOutgoingMailWfConditionsAdapter)
 
 
-def imio_dmsoutgoingmail_updatefields(the_form, action):
+def imio_dmsoutgoingmail_updatefields(the_form):
     """
     Fields update method for add, edit and reply !
     """
     the_form.fields["ITask.assigned_user"].field = copy.copy(the_form.fields["ITask.assigned_user"].field)
     the_form.fields["ITask.assigned_user"].field.required = True
-
-    def set_signing_fields_mode(mode="display"):
-        signing_fieldset = None
-        for group in the_form.groups:
-            if hasattr(group, '__name__') and group.__name__ == 'signing':
-                signing_fieldset = group
-                break
-        if signing_fieldset is not None:
-            for field_name in ['ISigningBehavior.signers', 'ISigningBehavior.seal', 'ISigningBehavior.esign']:
-                if field_name in signing_fieldset.fields:
-                    signing_fieldset.fields[field_name].mode = mode
-
-    if action == "edit":
-        # Admins bypass signing fields readonly
-        if api.user.has_permission("Manage portal"):
-            return
-        # Signers not editable if approval in progress or done
-        current_state = api.content.get_state(obj=the_form.context)
-        if current_state != "created":
-            set_signing_fields_mode()
-            return
-        # Signers not editable if approval is done
-        approval = IOMApproval(the_form.context)
-        if approval.current_nb == -1:
-            set_signing_fields_mode()
-            return
 
 
 def imio_dmsoutgoingmail_updatewidgets(the_form):
@@ -1140,7 +1114,7 @@ class OMEdit(BaseOMEdit):
         super(OMEdit, self).updateFields()
         manage_email_fields(self, "edit")
         manage_fields(self, "omail_fields", "edit")
-        imio_dmsoutgoingmail_updatefields(self, "edit")
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(OMEdit, self).updateWidgets()
@@ -1177,7 +1151,7 @@ class OMCustomAddForm(BaseOMAddForm):
         super(OMCustomAddForm, self).updateFields()
         manage_email_fields(self, "add")
         manage_fields(self, "omail_fields", "edit")
-        imio_dmsoutgoingmail_updatefields(self, "add")
+        imio_dmsoutgoingmail_updatefields(self)
 
     def updateWidgets(self):
         super(OMCustomAddForm, self).updateWidgets()
