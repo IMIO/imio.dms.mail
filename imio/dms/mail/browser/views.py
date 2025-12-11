@@ -9,6 +9,7 @@ from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
@@ -22,6 +23,7 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
+from plone.dexterity.browser.edit import DefaultEditForm
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
