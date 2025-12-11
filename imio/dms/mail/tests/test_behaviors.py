@@ -1,16 +1,23 @@
 # -*- coding: utf-8 -*-
+from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import _tr
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.test_helpers import ImioTestHelpers
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from z3c.form import validator
 from z3c.relationfield import RelationValue
+from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.interface import Interface
 from zope.interface import Invalid
 from zope.intid import IIntIds
+from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
 
@@ -25,6 +32,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         self.intids = getUtility(IIntIds)
         self.change_user("siteadmin")
+        activate_signing(self.portal)
+        self.pw = self.portal.portal_workflow
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
 
@@ -41,7 +50,26 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
             mail_type="type1",
+            esign=True,
+            signers=[{
+                "number": 1,
+                "signer": self.pf["dirg"]["directeur-general"].UID(),
+                "approvings": [u"_themself_"],
+                "editor": True,
+            }],
         )
+        filename = u"Réponse salle.odt"
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            createContentInContainer(
+                omail,
+                "dmsommainfile",
+                id="file",
+                scan_id="012999900000600",
+                file=file_object,
+                content_category=calculate_category_id(ct),
+            )
         invariants = validator.InvariantsValidator(omail, None, None, ISigningBehavior, None)
 
         # Test base case, valid data
@@ -218,4 +246,32 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
+        self.assertEqual(_tr(errors[0].message), error_msg)
+
+        # Test edit signers
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+            ],
+            "esign": True,
+            "seal": False,
+        }
+        errors = invariants.validate(data)
+        self.assertEqual(errors, ())  # no error because siteadmin
+
+        self.change_user("agent")
+        errors = invariants.validate(data)
+        self.assertEqual(errors, ())  # no error because still in created state
+
+        self.change_user("siteadmin")
+        self.pw.doActionFor(omail, "propose_to_approve")
+        self.change_user("dirg")
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = u'Vous ne pouvez pas modifier les signataires une fois le processus d\'approbation commencé ou terminé. Revenez dans l\'état "en création", ou demandez à votre référent.'
         self.assertEqual(_tr(errors[0].message), error_msg)
