@@ -34,6 +34,8 @@ Changelog
   [chris-adam]
 - Added eSign admin table to manage approvals.
   [chris-adam]
+- Prevent modification of signers on a mail when in "to approve" state or later, or already approved.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

@@ -8,6 +8,7 @@ from imio.dms.mail import _
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
+from imio.dms.mail.dmsmail import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.content import find
@@ -168,6 +169,15 @@ class ISigningBehavior(model.Schema):
 
     @invariant
     def validate_signing(data):
+        context = data.__context__
+        is_user_admin = api.user.has_permission("Manage portal")
+        state = api.content.get_state(context)
+        is_fully_approved = IOMApproval(context).current_nb == -1
+        if not is_user_admin and (state != "created" or is_fully_approved):
+            fields_have_changed = context.esign != data.esign or context.seal != data.seal or context.signers != data.signers
+            if fields_have_changed:
+                raise Invalid(_(u'You cannot modify signers once the approval process has started or is done. You may go back to "created" state or ask your admin.'))
+
         if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in data.signers]):
             raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
 
