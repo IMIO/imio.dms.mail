@@ -1742,5 +1742,5 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
 
     def get_infos(self, category, limited=False):
         base_infos = super(DmsCategorizedObjectInfoAdapter, self).get_infos(category, limited=limited)
-        base_infos["scan_id"] = getattr(self.context, "scan_id", None)
+        base_infos["scan_id"] = getattr(self.obj, "scan_id", None)
         return base_infos
