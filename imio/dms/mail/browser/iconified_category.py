@@ -123,10 +123,13 @@ class ApprovedChangeView(BaseApprovedChangeView):
         self.reload = False
         self.uid = self.context.UID()
         self.msg = u""
+        self._p_state = api.content.get_state(self.parent)
 
     @property
     def p_state(self):
-        return api.content.get_state(self.parent)
+        if self._p_state is None:
+            self._p_state = api.content.get_state(self.parent)
+        return self._p_state
 
     @property
     def userid(self):
@@ -162,7 +165,6 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     self.msg = u"Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method
                     # must we pass self to update self.msg: no need for now because we reload in all cases !!
-                    # FIXME This triggers a transition that further raise Unauthorized in _may_set_values
                     ret, self.reload = self.approval.approve_file(
                         afile=self.context,
                         userid=self.userid,
@@ -205,6 +207,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         old_values = self.get_current_values()
         status, values = self._get_next_values(old_values)
         super(BaseApprovedChangeView, self).set_values(values)
+        self._p_state = None  # reset p_state cache
         return status, self.msg
 
     def __call__(self):

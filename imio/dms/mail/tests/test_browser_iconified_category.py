@@ -108,12 +108,13 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.get_url(file1_cc), "%s/@@iconified-approved" % self.file1.absolute_url())
         # "to_approve"
         self.pw.doActionFor(self.omail1, "propose_to_approve")
+        col.get_action_view(file1_cc)._p_state = None  # reset p_state cache
         self.assertEqual(col.get_url(file1_cc), "#")
         self.change_user("dirg")
         self.assertEqual(col.get_url(file1_cc), "%s/@@iconified-approved" % self.file1.absolute_url())
-        # FIXME This raises Unauthorized but still passes
         self.assertEqual(
-            col.get_action_view(file1_cc)(), u'{"msg":"Une erreur est survenue","status":2,"reload": true}'
+            col.get_action_view(file1_cc)(),
+            u'{"msg":"En attente de votre approbation (cliquer pour approuver)","status":1,"reload": true}',
         )
         # TODO "to_print"
         # "to_be_signed"
@@ -121,9 +122,11 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         # "signed"
         self.change_user("encodeur")
         self.pw.doActionFor(self.omail1, "mark_as_signed")
+        col.get_action_view(file1_cc)._p_state = None  # reset p_state cache
         self.assertEqual(col.get_url(file1_cc), "#")
         # "sent"
         self.pw.doActionFor(self.omail1, "mark_as_sent")
+        col.get_action_view(file1_cc)._p_state = None  # reset p_state cache
         self.assertEqual(col.get_url(file1_cc), "#")
 
         # Test css_class
@@ -132,7 +135,6 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         col = ApprovedColumn(self.omail2, self.portal.REQUEST, None)
         # "created", nothing to approve
         col.get_action_view(file2_cc)()  # deactivate approval on file2
-        # file2_brain = get_brain(self.file2)
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), " to-approve ")
         self.assertEqual(col.msg, u"Deactivated for approval")
@@ -141,7 +143,6 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.msg, u"Deactivated for approval (click to activate)")
         # "created", one file to approve
         col.get_action_view(file2_cc)()  # activate approval on file2
-        # file2_brain = get_brain(self.file2)
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), " active to-approve")
         self.assertEqual(col.msg, u"Activated for approval")
@@ -150,6 +151,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.msg, u"Activated for approval (click to deactivate)")
         # "to_approve"
         self.pw.doActionFor(self.omail2, "propose_to_approve")
+        col.get_action_view(file2_cc)._p_state = None  # reset p_state cache
         self.assertEqual(col.css_class(file2_cc), " cant-approve")
         self.assertEqual(col.msg, u"Waiting for the first approval")
         self.change_user("dirg")
@@ -169,16 +171,18 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.css_class(file2_cc), "")
         self.assertEqual(col.msg, u"Waiting for your approval (click to approve)")
         col.get_action_view(file2_cc)()  # bourgmestre approves file
-        # file2_brain = get_brain(self.file2)
+        self._p_state = None  # reset p_state cache | TODO remove once the permissions on the file are fixed
         # "to_be_signed"
         self.assertEqual(col.css_class(file2_cc), " totally-approved")
         self.assertEqual(col.msg, u"Totally approved")
         # "sent", approval deactivated
         self.change_user("agent")
         self.pw.doActionFor(self.omail2, "back_to_creation")
+        col.get_action_view(file2_cc)._p_state = None  # reset p_state cache
         col.get_action_view(file2_cc)()  # Set as not to approve
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.pw.doActionFor(self.omail2, "mark_as_sent")
+        col.get_action_view(file2_cc)._p_state = None  # reset p_state cache
         self.assertEqual(col.css_class(file2_cc), " to-approve")
         self.assertEqual(col.msg, u"Deactivated for approval")
 
@@ -201,6 +205,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
         # "to_approve"
         self.pw.doActionFor(self.omail1, "propose_to_approve")
+        view._p_state = None  # reset p_state cache
         old_values = {"to_approve": False, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": False, "approved": False}))
         self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
