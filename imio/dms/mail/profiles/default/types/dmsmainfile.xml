@@ -2,7 +2,7 @@
 <object name="dmsmainfile" meta_type="Dexterity FTI">
  <property name="behaviors" purge="False">
   <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
-  <element value="collective.dms.scanbehavior.behaviors.behaviors.IScanFields" />
+  <element value="collective.dms.scanbehavior.behaviors.IScanFields" />
   <element value="plone.app.content.interfaces.INameFromTitle" />
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
  </property>
