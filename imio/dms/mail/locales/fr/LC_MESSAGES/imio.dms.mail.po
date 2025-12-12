@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-12-02 14:13+0000\n"
+"POT-Creation-Date: 2025-11-25 07:33+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1079,10 +1079,6 @@ msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} 
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./content/behaviors.py:260
-msgid "The approving with UID ${uid} does not exist !"
-msgstr "L'approbateur dont le UID de sa personne est ${uid} n'existe pas !"
-
 #: ./dmsmail.py:1240
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
@@ -1102,10 +1098,6 @@ msgstr "Le fichier '${file}' a été approuvé par ${user}. Le prochain numéro 
 #: ./content/behaviors.py:192
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr "Le signataire '${signer_title}' n'a pas d'utilisateur Plone sélectionné sur sa personne !"
-
-#: ./content/behaviors.py:235
-msgid "The signer with UID ${uid} does not exist !"
-msgstr "Le signataire avec la position occupée dont le UID est ${uid} n'existe pas !"
 
 #: ./utils.py:644
 msgid "There was an error while creating the signing session: ${msg} !"
@@ -1265,10 +1257,6 @@ msgstr "Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides,
 #: ./subscribers.py:555
 msgid "You cannot have the same email (${email}) for multiple signers !"
 msgstr "Vous ne pouvez pas avoir le même email (${email}) pour plusieurs signataires !"
-
-#: ./content/behaviors.py:204
-msgid "You cannot have the same number for multiple signers !"
-msgstr "Vous ne pouvez pas avoir le même numéro pour plusieurs signataires !"
 
 #: ./content/behaviors.py:185
 msgid "You cannot have the same signer (${signer_title}) multiple times !"

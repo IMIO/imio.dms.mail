@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-12-02 14:13+0000\n"
+"POT-Creation-Date: 2025-11-25 07:33+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1077,10 +1077,6 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./content/behaviors.py:260
-msgid "The approving with UID ${uid} does not exist !"
-msgstr ""
-
 #: ./dmsmail.py:1240
 msgid "The assigned user is not in the selected group !"
 msgstr ""
@@ -1099,10 +1095,6 @@ msgstr ""
 
 #: ./content/behaviors.py:192
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
-msgstr ""
-
-#: ./content/behaviors.py:235
-msgid "The signer with UID ${uid} does not exist !"
 msgstr ""
 
 #: ./utils.py:644
@@ -1262,10 +1254,6 @@ msgstr ""
 
 #: ./subscribers.py:555
 msgid "You cannot have the same email (${email}) for multiple signers !"
-msgstr ""
-
-#: ./content/behaviors.py:204
-msgid "You cannot have the same number for multiple signers !"
 msgstr ""
 
 #: ./content/behaviors.py:185
