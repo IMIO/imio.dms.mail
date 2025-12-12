@@ -881,6 +881,7 @@ class IImioDmsMailConfig(model.Schema):
                 pass
         # check omail_signer_rules
         if fieldset == "outgoingmail" or not fieldset:
+            omail_signer_conditions = {}
             for i, rule in enumerate(data.omail_signer_rules or [], start=1):
                 # check dates
                 today = datetime.date.today()
@@ -965,6 +966,28 @@ class IImioDmsMailConfig(model.Schema):
                     u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
                     mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
                 ))
+                # Check duplicate signers
+                condition = (
+                    rule["signer"],
+                    rule["esign"],
+                    rule["valid_from"],
+                    rule["valid_until"],
+                    tuple(rule["treating_groups"]),
+                    tuple(rule["mail_types"]),
+                    tuple(rule["send_modes"]),
+                    rule["tal_condition"],
+                )
+                if condition in omail_signer_conditions:
+                    number = omail_signer_conditions[condition]
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} is duplicate of rule ${number}. "
+                            u"Conditions defining a rule must be unique.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
+                                     "number": number},
+                        )
+                    )
+                omail_signer_conditions[condition] = i
 
         # check fields
         constraints = {
