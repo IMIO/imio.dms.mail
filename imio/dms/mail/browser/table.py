@@ -30,7 +30,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
     def getLinkTitle(self, item):
         obj = item.getObject()
         if not IScanFields.providedBy(obj):
-            return
+            return ""
         scan_infos = [
             ("scan_id", obj.scan_id and escape(obj.scan_id) or ""),
             ("scan_date", obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ""),

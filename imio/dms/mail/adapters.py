@@ -497,7 +497,7 @@ def ready_for_email_index(obj):
         if not IDmsFile.providedBy(doc):
             continue
         docs.append(doc)
-        if doc.signed:
+        if getattr(doc, "signed", False):
             return True
     if not docs:
         return True
@@ -1733,6 +1733,7 @@ class OMApprovalAdapter(object):
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
         session_id, session = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
+                                                   title=_("[ia.docs] Session {sign_id}"),
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
         return True, "{} files added to session number {}".format(len(session_file_uids), session_id)
