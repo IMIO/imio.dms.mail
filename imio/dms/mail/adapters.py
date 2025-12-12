@@ -1742,12 +1742,5 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
 
     def get_infos(self, category, limited=False):
         base_infos = super(DmsCategorizedObjectInfoAdapter, self).get_infos(category, limited=limited)
-        if limited:
-            return base_infos
-        infos = {}
-        if hasattr(self.context, 'scan_id'):
-            infos = {
-                'scan_id': self.context.scan_id,
-            }
-            infos.update(base_infos)
-        return infos
+        base_infos["scan_id"] = getattr(self.context, "scan_id", None)
+        return base_infos
