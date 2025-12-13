@@ -187,7 +187,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (
-            u"Le signataire avec la position occupée dont le UID est wrong-uid n'existe pas !"
+            u"Le signataire avec la position occupée dont l'UID est wrong-uid n'existe pas !"
         )
         self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
 
@@ -228,7 +228,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir le même numéro pour plusieurs signataires !"
+        error_msg = u"Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
         self.assertEqual(_tr(errors[0].message), error_msg)
 
         # Test missing numbers in sequence
