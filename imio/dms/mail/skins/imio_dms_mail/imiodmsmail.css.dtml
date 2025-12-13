@@ -477,6 +477,30 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     width: auto;
 }
 
+#content #fieldset-versions table.iconified-listing td.column_portal_type_dmsmainfile {
+    background: cornflowerBlue;
+    padding: 0;
+    outline: solid 3px white;
+    outline-offset: -3px;
+    height: 100%;
+}
+
+#content #fieldset-versions table.iconified-listing td.column_portal_type_dmsommainfile {
+    background: cornflowerBlue;
+    padding: 0;
+    outline: solid 3px white;
+    outline-offset: -3px;
+    height: 100%;
+}
+
+#content #fieldset-versions table.iconified-listing td.column_portal_type_dmsappendixfile {
+    background: burlywood;
+    padding: 0;
+    outline: solid 3px white;
+    outline-offset: -3px;
+    height: 100%;
+}
+
 #fieldset-versions table td.iconified-print,
 #fieldset-versions table td.iconified-signed,
 #fieldset-versions table td.iconified-approved {
