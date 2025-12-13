@@ -645,7 +645,7 @@ msgstr "Annexes CE"
 
 #: ./examples.py:138
 msgid "Incoming DMS File"
-msgstr "Fichier ged CS"
+msgstr "Fichier ged CE"
 
 #: ./setuphandlers.py:583
 msgid "Incoming DMS Files"
