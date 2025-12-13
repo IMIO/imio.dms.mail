@@ -252,4 +252,10 @@
         provides="imio.dms.mail.interfaces.IOMApproval"
         />
 
+    <adapter
+        for="collective.dms.basecontent.dmsfile.IDmsFile"
+        provides="collective.iconifiedcategory.interfaces.IIconifiedInfos"
+        factory="imio.dms.mail.adapters.DmsCategorizedObjectInfoAdapter"
+        />
+
 </configure>

@@ -27,12 +27,14 @@ from imio.dms.mail.setuphandlers import update_task_workflow
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
+from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.wfadaptations import IMServiceValidation
 from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
+from imio.esign import manage_session_perm
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.security import get_user_from_criteria
@@ -103,6 +105,22 @@ def activate_esigning(context):
     pos = col_folder.getObjectPosition("searchfor_to_be_signed")
     col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
 
+    # handle navtree_properties
+    unlisted = list(site.portal_properties.navtree_properties.metaTypesNotToList)
+    if "Link" in unlisted:
+        unlisted.remove("Link")
+        site.portal_properties.navtree_properties.manage_changeProperties(metaTypesNotToList=unlisted)
+
+    # change permission on sessions link (once imio.esign is installed)
+    s_l = site["sessions"]
+    s_l.__ac_permissions__ = getattr(s_l, '__ac_permissions', ()) + ((manage_session_perm, ()),)
+    s_l.manage_permission(manage_session_perm, ("Contributor", "Manager", "Site Administrator"), acquire=0)
+    s_l.manage_setLocalRoles("dir_general", ["Contributor"])
+    s_l.manage_setLocalRoles("esign_watchers", ["Contributor"])
+    s_l.reindexObject()
+
+    # update approvers settings
+    update_approvers_settings()
     return "\n".join(log)
 
 

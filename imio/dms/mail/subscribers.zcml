@@ -73,10 +73,10 @@
         handler=".subscribers.dmsdocument_transition"
       />
 
-    <subscriber
+    <!--subscriber
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
              OFS.interfaces.IObjectWillBeRemovedEvent"
-        handler=".subscribers.reference_document_removed" />
+        handler=".subscribers.reference_document_removed" /-->
 
     <!-- IImioDmsIncomingMail -->
     <subscriber
@@ -160,6 +160,16 @@
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
         handler=".subscribers.imiodmsfile_added"
         />
+
+    <subscriber
+        for="imio.dms.mail.dmsfile.IImioDmsFile
+             OFS.interfaces.IObjectWillBeRemovedEvent"
+        handler=".subscribers.imiodmsfile_will_be_removed" />
+
+    <subscriber
+        for="imio.dms.mail.dmsfile.IImioDmsFile
+             zope.app.container.interfaces.IObjectRemovedEvent"
+        handler=".subscribers.imiodmsfile_removed" />
 
     <!--subscriber
         for="imio.dms.mail.dmsfile.IImioDmsFile

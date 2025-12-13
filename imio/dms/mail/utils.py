@@ -24,6 +24,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.helpers.batching import batch_delete_files
 from imio.helpers.batching import batch_get_keys
@@ -1592,3 +1593,34 @@ def clean_borg_cache(req):
     # directly deleting in BTree doesn't work, we must do it in a second time
     for annotation_to_delete in annotations_to_delete:
         del annotations[annotation_to_delete]
+
+
+def update_approvers_settings():
+    """Update approvers settings"""
+    # get all held_positions with usages
+    portal = api.portal.get()
+    pc = portal.portal_catalog
+    brains = pc.unrestrictedSearchResults(
+        portal_type="held_position",
+        usages=["signer", "approving"],
+        object_provides=IPersonnelContact.__identifier__,
+    )
+    approvings = []
+    for brain in brains:
+        hp = brain._unrestrictedGetObject()
+        person = hp.get_person()
+        if person.userid and person.userid not in approvings:
+            approvings.append(person.userid)
+    old_approvings = set(get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]))
+    if old_approvings != set(approvings):
+        set_dms_config(["approvings"], approvings)
+        s_approvings = set(approvings)
+        s_l = portal["sessions"]
+        removed_approvings = old_approvings - s_approvings
+        added_approvings = s_approvings - old_approvings
+        for userid in added_approvings:
+            s_l.manage_setLocalRoles(userid, ["Contributor"])
+            s_l.reindexObject()
+        for userid in removed_approvings:
+            s_l.manage_delLocalRoles([userid])
+            s_l.reindexObject()

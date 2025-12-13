@@ -45,6 +45,7 @@ from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
+from imio.esign.interfaces import IImioSessionsManagementContext
 from imio.helpers.content import create
 from imio.helpers.content import create_NamedBlob
 from imio.helpers.content import richtextval
@@ -1896,6 +1897,28 @@ def create_classification_folders_collections(folder):
     createDashboardCollections(folder, collections)
 
 
+def create_sessions_link(portal):
+    """Create sessions link in portal root if not exists"""
+    if not hasattr(portal, "sessions"):
+        portal.invokeFactory("Link", id="sessions", title="Sessions", remoteUrl="sessions/esign-sessions-listing")
+        s_l = portal["sessions"]
+        s_l.setExcludeFromNav(True)
+        alsoProvides(s_l, IImioSessionsManagementContext)
+        alsoProvides(s_l, IProtectedItem)
+        s_l.manage_permission("Access contents information",
+                              ("Contributor", "Editor", "Manager", "Reader", "Site administrator"), acquire=0)
+        s_l.manage_permission("Modify portal content", ("Owner", ), acquire=0)
+        s_l.manage_permission("View", ("Contributor", "Editor", "Manager", "Reader", "Site administrator"), acquire=0)
+        s_l.changeOwnership(s_l.portal_membership.getMemberById("admin"))
+        s_l.reindexObject()
+
+        unlisted = list(portal.portal_properties.navtree_properties.metaTypesNotToList)
+        if "Link" not in unlisted:
+            unlisted.append("Link")
+            portal.portal_properties.navtree_properties.manage_changeProperties(metaTypesNotToList=unlisted)
+        logger.info("Sessions link created in portal root")
+
+
 def adaptDefaultPortal(context):
     """
     Adapt some properties of the portal
@@ -1993,6 +2016,12 @@ def adaptDefaultPortal(context):
     # site.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
     #                       acquire=0)
 
+    # Default roles for ftw labels
+    site.manage_permission("ftw.labels: Manage Labels Jar", ("Manager", "Site Administrator"), acquire=0)
+    site.manage_permission("ftw.labels: Change Labels", ("Manager", "Site Administrator"), acquire=0)
+    site.manage_permission("ftw.labels: Change Personal Labels", ("Manager", "Site Administrator", "Member"), acquire=0)
+    site.manage_permission("Portlets: Manage own portlets", ("Manager", "Site Administrator"), acquire=0)
+
     # Set markup allowed types: for RichText field, don't display anymore types listbox
     adapter = MarkupControlPanelAdapter(site)
     adapter.set_allowed_types(["text/html"])
@@ -2019,12 +2048,6 @@ def adaptDefaultPortal(context):
             "MailingLoopTemplate",
             "annex",
         ]
-
-    # Default roles for ftw labels
-    site.manage_permission("ftw.labels: Manage Labels Jar", ("Manager", "Site Administrator"), acquire=0)
-    site.manage_permission("ftw.labels: Change Labels", ("Manager", "Site Administrator"), acquire=0)
-    site.manage_permission("ftw.labels: Change Personal Labels", ("Manager", "Site Administrator", "Member"), acquire=0)
-    site.manage_permission("Portlets: Manage own portlets", ("Manager", "Site Administrator"), acquire=0)
 
     # registry
     api.portal.set_registry_record(
@@ -2076,6 +2099,8 @@ def adaptDefaultPortal(context):
         cron_configlet.cronjobs = [
             u"59 3 * * portal/@@various-utils/cron_read_label_handling",
         ]
+
+    create_sessions_link(site)
 
     # configure MailHost
     if get_environment() == "prod":

@@ -1003,7 +1003,7 @@
     <configure package="imio.esign">
         <browser:page
             name="esign-sessions-listing"
-            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            for="imio.esign.interfaces.IImioSessionsManagementContext"
             class="imio.dms.mail.browser.views.ImioSessionsListingView"
             permission="zope2.Public"
             template="browser/templates/sessions.pt"

@@ -227,7 +227,15 @@ def validate_approvings(approvings):
 
 def validate_signer_approvings(data, msg):
     if u"_themself_" in data.get("approvings", []):
-        signer_person = uuidToObject(data["signer"], unrestricted=True).get_person()
+        signer = uuidToObject(data["signer"], unrestricted=True)
+        if signer is None:
+            raise Invalid(
+                _(
+                    u"The signer with UID ${uid} does not exist !",
+                    mapping={"uid": data["signer"]},
+                )
+            )
+        signer_person = signer.get_person()
         if signer_person.UID() in data["approvings"]:
             raise Invalid(msg)
 
@@ -1162,21 +1170,6 @@ def imiodmsmail_settings_changed(event):
             api.group.revoke_roles(groupname=groupname, roles=all_roles, obj=folder)
             api.group.grant_roles(groupname=groupname, roles=roles, obj=folder)
 
-    if event.record.fieldName == "omail_signer_rules":
-        approvings = []
-        for rule in event.newValue or []:
-            for approving in rule["approvings"] or []:
-                if approving == "_empty_":
-                    continue
-                if approving == "_themself_":
-                    signer_person = uuidToObject(rule["signer"], unrestricted=True).get_person()
-                    if signer_person.userid not in approvings:
-                        approvings.append(signer_person.userid)
-                else:
-                    approving_person = uuidToObject(approving, unrestricted=True)
-                    if approving_person.userid not in approvings:
-                        approvings.append(approving_person.userid)
-        set_dms_config(["approvings"], approvings)
     if event.record.fieldName == "imail_group_encoder":
         if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"):
             configure_group_encoder("imail_group_encoder")

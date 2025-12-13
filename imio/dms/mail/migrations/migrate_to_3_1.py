@@ -15,6 +15,7 @@ from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.setuphandlers import create_sessions_link
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import update_solr_config
@@ -83,7 +84,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             # imio.pm.wsclient
             self.upgradeAll(omit=[u"imio.dms.mail:default"])
 
-        if self.is_in_part("c"):  # update workflow, localroles and security
+        if self.is_in_part("c"):  # various, update workflow, localroles and security
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -102,6 +103,10 @@ class Migrate_To_3_1(Migrator):  # noqa
                     api.portal.get_registry_record(
                         "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
                 ))
+
+                # remove wf for Link, so the session listing link permissions can be handled only by local roles
+                self.wfTool.setChainForPortalTypes(('Link',), ())
+                create_sessions_link(self.portal)
 
             # update workflow
             if "signed" not in self.portal.portal_workflow["outgoingmail_workflow"].states:

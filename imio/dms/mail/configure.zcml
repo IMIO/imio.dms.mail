@@ -43,6 +43,7 @@
     <!--include package="collective.schedulefield"/-->
     <include package="imio.pm.wsclient" />
     <include package="dexterity.localrolesfield"/>
+    <include package="imio.esign"/>
     <include package="plone.app.lockingbehavior"/>
     <include package="collective.dexteritytextindexer"/>
     <include package="collective.z3cform.select2" file="minimal.zcml" />
