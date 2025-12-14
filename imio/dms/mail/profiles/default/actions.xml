@@ -123,6 +123,14 @@
    <property name="visible">True</property>
   </object>
 
+  <object name="add_to_esign_session" meta_type="CMF Action" i18n:domain="imio.esign">
+   <property name="available_expr">python:object.portal_type=="dmsoutgoingmail"</property>
+  </object>
+
+  <object name="remove_from_esign_session" meta_type="CMF Action" i18n:domain="imio.esign">
+   <property name="available_expr">python:object.portal_type=="dmsoutgoingmail"</property>
+  </object>
+
  </object>
 
  <object name="user" meta_type="CMF Action Category">
