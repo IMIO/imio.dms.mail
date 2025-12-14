@@ -115,7 +115,7 @@
    <property name="title">Manage approvals</property>
    <property name="description"></property>
    <property name="url_expr">string:${object_url}/@@approvals</property>
-   <property name="available_expr">python:object.portal_workflow.getInfoFor(object, 'review_state') == 'to_approve' and object.has_approvings()</property>
+   <property name="available_expr">python:object.portal_type=="dmsoutgoingmail" and object.portal_workflow.getInfoFor(object, 'review_state') == 'to_approve' and object.has_approvings()</property>
    <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/check-all.svg</property>
    <property name="permissions">
     <element value="Manage portal"/>
