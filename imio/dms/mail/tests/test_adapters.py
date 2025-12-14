@@ -1414,7 +1414,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         ],
                         "discriminators": (),
                         "watchers": ["dirg@macommune.be"],
-                        "title": "",
+                        "title": u'[ia.docs] Session 012999900000',
                         "state": "draft",
                         "signers": [
                             {
@@ -1437,7 +1437,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         "client_id": "0129999",
                         "seal": False,
                         "sign_url": None,
-                        "sign_id": None,
+                        "sign_id": "012999900000",
                         "acroform": True,
                     }
                 },
@@ -1467,7 +1467,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         ],
                         "discriminators": (),
                         "watchers": ["dirg@macommune.be"],
-                        "title": "",
+                        "title": u'[ia.docs] Session 012999900000',
                         "state": "draft",
                         "signers": [
                             {
@@ -1490,7 +1490,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         "client_id": "0129999",
                         "seal": False,
                         "sign_url": None,
-                        "sign_id": None,
+                        "sign_id": "012999900000",
                         "acroform": True,
                     }
                 },

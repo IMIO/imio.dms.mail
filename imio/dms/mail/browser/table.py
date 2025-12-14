@@ -3,6 +3,8 @@ from collective.contact.plonegroup.browser.tables import OrgaPrettyLinkWithAddit
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.iconifiedcategory import utils as ic_utils
+from collective.iconifiedcategory.browser.tabview import CategorizedContent
 from collective.task import _ as _task
 from html import escape
 from imio.dms.mail import _
@@ -30,7 +32,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
     def getLinkTitle(self, item):
         obj = item.getObject()
         if not IScanFields.providedBy(obj):
-            return
+            return ""
         scan_infos = [
             ("scan_id", obj.scan_id and escape(obj.scan_id) or ""),
             ("scan_date", obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ""),
@@ -97,8 +99,34 @@ class AssignedGroupColumn(Column):
         return escape(safe_unicode(voc.getTerm(item.assigned_group).title))
 
 
-class OMVersionsTable(VersionsTable):
-    pass
+class BaseVersionsTable(VersionsTable):
+    portal_types = []
+
+    @property
+    def values(self):
+        if not getattr(self, '_v_stored_values', []):
+            sort_on = 'getObjPositionInParent'
+            data = []
+            for portal_type in self.portal_types:
+                data.extend([
+                    CategorizedContent(self.context, content) for content in
+                    ic_utils.get_categorized_elements(
+                        self.context,
+                        result_type='dict',
+                        portal_type=portal_type,
+                        sort_on=sort_on,
+                    )
+                ][::-1])
+            self._v_stored_values = data
+        return self._v_stored_values
+
+
+class IMVersionsTable(BaseVersionsTable):
+    portal_types = ["dmsmainfile", "dmsappendixfile"]
+
+
+class OMVersionsTable(BaseVersionsTable):
+    portal_types = ["dmsommainfile", "dmsappendixfile"]
 
 
 class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):

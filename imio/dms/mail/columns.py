@@ -242,6 +242,16 @@ class FileActionsColumn(AnnexActionsColumn):
     params = {'showHistory': False, 'showActions': True, 'showArrows': True}
 
 
+class PortalTypeColorColumn(ColorColumn):
+    """Versions table column"""
+
+    attrName = "portal_type"
+    i18n_domain = "imio.dms.mail"
+    sort_index = -1  # not sortable
+    # msgid_prefix = "portal_type_"
+    header = u" "
+    weight = 10
+
 # Columns for collective.task.browser.table.TasksTable
 
 
