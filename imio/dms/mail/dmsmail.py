@@ -872,6 +872,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         approval = IOMApproval(self)
         if not approval.approvers:
             return False
+        elif not approval.files_uids:
+            return False
         elif not all_done:
             return True
         else:  # has approvals and all done

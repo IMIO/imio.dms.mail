@@ -702,6 +702,10 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/reply_icon.png');
 }
 
+.apButtonAction_approvals {
+   background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/check-all.svg');
+}
+
 /* Configure autocomplete widget */
 ul.select2-choices {
     max-width: 18em !important;
