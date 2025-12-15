@@ -664,7 +664,6 @@ def add_test_users_and_groups(context):
 
     # creating users
     users = {
-        ("scanner", u"Scanner"): ["Batch importer"],
         ("encodeur", u"Jean Encodeur"): [],
         ("dirg", u"Maxime DG"): [],
         ("chef", u"Michel Chef"): [],
@@ -690,50 +689,18 @@ def add_test_users_and_groups(context):
                 continue
             logger.error("Error creating user '%s': %s" % (uid, exc))
 
-    if api.group.get("encodeurs") is None:
-        api.group.create("encodeurs", "1 Encodeurs courrier entrant")
-        site["incoming-mail"].manage_addLocalRoles("encodeurs", ["Contributor", "Reader"])
-        site["contacts"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
-        site["contacts"]["contact-lists-folder"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
-        #        site['incoming-mail'].reindexObjectSecurity()
-        api.group.add_user(groupname="encodeurs", username="scanner")
-        api.group.add_user(groupname="encodeurs", username="encodeur")
-    if api.group.get("dir_general") is None:
-        api.group.create("dir_general", "1 Directeur général")
-        api.group.add_user(groupname="dir_general", username="dirg")
-        site["outgoing-mail"].manage_addLocalRoles("dir_general", ["Contributor"])
-        site["contacts"].manage_addLocalRoles("dir_general", ["Contributor", "Editor", "Reader"])
-        site["contacts"]["contact-lists-folder"].manage_addLocalRoles(
-            "dir_general", ["Contributor", "Editor", "Reader"]
-        )
-    if api.group.get("expedition") is None:
-        api.group.create("expedition", "1 Expédition courrier sortant")
-        site["outgoing-mail"].manage_addLocalRoles("expedition", ["Contributor"])
-        site["contacts"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
-        site["contacts"]["contact-lists-folder"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
-        api.group.add_user(groupname="expedition", username="scanner")
-        api.group.add_user(groupname="expedition", username="encodeur")
-    if api.group.get("gestion_contacts") is None:
-        api.group.create("gestion_contacts", "1 Gestion doublons contacts")
-        api.group.add_user(groupname="gestion_contacts", username="encodeur")
-    if api.group.get("lecteurs_globaux_ce") is None:
-        api.group.create("lecteurs_globaux_ce", "2 Lecteurs Globaux CE")
-        api.group.add_user(groupname="lecteurs_globaux_ce", username="bourgmestre")
-    if api.group.get("createurs_dossier") is None:
-        api.group.create("createurs_dossier", "1 Créateurs dossiers")
-        api.group.add_user(groupname="createurs_dossier", username="dirg")
-        api.group.add_user(groupname="createurs_dossier", username="agent")
-        api.group.add_user(groupname="createurs_dossier", username="chef")
-    if api.group.get("lecteurs_globaux_cs") is None:
-        api.group.create("lecteurs_globaux_cs", "2 Lecteurs Globaux CS")
-        api.group.add_user(groupname="lecteurs_globaux_cs", username="bourgmestre")
-        api.group.add_user(groupname="lecteurs_globaux_cs", username="dirg")
-    if api.group.get("audit_contacts") is None:
-        api.group.create("audit_contacts", "1 Audit contacts")
-        api.group.add_user(groupname="audit_contacts", username="dirg")
-    if api.group.get("esign_watchers") is None:
-        api.group.create("esign_watchers", "2 Observateurs module signature")
-        api.group.add_user(groupname="esign_watchers", username="dirg")
+    api.group.add_user(groupname="encodeurs", username="encodeur")
+    api.group.add_user(groupname="dir_general", username="dirg")
+    api.group.add_user(groupname="expedition", username="encodeur")
+    api.group.add_user(groupname="gestion_contacts", username="encodeur")
+    api.group.add_user(groupname="lecteurs_globaux_ce", username="bourgmestre")
+    api.group.add_user(groupname="createurs_dossier", username="dirg")
+    api.group.add_user(groupname="createurs_dossier", username="agent")
+    api.group.add_user(groupname="createurs_dossier", username="chef")
+    api.group.add_user(groupname="lecteurs_globaux_cs", username="bourgmestre")
+    api.group.add_user(groupname="lecteurs_globaux_cs", username="dirg")
+    api.group.add_user(groupname="audit_contacts", username="dirg")
+    api.group.add_user(groupname="esign_watchers", username="dirg")
 
 
 def configure_batch_import(context):

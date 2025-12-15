@@ -759,6 +759,7 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u"Users hidden in dashboards filter"),
         required=False,
         value_type=schema.Choice(vocabulary=u"imio.dms.mail.AssignedUsersWithDeactivatedVocabulary"),
+        default=[],
     )
     widget("users_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
 
