@@ -6,9 +6,11 @@ from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
+from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
@@ -26,6 +28,7 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.PageTemplates.Expressions import SecureModuleImporter
+from Products.statusmessages.interfaces import IStatusMessage
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
@@ -497,3 +500,57 @@ class SigningUsersCsv(BaseSigningUsersCsv):
             if base_hasattr(hp_obj, "usages") and "signer" in hp_obj.usages:
                 return True
         return False
+
+
+class ApprovalTableView(BrowserView):
+    """Main view for approvals table."""
+
+    __table__ = ApprovalTable
+
+    def __init__(self, context, request):
+        super(ApprovalTableView, self).__init__(context, request)
+        self.table = self.__table__(context, request)
+
+    def available(self):
+        # plone.api.user.has_permission doesn't work with zope admin
+        # if not getSecurityManager().checkPermission("Manage portal", self.context):
+        #     return False
+        if not self.context.has_approvings():
+            return False
+        state = api.content.get_state(self.context)
+        if state in ("to_print", "to_be_signed", "signed", "sent"):
+            return False
+        return True
+
+    def __call__(self):
+        if not self.available():
+            return ""
+        self.update()
+        self.handle_form()
+        return self.index()
+
+    def update(self):
+        self.table.update()
+
+    def handle_form(self):
+        form = self.request.form
+        save_button = form.get("form.button.Save", None) is not None
+        cancel_button = form.get("form.button.Cancel", None) is not None
+        if save_button and not cancel_button:
+            approval = IOMApproval(self.context)
+            to_approve = []
+            for i_signer, signer in enumerate(approval.signers):
+                for i_fuid, fuid in enumerate(approval.files_uids):
+                    key = "approvals.%s.%s" % (fuid, signer)
+                    if key in form:
+                        if not approval.is_file_approved(fuid, nb=i_signer):
+                            to_approve.append((uuidToObject(fuid), signer, i_signer))
+                    else:
+                        if approval.is_file_approved(fuid, nb=i_signer):
+                            approval.unapprove_file(uuidToObject(fuid), signer)
+
+            # Approve only now to avoid unwanted transition
+            for fobj, signer, i_signer in to_approve:
+                approval.approve_file(fobj, signer, c_a=i_signer, transition="propose_to_be_signed")
+
+            IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")

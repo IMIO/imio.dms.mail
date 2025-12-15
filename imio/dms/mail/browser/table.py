@@ -3,6 +3,8 @@ from collective.contact.plonegroup.browser.tables import OrgaPrettyLinkWithAddit
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.iconifiedcategory import utils as ic_utils
+from collective.iconifiedcategory.browser.tabview import CategorizedContent
 from collective.task import _ as _task
 from html import escape
 from imio.dms.mail import _
@@ -30,7 +32,7 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
     def getLinkTitle(self, item):
         obj = item.getObject()
         if not IScanFields.providedBy(obj):
-            return
+            return ""
         scan_infos = [
             ("scan_id", obj.scan_id and escape(obj.scan_id) or ""),
             ("scan_date", obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ""),
@@ -97,8 +99,34 @@ class AssignedGroupColumn(Column):
         return escape(safe_unicode(voc.getTerm(item.assigned_group).title))
 
 
-class OMVersionsTable(VersionsTable):
-    pass
+class BaseVersionsTable(VersionsTable):
+    portal_types = []
+
+    @property
+    def values(self):
+        if not getattr(self, '_v_stored_values', []):
+            sort_on = 'getObjPositionInParent'
+            data = []
+            for portal_type in self.portal_types:
+                data.extend([
+                    CategorizedContent(self.context, content) for content in
+                    ic_utils.get_categorized_elements(
+                        self.context,
+                        result_type='dict',
+                        portal_type=portal_type,
+                        sort_on=sort_on,
+                    )
+                ][::-1])
+            self._v_stored_values = data
+        return self._v_stored_values
+
+
+class IMVersionsTable(BaseVersionsTable):
+    portal_types = ["dmsmainfile", "dmsappendixfile"]
+
+
+class OMVersionsTable(BaseVersionsTable):
+    portal_types = ["dmsommainfile", "dmsappendixfile"]
 
 
 class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
@@ -211,45 +239,3 @@ class ApprovalTable(Table):
             file = uuidToObject(file_uid)
             results.append(file)
         return results
-
-
-class ApprovalTableView(BrowserView):
-    """Main view for approvals table."""
-
-    index = ViewPageTemplateFile("templates/approvals.pt")
-    __table__ = ApprovalTable
-
-    def __init__(self, context, request):
-        super(ApprovalTableView, self).__init__(context, request)
-        self.table = self.__table__(context, request)
-
-    def __call__(self):
-        self.update()
-        self.handle_form()
-        return self.index()
-
-    def update(self):
-        self.table.update()
-
-    def handle_form(self):
-        form = self.request.form
-        save_button = form.get("form.button.Save", None) is not None
-        cancel_button = form.get("form.button.Cancel", None) is not None
-        if save_button and not cancel_button:
-            approval = OMApprovalAdapter(self.context)
-            to_approve = []
-            for i_signer, signer in enumerate(approval.signers):
-                for i_fuid, fuid in enumerate(approval.files_uids):
-                    key = "approvals.%s.%s" % (fuid, signer)
-                    if key in form:
-                        if not approval.is_file_approved(fuid, nb=i_signer):
-                            to_approve.append((uuidToObject(fuid), signer, i_signer))
-                    else:
-                        if approval.is_file_approved(fuid, nb=i_signer):
-                            approval.unapprove_file(uuidToObject(fuid), signer)
-
-            # Approve only now to avoid unwanted transition
-            for fobj, signer, i_signer in to_approve:
-                approval.approve_file(fobj, signer, c_a=i_signer, transition="propose_to_be_signed")
-
-            IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")

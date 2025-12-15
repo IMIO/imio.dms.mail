@@ -204,6 +204,15 @@
         name="action-column"
     />
 
+  <adapter
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
+             zope.publisher.interfaces.browser.IBrowserRequest
+             collective.dms.basecontent.browser.listing.VersionsTable"
+        factory=".columns.PortalTypeColorColumn"
+        provides="z3c.table.interfaces.IColumn"
+        name="colored-type"
+    />
+
   <unconfigure package="collective.dms.basecontent">
     <!-- remove state column -->
     <adapter
