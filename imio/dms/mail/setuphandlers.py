@@ -539,7 +539,7 @@ def postInstall(context):
     site.portal_setup.runImportStepFromProfile("profile-plonetheme.imioapps:default", "viewlets")
 
     # Add users and groups
-    add_scanner_and_groups(site)
+    create_users_and_groups(site)
 
 
 def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
@@ -2932,15 +2932,13 @@ class HiddenProfiles(object):
         ]
 
 
-def add_scanner_and_groups(site):
+def create_users_and_groups(site):
     """
     Add French scanner user and groups
     """
-
     # creating scanner user
     password = "Dmsmail69!"
     if get_environment() == "prod":
-        # password = site.portal_registration.generatePassword()
         password = generate_password()
     logger.info("Generated password='%s'" % password)
     uid = "scanner"
@@ -2948,43 +2946,43 @@ def add_scanner_and_groups(site):
         member = site.portal_registration.addMember(
             id=uid, password=password, roles=["Member"] + ["Batch importer"]
         )
-        member.setMemberProperties({"fullname": u"Scanner", "email": "{}@macommune.be".format(uid)})
+        member.setMemberProperties({"fullname": _(u"Scanner"), "email": "{}@macommune.be".format(uid)})
     except ValueError as exc:
         if not str(exc).startswith("The login name you selected is already in use"):
             logger.error("Error creating user '%s': %s" % (uid, exc))
 
     if api.group.get("encodeurs") is None:
-        api.group.create("encodeurs", "1 Encodeurs courrier entrant")
+        api.group.create("encodeurs", _("1 IM encoders"))
         site["incoming-mail"].manage_addLocalRoles("encodeurs", ["Contributor", "Reader"])
         site["contacts"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
         site["contacts"]["contact-lists-folder"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
         #        site['incoming-mail'].reindexObjectSecurity()
         api.group.add_user(groupname="encodeurs", username="scanner")
     if api.group.get("dir_general") is None:
-        api.group.create("dir_general", "1 Directeur général")
+        api.group.create("dir_general", _("1 General manager"))
         site["outgoing-mail"].manage_addLocalRoles("dir_general", ["Contributor"])
         site["contacts"].manage_addLocalRoles("dir_general", ["Contributor", "Editor", "Reader"])
         site["contacts"]["contact-lists-folder"].manage_addLocalRoles(
             "dir_general", ["Contributor", "Editor", "Reader"]
         )
     if api.group.get("expedition") is None:
-        api.group.create("expedition", "1 Expédition courrier sortant")
+        api.group.create("expedition", _("1 OM dispatch"))
         site["outgoing-mail"].manage_addLocalRoles("expedition", ["Contributor"])
         site["contacts"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
         site["contacts"]["contact-lists-folder"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
         api.group.add_user(groupname="expedition", username="scanner")
     if api.group.get("gestion_contacts") is None:
-        api.group.create("gestion_contacts", "1 Gestion doublons contacts")
-    if api.group.get("lecteurs_globaux_ce") is None:
-        api.group.create("lecteurs_globaux_ce", "2 Lecteurs Globaux CE")
+        api.group.create("gestion_contacts", _("1 Duplicate contacts management"))
     if api.group.get("createurs_dossier") is None:
-        api.group.create("createurs_dossier", "1 Créateurs dossiers")
-    if api.group.get("lecteurs_globaux_cs") is None:
-        api.group.create("lecteurs_globaux_cs", "2 Lecteurs Globaux CS")
+        api.group.create("createurs_dossier", _("1 Folders creators"))
     if api.group.get("audit_contacts") is None:
-        api.group.create("audit_contacts", "1 Audit contacts")
+        api.group.create("audit_contacts", _("1 Contacts audit"))
+    if api.group.get("lecteurs_globaux_ce") is None:
+        api.group.create("lecteurs_globaux_ce", _("2 IM global readers"))
+    if api.group.get("lecteurs_globaux_cs") is None:
+        api.group.create("lecteurs_globaux_cs", _("2 OM global readers"))
     if api.group.get("esign_watchers") is None:
-        api.group.create("esign_watchers", "2 Observateurs module signature")
+        api.group.create("esign_watchers", _("2 External signing watchers"))
 
 
 def clean_examples_step(context):
