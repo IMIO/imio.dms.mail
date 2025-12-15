@@ -5,28 +5,27 @@
     metal:use-macro="context/main_template/macros/master"
     i18n:domain="imio.dms.mail">
     <body>
+      <metal:bodytext fill-slot="main">
+        <h1 metal:use-macro="context/kss_generic_macros/macros/generic_title_view">
+         Generic KSS Title. Is rendered with class="documentFirstHeading".
+        </h1>
+        <div id="content-core">
+          <form method="post"
+              tal:attributes="action string:${context/absolute_url}/@@approvals">
 
-        <metal:main fill-slot="content-core">
-            <metal:content-core define-macro="content-core">
+              <div id="esign-approvals-table-container">
+                  <tal:block define="results view/table/values;" tal:condition="results">
+                      <tal:listing replace="structure view/table/render" />
+                  </tal:block>
+              </div>
 
-                <form method="post"
-                    tal:attributes="action string:${context/absolute_url}/@@approvals">
+              <input id="esign-approvals-save-button" class="context allowMultiSubmit" type="submit"
+                  name="form.button.Save" value="Save" i18n:attributes="value label_save" />
+              <input class="standalone" type="submit" name="form.button.Cancel" value="Cancel"
+                  i18n:attributes="value label_cancel" />
 
-                    <div id="esign-approvals-table-container">
-                        <tal:block define="results view/table/values;" tal:condition="results">
-                            <tal:listing replace="structure view/table/render" />
-                        </tal:block>
-                    </div>
-
-                    <input id="esign-approvals-save-button" class="context allowMultiSubmit" type="submit"
-                        name="form.button.Save" value="Save" i18n:attributes="value label_save" />
-                    <input class="standalone" type="submit" name="form.button.Cancel" value="Cancel"
-                        i18n:attributes="value label_cancel" />
-
-                </form>
-
-            </metal:content-core>
-        </metal:main>
-
+          </form>
+        </div>
+      </metal:bodytext>
     </body>
 </html>

@@ -733,6 +733,11 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u"recipient_groups"])
 
+    @property
+    def approval(self):
+        """Returns the adapter providing approval behavior"""
+        return IOMApproval(self)
+
     def get_files_to_sign(self):
         """Returns the list of ImioDmsFile objects to sign"""
         # TODO to be modified to take into account to be signed attribute
