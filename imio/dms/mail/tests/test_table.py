@@ -6,9 +6,9 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.browser.table import ApprovalTableView
 from imio.dms.mail.browser.table import AssignedGroupColumn
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
+from imio.dms.mail.browser.views import ApprovalTableView
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING

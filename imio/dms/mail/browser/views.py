@@ -27,6 +27,7 @@ from plone import api
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.PageTemplates.Expressions import SecureModuleImporter
 from Products.statusmessages.interfaces import IStatusMessage
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
@@ -505,6 +506,7 @@ class SigningUsersCsv(BaseSigningUsersCsv):
 class ApprovalTableView(BrowserView):
     """Main view for approvals table."""
 
+    index = ViewPageTemplateFile("templates/approvals.pt")  # also needed here for tests
     __table__ = ApprovalTable
 
     def __init__(self, context, request):

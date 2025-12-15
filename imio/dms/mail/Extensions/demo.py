@@ -17,13 +17,12 @@ from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import persistent_to_native
 from imio.helpers.content import find
 from imio.helpers.security import check_zope_admin
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.utils import safe_encode
 from itertools import cycle
-from persistent.list import PersistentList
-from persistent.mapping import PersistentMapping
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -536,14 +535,7 @@ def approval_annot(self):
         return "You have to call this script on an outgoing mail"
     oma = IOMApproval(self)
 
-    def to_native(obj):
-        if isinstance(obj, PersistentMapping):
-            return {k: to_native(v) for k, v in obj.items()}
-        elif isinstance(obj, PersistentList):
-            return [to_native(v) for v in obj]
-        return obj
-
-    dic = to_native(oma.annot)
+    dic = persistent_to_native(oma.annot)
     import pprint
 
     # api.portal.show_message(
