@@ -49,7 +49,8 @@ class ApprovedColumn(BaseApprovedColumn):
         av = self.get_action_view(content)
         editable = self.is_editable(content) and " editable" or ""
         # when deactivated, anyone see a grey icon
-        if av.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        state = av.p_state
+        if self.approval.is_state_before_approve(state=state):
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):
                 if (not self.approval.approvers or not content.to_sign or not editable or  # noqa W504
@@ -71,7 +72,7 @@ class ApprovedColumn(BaseApprovedColumn):
         # when to_approve, the red icon (no class) is shown if :
         #  * no approval at all
         #  * but the current approver see a green icon when he just approved
-        elif av.p_state == "to_approve":
+        elif state == "to_approve":
             approver_number = self.approval.get_approver_nb(av.userid)
             # current user can approve now
             if self.approval.can_approve(av.userid, av.uid):
@@ -102,10 +103,11 @@ class ApprovedColumn(BaseApprovedColumn):
     def get_url(self, content):
         av = self.get_action_view(content)
         # after to_approve state, no one can click on the icon
-        if av.p_state in ("to_print", "to_be_signed", "signed", "sent"):
+        state = av.p_state
+        if self.approval.is_state_after_approve(state=state):
             return "#"
         # when to_approve, only an approver can click on the icon
-        if av.p_state == "to_approve" and not self.approval.can_approve(av.userid, av.uid):
+        if state == "to_approve" and not self.approval.can_approve(av.userid, av.uid):
             return "#"
         return "{url}/@@{action}".format(
             url=content.getURL(),
@@ -173,7 +175,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     values["approved"] = ret
             elif not values["to_approve"]:
                 values["approved"] = False
-        elif self.p_state not in ("to_print", "to_be_signed", "signed", "sent"):
+        elif self.approval.is_state_before_or_approve(state=self.p_state):
             # before to_approve state, we can only enable or disable to_approve
             if not old_values["to_approve"]:
                 values["to_approve"] = True
@@ -197,7 +199,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         return status, values
 
     def _may_set_values(self, values):
-        if self.p_state in ("to_print", "to_be_signed", "signed", "sent"):
+        if self.approval.is_state_after_approve():
             return False
         return super(ApprovedChangeView, self)._may_set_values(values)
 

@@ -1275,8 +1275,7 @@ class OMApprovalAdapter(object):
     def roles(self):
         roles = {}
         current_nb = self.current_nb
-        state = api.content.get_state(self.context)
-        if current_nb is None or state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if current_nb is None or self.is_state_before_approve():
             return roles
         for nb, nb_approvers in enumerate(self.annot["approvers"]):
             if 0 <= current_nb < nb:
@@ -1294,6 +1293,38 @@ class OMApprovalAdapter(object):
                 if userid not in roles:
                     roles[userid] = roles[approver]  # give the signer the same roles as approver
         return roles
+
+    def is_state_before_approve(self, state=None):
+        """Return True if the current state is before approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
+
+    def is_state_before_or_approve(self, state=None):
+        """Return True if the current state is before or in approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state not in ("to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
+
+    def is_state_after_approve(self, state=None):
+        """Return True if the current state is after approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state in ("to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
+
+    def is_state_after_or_approve(self, state=None):
+        """Return True if the current state is after or in approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
 
     def start_approval_process(self):
         """Update the annotation to start the approval process."""
