@@ -12,12 +12,10 @@ from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from z3c.form import validator
-from z3c.relationfield import RelationValue
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.interface import Interface
 from zope.interface import Invalid
-from zope.intid import IIntIds
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
@@ -380,5 +378,6 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u'Vous ne pouvez pas modifier les signataires une fois le processus d\'approbation commencé ou terminé. Revenez dans l\'état "en création", ou demandez à votre référent.'
+        error_msg = (u"Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
+                     u"terminé. Revenez dans un état précédent ou demandez à votre référent.")
         self.assertEqual(_tr(errors[0].message), error_msg)

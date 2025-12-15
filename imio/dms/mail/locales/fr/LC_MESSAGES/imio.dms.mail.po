@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2025-12-15 07:59+0000\n"
+"POT-Creation-Date: 2025-12-15 13:59+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -81,7 +81,7 @@ msgstr "Onglet « ${tab} »: champ « ${field} », la date « ${until} » doit �
 msgid "${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal to « ${from} »"
 msgstr "Onglet « ${tab} »: champ « ${field} », la date « ${until} » doit être >= à la date « ${from} »"
 
-#: ./browser/views.py:48
+#: ./browser/views.py:51
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -106,7 +106,7 @@ msgid "'${field}': position ${position}"
 msgstr "'${field}': position ${position}"
 
 #: ./browser/settings.py:248
-#: ./content/behaviors.py:91
+#: ./content/behaviors.py:92
 msgid "* No signature"
 msgstr "* Aucune signature"
 
@@ -174,7 +174,7 @@ msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 msgid "<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>"
 msgstr "<span class='unconfigured-fields'>Les champs non configurés et donc non affichés sont: ${list}</span>"
 
-#: ./content/behaviors.py:214
+#: ./content/behaviors.py:225
 msgid "A signer is missing at position: ${positions} !"
 msgstr "Un signataire est manquant aux positions ${positions} !"
 
@@ -182,7 +182,7 @@ msgstr "Un signataire est manquant aux positions ${positions} !"
 msgid "A signer is missing at position: ${positions} ! You have to adapt the rules !"
 msgstr "Un signataire est manquant aux positions ${positions} ! Il faut adapter les règles dans la configuration !"
 
-#: ./adapters.py:1617
+#: ./adapters.py:1648
 msgid "A signing session has been created: ${msg}."
 msgstr "Une session de signature a été créée: ${msg}."
 
@@ -275,7 +275,7 @@ msgid "Approving"
 msgstr "Approbateur"
 
 #: ./browser/settings.py:341
-#: ./content/behaviors.py:115
+#: ./content/behaviors.py:116
 #: ./profiles/default/registry.xml
 msgid "Approvings"
 msgstr "Approbateurs"
@@ -352,15 +352,15 @@ msgstr "Changement de service traitant par lot"
 msgid "Can choose possible usages (on held position)"
 msgstr "Champ « Utilisé comme » (pour fonction occupée)"
 
-#: ./browser/views.py:246
+#: ./browser/views.py:249
 msgid "Cannot use localhost as smtp"
 msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 
-#: ./content/behaviors.py:343
+#: ./content/behaviors.py:354
 msgid "Category to apply on generated documents from this template."
 msgstr "Catégorie à appliquer sur les documents générés depuis ce modèle."
 
-#: ./browser/table.py:283
+#: ./browser/views.py:556
 msgid "Changes saved."
 msgstr "Changements sauvegardés."
 
@@ -381,12 +381,12 @@ msgid "Check if there is an assigned user before proposing incoming mail to an a
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent."
 
 #: ./browser/settings.py:183
-#: ./content/behaviors.py:90
+#: ./content/behaviors.py:91
 #: ./vocabularies.py:208
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:53
+#: ./browser/views.py:56
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -440,11 +440,11 @@ msgstr "Export des contacts"
 msgid "Create from template"
 msgstr "Créer depuis modèle"
 
-#: ./content/behaviors.py:39
+#: ./content/behaviors.py:40
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:892
+#: ./utils.py:893
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
@@ -456,7 +456,7 @@ msgstr "Version actuelle du produit"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
-#: ./content/behaviors.py:56
+#: ./content/behaviors.py:57
 msgid "Data transfer"
 msgstr "Reprise de données"
 
@@ -464,7 +464,7 @@ msgstr "Reprise de données"
 msgid "Default bcc emails"
 msgstr "Valeurs par défaut du champ 'Emails des destinataires en copie cachée'"
 
-#: ./content/behaviors.py:342
+#: ./content/behaviors.py:353
 msgid "Default content category"
 msgstr "Catégorie par défaut"
 
@@ -521,12 +521,12 @@ msgid "Due date extension"
 msgstr "Échéance par défaut"
 
 #: ./browser/settings.py:351
-#: ./content/behaviors.py:125
+#: ./content/behaviors.py:126
 msgid "Editor"
 msgstr "Éditeur"
 
 #: ./browser/settings.py:335
-#: ./content/behaviors.py:165
+#: ./content/behaviors.py:166
 msgid "Electronic signature"
 msgstr "Signature élec."
 
@@ -559,7 +559,7 @@ msgid "Enable edition of service office templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles bureautiques de son service."
 
 #: ./browser/settings.py:352
-#: ./content/behaviors.py:126
+#: ./content/behaviors.py:127
 msgid "Enable edition when approving."
 msgstr "Permet l'édition pour l'approbateur"
 
@@ -595,7 +595,7 @@ msgstr "Champ"
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: ./adapters.py:1683
+#: ./adapters.py:1714
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr "Le fichier '${file}' a un identifiant de scan manquant ou invalide. Il ne peut être ajouté à la session de signature."
 
@@ -749,7 +749,7 @@ msgstr "Avis légal"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./content/behaviors.py:147
+#: ./content/behaviors.py:148
 msgid "List of users who have to sign this document"
 msgstr "Liste des signataires (avec l'intitulé de la fonction occupée)"
 
@@ -781,6 +781,10 @@ msgstr "Publipostage"
 #: ./setuphandlers.py:2755
 msgid "Mailing template"
 msgstr "Publipostage"
+
+#: ./profiles/default/actions.xml
+msgid "Manage approvals"
+msgstr "Gestion approb."
 
 #: ./profiles/default/types/member_area.xml
 msgid "Member Area"
@@ -815,7 +819,7 @@ msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
 #: ./browser/settings.py:320
-#: ./content/behaviors.py:101
+#: ./content/behaviors.py:102
 msgid "Number"
 msgstr "Numéro"
 
@@ -962,7 +966,7 @@ msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
 
 #: ./browser/settings.py:328
-#: ./content/behaviors.py:109
+#: ./content/behaviors.py:110
 msgid "Related userid will be the signer. Position name of the held position will be used."
 msgstr "Le signataire est l'utilisateur lié à la fonction occupée dont l'intitulé est utilisé dans la signature."
 
@@ -1002,7 +1006,7 @@ msgstr "Les règles de signataires sont lues dans l'ordre et appliquées sur la 
 msgid "Scanner"
 msgstr "Scanner"
 
-#: ./content/behaviors.py:160
+#: ./content/behaviors.py:161
 msgid "Seal"
 msgstr "Sceau"
 
@@ -1053,17 +1057,17 @@ msgid "Set None"
 msgstr "* Pas de valeur"
 
 #: ./browser/settings.py:327
-#: ./content/behaviors.py:108
+#: ./content/behaviors.py:109
 #: ./vocabularies.py:132
 msgid "Signer"
 msgstr "Signataire"
 
-#: ./content/behaviors.py:178
+#: ./content/behaviors.py:189
 msgid "Signer line ${nb} has a duplicate approver with themself."
 msgstr "La ligne ${nb} des signataires a un doublon d'approbateur avec lui-même."
 
 #: ./browser/settings.py:321
-#: ./content/behaviors.py:102
+#: ./content/behaviors.py:103
 msgid "Signer number on the document."
 msgstr "Numéro du signataire sur le document."
 
@@ -1071,11 +1075,11 @@ msgstr "Numéro du signataire sur le document."
 msgid "Signer rules"
 msgstr "Règles de signataires"
 
-#: ./content/behaviors.py:146
+#: ./content/behaviors.py:147
 msgid "Signers"
 msgstr "Signataires"
 
-#: ./content/behaviors.py:137
+#: ./content/behaviors.py:138
 msgid "Signing fieldset"
 msgstr "Signatures"
 
@@ -1139,8 +1143,8 @@ msgstr "Recherches tâches"
 msgid "Technical specifications"
 msgstr "Spécifications techniques"
 
-#: ./adapters.py:1399
-#: ./content/behaviors.py:261
+#: ./adapters.py:1430
+#: ./content/behaviors.py:272
 msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} <=> ${c}"
 
@@ -1148,11 +1152,11 @@ msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} 
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./content/behaviors.py:253
+#: ./content/behaviors.py:264
 msgid "The approving with UID ${uid} does not exist !"
 msgstr "L'approbateur dont le UID de sa personne est ${uid} n'existe pas !"
 
-#: ./dmsmail.py:1243
+#: ./dmsmail.py:1248
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
@@ -1160,7 +1164,7 @@ msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 msgid "The file '${file}' has been approved by ${user}. All approvals have been done for this file."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Toutes les approbations ont été effectuées."
 
-#: ./adapters.py:1567
+#: ./adapters.py:1598
 msgid "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files to approve on this mail."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Cependant, il y a encore ${nb} fichier(s) à approuver sur cette fiche."
 
@@ -1168,11 +1172,11 @@ msgstr "Le fichier '${file}' a été approuvé par ${user}. Cependant, il y a en
 msgid "The file '${file}' has been approved by ${user}. Next approval number is ${nb}."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Le prochain numéro d'approbation est ${nb}."
 
-#: ./content/behaviors.py:192
+#: ./content/behaviors.py:203
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr "Le signataire '${signer_title}' n'a pas d'utilisateur Plone sélectionné sur sa personne !"
 
-#: ./adapters.py:1372
+#: ./adapters.py:1403
 msgid "The signer held position with UID ${uid} does not exist !"
 msgstr "La fonction occupée signataire avec l'UID ${uid} n'existe plus !"
 
@@ -1180,7 +1184,7 @@ msgstr "La fonction occupée signataire avec l'UID ${uid} n'existe plus !"
 msgid "The signer with UID ${uid} does not exist !"
 msgstr "Le signataire avec la position occupée dont l'UID est ${uid} n'existe pas !"
 
-#: ./adapters.py:1608
+#: ./adapters.py:1639
 msgid "There was an error while creating the signing session: ${msg} !"
 msgstr "Erreur lors de la création de la session de signature: ${msg} !"
 
@@ -1222,7 +1226,7 @@ msgstr "Valeur service traitant"
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:896
+#: ./utils.py:897
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
@@ -1242,7 +1246,7 @@ msgstr "* Seulement si 1 service"
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 
-#: ./content/behaviors.py:69
+#: ./content/behaviors.py:70
 msgid "Usages"
 msgstr "Utilisé comme"
 
@@ -1251,7 +1255,7 @@ msgid "User fullname used format"
 msgstr "Format du nom complet de l'utilisateur"
 
 #: ./browser/settings.py:342
-#: ./content/behaviors.py:116
+#: ./content/behaviors.py:117
 msgid "User(s) that can approve the item before the signing session."
 msgstr "Personnes qui peuvent approuver avant signature."
 
@@ -1287,7 +1291,7 @@ msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
-#: ./content/behaviors.py:330
+#: ./content/behaviors.py:341
 msgid "You cannot change the userid because the user is in approvals on following objects ${paths}"
 msgstr "Vous ne pouvez pas changer l'utilisateur Plone car l'ancienne valeur est utilisée dans la mécanique d'approbation sur les courriers suivants ${paths}"
 
@@ -1319,7 +1323,7 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./content/behaviors.py:172
+#: ./content/behaviors.py:183
 msgid "You cannot have a seal and signers but no electronic signature !"
 msgstr "Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
 
@@ -1331,20 +1335,20 @@ msgstr "Vous ne pouvez pas avoir un sceau sans signature électronique ! Il faut
 msgid "You cannot have an approving number ${c} with status ${status} <=> w"
 msgstr "Vous ne pouvez pas avoir un approbateur à la ligne ${c} qui a déjà le statut ${status} <=> w"
 
-#: ./content/behaviors.py:224
+#: ./content/behaviors.py:235
 msgid "You cannot have empty and defined approvings at the same time !"
 msgstr "Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides, parfois non !"
 
-#: ./adapters.py:1381
-#: ./content/behaviors.py:237
+#: ./adapters.py:1412
+#: ./content/behaviors.py:248
 msgid "You cannot have the same email (${email}) for multiple signers !"
 msgstr "Vous ne pouvez pas avoir le même email (${email}) pour plusieurs signataires !"
 
-#: ./content/behaviors.py:204
+#: ./content/behaviors.py:215
 msgid "You cannot have the same number for multiple signers !"
 msgstr "Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
 
-#: ./content/behaviors.py:185
+#: ./content/behaviors.py:196
 msgid "You cannot have the same signer (${signer_title}) multiple times !"
 msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) !"
 
@@ -1352,7 +1356,11 @@ msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_ti
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) ! Il faut adapter les règles dans la configuration !"
 
-#: ./content/behaviors.py:282
+#: ./content/behaviors.py:179
+msgid "You cannot modify signers once the approval process has started or is done. You may go back to a previous state or ask your admin."
+msgstr "Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou terminé. Revenez dans un état précédent ou demandez à votre référent."
+
+#: ./content/behaviors.py:293
 msgid "You cannot remove a userid once it is set."
 msgstr "Vous ne pouvez pas vider le champ 'utilisateur Plone' une fois qu'il a été défini."
 
@@ -1360,11 +1368,11 @@ msgstr "Vous ne pouvez pas vider le champ 'utilisateur Plone' une fois qu'il a �
 msgid "You cannot select approvings and no validation at the same time."
 msgstr "Vous ne pouvez pas sélectionner des approbateurs et pas de signature en même temps."
 
-#: ./content/behaviors.py:222
+#: ./content/behaviors.py:233
 msgid "You have to define approvings for each signer if electronic signature is used !"
 msgstr "Vous devez définir des approbateurs pour chaque signataire si la signature électronique est utilisée !"
 
-#: ./dmsmail.py:1271
+#: ./dmsmail.py:1276
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service traitant n'a pas de validateur et l'état va être modifié !"
 
@@ -1372,15 +1380,15 @@ msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service 
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./browser/views.py:274
+#: ./browser/views.py:277
 msgid "Your email has been sent."
 msgstr "Votre email a été envoyé"
 
-#: ./browser/views.py:246
+#: ./browser/views.py:249
 msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
-#: ./adapters.py:1736
+#: ./adapters.py:1767
 msgid "[ia.docs] Session {sign_id}"
 msgstr "[ia.docs] Session {sign_id}"
 
@@ -1599,12 +1607,12 @@ msgid "incoming_mail_tab"
 msgstr "Entrant"
 
 #. Default: "Cancel"
-#: ./browser/templates/approvals.pt:23
+#: ./browser/templates/approvals.pt:24
 msgid "label_cancel"
 msgstr "Annuler"
 
 #. Default: "Save"
-#: ./browser/templates/approvals.pt:21
+#: ./browser/templates/approvals.pt:22
 msgid "label_save"
 msgstr "Sauvegarder"
 

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-12-15 07:59+0000\n"
+"POT-Creation-Date: 2025-12-15 13:59+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -77,7 +77,7 @@ msgstr ""
 msgid "${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal to « ${from} »"
 msgstr ""
 
-#: ./browser/views.py:48
+#: ./browser/views.py:51
 msgid "${title}: create from template"
 msgstr ""
 
@@ -98,7 +98,7 @@ msgid "${type} state set"
 msgstr ""
 
 #: ./browser/settings.py:248
-#: ./content/behaviors.py:91
+#: ./content/behaviors.py:92
 msgid "* No signature"
 msgstr ""
 
@@ -154,11 +154,11 @@ msgstr ""
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
-#: ./content/behaviors.py:214
+#: ./content/behaviors.py:225
 msgid "A signer is missing at position: ${positions} !"
 msgstr ""
 
-#: ./adapters.py:1617
+#: ./adapters.py:1648
 msgid "A signing session has been created: ${msg}."
 msgstr ""
 
@@ -243,7 +243,7 @@ msgid "Approving"
 msgstr ""
 
 #: ./browser/settings.py:341
-#: ./content/behaviors.py:115
+#: ./content/behaviors.py:116
 #: ./profiles/default/registry.xml
 msgid "Approvings"
 msgstr ""
@@ -312,15 +312,15 @@ msgstr ""
 msgid "Can choose possible usages (on held position)"
 msgstr ""
 
-#: ./browser/views.py:246
+#: ./browser/views.py:249
 msgid "Cannot use localhost as smtp"
 msgstr ""
 
-#: ./content/behaviors.py:343
+#: ./content/behaviors.py:354
 msgid "Category to apply on generated documents from this template."
 msgstr ""
 
-#: ./browser/table.py:283
+#: ./browser/views.py:556
 msgid "Changes saved."
 msgstr ""
 
@@ -341,12 +341,12 @@ msgid "Check if there is an assigned user before proposing incoming mail to an a
 msgstr ""
 
 #: ./browser/settings.py:183
-#: ./content/behaviors.py:90
+#: ./content/behaviors.py:91
 #: ./vocabularies.py:208
 msgid "Choose a value !"
 msgstr ""
 
-#: ./browser/views.py:53
+#: ./browser/views.py:56
 msgid "Choose this template"
 msgstr ""
 
@@ -388,11 +388,11 @@ msgstr ""
 msgid "Create from template"
 msgstr ""
 
-#: ./content/behaviors.py:39
+#: ./content/behaviors.py:40
 msgid "Creating group"
 msgstr ""
 
-#: ./utils.py:892
+#: ./utils.py:893
 msgid "Creating groups : to be used in kofax index"
 msgstr ""
 
@@ -404,7 +404,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./content/behaviors.py:56
+#: ./content/behaviors.py:57
 msgid "Data transfer"
 msgstr ""
 
@@ -412,7 +412,7 @@ msgstr ""
 msgid "Default bcc emails"
 msgstr ""
 
-#: ./content/behaviors.py:342
+#: ./content/behaviors.py:353
 msgid "Default content category"
 msgstr ""
 
@@ -469,12 +469,12 @@ msgid "Due date extension"
 msgstr ""
 
 #: ./browser/settings.py:351
-#: ./content/behaviors.py:125
+#: ./content/behaviors.py:126
 msgid "Editor"
 msgstr ""
 
 #: ./browser/settings.py:335
-#: ./content/behaviors.py:165
+#: ./content/behaviors.py:166
 msgid "Electronic signature"
 msgstr ""
 
@@ -495,7 +495,7 @@ msgid "Enable edition of service office templates for encoder"
 msgstr ""
 
 #: ./browser/settings.py:352
-#: ./content/behaviors.py:126
+#: ./content/behaviors.py:127
 msgid "Enable edition when approving."
 msgstr ""
 
@@ -531,7 +531,7 @@ msgstr ""
 msgid "Field name"
 msgstr ""
 
-#: ./adapters.py:1683
+#: ./adapters.py:1714
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr ""
 
@@ -681,7 +681,7 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./content/behaviors.py:147
+#: ./content/behaviors.py:148
 msgid "List of users who have to sign this document"
 msgstr ""
 
@@ -731,7 +731,7 @@ msgid "No incoming mail !"
 msgstr ""
 
 #: ./browser/settings.py:320
-#: ./content/behaviors.py:101
+#: ./content/behaviors.py:102
 msgid "Number"
 msgstr ""
 
@@ -866,7 +866,7 @@ msgid "Refresh tab count"
 msgstr ""
 
 #: ./browser/settings.py:328
-#: ./content/behaviors.py:109
+#: ./content/behaviors.py:110
 msgid "Related userid will be the signer. Position name of the held position will be used."
 msgstr ""
 
@@ -902,7 +902,7 @@ msgstr ""
 msgid "Scanner"
 msgstr ""
 
-#: ./content/behaviors.py:160
+#: ./content/behaviors.py:161
 msgid "Seal"
 msgstr ""
 
@@ -953,17 +953,17 @@ msgid "Set None"
 msgstr ""
 
 #: ./browser/settings.py:327
-#: ./content/behaviors.py:108
+#: ./content/behaviors.py:109
 #: ./vocabularies.py:132
 msgid "Signer"
 msgstr ""
 
-#: ./content/behaviors.py:178
+#: ./content/behaviors.py:189
 msgid "Signer line ${nb} has a duplicate approver with themself."
 msgstr ""
 
 #: ./browser/settings.py:321
-#: ./content/behaviors.py:102
+#: ./content/behaviors.py:103
 msgid "Signer number on the document."
 msgstr ""
 
@@ -971,11 +971,11 @@ msgstr ""
 msgid "Signer rules"
 msgstr ""
 
-#: ./content/behaviors.py:146
+#: ./content/behaviors.py:147
 msgid "Signers"
 msgstr ""
 
-#: ./content/behaviors.py:137
+#: ./content/behaviors.py:138
 msgid "Signing fieldset"
 msgstr ""
 
@@ -1035,8 +1035,8 @@ msgstr ""
 msgid "Technical specifications"
 msgstr ""
 
-#: ./adapters.py:1399
-#: ./content/behaviors.py:261
+#: ./adapters.py:1430
+#: ./content/behaviors.py:272
 msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr ""
 
@@ -1044,23 +1044,23 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./content/behaviors.py:253
+#: ./content/behaviors.py:264
 msgid "The approving with UID ${uid} does not exist !"
 msgstr ""
 
-#: ./dmsmail.py:1243
+#: ./dmsmail.py:1248
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
-#: ./adapters.py:1567
+#: ./adapters.py:1598
 msgid "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files to approve on this mail."
 msgstr ""
 
-#: ./content/behaviors.py:192
+#: ./content/behaviors.py:203
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr ""
 
-#: ./adapters.py:1372
+#: ./adapters.py:1403
 msgid "The signer held position with UID ${uid} does not exist !"
 msgstr ""
 
@@ -1068,7 +1068,7 @@ msgstr ""
 msgid "The signer with UID ${uid} does not exist !"
 msgstr ""
 
-#: ./adapters.py:1608
+#: ./adapters.py:1639
 msgid "There was an error while creating the signing session: ${msg} !"
 msgstr ""
 
@@ -1102,7 +1102,7 @@ msgstr ""
 msgid "Treating groups"
 msgstr ""
 
-#: ./utils.py:896
+#: ./utils.py:897
 msgid "Treating groups : to be used in kofax index"
 msgstr ""
 
@@ -1118,7 +1118,7 @@ msgstr ""
 msgid "Uniorg only"
 msgstr ""
 
-#: ./content/behaviors.py:69
+#: ./content/behaviors.py:70
 msgid "Usages"
 msgstr ""
 
@@ -1127,7 +1127,7 @@ msgid "User fullname used format"
 msgstr ""
 
 #: ./browser/settings.py:342
-#: ./content/behaviors.py:116
+#: ./content/behaviors.py:117
 msgid "User(s) that can approve the item before the signing session."
 msgstr ""
 
@@ -1163,7 +1163,7 @@ msgstr ""
 msgid "You cannot add a group in a group !"
 msgstr ""
 
-#: ./content/behaviors.py:330
+#: ./content/behaviors.py:341
 msgid "You cannot change the userid because the user is in approvals on following objects ${paths}"
 msgstr ""
 
@@ -1195,7 +1195,7 @@ msgstr ""
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./content/behaviors.py:172
+#: ./content/behaviors.py:183
 msgid "You cannot have a seal and signers but no electronic signature !"
 msgstr ""
 
@@ -1203,20 +1203,20 @@ msgstr ""
 msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
 msgstr ""
 
-#: ./content/behaviors.py:224
+#: ./content/behaviors.py:235
 msgid "You cannot have empty and defined approvings at the same time !"
 msgstr ""
 
-#: ./adapters.py:1381
-#: ./content/behaviors.py:237
+#: ./adapters.py:1412
+#: ./content/behaviors.py:248
 msgid "You cannot have the same email (${email}) for multiple signers !"
 msgstr ""
 
-#: ./content/behaviors.py:204
+#: ./content/behaviors.py:215
 msgid "You cannot have the same number for multiple signers !"
 msgstr ""
 
-#: ./content/behaviors.py:185
+#: ./content/behaviors.py:196
 msgid "You cannot have the same signer (${signer_title}) multiple times !"
 msgstr ""
 
@@ -1224,7 +1224,11 @@ msgstr ""
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr ""
 
-#: ./content/behaviors.py:282
+#: ./content/behaviors.py:179
+msgid "You cannot modify signers once the approval process has started or is done. You may go back to a previous state or ask your admin."
+msgstr ""
+
+#: ./content/behaviors.py:293
 msgid "You cannot remove a userid once it is set."
 msgstr ""
 
@@ -1232,11 +1236,11 @@ msgstr ""
 msgid "You cannot select approvings and no validation at the same time."
 msgstr ""
 
-#: ./content/behaviors.py:222
+#: ./content/behaviors.py:233
 msgid "You have to define approvings for each signer if electronic signature is used !"
 msgstr ""
 
-#: ./dmsmail.py:1271
+#: ./dmsmail.py:1276
 msgid "You must select an assigned user because the treating group modification to another without validators will cause the mail state change !"
 msgstr ""
 
@@ -1244,15 +1248,15 @@ msgstr ""
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr ""
 
-#: ./browser/views.py:274
+#: ./browser/views.py:277
 msgid "Your email has been sent."
 msgstr ""
 
-#: ./browser/views.py:246
+#: ./browser/views.py:249
 msgid "Your email has not been sent: ${error}."
 msgstr ""
 
-#: ./adapters.py:1736
+#: ./adapters.py:1767
 msgid "[ia.docs] Session {sign_id}"
 msgstr ""
 
@@ -1415,12 +1419,12 @@ msgid "incoming_mail_tab"
 msgstr ""
 
 #. Default: "Cancel"
-#: ./browser/templates/approvals.pt:23
+#: ./browser/templates/approvals.pt:24
 msgid "label_cancel"
 msgstr ""
 
 #. Default: "Save"
-#: ./browser/templates/approvals.pt:21
+#: ./browser/templates/approvals.pt:22
 msgid "label_save"
 msgstr ""
 
