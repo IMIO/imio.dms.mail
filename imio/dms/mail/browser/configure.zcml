@@ -751,6 +751,14 @@
 
     <configure package="collective.dms.basecontent">
         <browser:viewlet
+            for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+            name="dms.files"
+            manager="collective.dms.basecontent.browser.viewlets.IDmsAboveContent"
+            class="imio.dms.mail.browser.viewlets.IMVersionsViewlet"
+            template="browser/templates/versionsviewlet.pt"
+            permission="zope2.View"
+            />
+        <browser:viewlet
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
             name="dms.files"
             manager="collective.dms.basecontent.browser.viewlets.IDmsAboveContent"
@@ -759,6 +767,17 @@
             permission="zope2.View"
             />
     </configure>
+
+    <unconfigure package="collective.dms.basecontent">
+        <browser:viewlet
+            name="dms.appendix"
+            for="collective.dms.basecontent.dmsdocument.IDmsDocument"
+            manager="collective.dms.basecontent.browser.viewlets.IDmsBelowContent"
+            class="collective.dms.basecontent.browser.viewlets.AppendixViewlet"
+            template="browser/templates/filesviewlet.pt"
+            permission="zope2.View"
+            />
+    </unconfigure>
 
     <browser:viewlet
         name="plone.global_sections"
@@ -1015,7 +1034,7 @@
         name="approvals"
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         class="imio.dms.mail.browser.table.ApprovalTableView"
-        permission="zope.Public"
+        permission="cmf.ManagePortal"
     />
 
     <adapter

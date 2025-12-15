@@ -5,6 +5,7 @@ from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.test_helpers import ImioTestHelpers
+from plone import api
 from z3c.form import validator
 from z3c.relationfield import RelationValue
 from zope.component import getUtility
@@ -31,6 +32,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
     def test_signing_behavior(self):
         dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]
+        bourgmestre = self.pf["bourgmestre"]
+        bourgmestre_hp = bourgmestre["bourgmestre"]
         omail = sub_create(
             self.portal["outgoing-mail"],
             "dmsoutgoingmail",
@@ -74,6 +77,28 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         error_msg = u"La ligne 1 des signataires a un doublon d'approbateur avec lui-même."
         self.assertEqual(_tr(errors[0].message), error_msg)
 
+        # Test duplicate approvers between signers
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+                {
+                    "signer": bourgmestre_hp.UID(),
+                    "approvings": [dirg.UID()],
+                    "number": 2,
+                    "editor": True,
+                },
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = u"L'utilisateur dirg existe déjà dans les approbateurs lignes 1 <=> 2"
+        self.assertEqual(_tr(errors[0].message, mapping={"userid": "dirg", "o": "1", "c": "2"}), error_msg)
+
         # Test duplicate signing persons
         params = {
             "position": RelationValue(
@@ -95,7 +120,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
                 {
                     "signer": dirg_hp2.UID(),
                     "approvings": [u"_themself_"],
-                    "number": 1,
+                    "number": 2,
                     "editor": True,
                 },
             ]
@@ -104,6 +129,30 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir le m\xeame signataire plusieurs fois (Monsieur Maxime DG) !"
         self.assertEqual(_tr(errors[0].message, mapping={"signer_title": dirg_hp.get_person_title()}), error_msg)
+
+        # Test duplicate emails in signers
+        api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
+        api.user.get("dirg").setMemberProperties({"email": "duplicate@belleville.eb"})
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+                {
+                    "signer": bourgmestre_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 2,
+                    "editor": True,
+                },
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) pour plusieurs signataires !"
+        self.assertEqual(_tr(errors[0].message, mapping={"email": "duplicate@belleville.eb"}), error_msg)
 
         # Test signer with no userid
         jeancourant_hp = self.portal["contacts"]["jeancourant"]["agent-electrabel"]
@@ -123,6 +172,64 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             u"Le signataire 'Monsieur Jean Courant' n'a pas d'utilisateur Plone s\xe9lectionn\xe9 sur sa personne !"
         )
         self.assertEqual(_tr(errors[0].message, mapping={"signer_title": jeancourant_hp.get_person_title()}), error_msg)
+
+        # Test signer with wrong uid
+        data = {
+            "signers": [
+                {
+                    "signer": u"wrong-uid",
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                }
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = (
+            u"Le signataire avec la position occupée dont l'UID est wrong-uid n'existe pas !"
+        )
+        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+
+        # Test approver with wrong uid
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"wrong-uid"],
+                    "number": 1,
+                    "editor": True,
+                }
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = (
+            u"L'approbateur dont le UID de sa personne est wrong-uid n'existe pas !"
+        )
+        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+
+        # Test duplicate numbers
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+                {
+                    "signer": bourgmestre_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = u"Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
+        self.assertEqual(_tr(errors[0].message), error_msg)
 
         # Test missing numbers in sequence
         bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
