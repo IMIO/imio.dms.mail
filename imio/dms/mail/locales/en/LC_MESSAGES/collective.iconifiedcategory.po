@@ -47,6 +47,10 @@ msgstr ""
 msgid "Signed"
 msgstr ""
 
+#: tabview.py
+msgid "To be printed"
+msgstr ""
+
 #: ./browser/iconified_category.py
 msgid "Totally approved"
 msgstr ""
