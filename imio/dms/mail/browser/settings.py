@@ -992,7 +992,7 @@ class IImioDmsMailConfig(model.Schema):
                     number = omail_signer_conditions[condition]
                     raise Invalid(
                         _(
-                            u"${tab} tab: « ${field} », rule ${rule} applies same signer than rule ${number}. ",
+                            u"${tab} tab: « ${field} », rule ${rule} applies same signer than rule ${number}.",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
                                      "number": number},
                         )
