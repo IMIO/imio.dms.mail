@@ -1030,8 +1030,6 @@ def configure_imio_dms_mail(context):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"] = [
             {"value": u"type1", "dtitle": u"Type 1", "active": True},
         ]
-    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"):
-        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"] = True
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"] = _(u"Response: ")
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"):

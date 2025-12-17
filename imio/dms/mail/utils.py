@@ -1205,7 +1205,7 @@ class OdmUtilsMethods(UtilsMethods):
 
     def is_odt_activated(self):
         registry = getUtility(IRegistry)
-        return registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"]
+        return 'application/vnd.oasis.opendocument.text' in registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"]
 
     def scanned_col_cond(self):
         """Condition for searchfor_scanned collection"""
