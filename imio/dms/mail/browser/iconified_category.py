@@ -10,22 +10,22 @@ from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSig
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.utils import logger  # noqa F401
 from plone import api
+from plone.memoize.interfaces import ICacheChooser
+from zope.component import getUtility
 from zope.i18n import translate
 
 
 """
-{
-    'approval': 1,
-    'files': {'4115fb4c265647ca82d85285504973b8': {"nb": {1: {'status': 'p'}, 2: {'status': 'w'}}, "pdf": None}},
-    'numbers': {
-        1: {'status': 'p', 'signer': ('dirg', 'stephan.geulette@imio.be', u'Maxime DG', u'Directeur G\xe9n\xe9ral'),
-            'users': ['dirg']},
-        2: {'status': 'w', 'signer': ('bourgmestre', 'stephan.geulette+s2@imio.be', u'Paul BM', u'Bourgmestre'),
-            'users': ['bourgmestre', 'chef']}},
-    'session_id': None,
-    'users': {'bourgmestre': {'status': 'w', 'editor': False, 'name': u'Monsieur Paul BM', 'order': 2},
-              'chef': {'status': 'w', 'editor': False, 'name': u'Monsieur Michel Chef', 'order': 2},
-              'dirg': {'status': 'w', 'editor': True, 'name': u'Monsieur Maxime DG', 'order': 1}},
+{'approval': [[{'approved_by': 'dirg',
+                'approved_on': datetime.datetime(2025, 12, 16, 14, 52, 21, 238011),
+                'status': 'a'}]],
+ 'approvers': [['dirg']],
+ 'current_nb': -1,
+ 'editors': [True],
+ 'files': ['57a46bf1f0f842adbdabc6afd05a26ee'],
+ 'pdf_files': ['355df18ed9404613a1c37651b864aac2'],
+ 'session_id': 4,
+ 'signers': [('dirg', u'Maxime DG ()', u'')]
 }
 """  # noqa
 
@@ -122,9 +122,10 @@ class ApprovedChangeView(BaseApprovedChangeView):
         super(ApprovedChangeView, self).__init__(context, request)
         self.parent = self.context.__parent__
         self.approval = OMApprovalAdapter(self.parent)
-        self.reload = False
         self.uid = self.context.UID()
         self.msg = u""
+        self.reload = False
+        self.could_reload = False
 
     @property
     def p_state(self):
@@ -175,7 +176,8 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     values["approved"] = ret
             elif not values["to_approve"]:
                 values["approved"] = False
-        elif self.approval.is_state_before_or_approve(state=self.p_state):
+        elif self.approval.is_state_before_approve(state=self.p_state):
+            self.could_reload = True
             # before to_approve state, we can only enable or disable to_approve
             if not old_values["to_approve"]:
                 values["to_approve"] = True
@@ -189,7 +191,6 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 status = 0
                 self.approval.remove_file_from_approval(self.uid)
                 self.msg = u"Deactivated for approval (click to activate)"
-            self.reload = False
         else:
             values = old_values.copy()
             # cannot be in after to_approve state because get_url column method ?
@@ -205,15 +206,23 @@ class ApprovedChangeView(BaseApprovedChangeView):
 
     def set_values(self, values):
         old_values = self.get_current_values()
+        old_approval_status = self.parent.has_approvings()
         status, values = self._get_next_values(old_values)
         super(BaseApprovedChangeView, self).set_values(values)
+        if self.could_reload:
+            # new_approval_status = self.parent.has_approvings()
+            new_approval_status = self.parent.has_approvings(all_done=True)
+            if old_approval_status != new_approval_status:
+                cache_chooser = getUtility(ICacheChooser)
+                the_cache = cache_chooser("imio.dms.mail.browser.actionspanel.DmsOMActionsPanelView__call__")
+                the_cache.ramcache.invalidate("imio.dms.mail.browser.actionspanel.DmsOMActionsPanelView__call__")
+                self.reload = True
         return status, self.msg
 
     def __call__(self):
         # TODO ajouter un comparatif de date afin de voir si on agit bien sur qlq chose à jour...
         json_resp = super(ApprovedChangeView, self).__call__()
         if self.reload and json_resp.rstrip().endswith("}"):
-            # logger.info("RELOAD TRUE")
             json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
         return json_resp
 
