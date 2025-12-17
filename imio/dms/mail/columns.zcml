@@ -196,21 +196,30 @@
     />
 
   <adapter
+        name="action-column"
         for="zope.interface.Interface
              zope.publisher.interfaces.browser.IBrowserRequest
              collective.dms.basecontent.browser.listing.VersionsTable"
         factory=".columns.FileActionsColumn"
         provides="z3c.table.interfaces.IColumn"
-        name="action-column"
     />
 
   <adapter
+        name="colored-type"
         for="collective.dms.basecontent.dmsdocument.IDmsDocument
              zope.publisher.interfaces.browser.IBrowserRequest
              collective.dms.basecontent.browser.listing.VersionsTable"
         factory=".columns.PortalTypeColorColumn"
         provides="z3c.table.interfaces.IColumn"
-        name="colored-type"
+    />
+
+  <adapter
+        name="filesize-column"
+        for="collective.dms.basecontent.dmsdocument.IDmsDocument
+             zope.publisher.interfaces.browser.IBrowserRequest
+             collective.dms.basecontent.browser.listing.VersionsTable"
+        factory=".columns.FilesizeColumn"
+        provides="z3c.table.interfaces.IColumn"
     />
 
   <unconfigure package="collective.dms.basecontent">

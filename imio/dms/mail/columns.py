@@ -13,9 +13,11 @@ from collective.eeafaceted.z3ctable.columns import MemberIdColumn
 from collective.eeafaceted.z3ctable.columns import PrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import RelationPrettyLinkColumn
 from collective.eeafaceted.z3ctable.columns import VocabularyColumn
+from collective.iconifiedcategory import utils as ic_utils
 from collective.task.interfaces import ITaskMethods
 from html import escape
 from imio.annex.columns import ActionsColumn as AnnexActionsColumn
+from imio.annex.columns import FilesizeColumn as AnnexFilesizeColumn
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.helpers.content import uuidToCatalogBrain
@@ -251,6 +253,19 @@ class PortalTypeColorColumn(ColorColumn):
     # msgid_prefix = "portal_type_"
     header = u" "
     weight = 10
+
+
+class FilesizeColumn(AnnexFilesizeColumn):
+
+    def renderHeadCell(self):
+        """ """
+        total = sum([v.filesize for v in self.table.values
+                     if v.filesize is not None])
+        header = escape(_tr(self.header, domain="collective.iconifiedcategory"))
+        total = ic_utils.render_filesize(total)
+        if total.startswith(u"<span "):
+            header += u"<p>(Tot: {0})</p>".format(total)
+        return header
 
 # Columns for collective.task.browser.table.TasksTable
 
