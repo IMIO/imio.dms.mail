@@ -40,6 +40,8 @@ Changelog
   [chris-adam]
 - Removed 'to_sign' and 'signed' fields from scanbehavior.
   [chris-adam]
+- Updated omail_signer_rules validation.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
