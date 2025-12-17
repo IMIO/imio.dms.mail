@@ -19,7 +19,6 @@ from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import reimport_faceted_config
-from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
@@ -967,8 +966,11 @@ class IImioDmsMailConfig(model.Schema):
                     mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
                 ))
                 # Check duplicate signers
+                signer_value = rule["signer"]
+                if signer_value not in (u"_empty_", u"_seal_"):
+                    signer_value = uuidToObject(rule["signer"], unrestricted=True).get_person()
                 condition = (
-                    rule["signer"],
+                    signer_value,
                     rule["esign"],
                     rule["valid_from"],
                     rule["valid_until"],
@@ -981,8 +983,7 @@ class IImioDmsMailConfig(model.Schema):
                     number = omail_signer_conditions[condition]
                     raise Invalid(
                         _(
-                            u"${tab} tab: « ${field} », rule ${rule} is duplicate of rule ${number}. "
-                            u"Conditions defining a rule must be unique.",
+                            u"${tab} tab: « ${field} », rule ${rule} applies same signer than rule ${number}. ",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
                                      "number": number},
                         )
