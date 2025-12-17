@@ -17,6 +17,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import convert_and_save_odt
+from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
@@ -496,7 +497,7 @@ def ready_for_email_index(obj):
         if not IDmsFile.providedBy(doc):
             continue
         docs.append(doc)
-        if doc.signed:
+        if getattr(doc, "signed", False):
             return True
     if not docs:
         return True
@@ -1275,8 +1276,7 @@ class OMApprovalAdapter(object):
     def roles(self):
         roles = {}
         current_nb = self.current_nb
-        state = api.content.get_state(self.context)
-        if current_nb is None or state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if current_nb is None or self.is_state_before_approve():
             return roles
         for nb, nb_approvers in enumerate(self.annot["approvers"]):
             if 0 <= current_nb < nb:
@@ -1294,6 +1294,38 @@ class OMApprovalAdapter(object):
                 if userid not in roles:
                     roles[userid] = roles[approver]  # give the signer the same roles as approver
         return roles
+
+    def is_state_before_approve(self, state=None):
+        """Return True if the current state is before approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
+
+    def is_state_before_or_approve(self, state=None):
+        """Return True if the current state is before or in approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state not in ("to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
+
+    def is_state_after_approve(self, state=None):
+        """Return True if the current state is after approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state in ("to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
+
+    def is_state_after_or_approve(self, state=None):
+        """Return True if the current state is after or in approval process."""
+        if state is None:
+            state = api.content.get_state(self.context)
+        if state in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+            return True
+        return False
 
     def start_approval_process(self):
         """Update the annotation to start the approval process."""
@@ -1736,3 +1768,11 @@ class OMApprovalAdapter(object):
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
         return True, "{} files added to session number {}".format(len(session_file_uids), session_id)
+
+
+class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
+
+    def get_infos(self, category, limited=False):
+        base_infos = super(DmsCategorizedObjectInfoAdapter, self).get_infos(category, limited=limited)
+        base_infos["scan_id"] = getattr(self.obj, "scan_id", None)
+        return base_infos

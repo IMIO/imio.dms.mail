@@ -34,7 +34,11 @@ Changelog
   [chris-adam]
 - Added eSign admin table to manage approvals.
   [chris-adam]
-- Fixed cache for actions related to eSign workflow transitions.
+- Merged versions tables of GED files and appendix files.
+  [chris-adam, sgeulette]
+- Added 'scan_infos' on categorized elements infos.
+  [chris-adam]
+- Removed 'to_sign' and 'signed' fields from scanbehavior.
   [chris-adam]
 
 3.0 (2021-09-30)

@@ -49,6 +49,7 @@ from natsort import natsorted
 from operator import attrgetter
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
+from persistent.mapping import PersistentMapping
 from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer
@@ -1572,6 +1573,16 @@ def create_read_label_cron_task(userid, orgs, end, portal=None):
         cron_tasks["end"] = end
     orgs_set = cron_tasks.setdefault("orgs", set())
     orgs_set.update(orgs)
+
+
+def persistent_to_native(value):
+    """Convert persistent object to native object recursively. So can be used with pp (prettyprint)"""
+    if isinstance(value, PersistentMapping):
+        return {k: persistent_to_native(v) for k, v in value.items()}
+    elif isinstance(value, PersistentList):
+        return [persistent_to_native(v) for v in value]
+
+    return value
 
 
 def vocabularyname_to_terms(vocabulary_name, context=None, sort_on=None):

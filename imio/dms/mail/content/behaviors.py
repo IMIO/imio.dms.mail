@@ -8,6 +8,7 @@ from imio.dms.mail import _
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
+from imio.dms.mail.dmsmail import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.content import find
@@ -168,6 +169,17 @@ class ISigningBehavior(model.Schema):
 
     @invariant
     def validate_signing(data):
+        context = data.__context__
+        if context:
+            is_user_admin = api.user.has_permission("Manage portal")
+            approval = IOMApproval(context)
+            if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
+                fields_have_changed = (context.esign != data.esign or context.seal != data.seal
+                                    or context.signers != data.signers)
+                if fields_have_changed:
+                    raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
+                                    u"You may go back to a previous state or ask your admin."))
+
         if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in data.signers]):
             raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
 
@@ -198,6 +210,14 @@ class ISigningBehavior(model.Schema):
 
         numbers = sorted(map(itemgetter("number"), data.signers))
         if numbers:
+            # Check for duplicate numbers
+            if len(numbers) != len(set(numbers)):
+                raise Invalid(
+                    _(
+                        u"You cannot have the same number for multiple signers !",
+                    )
+                )
+
             # Check for missing numbers in sequence
             expected_numbers = list(range(1, max(numbers) + 1))
             missing_numbers = [num for num in expected_numbers if num not in numbers]
@@ -214,6 +234,52 @@ class ISigningBehavior(model.Schema):
                     raise Invalid(_(u"You have to define approvings for each signer if electronic signature is used !"))
             elif any(u"_empty_" in s["approvings"] for s in data.signers):
                 raise Invalid(_(u"You cannot have empty and defined approvings at the same time !"))
+
+        signer_emails = set()
+        approvers = {}
+        signers = sorted(data.signers, key=lambda s: s["number"])
+        for signer in signers:
+            if signer["signer"] == "_empty_":
+                continue
+            signer_hp = uuidToObject(signer["signer"], unrestricted=True)
+            signer_person = signer_hp.get_person()
+            user_email = api.user.get(signer_person.userid).getProperty("email")
+            if user_email in signer_emails:
+                raise Invalid(
+                    _(
+                        u"You cannot have the same email (${email}) for multiple signers !",
+                        mapping={"email": user_email},
+                    )
+                )
+            signer_emails.add(user_email)
+
+            for approving in signer["approvings"] or []:
+                if approving == "_empty_":
+                    continue
+                if approving == "_themself_":
+                    person = signer_person
+                else:
+                    person = uuidToObject(approving, unrestricted=True)
+                if person is None:
+                    raise Invalid(
+                        _(
+                            u"The approving with UID ${uid} does not exist !",
+                            mapping={"uid": approving},
+                        )
+                    )
+                userid = person.userid
+                if userid in approvers:
+                    raise Invalid(
+                        _(
+                            "The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
+                            mapping={
+                                "userid": userid,
+                                "o": approvers[userid],
+                                "c": signer["number"],
+                            },
+                        )
+                    )
+                approvers[userid] = signer["number"]
 
 
 class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):

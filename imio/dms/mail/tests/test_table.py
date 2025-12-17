@@ -6,9 +6,9 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.browser.table import ApprovalTableView
 from imio.dms.mail.browser.table import AssignedGroupColumn
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
+from imio.dms.mail.browser.views import ApprovalTableView
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -64,7 +64,7 @@ class TestTable(unittest.TestCase):
             u'<a class="version-link" href="%s" alt="Identifiant de scan: 123456789\nDate de scan: '
             u'\nVersion: " title="Identifiant de scan: 123456789\nDate de scan: \nVersion: ">'
             u'<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/%s" '
-            u'alt="Fichier ged CS" title="Fichier ged CS" /> '
+            u'alt="Fichier ged CE" title="Fichier ged CE" /> '
             u'title</a><p class="discreet"></p>' % (file1.absolute_url(), icon_name)
         )
 

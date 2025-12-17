@@ -1,16 +1,22 @@
 # -*- coding: utf-8 -*-
+from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import _tr
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.test_helpers import ImioTestHelpers
+from plone import api
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from z3c.form import validator
-from z3c.relationfield import RelationValue
+from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.interface import Interface
 from zope.interface import Invalid
-from zope.intid import IIntIds
+from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
 
@@ -25,12 +31,16 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         self.intids = getUtility(IIntIds)
         self.change_user("siteadmin")
+        activate_signing(self.portal)
+        self.pw = self.portal.portal_workflow
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
 
     def test_signing_behavior(self):
         dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]
+        bourgmestre = self.pf["bourgmestre"]
+        bourgmestre_hp = bourgmestre["bourgmestre"]
         omail = sub_create(
             self.portal["outgoing-mail"],
             "dmsoutgoingmail",
@@ -41,7 +51,26 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
             mail_type="type1",
+            esign=True,
+            signers=[{
+                "number": 1,
+                "signer": self.pf["dirg"]["directeur-general"].UID(),
+                "approvings": [u"_themself_"],
+                "editor": True,
+            }],
         )
+        filename = u"Réponse salle.odt"
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            createContentInContainer(
+                omail,
+                "dmsommainfile",
+                id="file",
+                scan_id="012999900000600",
+                file=file_object,
+                content_category=calculate_category_id(ct),
+            )
         invariants = validator.InvariantsValidator(omail, None, None, ISigningBehavior, None)
 
         # Test base case, valid data
@@ -74,6 +103,28 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         error_msg = u"La ligne 1 des signataires a un doublon d'approbateur avec lui-même."
         self.assertEqual(_tr(errors[0].message), error_msg)
 
+        # Test duplicate approvers between signers
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+                {
+                    "signer": bourgmestre_hp.UID(),
+                    "approvings": [dirg.UID()],
+                    "number": 2,
+                    "editor": True,
+                },
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = u"L'utilisateur dirg existe déjà dans les approbateurs lignes 1 <=> 2"
+        self.assertEqual(_tr(errors[0].message, mapping={"userid": "dirg", "o": "1", "c": "2"}), error_msg)
+
         # Test duplicate signing persons
         params = {
             "position": RelationValue(
@@ -95,7 +146,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
                 {
                     "signer": dirg_hp2.UID(),
                     "approvings": [u"_themself_"],
-                    "number": 1,
+                    "number": 2,
                     "editor": True,
                 },
             ]
@@ -104,6 +155,30 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir le m\xeame signataire plusieurs fois (Monsieur Maxime DG) !"
         self.assertEqual(_tr(errors[0].message, mapping={"signer_title": dirg_hp.get_person_title()}), error_msg)
+
+        # Test duplicate emails in signers
+        api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
+        api.user.get("dirg").setMemberProperties({"email": "duplicate@belleville.eb"})
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+                {
+                    "signer": bourgmestre_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 2,
+                    "editor": True,
+                },
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) pour plusieurs signataires !"
+        self.assertEqual(_tr(errors[0].message, mapping={"email": "duplicate@belleville.eb"}), error_msg)
 
         # Test signer with no userid
         jeancourant_hp = self.portal["contacts"]["jeancourant"]["agent-electrabel"]
@@ -123,6 +198,64 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             u"Le signataire 'Monsieur Jean Courant' n'a pas d'utilisateur Plone s\xe9lectionn\xe9 sur sa personne !"
         )
         self.assertEqual(_tr(errors[0].message, mapping={"signer_title": jeancourant_hp.get_person_title()}), error_msg)
+
+        # Test signer with wrong uid
+        data = {
+            "signers": [
+                {
+                    "signer": u"wrong-uid",
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                }
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = (
+            u"Le signataire avec la position occupée dont l'UID est wrong-uid n'existe pas !"
+        )
+        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+
+        # Test approver with wrong uid
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"wrong-uid"],
+                    "number": 1,
+                    "editor": True,
+                }
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = (
+            u"L'approbateur dont le UID de sa personne est wrong-uid n'existe pas !"
+        )
+        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+
+        # Test duplicate numbers
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+                {
+                    "signer": bourgmestre_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+            ]
+        }
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = u"Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
+        self.assertEqual(_tr(errors[0].message), error_msg)
 
         # Test missing numbers in sequence
         bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
@@ -218,4 +351,33 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
+        self.assertEqual(_tr(errors[0].message), error_msg)
+
+        # Test edit signers
+        data = {
+            "signers": [
+                {
+                    "signer": dirg_hp.UID(),
+                    "approvings": [u"_themself_"],
+                    "number": 1,
+                    "editor": True,
+                },
+            ],
+            "esign": True,
+            "seal": False,
+        }
+        errors = invariants.validate(data)
+        self.assertEqual(errors, ())  # no error because siteadmin
+
+        self.change_user("agent")
+        errors = invariants.validate(data)
+        self.assertEqual(errors, ())  # no error because still in created state
+
+        self.change_user("siteadmin")
+        self.pw.doActionFor(omail, "propose_to_approve")
+        self.change_user("dirg")
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+        error_msg = (u"Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
+                     u"terminé. Revenez dans un état précédent ou demandez à votre référent.")
         self.assertEqual(_tr(errors[0].message), error_msg)
