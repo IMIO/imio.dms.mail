@@ -38,6 +38,7 @@
 .template-view.portaltype-dmsoutgoing_email #fieldset-versions {
     display:table-cell;
     min-width: 60%;
+    max-width: 60%;
     width: inherit !important;
 }
 
@@ -87,6 +88,7 @@ body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBe
 .template-view.portaltype-dmsincomingmail.read-mode div#DV-container,
 .template-view.portaltype-dmsincoming_email.read-mode div#DV-container {
     width: 100% !important;
+    max-width: 100% !important;
 }
 
 .template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-content,
