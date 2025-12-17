@@ -174,6 +174,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     )
                     status = int(ret)
                     values["approved"] = ret
+                    self.request["approval_occurred"] = True
             elif not values["to_approve"]:
                 values["approved"] = False
         elif self.approval.is_state_before_approve(state=self.p_state):
@@ -200,7 +201,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         return status, values
 
     def _may_set_values(self, values):
-        if self.approval.is_state_after_approve():
+        if self.approval.is_state_after_approve() and not self.request.get("approval_occurred", False):
             return False
         return super(ApprovedChangeView, self)._may_set_values(values)
 

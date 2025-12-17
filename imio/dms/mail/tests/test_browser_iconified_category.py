@@ -9,6 +9,7 @@ from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import clean_borg_cache
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import uuidToCatalogBrain
@@ -113,7 +114,8 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.get_url(file1_cc), "%s/@@iconified-approved" % self.file1.absolute_url())
         # FIXME This raises Unauthorized but still passes
         self.assertEqual(
-            col.get_action_view(file1_cc)(), u'{"msg":"Une erreur est survenue","status":2,"reload": true}'
+            col.get_action_view(file1_cc)(),
+            u'{"msg":"En attente de votre approbation (cliquer pour approuver)","status":1,"reload": true}'
         )
         # TODO "to_print"
         # "to_be_signed"
@@ -150,25 +152,28 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.msg, u"Activated for approval (click to deactivate)")
         # "to_approve"
         self.pw.doActionFor(self.omail2, "propose_to_approve")
+        clean_borg_cache(col.request)
         self.assertEqual(col.css_class(file2_cc), " cant-approve")
         self.assertEqual(col.msg, u"Waiting for the first approval")
         self.change_user("dirg")
-        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file2_cc), " editable")
         self.assertEqual(col.msg, u"Waiting for your approval (click to approve)")
         self.change_user("bourgmestre")
         self.assertEqual(col.css_class(file2_cc), " waiting")
         self.assertEqual(col.msg, u"Waiting for other approval before you can approve")
         self.change_user("dirg")
         col.get_action_view(file2_cc)()  # dirg approves file
+        clean_borg_cache(col.request)  # because approval borg roles are changed
         self.assertEqual(col.css_class(file2_cc), " partially-approved")
         self.assertEqual(col.msg, u"Partially approved. Still waiting for other approval(s)")
         self.change_user("agent")
         self.assertEqual(col.css_class(file2_cc), " partially-approved")
         self.assertEqual(col.msg, u"Partially approved. Still waiting for other approval(s)")
         self.change_user("bourgmestre")
-        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file2_cc), " editable")
         self.assertEqual(col.msg, u"Waiting for your approval (click to approve)")
         col.get_action_view(file2_cc)()  # bourgmestre approves file
+        clean_borg_cache(col.request)  # because transition was done
         # file2_brain = get_brain(self.file2)
         # "to_be_signed"
         self.assertEqual(col.css_class(file2_cc), " totally-approved")
@@ -176,6 +181,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         # "sent", approval deactivated
         self.change_user("agent")
         self.pw.doActionFor(self.omail2, "back_to_creation")
+        clean_borg_cache(col.request)
         col.get_action_view(file2_cc)()  # Set as not to approve
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.pw.doActionFor(self.omail2, "mark_as_sent")
