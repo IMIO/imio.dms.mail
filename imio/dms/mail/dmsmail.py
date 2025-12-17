@@ -738,14 +738,6 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         """Returns the adapter providing approval behavior"""
         return IOMApproval(self)
 
-    def get_files_to_sign(self):
-        """Returns the list of ImioDmsFile objects to sign"""
-        # TODO to be modified to take into account to be signed attribute
-        # get ordered files
-        files = reversed([f for f in object_values(self, ["ImioDmsFile"])
-                          if f.file and f.file.contentType == "application/vnd.oasis.opendocument.text"])
-        return list(files)[:1]
-
     def get_mainfiles(self):
         """Overiddes dmsdocument method"""
         return object_values(self, ["ImioDmsFile"])
@@ -906,8 +898,6 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
         """Used in guard expression for propose_to_approve and back_to_approve transitions."""
         # Protect from scanned state
         if not self.context.treating_groups or not self.context.title:
-            return False
-        if not self.context.get_files_to_sign():
             return False
         return self.context.has_approvings()
 

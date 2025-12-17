@@ -211,7 +211,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         super(BaseApprovedChangeView, self).set_values(values)
         if self.could_reload:
             # new_approval_status = self.parent.has_approvings()
-            new_approval_status = self.parent.has_approvings(all_done=True)
+            new_approval_status = self.parent.has_approvings()
             if old_approval_status != new_approval_status:
                 cache_chooser = getUtility(ICacheChooser)
                 the_cache = cache_chooser("imio.dms.mail.browser.actionspanel.DmsOMActionsPanelView__call__")
