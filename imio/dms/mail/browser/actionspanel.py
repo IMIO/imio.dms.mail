@@ -18,7 +18,6 @@ def actionspanelview_cachekey(
     * modification date
     * current user
     * user groups
-    * has_approvings
     """
     user = self.request["AUTHENTICATED_USER"]
     # review_state is no more considered because modification is changed at transition (in subscribers)
@@ -32,7 +31,6 @@ def actionspanelview_cachekey(
         user.getId(),
         self.context.modified().strftime("%Y%m%d-%H%M%S-%f"),
         get_plone_groups_for_user(user=user),
-        hasattr(self.context, "has_approvings") and self.context.has_approvings() or False,
     )
     return ret
 
