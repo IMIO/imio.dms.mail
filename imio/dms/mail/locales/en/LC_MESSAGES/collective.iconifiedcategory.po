@@ -39,6 +39,10 @@ msgstr ""
 msgid "Deactivated for approval (click to activate)"
 msgstr ""
 
+#: tabview.py
+msgid "Filesize"
+msgstr ""
+
 #: ./browser/iconified_category.py
 msgid "Partially approved. Still waiting for other approval(s)"
 msgstr ""
