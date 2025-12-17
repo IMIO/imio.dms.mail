@@ -110,13 +110,13 @@ def add_test_annexes_types(context):
     # Category Group for classification folders
     annexes_category_group = ccc["annexes"]
     icats = (
-        ("annex", _("Annex"), u"attach.png", True),
-        ("deliberation", _("Deliberation"), u"deliberation_signed.png", True),
-        ("cahier-charges", _("Technical specifications"), u"cahier.png", False),
-        ("legal-advice", _("Legal advice"), u"legalAdvice.png", False),
-        ("budget", _("Invoice"), u"budget.png", False),
+        ("annex", _("Annex"), u"attach.png"),
+        ("deliberation", _("Deliberation"), u"deliberation_signed.png"),
+        ("cahier-charges", _("Technical specifications"), u"cahier.png"),
+        ("legal-advice", _("Legal advice"), u"legalAdvice.png"),
+        ("budget", _("Invoice"), u"budget.png"),
     )
-    for oid, title, img, show_pv in icats:
+    for oid, title, img in icats:
         if oid in annexes_category_group:
             continue
         icon_path = os.path.join(context._profile_path, "images", img)
@@ -130,7 +130,6 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            show_preview=show_pv,
         )
 
     # Category Group for dms main files in incoming mails
@@ -148,7 +147,6 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            show_preview=True,
         )
 
     # Category Group for appendix files in incoming mails
@@ -166,7 +164,6 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            show_preview=True,
         )
 
     # Category Group for dms main files in outgoing mails
@@ -191,7 +188,6 @@ def add_test_annexes_types(context):
             predefined_title=title,
             to_sign=to_sign,
             to_approve=to_approve,
-            show_preview=True,
         )
     templates = site.portal_catalog.unrestrictedSearchResults(portal_type=["ConfigurablePODTemplate"])
     category_id = calculate_category_id(site["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"])
@@ -215,7 +211,6 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
-            show_preview=True,
         )
 
 
