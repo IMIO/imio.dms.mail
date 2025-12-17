@@ -62,10 +62,10 @@ body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBe
     text-align: center;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers #form-widgets-ISigningBehavior-signers-0-widgets-editor .selected-option {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option {
     font-size: 0;
 }
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers #form-widgets-ISigningBehavior-signers-0-widgets-editor .selected-option::before {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option::before {
     content: "✔️";
     font-size: 12px;
     font-weight: bold;
