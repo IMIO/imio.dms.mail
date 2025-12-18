@@ -4,11 +4,13 @@ from collective.dms.basecontent import _ as _CDB
 from collective.dms.basecontent.dmsfile import DmsFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from imio.dms.mail import _
+from plone.autoform import directives as form
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
 from plone.supermodel import model
+from z3c.form.interfaces import IEditForm
 from zope.component import getUtility
 from zope.interface import implements
 from zope.interface import Invalid
@@ -41,6 +43,9 @@ class IImioDmsFile(IDmsFile):
         title=_CDB(u"File"),
         required=True,
     )
+
+    form.mode(label="hidden")
+    form.mode(IEditForm, title="input")
 
 
 class ImioDmsFile(DmsFile):
