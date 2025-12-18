@@ -1723,32 +1723,40 @@ class OMApprovalAdapter(object):
             # new_filename like u'Modele de base avec sceau S0013 Test sceau 4.odt (limited to 120 chars)
             f_title = os.path.splitext(fobj.file.filename)[0]
             new_filename = u"{}.pdf".format(f_title)
-            # TODO which pdf format to choose ?
-            pdf_file = convert_and_save_odt(
-                fobj.file,
-                self.context,
-                "dmsommainfile",
-                new_filename,
-                fmt="pdf",
-                from_uid=f_uid,
-                attributes={
-                    "content_category": fobj.content_category,
-                    "scan_id": fobj.scan_id,
-                    "scan_user": fobj.scan_user,
-                },
-            )
-            # we must set attribute after creation
-            pdf_file.to_sign = True
-            pdf_file.to_approve = False
-            pdf_file.approved = fobj.approved
-            update_categorized_elements(
-                self.context,
-                pdf_file,
-                get_category_object(self.context, pdf_file.content_category),
-                limited=True,
-                sort=False,
-                logging=True,
-            )
+            if fobj.file.contentType == "application/vnd.oasis.opendocument.text":
+                # TODO which pdf format to choose ?
+                pdf_file = convert_and_save_odt(
+                    fobj.file,
+                    self.context,
+                    "dmsommainfile",
+                    new_filename,
+                    fmt="pdf",
+                    from_uid=f_uid,
+                    attributes={
+                        "content_category": fobj.content_category,
+                        "scan_id": fobj.scan_id,
+                        "scan_user": fobj.scan_user,
+                    },
+                )
+                # we must set attribute after creation
+                pdf_file.to_sign = True
+                pdf_file.to_approve = False
+                pdf_file.approved = fobj.approved
+                update_categorized_elements(
+                    self.context,
+                    pdf_file,
+                    get_category_object(self.context, pdf_file.content_category),
+                    limited=True,
+                    sort=False,
+                    logging=True,
+                )
+            elif fobj.file.contentType == "application/pdf":
+                pdf_file = fobj
+            else:
+                # TODO Convert Word to pdf
+                raise NotImplementedError(
+                    "Cannot convert file of type '{}' to pdf for signing.".format(fobj.file.contentType)
+                )
 
             pdf_uid = pdf_file.UID()
             self.pdf_files_uids[i] = pdf_uid
