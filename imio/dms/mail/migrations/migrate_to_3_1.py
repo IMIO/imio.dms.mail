@@ -203,7 +203,21 @@ class Migrate_To_3_1(Migrator):  # noqa
             a_t_f = self.portal["annexes_types"]
             if "incoming_dms_files" not in a_t_f:
                 self.runProfileSteps("collective.dms.basecontent", steps=["actions"])  # for actions columns
+                odt_only = self.registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile")
                 self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry", "actions"])
+                if odt_only is not None:
+                    del self.registry.records["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"]
+                    if odt_only:
+                        api.portal.set_registry_record(
+                            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
+                            ["odt"],
+                        )
+                    else:
+                        api.portal.set_registry_record(
+                            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
+                            ["odt", "pdf", "doc"],
+                        )
+
                 load_type_from_package("dmsoutgoingmail", "imio.dms.mail:default")  # ISigningBehavior behavior
                 load_type_from_package("held_position", "imio.dms.mail:default")  # IUsagesBehavior behavior
                 load_type_from_package("dmsmainfile", "collective.dms.basecontent:default")  # iconified

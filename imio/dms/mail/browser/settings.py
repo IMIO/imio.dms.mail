@@ -136,10 +136,9 @@ class OMFileFormatsVocabulary(object):
 
     def __call__(self, context):
         return SimpleVocabulary([
-            SimpleTerm(value='application/vnd.oasis.opendocument.text', title=_(u'OpenDocument Text (.odt)')),
-            SimpleTerm(value='application/pdf', title=_(u'PDF Document (.pdf)')),
-            SimpleTerm(value='application/msword', title=_(u'Microsoft Word Document (.doc)')),
-            SimpleTerm(value='application/vnd.openxmlformats-officedocument.wordprocessingml.document', title=_(u'Microsoft Word Document (.docx)')),
+            SimpleTerm(value="odt", title=_(u"OpenDocument Text (.odt)")),
+            SimpleTerm(value="pdf", title=_(u"PDF Document (.pdf)")),
+            SimpleTerm(value="doc", title=_(u"Microsoft Word Document (.doc, .docx)")),
         ])
 
 
@@ -616,9 +615,9 @@ class IImioDmsMailConfig(model.Schema):
     omail_response_prefix = schema.TextLine(title=_("Response prefix"), required=False)
 
     omail_formats_mainfile = schema.List(
-        title=_(u"Allowed file formats"),
+        title=_(u"Allowed main file formats"),
         value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMFileFormatsVocabulary"),
-        default=["application/vnd.oasis.opendocument.text"],
+        default=["odt"],
         required=True,
     )
 

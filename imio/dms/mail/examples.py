@@ -1040,6 +1040,8 @@ def configure_imio_dms_mail(context):
         ]
     if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send") is None:
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send"] = False
+    if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile") is None:
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"] = ["odt"]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields"):
         fields = [
             "IDublinCore.title",

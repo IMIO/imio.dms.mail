@@ -5,12 +5,11 @@ from collective.dms.basecontent.dmsfile import DmsFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from imio.dms.mail import _
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
+from imio.dms.mail.utils import get_allowed_omf_content_types
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
-from plone.registry.interfaces import IRegistry
 from plone.supermodel import model
-from zope.component import getUtility
 from zope.interface import implements
 from zope.interface import Invalid
 
@@ -26,12 +25,10 @@ class RestrictedNamedBlobFile(NamedBlobFile):
                 and self.context.file.contentType != "application/vnd.oasis.opendocument.text"
             ):
                 return
-            registry = getUtility(IRegistry)
-            allowed_file_formats = registry.get('imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile')
             mimetype = get_contenttype(value)
-            if mimetype not in allowed_file_formats:
-                raise Invalid(_('Invalid file format. Allowed formats are: ${formats}.',
-                                mapping={'formats': ', '.join([v.title for v in OMFileFormatsVocabulary()(None)])}))
+            if mimetype not in get_allowed_omf_content_types():
+                raise Invalid(_("Invalid file format. Allowed formats are: ${formats}.",
+                                mapping={"formats": u", ".join([v.title for v in OMFileFormatsVocabulary()(None)])}))
 
 
 class IImioDmsFile(IDmsFile):

@@ -184,27 +184,6 @@ class Migrate_To_3_0(Migrator):  # noqa
             mtr = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(mt)
             self.existing_settings[mt] = api.portal.get_registry_record(mtr)
 
-        registry = getUtility(IRegistry)
-        omail_odt_mainfile_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"
-        if omail_odt_mainfile_key in registry:
-            omail_odt_mainfile = registry[omail_odt_mainfile_key]
-            del registry[omail_odt_mainfile_key]
-            if not omail_odt_mainfile:
-                api.portal.set_registry_record(
-                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
-                    ["application/vnd.oasis.opendocument.text"],
-                )
-            else:
-                api.portal.set_registry_record(
-                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
-                    [
-                        "application/vnd.oasis.opendocument.text"
-                        "application/pdf"
-                        "application/msword"
-                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    ],
-                )
-
         if self.is_in_part("a"):  # install and upgrade products
             # check if oo port or solr port must be changed
             update_solr_config()

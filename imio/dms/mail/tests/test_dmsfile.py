@@ -28,11 +28,11 @@ class TestDmsfile(unittest.TestCase):
 
     def test_RestrictedNamedBlobFile(self):
         path = "%s/batchimport/toprocess/outgoing-mail/Accusé de réception.odt" % imiodmsmail.__path__[0]
-        odtfile = file(path, "rb")
+        odtfile = file(path, "rb")  # noqa F821
         odtblob = NamedBlobFile(data=odtfile.read(), filename=u"file.odt")
         odtfile.close()
         path = os.path.join(os.path.dirname(__file__), "files", "example.pdf")
-        otherfile = file(path, "rb")
+        otherfile = file(path, "rb")  # noqa F821
         otherblob = NamedBlobFile(data=otherfile.read(), filename=u"file.pdf")
         otherfile.close()
         registry = getUtility(IRegistry)
@@ -46,8 +46,5 @@ class TestDmsfile(unittest.TestCase):
         # with bad file
         self.assertRaises(Invalid, field._validate, otherblob)
         # bad file, validation adapted
-        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"] = [
-            "application/vnd.oasis.opendocument.text",
-            "application/pdf"
-        ]
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"] = ["odt", "pdf"]
         field._validate(otherblob)
