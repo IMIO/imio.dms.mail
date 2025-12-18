@@ -1149,8 +1149,8 @@ class OMApprovalAdapter(object):
         The list of editor flags for the approval process, one bool for each signer
     self.annot["files"] = list[m] file_uids
         The list of files to be approved
-    self.annot["pdf_files"] = list[m] pdf_file_uids
-        The list of pdf files generated for external signature
+    self.annot["pdf_files"] = list[m] list(pdf_file_uids)
+        The list of pdf files generated for external signature.
 
     ### Matrix
     self.annot["approval"][n][m] = {
@@ -1487,7 +1487,7 @@ class OMApprovalAdapter(object):
         if f_uid in self.files_uids:
             return
         self.annot["files"].append(f_uid)
-        self.annot["pdf_files"].append(None)
+        self.annot["pdf_files"].append(PersistentList())
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].append(
                 PersistentMapping(
@@ -1707,9 +1707,9 @@ class OMApprovalAdapter(object):
             fobj = uuidToObject(f_uid)
             if not fobj:
                 continue
-            if self.pdf_files_uids[i]:  # already done ??
+            if len(self.pdf_files_uids[i]) > 0:  # already done ??
                 continue
-            if not fobj.scan_id or len(fobj.scan_id) != 15:
+            if not fobj.scan_id or len(fobj.scan_id) != 15:  # problem when signing appendix files !!
                 api.portal.show_message(
                     message=_(
                         "File '${file}' has no or a wrong scan id, it cannot be added to sign session.",

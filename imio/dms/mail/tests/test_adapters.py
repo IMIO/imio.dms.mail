@@ -533,7 +533,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "w", "approved_on": None, "approved_by": None},
@@ -826,7 +826,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "w", "approved_on": None, "approved_by": None},
@@ -857,7 +857,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {
@@ -888,7 +888,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {
@@ -939,7 +939,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None],
+                "pdf_files": [[]],
                 "approval": [
                     [{"status": "w", "approved_on": None, "approved_by": None}],
                     [{"status": "w", "approved_on": None, "approved_by": None}],
@@ -962,7 +962,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None],
+                "pdf_files": [[]],
                 "approval": [
                     [{"status": "w", "approved_on": None, "approved_by": None}],
                     [{"status": "w", "approved_on": None, "approved_by": None}],
@@ -985,7 +985,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "w", "approved_on": None, "approved_by": None},
@@ -1014,7 +1014,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": None,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "w", "approved_on": None, "approved_by": None},
@@ -1103,7 +1103,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "p", "approved_on": None, "approved_by": None},
@@ -1136,7 +1136,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "a", "approved_on": dirg_approval_datetime_1, "approved_by": "dirg"},
@@ -1169,7 +1169,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "a", "approved_on": dirg_approval_datetime_1, "approved_by": "dirg"},
@@ -1202,7 +1202,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": None,
-                "pdf_files": [None, None],
+                "pdf_files": [[], []],
                 "approval": [
                     [
                         {"status": "a", "approved_on": dirg_approval_datetime_1, "approved_by": "dirg"},
@@ -1238,7 +1238,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": -1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
-                "pdf_files": [self.omail["reponse-salle.pdf"].UID(), self.omail["reponse-salle-1.pdf"].UID()],
+                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()], [self.omail["reponse-salle-1.pdf"].UID()]],
                 "approval": [
                     [
                         {"status": "a", "approved_on": dirg_approval_datetime_1, "approved_by": "dirg"},
@@ -1279,7 +1279,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": -1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
-                "pdf_files": [self.omail["reponse-salle.pdf"].UID()],
+                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()]],
                 "approval": [
                     [
                         {"status": "a", "approved_on": dirg_approval_datetime, "approved_by": "dirg"},
@@ -1306,7 +1306,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
-                "pdf_files": [self.omail["reponse-salle.pdf"].UID()],
+                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()]],
                 "approval": [
                     [{"status": "p", "approved_on": None, "approved_by": None}],
                     [
@@ -1336,7 +1336,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_id": 0,
-                "pdf_files": [self.omail["reponse-salle.pdf"].UID()],
+                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()]],
                 "approval": [
                     [{"status": "p", "approved_on": None, "approved_by": None}],
                     [{"status": "w", "approved_on": None, "approved_by": None}],
@@ -1388,7 +1388,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(self.omail.values()), 3)
         self.assertIn("reponse-salle.pdf", self.omail)
         pdf_file = self.omail["reponse-salle.pdf"]
-        self.assertEqual(self.approval.annot["pdf_files"], [pdf_file.UID()])
+        self.assertEqual(self.approval.annot["pdf_files"], [[pdf_file.UID()]])
         self.assertEqual(pdf_file.title, u"R\xe9ponse salle.pdf")
         self.assertTrue(pdf_file.to_sign)
         self.assertFalse(pdf_file.to_approve)
