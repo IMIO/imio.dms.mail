@@ -1637,14 +1637,21 @@ def update_approvers_settings():
             s_l.reindexObject()
 
 
-def get_allowed_omf_content_types():
-    """Get allowed outgoing mail main file content types."""
+def get_allowed_omf_content_types(esign=False):
+    """
+    Get allowed outgoing mail file content types.
+    :param esign: bool indicating if only esign content types must be returned
+    :return: list of content types
+    """
     ct_by_type = {
         "pdf": ("application/pdf",),
         "odt": ("application/vnd.oasis.opendocument.text",),
         "doc": ("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
     }
-    formats = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile")
+    if not esign:
+        formats = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile")
+    else:
+        formats = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats")
     res = []
     for fmt in formats or []:
         res.extend(ct_by_type.get(fmt, ()))

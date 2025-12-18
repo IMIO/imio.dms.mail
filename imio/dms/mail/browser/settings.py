@@ -587,6 +587,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_remark_states",
             "omail_response_prefix",
             "omail_formats_mainfile",
+            "omail_esign_formats",
             "omail_sender_firstname_sorting",
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
@@ -622,6 +623,15 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     widget("omail_formats_mainfile", CheckBoxFieldWidget, multiple="multiple")
+
+    omail_esign_formats = schema.List(
+        title=_(u"Allowed file formats for electronic signature"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMFileFormatsVocabulary"),
+        default=["odt"],
+        required=True,
+    )
+
+    widget("omail_esign_formats", CheckBoxFieldWidget, multiple="multiple")
 
     omail_sender_firstname_sorting = schema.Bool(title=_(u"Sender list is sorted on firstname"), default=True)
 
@@ -1016,6 +1026,19 @@ class IImioDmsMailConfig(model.Schema):
                         )
                     )
                 omail_signer_conditions[condition] = i
+        
+        # Check omail main file formats
+        if fieldset == "outgoingmail" or not fieldset:
+            exceeding_formats = set(data.omail_esign_formats).difference(set(data.omail_formats_mainfile))
+            if exceeding_formats:
+                raise Invalid(
+                    _(
+                        u"${tab} tab: « ${field} » must contain all formats defined in "
+                        u"« ${esign_field} ».",
+                        mapping={"tab": _(u"Outgoing mail"), "field": _(u"Allowed main file formats"),
+                                 "esign_field": _(u"Allowed file formats for electronic signature")},
+                    )
+                )
 
         # check fields
         constraints = {
