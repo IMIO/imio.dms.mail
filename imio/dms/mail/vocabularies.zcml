@@ -120,6 +120,11 @@
         />
 
     <utility
+        name="imio.dms.mail.OMFileFormatsVocabulary"
+        factory="imio.dms.mail.browser.settings.OMFileFormatsVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.UsersRoutingValueVocabulary"
         factory="imio.dms.mail.browser.settings.UsersRoutingValueVocabulary"
         />

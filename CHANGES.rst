@@ -42,6 +42,8 @@ Changelog
   [chris-adam]
 - Updated omail_signer_rules validation.
   [chris-adam]
+- Added allowed file formats list for DMS outgoing files.
+  [chris-adam, sgeulette]
 
 3.0 (2021-09-30)
 ----------------

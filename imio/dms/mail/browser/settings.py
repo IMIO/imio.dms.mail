@@ -131,6 +131,17 @@ class OMFieldsVocabulary(object):
         )
 
 
+class OMFileFormatsVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return SimpleVocabulary([
+            SimpleTerm(value="odt", title=_(u"OpenDocument Text (.odt)")),
+            SimpleTerm(value="pdf", title=_(u"PDF Document (.pdf)")),
+            SimpleTerm(value="doc", title=_(u"Microsoft Word Document (.doc, .docx)")),
+        ])
+
+
 class IIMFieldsSchema(Interface):
     field_name = schema.Choice(
         title=_(u"Field name"),
@@ -575,7 +586,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_types",
             "omail_remark_states",
             "omail_response_prefix",
-            "omail_odt_mainfile",
+            "omail_formats_mainfile",
             "omail_sender_firstname_sorting",
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
@@ -603,7 +614,14 @@ class IImioDmsMailConfig(model.Schema):
 
     omail_response_prefix = schema.TextLine(title=_("Response prefix"), required=False)
 
-    omail_odt_mainfile = schema.Bool(title=_(u"Dms file must be an odt format"), default=True)
+    omail_formats_mainfile = schema.List(
+        title=_(u"Allowed main file formats"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMFileFormatsVocabulary"),
+        default=["odt"],
+        required=True,
+    )
+
+    widget("omail_formats_mainfile", CheckBoxFieldWidget, multiple="multiple")
 
     omail_sender_firstname_sorting = schema.Bool(title=_(u"Sender list is sorted on firstname"), default=True)
 

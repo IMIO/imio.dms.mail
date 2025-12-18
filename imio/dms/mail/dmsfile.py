@@ -4,12 +4,12 @@ from collective.dms.basecontent import _ as _CDB
 from collective.dms.basecontent.dmsfile import DmsFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from imio.dms.mail import _
+from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
+from imio.dms.mail.utils import get_allowed_omf_content_types
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
-from plone.registry.interfaces import IRegistry
 from plone.supermodel import model
-from zope.component import getUtility
 from zope.interface import implements
 from zope.interface import Invalid
 
@@ -18,19 +18,17 @@ class RestrictedNamedBlobFile(NamedBlobFile):
     def _validate(self, value):
         super(RestrictedNamedBlobFile, self)._validate(value)
         if value is not None:
-            registry = getUtility(IRegistry)
-            # TODO add an option to permit pdf file
-            if registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"]:
-                if (
-                    self.context.portal_type == "dmsommainfile"
-                    and self.context.file.contentType != "application/vnd.oasis.opendocument.text"
-                ):
-                    # we are editing the dmsmainfile, there was previously another type, we keep it !
-                    # It's necessary to permit edition of a pdf scanned file
-                    return
-                mimetype = get_contenttype(value)
-                if mimetype != "application/vnd.oasis.opendocument.text":
-                    raise Invalid(_('You can only upload ".odt" file (Libre Office format)'))
+            # we are editing the dmsmainfile, there was previously another type, we keep it !
+            # It's necessary to permit edition of a pdf scanned file
+            if (
+                self.context.portal_type == "dmsommainfile"
+                and self.context.file.contentType != "application/vnd.oasis.opendocument.text"
+            ):
+                return
+            mimetype = get_contenttype(value)
+            if mimetype not in get_allowed_omf_content_types():
+                raise Invalid(_("Invalid file format. Allowed formats are: ${formats}.",
+                                mapping={"formats": u", ".join([v.title for v in OMFileFormatsVocabulary()(None)])}))
 
 
 class IImioDmsFile(IDmsFile):

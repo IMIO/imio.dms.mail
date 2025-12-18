@@ -11,6 +11,7 @@ from zope.component import getUtility
 from zope.interface import Invalid
 
 import imio.dms.mail as imiodmsmail
+import os
 import unittest
 
 
@@ -27,23 +28,23 @@ class TestDmsfile(unittest.TestCase):
 
     def test_RestrictedNamedBlobFile(self):
         path = "%s/batchimport/toprocess/outgoing-mail/Accusé de réception.odt" % imiodmsmail.__path__[0]
-        odtfile = file(path, "rb")
+        odtfile = file(path, "rb")  # noqa F821
         odtblob = NamedBlobFile(data=odtfile.read(), filename=u"file.odt")
         odtfile.close()
-        path = "%s/configure.zcml" % imiodmsmail.__path__[0]
-        otherfile = file(path, "rb")
-        otherblob = NamedBlobFile(data=otherfile.read(), filename=u"file.txt")
+        path = os.path.join(os.path.dirname(__file__), "files", "example.pdf")
+        otherfile = file(path, "rb")  # noqa F821
+        otherblob = NamedBlobFile(data=otherfile.read(), filename=u"file.pdf")
         otherfile.close()
         registry = getUtility(IRegistry)
         # check content type
         self.assertEqual(get_contenttype(odtblob), "application/vnd.oasis.opendocument.text")
-        self.assertEqual(get_contenttype(otherblob), "text/plain")
+        self.assertEqual(get_contenttype(otherblob), "application/pdf")
         field = RestrictedNamedBlobFile()
         # with om context and good file
         field.context = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
         field._validate(odtblob)
         # with bad file
         self.assertRaises(Invalid, field._validate, otherblob)
-        # bad file, validation deactivated
-        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"] = False
+        # bad file, validation adapted
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"] = ["odt", "pdf"]
         field._validate(otherblob)
