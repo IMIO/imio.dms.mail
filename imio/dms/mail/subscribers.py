@@ -16,6 +16,8 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.task.interfaces import ITaskContainerMethods
 from collective.wfadaptations.api import get_applied_adaptations
@@ -393,7 +395,7 @@ def dmsoutgoingmail_transition(mail, event):
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
-    if event.transition and event.transition.id == "propose_to_approve":  # only if
+    if event.transition and event.transition.id == "propose_to_approve":
         approval = OMApprovalAdapter(mail)
         approval.start_approval_process()
     # seal without signers (due to constraints)
@@ -588,9 +590,43 @@ def task_transition(task, event):
             task.auto_to_do_flag = False
 
 
+def _correct_to_approve(file_obj):
+    """Correct to_approve value following context.
+    Force to True to False except if:
+    * to_sign is True
+    * approvers are defined on parent om
+    * file is not a pdf conversion
+    * file doesn't need_mailing
+    Then the file is added to the approval process.
+    """
+    # handle to_approve attribute
+    orig_value = getattr(file_obj, "to_approve", False)
+    new_value = False
+    om_obj = file_obj.__parent__
+    approval = OMApprovalAdapter(om_obj)
+    if (orig_value and getattr(file_obj, "to_sign", False) and approval.approvers
+            and not base_hasattr(file_obj, "conv_from_uid")
+            and not getattr(file_obj, "need_mailing", False)):
+        new_value = True
+        approval.add_file_to_approval(file_obj.UID())
+    if orig_value != new_value:  # only when passing from True to False normally
+        file_obj.to_approve = new_value
+        category_object = get_category_object(file_obj, file_obj.content_category)
+        update_categorized_elements(
+            om_obj,
+            file_obj,
+            category_object,
+            limited=True,
+            sort=False,
+            logging=True
+        )
+
+
 def dmsmainfile_added(obj, event):
-    """Remove left portlet."""
+    """Called for IAnnex (appendix, mainfile, annex)"""
     blacklistPortletCategory(obj)
+    # needed for IAnnex globally because iconified event has been unconfigured
+    categorized_content_created(obj, event)
     if obj.portal_type == "dmsmainfile":
         # we manage modification following restricted roles and without acquisition.
         # so an editor can't change a dmsmainfile
@@ -602,10 +638,10 @@ def dmsmainfile_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
-        categorized_content_created(obj, event)
-        if getattr(obj, "to_approve", False) and not base_hasattr(obj, "conv_from_uid"):
-            approval = OMApprovalAdapter(obj.__parent__)
-            approval.add_file_to_approval(obj.UID())
+        # TODO add unit tests for the following
+        _correct_to_approve(obj)
+    elif obj.portal_type == "appendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
+        _correct_to_approve(obj)
 
 
 def dmsmainfile_modified(dmf, event):
@@ -637,7 +673,6 @@ def dmsappendixfile_added(obj, event):
     """Set delete permission when a dmsappendixfile is added.
     Remove left portlet."""
     obj.manage_permission("Delete objects", ("Contributor", "Editor", "Manager", "Site Administrator"), acquire=1)
-    blacklistPortletCategory(obj)
 
 
 def imiodmsfile_added(obj, event):

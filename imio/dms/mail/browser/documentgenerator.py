@@ -11,12 +11,9 @@ from collective.documentgenerator.browser.generation_view import PersistentDocum
 from collective.documentgenerator.content.pod_template import ConfigurablePODTemplate
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
-from collective.documentgenerator.utils import need_mailing_value
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
-from collective.iconifiedcategory.utils import get_category_object
-from collective.iconifiedcategory.utils import update_categorized_elements
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
@@ -481,6 +478,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
     def generate_persistent_doc(self, pod_template, output_format):
         """Create a dmsmainfile from the generated document"""
         doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
+        need_mailing = not ("mailed_data" in gen_context or "mailing_list" in gen_context)
         file_object = NamedBlobFile(doc, filename=safe_unicode(doc_name))
         scan_id = gen_context["scan_id"][4:]
         scan_params = [param for param in ("PD", "PC", "PVS") if gen_context.get(param, False)]
@@ -502,29 +500,10 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 scan_user=scan_user,
                 file=file_object,
                 content_category=category,
+                need_mailing=need_mailing,
             )
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
-        # handle to_approve attribute
-        orig_value = persisted_doc.to_approve
-        new_value = False
-        approval = OMApprovalAdapter(self.context)
-        if orig_value and persisted_doc.to_sign and approval.approvers:  # have approvers
-            # TODO esign : do not include pdf file version in approval
-            if not need_mailing_value(document=persisted_doc):
-                new_value = True
-                approval.add_file_to_approval(persisted_doc.UID())
-        if orig_value != new_value:  # only when new_value is False normally
-            persisted_doc.to_approve = new_value
-            category_object = get_category_object(persisted_doc, persisted_doc.content_category)
-            update_categorized_elements(
-                self.context,
-                persisted_doc,
-                category_object,
-                limited=True,
-                sort=False,
-                logging=True
-            )
         return persisted_doc
 
     def redirects(self, persisted_doc):
