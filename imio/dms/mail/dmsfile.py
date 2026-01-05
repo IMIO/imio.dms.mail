@@ -28,8 +28,11 @@ class RestrictedNamedBlobFile(NamedBlobFile):
                 return
             mimetype = get_contenttype(value)
             if mimetype not in get_allowed_omf_content_types():
+                allowed_formats = api.portal.get_registry_record(
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile")
                 raise Invalid(_("Invalid file format. Allowed formats are: ${formats}.",
-                                mapping={"formats": u", ".join([v.title for v in OMFileFormatsVocabulary()(None) if v.key in api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile")])}))
+                                mapping={"formats": u", ".join([v.title for v in OMFileFormatsVocabulary()(None)
+                                                                if v.value in allowed_formats])}))
 
 
 class IImioDmsFile(IDmsFile):

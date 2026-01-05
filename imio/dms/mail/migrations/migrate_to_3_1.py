@@ -215,10 +215,6 @@ class Migrate_To_3_1(Migrator):  # noqa
                         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
                         formats
                     )
-                    api.portal.set_registry_record(
-                        "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
-                        formats
-                    )
 
                 load_type_from_package("dmsoutgoingmail", "imio.dms.mail:default")  # ISigningBehavior behavior
                 load_type_from_package("held_position", "imio.dms.mail:default")  # IUsagesBehavior behavior

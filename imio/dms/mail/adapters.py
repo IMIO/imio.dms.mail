@@ -1723,7 +1723,9 @@ class OMApprovalAdapter(object):
             # new_filename like u'Modele de base avec sceau S0013 Test sceau 4.odt (limited to 120 chars)
             f_title = os.path.splitext(fobj.file.filename)[0]
             new_filename = u"{}.pdf".format(f_title)
-            if fobj.file.contentType == "application/vnd.oasis.opendocument.text":
+            if fobj.file.contentType == "application/pdf":
+                pdf_file = fobj
+            elif fobj.file.contentType == "application/vnd.oasis.opendocument.text":
                 # TODO which pdf format to choose ?
                 pdf_file = convert_and_save_odt(
                     fobj.file,
@@ -1750,8 +1752,6 @@ class OMApprovalAdapter(object):
                     sort=False,
                     logging=True,
                 )
-            elif fobj.file.contentType == "application/pdf":
-                pdf_file = fobj
             else:
                 # TODO Convert Word to pdf
                 raise NotImplementedError(

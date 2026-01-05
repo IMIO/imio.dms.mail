@@ -179,7 +179,7 @@ class ISigningBehavior(model.Schema):
             approval = IOMApproval(context)
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
                 fields_have_changed = (context.esign != data.esign or context.seal != data.seal
-                                    or context.signers != data.signers)
+                                       or context.signers != data.signers)
                 if fields_have_changed:
                     raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
                                     u"You may go back to a previous state or ask your admin."))
@@ -287,21 +287,21 @@ class ISigningBehavior(model.Schema):
 
         # Validate file formats if eSignature is enabled
         if context and data.esign:
-            for file in context.values():
+            for afile in context.values():
                 # Skip files already converted for esign
-                if base_hasattr(file, "conv_from_uid"):
+                if base_hasattr(afile, "conv_from_uid"):
                     continue
                 # Skip files that do not need to be signed
-                if not file.to_sign:
+                if not afile.to_sign:
                     continue
-                mimetype = get_contenttype(file.file)
+                mimetype = get_contenttype(afile.file)
                 if mimetype not in get_allowed_omf_content_types(esign=True):
                     raise Invalid(
                         _(
                             "You cannot enable electronic signature because the file '${filename}' "
                             "is of type '${mimetype}' which is not allowed. Allowed formats are: ${formats}.",
                             mapping={
-                                "filename": file.title,
+                                "filename": afile.title,
                                 "mimetype": mimetype,
                                 "formats": u", ".join(
                                     [
