@@ -149,7 +149,7 @@
     <subscriber
         for="imio.annex.content.annex.IAnnex
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
-        handler=".subscribers.dmsmainfile_added"
+        handler=".subscribers.i_annex_added"
         />
 
     <subscriber

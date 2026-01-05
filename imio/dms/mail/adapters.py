@@ -1698,34 +1698,51 @@ class OMApprovalAdapter(object):
         self.start_approval_process()
 
     def _create_pdf_file(self, orig_fobj, nbf, f_title, f_uid, file_index, session_file_uids):
-        """Create a pdf version file from an odt file."""
+        """Create a pdf version file.
+
+        :param orig_fobj: original file object
+        :param nbf: NamedBlobFile object to convert
+        :param f_title: title for the file
+        :param f_uid: original file uid
+        :param file_index: index of the original file in the files_uids list
+        :param session_file_uids: list to append created pdf file uids
+        :return: created pdf file object
+        """
         new_filename = u"{}.pdf".format(f_title)
-        # TODO which pdf format to choose ?
-        pdf_file = convert_and_save_odt(
-            nbf,
-            self.context,
-            orig_fobj.portal_type,
-            new_filename,
-            fmt="pdf",
-            from_uid=f_uid,
-            attributes={
-                "content_category": orig_fobj.content_category,
-                "scan_id": orig_fobj.scan_id,
-                "scan_user": orig_fobj.scan_user,
-            },
-        )
-        # we must set attribute after creation
-        pdf_file.to_sign = True
-        pdf_file.to_approve = False
-        pdf_file.approved = orig_fobj.approved
-        update_categorized_elements(
-            self.context,
-            pdf_file,
-            get_category_object(self.context, pdf_file.content_category),
-            limited=True,
-            sort=False,
-            logging=True,
-        )
+        if nbf.contentType == "application/pdf":
+            pdf_file = orig_fobj
+        elif nbf.contentType == "application/vnd.oasis.opendocument.text":
+            # TODO which pdf format to choose ?
+            pdf_file = convert_and_save_odt(
+                nbf,
+                self.context,
+                orig_fobj.portal_type,
+                new_filename,
+                fmt="pdf",
+                from_uid=f_uid,
+                attributes={
+                    "content_category": orig_fobj.content_category,
+                    "scan_id": orig_fobj.scan_id,
+                    "scan_user": orig_fobj.scan_user,
+                },
+            )
+            # we must set attribute after creation
+            pdf_file.to_sign = True
+            pdf_file.to_approve = False
+            pdf_file.approved = orig_fobj.approved
+            update_categorized_elements(
+                self.context,
+                pdf_file,
+                get_category_object(self.context, pdf_file.content_category),
+                limited=True,
+                sort=False,
+                logging=True,
+            )
+        else:
+            # TODO Convert Word to pdf
+            raise NotImplementedError(
+                "Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType)
+            )
 
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
