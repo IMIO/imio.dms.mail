@@ -198,8 +198,13 @@ def add_test_annexes_types(context):
 
     # Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
-    oid, title, img = "outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png"
-    if oid not in outgoing_appendix_files_category_group:
+    icats = (
+        ("outgoing-appendix-file", _("Outgoing Appendix File"), u"attach.png", False, False),
+        ("outgoing-signable-appendix-file", _("Outgoing Signable Appendix File"), u"attach-esign.png", True, True),
+    )
+    for oid, title, img, to_sign, to_approve in icats:
+        if oid in outgoing_appendix_files_category_group:
+            continue
         icon_path = os.path.join(context._profile_path, "images", img)
         with open(icon_path, "rb") as fl:
             icon = NamedBlobImage(fl.read(), filename=img)
@@ -211,6 +216,8 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
             predefined_title=title,
+            to_sign=to_sign,
+            to_approve=to_approve,
         )
 
 
