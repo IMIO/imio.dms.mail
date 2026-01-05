@@ -17,6 +17,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import convert_and_save_odt
+from collective.documentgenerator.utils import odfsplit
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
@@ -54,6 +55,7 @@ from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubM
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
 from plone.indexer import indexer
+from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.ATContentTypes.interfaces.folder import IATFolder
@@ -1149,8 +1151,8 @@ class OMApprovalAdapter(object):
         The list of editor flags for the approval process, one bool for each signer
     self.annot["files"] = list[m] file_uids
         The list of files to be approved
-    self.annot["pdf_files"] = list[m] pdf_file_uids
-        The list of pdf files generated for external signature
+    self.annot["pdf_files"] = list[m] list(pdf_file_uids)
+        The list of pdf files generated for external signature.
 
     ### Matrix
     self.annot["approval"][n][m] = {
@@ -1487,7 +1489,7 @@ class OMApprovalAdapter(object):
         if f_uid in self.files_uids:
             return
         self.annot["files"].append(f_uid)
-        self.annot["pdf_files"].append(None)
+        self.annot["pdf_files"].append(PersistentList())
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].append(
                 PersistentMapping(
@@ -1695,6 +1697,42 @@ class OMApprovalAdapter(object):
 
         self.start_approval_process()
 
+    def _create_pdf_file(self, orig_fobj, nbf, f_title, f_uid, file_index, session_file_uids):
+        """Create a pdf version file from an odt file."""
+        new_filename = u"{}.pdf".format(f_title)
+        # TODO which pdf format to choose ?
+        pdf_file = convert_and_save_odt(
+            nbf,
+            self.context,
+            orig_fobj.portal_type,
+            new_filename,
+            fmt="pdf",
+            from_uid=f_uid,
+            attributes={
+                "content_category": orig_fobj.content_category,
+                "scan_id": orig_fobj.scan_id,
+                "scan_user": orig_fobj.scan_user,
+            },
+        )
+        # we must set attribute after creation
+        pdf_file.to_sign = True
+        pdf_file.to_approve = False
+        pdf_file.approved = orig_fobj.approved
+        update_categorized_elements(
+            self.context,
+            pdf_file,
+            get_category_object(self.context, pdf_file.content_category),
+            limited=True,
+            sort=False,
+            logging=True,
+        )
+
+        pdf_uid = pdf_file.UID()
+        self.pdf_files_uids[file_index].append(pdf_uid)
+        # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
+        pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
+        session_file_uids.append(pdf_uid)
+
     def add_mail_files_to_session(self):
         """Add mail files to sign session."""
         if not self.files_uids:
@@ -1707,9 +1745,9 @@ class OMApprovalAdapter(object):
             fobj = uuidToObject(f_uid)
             if not fobj:
                 continue
-            if self.pdf_files_uids[i]:  # already done ??
+            if len(self.pdf_files_uids[i]) > 0:  # already done ??
                 continue
-            if not fobj.scan_id or len(fobj.scan_id) != 15:
+            if not fobj.scan_id or len(fobj.scan_id) != 15:  # problem when signing appendix files !!
                 api.portal.show_message(
                     message=_(
                         "File '${file}' has no or a wrong scan id, it cannot be added to sign session.",
@@ -1720,49 +1758,29 @@ class OMApprovalAdapter(object):
                 )
                 return False, "Bad scan_id for file uid {}".format(f_uid)
                 # return False, "File without scan id"
-            # new_filename like u'Modele de base avec sceau S0013 Test sceau 4.odt (limited to 120 chars)
             f_title = os.path.splitext(fobj.file.filename)[0]
-            new_filename = u"{}.pdf".format(f_title)
-            if fobj.file.contentType == "application/pdf":
-                pdf_file = fobj
-            elif fobj.file.contentType == "application/vnd.oasis.opendocument.text":
-                # TODO which pdf format to choose ?
-                pdf_file = convert_and_save_odt(
-                    fobj.file,
-                    self.context,
-                    "dmsommainfile",
-                    new_filename,
-                    fmt="pdf",
-                    from_uid=f_uid,
-                    attributes={
-                        "content_category": fobj.content_category,
-                        "scan_id": fobj.scan_id,
-                        "scan_user": fobj.scan_user,
-                    },
-                )
-                # we must set attribute after creation
-                pdf_file.to_sign = True
-                pdf_file.to_approve = False
-                pdf_file.approved = fobj.approved
-                update_categorized_elements(
-                    self.context,
-                    pdf_file,
-                    get_category_object(self.context, pdf_file.content_category),
-                    limited=True,
-                    sort=False,
-                    logging=True,
-                )
+            annot = IAnnotations(fobj)
+            if annot.get("documentgenerator", {}).get("mailed", False):
+                # we need to split the odt file before conversion
+                code, result, nbf = odfsplit(fobj.file.data)
+                if code != 0:
+                    api.portal.show_message(
+                        message=_(
+                            "File '${file}' cannot be split for signing: ${error}.",
+                            mapping={"file": fobj.absolute_url(), "error": result},
+                        ),
+                        request=self.context.REQUEST,
+                        type="error",
+                    )
+                    return False, "Cannot split odt file uid {}".format(f_uid)
+                num_digits = len(str(nbf))
+                for j, odt_data in enumerate(result, start=1):
+                    nb_title = u"{}_{{:0{}d}}".format(f_title, num_digits).format(j)
+                    file_object = NamedBlobFile(odt_data, filename=safe_unicode(u"{}.pdf".format(nb_title)))
+                    # file filename will be renamed later to include uid
+                    self._create_pdf_file(fobj, file_object, nb_title, f_uid, i, session_file_uids)
             else:
-                # TODO Convert Word to pdf
-                raise NotImplementedError(
-                    "Cannot convert file of type '{}' to pdf for signing.".format(fobj.file.contentType)
-                )
-
-            pdf_uid = pdf_file.UID()
-            self.pdf_files_uids[i] = pdf_uid
-            # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
-            pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
-            session_file_uids.append(pdf_uid)
+                self._create_pdf_file(fobj, fobj.file, f_title, f_uid, i, session_file_uids)
         # sort_categorized_elements(self.context)  # not needed
         signers = []
         for signer, (nb, name, label) in zip(self.signers, self.signers_details):

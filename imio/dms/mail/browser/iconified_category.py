@@ -23,7 +23,7 @@ from zope.i18n import translate
  'current_nb': -1,
  'editors': [True],
  'files': ['57a46bf1f0f842adbdabc6afd05a26ee'],
- 'pdf_files': ['355df18ed9404613a1c37651b864aac2'],
+ 'pdf_files': [['355df18ed9404613a1c37651b864aac2']],
  'session_id': 4,
  'signers': [('dirg', u'Maxime DG ()', u'')]
 }

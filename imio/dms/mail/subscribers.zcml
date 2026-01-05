@@ -131,14 +131,23 @@
         handler=".subscribers.task_transition"
       />
 
+    <unconfigure>
+        <subscriber
+            for="collective.iconifiedcategory.behaviors.iconifiedcategorization.IIconifiedCategorizationMarker
+                 zope.lifecycleevent.interfaces.IObjectAddedEvent"
+            handler="collective.iconifiedcategory.content.events.categorized_content_created"
+            />
+    </unconfigure>
+
     <subscriber
         for="collective.dms.basecontent.dmsfile.IDmsAppendixFile
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
         handler=".subscribers.dmsappendixfile_added"
         />
 
+    <!-- previously collective.dms.basecontent.dmsfile.IDmsFile -->
     <subscriber
-        for="collective.dms.basecontent.dmsfile.IDmsFile
+        for="imio.annex.content.annex.IAnnex
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
         handler=".subscribers.dmsmainfile_added"
         />
