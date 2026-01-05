@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-01-05 08:16+0000\n"
+"POT-Creation-Date: 2026-01-05 09:46+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -893,7 +893,7 @@ msgstr "Obligation d'une date de courrier entrant"
 msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
-#: ./examples.py:201
+#: ./examples.py:202
 msgid "Outgoing Appendix File"
 msgstr "Annexe CS"
 
@@ -917,6 +917,10 @@ msgstr "Date d'expédition"
 #: ./examples.py:173
 msgid "Outgoing Scanned DMS File"
 msgstr "Fichier ged CS scanné"
+
+#: ./examples.py:203
+msgid "Outgoing Signable Appendix File"
+msgstr "Annexe CS à signer"
 
 #: ./browser/settings.py:712
 #: ./setuphandlers.py:2857
@@ -1022,7 +1026,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./examples.py:1034
+#: ./examples.py:1041
 msgid "Response: "
 msgstr "Réponse: "
 
