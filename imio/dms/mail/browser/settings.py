@@ -587,6 +587,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_remark_states",
             "omail_response_prefix",
             "omail_formats_mainfile",
+            "omail_esign_formats",
             "omail_sender_firstname_sorting",
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
@@ -622,6 +623,15 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     widget("omail_formats_mainfile", CheckBoxFieldWidget, multiple="multiple")
+
+    omail_esign_formats = schema.List(
+        title=_(u"Allowed file formats for electronic signature"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMFileFormatsVocabulary"),
+        default=[],
+        required=False,
+    )
+
+    widget("omail_esign_formats", CheckBoxFieldWidget, multiple="multiple")
 
     omail_sender_firstname_sorting = schema.Bool(title=_(u"Sender list is sorted on firstname"), default=True)
 

@@ -44,6 +44,7 @@ from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_in_user_groups
@@ -67,6 +68,7 @@ from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
@@ -674,12 +676,55 @@ def dmsappendixfile_added(obj, event):
     Remove left portlet."""
     obj.manage_permission("Delete objects", ("Contributor", "Editor", "Manager", "Site Administrator"), acquire=1)
 
+    if obj.__parent__.portal_type == "dmsoutgoingmail":
+        categorized_content_created(obj, event)
+        if obj.__parent__.esign and obj.to_sign:
+            mimetype = get_contenttype(obj.file)
+            if mimetype not in get_allowed_omf_content_types(esign=True):
+                # FIXME iconifiedcategory subscriber is called after this one and overrides the values
+                obj.to_sign = False
+                obj.to_approve = False
+                api.portal.show_message(
+                    message=_(
+                        u"The file '${file_title}' cannot be electronically signed because its type is not allowed. "
+                        u"It has been removed from the signing and approval process.",
+                        mapping={"file_title": obj.Title()},
+                    ),
+                    request=obj.REQUEST,
+                    type="warning",
+                )
+        if getattr(obj, "to_approve", False) and not base_hasattr(obj, "conv_from_uid"):
+            approval = OMApprovalAdapter(obj.__parent__)
+            approval.add_file_to_approval(obj.UID())
+    # TODO Handle appendix deletion in approval process
+
 
 def imiodmsfile_added(obj, event):
     """when an om file is added"""
     # we check if the file is added manually or generated
     if obj.scan_id and obj.id == obj.scan_id:  # generated
         obj.generated = 1
+    # we update parent index
+    obj.__parent__.reindexObject(["enabled", "markers"])
+    categorized_content_created(obj, event)
+    if obj.__parent__.esign and obj.to_sign:
+        mimetype = get_contenttype(obj.file)
+        if mimetype not in get_allowed_omf_content_types(esign=True):
+            # FIXME iconifiedcategory subscriber is called after this one and overrides the values
+            obj.to_sign = False
+            obj.to_approve = False
+            api.portal.show_message(
+                message=_(
+                    u"The file '${file_title}' cannot be electronically signed because its type is not allowed. "
+                    u"It has been removed from the signing and approval process.",
+                    mapping={"file_title": obj.Title()},
+                ),
+                request=obj.REQUEST,
+                type="warning",
+            )
+    if getattr(obj, "to_approve", False) and not base_hasattr(obj, "conv_from_uid"):
+        approval = OMApprovalAdapter(obj.__parent__)
+        approval.add_file_to_approval(obj.UID())
 
 
 def imiodmsfile_will_be_removed(obj, event):

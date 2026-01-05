@@ -6,10 +6,12 @@ from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localrolesfield.field import LocalRoleField
 from imio.dms.mail import _
 from imio.dms.mail.browser.settings import default_creating_group
+from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.dmsmail import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.content import find
 from imio.helpers.content import uuidToObject
@@ -17,8 +19,10 @@ from operator import itemgetter
 from plone import api
 from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.namedfile.utils import get_contenttype
 from plone.supermodel import directives
 from plone.supermodel import model
+from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
@@ -175,7 +179,7 @@ class ISigningBehavior(model.Schema):
             approval = IOMApproval(context)
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
                 fields_have_changed = (context.esign != data.esign or context.seal != data.seal
-                                    or context.signers != data.signers)
+                                       or context.signers != data.signers)
                 if fields_have_changed:
                     raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
                                     u"You may go back to a previous state or ask your admin."))
@@ -281,9 +285,40 @@ class ISigningBehavior(model.Schema):
                     )
                 approvers[userid] = signer["number"]
 
+        # Validate file formats if eSignature is enabled
+        if context and data.esign:
+            for afile in context.values():
+                # Skip files already converted for esign
+                if base_hasattr(afile, "conv_from_uid"):
+                    continue
+                # Skip files that do not need to be signed
+                if not afile.to_sign:
+                    continue
+                mimetype = get_contenttype(afile.file)
+                if mimetype not in get_allowed_omf_content_types(esign=True):
+                    raise Invalid(
+                        _(
+                            "You cannot enable electronic signature because the file '${filename}' "
+                            "is of type '${mimetype}' which is not allowed. Allowed formats are: ${formats}.",
+                            mapping={
+                                "filename": afile.title,
+                                "mimetype": mimetype,
+                                "formats": u", ".join(
+                                    [
+                                        v.title
+                                        for v in OMFileFormatsVocabulary()(None)
+                                        if v.token
+                                        in api.portal.get_registry_record(
+                                            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"
+                                        )
+                                    ]
+                                ),
+                            },
+                        )
+                    )
+
 
 class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
-
     def validate(self, value, force=False):
         # if old value is None, nothing to do
         if not hasattr(self.context, "userid") or getattr(self.context, "userid", None) is None:
