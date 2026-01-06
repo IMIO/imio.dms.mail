@@ -8,11 +8,9 @@ from collective.iconifiedcategory.browser.actionview import SignedChangeView as 
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
 from imio.dms.mail.adapters import OMApprovalAdapter
-from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import logger  # noqa F401
 from plone import api
 from plone.memoize.interfaces import ICacheChooser
-from plone.namedfile.utils import get_contenttype
 from zope.component import getUtility
 from zope.i18n import translate
 
@@ -307,7 +305,5 @@ class SignedChangeView(BaseSignedChangeView):
 
     def _may_set_values(self, values):
         if self.p_state in ("to_approve", "to_print", "sent"):
-            return False
-        if self.context.portal_type == 'dmsappendixfile' and get_contenttype(self.context.file) not in get_allowed_omf_content_types(esign=True):
             return False
         return super(SignedChangeView, self)._may_set_values(values)
