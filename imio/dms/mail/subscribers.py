@@ -680,7 +680,29 @@ def i_annex_added(obj, event):
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
         if not _correct_to_sign(obj):
             _correct_to_approve(obj)
-        # TODO Handle appendix deletion in approval process
+
+
+def i_annex_will_be_removed(obj, event):
+    """when an annex file will be removed"""
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+        try:
+            portal = api.portal.get()
+            pp = portal.portal_properties
+        except api.portal.CannotGetPortalError:
+            # When deleting site, the portal is no more found...
+            return
+        if pp.site_properties.enable_link_integrity_checks:
+            approval = OMApprovalAdapter(obj.__parent__)
+            if obj.UID() in approval.files_uids:
+                storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
+                storage.addBreach(obj.__parent__, obj)
+
+
+def i_annex_removed(obj, event):
+    """when an annex file is removed"""
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+        approval = OMApprovalAdapter(obj.__parent__)
+        approval.remove_file_from_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):
@@ -721,28 +743,6 @@ def imiodmsfile_added(obj, event):
         obj.generated = 1
     # we update parent index
     obj.__parent__.reindexObject(["enabled", "markers"])
-
-
-def imiodmsfile_will_be_removed(obj, event):
-    """when an om file wiil be removed"""
-    try:
-        portal = api.portal.get()
-        pp = portal.portal_properties
-    except api.portal.CannotGetPortalError:
-        # When deleting site, the portal is no more found...
-        return
-    if pp.site_properties.enable_link_integrity_checks:
-        approval = OMApprovalAdapter(obj.__parent__)
-        if obj.UID() in approval.files_uids:
-            storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
-            storage.addBreach(obj.__parent__, obj)
-
-
-def imiodmsfile_removed(obj, event):
-    """when an om file is removed"""
-    approval = OMApprovalAdapter(obj.__parent__)
-    if obj.UID() in approval.files_uids:
-        approval.remove_file_from_approval(obj.UID())
 
 
 def imiodmsfile_iconified_attr_changed(obj, event):
