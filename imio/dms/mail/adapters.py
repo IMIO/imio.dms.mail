@@ -16,7 +16,7 @@ from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
-from collective.documentgenerator.utils import convert_and_save_odt
+from collective.documentgenerator.utils import convert_and_save_file
 from collective.documentgenerator.utils import odfsplit
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
@@ -1713,7 +1713,7 @@ class OMApprovalAdapter(object):
             pdf_file = orig_fobj
         elif nbf.contentType == "application/vnd.oasis.opendocument.text":
             # TODO which pdf format to choose ?
-            pdf_file = convert_and_save_odt(
+            pdf_file = convert_and_save_file(
                 nbf,
                 self.context,
                 orig_fobj.portal_type,
