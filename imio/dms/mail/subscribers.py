@@ -677,7 +677,7 @@ def i_annex_added(obj, event):
         # TODO add unit tests for the following
         if not _correct_to_sign(obj):
             _correct_to_approve(obj)
-    elif obj.portal_type == "appendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
+    elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
         if not _correct_to_sign(obj):
             _correct_to_approve(obj)
         # TODO Handle appendix deletion in approval process
