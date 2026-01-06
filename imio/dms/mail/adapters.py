@@ -48,6 +48,7 @@ from imio.helpers.emailer import validate_email_address
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
+from imio.zamqp.core.utils import next_scan_id
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from plone import api
@@ -1764,7 +1765,15 @@ class OMApprovalAdapter(object):
                 continue
             if len(self.pdf_files_uids[i]) > 0:  # already done ??
                 continue
-            if not fobj.scan_id or len(fobj.scan_id) != 15:  # problem when signing appendix files !!
+            # Get scan_id for appendix files
+            if not hasattr(fobj, "scan_id"):
+                for file in self.context.objectValues():
+                    if getattr(file, "scan_id", None):
+                        fobj.scan_id = file.scan_id
+                        break
+                else:
+                    fobj.scan_id = next_scan_id(file_portal_types=["dmsommainfile"], scan_type="2")
+            if len(fobj.scan_id) != 15:
                 api.portal.show_message(
                     message=_(
                         "File '${file}' has no or a wrong scan id, it cannot be added to sign session.",
