@@ -155,10 +155,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 # 2) with multiple files, the current_nb is the same, can_approve returns True => problem
                 approver_number = self.approval.get_approver_nb(self.userid)
                 approved = self.approval.is_file_approved(self.uid, nb=approver_number)
-                # if xxx:
-                #     self.reload = True  # force reload because real value changed meanwhile
-                #     return int(approved), {}
-                if approved and self.approval.current_nb is not None:
+                if approved and self.approval.current_nb is not None:  # already approved at this level
                     status = 0
                     # the message is displayed after the change and must reflect the new status, not the current one !!
                     self.msg = u"Already approved (click to change)"
@@ -166,7 +163,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     self.approval.unapprove_file(afile=self.context, signer_userid=signer_userid)
                     self.reload = True
                     values["approved"] = False
-                else:
+                else:  # file not approved at this level
                     self.msg = u"Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method
                     # must we pass self to update self.msg: no need for now because we reload in all cases !!
@@ -180,7 +177,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                     status = int(ret)
                     values["approved"] = ret
                     self.request["approval_occurred"] = True
-            elif not values["to_approve"]:
+            elif not values["to_approve"]:  # file must not be approved
                 values["approved"] = False
         elif self.approval.is_state_before_approve(state=self.p_state):
             self.could_reload = True
@@ -226,7 +223,6 @@ class ApprovedChangeView(BaseApprovedChangeView):
         return status, self.msg
 
     def __call__(self):
-        # TODO ajouter un comparatif de date afin de voir si on agit bien sur qlq chose à jour...
         json_resp = super(ApprovedChangeView, self).__call__()
         if self.reload and json_resp.rstrip().endswith("}"):
             json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
@@ -289,6 +285,7 @@ class SignedChangeView(BaseSignedChangeView):
         super(SignedChangeView, self).__init__(context, request)
         self.parent = self.context.__parent__
         self.p_state = api.content.get_state(self.parent)
+        self.reload = False
 
     def _get_next_values(self, old_values):
         """ """
@@ -305,7 +302,7 @@ class SignedChangeView(BaseSignedChangeView):
                 values['to_sign'] = False
                 values['signed'] = False
                 status = -1
-            self.reload = False
+            self.reload = True
         elif old_values['to_sign'] and self.p_state in ("to_be_signed", "signed"):
             if old_values['signed'] is False:
                 values['to_sign'] = True
@@ -322,3 +319,9 @@ class SignedChangeView(BaseSignedChangeView):
         if self.p_state in ("to_approve", "to_print", "sent"):
             return False
         return super(SignedChangeView, self)._may_set_values(values)
+
+    def __call__(self):
+        json_resp = super(SignedChangeView, self).__call__()
+        if self.reload and json_resp.rstrip().endswith("}"):
+            json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
+        return json_resp
