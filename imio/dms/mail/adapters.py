@@ -661,7 +661,7 @@ def om_markers(obj):
     """
     markers = []
     # Set lastDmsFileIsOdt
-    dfiles = object_values(obj, ["ImioDmsFile"])
+    dfiles = object_values(obj, ["ImioOutgoingDmsFile"])
     if dfiles and dfiles[-1].is_odt():
         markers.append("lastDmsFileIsOdt")
     # Set emailSent:

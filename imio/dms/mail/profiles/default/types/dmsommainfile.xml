@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <object name="dmsommainfile" meta_type="Dexterity FTI" i18n:domain="plone"
    xmlns:i18n="http://xml.zope.org/namespaces/i18n">
- <property name="title" i18n:translate="">DmsMainFile</property>
+ <property name="title" i18n:translate="">DmsOutgoingMainFile</property>
  <property name="description" i18n:translate="">Dms main file of an outgoing mail</property>
  <property name="icon_expr">string:${portal_url}/++resource++dmsmainfile_icon.png</property>
  <property name="factory">dmsommainfile</property>
@@ -17,7 +17,7 @@
  </property>
  <property name="default_view_fallback">False</property>
  <property name="add_permission">collective.dms.basecontent.dmsfile.add</property>
- <property name="klass">imio.dms.mail.dmsfile.ImioDmsFile</property>
+ <property name="klass">imio.dms.mail.dmsfile.ImioOutgoingDmsFile</property>
  <property name="behaviors" purge="False">
   <element value="plone.app.content.interfaces.INameFromTitle"/>
   <element value="plone.app.dexterity.behaviors.metadata.IOwnership"/>
@@ -29,7 +29,7 @@
  <property name="schema" />
  <!-- DO NOT use a model_source or it removes manually added fields while reapplying the profile -->
  <!--property name="model_source" /-->
- <property name="schema_policy">schema_policy_imiodmsfile</property>
+ <property name="schema_policy">schema_policy_imiooutgoingdmsfile</property>
  <alias from="(Default)" to="@@display-file"/>
  <alias from="edit" to="@@edit"/>
  <alias from="sharing" to="@@sharing"/>

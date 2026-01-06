@@ -159,29 +159,29 @@
         />
 
     <subscriber
-        for="imio.dms.mail.dmsfile.IImioDmsFile
+        for="imio.dms.mail.dmsfile.IImioOutgoingDmsFile
              collective.documentviewer.interfaces.IConversionFinishedEvent"
         handler=".subscribers.conversion_finished"
         />
 
     <subscriber
-        for="imio.dms.mail.dmsfile.IImioDmsFile
+        for="imio.dms.mail.dmsfile.IImioOutgoingDmsFile
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
         handler=".subscribers.imiodmsfile_added"
         />
 
     <subscriber
-        for="imio.dms.mail.dmsfile.IImioDmsFile
+        for="imio.dms.mail.dmsfile.IImioOutgoingDmsFile
              OFS.interfaces.IObjectWillBeRemovedEvent"
         handler=".subscribers.imiodmsfile_will_be_removed" />
 
     <subscriber
-        for="imio.dms.mail.dmsfile.IImioDmsFile
+        for="imio.dms.mail.dmsfile.IImioOutgoingDmsFile
              zope.app.container.interfaces.IObjectRemovedEvent"
         handler=".subscribers.imiodmsfile_removed" />
 
     <!--subscriber
-        for="imio.dms.mail.dmsfile.IImioDmsFile
+        for="imio.dms.mail.dmsfile.IImioOutgoingDmsFile
              collective.iconifiedcategory.interfaces.IIconifiedAttrChangedEvent"
          handler=".subscribers.imiodmsfile_iconified_attr_changed" /-->
 

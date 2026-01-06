@@ -740,7 +740,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
     def get_mainfiles(self):
         """Overiddes dmsdocument method"""
-        return object_values(self, ["ImioDmsFile"])
+        return object_values(self, ["ImioOutgoingDmsFile"])
 
     @ram.cache(object_modified_cachekey)
     def OM_get_back_or_again_icon(self):

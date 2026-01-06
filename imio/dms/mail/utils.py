@@ -541,7 +541,7 @@ def dv_clean(portal, days_back="365", date_back=None):
         if batch_skip_key(brain.UID, batch_keys, batch_config):
             continue
         mail = brain.getObject()
-        for fobj in object_values(mail, ["DmsFile", "DmsAppendixFile", "ImioDmsFile"]):
+        for fobj in object_values(mail, ["DmsFile", "DmsAppendixFile", "ImioOutgoingDmsFile"]):
             annot = IAnnotations(fobj).get("collective.documentviewer", "")
             if not annot or not annot.get("successfully_converted"):
                 continue

@@ -262,7 +262,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 key = brain.UID
                 if batch_skip_key(key, batch_keys, batch_config):
                     continue
-                files = object_values(brain.getObject(), ["DmsFile", "ImioDmsFile", "DmsAppendixFile"])
+                files = object_values(brain.getObject(), ["DmsFile", "ImioOutgoingDmsFile", "DmsAppendixFile"])
                 if files:
                     ppt = brain.portal_type in ("dmsincomingmail", "dmsincoming_email") and "incoming" or "outgoing"
                     for fl_obj in files:

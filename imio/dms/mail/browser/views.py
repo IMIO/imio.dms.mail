@@ -9,7 +9,7 @@ from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
-from imio.dms.mail.dmsfile import IImioDmsFile
+from imio.dms.mail.dmsfile import IImioOutgoingDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.esign.browser.views import SessionsListingView
@@ -190,7 +190,7 @@ class ServerSentEvents(BrowserView):
         self.request.response.setHeader("Pragma", "no-cache")
         response = u""
         for child in self.context.listFolderContents():
-            if IImioDmsFile.providedBy(child) and getattr(child, "conversion_finished", False):
+            if IImioOutgoingDmsFile.providedBy(child) and getattr(child, "conversion_finished", False):
                 # generated is added by creation subscriber, only when file is generated
                 # generated <= 2: wait to be sure zopedit redirection has been made
                 # generated > 3 and locked: wait else: refresh

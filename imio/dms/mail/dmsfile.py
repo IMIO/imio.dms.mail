@@ -35,8 +35,24 @@ class RestrictedNamedBlobFile(NamedBlobFile):
                                                                 if v.value in allowed_formats])}))
 
 
-class IImioDmsFile(IDmsFile):
-    """Schema for DmsFile"""
+class IIncomingAnnex(IDmsFile):
+    """Schema for Incoming Annex (DMS files and Appendix files)"""
+
+
+class IImioIcomingDmsFile(IIncomingAnnex):
+    """Schema for incoming DmsFile"""
+
+
+class ImioIncomingDmsFile(DmsFile):
+    """Incoming DmsFile"""
+
+
+class IOutgoingAnnex(IDmsFile):
+    """Schema for Outgoing Annex (DMS files and Appendix files)"""
+
+
+class IImioOutgoingDmsFile(IOutgoingAnnex):
+    """Schema for outgoing DmsFile"""
 
     model.primary("file")
     file = RestrictedNamedBlobFile(
@@ -45,10 +61,10 @@ class IImioDmsFile(IDmsFile):
     )
 
 
-class ImioDmsFile(DmsFile):
-    """DmsFile"""
+class ImioOutgoingDmsFile(DmsFile):
+    """Outgoing DmsFile"""
 
-    implements(IImioDmsFile)
+    implements(IImioOutgoingDmsFile)
     __ac_local_roles_block__ = False
 
     def Title(self):
@@ -62,8 +78,8 @@ class ImioDmsFile(DmsFile):
         return self.file.contentType == "application/vnd.oasis.opendocument.text"
 
 
-class ImioDmsFileSchemaPolicy(DexteritySchemaPolicy):
-    """Schema Policy for DmsFile"""
+class ImioOutgoingDmsFileSchemaPolicy(DexteritySchemaPolicy):
+    """Schema Policy for Outgoing DmsFile"""
 
     def bases(self, schemaName, tree):
-        return (IImioDmsFile,)
+        return (IImioOutgoingDmsFile,)

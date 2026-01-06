@@ -65,8 +65,8 @@
     />
 
     <utility
-        factory=".dmsfile.ImioDmsFileSchemaPolicy"
-        name="schema_policy_imiodmsfile"
+        factory=".dmsfile.ImioOutgoingDmsFileSchemaPolicy"
+        name="schema_policy_imiooutgoingdmsfile"
     />
 
     <interface interface=".browser.settings.IImioDmsMailConfig" />
@@ -221,7 +221,7 @@
     <class class="collective.dms.basecontent.dmsfile.DmsAppendixFile">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
-    <class class="imio.dms.mail.dmsfile.ImioDmsFile">
+    <class class="imio.dms.mail.dmsfile.ImioOutgoingDmsFile">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
     <class class="imio.dashboard.content.dashboardcollection.DashboardCollection">
