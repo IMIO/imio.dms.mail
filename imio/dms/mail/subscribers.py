@@ -617,7 +617,7 @@ def _correct_to_sign(file_obj):
             message=_(
                 u"The file '${file_title}' cannot be electronically signed because its type is not allowed. "
                 u"It has been removed from the signing and approval process.",
-                mapping={"file_title": file_obj.Title()},
+                mapping={"file_title": safe_unicode(file_obj.Title())},
             ),
             request=file_obj.REQUEST,
             type="warning",

@@ -31,6 +31,7 @@ from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
@@ -1711,7 +1712,7 @@ class OMApprovalAdapter(object):
         new_filename = u"{}.pdf".format(f_title)
         if nbf.contentType == "application/pdf":
             pdf_file = orig_fobj
-        elif nbf.contentType == "application/vnd.oasis.opendocument.text":
+        elif nbf.contentType in get_allowed_omf_content_types(esign=True):
             # TODO which pdf format to choose ?
             pdf_file = convert_and_save_file(
                 nbf,
@@ -1739,7 +1740,6 @@ class OMApprovalAdapter(object):
                 logging=True,
             )
         else:
-            # TODO Convert Word to pdf
             raise NotImplementedError(
                 "Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType)
             )
