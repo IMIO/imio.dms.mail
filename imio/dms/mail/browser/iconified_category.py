@@ -233,6 +233,7 @@ class SignedColumn(BaseSignedColumn):
 
     def __init__(self, context, request, table):
         super(SignedColumn, self).__init__(context, request, table)
+        self.approval = OMApprovalAdapter(self.context)
         # self.context is the mail here
 
     def css_class(self, content):
@@ -270,7 +271,8 @@ class SignedColumn(BaseSignedColumn):
 
     def get_url(self, content):
         av = self.get_action_view(content)
-        if av.p_state in ("to_approve", "sent"):
+        state = av.p_state
+        if self.approval.is_state_after_or_approve(state=state) and state != "to_be_signed":
             return "#"
         return '{url}/@@{action}'.format(
             url=content.getURL(),
@@ -284,12 +286,15 @@ class SignedChangeView(BaseSignedChangeView):
     def __init__(self, context, request):
         super(SignedChangeView, self).__init__(context, request)
         self.parent = self.context.__parent__
-        self.p_state = api.content.get_state(self.parent)
         self.reload = False
+
+    @property
+    def p_state(self):
+        return api.content.get_state(self.parent)
 
     def _get_next_values(self, old_values):
         """ """
-        values = {}
+        values = old_values.copy()
         status = 0
         # logger.info("Before values change: %s", old_values)
         if self.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):

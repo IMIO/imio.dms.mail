@@ -7,6 +7,8 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
+from imio.dms.mail.browser.iconified_category import SignedChangeView
+from imio.dms.mail.browser.iconified_category import SignedColumn
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import clean_borg_cache
@@ -115,7 +117,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         # FIXME This raises Unauthorized but still passes
         self.assertEqual(
             col.get_action_view(file1_cc)(),
-            u'{"msg":"En attente de votre approbation (cliquer pour approuver)","status":1,"reload": true}'
+            u'{"msg":"En attente de votre approbation (cliquer pour approuver)","status":1,"reload": true}',
         )
         # TODO "to_print"
         # "to_be_signed"
@@ -238,3 +240,128 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         old_values = {"to_approve": True, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": True, "approved": True}))
         self.assertEqual(view.msg, u"Waiting for your approval (click to approve)")
+
+    def test_signed_column(self):
+        """Test signed column rendering"""
+        file1_cc = CategorizedContent(self.omail1, uuidToCatalogBrain(self.file1.UID()))
+        col = SignedColumn(self.omail1, self.portal.REQUEST, None)
+
+        # Test get_url
+        # "created"
+        self.change_user("agent")
+        self.assertEqual(col.get_url(file1_cc), "%s/@@iconified-signed" % self.file1.absolute_url())
+        # "to_approve"
+        self.pw.doActionFor(self.omail1, "propose_to_approve")
+        self.assertEqual(col.get_url(file1_cc), "#")
+        self.change_user("dirg")
+        self.assertEqual(col.get_url(file1_cc), "#")
+        # TODO "to_print"
+        # "to_be_signed"
+        ApprovedChangeView(self.file1, self.portal.REQUEST)()  # transition to_be_signed
+        self.assertEqual(col.get_url(file1_cc), "%s/@@iconified-signed" % self.file1.absolute_url())
+        # "signed"
+        self.change_user("encodeur")
+        self.pw.doActionFor(self.omail1, "mark_as_signed")
+        self.assertEqual(col.get_url(file1_cc), "#")
+        # "sent"
+        self.pw.doActionFor(self.omail1, "mark_as_sent")
+        self.assertEqual(col.get_url(file1_cc), "#")
+
+        # Test css_class
+        self.change_user("admin")
+        filename = u"Réponse salle.odt"
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            file3 = createContentInContainer(
+                self.omail2,
+                "dmsommainfile",
+                id="file3",
+                scan_id="012999900000602",
+                file=file_object,
+                content_category=calculate_category_id(ct),
+            )
+        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))
+        file3_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(file3.UID()))
+        col = SignedColumn(self.omail2, self.portal.REQUEST, None)
+        # "created"
+        self.change_user("dirg")
+        self.assertEqual(col.css_class(file2_cc), "")
+        self.change_user("agent")
+        self.assertEqual(col.css_class(file2_cc), "")
+        ApprovedChangeView(file3, self.portal.REQUEST)()  # Set file3 not to_approve
+        self.assertEqual(col.css_class(file3_cc), " editable")
+        self.assertEqual(
+            col.get_action_view(file3_cc)(),
+            u'{"msg":"Cet \xe9l\xe9ment ne doit pas \xeatre sign\xe9","status":-1,"reload": true}',
+        )  # Set file3 not to_sign
+        self.assertEqual(col.css_class(file3_cc), " deactivated editable")
+        self.change_user("dirg")
+        self.assertEqual(col.css_class(file3_cc), " deactivated ")
+        self.change_user("agent")
+        # "to_approve"
+        self.pw.doActionFor(self.omail2, "propose_to_approve")
+        clean_borg_cache(col.request)
+        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file3_cc), " deactivated")
+        self.change_user("bourgmestre")
+        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file3_cc), " deactivated")
+        self.change_user("dirg")
+        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file3_cc), " deactivated")
+        ApprovedChangeView(self.file2, self.portal.REQUEST)()  # dirg approves file
+        clean_borg_cache(col.request)  # because approval borg roles are changed
+        self.change_user("bourgmestre")
+        ApprovedChangeView(self.file2, self.portal.REQUEST)()  # bourgmestre approves file
+        clean_borg_cache(col.request)  # because transition was done
+        # "to_be_signed"
+        self.change_user("agent")
+        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file3_cc), " deactivated")
+        self.assertEqual(
+            col.get_action_view(file2_cc)(), u'{"msg":"Cet \xe9l\xe9ment est sign\xe9","status":1}'
+        )  # Set file2 as signed
+        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
+        self.assertEqual(col.css_class(file2_cc), " active")
+        # "sent"
+        self.pw.doActionFor(self.omail2, "mark_as_sent")
+        self.assertEqual(col.css_class(file2_cc), " active")
+        self.assertEqual(col.css_class(file3_cc), " deactivated")
+
+    def test_signed_change_view(self):
+        """Test ApprovedChangeView"""
+        view = SignedChangeView(self.file1, self.portal.REQUEST)
+        # Test get_next_values
+        # "created"
+        old_values = {"to_sign": True, "signed": True}
+        self.assertEqual(view._get_next_values(old_values), (-1, {"to_sign": False, "signed": False}))
+        old_values = {"to_sign": True, "signed": False}
+        self.assertEqual(view._get_next_values(old_values), (-1, {"to_sign": False, "signed": False}))
+        old_values = {"to_sign": False, "signed": False}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": True, "signed": False}))
+        old_values = {"to_sign": False, "signed": True}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": True, "signed": False}))
+        # "to_approve"
+        self.pw.doActionFor(self.omail1, "propose_to_approve")
+        old_values = {"to_sign": False, "signed": False}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": False, "signed": False}))
+        old_values = {"to_sign": False, "signed": True}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": False, "signed": True}))
+        old_values = {"to_sign": True, "signed": True}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": True, "signed": True}))
+        old_values = {"to_sign": True, "signed": False}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": True, "signed": False}))
+        self.change_user("dirg")
+        ApprovedChangeView(self.file1, self.portal.REQUEST)()  # dirg approves file
+        clean_borg_cache(view.request)  # because approval borg roles are changed
+        # "to_be_signed"
+        self.assertEqual(api.content.get_state(self.omail1), "to_be_signed")
+        old_values = {"to_sign": False, "signed": False}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": False, "signed": False}))
+        old_values = {"to_sign": False, "signed": True}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": False, "signed": True}))
+        old_values = {"to_sign": True, "signed": True}
+        self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": True, "signed": False}))
+        old_values = {"to_sign": True, "signed": False}
+        self.assertEqual(view._get_next_values(old_values), (1, {"to_sign": True, "signed": True}))
