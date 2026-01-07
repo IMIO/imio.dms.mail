@@ -876,7 +876,7 @@ class IdmSearchableExtender(object):
                 index += sid_infos
         if index:
             return u" ".join(index)
-        return u""
+        return None
 
 
 class OdmSearchableExtender(IdmSearchableExtender):
