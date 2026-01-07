@@ -233,7 +233,6 @@ class SignedColumn(BaseSignedColumn):
 
     def __init__(self, context, request, table):
         super(SignedColumn, self).__init__(context, request, table)
-        self.approval = OMApprovalAdapter(self.context)
         # self.context is the mail here
 
     def css_class(self, content):
@@ -271,8 +270,7 @@ class SignedColumn(BaseSignedColumn):
 
     def get_url(self, content):
         av = self.get_action_view(content)
-        state = av.p_state
-        if self.approval.is_state_after_or_approve(state=state) and state != "to_be_signed":
+        if av.p_state in ("to_approve", "signed", "sent"):
             return "#"
         return '{url}/@@{action}'.format(
             url=content.getURL(),
