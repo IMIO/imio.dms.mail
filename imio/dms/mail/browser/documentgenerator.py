@@ -529,7 +529,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
             client_id = base.get_config("client_id")
             scan_id = "%s2%s00000000" % (client_id[0:2], client_id[2:6])
         else:
-            scan_id = next_scan_id(file_portal_types=["dmsommainfile"], scan_type="2")
+            scan_id = next_scan_id(file_portal_types=["dmsommainfile", "dmsappendixfile"], scan_type="2")
 
         scan_id = "IMIO{0}".format(scan_id)
         update_dict_with_validation(
