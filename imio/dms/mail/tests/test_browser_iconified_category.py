@@ -293,7 +293,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.css_class(file3_cc), " editable")
         self.assertEqual(
             col.get_action_view(file3_cc)(),
-            u'{"msg":"Cet \xe9l\xe9ment ne doit pas \xeatre sign\xe9","status":-1,"reload": true}',
+            u'{"msg":"Cet élément ne doit pas être signé","status":-1,"reload": true}',
         )  # Set file3 not to_sign
         self.assertEqual(col.css_class(file3_cc), " deactivated editable")
         self.change_user("dirg")
@@ -320,7 +320,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.css_class(file2_cc), "")
         self.assertEqual(col.css_class(file3_cc), " deactivated")
         self.assertEqual(
-            col.get_action_view(file2_cc)(), u'{"msg":"Cet \xe9l\xe9ment est sign\xe9","status":1}'
+            col.get_action_view(file2_cc)(), u'{"msg":"Cet élément est signé","status":1}'
         )  # Set file2 as signed
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.assertEqual(col.css_class(file2_cc), " active")
