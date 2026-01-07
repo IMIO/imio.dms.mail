@@ -65,6 +65,7 @@ from OFS.interfaces import IObjectWillBeRemovedEvent
 from operator import itemgetter
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
+from plone.app.linkintegrity.handlers import referencedObjectRemoved
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.interfaces import IDexterityFTI
@@ -111,6 +112,14 @@ try:
     from imio.helpers.ram import IMIORAMCache
 except ImportError:
     imio_global_cache = None
+
+try:
+    from plone.app.referenceablebehavior.referenceable import IReferenceable
+except ImportError:
+    from zope.interface import Interface
+
+    class IReferenceable(Interface):
+        pass
 
 logger = logging.getLogger("imio.dms.mail: events")
 
@@ -700,6 +709,8 @@ def i_annex_will_be_removed(obj, event):
 
 def i_annex_removed(obj, event):
     """when an annex file is removed"""
+    if not IReferenceable.providedBy(obj):
+        referencedObjectRemoved(obj, event)
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
         approval = OMApprovalAdapter(obj.__parent__)
         approval.remove_file_from_approval(obj.UID())

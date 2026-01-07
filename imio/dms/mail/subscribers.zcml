@@ -159,7 +159,7 @@
 
     <subscriber
         for="imio.annex.content.annex.IAnnex
-             OFS.interfaces.IObjectWillBeRemovedEvent"
+             zope.app.container.interfaces.IObjectRemovedEvent"
         handler=".subscribers.i_annex_removed" />
 
     <subscriber
