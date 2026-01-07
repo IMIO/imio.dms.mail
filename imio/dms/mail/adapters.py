@@ -48,6 +48,7 @@ from imio.helpers.emailer import validate_email_address
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
+from imio.zamqp.core.utils import next_scan_id
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from plone import api
@@ -530,7 +531,7 @@ def get_obj_size(obj):
         primary_field_info = IPrimaryFieldInfo(obj)
     except TypeError:
         logger.warn(u"Lookup of PrimaryField failed for %s" % obj.absolute_url())
-        return
+        return ""
     const = {"KB": 1024, "MB": 1048576, "GB": 1073741824}
     order = ("GB", "MB", "KB")
     size = primary_field_info.value.size
@@ -875,6 +876,7 @@ class IdmSearchableExtender(object):
                 index += sid_infos
         if index:
             return u" ".join(index)
+        return u""
 
 
 class OdmSearchableExtender(IdmSearchableExtender):
@@ -1550,7 +1552,7 @@ class OMApprovalAdapter(object):
         if not editable:
             return False
         c_a = self.current_nb  # current approval
-        if c_a is None:  # to early
+        if c_a is None:  # too early
             return False
         if userid not in self.approvers:  # not an approver
             return False
@@ -1665,7 +1667,7 @@ class OMApprovalAdapter(object):
                     #     type="info",
                     # )
             return True, True
-        return True, False
+        return True, False  # noqa
 
     def unapprove_file(self, afile, signer_userid):
         """Unapprove the current file.
@@ -1724,7 +1726,6 @@ class OMApprovalAdapter(object):
                 attributes={
                     "content_category": orig_fobj.content_category,
                     "scan_id": orig_fobj.scan_id,
-                    "scan_user": orig_fobj.scan_user,
                 },
             )
             # we must set attribute after creation
@@ -1764,7 +1765,15 @@ class OMApprovalAdapter(object):
                 continue
             if len(self.pdf_files_uids[i]) > 0:  # already done ??
                 continue
-            if not fobj.scan_id or len(fobj.scan_id) != 15:  # problem when signing appendix files !!
+            # Get scan_id for appendix files
+            if not hasattr(fobj, "scan_id"):
+                for afile in self.context.objectValues():
+                    if getattr(afile, "scan_id", None):
+                        fobj.scan_id = afile.scan_id
+                        break
+                else:
+                    fobj.scan_id = next_scan_id(file_portal_types=["dmsommainfile", "dmsappendixfile"], scan_type="2")
+            if len(fobj.scan_id) != 15:
                 api.portal.show_message(
                     message=_(
                         "File '${file}' has no or a wrong scan id, it cannot be added to sign session.",

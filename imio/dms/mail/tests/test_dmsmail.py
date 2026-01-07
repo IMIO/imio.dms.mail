@@ -573,7 +573,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         createContentInContainer(omail, "task")
         self.assertFalse(adapted.can_be_handsigned())
         createContentInContainer(omail, "dmsappendixfile")
-        self.assertFalse(adapted.can_be_handsigned())
+        self.assertTrue(adapted.can_be_handsigned())
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))

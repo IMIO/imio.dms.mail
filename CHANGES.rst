@@ -44,6 +44,8 @@ Changelog
   [chris-adam]
 - Added allowed file formats list for DMS outgoing files.
   [chris-adam, sgeulette]
+- Appendix files can now be signed.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

@@ -908,7 +908,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
         """Used in guard expression for to_be_signed transition."""
         # TODO use to be printed criteria...
         brains = self.context.portal_catalog.unrestrictedSearchResults(
-            portal_type="dmsommainfile", path="/".join(self.context.getPhysicalPath())
+            portal_type=["dmsommainfile", "dmsappendixfile"], path="/".join(self.context.getPhysicalPath())
         )
         if not bool(brains):
             return False
