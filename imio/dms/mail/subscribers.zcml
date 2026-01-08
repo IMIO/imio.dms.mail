@@ -153,6 +153,16 @@
         />
 
     <subscriber
+        for="imio.annex.content.annex.IAnnex
+             OFS.interfaces.IObjectWillBeRemovedEvent"
+        handler=".subscribers.i_annex_will_be_removed" />
+
+    <subscriber
+        for="imio.annex.content.annex.IAnnex
+             zope.app.container.interfaces.IObjectRemovedEvent"
+        handler=".subscribers.i_annex_removed" />
+
+    <subscriber
         for="collective.dms.basecontent.dmsfile.IDmsFile
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.dmsmainfile_modified"
@@ -169,16 +179,6 @@
              zope.lifecycleevent.interfaces.IObjectAddedEvent"
         handler=".subscribers.imiodmsfile_added"
         />
-
-    <subscriber
-        for="imio.dms.mail.dmsfile.IImioDmsFile
-             OFS.interfaces.IObjectWillBeRemovedEvent"
-        handler=".subscribers.imiodmsfile_will_be_removed" />
-
-    <subscriber
-        for="imio.dms.mail.dmsfile.IImioDmsFile
-             zope.app.container.interfaces.IObjectRemovedEvent"
-        handler=".subscribers.imiodmsfile_removed" />
 
     <!--subscriber
         for="imio.dms.mail.dmsfile.IImioDmsFile

@@ -65,6 +65,7 @@ from OFS.interfaces import IObjectWillBeRemovedEvent
 from operator import itemgetter
 from plone import api
 from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
+from plone.app.linkintegrity.handlers import referencedObjectRemoved
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.interfaces import IDexterityFTI
@@ -111,6 +112,14 @@ try:
     from imio.helpers.ram import IMIORAMCache
 except ImportError:
     imio_global_cache = None
+
+try:
+    from plone.app.referenceablebehavior.referenceable import IReferenceable
+except ImportError:
+    from zope.interface import Interface
+
+    class IReferenceable(Interface):
+        pass
 
 logger = logging.getLogger("imio.dms.mail: events")
 
@@ -680,7 +689,39 @@ def i_annex_added(obj, event):
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
         if not _correct_to_sign(obj):
             _correct_to_approve(obj)
-        # TODO Handle appendix deletion in approval process
+
+
+def i_annex_will_be_removed(obj, event):
+    """when an annex file will be removed"""
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+        try:
+            portal = api.portal.get()
+            pp = portal.portal_properties
+        except api.portal.CannotGetPortalError:
+            # When deleting site, the portal is no more found...
+            return
+        if pp.site_properties.enable_link_integrity_checks:
+            approval = OMApprovalAdapter(obj.__parent__)
+            if obj.UID() in approval.files_uids:
+                storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
+                storage.addBreach(obj.__parent__, obj)
+            if obj.UID() in [f_uid for lst in approval.pdf_files_uids for f_uid in lst]:
+                storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
+                c_f_uid = getattr(obj, "conv_from_uid", None)
+                if c_f_uid:
+                    c_obj = uuidToObject(c_f_uid, unrestricted=True)
+                    storage.addBreach(c_obj, obj)
+                else:
+                    storage.addBreach(obj.__parent__, obj)
+
+
+def i_annex_removed(obj, event):
+    """when an annex file is removed"""
+    if not IReferenceable.providedBy(obj):
+        referencedObjectRemoved(obj, event)
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+        approval = OMApprovalAdapter(obj.__parent__)
+        approval.remove_file_from_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):
@@ -721,28 +762,6 @@ def imiodmsfile_added(obj, event):
         obj.generated = 1
     # we update parent index
     obj.__parent__.reindexObject(["enabled", "markers"])
-
-
-def imiodmsfile_will_be_removed(obj, event):
-    """when an om file wiil be removed"""
-    try:
-        portal = api.portal.get()
-        pp = portal.portal_properties
-    except api.portal.CannotGetPortalError:
-        # When deleting site, the portal is no more found...
-        return
-    if pp.site_properties.enable_link_integrity_checks:
-        approval = OMApprovalAdapter(obj.__parent__)
-        if obj.UID() in approval.files_uids:
-            storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
-            storage.addBreach(obj.__parent__, obj)
-
-
-def imiodmsfile_removed(obj, event):
-    """when an om file is removed"""
-    approval = OMApprovalAdapter(obj.__parent__)
-    if obj.UID() in approval.files_uids:
-        approval.remove_file_from_approval(obj.UID())
 
 
 def imiodmsfile_iconified_attr_changed(obj, event):
