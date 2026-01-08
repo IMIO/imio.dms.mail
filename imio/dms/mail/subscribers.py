@@ -694,6 +694,18 @@ def i_annex_added(obj, event):
 def i_annex_will_be_removed(obj, event):
     """when an annex file will be removed"""
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+        approval = OMApprovalAdapter(obj.__parent__)
+        if obj.UID() in sum(approval.pdf_files_uids, []) and api.content.get_state(obj.__parent__) == "to_be_signed" and not check_zope_admin():
+            api.portal.show_message(
+                message=_(
+                    u"You cannot delete '${title}' because it's being signed !",
+                    mapping={"title": safe_unicode(obj.Title())},
+                ),
+                request=obj.REQUEST,
+                type="error",
+            )
+            raise Redirect(obj.REQUEST.get("HTTP_REFERER"))
+
         try:
             portal = api.portal.get()
             pp = portal.portal_properties
@@ -701,7 +713,6 @@ def i_annex_will_be_removed(obj, event):
             # When deleting site, the portal is no more found...
             return
         if pp.site_properties.enable_link_integrity_checks:
-            approval = OMApprovalAdapter(obj.__parent__)
             if obj.UID() in approval.files_uids:
                 storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
                 storage.addBreach(obj.__parent__, obj)
@@ -721,7 +732,9 @@ def i_annex_removed(obj, event):
         referencedObjectRemoved(obj, event)
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
         approval = OMApprovalAdapter(obj.__parent__)
+        # Removes file from approval process (doesn't fail if not there)
         approval.remove_file_from_approval(obj.UID())
+        approval.remove_pdf_file_from_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):
