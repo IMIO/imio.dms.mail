@@ -1514,6 +1514,15 @@ class OMApprovalAdapter(object):
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].pop(file_index)
 
+    def remove_pdf_file_from_approval(self, pdf_f_uid):
+        """Remove a pdf file from approval annotation."""
+        if pdf_f_uid not in sum(self.annot["pdf_files"], []):
+            return
+        for pdf_files in self.annot["pdf_files"]:
+            if pdf_f_uid in pdf_files:
+                pdf_files.remove(pdf_f_uid)
+                return
+
     def is_file_approved(self, f_uid, nb=None, totally=True):
         """Check if file is approved.
 
