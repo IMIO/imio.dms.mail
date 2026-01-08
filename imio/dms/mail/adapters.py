@@ -1802,7 +1802,7 @@ class OMApprovalAdapter(object):
                 num_digits = len(str(nbf))
                 for j, odt_data in enumerate(result, start=1):
                     nb_title = u"{}_{{:0{}d}}".format(f_title, num_digits).format(j)
-                    file_object = NamedBlobFile(odt_data, filename=safe_unicode(u"{}.pdf".format(nb_title)))
+                    file_object = NamedBlobFile(odt_data, filename=safe_unicode(u"{}.odt".format(nb_title)))
                     # file filename will be renamed later to include uid
                     self._create_pdf_file(fobj, file_object, nb_title, f_uid, i, session_file_uids)
             else:
