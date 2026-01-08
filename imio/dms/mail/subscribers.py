@@ -705,6 +705,14 @@ def i_annex_will_be_removed(obj, event):
             if obj.UID() in approval.files_uids:
                 storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
                 storage.addBreach(obj.__parent__, obj)
+            if obj.UID() in [f_uid for lst in approval.pdf_files_uids for f_uid in lst]:
+                storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
+                c_f_uid = getattr(obj, "conv_from_uid", None)
+                if c_f_uid:
+                    c_obj = uuidToObject(c_f_uid, unrestricted=True)
+                    storage.addBreach(c_obj, obj)
+                else:
+                    storage.addBreach(obj.__parent__, obj)
 
 
 def i_annex_removed(obj, event):
