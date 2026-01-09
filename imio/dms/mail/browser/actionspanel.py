@@ -354,7 +354,10 @@ class ClassificationFolderActionsPanelView(ActionsPanelView):
     def __init__(self, context, request):
         super(ClassificationFolderActionsPanelView, self).__init__(context, request)
         self.ACCEPTABLE_ACTIONS = ["cut", "copy", "paste", "delete"]
-        self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
+        self.SECTIONS_TO_RENDER += (
+            "render_multiple_annexes_button",
+            "render_duplicate_button",
+        )
 
     def may_multiple_annexes(self):
         if not self.isInFacetedNavigation() and self.member.has_permission("Add portal content", self.context):
@@ -364,6 +367,17 @@ class ClassificationFolderActionsPanelView(ActionsPanelView):
     def render_multiple_annexes_button(self):
         if self.may_multiple_annexes():
             return ViewPageTemplateFile("templates/actions_panel_folder_annexes.pt")(self)
+        return ""
+
+    def may_duplicate(self):
+        """Method that check if special 'duplicate' action has to be displayed."""
+        if self.member.has_permission("Add portal content", self.portal["folders"]):
+            return True
+        return False
+
+    def render_duplicate_button(self):
+        if self.may_duplicate():
+            return ViewPageTemplateFile("templates/actions_panel_duplicate_folder.pt")(self)
         return ""
 
     @ram.cache(actionspanelview_cachekey)
