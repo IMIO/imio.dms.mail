@@ -676,6 +676,10 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/models_icon.png');
 }
 
+.apButtonAction_duplicate {
+    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/copy.svg');
+}
+
 .apButtonAction_sendemail {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email.svg');
     background-size: 18px 18px;

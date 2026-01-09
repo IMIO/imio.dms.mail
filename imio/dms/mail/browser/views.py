@@ -6,12 +6,15 @@ from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
+from imio.dms.mail.browser.settings import folder_duplicate_fields
+from imio.dms.mail.browser.settings import IImioClassificationConfig
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import duplicate_folder
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
 from imio.helpers.content import richtextval
@@ -23,6 +26,7 @@ from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
+from imio.pyutils.utils import safe_encode
 from plone import api
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
@@ -31,6 +35,10 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.PageTemplates.Expressions import SecureModuleImporter
 from Products.statusmessages.interfaces import IStatusMessage
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
+from z3c.form import button
+from z3c.form.field import Fields
+from z3c.form.form import Form
+from zope import schema
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
@@ -75,6 +83,53 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
             "output_format=odt",
         ]
         return "{}/persistent-document-generation?{}".format(url, "&".join(params))
+
+
+class FolderDuplicateForm(Form):
+
+    """Duplicate a folder."""
+    label = _(u"Duplicate folder")
+    ignoreContext = True
+
+    def update(self):
+        """Handle fields."""
+        folder_fields = api.portal.get_registry_record("folder_fields", IImioClassificationConfig, default=[])
+        folder_fields = [dic["field_name"] for dic in folder_fields]
+        matching = {u"category": "IClassificationFolder.classification_categories",
+                    u"folder": "IClassificationFolder.classification_folders",
+                    u"reply_to": "reply_to",
+                    u"link_to_duplicated": "reply_to"}
+        to_show = api.portal.get_registry_record("folder_duplicate_display_fields", IImioClassificationConfig, default=[])
+        to_true = api.portal.get_registry_record("folder_duplicate_true_default_values", IImioClassificationConfig, default=[])
+        import ipdb; ipdb.set_trace()
+        for term in folder_duplicate_fields:
+            if term.value not in to_show and term.value not in to_true:
+                continue
+            self.fields += Fields(
+                schema.Bool(
+                    __name__=safe_encode(term.value),
+                    title=term.title,
+                    default=term.value in to_true,
+                ))
+        super(FolderDuplicateForm, self).update()
+
+    @button.buttonAndHandler(_('Duplicate'), name='duplicate')
+    def handleApply(self, action):
+        data, errors = self.extractData()
+
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+
+        # Duplicate the folder
+        duplicated_folder = duplicate_folder(
+            self.context,
+            keep_subfolders=data.get('subfolders', False),
+            keep_linked_mails=data.get('linked_mails', False),
+            keep_annexes=data.get('annexes', False),
+        )
+
+        self.request.response.redirect(duplicated_folder.absolute_url()+"/edit")
 
 
 def parse_query(text):

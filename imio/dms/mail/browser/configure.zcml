@@ -20,10 +20,32 @@
         />
 
     <browser:page
+        name="folder-duplicate"
+        for="collective.classification.folder.content.classification_folder.IClassificationFolder"
+        permission="zope2.View"
+        class=".views.FolderDuplicateForm"
+        />
+
+    <browser:page
         name="imiodmsmail-settings"
         for="Products.CMFPlone.interfaces.IPloneSiteRoot"
         permission="plone.app.controlpanel.Site"
         class=".settings.SettingsView"
+        />
+
+    <unconfigure package="collective.classification.folder">
+        <browser:page
+            name="collectiveclassificationfolder-settings"
+            for="Products.CMFCore.interfaces.ISiteRoot"
+            permission="plone.app.controlpanel.Site"
+            class="collective.classification.folder.browser.settings.SettingsView"
+            />
+    </unconfigure>
+    <browser:page
+        name="collectiveclassificationfolder-settings"
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        permission="plone.app.controlpanel.Site"
+        class=".settings.ImioClassificationSettingsView"
         />
 
     <browser:page
