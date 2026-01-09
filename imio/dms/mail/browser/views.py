@@ -6,6 +6,9 @@ from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
+from imio.dms.mail.browser.settings import folder_duplicate_fields
+from imio.dms.mail.browser.settings import IImioClassificationConfig
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
@@ -23,6 +26,7 @@ from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
+from imio.pyutils.utils import safe_encode
 from plone import api
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
@@ -31,6 +35,10 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.PageTemplates.Expressions import SecureModuleImporter
 from Products.statusmessages.interfaces import IStatusMessage
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
+from z3c.form import button
+from z3c.form.field import Fields
+from z3c.form.form import Form
+from zope import schema
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
@@ -75,6 +83,63 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
             "output_format=odt",
         ]
         return "{}/persistent-document-generation?{}".format(url, "&".join(params))
+
+
+class FolderDuplicateForm(Form):
+
+    """Duplicate a folder."""
+    label = _(u"Duplicate folder")
+    ignoreContext = True
+
+    def update(self):
+        """Handle fields."""
+        folder_fields = api.portal.get_registry_record("collective.classification.folder.folder_fields", default=[])
+        folder_fields = [dic["field_name"] for dic in folder_fields]
+        matching = {u"category": "IClassificationFolder.classification_categories",
+                    u"folder": "IClassificationFolder.classification_folders",
+                    u"reply_to": "reply_to",
+                    u"link_to_duplicated": "reply_to"}
+        to_show = api.portal.get_registry_record("collective.classification.folder.folder_duplicate_display_fields", default=[])
+        to_true = api.portal.get_registry_record("collective.classification.folder.folder_duplicate_true_default_values", default=[])
+        for term in folder_duplicate_fields:
+            if ((term.value in matching and matching[term.value] not in folder_fields) or
+                    (term.value not in to_show and term.value not in to_true)):
+                continue
+            self.fields += Fields(
+                schema.Bool(
+                    __name__=safe_encode(term.value),
+                    title=term.title,
+                    default=term.value in to_true,
+                ))
+        super(FolderDuplicateForm, self).update()
+
+    def updateWidgets(self, prefix=None):
+        super(FolderDuplicateForm, self).updateWidgets()
+
+        # we hide fields not to show
+        to_show = api.portal.get_registry_record("collective.classification.folder.folder_duplicate_display_fields", default=[])
+        for term in folder_duplicate_fields:
+            if term.value not in to_show:
+                self.widgets[term.value].mode = "hidden"
+
+    @button.buttonAndHandler(_('Duplicate'), name='duplicate')
+    def handleApply(self, action):
+        data, errors = self.extractData()
+
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+
+        # Duplicate the folder
+        various_utils = getMultiAdapter((self.context, self.request), name="various-utils")
+        duplicated_folder = various_utils.duplicate_folder(
+            keep_classification_categories=data.get('classification_categories', False),
+            keep_treating_groups=data.get('treating_groups', False),
+            keep_recipient_groups=data.get('recipient_groups', False),
+            keep_subfolders=data.get('subfolders', False),
+        )
+
+        self.request.response.redirect(duplicated_folder.absolute_url()+"/edit")
 
 
 def parse_query(text):

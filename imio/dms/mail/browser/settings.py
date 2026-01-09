@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from collective.classification.folder.browser.settings import IClassificationConfig
+from collective.classification.folder.browser.settings import SettingsEditForm as CFSettingsEditForm
+from collective.classification.folder.browser.settings import SettingsView as CFSettingsView
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
@@ -446,6 +449,15 @@ oemail_bcc_email_values = SimpleVocabulary(
     [
         SimpleTerm(value=u"agent_email", title=_(u"Sender held position email is used")),
         SimpleTerm(value=u"service_email", title=_(u"Sender held position service email is used")),
+    ]
+)
+
+folder_duplicate_fields = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"classification_categories", title=_(u"Keep classification categories")),
+        SimpleTerm(value=u"treating_groups", title=_(u"Keep treating groups")),
+        SimpleTerm(value=u"recipient_groups", title=_(u"Keep recipient groups")),
+        SimpleTerm(value=u"subfolders", title=_(u"Keep subfolders")),
     ]
 )
 
@@ -1473,3 +1485,43 @@ class IImioDmsMailConfig2(Interface):
     product_version = schema.TextLine(
         title=_(u"Current product version"),
     )
+
+
+# --- Classification folder
+
+class IImioClassificationConfig(IClassificationConfig):
+
+    folder_duplicate_display_fields = schema.List(
+        title=_(u"Fields to display when duplicating a folder"),
+        required=False,
+        value_type=schema.Choice(vocabulary=folder_duplicate_fields),
+        default=[u"classification_categories", u"treating_groups", u"recipient_groups", u"subfolders"],
+    )
+    widget("folder_duplicate_display_fields", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    folder_duplicate_true_default_values = schema.List(
+        title=_(u"Default values to True when duplicating a folder"),
+        description=_(u"If checked, the default value will be True."),
+        required=False,
+        value_type=schema.Choice(vocabulary=folder_duplicate_fields),
+        default=[u"classification_categories", u"treating_groups", u"recipient_groups", u"subfolders"],
+    )
+    widget("folder_duplicate_true_default_values", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+
+class ImioClassificationSettingsEditForm(CFSettingsEditForm):
+    schema = IImioClassificationConfig
+    label = _(u"Classification Config")
+
+    def getContent(self):
+        from plone.registry.interfaces import IRegistry
+        registry = getUtility(IRegistry)
+        return registry.forInterface(
+            self.schema,
+            prefix='collective.classification.folder',
+            check=False
+        )
+
+
+class ImioClassificationSettingsView(CFSettingsView):
+    form = ImioClassificationSettingsEditForm

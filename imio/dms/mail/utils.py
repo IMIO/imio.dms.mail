@@ -1,6 +1,8 @@
 # encoding: utf-8
 from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
+from collective.classification.folder.content.classification_folder import IClassificationFolder
+from collective.classification.folder.utils import evaluate_internal_reference
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.documentviewer.convert import Converter
@@ -53,6 +55,7 @@ from persistent.mapping import PersistentMapping
 from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer
+from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
@@ -1654,3 +1657,55 @@ def get_allowed_omf_content_types(esign=False):
     for fmt in formats or []:
         res.extend(ct_by_type.get(fmt, ()))
     return res
+
+
+def duplicate_folder(context, keep_classification_categories, keep_treating_groups, keep_recipient_groups, keep_subfolders):
+    if not IClassificationFolder.providedBy(context):
+        raise ValueError("Context must be a ClassificationFolder")
+
+    folders = api.portal.get()["folders"]
+    duplicated_folder = createContentInContainer(
+        context.__parent__,
+        "ClassificationFolder",
+        title=context.title,
+        description=context.description,
+        internal_reference_no=evaluate_internal_reference(
+            folders,
+            folders.REQUEST,
+            "folder_number",
+            "folder_talexpression",
+        ),
+    )
+
+    # Keep classification_categories
+    if keep_classification_categories and context.classification_categories:
+        duplicated_folder.classification_categories = context.classification_categories[:]
+    else:
+        duplicated_folder.classification_categories = None
+
+    # Keep treating_groups
+    if keep_treating_groups and context.treating_groups:
+        duplicated_folder.treating_groups = context.treating_groups[:]
+    else:
+        duplicated_folder.treating_groups = None
+
+    # Keep recipient_groups
+    if keep_recipient_groups and context.recipient_groups:
+        duplicated_folder.recipient_groups = context.recipient_groups[:]
+    else:
+        duplicated_folder.recipient_groups = None
+
+    # Keep subfolders
+    # TODO
+    # if keep_subfolders:
+    # for i, csf_dic in enumerate(subs, start=1):
+    #     csf_dic["internal_reference_no"] = u"{}-{:02d}".format(cf_obj.internal_reference_no, i)
+    #     csf_dic["treating_groups"] = cf_obj.treating_groups
+    #     csf_dic["recipient_groups"] = []
+    #     if "classification_categories" not in csf_dic:
+    #         csf_dic["classification_categories"] = list(cf_obj.classification_categories)
+    #     csf_obj = createContentInContainer(cf_obj, "ClassificationSubfolder", **csf_dic)
+    #     if not csf_dic["archived"]:
+    #         do_transitions(csf_obj, ["deactivate"])
+
+    return duplicated_folder
