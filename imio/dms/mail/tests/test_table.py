@@ -58,14 +58,19 @@ class TestTable(unittest.TestCase):
         table = VersionsTable(imail, self.portal.REQUEST, "dmsmainfile")
         col = IMVersionsTitleColumn(self.portal, self.portal.REQUEST, table)
         cc = CategorizedContent(imail, brains[0])
-        self.assertEqual(col.getLinkTitle(cc), u"Identifiant de scan: 123456789\nDate de scan: \nVersion: ")
+        import ipdb; ipdb.set_trace()  # noqa
+        formatted_date = cc.toLocalizedTime(cc.creation_date, long_format=1)
+        self.assertEqual(col.getLinkTitle(cc),
+                         u"⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan = 123456789\n"
+                         u"⏺ Date de création = {}".format(formatted_date))
         self.assertEqual(
             col.renderCell(cc),
-            u'<a class="version-link" href="%s" alt="Identifiant de scan: 123456789\nDate de scan: '
-            u'\nVersion: " title="Identifiant de scan: 123456789\nDate de scan: \nVersion: ">'
-            u'<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/%s" '
+            u'<a class="version-link" href="{0}" alt="⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan = '
+            u'123456789\n⏺ Date de création = {1}" title="⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan ='
+            u' 123456789\n⏺ Date de création = {1}">'
+            u'<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/{2}" '
             u'alt="Fichier ged CE" title="Fichier ged CE" /> '
-            u'title</a><p class="discreet"></p>' % (file1.absolute_url(), icon_name)
+            u'title</a><p class="discreet"></p>'.format(file1.absolute_url(), formatted_date, icon_name)
         )
 
     def test_AssignedGroupColumn(self):

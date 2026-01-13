@@ -2,19 +2,15 @@
 from collective.contact.plonegroup.browser.tables import OrgaPrettyLinkWithAdditionalInfosColumn as opl_base
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
-from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.iconifiedcategory import utils as ic_utils
 from collective.iconifiedcategory.browser.tabview import CategorizedContent
 from collective.task import _ as _task
-from html import escape
+from html import escape  # noqa F401
 from imio.dms.mail import _
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.helpers.content import uuidToObject
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
-from Products.Five import BrowserView
-from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from Products.statusmessages.interfaces import IStatusMessage
 from z3c.table.column import Column
 from z3c.table.table import Table
 from zope.cachedescriptors.property import CachedProperty
@@ -31,19 +27,24 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
 
     def getLinkTitle(self, item):
         obj = item.getObject()
-        if not IScanFields.providedBy(obj):
-            return ""
         scan_infos = [
-            ("scan_id", obj.scan_id and escape(obj.scan_id) or ""),
-            ("scan_date", obj.scan_date and obj.toLocalizedTime(obj.scan_date, long_format=1) or ""),
-            ("Version", obj.version or ""),
+            ("filename", escape(obj.file.filename or "")),
         ]
+        if getattr(obj, "scan_id", None):
+            scan_infos.append(("scan_id", escape(obj.scan_id)))
+        if getattr(obj, "scan_date", None):
+            scan_infos.append(("scan_date", obj.toLocalizedTime(obj.scan_date, long_format=1)))
+        else:
+            scan_infos.append(("creation_date", obj.toLocalizedTime(obj.creation_date, long_format=1)))
+        if getattr(obj, "version", None):
+            scan_infos.append(("Version", obj.version))
+
         scan_infos = [
-            "%s: %s" % (translate(name, domain="collective.dms.scanbehavior", context=item.REQUEST), value)
+            u"⏺ %s = %s" % (translate(name, domain="collective.dms.scanbehavior", context=item.REQUEST), value)
             for (name, value) in scan_infos
         ]
 
-        return "\n".join(scan_infos)
+        return u"\n".join(scan_infos)
 
     def renderCell(self, content):
         pattern = (
