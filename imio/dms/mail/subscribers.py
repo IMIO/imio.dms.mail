@@ -721,7 +721,9 @@ def i_annex_removed(obj, event):
         referencedObjectRemoved(obj, event)
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
         approval = OMApprovalAdapter(obj.__parent__)
-        approval.remove_file_from_approval(obj.UID())
+        # Removes file from approval process (doesn't fail if not there)
+        if not approval.remove_file_from_approval(obj.UID()):
+            approval.remove_pdf_file_from_approval(obj.UID())
 
 
 def dmsmainfile_modified(dmf, event):
