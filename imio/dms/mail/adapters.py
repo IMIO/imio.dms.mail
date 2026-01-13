@@ -1505,18 +1505,23 @@ class OMApprovalAdapter(object):
             )
 
     def remove_file_from_approval(self, f_uid):
-        """Remove a file from approval annotation."""
+        """Remove a file from approval annotation.
+
+        :param: f_uid: file uid
+        :return: bool (True=file removed, False=file not found)
+        """
         if f_uid not in self.files_uids:
-            return
+            return False
         file_index = self.files_uids.index(f_uid)
-        self.annot["files"].remove(f_uid)
-        self.annot["pdf_files"].remove(self.annot["pdf_files"][file_index])
+        self.annot["files"].pop(file_index)
+        self.annot["pdf_files"].pop(file_index)
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].pop(file_index)
+        return True
 
     def remove_pdf_file_from_approval(self, pdf_f_uid):
         """Remove a pdf file from approval annotation."""
-        if pdf_f_uid not in sum(self.annot["pdf_files"], []):
+        if pdf_f_uid not in [uid for pdf_files in self.annot["pdf_files"] for uid in pdf_files]:
             return
         for pdf_files in self.annot["pdf_files"]:
             if pdf_f_uid in pdf_files:
