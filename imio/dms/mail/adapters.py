@@ -1503,6 +1503,7 @@ class OMApprovalAdapter(object):
                     }
                 )
             )
+        self.annot["current_nb"] = self.calculate_current_nb()
 
     def remove_file_from_approval(self, f_uid):
         """Remove a file from approval annotation.
@@ -1517,6 +1518,7 @@ class OMApprovalAdapter(object):
         self.annot["pdf_files"].pop(file_index)
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].pop(file_index)
+        self.annot["current_nb"] = self.calculate_current_nb()
         return True
 
     def remove_pdf_file_from_approval(self, pdf_f_uid):
@@ -1816,7 +1818,7 @@ class OMApprovalAdapter(object):
                 num_digits = len(str(nbf))
                 for j, odt_data in enumerate(result, start=1):
                     nb_title = u"{}_{{:0{}d}}".format(f_title, num_digits).format(j)
-                    file_object = NamedBlobFile(odt_data, filename=safe_unicode(u"{}.pdf".format(nb_title)))
+                    file_object = NamedBlobFile(odt_data, filename=safe_unicode(u"{}.odt".format(nb_title)))
                     # file filename will be renamed later to include uid
                     self._create_pdf_file(fobj, file_object, nb_title, f_uid, i, session_file_uids)
             else:
