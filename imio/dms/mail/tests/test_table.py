@@ -58,7 +58,6 @@ class TestTable(unittest.TestCase):
         table = VersionsTable(imail, self.portal.REQUEST, "dmsmainfile")
         col = IMVersionsTitleColumn(self.portal, self.portal.REQUEST, table)
         cc = CategorizedContent(imail, brains[0])
-        import ipdb; ipdb.set_trace()  # noqa
         formatted_date = cc.toLocalizedTime(cc.creation_date, long_format=1)
         self.assertEqual(col.getLinkTitle(cc),
                          u"⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan = 123456789\n"
