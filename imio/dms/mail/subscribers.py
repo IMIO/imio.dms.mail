@@ -160,7 +160,8 @@ def item_moved(obj, event):
                 request=obj.REQUEST,
                 type="error",
             )
-            raise Redirect(obj.REQUEST.get("HTTP_REFERER"))
+            obj.REQUEST.RESPONSE.redirect(obj.absolute_url())  # needed for delete_confirmation
+            raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
 
 
 def replace_contact_list(obj, fieldname):
@@ -700,19 +701,32 @@ def i_annex_will_be_removed(obj, event):
         except api.portal.CannotGetPortalError:
             # When deleting site, the portal is no more found...
             return
-        if pp.site_properties.enable_link_integrity_checks:
-            approval = OMApprovalAdapter(obj.__parent__)
-            if obj.UID() in approval.files_uids:
+        breach = None
+        approval = OMApprovalAdapter(obj.__parent__)
+        if obj.UID() in approval.files_uids:
+            breach = (obj.__parent__, obj)
+        if obj.UID() in [f_uid for lst in approval.pdf_files_uids for f_uid in lst]:
+            c_f_uid = getattr(obj, "conv_from_uid", None)
+            if c_f_uid:
+                c_obj = uuidToObject(c_f_uid, unrestricted=True)
+                breach = (c_obj, obj)
+            else:
+                breach = (obj.__parent__, obj)
+        if breach:
+            if approval.is_state_after_or_approve() and not check_zope_admin():
+                api.portal.show_message(
+                    message=_(
+                        u"You cannot delete a file '${title}' part of already started esign process !",
+                        mapping={"title": safe_unicode(obj.Title())},
+                    ),
+                    request=obj.REQUEST,
+                    type="error",
+                )
+                obj.REQUEST.RESPONSE.redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for delete_confirmation
+                raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
+            if pp.site_properties.enable_link_integrity_checks:
                 storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
-                storage.addBreach(obj.__parent__, obj)
-            if obj.UID() in [f_uid for lst in approval.pdf_files_uids for f_uid in lst]:
-                storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
-                c_f_uid = getattr(obj, "conv_from_uid", None)
-                if c_f_uid:
-                    c_obj = uuidToObject(c_f_uid, unrestricted=True)
-                    storage.addBreach(c_obj, obj)
-                else:
-                    storage.addBreach(obj.__parent__, obj)
+                storage.addBreach(*breach)
 
 
 def i_annex_removed(obj, event):
