@@ -39,10 +39,17 @@ from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_workflow_from_package
+from imio.helpers.workflow import do_transitions
 from imio.pyutils.utils import append
 from persistent.list import PersistentList
 from plone import api
+from plone.app.portlets.storage import PortletAssignmentMapping
+from plone.portlet.static.static import Assignment as StaticAssignment
+from plone.portlets.constants import CONTENT_TYPE_CATEGORY
+from plone.portlets.interfaces import IPortletManager
+from Products.CMFCore.ActionInformation import Action
 from zope.component import getGlobalSiteManager
+from zope.component import getUtility
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
@@ -651,6 +658,204 @@ def configure_wsclient(context):
         gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
     [logger.info(msg) for msg in log]
     return "\n".join(log)
+
+
+def configure_demo_site(context):
+    """Configure demo site"""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    site = context.getSite()
+    # change workflow of Document type to intranet_workflow, so the page can be published
+    logger.info("Configure demo site")
+    site.portal_workflow.setChainForPortalTypes(['Document'], ('intranet_workflow',))
+
+    # add a default home page on portal root
+    if "demo-front-page" not in site.objectIds():
+        page = api.content.create(
+            type="Document",
+            title=u"Accueil démo de la gestion du courrier 3.1",
+            id="demo-front-page",
+            container=site,
+            text=u"""
+<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p>
+<ul>
+<li>Création d'une fiche courrier entrant
+<ul>
+<li>automatiquement après avoir scanné les courriers papier, avec un code barre séparateur collé sur la première page
+de chaque courrier</li>
+<li>automatiquement après transfert autonome d'un email depuis un boîte générale ou transfert manuel</li>
+<li>manuellement avec la possibilité d'associer ensuite un document scanné</li>
+</ul>
+</li>
+<li>Création d'une fiche courrier sortant
+<ul>
+<li>en réponse à un (ou plusieurs) courrier entrant avec reprise des données encodées sur l'entrant</li>
+<li>manuellement avec la possibilité d'associer ensuite un document au format bureautique qui peut être généré à partir
+d’un modèle prédéfini</li>
+<li>automatiquement après avoir scanné des courriers, avec un code barre séparateur (par exemple un courrier généré par
+une autre application, déjà imprimé et signé)</li>
+</ul>
+</li>
+<li>Signature électronique en lot des courriers sortants et/ou d'annexes, avec approbation préalable</li>
+<li>Envoi possible d'un courrier sortant par email (avec pièces jointes, signature dynamique et modèle de message)</li>
+<li>Gestion d'un arbre de classement (pour la classification)</li>
+<li>Intégration d'une gestion de dossiers (avec les notions de farde et chemise), permettant de regrouper les courriers
+d'un dossier</li>
+<li>L'utilisation d'un modèle de courrier sortant a comme avantage de gérer automatiquement la fusion de données,
+l'impression en lot, l'intégration d'un code-barre, le publipostage</li>
+<li>Le code barre intégré dans le courrier sortant généré permet d’effectuer un scan des documents après signature
+manuscrite.</li>
+<li>Workflow de validation configurable (de n+1 à n+5) et variable suivant les services</li>
+<li>Lien avec iA.Delib: création d'un point depuis une fiche courrier</li>
+<li>etc.</li>
+</ul>
+<p>&nbsp;</p>
+<h2>Explications démo</h2>
+<p>Il est possible dans cette démo de vous connecter avec les <strong>profils suivants</strong> (tous les utilisateurs
+ont le mot de passe "<strong>courrier</strong>"):</p>
+<ul>
+<li>Une personne pouvant encoder le courrier entrant et le courrier sortant scanné. Le nom d'utilisateur est
+"<strong>encodeur</strong>".</li>
+<li>Le directeur général (qui va valider le courrier en premier). Le nom d'utilisateur est "<strong>dirg</strong>".</li>
+<li>Le chef de service (qui va valider le courrier ensuite). Le nom d'utilisateur est "<strong>chef</strong>".</li>
+<li>L'agent du service concerné qui va pouvoir gérer le courrier. Le nom d'utilisateur est "<strong>agent</strong>".
+</li>
+</ul>
+<p>&nbsp;</p>
+<p>Remarque: par facilité dans la démo, les utilisateurs "chef" et "agent" peuvent gérer les courriers de tous les
+services sélectionnables.</p>
+<p>&nbsp;</p>
+<p>La <a href="https://docs.imio.be/iadocs/" target="_blank">documentation complète</a> est disponible en ligne: elle
+comprend les nouveautés de la version 3.1.</p>
+""")
+        page.setPresentation(False)
+        page.setExcludeFromNav(True)
+        site.setDefaultPage("demo-front-page")
+        do_transitions(page, ["publish_internally", "publish_externally"])
+        # exclude front-page from nav
+        site["front-page"].setExcludeFromNav(True)
+        site["front-page"].reindexObject()
+
+    # Add an help document
+    if "aide" not in site.objectIds():
+        page = api.content.create(
+            type="Document",
+            title=u"AIDE",
+            id="aide",
+            container=site,
+            text=u"""
+<p><strong>Connexion</strong></p>
+<p>Connectez-vous suivant le profil expliqué en page d'accueil</p>
+<p>&nbsp;</p>
+<p><strong>Ligne de conduite pour le courrier entrant (en tant qu'encodeur):</strong></p>
+<ol>
+<li>Cliquer sur l'onglet "Courrier entrant"</li>
+<li>Cliquer sur le lien "Simulation scanner" pour simuler l'importation automatique du courrier via les scanners.</li>
+<li>Ou cliquer sur le lien "Simulation transfert email" pour simuler le transfert d'un email par un agent ou via une
+boîte générale</li>
+<li>Cliquer sur l'intitulé du courrier nouvellement créé pour éditer les données.</li>
+</ol>
+<p>OU</p>
+<ol>
+<li>Ajouter un courrier entrant ou un email entrant via l'icône affichée à droite de l'intitulé "Courriers entrants"
+du menu.</li>
+<li>Ajouter ensuite une pièce jointe.</li>
+</ol>
+<p>&nbsp;</p>
+<p><strong>Ligne de conduite pour le courrier sortant:</strong></p>
+<p>En tant qu'agent:</p>
+<ol>
+<li>Cliquer sur le bouton "Répondre" à partir d'un courrier entrant</li>
+<li>Ajouter ensuite un document depuis un modèle (nécessite des outils installés localement) ou Ajouter un
+"fichier ged" à partir du menu d'ajout</li>
+</ol>
+<p>OU</p>
+<ol>
+<li>Cliquer sur l'onglet "Courrier sortant"</li>
+<li>Ajouter un courrier sortant via l'icône affichée à droite de l'intitulé "Courriers sortants" du menu.</li>
+<li>Ajouter ensuite un document depuis un modèle (nécessite des outils installés localement) ou Ajouter un
+"fichier ged" à partir du menu d'ajout</li>
+</ol>
+<p>OU</p>
+<p>En tant qu'encodeur</p>
+<ol>
+<li>Cliquer sur l'onglet "Courrier sortant"</li>
+<li>Cliquer sur le lien "Simulation scanner" pour simuler l'importation automatique du courrier via les scanners.</li>
+<li>Cliquer sur l'intitulé du courrier nouvellement créé pour éditer les données.</li>
+</ol>
+<p>&nbsp;</p>
+<p>Pour les emails, si on choisit "email" dans le champ forme d'envoi, un bouton complémentaire apparaît pour compléter
+les informations d'envoi d'un email et il est possible alors de l'envoyer dans une seconde étape.</p>
+<p>&nbsp;</p>
+<p><strong>Manuel d'utilisation</strong></p>
+<p>La <a href="https://docs.imio.be/iadocs" target="_blank">documentation complète</a> est disponible en ligne.</p>
+"""
+        )
+        page.setPresentation(False)
+        do_transitions(page, ["publish_internally", "publish_externally"])
+
+    # Add a content type portlet on Document type (to display on demo-front-page
+    left_column = getUtility(IPortletManager, name="plone.leftcolumn")
+    content_type_category = left_column[CONTENT_TYPE_CATEGORY]
+    if "Document" not in content_type_category:
+        content_type_category["Document"] = PortletAssignmentMapping(
+            manager="plone.leftcolumn",
+            category=CONTENT_TYPE_CATEGORY,
+            name="Document"
+        )
+    mapping = content_type_category["Document"]
+    if "aide" not in mapping:
+        portlet = StaticAssignment(
+            header=u"AIDE",
+            text=u"""
+<p>&nbsp;</p>
+<p><strong>Connexion</strong></p>
+<p>Connectez-vous suivant le profil expliqué en page d'accueil</p>
+<p><strong>Explications sommaires</strong></p>
+<p>Ouvrir le <a href="./aide">document d'aide</a> pour avoir une ligne de conduite rapide dans le site de démo.</p>
+""",
+            omit_border=False
+        )
+        mapping["aide"] = portlet
+
+    # Add object_portlet actions to be displayed in "divers" portlet
+    category = site.portal_actions.object_portlet
+    if "scanner_im" not in category.objectIds():
+        action = Action(
+            "scanner_im",
+            title="Simulation scanner",
+            i18n_domain="imio.dms.mail",
+            url_expr="string:${globals_view/navigationRootUrl}/import_scanned",
+            available_expr="python:context.getId() == 'incoming-mail' or (context.getId() == 'mail-searches' and "
+                           "context.aq_parent.getId() == 'incoming-mail')",
+            permissions=("collective.dms.batchimport: Batch import",),
+            visible=True,
+        )
+        category._setObject("scanner_im", action)
+    if "scanner_iem" not in category.objectIds():
+        action = Action(
+            "scanner_iem",
+            title="Simulation transfert email",
+            i18n_domain="imio.dms.mail",
+            url_expr="string:${globals_view/navigationRootUrl}/import_scanned?ptype=dmsincoming_email",
+            available_expr="python:context.getId() == 'incoming-mail' or (context.getId() == 'mail-searches' and "
+                           "context.aq_parent.getId() == 'incoming-mail')",
+            permissions=("collective.dms.batchimport: Batch import",),
+            visible=True,
+        )
+        category._setObject("scanner_iem", action)
+    if "scanner_om" not in category.objectIds():
+        action = Action(
+            "scanner_om",
+            title="Simulation scanner",
+            i18n_domain="imio.dms.mail",
+            url_expr="string:${globals_view/navigationRootUrl}/import_scanned2",
+            available_expr="python:context.getId() == 'outgoing-mail' or (context.getId() == 'mail-searches' and "
+                           "context.aq_parent.getId() == 'outgoing-mail')",
+            permissions=("collective.dms.batchimport: Batch import",),
+            visible=True,
+        )
+        category._setObject("scanner_om", action)
 
 
 def contact_import_pipeline(context):

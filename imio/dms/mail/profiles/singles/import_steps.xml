@@ -130,6 +130,14 @@
  </import-step>
 
  <import-step
+    id="imiodmsmail-configure-demo-site"
+    handler="imio.dms.mail.steps.configure_demo_site"
+    title="demo site configure step for imio.dms.mail"
+    version="2026-01-14T11:00:00.00000">
+    demo site configure step for imio.dms.mail
+ </import-step>
+
+ <import-step
     id="imiodmsmail-contact-import-pipeline"
     handler="imio.dms.mail.steps.contact_import_pipeline"
     title="collective.contact.importexport configure step for imio.dms.mail"
