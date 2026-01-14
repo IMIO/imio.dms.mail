@@ -857,6 +857,76 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         category._setObject("scanner_om", action)
 
+    # Change user passwords to 'courrier'
+    for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur"):
+        site.acl_users.source_users.userSetPassword(userid, "courrier")
+
+    # Configure delib link
+    prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"
+    if not api.portal.get_registry_record("{}.pm_url".format(prefix), default=False):
+        api.portal.set_registry_record("{}.pm_url".format(prefix), u"https://demo-pm.imio.be")
+        api.portal.set_registry_record("{}.pm_username".format(prefix), u"docs_delib")
+        pmpass = os.getenv("PM_PASS", "")  # not used
+        if pmpass:
+            api.portal.set_registry_record("{}.pm_password".format(prefix), pmpass)
+        api.portal.set_registry_record("{}.only_one_sending".format(prefix), False)
+        from imio.pm.wsclient.browser.vocabularies import pm_item_data_vocabulary
+
+        orig_call = pm_item_data_vocabulary.__call__
+        pm_item_data_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(
+            [
+                SimpleTerm(u"title"),
+                SimpleTerm(u"description"),
+                SimpleTerm(u"detailedDescription"),
+                SimpleTerm(u"ignore_validation_for"),
+            ]
+        )
+        api.portal.set_registry_record(
+            "{}.field_mappings".format(prefix),
+            [
+                {"field_name": u"title", "expression": u"context/title"},
+                {"field_name": u"description", "expression": u"context/Description"},
+                {
+                    "field_name": u"detailedDescription",
+                    "expression": u"python: u'{}\\n{}'.format(context.description, "
+                    u"context.restrictedTraverse('@@IncomingmailRestWSClient')"
+                    u".detailed_description())",
+                },
+                {"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"},
+            ],
+        )
+        pm_item_data_vocabulary.__call__ = orig_call
+        api.portal.set_registry_record("{}.user_mappings".format(prefix),
+                                       [{"local_userid": u"agent", "pm_userid": u"dgen"},
+                                        {"local_userid": u"agent1", "pm_userid": u"dgen"},
+                                        {"local_userid": u"chef", "pm_userid": u"dgen"},
+                                        {"local_userid": u"dirg", "pm_userid": u"dgen"},
+                                        {"local_userid": u"encodeur", "pm_userid": u"dgen"},
+                                        ])
+        from imio.pm.wsclient.browser.vocabularies import pm_meeting_config_id_vocabulary
+
+        orig_call = pm_meeting_config_id_vocabulary.__call__
+        terms = [SimpleTerm(u"meeting-config-college"), SimpleTerm(u"meeting-config-council"),
+                 SimpleTerm(u"bourgmestre")]
+        pm_meeting_config_id_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(terms)
+        from imio.dms.mail.subscribers import wsclient_configuration_changed
+        from plone.registry.interfaces import IRecordModifiedEvent
+
+        gsm = getGlobalSiteManager()
+        gsm.unregisterHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
+        api.portal.set_registry_record(
+            "{}.generated_actions".format(prefix),
+            [
+                {
+                    "pm_meeting_config_id": term.value,
+                    "condition": u"python: context.getPortalTypeName() in ('dmsincomingmail', 'dmsincoming_email')",
+                    "permissions": "Modify view template",
+                } for term in terms
+            ],
+        )
+        pm_meeting_config_id_vocabulary.__call__ = orig_call
+        gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
+
 
 def contact_import_pipeline(context):
     """Set contact import pipeline record."""
