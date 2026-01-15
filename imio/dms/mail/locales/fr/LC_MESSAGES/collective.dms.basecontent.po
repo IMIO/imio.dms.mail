@@ -21,7 +21,7 @@ msgstr "Fichier ged signé"
 
 #: ../dmsfile.py:26
 msgid "Version number"
-msgstr "Numéro de fichier ged"
+msgstr "Titre"
 
 #: ../browser/viewlets.py:42
 msgid "Versions"
