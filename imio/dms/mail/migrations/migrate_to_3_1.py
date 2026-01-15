@@ -178,6 +178,20 @@ class Migrate_To_3_1(Migrator):  # noqa
                 if changes:
                     lr._p_changed = True
 
+                # update om_to_email and om_treating collection
+                for col_id in ("om_to_email", "om_treating"):
+                    col = self.omf["mail-searches"].get(col_id)
+                    if col:
+                        new_lst = []
+                        change = False
+                        for dic in col.query:
+                            if dic["i"] == "review_state" and len(dic["v"]) == 1 and dic["v"][0] == "to_be_signed":
+                                dic["v"] = ["signed"]
+                                change = True
+                            new_lst.append(dic)
+                        if change:
+                            col.query = new_lst
+
                 # change back confirmation message
                 key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
                 values = list(api.portal.get_registry_record(key, default=[]))

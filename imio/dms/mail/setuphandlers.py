@@ -1538,7 +1538,7 @@ def createOMailCollections(folder):
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
-                {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_be_signed"]},
+                {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["signed"]},
             ],
             "cond": u"",
             "bypass": [],
@@ -1567,7 +1567,7 @@ def createOMailCollections(folder):
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
-                {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_be_signed"]},
+                {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["signed"]},
                 {"i": "enabled", "o": "plone.app.querystring.operation.boolean.isTrue"},
             ],
             "cond": u"",
