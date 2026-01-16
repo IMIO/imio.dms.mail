@@ -85,6 +85,8 @@ def activate_esigning(context):
     site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
     log = ["Installed imio.esign"]
 
+    api.portal.set_registry_record("imio.esign.enabled", True)
+
     if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
                                        ["odt", "pdf"])
