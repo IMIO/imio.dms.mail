@@ -20,6 +20,7 @@ from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import list_templates
@@ -50,6 +51,7 @@ from plone.portlets.interfaces import IPortletManager
 from Products.CMFCore.ActionInformation import Action
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
+from zope.interface import alsoProvides
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
@@ -126,6 +128,8 @@ def activate_esigning(context):
 
     # change permission on sessions link (once imio.esign is installed)
     s_l = site["sessions"]
+    if not IProtectedItem.providedBy(s_l):
+        alsoProvides(s_l, IProtectedItem)
     s_l.__ac_permissions__ = getattr(s_l, '__ac_permissions', ()) + ((manage_session_perm, ()),)
     s_l.manage_permission(manage_session_perm, ("Contributor", "Manager", "Site Administrator"), acquire=0)
     s_l.manage_setLocalRoles("dir_general", ["Contributor"])

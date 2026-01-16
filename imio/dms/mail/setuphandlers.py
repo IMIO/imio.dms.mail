@@ -1900,14 +1900,6 @@ def create_classification_folders_collections(folder):
     createDashboardCollections(folder, collections)
 
 
-def create_sessions_link(portal):
-    """Create sessions link in portal root if not exists"""
-    # now created in imio.esign
-    s_l = portal["sessions"]
-    if not IProtectedItem.providedBy(s_l):
-        alsoProvides(s_l, IProtectedItem)
-
-
 def adaptDefaultPortal(context):
     """
     Adapt some properties of the portal
@@ -2088,8 +2080,6 @@ def adaptDefaultPortal(context):
         cron_configlet.cronjobs = [
             u"59 3 * * portal/@@various-utils/cron_read_label_handling",
         ]
-
-    create_sessions_link(site)
 
     # configure MailHost
     if get_environment() == "prod":
