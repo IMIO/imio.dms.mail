@@ -20,6 +20,7 @@ from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import createStateCollections
@@ -36,15 +37,23 @@ from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.esign import manage_session_perm
+from imio.esign.config import set_registry_enabled
+from imio.esign.config import set_registry_seal_code
+from imio.esign.config import set_registry_seal_email
+from imio.esign.config import set_registry_sign_code
+from imio.esign.config import set_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_workflow_from_package
 from imio.helpers.workflow import do_transitions
+from imio.pyutils.system import read_csv
 from imio.pyutils.utils import append
+from imio.pyutils.utils import safe_encode
 from persistent.list import PersistentList
 from plone import api
 from plone.app.portlets.storage import PortletAssignmentMapping
+from plone.namedfile import NamedImage
 from plone.portlet.static.static import Assignment as StaticAssignment
 from plone.portlets.constants import CONTENT_TYPE_CATEGORY
 from plone.portlets.interfaces import IPortletManager
@@ -87,7 +96,7 @@ def activate_esigning(context):
     site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
     log = ["Installed imio.esign"]
 
-    api.portal.set_registry_record("imio.esign.enabled", True)
+    set_registry_enabled(True)
 
     if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
@@ -863,9 +872,46 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         category._setObject("scanner_om", action)
 
+    # Add N+1 validation
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
+    )
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
+    )
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-task_n_plus_1_wfadaptation", run_dependencies=False
+    )
+
     # Change user passwords to 'courrier'
     for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur"):
         site.acl_users.source_users.userSetPassword(userid, "courrier")
+
+    # Added some users from a configuration csv file
+    home_dir = os.path.expanduser("~")
+    filename = os.path.join(home_dir, "demo_docs_users.csv")
+    if os.path.exists(filename):
+        groups_data = api.group.get_groups()
+        groups = [(gd.id, safe_encode(gd.getProperty("title"))) for gd in groups_data]
+        for columns in read_csv(filename, strip_chars=" ", replace_dq=True, skip_empty=True, skip_lines=1):
+            (u_id, fullname, email, group_titles, pwd) = columns
+            user = api.user.get(userid=u_id)
+            if user is None:
+                user = api.user.create(
+                    username=u_id,
+                    email=safe_encode(email),
+                    password=safe_encode(pwd),
+                    properties={"fullname": safe_encode(fullname)},
+                )
+            if group_titles:
+                for group_title in group_titles.split("\n"):
+                    for (g_id, title) in groups:
+                        if title == safe_encode(group_title):
+                            if u_id not in api.user.get_users(groupname=g_id):
+                                api.group.add_user(groupname=g_id, user=user)
+                            break
+                    else:
+                        logger.warning("Group with title '{}' not found.".format(safe_encode(group_title)))
 
     # Configure delib link
     prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"
@@ -932,6 +978,39 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         pm_meeting_config_id_vocabulary.__call__ = orig_call
         gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
+
+    # Add a demo person in contact folder
+    params = {
+        "lastname": u"Cordy",
+        "firstname": u"Annie",
+        "gender": u"F",
+        "person_title": u"Madame",
+        "zip_code": u"5032",
+        "city": u"Isnes",
+        "street": u"Rue du Yoyo",
+        "number": u"1",
+        "email": u"tata_yoyo@gmail.com",
+        "use_parent_address": False,
+    }
+    if "anniecordy" not in site.contacts:
+        site.contacts.invokeFactory("person", "anniecordy", **params)
+        anniecordy = site.contacts["anniecordy"]
+        # add a namedimage on the photo field
+        image_path = os.path.join(PRODUCT_DIR, "profiles", "examples", "images", "Annie_Cordy.jpg")
+        with open(image_path, "rb") as img_file:
+            image_data = img_file.read()
+        named_image = NamedImage(data=image_data, filename=u"Annie_Cordy.jpg", contentType="image/jpeg")
+        anniecordy.photo = named_image
+        anniecordy.reindexObject()
+
+    # activate signing
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+    )
+    set_registry_vat_number(u"BE0000000097")
+    set_registry_seal_code(u"PADES_SEAL")
+    set_registry_seal_email(u"sceau@imio.be")
+    set_registry_sign_code(u"BULK_VISA")
 
 
 def contact_import_pipeline(context):
