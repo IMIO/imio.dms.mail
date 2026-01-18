@@ -52,6 +52,7 @@ from imio.helpers.emailer import get_mail_host
 from imio.helpers.security import generate_password
 from imio.helpers.security import get_environment
 from imio.helpers.workflow import do_transitions
+from imio.pyutils.utils import safe_encode
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.interfaces import IDexterityFTI
@@ -2927,37 +2928,37 @@ def create_users_and_groups(site):
             logger.error("Error creating user '%s': %s" % (uid, exc))
 
     if api.group.get("encodeurs") is None:
-        api.group.create("encodeurs", _("1 IM encoders"))
+        api.group.create("encodeurs", safe_encode(_("1 IM encoders")))
         site["incoming-mail"].manage_addLocalRoles("encodeurs", ["Contributor", "Reader"])
         site["contacts"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
         site["contacts"]["contact-lists-folder"].manage_addLocalRoles("encodeurs", ["Contributor", "Editor", "Reader"])
         #        site['incoming-mail'].reindexObjectSecurity()
         api.group.add_user(groupname="encodeurs", username="scanner")
     if api.group.get("dir_general") is None:
-        api.group.create("dir_general", _("1 General manager"))
+        api.group.create("dir_general", safe_encode(_("1 General manager")))
         site["outgoing-mail"].manage_addLocalRoles("dir_general", ["Contributor"])
         site["contacts"].manage_addLocalRoles("dir_general", ["Contributor", "Editor", "Reader"])
         site["contacts"]["contact-lists-folder"].manage_addLocalRoles(
             "dir_general", ["Contributor", "Editor", "Reader"]
         )
     if api.group.get("expedition") is None:
-        api.group.create("expedition", _("1 OM dispatch"))
+        api.group.create("expedition", safe_encode(_("1 OM dispatch")))
         site["outgoing-mail"].manage_addLocalRoles("expedition", ["Contributor"])
         site["contacts"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
         site["contacts"]["contact-lists-folder"].manage_addLocalRoles("expedition", ["Contributor", "Editor", "Reader"])
         api.group.add_user(groupname="expedition", username="scanner")
     if api.group.get("gestion_contacts") is None:
-        api.group.create("gestion_contacts", _("1 Duplicate contacts management"))
+        api.group.create("gestion_contacts", safe_encode(_("1 Duplicate contacts management")))
     if api.group.get("createurs_dossier") is None:
-        api.group.create("createurs_dossier", _("1 Folders creators"))
+        api.group.create("createurs_dossier", safe_encode(_("1 Folders creators")))
     if api.group.get("audit_contacts") is None:
-        api.group.create("audit_contacts", _("1 Contacts audit"))
+        api.group.create("audit_contacts", safe_encode(_("1 Contacts audit")))
     if api.group.get("lecteurs_globaux_ce") is None:
-        api.group.create("lecteurs_globaux_ce", _("2 IM global readers"))
+        api.group.create("lecteurs_globaux_ce", safe_encode(_("2 IM global readers")))
     if api.group.get("lecteurs_globaux_cs") is None:
-        api.group.create("lecteurs_globaux_cs", _("2 OM global readers"))
+        api.group.create("lecteurs_globaux_cs", safe_encode(_("2 OM global readers")))
     if api.group.get("esign_watchers") is None:
-        api.group.create("esign_watchers", _("2 External signing watchers"))
+        api.group.create("esign_watchers", safe_encode(_("2 External signing watchers")))
 
 
 def clean_examples_step(context):
