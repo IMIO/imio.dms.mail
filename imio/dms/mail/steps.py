@@ -940,7 +940,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                 hp.reindexObject()
                 signer_rules.append(
                     {
-                        "number": len(signer_rules) + 1,
+                        "number": 1,
                         "signer": hp.UID(),
                         "editor": False,
                         "approvings": [u"_empty_"],
@@ -1024,7 +1024,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 
     # Add a demo person in contact folder
     params = {
-        "lastname": u"Cordy",
+        "lastname": u"Kordi",
         "firstname": u"Annie",
         "gender": u"F",
         "person_title": u"Madame",
@@ -1035,16 +1035,16 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         "email": u"tata_yoyo@gmail.com",
         "use_parent_address": False,
     }
-    if "anniecordy" not in site.contacts:
-        site.contacts.invokeFactory("person", "anniecordy", **params)
-        anniecordy = site.contacts["anniecordy"]
+    if "anniekordi" not in site.contacts:
+        site.contacts.invokeFactory("person", "anniekordi", **params)
+        anniekordi = site.contacts["anniekordi"]
         # add a namedimage on the photo field
         image_path = os.path.join(PRODUCT_DIR, "profiles", "examples", "images", "Annie_Cordy.jpg")
         with open(image_path, "rb") as img_file:
             image_data = img_file.read()
         named_image = NamedImage(data=image_data, filename=u"Annie_Cordy.jpg", contentType="image/jpeg")
-        anniecordy.photo = named_image
-        anniecordy.reindexObject()
+        anniekordi.photo = named_image
+        anniekordi.reindexObject()
 
 
 def contact_import_pipeline(context):
