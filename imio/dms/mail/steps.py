@@ -59,6 +59,7 @@ from plone.portlet.static.static import Assignment as StaticAssignment
 from plone.portlets.constants import CONTENT_TYPE_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from Products.CMFCore.ActionInformation import Action
+from Products.CMFPlone.utils import safe_unicode
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -900,6 +901,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         for dic in signer_rules:
             dic["esign"] = True
             dic["approvings"] = [u"_themself_"]
+            dic["tal_condition"] = u"python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
         api.portal.set_registry_record(rk, signer_rules)
 
     # Change user passwords to 'courrier'
@@ -910,6 +912,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     home_dir = os.path.expanduser("~")
     filename = os.path.join(home_dir, "demo_docs_users.csv")
     sr_len = len(signer_rules)
+    user_ids = ["agent", "agent1", "chef", "dirg", "encodeur"]
     if os.path.exists(filename):
         pgo = site["contacts"]["plonegroup-organization"]
         groups_data = api.group.get_groups()
@@ -924,6 +927,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                     password=safe_encode(pwd),
                     properties={"fullname": safe_encode(fullname)},
                 )
+            user_ids.append(safe_encode(u_id))
             if group_titles:
                 for group_title in group_titles.split("\n"):
                     for (g_id, title) in groups:
@@ -940,27 +944,28 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                 hp = pf[u_id][org_uid]
                 hp.usages = usages_list
                 hp.reindexObject()
-                signer_rules.append(
-                    {
-                        "number": 1,
-                        "signer": hp.UID(),
-                        "editor": False,
-                        "approvings": [u"_themself_"],
-                        "esign": True,
-                        "valid_from": None,
-                        "valid_until": None,
-                        "treating_groups": [],
-                        "mail_types": [],
-                        "send_modes": [],
-                        "tal_condition": None,
-                    },
-                )
+                if hp.UID() not in [dic["signer"] for dic in signer_rules]:
+                    signer_rules.append(
+                        {
+                            "number": 1,
+                            "signer": hp.UID(),
+                            "editor": False,
+                            "approvings": [u"_themself_"],
+                            "esign": True,
+                            "valid_from": None,
+                            "valid_until": None,
+                            "treating_groups": [],
+                            "mail_types": [],
+                            "send_modes": [],
+                            "tal_condition": u"python: member.getId() == '{}'".format(u_id),
+                        },
+                    )
         if len(signer_rules) > sr_len:
             api.portal.set_registry_record(rk, signer_rules)
 
     # Configure delib link
     prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"
-    if not api.portal.get_registry_record("{}.pm_url".format(prefix), default=False):
+    if not api.portal.get_registry_record("{}.pm_password".format(prefix), default=False):
         api.portal.set_registry_record("{}.pm_url".format(prefix), u"https://demo-pm.imio.be")
         api.portal.set_registry_record("{}.pm_username".format(prefix), u"docs_delib")
         pmpass = os.getenv("PM_PASS", "")  # not used
@@ -994,12 +999,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         pm_item_data_vocabulary.__call__ = orig_call
         api.portal.set_registry_record("{}.user_mappings".format(prefix),
-                                       [{"local_userid": u"agent", "pm_userid": u"dgen"},
-                                        {"local_userid": u"agent1", "pm_userid": u"dgen"},
-                                        {"local_userid": u"chef", "pm_userid": u"dgen"},
-                                        {"local_userid": u"dirg", "pm_userid": u"dgen"},
-                                        {"local_userid": u"encodeur", "pm_userid": u"dgen"},
-                                        ])
+                                       [{"local_userid": safe_unicode(u_id), "pm_userid": u"dgen"}
+                                        for u_id in user_ids])
         from imio.pm.wsclient.browser.vocabularies import pm_meeting_config_id_vocabulary
 
         orig_call = pm_meeting_config_id_vocabulary.__call__
@@ -1024,7 +1025,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         pm_meeting_config_id_vocabulary.__call__ = orig_call
         gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
 
-    # Add a demo person in contact folder
+    # Add demo contacts in contact folder
     params = {
         "lastname": u"Kordi",
         "firstname": u"Annie",
@@ -1048,6 +1049,20 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         anniekordi.photo = named_image
         anniekordi.reindexObject()
 
+    params = {
+        "title": u"Imio",
+        "organization_type": u"sa",
+        "zip_code": u"5032",
+        "city": u"Isnes",
+        "street": u"Rue Léon Morel",
+        "number": u"1",
+        "email": u"contak@imio.be",
+        "use_parent_address": False,
+    }
+    if "imio" not in site.contacts:
+        site.contacts.invokeFactory("organization", "imio", **params)
+
+    # Add mailhost config
     mailhost = get_mail_host(check=False)
     if not mailhost.smtp_host:
         mailhost.smtp_host = "localhost"
