@@ -899,6 +899,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 
         for dic in signer_rules:
             dic["esign"] = True
+            dic["approvings"] = [u"_themself_"]
         api.portal.set_registry_record(rk, signer_rules)
 
     # Change user passwords to 'courrier'
@@ -944,7 +945,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                         "number": 1,
                         "signer": hp.UID(),
                         "editor": False,
-                        "approvings": [u"_empty_"],
+                        "approvings": [u"_themself_"],
                         "esign": True,
                         "valid_from": None,
                         "valid_until": None,
