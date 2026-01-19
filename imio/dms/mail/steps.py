@@ -883,6 +883,23 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         "profile-imio.dms.mail:singles", "imiodmsmail-task_n_plus_1_wfadaptation", run_dependencies=False
     )
 
+    # activate signing
+    rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+    signer_rules = api.portal.get_registry_record(rk, default=[])
+    pf = site["contacts"]["personnel-folder"]
+    if not site.portal_quickinstaller.isProductInstalled("imio.dms.esigning"):
+        site.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+        )
+        set_registry_vat_number(u"BE0000000097")
+        set_registry_seal_code(u"PADES_SEAL")
+        set_registry_seal_email(u"sceau@imio.be")
+        set_registry_sign_code(u"BULK_VISA")
+
+        for dic in signer_rules:
+            dic["esign"] = True
+        api.portal.set_registry_record(rk, signer_rules)
+
     # Change user passwords to 'courrier'
     for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur"):
         site.acl_users.source_users.userSetPassword(userid, "courrier")
@@ -890,11 +907,13 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     # Added some users from a configuration csv file
     home_dir = os.path.expanduser("~")
     filename = os.path.join(home_dir, "demo_docs_users.csv")
+    sr_len = len(signer_rules)
     if os.path.exists(filename):
+        pgo = site["contacts"]["plonegroup-organization"]
         groups_data = api.group.get_groups()
         groups = [(gd.id, safe_encode(gd.getProperty("title"))) for gd in groups_data]
         for columns in read_csv(filename, strip_chars=" ", replace_dq=True, skip_empty=True, skip_lines=1):
-            (u_id, fullname, email, group_titles, pwd) = columns
+            (u_id, fullname, email, group_titles, esign, pwd) = columns
             user = api.user.get(userid=u_id)
             if user is None:
                 user = api.user.create(
@@ -912,6 +931,30 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                             break
                     else:
                         logger.warning("Group with title '{}' not found.".format(safe_encode(group_title)))
+            if esign and "\n" in esign:
+                (org_path, usages) = esign.split("\n")
+                usages_list = [u.strip() for u in usages.split(",")]
+                org_uid = pgo.restrictedTraverse(org_path).UID()
+                hp = pf[u_id][org_uid]
+                hp.usages = usages_list
+                hp.reindexObject()
+                signer_rules.append(
+                    {
+                        "number": len(signer_rules) + 1,
+                        "signer": hp.UID(),
+                        "editor": False,
+                        "approvings": [u"_empty_"],
+                        "esign": True,
+                        "valid_from": None,
+                        "valid_until": None,
+                        "treating_groups": [],
+                        "mail_types": [],
+                        "send_modes": [],
+                        "tal_condition": None,
+                    },
+                )
+        if len(signer_rules) > sr_len:
+            api.portal.set_registry_record(rk, signer_rules)
 
     # Configure delib link
     prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"
@@ -1002,15 +1045,6 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         named_image = NamedImage(data=image_data, filename=u"Annie_Cordy.jpg", contentType="image/jpeg")
         anniecordy.photo = named_image
         anniecordy.reindexObject()
-
-    # activate signing
-    site.portal_setup.runImportStepFromProfile(
-        "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
-    )
-    set_registry_vat_number(u"BE0000000097")
-    set_registry_seal_code(u"PADES_SEAL")
-    set_registry_seal_email(u"sceau@imio.be")
-    set_registry_sign_code(u"BULK_VISA")
 
 
 def contact_import_pipeline(context):
