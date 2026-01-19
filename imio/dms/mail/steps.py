@@ -44,6 +44,7 @@ from imio.esign.config import set_registry_sign_code
 from imio.esign.config import set_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.emailer import get_mail_host
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_workflow_from_package
 from imio.helpers.workflow import do_transitions
@@ -1045,6 +1046,12 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         named_image = NamedImage(data=image_data, filename=u"Annie_Cordy.jpg", contentType="image/jpeg")
         anniekordi.photo = named_image
         anniekordi.reindexObject()
+
+    mailhost = get_mail_host(check=False)
+    if not mailhost.smtp_host:
+        mailhost.smtp_host = "localhost"
+        site.email_from_name = "Gestion courrier 3.1"
+        site.email_from_address = "support-docs@imio.be"
 
 
 def contact_import_pipeline(context):
