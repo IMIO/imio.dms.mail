@@ -146,6 +146,8 @@ def activate_esigning(context):
     s_l.manage_setLocalRoles("dir_general", ["Contributor"])
     s_l.manage_setLocalRoles("esign_watchers", ["Contributor"])
     s_l.reindexObject()
+    m_s = site["outgoing-mail"]["mail-searches"]  # For the collection "In signature session"
+    m_s.__ac_permissions__ = getattr(m_s, '__ac_permissions', ()) + ((manage_session_perm, ()),)
 
     # update approvers settings
     update_approvers_settings()
