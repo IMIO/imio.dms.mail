@@ -1770,10 +1770,10 @@ class OMApprovalAdapter(object):
     def add_mail_files_to_session(self):
         """Add mail files to sign session."""
         if not self.files_uids:
-            return False, "No files"
+            return False, _("No files")
         not_approved = [fuid for fuid in self.files_uids if not self.is_file_approved(fuid)]
         if not_approved:
-            return False, "Not all files approved"
+            return False, _("Not all files approved")
         session_file_uids = []
         for i, f_uid in enumerate(self.files_uids):
             fobj = uuidToObject(f_uid)
@@ -1798,8 +1798,7 @@ class OMApprovalAdapter(object):
                     request=self.context.REQUEST,
                     type="error",
                 )
-                return False, "Bad scan_id for file uid {}".format(f_uid)
-                # return False, "File without scan id"
+                return False, _("Bad scan_id for file uid ${uid}", mapping={"uid": f_uid})
             f_title = os.path.splitext(fobj.file.filename)[0]
             annot = IAnnotations(fobj)
             if annot.get("documentgenerator", {}).get("mailed", False):
@@ -1814,7 +1813,7 @@ class OMApprovalAdapter(object):
                         request=self.context.REQUEST,
                         type="error",
                     )
-                    return False, "Cannot split odt file uid {}".format(f_uid)
+                    return False, _("Cannot split odt file uid ${uid}", mapping={"uid": f_uid})
                 num_digits = len(str(nbf))
                 for j, odt_data in enumerate(result, start=1):
                     nb_title = u"{}_{{:0{}d}}".format(f_title, num_digits).format(j)
@@ -1835,7 +1834,7 @@ class OMApprovalAdapter(object):
                                                    title=_("[ia.docs] Session {sign_id}"),
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
-        return True, "{} files added to session number {}".format(len(session_file_uids), session_id)
+        return True, _("${count} files added to session number ${session_id}", mapping={"count": len(session_file_uids), "session_id": session_id})
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

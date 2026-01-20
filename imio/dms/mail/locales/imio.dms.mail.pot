@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-01-13 10:18+0000\n"
+"POT-Creation-Date: 2026-01-20 10:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,10 @@ msgstr ""
 "Language-Name: English\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
+
+#: ./adapters.py:1837
+msgid "${count} files added to session number ${session_id}"
+msgstr ""
 
 #: ./vocabularies.py
 msgid "${element_title} (Inactive)"
@@ -134,43 +138,43 @@ msgstr ""
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr ""
 
-#: ./setuphandlers.py:2979
+#: ./setuphandlers.py:2955
 msgid "1 Contacts audit"
 msgstr ""
 
-#: ./setuphandlers.py:2975
+#: ./setuphandlers.py:2951
 msgid "1 Duplicate contacts management"
 msgstr ""
 
-#: ./setuphandlers.py:2977
+#: ./setuphandlers.py:2953
 msgid "1 Folders creators"
 msgstr ""
 
-#: ./setuphandlers.py:2962
+#: ./setuphandlers.py:2938
 msgid "1 General manager"
 msgstr ""
 
-#: ./setuphandlers.py:2955
+#: ./setuphandlers.py:2931
 msgid "1 IM encoders"
 msgstr ""
 
-#: ./setuphandlers.py:2969
+#: ./setuphandlers.py:2945
 msgid "1 OM dispatch"
 msgstr ""
 
-#: ./setuphandlers.py:2985
+#: ./setuphandlers.py:2961
 msgid "2 External signing watchers"
 msgstr ""
 
-#: ./setuphandlers.py:2981
+#: ./setuphandlers.py:2957
 msgid "2 IM global readers"
 msgstr ""
 
-#: ./setuphandlers.py:2983
+#: ./setuphandlers.py:2959
 msgid "2 OM global readers"
 msgstr ""
 
-#: ./subscribers.py:995
+#: ./subscribers.py:1010
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -186,7 +190,7 @@ msgstr ""
 msgid "A signer is missing at position: ${positions} ! You have to adapt the rules !"
 msgstr ""
 
-#: ./adapters.py:1667
+#: ./adapters.py:1669
 msgid "A signing session has been created: ${msg}."
 msgstr ""
 
@@ -250,7 +254,7 @@ msgstr ""
 msgid "All"
 msgstr ""
 
-#: ./setuphandlers.py:2678
+#: ./setuphandlers.py:2654
 msgid "All contacts export"
 msgstr ""
 
@@ -312,7 +316,11 @@ msgstr ""
 msgid "Assigned user value"
 msgstr ""
 
-#: ./setuphandlers.py:2779
+#: ./adapters.py:1801
+msgid "Bad scan_id for file uid ${uid}"
+msgstr ""
+
+#: ./setuphandlers.py:2755
 msgid "Base template"
 msgstr ""
 
@@ -362,6 +370,10 @@ msgstr ""
 
 #: ./content/configure.zcml:35
 msgid "Can choose possible usages (on held position)"
+msgstr ""
+
+#: ./adapters.py:1816
+msgid "Cannot split odt file uid ${uid}"
 msgstr ""
 
 #: ./browser/views.py:250
@@ -414,7 +426,7 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: ./setuphandlers.py:2584
+#: ./setuphandlers.py:2560
 msgid "Common templates"
 msgstr ""
 
@@ -440,7 +452,7 @@ msgstr ""
 msgid "Contacts"
 msgstr ""
 
-#: ./setuphandlers.py:2706
+#: ./setuphandlers.py:2682
 msgid "Contacts audit"
 msgstr ""
 
@@ -542,7 +554,7 @@ msgstr ""
 msgid "Electronic signature"
 msgstr ""
 
-#: ./setuphandlers.py:2877
+#: ./setuphandlers.py:2853
 msgid "Email general template"
 msgstr ""
 
@@ -583,7 +595,7 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: ./setuphandlers.py:2749
+#: ./setuphandlers.py:2725
 msgid "Ending template"
 msgstr ""
 
@@ -591,7 +603,7 @@ msgstr ""
 msgid "Enter a regex pattern"
 msgstr ""
 
-#: ./setuphandlers.py:2692
+#: ./setuphandlers.py:2668
 msgid "Export users and groups"
 msgstr ""
 
@@ -607,11 +619,11 @@ msgstr ""
 msgid "Field name"
 msgstr ""
 
-#: ./adapters.py:1808
+#: ./adapters.py:1809
 msgid "File '${file}' cannot be split for signing: ${error}."
 msgstr ""
 
-#: ./adapters.py:1792
+#: ./adapters.py:1794
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr ""
 
@@ -628,7 +640,7 @@ msgstr ""
 msgid "Folders"
 msgstr ""
 
-#: ./migrations/migrate_to_3_1.py:228
+#: ./migrations/migrate_to_3_1.py:240
 #: ./setuphandlers.py:575
 msgid "Folders Appendix Files"
 msgstr ""
@@ -641,7 +653,7 @@ msgstr ""
 msgid "Following held position"
 msgstr ""
 
-#: ./setuphandlers.py:2737
+#: ./setuphandlers.py:2713
 msgid "Footer template"
 msgstr ""
 
@@ -673,7 +685,7 @@ msgstr ""
 msgid "Has response icon"
 msgstr ""
 
-#: ./setuphandlers.py:2731
+#: ./setuphandlers.py:2707
 msgid "Header template"
 msgstr ""
 
@@ -745,7 +757,7 @@ msgstr ""
 msgid "Installs the imio.dms.mail package"
 msgstr ""
 
-#: ./setuphandlers.py:2743
+#: ./setuphandlers.py:2719
 msgid "Intro template"
 msgstr ""
 
@@ -765,7 +777,7 @@ msgstr ""
 msgid "Legal advice"
 msgstr ""
 
-#: ./subscribers.py:1022
+#: ./subscribers.py:1037
 msgid "Linked objects: ${list}"
 msgstr ""
 
@@ -777,15 +789,15 @@ msgstr ""
 msgid "Lowest N+ level, or agent"
 msgstr ""
 
-#: ./setuphandlers.py:2630
+#: ./setuphandlers.py:2606
 msgid "Mail listing template"
 msgstr ""
 
-#: ./setuphandlers.py:2646
+#: ./setuphandlers.py:2622
 msgid "Mail listing template sheet"
 msgstr ""
 
-#: ./setuphandlers.py:2662
+#: ./setuphandlers.py:2638
 msgid "Mail listing template sheet with details"
 msgstr ""
 
@@ -798,7 +810,7 @@ msgstr ""
 msgid "Mailing"
 msgstr ""
 
-#: ./setuphandlers.py:2755
+#: ./setuphandlers.py:2731
 msgid "Mailing template"
 msgstr ""
 
@@ -834,12 +846,20 @@ msgstr ""
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
+#: ./adapters.py:1773
+msgid "No files"
+msgstr ""
+
 #: ./browser/batchactions.py:241
 msgid "No folder available where you can add templates."
 msgstr ""
 
 #: ./browser/templates/listing.pt:25
 msgid "No incoming mail !"
+msgstr ""
+
+#: ./adapters.py:1776
+msgid "Not all files approved"
 msgstr ""
 
 #: ./browser/settings.py:330
@@ -923,13 +943,13 @@ msgid "Outgoing Signable Appendix File"
 msgstr ""
 
 #: ./browser/settings.py:712
-#: ./setuphandlers.py:2857
+#: ./setuphandlers.py:2833
 msgid "Outgoing email"
 msgstr ""
 
 #: ./browser/settings.py:584
 #: ./migrations/migrate_to_0_2.py:126
-#: ./setuphandlers.py:2583
+#: ./setuphandlers.py:2559
 msgid "Outgoing mail"
 msgstr ""
 
@@ -981,7 +1001,7 @@ msgstr ""
 msgid "Precise scan date"
 msgstr ""
 
-#: ./setuphandlers.py:2767
+#: ./setuphandlers.py:2743
 msgid "Print template"
 msgstr ""
 
@@ -989,7 +1009,7 @@ msgstr ""
 msgid "Read TAL condition"
 msgstr ""
 
-#: ./setuphandlers.py:2798
+#: ./setuphandlers.py:2774
 msgid "Receipt template"
 msgstr ""
 
@@ -1038,7 +1058,7 @@ msgstr ""
 msgid "Rules are read in order. Conditions must be left empty if not relevant. Dates with format YYYY/MM/DD."
 msgstr ""
 
-#: ./setuphandlers.py:2949
+#: ./setuphandlers.py:2925
 msgid "Scanner"
 msgstr ""
 
@@ -1139,7 +1159,7 @@ msgstr ""
 msgid "Stored value/id"
 msgstr ""
 
-#: ./setuphandlers.py:2722
+#: ./setuphandlers.py:2698
 msgid "Style template"
 msgstr ""
 
@@ -1196,7 +1216,7 @@ msgstr ""
 msgid "The assigned user is not in the selected group !"
 msgstr ""
 
-#: ./subscribers.py:626
+#: ./subscribers.py:628
 msgid "The file '${file_title}' cannot be electronically signed because its type is not allowed. It has been removed from the signing and approval process."
 msgstr ""
 
@@ -1204,7 +1224,7 @@ msgstr ""
 msgid "The file '${file}' has been approved by ${user}. All approvals have been done for this file."
 msgstr ""
 
-#: ./adapters.py:1617
+#: ./adapters.py:1619
 msgid "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files to approve on this mail."
 msgstr ""
 
@@ -1224,7 +1244,7 @@ msgstr ""
 msgid "The signer with UID ${uid} does not exist !"
 msgstr ""
 
-#: ./adapters.py:1658
+#: ./adapters.py:1660
 msgid "There was an error while creating the signing session: ${msg} !"
 msgstr ""
 
@@ -1327,7 +1347,7 @@ msgstr ""
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr ""
 
-#: ./subscribers.py:1158
+#: ./subscribers.py:1173
 msgid "You cannot add a group in a group !"
 msgstr ""
 
@@ -1335,31 +1355,35 @@ msgstr ""
 msgid "You cannot change the userid because the user is in approvals on following objects ${paths}"
 msgstr ""
 
-#: ./subscribers.py:131
+#: ./subscribers.py:132
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr ""
 
-#: ./subscribers.py:1118
+#: ./subscribers.py:719
+msgid "You cannot delete a file '${title}' part of already started esign process !"
+msgstr ""
+
+#: ./subscribers.py:1133
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:1057
+#: ./subscribers.py:1072
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
-#: ./subscribers.py:1016
+#: ./subscribers.py:1031
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:986
+#: ./subscribers.py:1001
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:975
+#: ./subscribers.py:990
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
-#: ./subscribers.py:156
+#: ./subscribers.py:157
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
@@ -1371,7 +1395,7 @@ msgstr ""
 msgid "You cannot have a seal and signers but no electronic signature !"
 msgstr ""
 
-#: ./subscribers.py:482
+#: ./subscribers.py:484
 msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
 msgstr ""
 
@@ -1396,7 +1420,7 @@ msgstr ""
 msgid "You cannot have the same signer (${signer_title}) multiple times !"
 msgstr ""
 
-#: ./subscribers.py:494
+#: ./subscribers.py:496
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr ""
 
@@ -1432,7 +1456,7 @@ msgstr ""
 msgid "Your email has not been sent: ${error}."
 msgstr ""
 
-#: ./adapters.py:1833
+#: ./adapters.py:1834
 msgid "[ia.docs] Session {sign_id}"
 msgstr ""
 
@@ -1732,7 +1756,7 @@ msgid "outgoing_mail_tab"
 msgstr ""
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./subscribers.py:373
+#: ./subscribers.py:375
 msgid "redirected_after_edition"
 msgstr ""
 
@@ -1855,7 +1879,7 @@ msgstr ""
 msgid "tasks_to_close"
 msgstr ""
 
-#: ./setuphandlers.py:2582
+#: ./setuphandlers.py:2558
 msgid "templates_tab"
 msgstr ""
 
