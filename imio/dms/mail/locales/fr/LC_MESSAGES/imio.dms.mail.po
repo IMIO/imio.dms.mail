@@ -19,7 +19,7 @@ msgstr ""
 
 #: ./adapters.py:1837
 msgid "${count} files added to session number ${session_id}"
-msgstr "${count} fichiers ont été ajouté à la session numéro ${session_id}"
+msgstr "${count} fichiers ont été ajoutés à la session numéro ${session_id}"
 
 #: ./vocabularies.py
 msgid "${element_title} (Inactive)"
@@ -318,7 +318,7 @@ msgstr "Valeur utilisateur assigné"
 
 #: ./adapters.py:1801
 msgid "Bad scan_id for file uid ${uid}"
-msgstr "Mauvais scan ID piur le fichier avec UID ${uid}"
+msgstr "Mauvais scan ID pour le fichier avec UID ${uid}"
 
 #: ./setuphandlers.py:2755
 msgid "Base template"
