@@ -1781,8 +1781,8 @@ class OMApprovalAdapter(object):
                 continue
             if len(self.pdf_files_uids[i]) > 0:  # already done ??
                 continue
-            # Get scan_id for appendix files
-            if not hasattr(fobj, "scan_id"):
+            # Get scan_id for appendix files or manually added main files
+            if not hasattr(fobj, "scan_id") or not fobj.scan_id:
                 for afile in self.context.objectValues():
                     if getattr(afile, "scan_id", None):
                         fobj.scan_id = afile.scan_id
