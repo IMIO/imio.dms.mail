@@ -1050,7 +1050,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         anniekordi.reindexObject()
 
     params = {
-        "title": u"Imio",
+        "title": u"IMIO",
         "organization_type": u"sa",
         "zip_code": u"5032",
         "city": u"Isnes",
