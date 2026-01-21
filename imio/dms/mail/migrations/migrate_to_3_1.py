@@ -345,7 +345,21 @@ class Migrate_To_3_1(Migrator):  # noqa
                     steps=["imiodmsmail-create-templates", "imiodmsmail-update-templates"],
                     profile="singles",
                 )
-                self.portal["templates"].moveObjectToPosition("d-im-listing-tab-details", 4)  # TEMPORARY
+                brains = self.catalog.unrestrictedSearchResults(
+                    portal_type=["ConfigurablePODTemplate"], path='/'.join(self.portal.templates.om.getPhysicalPath()))
+                doc_cb_download_uid = self.portal.templates.om["download_barcode"].UID()
+                ending_pos = self.portal.templates.om.getObjectPosition("ending")
+                self.portal.templates.om.moveObjectToPosition("download_barcode", ending_pos + 1)
+                for brain in brains:
+                    obj = brain.getObject()
+                    merge_templates = [dic["template"] for dic in obj.merge_templates
+                                       if dic["pod_context_name"] == "doc_cb_download"]
+                    if not merge_templates:
+                        merge_templates = list(obj.merge_templates)
+                        merge_templates.append(
+                            {"pod_context_name": u"doc_cb_download", "do_rendering": False,
+                             "template": doc_cb_download_uid})
+                        obj.merge_templates = merge_templates
             # if active_solr:
             #     logger.info("Activating solr")
             #     api.portal.set_registry_record("collective.solr.active", True)

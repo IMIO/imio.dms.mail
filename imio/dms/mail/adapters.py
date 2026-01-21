@@ -17,6 +17,7 @@ from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.utils import convert_and_save_file
+from collective.documentgenerator.utils import get_original_template
 from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
@@ -1737,22 +1738,27 @@ class OMApprovalAdapter(object):
         if nbf.contentType == "application/pdf":
             pdf_file = orig_fobj
         elif nbf.contentType in get_allowed_omf_content_types(esign=True):
-            annot = IAnnotations(orig_fobj)
             gen_context = {}
             new_uid = uuid.uuid4().hex
             download_url, s_uid = get_file_download_url(new_uid, short_uid=self._create_short_uid(new_uid))
-            template_uid = annot.get("documentgenerator", {}).get("template_uid", None)
-            if template_uid and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
+            orig_template = get_original_template(orig_fobj)
+            if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
                 helper_view = getMultiAdapter((self.context, self.context.REQUEST),
                                               name='document_generation_helper_view')
-                helper_view.pod_template = template_uid
+                helper_view.pod_template = orig_template.UID()
                 helper_view.output_format = "pdf"
                 gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
                 # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
                 #                                   _("Error when merging context_variables in generation context"))
+                merge_templates = [dic["template"] for dic in orig_template.merge_templates
+                                   if dic["pod_context_name"] == "doc_cb_download"]
+                if merge_templates:
+                    download_template = uuidToObject(merge_templates[0])
+                    if download_template:
+                        gen_context["doc_cb_download"] = download_template
                 update_dict_with_validation(
                     gen_context,
-                    {"download_barcode": generate_barcode(s_uid).read(), "download_url": download_url,
+                    {"download_barcode": generate_barcode(download_url).read(), "download_url": download_url,
                      "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                      "render_download_barcode": True},
                     _dg("Error when merging 'download_barcode' in generation context"),
@@ -1771,7 +1777,7 @@ class OMApprovalAdapter(object):
                     "scan_id": orig_fobj.scan_id,
                     "_plone.uuid": new_uid,
                 },
-                renderer=bool(template_uid),
+                renderer=bool(orig_template),
                 gen_context=gen_context,
             )
             # we must set attribute after creation
@@ -1790,7 +1796,6 @@ class OMApprovalAdapter(object):
             raise NotImplementedError(
                 "Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType)
             )
-        return
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
