@@ -1042,10 +1042,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         site.contacts.invokeFactory("person", "anniekordi", **params)
         anniekordi = site.contacts["anniekordi"]
         # add a namedimage on the photo field
-        image_path = os.path.join(PRODUCT_DIR, "profiles", "examples", "images", "Annie_Cordy.jpg")
+        image_path = os.path.join(PRODUCT_DIR, "profiles", "examples", "images", "Annie_Kordi.jpg")
         with open(image_path, "rb") as img_file:
             image_data = img_file.read()
-        named_image = NamedImage(data=image_data, filename=u"Annie_Cordy.jpg", contentType="image/jpeg")
+        named_image = NamedImage(data=image_data, filename=u"Annie_Kordi.jpg", contentType="image/jpeg")
         anniekordi.photo = named_image
         anniekordi.reindexObject()
 
