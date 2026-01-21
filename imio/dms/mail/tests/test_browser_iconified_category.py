@@ -9,11 +9,11 @@ from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
 from imio.dms.mail.browser.iconified_category import SignedChangeView
 from imio.dms.mail.browser.iconified_category import SignedColumn
-from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import clean_borg_cache
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
+from imio.esign.config import set_registry_file_url
 from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
@@ -34,7 +34,10 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         self.pw = self.portal.portal_workflow
         self.change_user("siteadmin")
-        activate_signing(self.portal)
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+        )
+        set_registry_file_url("https://downloads.files.com")
 
         # TODO patch workflow to add to_print state
         # sva = OMToPrintAdaptation()

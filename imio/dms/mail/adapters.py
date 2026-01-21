@@ -1,5 +1,4 @@
 # encoding: utf-8
-
 from AccessControl import getSecurityManager
 from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
@@ -16,8 +15,11 @@ from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.utils import convert_and_save_file
+from collective.documentgenerator.utils import get_original_template
 from collective.documentgenerator.utils import odfsplit
+from collective.documentgenerator.utils import update_dict_with_validation
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
@@ -38,7 +40,10 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
 from imio.esign.utils import add_files_to_session
+from imio.esign.utils import get_file_download_url
+from imio.esign.utils import get_max_download_date
 from imio.helpers import EMPTY_DATE
+from imio.helpers.barcode import generate_barcode
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import get_relations
 from imio.helpers.content import object_values
@@ -48,6 +53,7 @@ from imio.helpers.emailer import validate_email_address
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
+from imio.pyutils.utils import shortuid_encode_id
 from imio.zamqp.core.utils import next_scan_id
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
@@ -90,6 +96,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 import datetime
 import os
 import time
+import uuid
 
 
 #######################
@@ -1731,6 +1738,32 @@ class OMApprovalAdapter(object):
         if nbf.contentType == "application/pdf":
             pdf_file = orig_fobj
         elif nbf.contentType in get_allowed_omf_content_types(esign=True):
+            gen_context = {}
+            new_uid = uuid.uuid4().hex
+            download_url, s_uid = get_file_download_url(new_uid, short_uid=self._create_short_uid(new_uid))
+            orig_template = get_original_template(orig_fobj)
+            if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
+                helper_view = getMultiAdapter((self.context, self.context.REQUEST),
+                                              name='document_generation_helper_view')
+                helper_view.pod_template = orig_template.UID()
+                helper_view.output_format = "pdf"
+                gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
+                # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
+                #                                   _("Error when merging context_variables in generation context"))
+                merge_templates = [dic["template"] for dic in orig_template.merge_templates
+                                   if dic["pod_context_name"] == "doc_cb_download"]
+                if merge_templates:
+                    download_template = uuidToObject(merge_templates[0])
+                    if download_template:
+                        gen_context["doc_cb_download"] = download_template
+                update_dict_with_validation(
+                    gen_context,
+                    {"download_barcode": generate_barcode(download_url).read(), "download_url": download_url,
+                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
+                     "render_download_barcode": True},
+                    _dg("Error when merging 'download_barcode' in generation context"),
+                )
+
             # TODO which pdf format to choose ?
             pdf_file = convert_and_save_file(
                 nbf,
@@ -1742,7 +1775,10 @@ class OMApprovalAdapter(object):
                 attributes={
                     "content_category": orig_fobj.content_category,
                     "scan_id": orig_fobj.scan_id,
+                    "_plone.uuid": new_uid,
                 },
+                renderer=bool(orig_template),
+                gen_context=gen_context,
             )
             # we must set attribute after creation
             pdf_file.to_sign = True
@@ -1760,7 +1796,6 @@ class OMApprovalAdapter(object):
             raise NotImplementedError(
                 "Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType)
             )
-
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
@@ -1835,6 +1870,10 @@ class OMApprovalAdapter(object):
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
         return True, _("${count} files added to session number ${session_id}", mapping={"count": len(session_file_uids), "session_id": session_id})
+
+    def _create_short_uid(self, uid):
+        """Create a short uid from a full uid."""
+        return shortuid_encode_id(uid, separator="-", block_size=5)
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

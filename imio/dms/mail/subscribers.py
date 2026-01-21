@@ -13,6 +13,7 @@ from collective.contact.plonegroup.utils import get_own_organization_path
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.documentgenerator.utils import convert_odt
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
@@ -35,6 +36,7 @@ from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.dmsfile import ImioDmsFile
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
@@ -56,6 +58,7 @@ from imio.esign.config import get_registry_seal_code
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
+from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import get_environment
@@ -70,6 +73,7 @@ from plone.app.linkintegrity.handlers import referencedObjectRemoved
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
@@ -85,6 +89,7 @@ from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
+from zope.component import getMultiAdapter
 from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
@@ -411,30 +416,49 @@ def dmsoutgoingmail_transition(mail, event):
     if event.transition and event.transition.id == "propose_to_approve":
         approval = OMApprovalAdapter(mail)
         approval.start_approval_process()
-    # seal without signers (due to constraints)
-    if event.transition and event.transition.id == "propose_to_be_signed" and mail.seal and not mail.esign:
-        approval = OMApprovalAdapter(mail)
-        for f in mail.values():
-            if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
-                approval.add_file_to_approval(f.UID())
-        added, msg = approval.add_mail_files_to_session()
-        msg2 = ""
-        if added:
-            if not get_registry_seal_code():
-                msg2 = "Seal code must be defined in eSign settings befode sending session"
-            else:
-                ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
-        api.portal.show_message(
-            message=_(msg),
-            request=mail.REQUEST,
-            type=added and "info" or "error",
-        )
-        if msg2:
+    if not mail.esign:
+        # if not mail.seal, we render odt to remove download subdocument comment
+        if (not mail.seal and event.transition
+                and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")):
+            for afile in object_values(mail, ("ImioDmsFile", )):
+                doc_annot = IAnnotations(afile).get("documentgenerator", {})
+                # if not a generated odt (or needing mailing) or already done, we pass
+                if doc_annot.get("need_mailing", True) is True or doc_annot.get("cleaned_download") is True:
+                    continue
+                helper_view = getMultiAdapter((mail, mail.REQUEST), name='document_generation_helper_view')
+                helper_view.pod_template = doc_annot.get("template_uid")
+                helper_view.output_format = "odt"
+                gen_context = {"context": mail, "portal": api.portal.get(), "view": helper_view,
+                               "render_download_barcode": True}
+                new_file_content = convert_odt(afile.file, fmt='odt', gen_context=gen_context)
+                afile.file = NamedBlobFile(new_file_content, filename=afile.file.filename)
+                modified(afile, Attributes(ImioDmsFile, "file"))
+                doc_annot["cleaned_download"] = True
+
+        # seal without signers (due to constraints)
+        if mail.seal and event.transition and event.transition.id == "propose_to_be_signed":
+            approval = OMApprovalAdapter(mail)
+            for f in mail.values():
+                if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
+                    approval.add_file_to_approval(f.UID())
+            added, msg = approval.add_mail_files_to_session()
+            msg2 = ""
+            if added:
+                if not get_registry_seal_code():
+                    msg2 = "Seal code must be defined in eSign settings befode sending session"
+                else:
+                    ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
             api.portal.show_message(
-                message=_(msg2),
+                message=_(msg),
                 request=mail.REQUEST,
-                type="error",
+                type=added and "info" or "error",
             )
+            if msg2:
+                api.portal.show_message(
+                    message=_(msg2),
+                    request=mail.REQUEST,
+                    type="error",
+                )
 
 
 def dmsoutgoingmail_modified(mail, event):
