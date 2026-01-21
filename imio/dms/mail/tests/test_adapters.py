@@ -1371,7 +1371,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.files[0].scan_id = "wrong"
         self.assertEqual(
             self.approval.add_mail_files_to_session(),
-            (False, "Bad scan_id for file uid {}".format(self.files[0].UID())),
+            (False, "Bad scan_id for file uid ${uid}"),
         )
         self.files[0].scan_id = "012999900000601"
 
@@ -1387,7 +1387,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "c_uids": {},
             },
         )
-        self.assertEqual(self.approval.add_mail_files_to_session(), (True, "1 files added to session number 0"))
+        self.assertEqual(self.approval.add_mail_files_to_session(),
+                         (True, "${count} file added to session number ${session_id}"))
         self.assertEqual(len(self.omail.values()), 3)
         self.assertIn("reponse-salle.pdf", self.omail)
         pdf_file = self.omail["reponse-salle.pdf"]
@@ -1451,7 +1452,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         )
 
         # Already done
-        self.assertEqual(self.approval.add_mail_files_to_session(), (True, "0 files added to session number 0"))
+        self.assertEqual(self.approval.add_mail_files_to_session(),
+                         (True, "${count} file added to session number ${session_id}"))
         last_update = get_session_annotation()["sessions"][0]["last_update"]
         self.assertEqual(
             get_session_annotation(),

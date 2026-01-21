@@ -42,6 +42,7 @@ from imio.dms.mail.utils import logger
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
+from imio.esign.utils import get_suid_from_uuid
 from imio.helpers import EMPTY_DATE
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.cache import get_plone_groups_for_user
@@ -53,7 +54,6 @@ from imio.helpers.emailer import validate_email_address
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
-from imio.pyutils.utils import shortuid_encode_id
 from imio.zamqp.core.utils import next_scan_id
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
@@ -1740,7 +1740,7 @@ class OMApprovalAdapter(object):
         elif nbf.contentType in get_allowed_omf_content_types(esign=True):
             gen_context = {}
             new_uid = uuid.uuid4().hex
-            download_url, s_uid = get_file_download_url(new_uid, short_uid=self._create_short_uid(new_uid))
+            download_url, s_uid = get_file_download_url(new_uid, short_uid=get_suid_from_uuid(new_uid))
             orig_template = get_original_template(orig_fobj)
             if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
                 helper_view = getMultiAdapter((self.context, self.context.REQUEST),
@@ -1869,11 +1869,13 @@ class OMApprovalAdapter(object):
                                                    title=_("[ia.docs] Session {sign_id}"),
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
-        return True, _("${count} files added to session number ${session_id}", mapping={"count": len(session_file_uids), "session_id": session_id})
-
-    def _create_short_uid(self, uid):
-        """Create a short uid from a full uid."""
-        return shortuid_encode_id(uid, separator="-", block_size=5)
+        session_len = len(session_file_uids)
+        if session_len > 1:
+            return True, _("${count} files added to session number ${session_id}",
+                           mapping={"count": session_len, "session_id": session_id})
+        else:
+            return True, _("${count} file added to session number ${session_id}",
+                           mapping={"count": session_len, "session_id": session_id})
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

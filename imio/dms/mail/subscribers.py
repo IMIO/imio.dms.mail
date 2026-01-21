@@ -445,17 +445,17 @@ def dmsoutgoingmail_transition(mail, event):
             msg2 = ""
             if added:
                 if not get_registry_seal_code():
-                    msg2 = "Seal code must be defined in eSign settings befode sending session"
+                    msg2 = _("Seal code must be defined in eSign settings befode sending session")
                 else:
                     ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
             api.portal.show_message(
-                message=_(msg),
+                message=msg,
                 request=mail.REQUEST,
                 type=added and "info" or "error",
             )
             if msg2:
                 api.portal.show_message(
-                    message=_(msg2),
+                    message=msg2,
                     request=mail.REQUEST,
                     type="error",
                 )
