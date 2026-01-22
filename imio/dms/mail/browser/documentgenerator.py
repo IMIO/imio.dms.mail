@@ -546,6 +546,19 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
     def _get_title(self, doc_name, gen_context):
         return u"%s, %s" % (self.pod_template.title, self.document.title)
 
+    def _get_generation_context(self, helper_view, pod_template):
+        """
+        Return the generation context for the current document.
+        """
+        generation_context = super(OMMLPDGenerationView, self)._get_generation_context(helper_view, pod_template)
+
+        if helper_view.real_context.esign or helper_view.real_context.seal:
+            generation_context["page_break_after"] = False
+        else:
+            generation_context["page_break_after"] = True
+
+        return generation_context
+
 # # # VIEWLETS # # #
 
 
