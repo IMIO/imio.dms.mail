@@ -869,7 +869,7 @@
             view="plone.app.layout.globals.interfaces.IViewView"
             name="esign-item-session-info"
             template="browser/templates/faceted_session_info.pt"
-            class="imio.esign.browser.views.ItemSessionInfoViewlet"
+            class="imio.dms.mail.browser.viewlets.ImioItemSessionInfoViewlet"
             permission="zope2.View"
         />
     </configure>

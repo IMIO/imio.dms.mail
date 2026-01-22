@@ -12,6 +12,7 @@ from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.esign.browser.views import FacetedSessionInfoViewlet
+from imio.esign.browser.views import ItemSessionInfoViewlet
 from imio.helpers.content import richtextval
 from imio.helpers.xhtml import object_link
 from imio.prettylink.interfaces import IPrettyLink
@@ -173,3 +174,13 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
         if "in_esign_sessions" not in om_searches_folder:
             return None
         return om_searches_folder["in_esign_sessions"].UID()
+
+
+class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
+
+    display_seal = False
+    display_signers = False
+
+    @property
+    def session_listing_url(self):
+        return api.portal.get().absolute_url() + "/sessions/@@esign-sessions-listing"
