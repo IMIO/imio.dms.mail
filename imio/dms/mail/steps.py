@@ -908,6 +908,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur"):
         site.acl_users.source_users.userSetPassword(userid, "courrier")
 
+    # remove dirg from watchers group
+    if "dirg" in api.user.get_users(groupname="esign_watchers"):
+        api.group.remove_user(groupname="esign_watchers", user="dirg")
+
     # Added some users from a configuration csv file
     home_dir = os.path.expanduser("~")
     filename = os.path.join(home_dir, "demo_docs_users.csv")

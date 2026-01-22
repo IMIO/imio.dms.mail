@@ -702,7 +702,7 @@ def add_test_users_and_groups(context):
     api.group.add_user(groupname="lecteurs_globaux_cs", username="bourgmestre")
     api.group.add_user(groupname="lecteurs_globaux_cs", username="dirg")
     api.group.add_user(groupname="audit_contacts", username="dirg")
-    api.group.add_user(groupname="esign_watchers", username="dirg")
+    # api.group.add_user(groupname="esign_watchers", username="dirg")
 
 
 def configure_batch_import(context):
