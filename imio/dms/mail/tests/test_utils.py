@@ -364,7 +364,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
             {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
-             "esign_watchers",
              "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
         )
 
@@ -387,7 +386,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
             {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
-             "esign_watchers",
              "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
         )
         # with groups

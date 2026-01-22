@@ -1034,7 +1034,7 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridw
 /* session viewlet */
 
 #content #context_viewlet_session_table td,
- #content #context_viewlet_session_signers td{
+#content #context_viewlet_session_signers td {
     padding-bottom: 0px;
     padding-top: 0px;
 }

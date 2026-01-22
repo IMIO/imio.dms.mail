@@ -1417,7 +1417,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                             }
                         ],
                         "discriminators": (),
-                        "watchers": ["dirg@macommune.be"],
+                        "watchers": [],
                         "title": u'[ia.docs] Session 012999900000',
                         "state": "draft",
                         "signers": [
@@ -1471,7 +1471,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                             }
                         ],
                         "discriminators": (),
-                        "watchers": ["dirg@macommune.be"],
+                        "watchers": [],
                         "title": u'[ia.docs] Session 012999900000',
                         "state": "draft",
                         "signers": [

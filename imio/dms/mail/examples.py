@@ -518,6 +518,8 @@ def add_test_mails(context):
     selected_orgs = [org for i, org in enumerate(get_registry_organizations()) if i in (0, 1, 2, 4, 5, 6)]
     orgas_cycle = cycle(selected_orgs)
 
+    client_id = base.get_config("client_id")
+
     # incoming mails
     ifld = site["incoming-mail"]
     data = DummyView(site, site.REQUEST)
@@ -543,7 +545,7 @@ def add_test_mails(context):
                     "dmsmainfile",
                     title="",
                     file=file_object,
-                    scan_id="0109999000000%02d" % i,
+                    scan_id="%s0%s000000%02d" % (client_id[0:2], client_id[2:6], i),
                     scan_date=scan_date,
                     content_category=calculate_category_id(site["annexes_types"]["incoming_dms_files"]
                                                            ["incoming-dms-file"]),
@@ -611,7 +613,7 @@ def add_test_mails(context):
                     id="1",
                     title="",
                     file=file_object,
-                    scan_id="0129999000000%02d" % i,
+                    scan_id="%s2%s000000%02d" % (client_id[0:2], client_id[2:6], i),
                     content_category=calculate_category_id(site["annexes_types"]["outgoing_dms_files"]
                                                            ["outgoing-dms-file"]),
                 )
