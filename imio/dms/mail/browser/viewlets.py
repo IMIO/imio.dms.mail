@@ -178,8 +178,10 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
 
 class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
 
-    display_seal = False
-    display_signers = False
+    def get_table_rows(self, key):
+        """Get the table rows following the column"""
+        return {1: ["session_id", "state"],
+                2: ["external_link", "update_date"]}.get(key, [])
 
     @property
     def session_listing_url(self):
