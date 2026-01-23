@@ -756,6 +756,9 @@ def i_annex_will_be_removed(obj, event):
 
 def i_annex_removed(obj, event):
     """when an annex file is removed"""
+    # if IObjectRemovedEvent.providedBy(event):
+    # if event.object.portal_type == "Plone Site":
+    #     return
     if not IReferenceable.providedBy(obj):
         referencedObjectRemoved(obj, event)
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":

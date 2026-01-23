@@ -1577,9 +1577,9 @@ def create_read_label_cron_task(userid, orgs, end, portal=None):
 
 def persistent_to_native(value):
     """Convert persistent object to native object recursively. So can be used with pp (prettyprint)"""
-    if isinstance(value, PersistentMapping):
+    if isinstance(value, (PersistentMapping, PersistentDict, dict)):
         return {k: persistent_to_native(v) for k, v in value.items()}
-    elif isinstance(value, PersistentList):
+    elif isinstance(value, (PersistentList, list, tuple)):
         return [persistent_to_native(v) for v in value]
 
     return value
