@@ -1019,6 +1019,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
             already_applied = "n_plus"
             transitions.append("back_to_n_plus_1")
+            transitions.append("back_to_validated")
         if u"imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
             already_applied = "to_print"
             transitions.append("back_to_print")
@@ -1026,14 +1027,23 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         default settings for case 1
         set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
         set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
-                       [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed")],
+                       [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed")])
         set_dms_config(["review_levels", "dmsoutgoingmail"], OrderedDict())
         set_dms_config(["review_states", "dmsoutgoingmail"], OrderedDict())
-    )
+
+        default settings for case 2
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
+                       [('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed'),
+                       ('validated', 'set_validated')])
+        set_dms_config(["review_levels", "dmsoutgoingmail"],
+                        OrderedDict([('_n_plus_1', {'org': 'treating_groups', 'st': ['proposed_to_n_plus_1']})]))
+        set_dms_config(["review_states", "dmsoutgoingmail"],
+                        OrderedDict([('proposed_to_n_plus_1', {'org': 'treating_groups', 'group': '_n_plus_1'})]))
         """
         # modify wf_from_to
         nplus_to = get_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"])
-        to_states = [st for (st, tr) in nplus_to]
+        to_states = [st for (st, tr) in nplus_to]  # contains validated if case 2
         if (new_state_id, to_tr_id) not in nplus_to:
             nplus_to.append((new_state_id, to_tr_id))
             set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"], nplus_to)
@@ -1098,11 +1108,17 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             transitions = list(wf.states["to_print"].transitions)
             transitions.append(to_tr_id)
             wf.states["to_print"].transitions = tuple(transitions)
+        if already_applied == "n_plus":
+            for st in ("proposed_to_n_plus_1", "validated"):
+                transitions = list(wf.states[st].transitions)
+                transitions.append(to_tr_id)
+                wf.states[st].transitions = tuple(transitions)
+
         # add new back_to transition on next states
         for next_state_id in to_states:
             if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
                 continue
-            if new_state_id == next_state_id:
+            if new_state_id == next_state_id or next_state_id == "validated":
                 continue
             next_state = wf.states[next_state_id]
             transitions = list(next_state.transitions)
@@ -1353,15 +1369,15 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             },
         )
 
+        # created transitions
+        transitions = list(wf.states["created"].transitions)
+        transitions.append(to_tr_id)
+        wf.states["created"].transitions = tuple(transitions)
         # proposed_to_n_plus_1 transitions
         # if has_n_plus_1 and "proposed_to_n_plus_1" in wf.states:
         #     transitions = list(wf.states["proposed_to_n_plus_1"].transitions)
         #     transitions.append(to_tr_id)
         #     wf.states["proposed_to_n_plus_1"].transitions = tuple(transitions)
-        # created transitions
-        transitions = list(wf.states["created"].transitions)
-        transitions.append(to_tr_id)
-        wf.states["created"].transitions = tuple(transitions)
         # add new back_to transition on next states
         for next_state_id in to_states:
             if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
