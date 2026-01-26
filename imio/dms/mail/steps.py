@@ -38,9 +38,9 @@ from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.esign import manage_session_perm
 from imio.esign.config import set_registry_enabled
+from imio.esign.config import set_registry_file_url
 from imio.esign.config import set_registry_seal_code
 from imio.esign.config import set_registry_seal_email
-from imio.esign.config import set_registry_sign_code
 from imio.esign.config import set_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -69,6 +69,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 import datetime
 import logging
 import os
+import pwd
 
 
 logger = logging.getLogger("imio.dms.mail: steps")
@@ -875,28 +876,32 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         category._setObject("scanner_om", action)
 
     # Add N+1 validation
-    site.portal_setup.runImportStepFromProfile(
-        "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
-    )
-    site.portal_setup.runImportStepFromProfile(
-        "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
-    )
-    site.portal_setup.runImportStepFromProfile(
-        "profile-imio.dms.mail:singles", "imiodmsmail-task_n_plus_1_wfadaptation", run_dependencies=False
-    )
+    applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
+                           if dic["workflow"] == "outgoingmail_workflow"]
+    if u"imio.dms.mail.wfadaptations.OMServiceValidation" not in applied_adaptations:
+        site.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        site.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        site.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-task_n_plus_1_wfadaptation", run_dependencies=False
+        )
 
     # activate signing
     rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
     signer_rules = api.portal.get_registry_record(rk, default=[])
     pf = site["contacts"]["personnel-folder"]
-    if not site.portal_quickinstaller.isProductInstalled("imio.dms.esigning"):
+    if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
         site.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
         set_registry_vat_number(u"BE0000000097")
+        set_registry_file_url(u"https://fileserver.files.be")
         set_registry_seal_code(u"PADES_SEAL")
         set_registry_seal_email(u"sceau@imio.be")
-        set_registry_sign_code(u"BULK_VISA")
+        # set_registry_sign_code(u"BULK_VISA")
 
         for dic in signer_rules:
             dic["esign"] = True
@@ -913,22 +918,24 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         api.group.remove_user(groupname="esign_watchers", user="dirg")
 
     # Added some users from a configuration csv file
-    home_dir = os.path.expanduser("~")
+    username = os.getenv("USER", "zope")
+    home_dir = pwd.getpwnam(username).pw_dir
     filename = os.path.join(home_dir, "demo_docs_users.csv")
     sr_len = len(signer_rules)
     user_ids = ["agent", "agent1", "chef", "dirg", "encodeur"]
+    logger.info("Loading users file: '{}' ?".format(filename))
     if os.path.exists(filename):
         pgo = site["contacts"]["plonegroup-organization"]
         groups_data = api.group.get_groups()
         groups = [(gd.id, safe_encode(gd.getProperty("title"))) for gd in groups_data]
         for columns in read_csv(filename, strip_chars=" ", replace_dq=True, skip_empty=True, skip_lines=1):
-            (u_id, fullname, email, group_titles, esign, pwd) = columns
+            (u_id, fullname, email, group_titles, esign, pswd) = columns
             user = api.user.get(userid=u_id)
             if user is None:
                 user = api.user.create(
                     username=u_id,
                     email=safe_encode(email),
-                    password=safe_encode(pwd),
+                    password=safe_encode(pswd),
                     properties={"fullname": safe_encode(fullname)},
                 )
             user_ids.append(safe_encode(u_id))
@@ -943,7 +950,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                         logger.warning("Group with title '{}' not found.".format(safe_encode(group_title)))
             if esign and "\n" in esign:
                 (org_path, usages) = esign.split("\n")
-                usages_list = [u.strip() for u in usages.split(",")]
+                usages_list = [u.strip().lower() for u in usages.split(",")]
                 org_uid = pgo.restrictedTraverse(org_path).UID()
                 hp = pf[u_id][org_uid]
                 hp.usages = usages_list
