@@ -60,6 +60,7 @@ from plone.portlets.constants import CONTENT_TYPE_CATEGORY
 from plone.portlets.interfaces import IPortletManager
 from Products.CMFCore.ActionInformation import Action
 from Products.CMFPlone.utils import safe_unicode
+from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -836,6 +837,12 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         mapping["aide"] = portlet
 
+    # Add external methods
+    if "import_scanned" not in site.objectIds():
+        manage_addExternalMethod(site, "import_scanned", "", "imio.dms.mail.demo", "import_scanned")
+    if "import_scanned2" not in site.objectIds():
+        manage_addExternalMethod(site, "import_scanned2", "", "imio.dms.mail.demo", "import_scanned2")
+
     # Add object_portlet actions to be displayed in "divers" portlet
     category = site.portal_actions.object_portlet
     if "scanner_im" not in category.objectIds():
@@ -955,7 +962,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                 hp = pf[u_id][org_uid]
                 hp.usages = usages_list
                 hp.reindexObject()
-                if hp.UID() not in [dic["signer"] for dic in signer_rules]:
+                if "signer" in usages_list and hp.UID() not in [dic["signer"] for dic in signer_rules]:
                     signer_rules.append(
                         {
                             "number": 1,

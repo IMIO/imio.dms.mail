@@ -9,6 +9,7 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
@@ -92,6 +93,8 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     "scan_date": now,
                     "scan_user": "Opérateur",
                     "scanner": "Ricola",
+                    "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
+                                                              ["incoming-dms-file"]),
                 },
             },
             "60.PDF": {
@@ -102,6 +105,8 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     "scan_date": now,
                     "scan_user": "Opérateur",
                     "scanner": "Ricola",
+                    "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
+                                                              ["incoming-dms-file"])
                 },
             },
         },
@@ -119,7 +124,15 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "tg": ["evenements"],
                             "user": "agent",
                         },
-                        "f": {"scan_id": "", "pages_number": 1, "scan_date": now, "scan_user": "", "scanner": ""},
+                        "f": {
+                            "scan_id": "",
+                            "pages_number": 1,
+                            "scan_date": now,
+                            "scan_user": "",
+                            "scanner": "",
+                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
+                                                                      ["incoming-dms-file"])
+                        },
                         "s": "proposed_to_agent",
                     },
                 ),
@@ -133,7 +146,15 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "recipient_groups": [],
                             "orig_sender_email": u"facturation@3p.be",
                         },
-                        "f": {"scan_id": "", "pages_number": 1, "scan_date": now, "scan_user": "", "scanner": ""},
+                        "f": {
+                            "scan_id": "",
+                            "pages_number": 1,
+                            "scan_date": now,
+                            "scan_user": "",
+                            "scanner": "",
+                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
+                                                                      ["incoming-dms-file"])
+                        },
                         "a": ["facture-3P-XX12345.pdf"],
                     },
                 ),
@@ -149,7 +170,15 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "tg": ["direction-generale", "secretariat"],
                             "user": "agent",
                         },
-                        "f": {"scan_id": "", "pages_number": 1, "scan_date": now, "scan_user": "", "scanner": ""},
+                        "f": {
+                            "scan_id": "",
+                            "pages_number": 1,
+                            "scan_date": now,
+                            "scan_user": "",
+                            "scanner": "",
+                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
+                                                                      ["incoming-dms-file"])
+                        },
                         "s": "proposed_to_agent",
                     },
                 ),
@@ -163,7 +192,15 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "recipient_groups": [],
                             "orig_sender_email": u"m.bou@rw.be",
                         },
-                        "f": {"scan_id": "", "pages_number": 1, "scan_date": now, "scan_user": "", "scanner": ""},
+                        "f": {
+                            "scan_id": "",
+                            "pages_number": 1,
+                            "scan_date": now,
+                            "scan_user": "",
+                            "scanner": "",
+                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
+                                                                      ["incoming-dms-file"])
+                        },
                     },
                 ),
             ]
@@ -199,6 +236,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
 
         irn = internalReferenceIncomingMailDefaultValue(DummyView(portal, portal.REQUEST))
         doc_metadata = copy.copy(docs[ptype][doc]["c"])
+        file_metadata = copy.copy(docs[ptype][doc]["f"])
         doc_metadata["internal_reference_no"] = irn
         (document, main_file) = createDocument(
             DummyView(portal, portal.REQUEST),
@@ -208,10 +246,11 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
             file_object,
             owner="scanner",
             metadata=doc_metadata,
+            file_metadata=file_metadata,
         )
-        for key, value in docs[ptype][doc]["f"].items():
-            setattr(main_file, key, value)
-        main_file.reindexObject(idxs=("scan_id", "internal_reference_number"))
+        # for key, value in docs[ptype][doc]["f"].items():
+        #     setattr(main_file, key, value)
+        # main_file.reindexObject(idxs=("scan_id", "internal_reference_number"))
         # transaction.commit()  # commit here to be sure to index preceding when using collective.indexing
         # change has been done in IdmSearchableExtender to avoid using catalog
         document.reindexObject(idxs=("SearchableText",))
@@ -219,7 +258,10 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
         for attachment in docs[ptype][doc].get("a", []):
             with open(add_path("Extensions/%s" % attachment), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=safe_unicode(doc))
-            createContentInContainer(document, "dmsappendixfile", title=attachment, file=file_object)
+            createContentInContainer(document, "dmsappendixfile", title=attachment, file=file_object,
+                                     content_category=calculate_category_id(portal["annexes_types"]
+                                                                            ["incoming_appendix_files"]
+                                                                            ["incoming-appendix-file"]))
         # state
         if "s" in docs[ptype][doc]:
             to_state = docs[ptype][doc]["s"]
@@ -251,6 +293,7 @@ def import_scanned2(self, number=2):
     Import some outgoing mail for demo site
     """
     now = datetime.now()
+    portal = getToolByName(self, "portal_url").getPortalObject()
     docs = {
         u"011500000000001.pdf": {
             "c": {"mail_type": "type1", "file_title": u"011500000000001.pdf", "outgoing_date": now},
@@ -260,6 +303,8 @@ def import_scanned2(self, number=2):
                 "scan_date": now,
                 "scan_user": "Opérateur",
                 "scanner": "Ricola",
+                "content_category": calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]
+                                                          ["outgoing-scanned-dms-file"]),
             },
         },
         u"011500000000002.pdf": {
@@ -270,11 +315,12 @@ def import_scanned2(self, number=2):
                 "scan_date": now,
                 "scan_user": "Opérateur",
                 "scanner": "Ricola",
+                "content_category": calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]
+                                                          ["outgoing-scanned-dms-file"]),
             },
         },
     }
     docs_cycle = cycle(docs)
-    portal = getToolByName(self, "portal_url").getPortalObject()
     folder = portal["outgoing-mail"]
     count = 1
     limit = int(number)
@@ -286,6 +332,7 @@ def import_scanned2(self, number=2):
         count += 1
         irn = internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST))
         doc_metadata = copy.copy(docs[doc]["c"])
+        file_metadata = copy.copy(docs[doc]["f"])
         doc_metadata["internal_reference_no"] = irn
         (document, main_file) = createDocument(
             DummyView(portal, portal.REQUEST),
@@ -296,10 +343,11 @@ def import_scanned2(self, number=2):
             mainfile_type="dmsommainfile",
             owner="scanner",
             metadata=doc_metadata,
+            file_metadata=file_metadata,
         )
-        for key, value in docs[doc]["f"].items():
-            setattr(main_file, key, value)
-        main_file.reindexObject(idxs=("scan_id", "internal_reference_number"))
+        # for key, value in docs[doc]["f"].items():
+        #     setattr(main_file, key, value)
+        # main_file.reindexObject(idxs=("scan_id", "internal_reference_number"))
         document.reindexObject(idxs=("SearchableText"))
         # we adopt roles for robotframework
         # with api.env.adopt_roles(roles=['Batch importer', 'Manager']):
@@ -319,12 +367,23 @@ def create_main_file(self, filename="", title="1", mainfile_type="dmsmainfile", 
         return "You must pass the filename parameter"
     exm = self.REQUEST["PUBLISHED"]
     path = os.path.dirname(exm.filepath())
+    portal = api.portal.get()
     filepath = os.path.join(path, filename)
     if not os.path.exists(filepath):
         return "The file path '%s' doesn't exist" % filepath
+    if mainfile_type == "dmsommainfile":
+        category = calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]["outgoing-scanned-dms-file"])
+    elif mainfile_type == "dmsmainfile":
+        category = calculate_category_id(portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"])
+    else:  # appendix file
+        return "method need to be improved to chose appendix file category"
+        category = calculate_category_id(portal["annexes_types"]["incoming_appendix_files"]
+                                         ["incoming-appendix-file"])
+
     with open(filepath, "rb") as fo:
         file_object = NamedBlobFile(fo.read(), filename=safe_unicode(filename))
-        obj = createContentInContainer(self, mainfile_type, title=safe_unicode(title), file=file_object)
+        obj = createContentInContainer(self, mainfile_type, title=safe_unicode(title), file=file_object,
+                                       content_category=category,)
     if redirect:
         return obj.REQUEST.response.redirect("%s/view" % obj.absolute_url())
 
