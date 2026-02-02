@@ -392,10 +392,10 @@ CS en réponse
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-ged-genere-non-pub.png  id=content
-    ${note55}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(6)  Publipostage  position=top  color=blue
+    ${note55}  Add pointy note  css=a[href*="@@mailing-loop-persistent-document-generation"] > img[src*="mailing.gif"]  Publipostage  position=top  color=blue 
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-ged-publipostage.png  css=#fieldset-versions table  ${note55}
     Remove element  id=${note55}
-    Click element  css=#fieldset-versions tr.selected td:nth-child(6)
+    Click element  css=a[href*="@@mailing-loop-persistent-document-generation"] > img[src*="mailing.gif"]
     Sleep  5
     Go to  ${PLONE_URL}/${om_path}
     Sleep  1
