@@ -133,12 +133,6 @@ def activate_esigning(context):
     pos = col_folder.getObjectPosition("searchfor_to_be_signed")
     col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
 
-    # handle navtree_properties
-    unlisted = list(site.portal_properties.navtree_properties.metaTypesNotToList)
-    if "Link" in unlisted:
-        unlisted.remove("Link")
-        site.portal_properties.navtree_properties.manage_changeProperties(metaTypesNotToList=unlisted)
-
     # change permission on sessions link (once imio.esign is installed)
     s_l = site["sessions"]
     if not IProtectedItem.providedBy(s_l):

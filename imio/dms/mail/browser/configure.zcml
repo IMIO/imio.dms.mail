@@ -990,8 +990,8 @@
     <!-- eSignature -->
     <configure package="imio.esign">
         <browser:page
-            name="esign-sessions-listing"
-            for="imio.esign.interfaces.IImioSessionsManagementContext"
+            name="parapheo"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
             class="imio.dms.mail.browser.views.ImioSessionsListingView"
             permission="zope2.Public"
             template="browser/templates/sessions.pt"
@@ -1043,6 +1043,15 @@
             imio.dms.mail.browser.table.ApprovalTable"
         provides="z3c.table.interfaces.IColumn"
         factory="imio.dms.mail.browser.table.FileNameColumn"
-        />
+    />
+
+    <browser:page
+        for="*"
+        name="portal_tabs_view"
+        class="imio.dms.mail.browser.views.ImioCatalogNavigationTabs"
+        permission="zope.Public"
+        allowed_attributes="topLevelTabs"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+    />
 
 </configure>

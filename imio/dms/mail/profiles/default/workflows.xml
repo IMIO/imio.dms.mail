@@ -48,8 +48,5 @@
   <type type_id="ContentCategory">
    <bound-workflow workflow_id=""/>
   </type>
-  <type type_id="Link">
-   <bound-workflow workflow_id=""/>
-  </type>
  </bindings>
 </object>

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
+from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
@@ -24,6 +25,11 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
+from Products.CMFCore.utils import getToolByName
+from Products.CMFPlone import utils
+from Products.CMFPlone.browser.navigation import CatalogNavigationTabs
+from Products.CMFPlone.browser.navigation import get_id
+from Products.CMFPlone.browser.navigation import get_view_url
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
@@ -456,7 +462,7 @@ class PlusPortaltabContent(BrowserView):
 
     def get_tabs(self):
         res = self.portal.portal_catalog(
-            id=("contacts", "templates", "tree", "annexes_types", "sessions"),
+            id=("contacts", "templates", "tree", "annexes_types"),
             path={"query": "/".join(self.portal.getPhysicalPath()), "depth": 1},
             sort_on="getObjPositionInParent",
         )
@@ -481,9 +487,6 @@ class ImioSessionsListingView(SessionsListingView):
                 collection_uid=collection_uid,
                 session_id=session["id"],
             )
-
-    def get_sessions_url(self):
-        return api.portal.get()["sessions"].absolute_url()
 
 
 class SigningUsersCsv(BaseSigningUsersCsv):
@@ -559,3 +562,62 @@ class ApprovalTableView(BrowserView):
 
         elif cancel_button:
             self.request.response.redirect(self.context.absolute_url())
+
+
+class ImioCatalogNavigationTabs(CatalogNavigationTabs):
+    """ """
+
+    def topLevelTabs(self, actions=None, category='portal_tabs'):
+        context = aq_inner(self.context)
+
+        mtool = getToolByName(context, 'portal_membership')
+        member = mtool.getAuthenticatedMember().id
+
+        portal_properties = getToolByName(context, 'portal_properties')
+        self.navtree_properties = getattr(portal_properties,
+                                          'navtree_properties')
+        self.site_properties = getattr(portal_properties,
+                                       'site_properties')
+        self.portal_catalog = getToolByName(context, 'portal_catalog')
+
+        if actions is None:
+            context_state = getMultiAdapter((context, self.request),
+                                            name=u'plone_context_state')
+            actions = context_state.actions(category)
+
+        # Build result dict
+        result = []
+
+        # first add content to results
+        query = self._getNavQuery()
+
+        rawresult = self.portal_catalog.searchResults(query)
+
+        def get_link_url(item):
+            linkremote = item.getRemoteUrl and not member == item.Creator
+            if linkremote:
+                return (get_id(item), item.getRemoteUrl)
+            else:
+                return False
+
+        idsNotToList = self.navtree_properties.getProperty('idsNotToList', ())
+        for item in rawresult:
+            if not (item.getId in idsNotToList or item.exclude_from_nav):
+                id, item_url = get_link_url(item) or get_view_url(item)
+                data = {'name': utils.pretty_title_or_id(context, item),
+                        'id': item.getId,
+                        'url': item_url,
+                        'description': item.Description}
+                result.append(data)
+
+        # then add the actions
+        if actions is not None:
+            for actionInfo in actions:
+                data = actionInfo.copy()
+                data['name'] = data['title']
+                result.append(data)
+
+        # Set the "plus" tab as the last one
+        result = sorted(result, key=lambda x: x['id'] == "plus")
+
+        return result

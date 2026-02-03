@@ -185,4 +185,4 @@ class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
 
     @property
     def session_listing_url(self):
-        return api.portal.get().absolute_url() + "/sessions/@@esign-sessions-listing"
+        return api.portal.get().absolute_url() + "/@@parapheo"

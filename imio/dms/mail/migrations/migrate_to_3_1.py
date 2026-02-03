@@ -103,9 +103,6 @@ class Migrate_To_3_1(Migrator):  # noqa
                         "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
                 ))
 
-                # remove wf for Link, so the session listing link permissions can be handled only by local roles
-                self.wfTool.setChainForPortalTypes(('Link',), ())
-
             # update workflow
             if "signed" not in self.portal.portal_workflow["outgoingmail_workflow"].states:
                 reset = load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default")
