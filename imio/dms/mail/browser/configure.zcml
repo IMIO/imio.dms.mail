@@ -862,18 +862,6 @@
         class="imio.dms.mail.browser.viewlets.CKBatchActionsViewlet"
         permission="zope2.View" />
 
-    <configure package="imio.esign">
-        <browser:viewlet
-            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
-            manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
-            view="plone.app.layout.globals.interfaces.IViewView"
-            name="esign-item-session-info"
-            template="browser/templates/faceted_session_info.pt"
-            class="imio.dms.mail.browser.viewlets.ImioItemSessionInfoViewlet"
-            permission="zope2.View"
-        />
-    </configure>
-
     <!-- vocabulary for the sender autocomplete faceted widget -->
     <browser:view
         for="*"
@@ -1011,10 +999,20 @@
         />
 
         <browser:viewlet
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+            view="plone.app.layout.globals.interfaces.IViewView"
+            name="esign-item-session-info"
+            template="browser/templates/session_info.pt"
+            class="imio.dms.mail.browser.viewlets.ImioItemSessionInfoViewlet"
+            permission="zope2.View"
+        />
+
+        <browser:viewlet
             for="eea.facetednavigation.subtypes.interfaces.IFacetedNavigable"
             manager="collective.eeafaceted.z3ctable.interfaces.ITopAboveNavManager"
             name="esign-faceted-session-info"
-            template="browser/templates/faceted_session_info.pt"
+            template="browser/templates/session_info.pt"
             class="imio.dms.mail.browser.viewlets.ImioFacetedSessionInfoViewlet"
             permission="zope2.View"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
