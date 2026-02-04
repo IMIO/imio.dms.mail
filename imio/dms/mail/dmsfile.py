@@ -7,6 +7,7 @@ from imio.dms.mail import _
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from plone import api
+from plone.autoform import directives as form
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
@@ -67,3 +68,24 @@ class ImioDmsFileSchemaPolicy(DexteritySchemaPolicy):
 
     def bases(self, schemaName, tree):
         return (IImioDmsFile,)
+
+
+from plone.dexterity.interfaces import IDexterityContent
+from plone.z3cform.fieldsets.extensible import IFormExtender
+from z3c.form.interfaces import IEditForm
+from zope.component import adapter
+from zope.interface import implementer
+
+
+@implementer(IFormExtender)
+@adapter(IDexterityContent, IEditForm)
+class HideMyField(object):
+
+    def __init__(self, context, request, form):
+        self.context = context
+        self.request = request
+        self.form = form
+
+    def update(self):
+        import ipdb; ipdb.set_trace()
+        self.form.fields = self.form.fields.omit('description')
