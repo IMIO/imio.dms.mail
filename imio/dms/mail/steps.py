@@ -21,7 +21,6 @@ from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import list_templates
@@ -63,7 +62,6 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
-from zope.interface import alsoProvides
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
@@ -133,15 +131,12 @@ def activate_esigning(context):
     pos = col_folder.getObjectPosition("searchfor_to_be_signed")
     col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
 
-    # change permission on sessions link (once imio.esign is installed)
-    s_l = site["sessions"]
-    if not IProtectedItem.providedBy(s_l):
-        alsoProvides(s_l, IProtectedItem)
-    s_l.__ac_permissions__ = getattr(s_l, '__ac_permissions', ()) + ((manage_session_perm, ()),)
-    s_l.manage_permission(manage_session_perm, ("Contributor", "Manager", "Site Administrator"), acquire=0)
-    s_l.manage_setLocalRoles("dir_general", ["Contributor"])
-    s_l.manage_setLocalRoles("esign_watchers", ["Contributor"])
-    s_l.reindexObject()
+    # change permission on site root for parapheo view (once imio.esign is installed)
+    site.__ac_permissions__ = getattr(site, '__ac_permissions', ()) + ((manage_session_perm, ()),)
+    site.manage_permission(manage_session_perm, ("Contributor", "Manager", "Site Administrator"), acquire=0)
+    site.manage_setLocalRoles("dir_general", ["Contributor"])
+    site.manage_setLocalRoles("esign_watchers", ["Contributor"])
+    site.reindexObject()
 
     # update approvers settings
     update_approvers_settings()
