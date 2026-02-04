@@ -72,6 +72,8 @@ class ApprovedColumn(BaseApprovedColumn):
                 self.msg = u"Activated for approval"
                 return " active to-approve"
         elif self.is_deactivated(content):  # state >= to_approve and to_approve is False
+            # if content.conv_from_uid:
+            #     return " none"
             self.msg = u"Deactivated for approval"
             return " to-approve"
         # when to_approve, the red icon (no class) is shown if :

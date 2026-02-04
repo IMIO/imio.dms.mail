@@ -998,6 +998,22 @@
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
+        <!--browser:page
+            name="esign-session-delete"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            class="imio.dms.mail.browser.views.ImioSessionDeleteView"
+            permission="imio.esign.ManageSessions"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        /-->
+
+        <browser:page
+            name="external-esign-session-create"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            class="imio.dms.mail.browser.views.ImioExternalSessionCreateView"
+            permission="imio.esign.ManageSessions"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
         <browser:viewlet
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
             manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"

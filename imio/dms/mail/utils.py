@@ -1625,16 +1625,6 @@ def update_approvers_settings():
     old_approvings = set(get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]))
     if old_approvings != set(approvings):
         set_dms_config(["approvings"], approvings)
-        s_approvings = set(approvings)
-        s_l = portal["sessions"]
-        removed_approvings = old_approvings - s_approvings
-        added_approvings = s_approvings - old_approvings
-        for userid in added_approvings:
-            s_l.manage_setLocalRoles(userid, ["Contributor"])
-            s_l.reindexObject()
-        for userid in removed_approvings:
-            s_l.manage_delLocalRoles([userid])
-            s_l.reindexObject()
 
 
 def get_allowed_omf_content_types(esign=False):

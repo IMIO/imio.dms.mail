@@ -13,6 +13,10 @@ from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import current_user_groups_ids
+from imio.dms.mail.utils import get_dms_config
+from imio.esign import manage_session_perm
+from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
 from imio.helpers.content import richtextval
@@ -487,6 +491,22 @@ class ImioSessionsListingView(SessionsListingView):
                 collection_uid=collection_uid,
                 session_id=session["id"],
             )
+
+
+class ImioExternalSessionCreateView(ExternalSessionCreateView):
+
+    def may_create_external_sessions(self):
+        # check if user has manage_session_perm on context
+        if api.user.has_permission(manage_session_perm, obj=self.context):
+            return True
+        # check if user is in esign_watchers group
+        user = api.user.get_current()
+        if "esign_watchers" in current_user_groups_ids(user=user):
+            return True
+        # check if user is an approver
+        if user.getId() in get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]):
+            return True
+        return False
 
 
 class SigningUsersCsv(BaseSigningUsersCsv):

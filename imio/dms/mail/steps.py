@@ -35,7 +35,6 @@ from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
-from imio.esign import manage_session_perm
 from imio.esign.config import set_registry_enabled
 from imio.esign.config import set_registry_file_url
 from imio.esign.config import set_registry_seal_code
@@ -130,13 +129,6 @@ def activate_esigning(context):
     createStateCollections(col_folder, "dmsoutgoingmail")
     pos = col_folder.getObjectPosition("searchfor_to_be_signed")
     col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
-
-    # change permission on site root for parapheo view (once imio.esign is installed)
-    site.__ac_permissions__ = getattr(site, '__ac_permissions', ()) + ((manage_session_perm, ()),)
-    site.manage_permission(manage_session_perm, ("Contributor", "Manager", "Site Administrator"), acquire=0)
-    site.manage_setLocalRoles("dir_general", ["Contributor"])
-    site.manage_setLocalRoles("esign_watchers", ["Contributor"])
-    site.reindexObject()
 
     # update approvers settings
     update_approvers_settings()
@@ -894,7 +886,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
         set_registry_vat_number(u"BE0000000097")
-        set_registry_file_url(u"https://fileserver.files.be")
+        set_registry_file_url("https://fileserver.files.be")
         set_registry_seal_code(u"PADES_SEAL")
         set_registry_seal_email(u"sceau@imio.be")
         # set_registry_sign_code(u"BULK_VISA")
@@ -969,6 +961,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                     )
         if len(signer_rules) > sr_len:
             api.portal.set_registry_record(rk, signer_rules)
+            update_approvers_settings()
 
     # Configure delib link
     prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"
