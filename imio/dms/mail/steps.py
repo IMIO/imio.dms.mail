@@ -21,7 +21,6 @@ from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import list_templates
@@ -36,7 +35,6 @@ from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
-from imio.esign import manage_session_perm
 from imio.esign.config import set_registry_enabled
 from imio.esign.config import set_registry_file_url
 from imio.esign.config import set_registry_seal_code
@@ -63,7 +61,6 @@ from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
-from zope.interface import alsoProvides
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
@@ -132,22 +129,6 @@ def activate_esigning(context):
     createStateCollections(col_folder, "dmsoutgoingmail")
     pos = col_folder.getObjectPosition("searchfor_to_be_signed")
     col_folder.moveObjectToPosition("searchfor_signed", pos + 1)
-
-    # handle navtree_properties
-    unlisted = list(site.portal_properties.navtree_properties.metaTypesNotToList)
-    if "Link" in unlisted:
-        unlisted.remove("Link")
-        site.portal_properties.navtree_properties.manage_changeProperties(metaTypesNotToList=unlisted)
-
-    # change permission on sessions link (once imio.esign is installed)
-    s_l = site["sessions"]
-    if not IProtectedItem.providedBy(s_l):
-        alsoProvides(s_l, IProtectedItem)
-    s_l.__ac_permissions__ = getattr(s_l, '__ac_permissions', ()) + ((manage_session_perm, ()),)
-    s_l.manage_permission(manage_session_perm, ("Contributor", "Manager", "Site Administrator"), acquire=0)
-    s_l.manage_setLocalRoles("dir_general", ["Contributor"])
-    s_l.manage_setLocalRoles("esign_watchers", ["Contributor"])
-    s_l.reindexObject()
 
     # update approvers settings
     update_approvers_settings()
@@ -905,7 +886,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
         set_registry_vat_number(u"BE0000000097")
-        set_registry_file_url(u"https://fileserver.files.be")
+        set_registry_file_url("https://fileserver.files.be")
         set_registry_seal_code(u"PADES_SEAL")
         set_registry_seal_email(u"sceau@imio.be")
         # set_registry_sign_code(u"BULK_VISA")
@@ -980,6 +961,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                     )
         if len(signer_rules) > sr_len:
             api.portal.set_registry_record(rk, signer_rules)
+            update_approvers_settings()
 
     # Configure delib link
     prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"

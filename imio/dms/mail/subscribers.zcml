@@ -208,12 +208,6 @@
         handler=".subscribers.contact_plonegroup_change"
         />
 
-    <unconfigure>
-        <subscriber
-            for="plone.registry.interfaces.IRecordModifiedEvent"
-            handler="imio.esign.browser.settings.detect_settings_changed" />
-    </unconfigure>
-
     <subscriber
         for="plone.app.controlpanel.interfaces.IConfigurationChangedEvent"
         handler=".subscribers.user_related_modification"
