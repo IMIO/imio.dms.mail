@@ -19,6 +19,7 @@ from imio.esign import manage_session_perm
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
+from imio.esign.config import get_registry_enabled
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import add_attachment
@@ -492,6 +493,22 @@ class ImioSessionsListingView(SessionsListingView):
                 session_id=session["id"],
             )
 
+    def available(self):
+        # check if esign is disabled
+        if not get_registry_enabled():
+            return False
+        # check if user has manage_session_perm on context
+        if api.user.has_permission(manage_session_perm, obj=self.context):
+            return True
+        # check if user is an approver
+        user = api.user.get_current()
+        if user.getId() in get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]):
+            return True
+        # check if user is in esign_watchers group
+        if "esign_watchers" in current_user_groups_ids(user=user):
+            return True
+        return False
+
 
 class ImioExternalSessionCreateView(ExternalSessionCreateView):
 
@@ -499,12 +516,12 @@ class ImioExternalSessionCreateView(ExternalSessionCreateView):
         # check if user has manage_session_perm on context
         if api.user.has_permission(manage_session_perm, obj=self.context):
             return True
-        # check if user is in esign_watchers group
-        user = api.user.get_current()
-        if "esign_watchers" in current_user_groups_ids(user=user):
-            return True
         # check if user is an approver
+        user = api.user.get_current()
         if user.getId() in get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]):
+            return True
+        # check if user is in esign_watchers group
+        if "esign_watchers" in current_user_groups_ids(user=user):
             return True
         return False
 
