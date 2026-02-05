@@ -998,7 +998,7 @@
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
-        <!--browser:page
+        <!--browser:page  keep original check permission only for now
             name="esign-session-delete"
             for="Products.CMFPlone.interfaces.IPloneSiteRoot"
             class="imio.dms.mail.browser.views.ImioSessionDeleteView"
