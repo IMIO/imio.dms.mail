@@ -513,6 +513,9 @@ class ImioSessionsListingView(SessionsListingView):
 class ImioExternalSessionCreateView(ExternalSessionCreateView):
 
     def may_create_external_sessions(self):
+        # check if esign is disabled
+        if not get_registry_enabled():
+            return False
         # check if user has manage_session_perm on context
         if api.user.has_permission(manage_session_perm, obj=self.context):
             return True

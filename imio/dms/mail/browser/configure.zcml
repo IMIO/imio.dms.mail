@@ -993,7 +993,7 @@
             name="parapheo"
             for="Products.CMFPlone.interfaces.IPloneSiteRoot"
             class="imio.dms.mail.browser.views.ImioSessionsListingView"
-            permission="zope2.Public"
+            permission="zope2.View"
             template="browser/templates/sessions.pt"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
@@ -1010,7 +1010,7 @@
             name="external-esign-session-create"
             for="Products.CMFPlone.interfaces.IPloneSiteRoot"
             class="imio.dms.mail.browser.views.ImioExternalSessionCreateView"
-            permission="imio.esign.ManageSessions"
+            permission="zope2.View"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
