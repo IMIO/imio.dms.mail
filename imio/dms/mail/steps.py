@@ -5,6 +5,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
+from collective.contact.plonegroup.config import set_registry_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import get_suffixed_groups
 from collective.documentgenerator.utils import update_templates
@@ -879,7 +880,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 
     # activate signing
     rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
-    signer_rules = api.portal.get_registry_record(rk, default=[])
+    signer_rules = deepcopy(api.portal.get_registry_record(rk, default=[]))
     pf = site["contacts"]["personnel-folder"]
     if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
         site.portal_setup.runImportStepFromProfile(
@@ -891,9 +892,11 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         set_registry_seal_email(u"sceau@imio.be")
         # set_registry_sign_code(u"BULK_VISA")
 
+        activated_orgs = get_registry_organizations()
         for dic in signer_rules:
             dic["esign"] = True
             dic["approvings"] = [u"_themself_"]
+            dic["treating_groups"] = activated_orgs
             dic["tal_condition"] = u"python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
         api.portal.set_registry_record(rk, signer_rules)
 
@@ -937,28 +940,80 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                     else:
                         logger.warning("Group with title '{}' not found.".format(safe_encode(group_title)))
             if esign and "\n" in esign:
-                (org_path, usages) = esign.split("\n")
+                parts = esign.split("\n")
+                own_service = None
+                if len(parts) == 2:
+                    (org_path, usages) = parts
+                elif len(parts) == 3:
+                    (org_path, usages, own_service_path) = parts
+                    try:
+                        own_service = pgo.restrictedTraverse(own_service_path)
+                    except KeyError:
+                        own_service = None
+                    if not own_service:
+                        parent = pgo.restrictedTraverse("/".join(own_service_path.split("/")[:-1]))
+                        oid = own_service_path.split("/")[-1]
+                        oid = parent.invokeFactory(
+                            "organization",
+                            oid,
+                            title=oid.upper(),
+                            organization_type=u"service",
+                        )
+                        own_service = parent[oid]
+                        activated_orgs = get_registry_organizations()
+                        if parent.UID() in activated_orgs:
+                            pos = activated_orgs.index(parent.UID())
+                            activated_orgs.insert(pos + 1, own_service.UID())
+                        else:
+                            activated_orgs.append(parent.UID())
+                        set_registry_organizations(activated_orgs)
+
+                    for suffix in ("editeur", "encodeur"):
+                        api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), user=user)
+                else:
+                    raise ValueError("Invalid esign value for user '{}': '{}'".format(u_id, esign))
+
                 usages_list = [u.strip().lower() for u in usages.split(",")]
                 org_uid = pgo.restrictedTraverse(org_path).UID()
                 hp = pf[u_id][org_uid]
                 hp.usages = usages_list
                 hp.reindexObject()
-                if "signer" in usages_list and hp.UID() not in [dic["signer"] for dic in signer_rules]:
-                    signer_rules.append(
-                        {
-                            "number": 1,
-                            "signer": hp.UID(),
-                            "editor": False,
-                            "approvings": [u"_themself_"],
-                            "esign": True,
-                            "valid_from": None,
-                            "valid_until": None,
-                            "treating_groups": [],
-                            "mail_types": [],
-                            "send_modes": [],
-                            "tal_condition": u"python: member.getId() == '{}'".format(u_id),
-                        },
-                    )
+                if "signer" in usages_list:
+                    if hp.UID() not in [dic["signer"] for dic in signer_rules]:
+                        signer_rules.append(
+                            {
+                                "number": 1,
+                                "signer": hp.UID(),
+                                "editor": False,
+                                "approvings": [u"_themself_"],
+                                "esign": True,
+                                "valid_from": None,
+                                "valid_until": None,
+                                "treating_groups": [],
+                                "mail_types": [],
+                                "send_modes": [],
+                                "tal_condition": u"python: member.getId() == '{}'".format(u_id),
+                            },
+                        )
+                    if (own_service and not [rule for rule in signer_rules
+                                             if rule["signer"] == hp.UID()
+                                             and rule["treating_groups"] == [own_service.UID()]]):
+                        signer_rules.insert(
+                            0,
+                            {
+                                "number": 1,
+                                "signer": hp.UID(),
+                                "editor": True,
+                                "approvings": [u"_themself_"],
+                                "esign": True,
+                                "valid_from": None,
+                                "valid_until": None,
+                                "treating_groups": [own_service.UID()],
+                                "mail_types": [],
+                                "send_modes": [],
+                                "tal_condition": u"",
+                            },
+                        )
         if len(signer_rules) > sr_len:
             api.portal.set_registry_record(rk, signer_rules)
             update_approvers_settings()
