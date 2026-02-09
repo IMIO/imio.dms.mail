@@ -761,7 +761,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
-            "mail_type": "type1",
+            "mail_type": "courrier",
             "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
@@ -773,7 +773,8 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
         self.annex = api.content.create(container=self.omail, id="annex", type="dmsappendixfile")
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            self.file = api.content.create(container=self.omail, id="file", type="dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
+            self.file = api.content.create(container=self.omail, id="file", type="dmsommainfile",
+                                           file=NamedBlobFile(fo.read(), filename=filename))
         self.task = api.content.create(container=self.omail, id="task", type="task",
                                        assigned_group=self.omail.treating_groups)
 

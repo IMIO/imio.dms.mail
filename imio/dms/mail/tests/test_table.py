@@ -91,7 +91,7 @@ class TestTable(unittest.TestCase):
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
-            "mail_type": "type1",
+            "mail_type": "courrier",
             "treating_groups": pgof["direction-generale"]["grh"].UID(),
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",

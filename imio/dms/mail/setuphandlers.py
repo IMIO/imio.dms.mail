@@ -435,8 +435,8 @@ def postInstall(context):
         }
         contacts.invokeFactory("organization", "plonegroup-organization", **params)
         # contacts.moveObjectToPosition('plonegroup-organization', 5)
-        alsoProvides(contacts["plonegroup-organization"], IProtectedItem)
         own_orga = contacts["plonegroup-organization"]
+        alsoProvides(own_orga, IProtectedItem)
         blacklistPortletCategory(own_orga)
 
         # finishing

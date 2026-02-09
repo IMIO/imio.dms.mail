@@ -182,7 +182,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             description="Description",
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
-            mail_type="type1",
+            mail_type="courrier",
         )
 
         # Test no rules
@@ -251,7 +251,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "valid_until": None,
                     "valid_from": None,
                     "tal_condition": None,
-                    "mail_types": ["type1"],
+                    "mail_types": ["courrier"],
                     "approvings": [u"_empty_"],
                     "esign": True,
                     "number": 1,
@@ -271,7 +271,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types",
             [
-                {"dtitle": u"Type 1", "active": True, "value": u"type1"},
+                {"dtitle": u"Courrier", "active": True, "value": u"courrier"},
                 {"dtitle": u"Type 2", "active": True, "value": u"type2"},
             ],
         )
@@ -904,7 +904,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             description="Description",
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
-            mail_type="type1",
+            mail_type="courrier",
         )
         self.assertEqual(
             omail.signers,

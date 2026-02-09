@@ -262,12 +262,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [u"type1"])
+        self.assertListEqual(voc_list, [u"courrier"])
 
     def test_OMActiveMailTypesVocabulary(self):
         voc_inst = OMActiveMailTypesVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [u"type1"])
+        self.assertListEqual(voc_list, [u"courrier"])
 
     def test_encodeur_active_orgs0(self):
         factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")

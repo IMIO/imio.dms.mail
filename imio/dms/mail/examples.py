@@ -61,7 +61,7 @@ def add_special_model_mail(portal):
         "title": u"Courrier test pour création de modèles (ne pas effacer)",
         "internal_reference_no": internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
         "mail_date": datetime.date.today(),
-        "mail_type": "type1",
+        "mail_type": "courrier",
     }
     pc = api.portal.get_tool("portal_catalog")
     brains = pc(portal_type="dmsoutgoingmail", id="test_creation_modele")
@@ -595,7 +595,7 @@ def add_test_mails(context):
                 "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
                 "mail_date": mailDateDefaultValue(data),
                 "treating_groups": next(orgas_cycle),
-                "mail_type": "type1",
+                "mail_type": "courrier",
                 "sender": next(senders_cycle),
                 "assigned_user": next(users_cycle),
                 # temporary in comment because it doesn't pass in test and case probably errors when deleting site
@@ -1037,7 +1037,7 @@ def configure_imio_dms_mail(context):
     # OM
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"] = [
-            {"value": u"type1", "dtitle": u"Type 1", "active": True},
+            {"value": u"courrier", "dtitle": u"Courrier", "active": True},
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"] = _(u"Response: ")

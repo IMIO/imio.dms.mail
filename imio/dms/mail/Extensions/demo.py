@@ -296,7 +296,7 @@ def import_scanned2(self, number=2):
     portal = getToolByName(self, "portal_url").getPortalObject()
     docs = {
         u"011500000000001.pdf": {
-            "c": {"mail_type": "type1", "file_title": u"011500000000001.pdf", "outgoing_date": now},
+            "c": {"mail_type": "courrier", "file_title": u"011500000000001.pdf", "outgoing_date": now},
             "f": {
                 "scan_id": "011500000000001",
                 "pages_number": 1,
@@ -308,7 +308,7 @@ def import_scanned2(self, number=2):
             },
         },
         u"011500000000002.pdf": {
-            "c": {"mail_type": "type1", "file_title": u"011500000000002.pdf", "outgoing_date": now},
+            "c": {"mail_type": "courrier", "file_title": u"011500000000002.pdf", "outgoing_date": now},
             "f": {
                 "scan_id": "011500000000002",
                 "pages_number": 1,

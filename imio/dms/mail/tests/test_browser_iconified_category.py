@@ -50,7 +50,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
-            "mail_type": "type1",
+            "mail_type": "courrier",
             "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",

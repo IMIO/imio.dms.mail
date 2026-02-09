@@ -50,7 +50,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             description="Description",
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
-            mail_type="type1",
+            mail_type="courrier",
             esign=True,
             signers=[{
                 "number": 1,

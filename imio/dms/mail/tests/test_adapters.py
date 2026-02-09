@@ -441,25 +441,25 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             datetime.now(),
             "my-id",
             title="My title",
-            mail_type="type1",
+            mail_type="courrier",
         )
         view = omail.restrictedTraverse("@@view")
         view.update()
         # the title from the vocabulary is well rendered
-        self.assertIn("Type 1", view.widgets["mail_type"].render())
+        self.assertIn("Courrier", view.widgets["mail_type"].render())
         # We deactivate the courrier mail type, the missing value is managed
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.omail_types
         mail_types[0]["active"] = False
         settings.omail_types = mail_types
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMActiveMailTypesVocabulary")
-        self.assertNotIn("type1", [t.value for t in voc_inst(omail)])
+        self.assertNotIn("courrier", [t.value for t in voc_inst(omail)])
         view.updateWidgets()
-        self.assertIn("Type 1", view.widgets["mail_type"].render())
+        self.assertIn("Courrier", view.widgets["mail_type"].render())
         # We remove the courrier mail type, the missing value cannot be managed anymore
         settings.omail_types = settings.omail_types[1:]
         view.updateWidgets()
-        self.assertNotIn("Type 1", view.widgets["mail_type"].render())
+        self.assertNotIn("Courrier", view.widgets["mail_type"].render())
         self.assertIn("Missing", view.widgets["mail_type"].render())
 
 
@@ -484,7 +484,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
-            "mail_type": "type1",
+            "mail_type": "courrier",
             "treating_groups": self.pgof["direction-generale"]["grh"].UID(),
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",

@@ -1606,7 +1606,7 @@ msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suiv
 #: ./migrations/migrate_to_2_1.py:291
 #: ./migrations/migrate_to_2_3.py:169
 msgid "front_page_title"
-msgstr "Gestion du courrier 3.0"
+msgstr "Gestion du courrier 3.1"
 
 #: ./migrations/migrate_to_2_1.py:197
 #: ./setuphandlers.py:1122
