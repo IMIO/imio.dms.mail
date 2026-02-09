@@ -599,6 +599,7 @@ class ApprovalTableView(BrowserView):
                 approval.approve_file(fobj, signer, c_a=i_signer, transition="propose_to_be_signed")
 
             IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")
+            self.request.response.redirect(self.context.absolute_url())
 
         elif cancel_button:
             self.request.response.redirect(self.context.absolute_url())
