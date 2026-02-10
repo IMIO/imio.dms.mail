@@ -186,3 +186,9 @@ class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
     @property
     def session_listing_url(self):
         return api.portal.get().absolute_url() + "/@@parapheo"
+
+    def collapsible_css_default(self):
+        return "collapsible discreet active"
+
+    def collapsible_content_css_default(self):
+        return "collapsible-content discreet"

@@ -1033,10 +1033,21 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridw
 
 /* session viewlet */
 
+div.faceted-session-info {
+    display: block;
+    float: left;
+    width: 100%;
+    padding-top: 0.5em;
+}
+
+#session-info span {
+    font-weight: bold;
+}
+
 #content #context_viewlet_session_table td,
 #content #context_viewlet_session_signers td {
     padding-bottom: 0px;
-    padding-top: 0px;
+    padding-top: 5px;
 }
 
 #content .faceted-session-info fieldset {
