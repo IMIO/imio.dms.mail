@@ -970,6 +970,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 
                     for suffix in ("editeur", "encodeur"):
                         api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), user=user)
+                        for userid in ("agent", "chef"):
+                            api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), username=userid)
                 else:
                     raise ValueError("Invalid esign value for user '{}': '{}'".format(u_id, esign))
 
