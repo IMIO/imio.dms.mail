@@ -305,11 +305,10 @@ class Migrate_To_3_1(Migrator):  # noqa
                 if message_status("doc", older=timedelta(days=90), to_state="inactive"):
                     logger.info("doc message deactivated")
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
-                if ARCHIVE_SITE:
-                    cssr = self.portal.portal_css
-                    if not cssr.getResource("imiodmsmail_archives.css").getEnabled():
-                        cssr.updateStylesheet("imiodmsmail_archives.css", enabled=True)
-                        cssr.cookResources()
+                cssr = self.portal.portal_css
+                if ARCHIVE_SITE and not cssr.getResource("imiodmsmail_archives.css").getEnabled():
+                    cssr.updateStylesheet("imiodmsmail_archives.css", enabled=True)
+                cssr.cookResources()
                 self.cleanRegistries()
                 # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
                 self.registry["collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete"] = False
