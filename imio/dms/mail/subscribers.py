@@ -765,7 +765,7 @@ def i_annex_removed(obj, event):
         approval = OMApprovalAdapter(obj.__parent__)
         # Removes file from approval process (doesn't fail if not there)
         if not approval.remove_file_from_approval(obj.UID()):
-            approval.remove_pdf_file_from_approval(obj.UID())
+            getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").index()
 
 
 def dmsmainfile_modified(dmf, event):
