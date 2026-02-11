@@ -55,6 +55,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_registry_seal_code
+from imio.esign.utils import remove_files_from_session
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
@@ -760,12 +761,48 @@ def i_annex_removed(obj, event):
     # if event.object.portal_type == "Plone Site":
     #     return
     if not IReferenceable.providedBy(obj):
-        referencedObjectRemoved(obj, event)
+        try:
+            referencedObjectRemoved(obj, event)
+        except TypeError:
+            pass
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
         approval = OMApprovalAdapter(obj.__parent__)
-        # Removes file from approval process (doesn't fail if not there)
-        if not approval.remove_file_from_approval(obj.UID()):
-            approval.remove_pdf_file_from_approval(obj.UID())
+        # Case 1: We are removing a file to be eSigned generated from an ODT template
+        source_uid = getattr(obj, "conv_from_uid", None)
+        if source_uid:
+            file_index = approval.files_uids.index(source_uid)
+            getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").index()
+            source_file = uuidToObject(source_uid, unrestricted=True)
+            if source_file and not approval.pdf_files_uids[file_index]:
+                # Set the source file not to be signed
+                source_file.to_sign = False
+                source_file.to_approve = False
+                category_object = get_category_object(source_file, source_file.content_category)
+                update_categorized_elements(
+                    source_file.__parent__,
+                    source_file,
+                    category_object,
+                    limited=True,
+                    sort=False,
+                    logging=True,
+                )
+                approval.remove_file_from_approval(source_file.UID())
+        # Case 2: We are removing a source file (not the pdf version)
+        else:
+            file_index = approval.files_uids.index(obj.UID())
+            if file_index >= 0:
+                for pdf_uid in approval.pdf_files_uids[file_index]:
+                    pdf_obj = uuidToObject(pdf_uid)
+                    if pdf_obj is not None:
+                        api.content.delete(pdf_obj, check_linkintegrity=False)
+                # The file may be a user-uploaded annex, try to remove it from session
+                remove_files_from_session([obj.UID()])
+            approval.remove_file_from_approval(obj.UID())
+
+        # Check no files to be signed anymore + to_be_signed state
+        if not approval.files_uids and api.content.get_state(obj.__parent__) == "to_be_signed":
+            pw = api.portal.get_tool("portal_workflow")
+            pw.doActionFor(obj.__parent__, "back_to_creation")
 
 
 def dmsmainfile_modified(dmf, event):

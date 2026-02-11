@@ -2,6 +2,8 @@
 from AccessControl import getSecurityManager
 from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_categorized_elements
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
@@ -16,10 +18,12 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
+from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
 from imio.esign.config import get_registry_enabled
+from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import add_attachment
@@ -527,6 +531,21 @@ class ImioExternalSessionCreateView(ExternalSessionCreateView):
         if "esign_watchers" in current_user_groups_ids(user=user):
             return True
         return False
+
+
+class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
+
+    def index(self):
+        # remove from mail approval annotation
+        approval = IOMApproval(self.context.__parent__)
+        approval.remove_pdf_file_from_approval(self.context.UID())
+        # remove from global esign annotation
+        remove_files_from_session([self.context.UID()])
+        self._finished()
+
+    def available(self):
+        approval = IOMApproval(self.context.aq_parent)
+        return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 
 class SigningUsersCsv(BaseSigningUsersCsv):
