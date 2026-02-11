@@ -2,6 +2,8 @@
 from AccessControl import getSecurityManager
 from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_categorized_elements
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
@@ -16,10 +18,12 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
+from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
 from imio.esign.config import get_registry_enabled
+from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import add_attachment
@@ -527,6 +531,56 @@ class ImioExternalSessionCreateView(ExternalSessionCreateView):
         if "esign_watchers" in current_user_groups_ids(user=user):
             return True
         return False
+
+
+class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
+
+    def index(self):
+        # remove from mail approval annotation
+        approval = IOMApproval(self.context.__parent__)
+        approval.remove_pdf_file_from_approval(self.context.UID())
+        # remove from global esign annotation
+        remove_files_from_session([self.context.UID()])
+
+        # Set the file not to be signed not to be signed if was generated
+        original_file = uuidToObject(getattr(self.context, "conv_from_uid", None), unrestricted=True)
+        if original_file:
+            import ipdb; ipdb.set_trace()  # to check if we can remove the pdf file and update the original file in one transaction
+            api.content.delete(self.context)  # Delete the pdf file
+            original_file.to_sign = False
+            original_file.to_approve = False
+            category_object = get_category_object(original_file, original_file.content_category)
+            update_categorized_elements(
+                original_file.__parent__,
+                original_file,
+                category_object,
+                limited=True,
+                sort=False,
+                logging=True
+            )
+        else:
+            self.context.to_sign = False
+            self.context.to_approve = False
+            category_object = get_category_object(self.context, self.context.content_category)
+            update_categorized_elements(
+                self.context.__parent__,
+                self.context,
+                category_object,
+                limited=True,
+                sort=False,
+                logging=True
+            )
+
+        # Check no files to be signed anymore + to_be_signed state
+        if not approval.files_uids and api.content.get_state(self.context.__parent__) == "to_be_signed":
+            pw = api.portal.get_tool("portal_workflow")
+            pw.doActionFor(self.context.__parent__, "back_to_creation")
+
+        self._finished()
+
+    def available(self):
+        approval = IOMApproval(self.context.aq_parent)
+        return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 
 class SigningUsersCsv(BaseSigningUsersCsv):
